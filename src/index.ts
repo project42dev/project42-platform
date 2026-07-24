@@ -6,6 +6,7 @@ export {
 } from "./catalog.js";
 export { scoreKnowledgeCheck } from "./assessment.js";
 export {
+  buildAssessmentHistory,
   buildTranscript,
   createEmptyProgress,
   deriveBadges,
@@ -22,6 +23,7 @@ export {
 
 export type { AssessmentResult, QuestionFeedback } from "./assessment.js";
 export type {
+  AssessmentHistoryEntry,
   AssessmentAttempt,
   EarnedBadge,
   LearnerProgress,

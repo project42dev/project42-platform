@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 import {
+  buildAssessmentHistory,
   buildPortableLearnerRecord,
   buildTranscriptCsv,
   buildTranscript,
@@ -94,10 +95,15 @@ test("records attempts idempotently and builds a transcript", () => {
   const once = recordAssessmentAttempt(createEmptyProgress(), starterCatalog, input);
   const twice = recordAssessmentAttempt(once, starterCatalog, input);
   const transcript = buildTranscript(starterCatalog, twice);
+  const history = buildAssessmentHistory(starterCatalog, twice);
 
   assert.equal(twice.attempts.length, 1);
   assert.deepEqual(twice.completedModuleIds, [module.id]);
   assert.equal(transcript[0].completedModules, 1);
+  assert.equal(history.length, 1);
+  assert.equal(history[0].moduleTitle, module.title);
+  assert.equal(history[0].scorePercent, 100);
+  assert.equal(history[0].passed, true);
 });
 
 test("exports a portable learner record and spreadsheet-safe transcript", () => {
@@ -115,12 +121,41 @@ test("exports a portable learner record and spreadsheet-safe transcript", () => 
   assert.deepEqual(validatePortableLearnerRecord(record), { valid: true, errors: [] });
   assert.equal(record.catalogVersion, starterCatalog.contentVersion);
   assert.equal(record.transcript.length, starterCatalog.paths.length);
-  assert.match(csv, /Path,Completed modules/);
+  assert.match(csv, /Path,Module,Completed modules/);
   assert.match(csv, /AI Foundations/);
   assert.deepEqual(restorePortableLearnerRecord(record, starterCatalog), {
     valid: true,
     progress,
   });
+});
+
+test("exports individual assessment attempts in the transcript CSV", () => {
+  const path = starterCatalog.paths[0];
+  const module = starterCatalog.modules.find(
+    (candidate) => candidate.id === path.moduleIds[0],
+  );
+  assert.ok(module);
+  const result = scoreKnowledgeCheck(
+    module.knowledgeCheck.questions,
+    Object.fromEntries(
+      module.knowledgeCheck.questions.map((question) => [
+        question.id,
+        question.answerIndex,
+      ]),
+    ),
+    module.knowledgeCheck.passPercent,
+  );
+  const progress = recordAssessmentAttempt(createEmptyProgress(), starterCatalog, {
+    attemptId: "attempt-csv",
+    pathId: path.id,
+    moduleId: module.id,
+    completedAt: "2026-07-23T12:00:00.000Z",
+    result,
+  });
+  const csv = buildTranscriptCsv(starterCatalog, progress);
+
+  assert.ok(csv.includes(module.title));
+  assert.match(csv, /2026-07-23T12:00:00.000Z,100,Yes,0.3.0/);
 });
 
 test("rejects incompatible learner-record exports", () => {

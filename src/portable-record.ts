@@ -1,4 +1,9 @@
-import { buildTranscript, type LearnerProgress, type TranscriptEntry } from "./progress.js";
+import {
+  buildAssessmentHistory,
+  buildTranscript,
+  type LearnerProgress,
+  type TranscriptEntry,
+} from "./progress.js";
 import type { Catalog } from "./schema.js";
 
 export interface PortableLearnerRecordV1 {
@@ -50,22 +55,52 @@ export function buildTranscriptCsv(
   catalog: Catalog,
   progress: LearnerProgress,
 ): string {
+  const transcript = buildTranscript(catalog, progress);
+  const history = buildAssessmentHistory(catalog, progress);
   const rows = [
     [
       "Path",
+      "Module",
       "Completed modules",
       "Total modules",
-      "Completion percent",
-      "Best score percent",
+      "Path completion percent",
+      "Attempt completed at",
+      "Score percent",
+      "Passed",
+      "Content version",
     ],
-    ...buildTranscript(catalog, progress).map((entry) => [
-      entry.pathTitle,
-      String(entry.completedModules),
-      String(entry.totalModules),
-      String(entry.completionPercent),
-      entry.bestScorePercent === null ? "" : String(entry.bestScorePercent),
-    ]),
   ];
+
+  for (const path of transcript) {
+    const attempts = history.filter((attempt) => attempt.pathId === path.pathId);
+    if (attempts.length === 0) {
+      rows.push([
+        path.pathTitle,
+        "",
+        String(path.completedModules),
+        String(path.totalModules),
+        String(path.completionPercent),
+        "",
+        "",
+        "",
+        "",
+      ]);
+      continue;
+    }
+    for (const attempt of attempts) {
+      rows.push([
+        path.pathTitle,
+        attempt.moduleTitle,
+        String(path.completedModules),
+        String(path.totalModules),
+        String(path.completionPercent),
+        attempt.completedAt,
+        String(attempt.scorePercent),
+        attempt.passed ? "Yes" : "No",
+        attempt.contentVersion,
+      ]);
+    }
+  }
 
   return `${rows.map((row) => row.map(escapeCsvCell).join(",")).join("\r\n")}\r\n`;
 }

@@ -38,6 +38,18 @@ export interface TranscriptEntry {
   bestScorePercent: number | null;
 }
 
+export interface AssessmentHistoryEntry {
+  attemptId: string;
+  pathId: string;
+  pathTitle: string;
+  moduleId: string;
+  moduleTitle: string;
+  scorePercent: number;
+  passed: boolean;
+  completedAt: string;
+  contentVersion: string;
+}
+
 export function createEmptyProgress(displayName = "Explorer"): LearnerProgress {
   return {
     schemaVersion: 1,
@@ -139,4 +151,28 @@ export function buildTranscript(
       bestScorePercent,
     };
   });
+}
+
+export function buildAssessmentHistory(
+  catalog: Catalog,
+  progress: LearnerProgress,
+): AssessmentHistoryEntry[] {
+  const pathTitles = new Map(catalog.paths.map((path) => [path.id, path.title]));
+  const moduleTitles = new Map(
+    catalog.modules.map((module) => [module.id, module.title]),
+  );
+
+  return progress.attempts
+    .map((attempt) => ({
+      attemptId: attempt.id,
+      pathId: attempt.pathId,
+      pathTitle: pathTitles.get(attempt.pathId) ?? attempt.pathId,
+      moduleId: attempt.moduleId,
+      moduleTitle: moduleTitles.get(attempt.moduleId) ?? attempt.moduleId,
+      scorePercent: attempt.scorePercent,
+      passed: attempt.passed,
+      completedAt: attempt.completedAt,
+      contentVersion: attempt.contentVersion,
+    }))
+    .sort((left, right) => right.completedAt.localeCompare(left.completedAt));
 }
