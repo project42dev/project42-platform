@@ -15,6 +15,16 @@ export interface PortableRecordValidation {
   errors: string[];
 }
 
+export type PortableRecordRestoreResult =
+  | {
+      valid: true;
+      progress: LearnerProgress;
+    }
+  | {
+      valid: false;
+      errors: string[];
+    };
+
 export function buildPortableLearnerRecord(
   catalog: Catalog,
   progress: LearnerProgress,
@@ -83,11 +93,66 @@ export function validatePortableLearnerRecord(
   if (!isLearnerProgress(value.learner)) {
     errors.push("learner is not a valid version 1 progress record");
   }
-  if (!Array.isArray(value.transcript)) {
-    errors.push("transcript must be an array");
+  if (
+    !Array.isArray(value.transcript) ||
+    !value.transcript.every(isTranscriptEntry)
+  ) {
+    errors.push("transcript must be an array of valid path summaries");
   }
 
   return { valid: errors.length === 0, errors };
+}
+
+export function restorePortableLearnerRecord(
+  value: unknown,
+  catalog: Catalog,
+): PortableRecordRestoreResult {
+  const validation = validatePortableLearnerRecord(value);
+  if (!validation.valid || !isPortableLearnerRecord(value)) {
+    return { valid: false, errors: validation.errors };
+  }
+
+  const errors: string[] = [];
+  if (value.catalogVersion !== catalog.contentVersion) {
+    errors.push(
+      `Record catalog ${value.catalogVersion} is not compatible with catalog ${catalog.contentVersion}`,
+    );
+  }
+
+  const pathIds = new Set(catalog.paths.map((path) => path.id));
+  const moduleToPath = new Map<string, string>();
+  for (const path of catalog.paths) {
+    for (const moduleId of path.moduleIds) moduleToPath.set(moduleId, path.id);
+  }
+
+  for (const pathId of value.learner.startedPathIds) {
+    if (!pathIds.has(pathId)) errors.push(`Record references unknown path ${pathId}`);
+  }
+  for (const moduleId of value.learner.completedModuleIds) {
+    if (!moduleToPath.has(moduleId)) {
+      errors.push(`Record references unknown module ${moduleId}`);
+    }
+  }
+  for (const attempt of value.learner.attempts) {
+    if (!pathIds.has(attempt.pathId)) {
+      errors.push(`Attempt ${attempt.id} references unknown path ${attempt.pathId}`);
+    }
+    const expectedPathId = moduleToPath.get(attempt.moduleId);
+    if (!expectedPathId) {
+      errors.push(`Attempt ${attempt.id} references unknown module ${attempt.moduleId}`);
+    } else if (attempt.pathId !== expectedPathId) {
+      errors.push(
+        `Attempt ${attempt.id} does not match module ${attempt.moduleId}'s learning path`,
+      );
+    }
+  }
+
+  if (errors.length > 0) return { valid: false, errors };
+
+  return {
+    valid: true,
+    progress: structuredClone(value.learner),
+  };
 }
 
 function escapeCsvCell(value: string): string {
@@ -102,12 +167,102 @@ function isLearnerProgress(value: unknown): value is LearnerProgress {
   return (
     value.schemaVersion === 1 &&
     typeof value.displayName === "string" &&
-    Array.isArray(value.startedPathIds) &&
-    Array.isArray(value.completedModuleIds) &&
+    value.displayName.length <= 80 &&
+    isUniqueStringArray(value.startedPathIds) &&
+    isUniqueStringArray(value.completedModuleIds) &&
     Array.isArray(value.attempts) &&
+    value.attempts.every(isAssessmentAttempt) &&
+    hasUniqueIds(value.attempts) &&
     Array.isArray(value.badges) &&
+    value.badges.every(isEarnedBadge) &&
+    hasUniqueIds(value.badges) &&
     isIsoDate(value.updatedAt)
   );
+}
+
+function isPortableLearnerRecord(
+  value: unknown,
+): value is PortableLearnerRecordV1 {
+  return (
+    isRecord(value) &&
+    value.format === "project42/learner-record" &&
+    value.formatVersion === "1.0" &&
+    isIsoDate(value.exportedAt) &&
+    typeof value.catalogVersion === "string" &&
+    isLearnerProgress(value.learner) &&
+    Array.isArray(value.transcript) &&
+    value.transcript.every(isTranscriptEntry)
+  );
+}
+
+function isAssessmentAttempt(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return (
+    isNonEmptyString(value.id) &&
+    isNonEmptyString(value.pathId) &&
+    isNonEmptyString(value.moduleId) &&
+    isNonEmptyString(value.contentVersion) &&
+    typeof value.scorePercent === "number" &&
+    Number.isFinite(value.scorePercent) &&
+    value.scorePercent >= 0 &&
+    value.scorePercent <= 100 &&
+    typeof value.passed === "boolean" &&
+    isIsoDate(value.completedAt)
+  );
+}
+
+function isEarnedBadge(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return (
+    isNonEmptyString(value.id) &&
+    isNonEmptyString(value.name) &&
+    isNonEmptyString(value.description) &&
+    isIsoDate(value.earnedAt) &&
+    isUniqueStringArray(value.evidenceModuleIds)
+  );
+}
+
+function isTranscriptEntry(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return (
+    isNonEmptyString(value.pathId) &&
+    isNonEmptyString(value.pathTitle) &&
+    isNonNegativeInteger(value.completedModules) &&
+    isNonNegativeInteger(value.totalModules) &&
+    typeof value.completionPercent === "number" &&
+    Number.isFinite(value.completionPercent) &&
+    value.completionPercent >= 0 &&
+    value.completionPercent <= 100 &&
+    (value.bestScorePercent === null ||
+      (typeof value.bestScorePercent === "number" &&
+        Number.isFinite(value.bestScorePercent) &&
+        value.bestScorePercent >= 0 &&
+        value.bestScorePercent <= 100))
+  );
+}
+
+function isUniqueStringArray(value: unknown): value is string[] {
+  return (
+    Array.isArray(value) &&
+    value.every(isNonEmptyString) &&
+    new Set(value).size === value.length
+  );
+}
+
+function hasUniqueIds(values: unknown[]): boolean {
+  const ids = values
+    .filter(isRecord)
+    .map((value) => value.id)
+    .filter((id): id is string => typeof id === "string");
+  return ids.length === values.length && new Set(ids).size === ids.length;
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function isNonNegativeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0;
 }
 
 function isIsoDate(value: unknown): value is string {

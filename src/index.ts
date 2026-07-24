@@ -15,6 +15,7 @@ export { validateCatalog } from "./schema.js";
 export {
   buildPortableLearnerRecord,
   buildTranscriptCsv,
+  restorePortableLearnerRecord,
   serializePortableLearnerRecord,
   validatePortableLearnerRecord,
 } from "./portable-record.js";
@@ -28,6 +29,7 @@ export type {
 } from "./progress.js";
 export type {
   PortableLearnerRecordV1,
+  PortableRecordRestoreResult,
   PortableRecordValidation,
 } from "./portable-record.js";
 export type {

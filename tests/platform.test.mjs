@@ -7,6 +7,7 @@ import {
   buildTranscript,
   createEmptyProgress,
   recordAssessmentAttempt,
+  restorePortableLearnerRecord,
   scoreKnowledgeCheck,
   starterCatalog,
   validateCatalog,
@@ -103,6 +104,10 @@ test("exports a portable learner record and spreadsheet-safe transcript", () => 
   assert.equal(record.transcript.length, starterCatalog.paths.length);
   assert.match(csv, /Path,Completed modules/);
   assert.match(csv, /AI Foundations/);
+  assert.deepEqual(restorePortableLearnerRecord(record, starterCatalog), {
+    valid: true,
+    progress,
+  });
 });
 
 test("rejects incompatible learner-record exports", () => {
@@ -123,10 +128,43 @@ test("rejects incompatible learner-record exports", () => {
         "exportedAt must be an ISO date",
         "catalogVersion is required",
         "learner is not a valid version 1 progress record",
-        "transcript must be an array",
+        "transcript must be an array of valid path summaries",
       ],
     },
   );
+});
+
+test("rejects unsafe or catalog-incompatible learner-record restores", () => {
+  const record = buildPortableLearnerRecord(
+    starterCatalog,
+    createEmptyProgress(),
+    "2026-07-23T12:30:00.000Z",
+  );
+  record.learner.attempts.push({
+    id: "unknown-attempt",
+    pathId: "unknown-path",
+    moduleId: "unknown-module",
+    contentVersion: starterCatalog.contentVersion,
+    scorePercent: 100,
+    passed: true,
+    completedAt: "2026-07-23T12:00:00.000Z",
+  });
+
+  const result = restorePortableLearnerRecord(record, starterCatalog);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.includes("unknown path")));
+  assert.ok(result.errors.some((error) => error.includes("unknown module")));
+
+  const malformed = buildPortableLearnerRecord(
+    starterCatalog,
+    createEmptyProgress(),
+    "2026-07-23T12:30:00.000Z",
+  );
+  malformed.learner.displayName = "x".repeat(81);
+  assert.deepEqual(validatePortableLearnerRecord(malformed), {
+    valid: false,
+    errors: ["learner is not a valid version 1 progress record"],
+  });
 });
 
 test("content freshness gate passes current sources and rejects stale ones", () => {
