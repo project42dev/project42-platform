@@ -134,7 +134,7 @@ test("rejects incompatible learner-record exports", () => {
   );
 });
 
-test("rejects unsafe or catalog-incompatible learner-record restores", () => {
+test("rejects unsafe learner records and accepts compatible older catalogs", () => {
   const record = buildPortableLearnerRecord(
     starterCatalog,
     createEmptyProgress(),
@@ -155,6 +155,17 @@ test("rejects unsafe or catalog-incompatible learner-record restores", () => {
   assert.ok(result.errors.some((error) => error.includes("unknown path")));
   assert.ok(result.errors.some((error) => error.includes("unknown module")));
 
+  const compatibleOlderRecord = buildPortableLearnerRecord(
+    starterCatalog,
+    createEmptyProgress(),
+    "2026-07-23T12:30:00.000Z",
+  );
+  compatibleOlderRecord.catalogVersion = "0.0.1";
+  assert.equal(
+    restorePortableLearnerRecord(compatibleOlderRecord, starterCatalog).valid,
+    true,
+  );
+
   const malformed = buildPortableLearnerRecord(
     starterCatalog,
     createEmptyProgress(),
@@ -172,7 +183,7 @@ test("content freshness gate passes current sources and rejects stale ones", () 
   const stale = runFreshnessCheck("2027-07-23");
 
   assert.equal(current.status, 0, current.stderr);
-  assert.match(current.stdout, /Checked 12 references/);
+  assert.match(current.stdout, /Checked 15 references/);
   assert.equal(stale.status, 1);
   assert.match(stale.stderr, /ERROR .* is \d+ days old/);
 });

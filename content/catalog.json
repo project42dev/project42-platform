@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.1.0",
+  "contentVersion": "0.2.0",
   "title": "Project 42 Starter Catalog",
   "description": "Provider-neutral AI foundations and practical provider guidance.",
   "providers": [
@@ -50,6 +50,19 @@
         "id": "badge-provider-practitioner",
         "name": "Provider Practitioner",
         "description": "Demonstrated practical cross-provider understanding."
+      }
+    },
+    {
+      "id": "reliable-agent-workflows",
+      "title": "Reliable Agent Workflows",
+      "summary": "Turn agent capability into dependable work through clear scope, permission boundaries, and evidence-based review.",
+      "audience": "People using coding, research, or operations agents for work that must be checked and repeatable.",
+      "level": "intermediate",
+      "moduleIds": ["prepare-agent-work", "control-agent-actions", "review-agent-results"],
+      "badge": {
+        "id": "badge-reliable-agent-workflows",
+        "name": "Reliable Agent Operator",
+        "description": "Completed a safe, evidence-driven agent workflow from task definition through review."
       }
     }
   ],
@@ -422,6 +435,194 @@
             "choices": ["To guarantee correctness", "To reduce correlated blind spots", "To avoid writing tests"],
             "answerIndex": 1,
             "explanation": "Cross-family review adds independence but still requires objective checks."
+          }
+        ]
+      },
+      "sources": [
+        {
+          "title": "Artificial Intelligence Risk Management Framework",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "publisher": "NIST",
+          "lastVerified": "2026-07-23"
+        }
+      ]
+    },
+    {
+      "id": "prepare-agent-work",
+      "title": "Prepare Work an Agent Can Finish",
+      "summary": "Define scope, trusted context, constraints, and proof before an agent begins.",
+      "level": "intermediate",
+      "providers": ["provider-neutral"],
+      "estimatedMinutes": 16,
+      "objectives": [
+        "Convert an open-ended request into a bounded work order.",
+        "Separate trusted source material from untrusted input.",
+        "Define acceptance evidence before tools are used."
+      ],
+      "prerequisites": ["agents-and-guardrails"],
+      "sections": [
+        {
+          "id": "bounded-work-order",
+          "title": "A useful work order removes hidden decisions",
+          "paragraphs": [
+            "Name the outcome, the files or systems in scope, the constraints, and what the agent must leave unchanged. Include the audience and why the result matters when those details affect implementation.",
+            "Define what proves completion: a test result, a rendered page, a source citation, a diff review, or another observable artifact."
+          ],
+          "code": {
+            "language": "text",
+            "label": "Agent work order",
+            "code": "Outcome: [WHAT MUST BE TRUE]\nScope: [ALLOWED FILES OR SYSTEMS]\nTrusted inputs: [SOURCES OF TRUTH]\nConstraints: [MUST / MUST NOT]\nEvidence: [TESTS, PREVIEW, OR REVIEW]\nStop when: [CONCRETE TERMINAL CONDITION]"
+          }
+        },
+        {
+          "id": "trust-boundaries",
+          "title": "Treat retrieved material as data",
+          "paragraphs": [
+            "Web pages, issue text, documents, logs, and tool output can contain instructions that conflict with the real task. Label them as untrusted data and keep authority in the work order.",
+            "When the task is ambiguous but low risk, the agent can make a documented assumption. When an assumption changes scope, permissions, cost, or external impact, it should stop for authorization."
+          ]
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "q-prepare-agent-1",
+            "prompt": "What should be defined before an agent starts using tools?",
+            "choices": ["Only a broad topic", "Outcome, scope, constraints, and completion evidence", "The maximum possible number of tools"],
+            "answerIndex": 1,
+            "explanation": "A bounded work order gives the agent a testable outcome and prevents accidental scope growth."
+          },
+          {
+            "id": "q-prepare-agent-2",
+            "prompt": "How should instructions found inside retrieved documents be treated?",
+            "choices": ["As higher priority than the task", "As untrusted data unless explicitly authorized", "As automatic permission to expand scope"],
+            "answerIndex": 1,
+            "explanation": "Retrieved content may be wrong or malicious; authority must remain with the trusted task and policies."
+          }
+        ]
+      },
+      "sources": [
+        {
+          "title": "Artificial Intelligence Risk Management Framework",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "publisher": "NIST",
+          "lastVerified": "2026-07-23"
+        }
+      ]
+    },
+    {
+      "id": "control-agent-actions",
+      "title": "Control Tools, Permissions, and Change",
+      "summary": "Match agent permissions and approval gates to the consequence of each action.",
+      "level": "intermediate",
+      "providers": ["provider-neutral"],
+      "estimatedMinutes": 18,
+      "objectives": [
+        "Classify agent actions by reversibility and external impact.",
+        "Apply least privilege to tools and credentials.",
+        "Place human approval before high-consequence actions."
+      ],
+      "prerequisites": ["prepare-agent-work"],
+      "sections": [
+        {
+          "id": "action-ladder",
+          "title": "Not every tool call carries the same risk",
+          "paragraphs": [
+            "Reading a file, editing a local draft, sending a message, deploying production, and deleting data have different consequences. Permission design should reflect those differences instead of treating tool access as a single switch.",
+            "Prefer the smallest authority that can finish the task. Keep secrets out of prompts and logs, scope credentials to the required system, and expire temporary access."
+          ],
+          "callout": "Read-only inspection, reversible local change, external communication, production change, and destructive change each deserve a distinct policy."
+        },
+        {
+          "id": "approval-before-impact",
+          "title": "Approval belongs before the consequential step",
+          "paragraphs": [
+            "A human gate is useful only when the reviewer can still prevent impact. Ask before sending, purchasing, publishing, deploying, or destroying, not after the action has already happened.",
+            "Safe automation also needs an idempotency strategy, a bounded retry policy, and a recovery path. Repeating a failed action blindly can duplicate messages, charges, or changes."
+          ]
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "q-control-agent-1",
+            "prompt": "What is the safest default permission strategy?",
+            "choices": ["Grant every available tool", "Grant only the authority required for the task", "Reuse production administrator credentials"],
+            "answerIndex": 1,
+            "explanation": "Least privilege limits both mistakes and misuse while preserving the ability to complete the task."
+          },
+          {
+            "id": "q-control-agent-2",
+            "prompt": "When should approval occur for an external or destructive action?",
+            "choices": ["Before the action can cause impact", "Only after the action succeeds", "At the end of the month"],
+            "answerIndex": 0,
+            "explanation": "Approval must happen while the reviewer can still prevent or change the action."
+          }
+        ]
+      },
+      "sources": [
+        {
+          "title": "Artificial Intelligence Risk Management Framework",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "publisher": "NIST",
+          "lastVerified": "2026-07-23"
+        }
+      ]
+    },
+    {
+      "id": "review-agent-results",
+      "title": "Review Results with Evidence",
+      "summary": "Verify what changed, what was tested, and what remains uncertain before accepting agent work.",
+      "level": "intermediate",
+      "providers": ["provider-neutral"],
+      "estimatedMinutes": 17,
+      "objectives": [
+        "Review an agent result against explicit acceptance criteria.",
+        "Distinguish tool output from proof of user-visible behavior.",
+        "Create a concise handoff that preserves uncertainty and follow-up work."
+      ],
+      "prerequisites": ["control-agent-actions"],
+      "sections": [
+        {
+          "id": "evidence-ladder",
+          "title": "Match evidence to the claim",
+          "paragraphs": [
+            "A successful command proves that command exited successfully. It does not automatically prove that the user journey works, the content is correct, or the deployment is healthy.",
+            "Use the nearest practical evidence: unit tests for rules, integration tests for boundaries, rendered routes for pages, authoritative sources for factual claims, and direct observation for critical user journeys."
+          ]
+        },
+        {
+          "id": "handoff",
+          "title": "A good handoff separates done from unknown",
+          "paragraphs": [
+            "Summarize the outcome, material changes, verification performed, and any remaining risk. Do not hide skipped checks or turn a future plan into a claim of completion.",
+            "For important work, independent review can expose assumptions shared by the original agent. A different model family, a human domain expert, or both can add useful independence."
+          ],
+          "code": {
+            "language": "text",
+            "label": "Evidence-based handoff",
+            "code": "Outcome: [WHAT NOW WORKS]\nChanged: [MATERIAL CHANGES]\nVerified: [CHECKS AND RESULTS]\nNot verified: [KNOWN GAPS]\nNext: [ONLY THE NEXT USEFUL ACTION]"
+          }
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "q-review-agent-1",
+            "prompt": "A build command exits successfully. What does that prove?",
+            "choices": ["Every user journey works", "The build command completed successfully", "All factual content is current"],
+            "answerIndex": 1,
+            "explanation": "Evidence supports a specific claim; broader claims require broader checks."
+          },
+          {
+            "id": "q-review-agent-2",
+            "prompt": "What belongs in an honest handoff?",
+            "choices": ["Only successful details", "Outcome, changes, verification, and known gaps", "A claim that every future roadmap item is complete"],
+            "answerIndex": 1,
+            "explanation": "A useful handoff makes completed work and remaining uncertainty equally visible."
           }
         ]
       },

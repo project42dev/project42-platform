@@ -113,12 +113,6 @@ export function restorePortableLearnerRecord(
   }
 
   const errors: string[] = [];
-  if (value.catalogVersion !== catalog.contentVersion) {
-    errors.push(
-      `Record catalog ${value.catalogVersion} is not compatible with catalog ${catalog.contentVersion}`,
-    );
-  }
-
   const pathIds = new Set(catalog.paths.map((path) => path.id));
   const moduleToPath = new Map<string, string>();
   for (const path of catalog.paths) {
