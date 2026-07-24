@@ -12,6 +12,12 @@ export {
   recordAssessmentAttempt,
 } from "./progress.js";
 export { validateCatalog } from "./schema.js";
+export {
+  buildPortableLearnerRecord,
+  buildTranscriptCsv,
+  serializePortableLearnerRecord,
+  validatePortableLearnerRecord,
+} from "./portable-record.js";
 
 export type { AssessmentResult, QuestionFeedback } from "./assessment.js";
 export type {
@@ -20,6 +26,10 @@ export type {
   LearnerProgress,
   TranscriptEntry,
 } from "./progress.js";
+export type {
+  PortableLearnerRecordV1,
+  PortableRecordValidation,
+} from "./portable-record.js";
 export type {
   Catalog,
   CodeExample,

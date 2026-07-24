@@ -12,7 +12,7 @@ contracts—not the private PMO records or Project42dev production configuration
 - A typed, validated catalog for resources, learning paths, modules, and checks.
 - Provider-neutral curriculum with Anthropic, OpenAI, and selected-provider branches.
 - Pure assessment scoring and learner-progress functions.
-- Portable transcript and badge derivation.
+- Portable JSON learner-record export, CSV transcripts, and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
 ## Quick start
@@ -26,6 +26,7 @@ npm test
 import {
   starterCatalog,
   createEmptyProgress,
+  buildPortableLearnerRecord,
   scoreKnowledgeCheck,
 } from "@project42/platform";
 ```
@@ -44,5 +45,5 @@ licensed under CC BY 4.0 unless a file says otherwise. See
 
 ## Status
 
-`0.1.x` is an early contract. Schema changes may occur before 1.0 and will be
+`0.x` is an early contract. Schema changes may occur before 1.0 and will be
 recorded in release notes.
