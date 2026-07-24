@@ -11,6 +11,7 @@ export {
   createEmptyProgress,
   deriveBadges,
   recordAssessmentAttempt,
+  recordModuleVisit,
 } from "./progress.js";
 export { validateCatalog } from "./schema.js";
 export {
@@ -27,6 +28,7 @@ export type {
   AssessmentAttempt,
   EarnedBadge,
   LearnerProgress,
+  RecentModule,
   TranscriptEntry,
 } from "./progress.js";
 export type {

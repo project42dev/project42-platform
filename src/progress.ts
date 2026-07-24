@@ -19,6 +19,12 @@ export interface EarnedBadge {
   evidenceModuleIds: string[];
 }
 
+export interface RecentModule {
+  pathId: string;
+  moduleId: string;
+  visitedAt: string;
+}
+
 export interface LearnerProgress {
   schemaVersion: 1;
   displayName: string;
@@ -26,6 +32,7 @@ export interface LearnerProgress {
   completedModuleIds: string[];
   attempts: AssessmentAttempt[];
   badges: EarnedBadge[];
+  recentModule?: RecentModule;
   updatedAt: string;
 }
 
@@ -105,6 +112,38 @@ export function recordAssessmentAttempt(
     attempts,
     badges,
     updatedAt: input.completedAt,
+  };
+}
+
+export function recordModuleVisit(
+  progress: LearnerProgress,
+  catalog: Catalog,
+  input: {
+    pathId: string;
+    moduleId: string;
+    visitedAt: string;
+  },
+): LearnerProgress {
+  const path = catalog.paths.find((candidate) => candidate.id === input.pathId);
+  if (!path || !path.moduleIds.includes(input.moduleId)) {
+    throw new Error(
+      `Module ${input.moduleId} does not belong to learning path ${input.pathId}`,
+    );
+  }
+
+  const startedPathIds = progress.startedPathIds.includes(input.pathId)
+    ? progress.startedPathIds
+    : [...progress.startedPathIds, input.pathId];
+
+  return {
+    ...progress,
+    startedPathIds,
+    recentModule: {
+      pathId: input.pathId,
+      moduleId: input.moduleId,
+      visitedAt: input.visitedAt,
+    },
+    updatedAt: input.visitedAt,
   };
 }
 

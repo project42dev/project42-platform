@@ -8,6 +8,7 @@ import {
   buildTranscript,
   createEmptyProgress,
   recordAssessmentAttempt,
+  recordModuleVisit,
   restorePortableLearnerRecord,
   scoreKnowledgeCheck,
   starterCatalog,
@@ -104,6 +105,33 @@ test("records attempts idempotently and builds a transcript", () => {
   assert.equal(history[0].moduleTitle, module.title);
   assert.equal(history[0].scorePercent, 100);
   assert.equal(history[0].passed, true);
+});
+
+test("records a recent module visit without completing the lesson", () => {
+  const path = starterCatalog.paths[0];
+  const moduleId = path.moduleIds[0];
+  const visited = recordModuleVisit(createEmptyProgress(), starterCatalog, {
+    pathId: path.id,
+    moduleId,
+    visitedAt: "2026-07-23T13:00:00.000Z",
+  });
+
+  assert.deepEqual(visited.startedPathIds, [path.id]);
+  assert.deepEqual(visited.completedModuleIds, []);
+  assert.deepEqual(visited.recentModule, {
+    pathId: path.id,
+    moduleId,
+    visitedAt: "2026-07-23T13:00:00.000Z",
+  });
+  assert.throws(
+    () =>
+      recordModuleVisit(visited, starterCatalog, {
+        pathId: path.id,
+        moduleId: "not-in-this-path",
+        visitedAt: "2026-07-23T13:01:00.000Z",
+      }),
+    /does not belong/,
+  );
 });
 
 test("exports a portable learner record and spreadsheet-safe transcript", () => {

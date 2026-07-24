@@ -175,6 +175,17 @@ export function restorePortableLearnerRecord(
       );
     }
   }
+  if (value.learner.recentModule) {
+    const recent = value.learner.recentModule;
+    const expectedPathId = moduleToPath.get(recent.moduleId);
+    if (!expectedPathId) {
+      errors.push(`Record references unknown recent module ${recent.moduleId}`);
+    } else if (recent.pathId !== expectedPathId) {
+      errors.push(
+        `Recent module ${recent.moduleId} does not match its learning path`,
+      );
+    }
+  }
 
   if (errors.length > 0) return { valid: false, errors };
 
@@ -205,6 +216,7 @@ function isLearnerProgress(value: unknown): value is LearnerProgress {
     Array.isArray(value.badges) &&
     value.badges.every(isEarnedBadge) &&
     hasUniqueIds(value.badges) &&
+    (value.recentModule === undefined || isRecentModule(value.recentModule)) &&
     isIsoDate(value.updatedAt)
   );
 }
@@ -248,6 +260,15 @@ function isEarnedBadge(value: unknown): boolean {
     isNonEmptyString(value.description) &&
     isIsoDate(value.earnedAt) &&
     isUniqueStringArray(value.evidenceModuleIds)
+  );
+}
+
+function isRecentModule(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return (
+    isNonEmptyString(value.pathId) &&
+    isNonEmptyString(value.moduleId) &&
+    isIsoDate(value.visitedAt)
   );
 }
 
