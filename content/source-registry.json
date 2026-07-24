@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0",
+  "sources": [
+    {
+      "id": "nist-ai-rmf",
+      "urlPrefix": "https://www.nist.gov/itl/ai-risk-management-framework",
+      "publisher": "NIST",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "anthropic-docs",
+      "urlPrefix": "https://docs.anthropic.com/",
+      "publisher": "Anthropic",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-anthropic"
+    },
+    {
+      "id": "anthropic-research",
+      "urlPrefix": "https://www.anthropic.com/research/",
+      "publisher": "Anthropic",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "provider-anthropic"
+    },
+    {
+      "id": "openai-platform-docs",
+      "urlPrefix": "https://platform.openai.com/docs/",
+      "publisher": "OpenAI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-openai"
+    },
+    {
+      "id": "openai-developer-docs",
+      "urlPrefix": "https://developers.openai.com/",
+      "publisher": "OpenAI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-openai"
+    }
+  ]
+}

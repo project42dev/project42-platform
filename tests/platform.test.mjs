@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import test from "node:test";
 import {
   buildPortableLearnerRecord,
@@ -127,3 +128,21 @@ test("rejects incompatible learner-record exports", () => {
     },
   );
 });
+
+test("content freshness gate passes current sources and rejects stale ones", () => {
+  const current = runFreshnessCheck("2026-07-23");
+  const stale = runFreshnessCheck("2027-07-23");
+
+  assert.equal(current.status, 0, current.stderr);
+  assert.match(current.stdout, /Checked 12 references/);
+  assert.equal(stale.status, 1);
+  assert.match(stale.stderr, /ERROR .* is \d+ days old/);
+});
+
+function runFreshnessCheck(asOf) {
+  return spawnSync(process.execPath, ["scripts/check-freshness.mjs"], {
+    cwd: process.cwd(),
+    encoding: "utf8",
+    env: { ...process.env, PROJECT42_AS_OF: asOf },
+  });
+}

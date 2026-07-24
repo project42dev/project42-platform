@@ -10,6 +10,7 @@ contracts—not the private PMO records or Project42dev production configuration
 ## Included
 
 - A typed, validated catalog for resources, learning paths, modules, and checks.
+- A primary-source registry and freshness gate for volatile content.
 - Provider-neutral curriculum with Anthropic, OpenAI, and selected-provider branches.
 - Pure assessment scoring and learner-progress functions.
 - Portable JSON learner-record export, CSV transcripts, and badge derivation.
@@ -19,7 +20,7 @@ contracts—not the private PMO records or Project42dev production configuration
 
 ```bash
 npm ci
-npm test
+npm run check
 ```
 
 ```ts
