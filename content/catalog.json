@@ -1,0 +1,564 @@
+{
+  "schemaVersion": "1.0",
+  "contentVersion": "0.1.0",
+  "title": "Project 42 Starter Catalog",
+  "description": "Provider-neutral AI foundations and practical provider guidance.",
+  "providers": [
+    {
+      "id": "provider-neutral",
+      "name": "Core concepts",
+      "description": "Ideas that apply across AI products and model providers."
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic",
+      "description": "Claude products, APIs, and agent workflows."
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "description": "ChatGPT, OpenAI APIs, and Codex workflows."
+    },
+    {
+      "id": "google",
+      "name": "Google",
+      "description": "Gemini products and cross-provider comparisons."
+    }
+  ],
+  "paths": [
+    {
+      "id": "ai-foundations",
+      "title": "AI Foundations",
+      "summary": "Build a clear mental model of AI, prompts, and agents without assuming technical experience.",
+      "audience": "People starting with AI or filling foundational gaps.",
+      "level": "beginner",
+      "moduleIds": ["what-ai-does", "prompt-with-purpose", "agents-and-guardrails"],
+      "badge": {
+        "id": "badge-ai-foundations",
+        "name": "AI Foundations",
+        "description": "Completed the AI Foundations path and its knowledge checks."
+      }
+    },
+    {
+      "id": "providers-in-practice",
+      "title": "Providers in Practice",
+      "summary": "Learn what transfers across providers and where Anthropic, OpenAI, and Google workflows differ.",
+      "audience": "Practitioners choosing tools or supporting a mixed-provider team.",
+      "level": "intermediate",
+      "moduleIds": ["anthropic-in-practice", "openai-in-practice", "choose-a-provider"],
+      "badge": {
+        "id": "badge-provider-practitioner",
+        "name": "Provider Practitioner",
+        "description": "Demonstrated practical cross-provider understanding."
+      }
+    }
+  ],
+  "modules": [
+    {
+      "id": "what-ai-does",
+      "title": "What AI Does—and Does Not Do",
+      "summary": "Understand models as pattern-driven systems, not databases or people.",
+      "level": "beginner",
+      "providers": ["provider-neutral"],
+      "estimatedMinutes": 12,
+      "objectives": [
+        "Explain the difference between a model and a search database.",
+        "Recognize why confident output can still be wrong.",
+        "Choose when verification is required."
+      ],
+      "prerequisites": [],
+      "sections": [
+        {
+          "id": "models-predict",
+          "title": "Models produce likely continuations",
+          "paragraphs": [
+            "A language model learns patterns from large collections of examples. Given instructions and context, it generates a useful continuation one piece at a time.",
+            "That makes models excellent at explaining, transforming, drafting, classifying, and reasoning over supplied material. It does not make every output a stored fact."
+          ],
+          "callout": "Treat fluent language as a delivery style, not proof of correctness."
+        },
+        {
+          "id": "verify-by-risk",
+          "title": "Verification should match the stakes",
+          "paragraphs": [
+            "Brainstorming can tolerate uncertainty. Medical, legal, financial, security, and production decisions require current authoritative evidence.",
+            "Good AI use combines a clear task, relevant context, constraints, and a way to verify the result."
+          ]
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "q-ai-foundation-1",
+            "prompt": "Which statement best describes a language model?",
+            "choices": [
+              "A guaranteed database of current facts",
+              "A system that generates outputs from learned patterns and supplied context",
+              "A human expert stored inside software"
+            ],
+            "answerIndex": 1,
+            "explanation": "Models generate from patterns and context; fluent output is not a guarantee of factual accuracy."
+          },
+          {
+            "id": "q-ai-foundation-2",
+            "prompt": "When should verification be strongest?",
+            "choices": [
+              "When the decision has high consequences",
+              "Only when the answer is short",
+              "Only when a model admits uncertainty"
+            ],
+            "answerIndex": 0,
+            "explanation": "Verification effort should increase with consequence, volatility, and uncertainty."
+          }
+        ]
+      },
+      "sources": [
+        {
+          "title": "Artificial Intelligence Risk Management Framework",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "publisher": "NIST",
+          "lastVerified": "2026-07-23"
+        }
+      ]
+    },
+    {
+      "id": "prompt-with-purpose",
+      "title": "Prompt with Purpose",
+      "summary": "Turn a vague request into a task an AI system can execute and you can evaluate.",
+      "level": "beginner",
+      "providers": ["provider-neutral"],
+      "estimatedMinutes": 15,
+      "objectives": [
+        "Write prompts with a goal, context, constraints, and output contract.",
+        "Separate trusted instructions from untrusted input.",
+        "Define a useful stopping condition."
+      ],
+      "prerequisites": ["what-ai-does"],
+      "sections": [
+        {
+          "id": "prompt-contract",
+          "title": "A prompt is a working contract",
+          "paragraphs": [
+            "Strong prompts say what outcome is needed, why it matters, what information is trustworthy, what boundaries apply, and what a successful response looks like.",
+            "The model should not have to guess the audience, format, source of truth, or definition of done."
+          ],
+          "code": {
+            "language": "text",
+            "label": "Reusable prompt shape",
+            "code": "Goal: [OUTCOME]\nContext: [TRUSTED FACTS]\nConstraints: [BOUNDARIES]\nDeliverable: [FORMAT]\nVerify: [CHECKS]"
+          }
+        },
+        {
+          "id": "iterate",
+          "title": "Inspect, correct, and reuse",
+          "paragraphs": [
+            "Prompting is iterative. Inspect the result, identify the missing constraint or context, and improve the reusable instruction instead of repeatedly requesting a vague improvement."
+          ]
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "q-prompt-1",
+            "prompt": "Which addition most improves an ambiguous request?",
+            "choices": ["More adjectives", "A concrete outcome and acceptance criteria", "A request to be creative"],
+            "answerIndex": 1,
+            "explanation": "A testable outcome and acceptance criteria reduce guesswork and make evaluation possible."
+          },
+          {
+            "id": "q-prompt-2",
+            "prompt": "Why separate trusted context from untrusted content?",
+            "choices": [
+              "To make the prompt longer",
+              "To reduce instruction confusion and prompt-injection risk",
+              "To force a specific provider"
+            ],
+            "answerIndex": 1,
+            "explanation": "Clear trust boundaries help the system treat data as data rather than new instructions."
+          }
+        ]
+      },
+      "sources": [
+        {
+          "title": "Prompt engineering guide",
+          "url": "https://platform.openai.com/docs/guides/prompt-engineering",
+          "publisher": "OpenAI",
+          "lastVerified": "2026-07-23"
+        },
+        {
+          "title": "Prompt engineering overview",
+          "url": "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-07-23"
+        }
+      ]
+    },
+    {
+      "id": "agents-and-guardrails",
+      "title": "Agents, Tools, and Guardrails",
+      "summary": "Understand what changes when a model can take actions.",
+      "level": "beginner",
+      "providers": ["provider-neutral"],
+      "estimatedMinutes": 18,
+      "objectives": [
+        "Distinguish a chat response from an agentic loop.",
+        "Identify tool, permission, and verification boundaries.",
+        "Recognize when human approval is required."
+      ],
+      "prerequisites": ["prompt-with-purpose"],
+      "sections": [
+        {
+          "id": "agent-loop",
+          "title": "An agent observes, decides, acts, and checks",
+          "paragraphs": [
+            "An agent combines a model with tools and a loop. It can inspect state, choose an action, use a tool, evaluate the result, and continue toward a goal.",
+            "Capability increases risk. Read access, file edits, messages, deployments, and destructive operations should have different permission and approval policies."
+          ]
+        },
+        {
+          "id": "guardrails",
+          "title": "Guardrails belong around the model",
+          "paragraphs": [
+            "Reliable agent systems constrain tools, scope credentials, validate inputs and outputs, record actions, and stop for human decisions when consequences are difficult to reverse."
+          ],
+          "callout": "The model can recommend a safeguard; the surrounding system must enforce it."
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "q-agent-1",
+            "prompt": "What makes an AI workflow agentic?",
+            "choices": ["It uses a large model", "It can choose and execute actions in a loop", "It returns formatted text"],
+            "answerIndex": 1,
+            "explanation": "Agentic systems combine model decisions, tools, state, and repeated action toward a goal."
+          },
+          {
+            "id": "q-agent-2",
+            "prompt": "Where should irreversible-action approval be enforced?",
+            "choices": ["Only in the prompt", "In the surrounding tool and permission system", "In the model name"],
+            "answerIndex": 1,
+            "explanation": "Prompts guide behavior, but external controls enforce permissions and approval."
+          }
+        ]
+      },
+      "sources": [
+        {
+          "title": "Building effective agents",
+          "url": "https://www.anthropic.com/research/building-effective-agents",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-07-23"
+        }
+      ]
+    },
+    {
+      "id": "anthropic-in-practice",
+      "title": "Anthropic in Practice",
+      "summary": "Map Claude chat, API, and coding-agent workflows to the right job.",
+      "level": "intermediate",
+      "providers": ["anthropic"],
+      "estimatedMinutes": 18,
+      "objectives": [
+        "Separate conversational, API, and coding-agent use cases.",
+        "Choose context and tool boundaries deliberately.",
+        "Verify current model and product availability."
+      ],
+      "prerequisites": ["agents-and-guardrails"],
+      "sections": [
+        {
+          "id": "anthropic-surfaces",
+          "title": "One provider, several operating surfaces",
+          "paragraphs": [
+            "Claude can be used through conversational products, APIs, and coding-agent tools. These surfaces differ in authentication, billing, context packaging, tools, and operational control.",
+            "Choose the surface from the workflow: interactive thinking, application integration, or repository execution."
+          ]
+        },
+        {
+          "id": "anthropic-current",
+          "title": "Treat model details as volatile",
+          "paragraphs": [
+            "Model names, context limits, pricing, and regional availability change. Link to current official documentation instead of embedding long-lived routing rules without a verification date."
+          ]
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "q-anthropic-1",
+            "prompt": "What should drive the choice between chat, API, and coding agent?",
+            "choices": ["The longest product name", "The workflow, control, and integration requirements", "A single default for every task"],
+            "answerIndex": 1,
+            "explanation": "The operating surface should match how the work is performed and controlled."
+          },
+          {
+            "id": "q-anthropic-2",
+            "prompt": "How should volatile model details be presented?",
+            "choices": ["Without dates", "With official sources and verification dates", "As permanent platform rules"],
+            "answerIndex": 1,
+            "explanation": "Source links and verification dates make changing claims auditable."
+          }
+        ]
+      },
+      "sources": [
+        {
+          "title": "Claude documentation",
+          "url": "https://docs.anthropic.com/",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-07-23"
+        }
+      ]
+    },
+    {
+      "id": "openai-in-practice",
+      "title": "OpenAI in Practice",
+      "summary": "Understand conversational, API, and Codex workflows without conflating them.",
+      "level": "intermediate",
+      "providers": ["openai"],
+      "estimatedMinutes": 18,
+      "objectives": [
+        "Separate ChatGPT, API, and Codex use cases.",
+        "Design around tools and structured outputs.",
+        "Verify current models and platform behavior."
+      ],
+      "prerequisites": ["agents-and-guardrails"],
+      "sections": [
+        {
+          "id": "openai-surfaces",
+          "title": "Match the product surface to the job",
+          "paragraphs": [
+            "Conversational products support direct knowledge work, APIs integrate model behavior into software, and coding agents work across repositories and development tools.",
+            "Authentication, data controls, billing, and tool availability vary across these surfaces."
+          ]
+        },
+        {
+          "id": "openai-structured",
+          "title": "Applications need contracts",
+          "paragraphs": [
+            "When software consumes model output, use structured contracts, validation, retries, and observable failure behavior instead of parsing unconstrained prose."
+          ]
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "q-openai-1",
+            "prompt": "What is the safest way for software to consume model output?",
+            "choices": ["Parse whatever prose appears", "Use a structured contract and validate it", "Assume every response has the same shape"],
+            "answerIndex": 1,
+            "explanation": "Structured, validated output creates an explicit application boundary."
+          },
+          {
+            "id": "q-openai-2",
+            "prompt": "Why distinguish ChatGPT, API, and Codex workflows?",
+            "choices": ["They have different operating and control models", "They always use unrelated providers", "There is no practical difference"],
+            "answerIndex": 0,
+            "explanation": "The surfaces differ in interaction, integration, permissions, and operations."
+          }
+        ]
+      },
+      "sources": [
+        {
+          "title": "OpenAI developer documentation",
+          "url": "https://platform.openai.com/docs/",
+          "publisher": "OpenAI",
+          "lastVerified": "2026-07-23"
+        },
+        {
+          "title": "Codex documentation",
+          "url": "https://developers.openai.com/codex/",
+          "publisher": "OpenAI",
+          "lastVerified": "2026-07-23"
+        }
+      ]
+    },
+    {
+      "id": "choose-a-provider",
+      "title": "Choose a Provider Deliberately",
+      "summary": "Use requirements and evaluation evidence instead of loyalty or a static leaderboard.",
+      "level": "intermediate",
+      "providers": ["provider-neutral", "anthropic", "openai", "google"],
+      "estimatedMinutes": 20,
+      "objectives": [
+        "Create a task-specific provider evaluation.",
+        "Include security, data, cost, and operational requirements.",
+        "Use different model families when independent review matters."
+      ],
+      "prerequisites": ["anthropic-in-practice", "openai-in-practice"],
+      "sections": [
+        {
+          "id": "decision-criteria",
+          "title": "Start from the work",
+          "paragraphs": [
+            "Evaluate providers against representative tasks, quality rubrics, latency, total cost, context needs, tool support, data controls, deployment requirements, and team operations.",
+            "A provider can be best for one workflow and a poor fit for another."
+          ]
+        },
+        {
+          "id": "independence",
+          "title": "Independence can improve review",
+          "paragraphs": [
+            "For important review, a different model family can reduce correlated blind spots. Independence does not replace tests or expert judgment, but it adds a useful perspective."
+          ]
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "q-provider-1",
+            "prompt": "What is the strongest provider-selection method?",
+            "choices": ["A general leaderboard alone", "Task-specific evaluation plus operational requirements", "Whichever provider was selected first"],
+            "answerIndex": 1,
+            "explanation": "Representative tasks and operational constraints measure fit for the actual workflow."
+          },
+          {
+            "id": "q-provider-2",
+            "prompt": "Why use a different model family for important review?",
+            "choices": ["To guarantee correctness", "To reduce correlated blind spots", "To avoid writing tests"],
+            "answerIndex": 1,
+            "explanation": "Cross-family review adds independence but still requires objective checks."
+          }
+        ]
+      },
+      "sources": [
+        {
+          "title": "Artificial Intelligence Risk Management Framework",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "publisher": "NIST",
+          "lastVerified": "2026-07-23"
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "id": "ai-glossary",
+      "title": "AI Glossary",
+      "summary": "Plain-language definitions for models, prompts, context, agents, tools, retrieval, and evaluations.",
+      "category": "Reference",
+      "level": "beginner",
+      "providers": ["provider-neutral"],
+      "lastVerified": "2026-07-23",
+      "tags": ["glossary", "concepts", "beginner"],
+      "sections": [
+        {
+          "id": "glossary-core",
+          "title": "Core terms",
+          "paragraphs": [
+            "Model: a system that generates or evaluates outputs from learned patterns and current input.",
+            "Prompt: instructions and context supplied to a model.",
+            "Context window: the limited working material available for one interaction.",
+            "Agent: a model-driven system that can select tools and act in a loop.",
+            "Evaluation: a repeatable method for measuring output against explicit criteria."
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "title": "Artificial Intelligence Risk Management Framework",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "publisher": "NIST",
+          "lastVerified": "2026-07-23"
+        }
+      ]
+    },
+    {
+      "id": "prompt-checklist",
+      "title": "Prompt Checklist",
+      "summary": "A compact preflight for tasks, context, constraints, output, and verification.",
+      "category": "Checklist",
+      "level": "beginner",
+      "providers": ["provider-neutral"],
+      "lastVerified": "2026-07-23",
+      "tags": ["prompting", "checklist", "daily-use"],
+      "sections": [
+        {
+          "id": "prompt-preflight",
+          "title": "Before you send",
+          "paragraphs": [
+            "State the outcome and audience.",
+            "Supply the trusted context and source of truth.",
+            "Name constraints, exclusions, and permissions.",
+            "Specify the output format.",
+            "Define how the result will be checked."
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "title": "Prompt engineering overview",
+          "url": "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-07-23"
+        }
+      ]
+    },
+    {
+      "id": "agent-safety-checklist",
+      "title": "Agent Safety Checklist",
+      "summary": "Permission, data, verification, logging, and rollback questions before an agent acts.",
+      "category": "Checklist",
+      "level": "intermediate",
+      "providers": ["provider-neutral"],
+      "lastVerified": "2026-07-23",
+      "tags": ["agents", "safety", "operations"],
+      "sections": [
+        {
+          "id": "agent-preflight",
+          "title": "Before granting tools",
+          "paragraphs": [
+            "Limit tools and credentials to the task.",
+            "Separate read, reversible write, external communication, and destructive permissions.",
+            "Validate untrusted input and tool output.",
+            "Record material actions.",
+            "Require human approval and rollback for high-consequence changes."
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "title": "Artificial Intelligence Risk Management Framework",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "publisher": "NIST",
+          "lastVerified": "2026-07-23"
+        }
+      ]
+    },
+    {
+      "id": "provider-decision-card",
+      "title": "Provider Decision Card",
+      "summary": "A reusable comparison card for quality, cost, data, tools, and operations.",
+      "category": "Decision tool",
+      "level": "intermediate",
+      "providers": ["anthropic", "openai", "google"],
+      "lastVerified": "2026-07-23",
+      "tags": ["providers", "models", "evaluation"],
+      "sections": [
+        {
+          "id": "provider-scorecard",
+          "title": "Score the actual workflow",
+          "paragraphs": [
+            "Representative task quality and failure modes.",
+            "Latency, throughput, and total cost.",
+            "Context, tool use, and structured output.",
+            "Data handling, identity, region, and compliance.",
+            "SDK, observability, support, and team familiarity."
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "title": "Artificial Intelligence Risk Management Framework",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "publisher": "NIST",
+          "lastVerified": "2026-07-23"
+        }
+      ]
+    }
+  ]
+}

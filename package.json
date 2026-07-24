@@ -1,0 +1,40 @@
+{
+  "name": "@project42/platform",
+  "version": "0.1.0",
+  "description": "Open-source content, assessment, and learning-record core for Project 42.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "content",
+    "LICENSE",
+    "LICENSE-CONTENT.md",
+    "README.md"
+  ],
+  "scripts": {
+    "generate": "node scripts/generate-catalog.mjs",
+    "build": "npm run generate && tsc -p tsconfig.json",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "check": "npm test",
+    "prepare": "npm run build"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  },
+  "license": "Apache-2.0",
+  "keywords": ["ai", "learning", "education", "assessment", "open-source"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/project42dev/project42-platform.git"
+  }
+}
