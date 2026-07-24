@@ -131,6 +131,7 @@ export function validateCatalog(catalog: Catalog): ValidationResult {
     validateProviders(module.providers, providerIds, `Module ${module.id}`, errors);
     if (module.objectives.length === 0) errors.push(`Module ${module.id} has no objectives`);
     if (module.sections.length === 0) errors.push(`Module ${module.id} has no sections`);
+    validateSections(module.sections, `Module ${module.id}`, errors);
     if (module.sources.length === 0) errors.push(`Module ${module.id} has no sources`);
     if (module.knowledgeCheck.questions.length === 0) {
       errors.push(`Module ${module.id} has no knowledge check`);
@@ -166,6 +167,7 @@ export function validateCatalog(catalog: Catalog): ValidationResult {
     register(resource.id, `Resource ${resource.title}`);
     validateProviders(resource.providers, providerIds, `Resource ${resource.id}`, errors);
     if (resource.sections.length === 0) errors.push(`Resource ${resource.id} has no sections`);
+    validateSections(resource.sections, `Resource ${resource.id}`, errors);
     if (resource.sources.length === 0) errors.push(`Resource ${resource.id} has no sources`);
     if (!isDateOnly(resource.lastVerified)) {
       errors.push(`Resource ${resource.id} has an invalid lastVerified date`);
@@ -179,7 +181,62 @@ export function validateCatalog(catalog: Catalog): ValidationResult {
     }
   }
 
+  validatePrerequisiteCycles(catalog.modules, errors);
+
   return { valid: errors.length === 0, errors };
+}
+
+function validateSections(
+  sections: LessonSection[],
+  location: string,
+  errors: string[],
+) {
+  const sectionIds = new Set<string>();
+  for (const section of sections) {
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(section.id)) {
+      errors.push(`${location} has an invalid section id: ${section.id}`);
+    }
+    if (sectionIds.has(section.id)) {
+      errors.push(`${location} has duplicate section id ${section.id}`);
+    }
+    sectionIds.add(section.id);
+    if (section.paragraphs.length === 0 || section.paragraphs.some((text) => !text.trim())) {
+      errors.push(`${location} section ${section.id} needs non-empty paragraphs`);
+    }
+    if (
+      section.code &&
+      (!section.code.language.trim() ||
+        !section.code.label.trim() ||
+        !section.code.code.trim())
+    ) {
+      errors.push(`${location} section ${section.id} has an incomplete code example`);
+    }
+  }
+}
+
+function validatePrerequisiteCycles(
+  modules: LearningModule[],
+  errors: string[],
+) {
+  const byId = new Map(modules.map((module) => [module.id, module]));
+  const visited = new Set<string>();
+  const active = new Set<string>();
+
+  const visit = (moduleId: string) => {
+    if (active.has(moduleId)) {
+      errors.push(`Prerequisite cycle includes module ${moduleId}`);
+      return;
+    }
+    if (visited.has(moduleId)) return;
+    visited.add(moduleId);
+    active.add(moduleId);
+    for (const prerequisite of byId.get(moduleId)?.prerequisites ?? []) {
+      if (byId.has(prerequisite)) visit(prerequisite);
+    }
+    active.delete(moduleId);
+  };
+
+  for (const module of modules) visit(module.id);
 }
 
 function validateProviders(

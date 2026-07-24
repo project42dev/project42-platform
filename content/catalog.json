@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.2.0",
+  "contentVersion": "0.3.0",
   "title": "Project 42 Starter Catalog",
   "description": "Provider-neutral AI foundations and practical provider guidance.",
   "providers": [
@@ -750,6 +750,139 @@
             "Data handling, identity, region, and compliance.",
             "SDK, observability, support, and team familiarity."
           ]
+        }
+      ],
+      "sources": [
+        {
+          "title": "Artificial Intelligence Risk Management Framework",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "publisher": "NIST",
+          "lastVerified": "2026-07-23"
+        }
+      ]
+    },
+    {
+      "id": "daily-ai-task-starter",
+      "title": "Daily AI Task Starter",
+      "summary": "A reusable prompt and working loop for turning ordinary work into a clear, verifiable AI task.",
+      "category": "How-to",
+      "level": "beginner",
+      "providers": ["provider-neutral"],
+      "lastVerified": "2026-07-23",
+      "tags": ["prompting", "workflow", "template", "daily-use"],
+      "sections": [
+        {
+          "id": "task-starter-template",
+          "title": "Start with a useful contract",
+          "paragraphs": [
+            "Replace each bracketed field with concrete information. Delete fields that do not apply instead of leaving placeholders for the model to guess.",
+            "For factual work, name the source of truth. For consequential work, include the required verification before accepting the result."
+          ],
+          "code": {
+            "language": "text",
+            "label": "Copyable daily task prompt",
+            "code": "Outcome: [WHAT I NEED]\nAudience: [WHO WILL USE IT]\nTrusted context: [FACTS, FILES, OR LINKS]\nConstraints: [MUST, MUST NOT, SCOPE]\nDeliverable: [FORMAT AND LEVEL OF DETAIL]\nVerify: [HOW TO CHECK THE RESULT]\nStop when: [DEFINITION OF DONE]"
+          }
+        },
+        {
+          "id": "task-starter-loop",
+          "title": "Work in a short evidence loop",
+          "paragraphs": [
+            "Ask for a first complete attempt, inspect the result against the stated outcome, then correct the missing context or constraint. Save the improved instruction when the task will recur.",
+            "Do not ask for endless polishing. Stop when the acceptance evidence passes or when a named uncertainty needs a person, a source, or a different tool."
+          ],
+          "callout": "A reusable prompt improves when you fix the instruction that caused the miss, not only the current output."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Prompt engineering overview",
+          "url": "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-07-23"
+        },
+        {
+          "title": "Prompt engineering guide",
+          "url": "https://platform.openai.com/docs/guides/prompt-engineering",
+          "publisher": "OpenAI",
+          "lastVerified": "2026-07-23"
+        }
+      ]
+    },
+    {
+      "id": "context-budget-playbook",
+      "title": "Context Budget Playbook",
+      "summary": "Keep long AI sessions focused by loading the smallest useful working set and refreshing stale context deliberately.",
+      "category": "How-to",
+      "level": "intermediate",
+      "providers": ["provider-neutral", "anthropic", "openai"],
+      "lastVerified": "2026-07-23",
+      "tags": ["context", "tokens", "sessions", "workflow"],
+      "sections": [
+        {
+          "id": "working-set",
+          "title": "Build a working set, not a document pile",
+          "paragraphs": [
+            "Give the model the instructions, source material, examples, and current state needed for the next decision. Large unrelated attachments compete for attention and make it harder to identify the source of truth.",
+            "Summarize stable decisions separately from raw exploration. Keep exact source text only when wording, code, or evidence must remain precise."
+          ]
+        },
+        {
+          "id": "refresh-context",
+          "title": "Refresh when history becomes stale",
+          "paragraphs": [
+            "Long sessions accumulate rejected ideas, superseded requirements, and tool output. Create a short handoff containing the goal, decisions, current state, verification, and next action before starting a clean session.",
+            "Do not compress away unresolved risks or user feedback. A useful handoff preserves why a decision was made, not only the final choice."
+          ],
+          "code": {
+            "language": "text",
+            "label": "Clean-session handoff",
+            "code": "Goal: [CURRENT OUTCOME]\nDecisions: [CHOICES AND WHY]\nCurrent state: [WHAT EXISTS NOW]\nVerified: [CHECKS THAT PASSED]\nOpen risks: [UNCERTAINTY TO PRESERVE]\nNext action: [ONE CONCRETE STEP]"
+          }
+        }
+      ],
+      "sources": [
+        {
+          "title": "Prompt engineering overview",
+          "url": "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-07-23"
+        },
+        {
+          "title": "Prompt engineering guide",
+          "url": "https://platform.openai.com/docs/guides/prompt-engineering",
+          "publisher": "OpenAI",
+          "lastVerified": "2026-07-23"
+        }
+      ]
+    },
+    {
+      "id": "verification-ladder",
+      "title": "AI Output Verification Ladder",
+      "summary": "Choose a level of checking that matches the claim, uncertainty, and consequence of the work.",
+      "category": "Decision tool",
+      "level": "beginner",
+      "providers": ["provider-neutral"],
+      "lastVerified": "2026-07-23",
+      "tags": ["verification", "quality", "risk", "checklist"],
+      "sections": [
+        {
+          "id": "verification-levels",
+          "title": "Match the check to the consequence",
+          "paragraphs": [
+            "Low consequence: read for usefulness, internal consistency, and obvious mistakes.",
+            "Moderate consequence: compare against the supplied source, run examples or tests, and inspect edge cases.",
+            "High consequence: use current authoritative sources, independent review, domain expertise, and direct evidence from the real system."
+          ]
+        },
+        {
+          "id": "claim-evidence",
+          "title": "Ask what the evidence actually proves",
+          "paragraphs": [
+            "A citation proves only what its source supports. A passing unit test proves only the behavior covered by that test. A successful deployment proves only that deployment completed.",
+            "Before accepting a broad claim, list its smaller claims and attach the nearest practical evidence to each one."
+          ],
+          "callout": "Fluency, confidence, and a successful tool call are signals. None is a substitute for evidence."
         }
       ],
       "sources": [

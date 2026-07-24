@@ -13,8 +13,11 @@ contracts—not the private PMO records or Project42dev production configuration
 - A primary-source registry and freshness gate for volatile content.
 - Provider-neutral curriculum with Anthropic, OpenAI, and selected-provider branches.
 - Pure assessment scoring and learner-progress functions.
-- Portable JSON learner-record export, CSV transcripts, and badge derivation.
+- Portable JSON learner-record backup/restore, CSV transcripts, and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
+
+See [Content authoring](docs/content-authoring.md) to add paths, modules, checks,
+and field-guide resources without changing application code.
 
 ## Quick start
 
@@ -28,6 +31,7 @@ import {
   starterCatalog,
   createEmptyProgress,
   buildPortableLearnerRecord,
+  restorePortableLearnerRecord,
   scoreKnowledgeCheck,
 } from "@project42/platform";
 ```

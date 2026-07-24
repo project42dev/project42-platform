@@ -23,7 +23,10 @@ test("catalog validation catches broken references and unsafe source metadata", 
   broken.paths[0].moduleIds.push("missing-module");
   broken.modules[0].providers = [];
   broken.modules[0].sources[0].url = "http://example.com/source";
+  broken.modules[0].sections.push(structuredClone(broken.modules[0].sections[0]));
+  broken.modules[0].prerequisites = ["prompt-with-purpose"];
   broken.resources[0].lastVerified = "next Thursday";
+  broken.modules[1].prerequisites = ["what-ai-does"];
 
   const validation = validateCatalog(broken);
   assert.equal(validation.valid, false);
@@ -41,6 +44,16 @@ test("catalog validation catches broken references and unsafe source metadata", 
   assert.ok(
     validation.errors.includes(
       "Resource ai-glossary has an invalid lastVerified date",
+    ),
+  );
+  assert.ok(
+    validation.errors.includes(
+      "Module what-ai-does has duplicate section id models-predict",
+    ),
+  );
+  assert.ok(
+    validation.errors.includes(
+      "Prerequisite cycle includes module what-ai-does",
     ),
   );
 });
@@ -183,7 +196,7 @@ test("content freshness gate passes current sources and rejects stale ones", () 
   const stale = runFreshnessCheck("2027-07-23");
 
   assert.equal(current.status, 0, current.stderr);
-  assert.match(current.stdout, /Checked 15 references/);
+  assert.match(current.stdout, /Checked 20 references/);
   assert.equal(stale.status, 1);
   assert.match(stale.stderr, /ERROR .* is \d+ days old/);
 });
