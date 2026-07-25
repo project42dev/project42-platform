@@ -26,7 +26,7 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.27.0");
+  assert.equal(starterCatalog.contentVersion, "0.28.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
@@ -527,6 +527,100 @@ test("provider workflow references keep credentials, execution, and recovery bou
     assert.ok(text.includes(required), `provider workflow pack must cover ${required}`);
   }
   assert.doesNotMatch(text, /\bsk-[a-z0-9_-]{12,}\b/i);
+  assert.doesNotMatch(text, /(?:api[_ -]?key|authorization)\s*[:=]\s*["'][^$[<]/i);
+  assert.doesNotMatch(text, /(?:users[\\/][^\\/]+|[a-z]:\\users\\)/i);
+});
+
+test("publishes five source-backed Google and cross-provider workflow references", () => {
+  const expected = new Map([
+    ["google-gemini-interactions-api-request", ["playbook", ["google"]]],
+    ["google-gemini-tools-structured-output", ["reference", ["google"]]],
+    ["google-gemini-evaluation-error-triage", ["playbook", ["google"]]],
+    [
+      "cross-provider-runtime-configuration",
+      ["template", ["provider-neutral", "anthropic", "openai", "google"]],
+    ],
+    [
+      "cross-provider-evaluation-migration-workflow",
+      ["playbook", ["provider-neutral", "anthropic", "openai", "google"]],
+    ],
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    expected.has(resource.id),
+  );
+
+  assert.ok(starterCatalog.resources.length >= 40);
+  assert.equal(resources.length, expected.size);
+  for (const resource of resources) {
+    const [format, providers] = expected.get(resource.id);
+    assert.equal(resource.format, format);
+    assert.deepEqual(resource.providers, providers);
+    assert.ok(resource.prerequisites.length > 0);
+    assert.equal(resource.owner, "project42-editorial");
+    assert.equal(resource.reviewCadenceDays, 30);
+    assert.equal(resource.lastVerified, "2026-07-25");
+    assert.equal(resource.sections.length, 3);
+    assert.ok(
+      resource.sections.some((section) => section.code?.code.includes("[")),
+      `${resource.id} must include a reusable example or evidence record`,
+    );
+    assert.ok(resource.sources.length >= 3);
+    assert.ok(
+      resource.sources.every((source) => source.lastVerified === "2026-07-25"),
+    );
+  }
+});
+
+test("Google and cross-provider workflows preserve state, capability, and migration boundaries", () => {
+  const ids = new Set([
+    "google-gemini-interactions-api-request",
+    "google-gemini-tools-structured-output",
+    "google-gemini-evaluation-error-triage",
+    "cross-provider-runtime-configuration",
+    "cross-provider-evaluation-migration-workflow",
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    ids.has(resource.id),
+  );
+  const text = resources
+    .flatMap((resource) => [
+      resource.summary,
+      ...resource.prerequisites,
+      ...resource.sections.flatMap((section) => [
+        section.title,
+        ...section.paragraphs,
+        section.callout ?? "",
+        section.code?.code ?? "",
+      ]),
+    ])
+    .join("\n");
+  const normalized = text.toLowerCase();
+
+  for (const resource of resources) {
+    assert.ok(hasVerificationGuidance(resource), `${resource.id} verification`);
+    assert.ok(hasRecoveryGuidance(resource), `${resource.id} recovery`);
+    assert.deepEqual(findUnsafeArtifactCommands(resource), []);
+  }
+  for (const required of [
+    "GEMINI_API_KEY",
+    "PROJECT42_GEMINI_MODEL",
+    "PROJECT42_GEMINI_API_VERSION",
+    "ANTHROPIC_API_KEY",
+    "OPENAI_API_KEY",
+    "false one-to-one",
+    "state",
+    "retention",
+    "capability",
+    "evaluation",
+    "rollback",
+    "reconcile",
+  ]) {
+    assert.ok(
+      normalized.includes(required.toLowerCase()),
+      `Google/cross-provider pack must cover ${required}`,
+    );
+  }
+  assert.doesNotMatch(text, /\b(?:AIza|sk-|ghp_)[a-z0-9_-]{12,}\b/i);
   assert.doesNotMatch(text, /(?:api[_ -]?key|authorization)\s*[:=]\s*["'][^$[<]/i);
   assert.doesNotMatch(text, /(?:users[\\/][^\\/]+|[a-z]:\\users\\)/i);
 });

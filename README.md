@@ -21,6 +21,14 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.33.0` adds three current Gemini Interactions API references and two
+portable cross-provider workflows. The release covers first requests, functions,
+structured output, evaluation and error triage, runtime configuration, and
+evaluation-led migration without claiming false API equivalence. All five
+resources include environment-only credentials, explicit state and retention
+choices, expected evidence, verification, bounded recovery, and current
+first-party sources.
+
 Release `0.32.0` adds six source-backed Anthropic and OpenAI workflow
 references for first API requests, schema-constrained outputs and tools,
 evaluation, and error triage. Copyable examples use environment-only
