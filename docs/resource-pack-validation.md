@@ -5,7 +5,8 @@ Project 42 groups related field guides in versioned manifests under
 exact resource files and IDs in the pack, required provider coverage, and minimum
 source count. Packs can additionally require an exact count, explicit verification
 and recovery guidance, and reusable artifacts that reject common destructive
-command patterns.
+command patterns. A pack can declare `requiredArtifactFields` when every
+resource's reusable artifact must expose the same named operational fields.
 
 Provider-specific packs can declare `providerProfiles`. Each profile is an exact
 provider set plus an exact resource count, and every resource must match one
@@ -32,6 +33,7 @@ The gate verifies:
 - optional pack-specific verification and rollback/recovery guidance;
 - optional reusable-artifact checks for recursive deletion, destructive Git
   reset/clean, download-to-shell pipelines, and PowerShell expression execution;
+- optional exact reusable-artifact fields such as owner and stop entries;
 - allowlisted primary-source families and valid, non-future review dates within
   each resource cadence; and
 - common credential and private-key patterns.
@@ -68,6 +70,12 @@ For the troubleshooting and operations playbooks:
 
 ```bash
 npm run sources:links -- troubleshooting-operations-playbooks
+```
+
+For the consolidated evaluation, safety, troubleshooting, and operations gate:
+
+```bash
+npm run sources:links -- evaluation-safety-operations
 ```
 
 The live command follows redirects, uses bounded concurrency and timeouts, retries

@@ -4,9 +4,11 @@ import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 import { loadCatalog } from "./load-catalog.mjs";
 import {
+  findMissingArtifactFields,
   findUnsafeArtifactCommands,
   hasRecoveryGuidance,
   hasVerificationGuidance,
+  normalizeRequiredArtifactFields,
 } from "./resource-pack-rules.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -81,6 +83,12 @@ async function validateManifest(manifest) {
   ) {
     errors.push(`${location} contains duplicate resource roots`);
   }
+  const requiredArtifactFields = normalizeRequiredArtifactFields(
+    manifest.requiredArtifactFields,
+  );
+  if (!requiredArtifactFields.valid) {
+    errors.push(`${location} has invalid required artifact fields`);
+  }
 
   const packResources = manifest.resourceIds
     .map((id) => resourcesById.get(id))
@@ -150,6 +158,14 @@ async function validateManifest(manifest) {
     }
     if (!resource.sections.some((section) => section.code?.code.trim())) {
       errors.push(`${location} resource ${resource.id} lacks a reusable artifact`);
+    }
+    for (const field of findMissingArtifactFields(
+      resource,
+      requiredArtifactFields.fields,
+    )) {
+      errors.push(
+        `${location} resource ${resource.id} artifact lacks required field ${field}`,
+      );
     }
     if (
       manifest.requiredGuidance?.verification &&

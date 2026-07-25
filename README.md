@@ -21,6 +21,13 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.37.0` adds the consolidated acceptance gate for all ten evaluation,
+safety, troubleshooting, and operations playbooks. Exact membership spans both
+resource roots and requires provider-neutral scope, current primary sources,
+verification and recovery guidance, safe reusable artifacts, and explicit
+owner/cadence and stop-criteria fields in every operational record, plus a
+separate expected-evidence verification section.
+
 Release `0.36.0` adds five provider-neutral troubleshooting and operations
 playbooks for AI API failures, agent-tool failures, context or quality
 regressions, incident triage, and rollback with closeout. Each decision path

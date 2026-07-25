@@ -47,6 +47,24 @@ export function hasRecoveryGuidance(resource) {
   );
 }
 
+export function normalizeRequiredArtifactFields(value) {
+  const fields = value ?? [];
+  const valid =
+    Array.isArray(fields) &&
+    !fields.some(
+      (field) => typeof field !== "string" || field.trim().length === 0,
+    ) &&
+    new Set(fields).size === fields.length;
+  return { valid, fields: valid ? fields : [] };
+}
+
+export function findMissingArtifactFields(resource, requiredFields) {
+  const artifactText = resource.sections
+    .map((section) => section.code?.code ?? "")
+    .join("\n");
+  return requiredFields.filter((field) => !artifactText.includes(field));
+}
+
 function normalizeShellLayout(value) {
   return value
     .replace(/\\\r?\n/g, " ")
