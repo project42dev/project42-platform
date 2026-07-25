@@ -10,6 +10,14 @@
       "owner": "curriculum"
     },
     {
+      "id": "nist-genai-profile",
+      "urlPrefix": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
+      "publisher": "NIST",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
       "id": "anthropic-docs",
       "urlPrefix": "https://docs.anthropic.com/",
       "publisher": "Anthropic",
@@ -23,6 +31,14 @@
       "publisher": "Anthropic",
       "trustTier": "primary",
       "reviewCadenceDays": 90,
+      "owner": "provider-anthropic"
+    },
+    {
+      "id": "anthropic-platform-docs",
+      "urlPrefix": "https://platform.claude.com/docs/",
+      "publisher": "Anthropic",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
       "owner": "provider-anthropic"
     },
     {
@@ -40,6 +56,14 @@
       "trustTier": "primary",
       "reviewCadenceDays": 30,
       "owner": "provider-openai"
+    },
+    {
+      "id": "google-responsible-ai",
+      "urlPrefix": "https://ai.google.dev/responsible",
+      "publisher": "Google",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "provider-google"
     }
   ]
 }

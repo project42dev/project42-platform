@@ -1,9 +1,10 @@
 # Content authoring
 
-Project 42 keeps its starter curriculum in
-[`content/catalog.json`](../content/catalog.json). Hosted and self-hosted
-applications consume the same validated catalog, so adding ordinary learning
-content does not require an application-code change.
+Project 42 keeps catalog metadata and the original curriculum in
+[`content/catalog.json`](../content/catalog.json). New modules live as individual
+JSON documents under `content/modules/<path>/`. The build merges those files into
+one typed catalog consumed by hosted and self-hosted applications, so adding
+ordinary learning content does not require an application-code change.
 
 ## Choose the content type
 
@@ -20,12 +21,19 @@ Every published module must include:
 - a scored knowledge check with explanations; and
 - at least one primary source with its verification date.
 
+Substantive curriculum modules also include a hands-on `activity` with observable
+evidence and an `instructorScript`. The script is canonical content for future
+virtual-instructor packages; it does not require a player. It contains versioned,
+stable cues for narration, visuals, learner prompts, checkpoints, and the assessment
+handoff. Visual cues require an accessibility alternative.
+
 Every resource needs the same stable identity, sections, providers, source
 metadata, and search tags. Resources do not create learner completion records.
 
 ## Authoring workflow
 
-1. Add or edit the item in `content/catalog.json`.
+1. Add or edit catalog metadata in `content/catalog.json`, or create one module
+   document under `content/modules/<path>/`.
 2. Reuse an existing provider ID. Add a new provider only when the platform type
    and site presentation are ready for it.
 3. Use a registered primary source from `content/source-registry.json`. When a
