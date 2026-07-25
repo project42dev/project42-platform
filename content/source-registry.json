@@ -64,6 +64,14 @@
       "trustTier": "primary",
       "reviewCadenceDays": 90,
       "owner": "provider-google"
+    },
+    {
+      "id": "google-ai-developer-docs",
+      "urlPrefix": "https://ai.google.dev/gemini-api/docs/",
+      "publisher": "Google",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-google"
     }
   ]
 }
