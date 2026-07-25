@@ -104,6 +104,22 @@
       "trustTier": "primary",
       "reviewCadenceDays": 30,
       "owner": "provider-google"
+    },
+    {
+      "id": "opentelemetry-docs",
+      "urlPrefix": "https://opentelemetry.io/",
+      "publisher": "OpenTelemetry",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "nist-incident-response",
+      "urlPrefix": "https://www.nist.gov/publications/incident-response-recommendations-and-considerations-cybersecurity-risk-management-csf",
+      "publisher": "NIST",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
     }
   ]
 }
