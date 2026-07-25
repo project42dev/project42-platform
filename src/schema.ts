@@ -70,11 +70,38 @@ export interface CapstoneRubricCriterion {
   evidenceRequired: string[];
 }
 
+export interface CapstoneExemplarArtifact {
+  ref: string;
+  label: string;
+  content: string;
+}
+
+export interface CapstoneExemplarCriterionScore {
+  criterionId: string;
+  pointsAwarded: number;
+  evidenceRefs: string[];
+  reviewerNote: string;
+}
+
+export interface CapstoneExemplar {
+  id: string;
+  kind: "complete" | "flawed";
+  title: string;
+  summary: string;
+  artifacts: CapstoneExemplarArtifact[];
+  criterionScores: CapstoneExemplarCriterionScore[];
+  expectedScorePercent: number;
+  expectedPassed: boolean;
+}
+
 export interface CapstoneDefinition {
   id: string;
   title: string;
   summary: string;
   requiredArtifacts: string[];
+  requiresCriterionEvidence?: boolean;
+  requiresCalibrationExemplars?: boolean;
+  exemplars?: CapstoneExemplar[];
   rubric: {
     passPercent: number;
     criteria: CapstoneRubricCriterion[];
@@ -264,9 +291,10 @@ function validateCapstone(
   }
   if (
     capstone.requiredArtifacts.length === 0 ||
-    capstone.requiredArtifacts.some((artifact) => !artifact.trim())
+    capstone.requiredArtifacts.some((artifact) => !artifact.trim()) ||
+    new Set(capstone.requiredArtifacts).size !== capstone.requiredArtifacts.length
   ) {
-    errors.push(`Module ${moduleId} capstone needs required artifacts`);
+    errors.push(`Module ${moduleId} capstone needs unique required artifacts`);
   }
   if (
     capstone.rubric.passPercent < 0 ||
@@ -299,6 +327,105 @@ function validateCapstone(
   }
   if (totalPoints !== 100) {
     errors.push(`Module ${moduleId} capstone rubric must total 100 points`);
+  }
+
+  validateCapstoneExemplars(capstone, moduleId, errors, register);
+}
+
+function validateCapstoneExemplars(
+  capstone: CapstoneDefinition,
+  moduleId: string,
+  errors: string[],
+  register: (id: string, location: string) => void,
+) {
+  const exemplars = capstone.exemplars ?? [];
+  if (
+    capstone.requiresCalibrationExemplars &&
+    (exemplars.length !== 2 ||
+      exemplars.filter((exemplar) => exemplar.kind === "complete").length !== 1 ||
+      exemplars.filter((exemplar) => exemplar.kind === "flawed").length !== 1)
+  ) {
+    errors.push(
+      `Module ${moduleId} capstone needs one complete and one flawed calibration exemplar`,
+    );
+  }
+
+  const criteria = new Map(
+    capstone.rubric.criteria.map((criterion) => [criterion.id, criterion]),
+  );
+  for (const exemplar of exemplars) {
+    register(exemplar.id, `Capstone exemplar in ${moduleId}`);
+    if (!exemplar.title.trim() || !exemplar.summary.trim()) {
+      errors.push(`Capstone exemplar ${exemplar.id} needs a title and summary`);
+    }
+
+    const artifactRefs = exemplar.artifacts.map((artifact) => artifact.ref);
+    const coversRequiredArtifacts = capstone.requiredArtifacts.every(
+      (required) =>
+        artifactRefs.some(
+          (reference) =>
+            reference === required || reference.endsWith(`/${required}`),
+        ),
+    );
+    if (
+      exemplar.artifacts.length < capstone.requiredArtifacts.length ||
+      new Set(artifactRefs).size !== artifactRefs.length ||
+      !coversRequiredArtifacts ||
+      exemplar.artifacts.some(
+        (artifact) =>
+          !artifact.ref.trim() || !artifact.label.trim() || !artifact.content.trim(),
+      )
+    ) {
+      errors.push(
+        `Capstone exemplar ${exemplar.id} needs unique, complete required artifacts`,
+      );
+    }
+
+    const scoredIds = exemplar.criterionScores.map((score) => score.criterionId);
+    if (
+      exemplar.criterionScores.length !== criteria.size ||
+      new Set(scoredIds).size !== scoredIds.length
+    ) {
+      errors.push(
+        `Capstone exemplar ${exemplar.id} must score every rubric criterion once`,
+      );
+    }
+
+    let awarded = 0;
+    for (const score of exemplar.criterionScores) {
+      const criterion = criteria.get(score.criterionId);
+      awarded += score.pointsAwarded;
+      if (
+        !criterion ||
+        !Number.isInteger(score.pointsAwarded) ||
+        score.pointsAwarded < 0 ||
+        score.pointsAwarded > criterion.maxPoints ||
+        !score.reviewerNote.trim() ||
+        score.evidenceRefs.length === 0 ||
+        new Set(score.evidenceRefs).size !== score.evidenceRefs.length ||
+        score.evidenceRefs.some(
+          (reference) =>
+            !reference.trim() || !artifactRefs.includes(reference),
+        )
+      ) {
+        errors.push(
+          `Capstone exemplar ${exemplar.id} has invalid evidence for criterion ${score.criterionId}`,
+        );
+      }
+    }
+
+    const expectedScore = Math.round(awarded);
+    const expectedPassed = expectedScore >= capstone.rubric.passPercent;
+    if (
+      exemplar.expectedScorePercent !== expectedScore ||
+      exemplar.expectedPassed !== expectedPassed ||
+      (exemplar.kind === "complete" && !expectedPassed) ||
+      (exemplar.kind === "flawed" && expectedPassed)
+    ) {
+      errors.push(
+        `Capstone exemplar ${exemplar.id} has inconsistent calibration results`,
+      );
+    }
   }
 }
 

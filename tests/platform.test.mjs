@@ -20,9 +20,9 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.9.0");
+  assert.equal(starterCatalog.contentVersion, "0.10.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
-  assert.equal(starterCatalog.modules.length, 30);
+  assert.equal(starterCatalog.modules.length, 31);
 });
 
 test("AI Foundations preserves its prerequisite chain and varied answer positions", () => {
@@ -75,6 +75,21 @@ test("validates capstone contracts and rejects an incomplete rubric", () => {
   assert.ok(
     validation.errors.includes(
       "Module ai-foundations-capstone capstone rubric must total 100 points",
+    ),
+  );
+
+  const unrelated = structuredClone(starterCatalog);
+  const reliableCapstone = unrelated.modules.find(
+    (candidate) => candidate.id === "reliable-agent-capstone",
+  );
+  assert.ok(reliableCapstone?.capstone?.exemplars);
+  reliableCapstone.capstone.exemplars[0].artifacts[0].ref =
+    "complete/unrelated-artifact.md";
+  const unrelatedValidation = validateCatalog(unrelated);
+  assert.equal(unrelatedValidation.valid, false);
+  assert.ok(
+    unrelatedValidation.errors.includes(
+      "Capstone exemplar reliable-capstone-complete-exemplar needs unique, complete required artifacts",
     ),
   );
 });
@@ -167,7 +182,7 @@ test("publishes the evaluation observability and operations curriculum unit", ()
     (candidate) => candidate.id === "reliable-agent-workflows",
   );
   assert.ok(path);
-  assert.deepEqual(path.moduleIds.slice(8), [
+  assert.deepEqual(path.moduleIds.slice(8, 11), [
     "agent-evaluation",
     "agent-observability",
     "review-agent-results",
@@ -176,7 +191,7 @@ test("publishes the evaluation observability and operations curriculum unit", ()
   const modules = new Map(
     starterCatalog.modules.map((module) => [module.id, module]),
   );
-  for (const [index, moduleId] of path.moduleIds.slice(8).entries()) {
+  for (const [index, moduleId] of path.moduleIds.slice(8, 11).entries()) {
     const module = modules.get(moduleId);
     assert.ok(module);
     assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
@@ -199,6 +214,41 @@ test("publishes the evaluation observability and operations curriculum unit", ()
       `${moduleId} must require ${expectedPrerequisite}`,
     );
   }
+});
+
+test("publishes a calibrated evidence-mapped reliable-agent capstone", () => {
+  const path = starterCatalog.paths.find(
+    (candidate) => candidate.id === "reliable-agent-workflows",
+  );
+  const module = starterCatalog.modules.find(
+    (candidate) => candidate.id === "reliable-agent-capstone",
+  );
+  assert.ok(path);
+  assert.ok(module?.capstone);
+  assert.equal(path.moduleIds.length, 12);
+  assert.equal(path.moduleIds.at(-1), module.id);
+  assert.ok(module.prerequisites.includes("review-agent-results"));
+  assert.equal(module.sections.length, 6);
+  assert.equal(module.knowledgeCheck.questions.length, 5);
+  assert.equal(module.instructorScript?.schemaVersion, "1.1");
+  assert.equal(module.capstone.requiredArtifacts.length, 8);
+  assert.equal(module.capstone.requiresCriterionEvidence, true);
+  assert.equal(module.capstone.requiresCalibrationExemplars, true);
+  assert.equal(
+    module.capstone.rubric.criteria.reduce(
+      (total, criterion) => total + criterion.maxPoints,
+      0,
+    ),
+    100,
+  );
+
+  const exemplars = new Map(
+    module.capstone.exemplars.map((exemplar) => [exemplar.kind, exemplar]),
+  );
+  assert.equal(exemplars.get("complete")?.expectedScorePercent, 100);
+  assert.equal(exemplars.get("complete")?.expectedPassed, true);
+  assert.equal(exemplars.get("flawed")?.expectedScorePercent, 31);
+  assert.equal(exemplars.get("flawed")?.expectedPassed, false);
 });
 
 test("rejects incomplete instructor caption and transcript packages", () => {
@@ -508,6 +558,117 @@ test("rejects capstone submissions with missing artifacts or invalid scores", ()
   );
 });
 
+test("requires reliable-capstone criterion evidence and preserves revisions", () => {
+  const path = starterCatalog.paths.find(
+    (candidate) => candidate.id === "reliable-agent-workflows",
+  );
+  const module = starterCatalog.modules.find(
+    (candidate) => candidate.id === "reliable-agent-capstone",
+  );
+  assert.ok(path);
+  assert.ok(module?.capstone);
+
+  const result = scoreKnowledgeCheck(
+    module.knowledgeCheck.questions,
+    Object.fromEntries(
+      module.knowledgeCheck.questions.map((question) => [
+        question.id,
+        question.answerIndex,
+      ]),
+    ),
+    module.knowledgeCheck.passPercent,
+  );
+  const afterCheck = recordAssessmentAttempt(
+    createEmptyProgress("Agent operator"),
+    starterCatalog,
+    {
+      attemptId: "attempt-reliable-capstone-check",
+      pathId: path.id,
+      moduleId: module.id,
+      completedAt: "2026-07-25T15:00:00.000Z",
+      result,
+    },
+  );
+  const artifactRefs = module.capstone.requiredArtifacts.map(
+    (artifact) => `portfolio/${artifact}`,
+  );
+  const unlinkedScores = module.capstone.rubric.criteria.map((criterion) => ({
+    criterionId: criterion.id,
+    pointsAwarded: criterion.maxPoints,
+  }));
+  const base = {
+    pathId: path.id,
+    moduleId: module.id,
+    artifactRefs,
+    reflection: "Failure testing added reconciliation before retry.",
+  };
+
+  assert.throws(
+    () =>
+      recordCapstoneSubmission(afterCheck, starterCatalog, {
+        ...base,
+        submissionId: "submission-reliable-unlinked",
+        submittedAt: "2026-07-25T15:30:00.000Z",
+        criterionScores: unlinkedScores,
+      }),
+    /needs mapped artifact or assessment evidence/,
+  );
+
+  const failed = recordCapstoneSubmission(afterCheck, starterCatalog, {
+    ...base,
+    submissionId: "submission-reliable-failed",
+    submittedAt: "2026-07-25T15:40:00.000Z",
+    criterionScores: module.capstone.rubric.criteria.map((criterion, index) => ({
+      criterionId: criterion.id,
+      pointsAwarded: index < 2 ? 0 : criterion.maxPoints,
+      evidenceRefs: [
+        artifactRefs[index],
+        "assessment:attempt-reliable-capstone-check",
+      ],
+    })),
+  });
+  assert.equal(failed.completedModuleIds.includes(module.id), false);
+  assert.equal(failed.capstoneSubmissions.length, 1);
+
+  const passed = recordCapstoneSubmission(failed, starterCatalog, {
+    ...base,
+    submissionId: "submission-reliable-revised",
+    submittedAt: "2026-07-25T16:00:00.000Z",
+    criterionScores: module.capstone.rubric.criteria.map((criterion, index) => ({
+      criterionId: criterion.id,
+      pointsAwarded: criterion.maxPoints,
+      evidenceRefs: [
+        artifactRefs[index],
+        "assessment:attempt-reliable-capstone-check",
+      ],
+    })),
+  });
+  assert.equal(passed.completedModuleIds.includes(module.id), true);
+  assert.equal(passed.capstoneSubmissions.length, 2);
+  assert.equal(passed.badges.some((badge) => badge.id === path.badge.id), false);
+
+  const record = buildPortableLearnerRecord(starterCatalog, passed);
+  assert.deepEqual(restorePortableLearnerRecord(record, starterCatalog), {
+    valid: true,
+    progress: passed,
+  });
+  const csv = buildTranscriptCsv(starterCatalog, passed);
+  assert.match(csv, /Criterion evidence/);
+  assert.match(csv, /assessment:attempt-reliable-capstone-check/);
+
+  const tampered = structuredClone(record);
+  tampered.learner.capstoneSubmissions[1].criterionScores[0].evidenceRefs = [
+    "not-submitted.md",
+  ];
+  const rejected = restorePortableLearnerRecord(tampered, starterCatalog);
+  assert.equal(rejected.valid, false);
+  assert.ok(
+    rejected.errors.some((error) =>
+      error.includes("unmapped criterion evidence"),
+    ),
+  );
+});
+
 test("exports a portable learner record and spreadsheet-safe transcript", () => {
   const progress = {
     ...createEmptyProgress("=SUM(A1:A2)"),
@@ -643,7 +804,7 @@ test("content freshness gate passes current sources and rejects stale ones", () 
   const stale = runFreshnessCheck("2027-07-23");
 
   assert.equal(current.status, 0, current.stderr);
-  assert.match(current.stdout, /Checked 93 references/);
+  assert.match(current.stdout, /Checked 98 references/);
   assert.equal(stale.status, 1);
   assert.match(stale.stderr, /ERROR .* is \d+ days old/);
 });

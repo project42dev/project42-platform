@@ -14,6 +14,7 @@ export interface AssessmentAttempt {
 export interface CapstoneCriterionScore {
   criterionId: string;
   pointsAwarded: number;
+  evidenceRefs?: string[];
 }
 
 export interface CapstoneSubmission {
@@ -192,7 +193,7 @@ export function recordCapstoneSubmission(
   }
 
   const scoreByCriterion = new Map(
-    input.criterionScores.map((score) => [score.criterionId, score.pointsAwarded]),
+    input.criterionScores.map((score) => [score.criterionId, score]),
   );
   if (
     scoreByCriterion.size !== module.capstone.rubric.criteria.length ||
@@ -203,17 +204,40 @@ export function recordCapstoneSubmission(
 
   let awarded = 0;
   let available = 0;
+  const artifactRefs = new Set(input.artifactRefs);
+  const assessmentRefs = new Set(
+    progress.attempts
+      .filter(
+        (attempt) =>
+          attempt.pathId === path.id && attempt.moduleId === module.id,
+      )
+      .map((attempt) => `assessment:${attempt.id}`),
+  );
   for (const criterion of module.capstone.rubric.criteria) {
-    const points = scoreByCriterion.get(criterion.id);
+    const score = scoreByCriterion.get(criterion.id);
     if (
-      points === undefined ||
-      !Number.isInteger(points) ||
-      points < 0 ||
-      points > criterion.maxPoints
+      !score ||
+      !Number.isInteger(score.pointsAwarded) ||
+      score.pointsAwarded < 0 ||
+      score.pointsAwarded > criterion.maxPoints
     ) {
       throw new Error(`Invalid score for capstone criterion ${criterion.id}`);
     }
-    awarded += points;
+    if (
+      module.capstone.requiresCriterionEvidence &&
+      (!score.evidenceRefs?.length ||
+        new Set(score.evidenceRefs).size !== score.evidenceRefs.length ||
+        score.evidenceRefs.some(
+          (reference) =>
+            !reference.trim() ||
+            (!artifactRefs.has(reference) && !assessmentRefs.has(reference)),
+        ))
+    ) {
+      throw new Error(
+        `Capstone criterion ${criterion.id} needs mapped artifact or assessment evidence`,
+      );
+    }
+    awarded += score.pointsAwarded;
     available += criterion.maxPoints;
   }
   const scorePercent = Math.round((awarded / available) * 100);

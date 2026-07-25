@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.9.0",
+  "contentVersion": "0.10.0",
   "title": "Project 42 Learning Catalog",
   "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [
@@ -86,7 +86,8 @@
         "multi-agent-handoffs",
         "agent-evaluation",
         "agent-observability",
-        "review-agent-results"
+        "review-agent-results",
+        "reliable-agent-capstone"
       ],
       "badge": {
         "id": "badge-reliable-agent-workflows",
