@@ -115,6 +115,24 @@ async function validateManifest(manifest) {
       errors.push(`${location} has no resource covering provider ${provider}`);
     }
   }
+  validateProviderProfiles(manifest, packResources, location);
+  for (const [provider, environmentVariable] of Object.entries(
+    manifest.providerCredentialEnvironmentVariables ?? {},
+  )) {
+    const providerResources = packResources.filter((resource) =>
+      resource.providers.includes(provider),
+    );
+    if (
+      providerResources.length === 0 ||
+      !providerResources.some((resource) =>
+        JSON.stringify(resource).includes(environmentVariable),
+      )
+    ) {
+      errors.push(
+        `${location} lacks credential environment variable ${environmentVariable} for provider ${provider}`,
+      );
+    }
+  }
 
   for (const resource of packResources) {
     if (resource.slug !== resource.id) {
@@ -154,7 +172,10 @@ async function validateManifest(manifest) {
         );
       }
     }
-    if (resource.providers.includes("provider-neutral") === false) {
+    if (
+      !manifest.providerProfiles &&
+      resource.providers.includes("provider-neutral") === false
+    ) {
       errors.push(`${location} resource ${resource.id} lacks provider-neutral scope`);
     }
     validateReviewDates(resource, location);
@@ -172,6 +193,57 @@ async function validateManifest(manifest) {
       }
     }
   }
+}
+
+function validateProviderProfiles(manifest, packResources, location) {
+  if (manifest.providerProfiles === undefined) return;
+  if (
+    !Array.isArray(manifest.providerProfiles) ||
+    manifest.providerProfiles.length === 0
+  ) {
+    errors.push(`${location} has invalid provider profiles`);
+    return;
+  }
+
+  const seen = new Set();
+  for (const profile of manifest.providerProfiles) {
+    if (
+      !Array.isArray(profile.providers) ||
+      profile.providers.length === 0 ||
+      !Number.isInteger(profile.exactResourceCount) ||
+      profile.exactResourceCount < 0
+    ) {
+      errors.push(`${location} has an invalid provider profile`);
+      continue;
+    }
+    const key = providerProfileKey(profile.providers);
+    if (seen.has(key)) {
+      errors.push(`${location} contains duplicate provider profile ${key}`);
+      continue;
+    }
+    seen.add(key);
+    const actual = packResources.filter(
+      (resource) => providerProfileKey(resource.providers) === key,
+    ).length;
+    if (actual !== profile.exactResourceCount) {
+      errors.push(
+        `${location} provider profile ${key} has ${actual} resources; expected exactly ${profile.exactResourceCount}`,
+      );
+    }
+  }
+
+  for (const resource of packResources) {
+    const key = providerProfileKey(resource.providers);
+    if (!seen.has(key)) {
+      errors.push(
+        `${location} resource ${resource.id} has undeclared provider profile ${key}`,
+      );
+    }
+  }
+}
+
+function providerProfileKey(providers) {
+  return [...new Set(providers)].sort().join("+");
 }
 
 function validateReviewDates(resource, location) {

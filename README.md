@@ -21,6 +21,13 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.34.0` adds the consolidated acceptance gate for all eleven provider
+workflow references. Its exact-membership manifest enforces three Anthropic,
+three OpenAI, three Google, and two four-provider resources; environment-only
+provider credentials; stable metadata; primary sources; freshness; expected
+evidence; verification and recovery guidance; and reusable artifacts free of
+common destructive command patterns.
+
 Release `0.33.0` adds three current Gemini Interactions API references and two
 portable cross-provider workflows. The release covers first requests, functions,
 structured output, evaluation and error triage, runtime configuration, and
