@@ -8,6 +8,7 @@ import {
   buildTranscriptCsv,
   buildTranscript,
   createEmptyProgress,
+  getResourceFreshness,
   recordAssessmentAttempt,
   recordCapstoneSubmission,
   recordModuleVisit,
@@ -20,12 +21,103 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.21.0");
+  assert.equal(starterCatalog.contentVersion, "0.22.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
   );
   assert.equal(starterCatalog.modules.length, referencedModuleIds.size);
+});
+
+test("resources publish complete discovery, ownership, and review metadata", () => {
+  const slugs = new Set();
+
+  for (const resource of starterCatalog.resources) {
+    assert.match(resource.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+    assert.equal(slugs.has(resource.slug), false);
+    slugs.add(resource.slug);
+    assert.ok(resource.audience.length > 0);
+    assert.ok(resource.format);
+    assert.ok(Array.isArray(resource.prerequisites));
+    assert.equal(resource.owner, "project42-editorial");
+    assert.equal(resource.reviewCadenceDays, 90);
+    assert.ok(resource.tags.length > 0);
+    assert.ok(resource.providers.length > 0);
+    assert.ok(resource.sources.length > 0);
+  }
+});
+
+test("derives resource freshness without persisting a time-sensitive status", () => {
+  const resource = {
+    lastVerified: "2026-01-01",
+    reviewCadenceDays: 100,
+  };
+
+  assert.deepEqual(getResourceFreshness(resource, "2026-02-01"), {
+    status: "current",
+    reviewedOn: "2026-01-01",
+    dueOn: "2026-04-11",
+    daysSinceReview: 31,
+    daysUntilDue: 69,
+  });
+  assert.equal(
+    getResourceFreshness(resource, "2026-03-25").status,
+    "review-due",
+  );
+  assert.equal(getResourceFreshness(resource, "2026-04-12").status, "stale");
+  assert.throws(
+    () => getResourceFreshness({ ...resource, reviewCadenceDays: 0 }, "2026-02-01"),
+    /reviewCadenceDays/,
+  );
+  assert.throws(
+    () => getResourceFreshness(resource, "not-a-date"),
+    /asOf/,
+  );
+});
+
+test("rejects incomplete, ambiguous, or unsafe resource metadata", () => {
+  const broken = structuredClone(starterCatalog);
+  const first = broken.resources[0];
+  const second = broken.resources[1];
+  first.slug = "Not a route";
+  first.format = "video";
+  first.audience = ["learner", "learner"];
+  first.prerequisites = ["", ""];
+  first.owner = "Editorial Team";
+  first.reviewCadenceDays = 0;
+  first.tags = ["valid", "Not Valid"];
+  second.slug = broken.resources[2].slug;
+
+  const validation = validateCatalog(broken);
+
+  assert.equal(validation.valid, false);
+  for (const expected of [
+    "Resource ai-glossary has an invalid slug: Not a route",
+    "Resource ai-glossary has an invalid format: video",
+    "Resource ai-glossary has invalid or duplicate audience values",
+    "Resource ai-glossary has empty or duplicate prerequisites",
+    "Resource ai-glossary has an invalid owner: Editorial Team",
+    "Resource ai-glossary has an invalid review cadence",
+    "Resource ai-glossary has invalid or duplicate tags",
+    `Duplicate resource slug: ${broken.resources[2].slug}`,
+  ]) {
+    assert.ok(validation.errors.includes(expected), expected);
+  }
+});
+
+test("reports missing new resource arrays instead of throwing on legacy JSON", () => {
+  const broken = structuredClone(starterCatalog);
+  delete broken.resources[0].audience;
+  delete broken.resources[0].prerequisites;
+
+  const validation = validateCatalog(broken);
+
+  assert.equal(validation.valid, false);
+  assert.ok(
+    validation.errors.includes(
+      "Resource ai-glossary has invalid or duplicate audience values",
+    ),
+  );
 });
 
 test("AI Foundations preserves its prerequisite chain and varied answer positions", () => {

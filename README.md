@@ -10,6 +10,8 @@ contracts—not the private PMO records or Project42dev production configuration
 ## Included
 
 - A typed, validated catalog for resources, learning paths, modules, and checks.
+- Rich resource discovery metadata with derived freshness, editorial ownership,
+  stable slugs, typed audiences, formats, prerequisites, and review policy.
 - Modular curriculum files with hands-on activities and instructor-ready narration,
   scene, checkpoint, assessment, caption, transcript, and reduced-motion packages.
 - A primary-source registry and freshness gate for volatile content.
@@ -62,9 +64,15 @@ import {
   starterCatalog,
   createEmptyProgress,
   buildPortableLearnerRecord,
+  getResourceFreshness,
   restorePortableLearnerRecord,
   scoreKnowledgeCheck,
 } from "@project42/platform";
+
+const freshness = getResourceFreshness(
+  starterCatalog.resources[0],
+  "2026-07-25",
+);
 ```
 
 ## Repository boundaries
