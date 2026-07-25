@@ -91,6 +91,22 @@
       }
     },
     {
+      "id": "openai-practice",
+      "title": "OpenAI in Practice",
+      "summary": "Choose the right OpenAI surface and build clear, evaluated prompt contracts.",
+      "audience": "Learners and practitioners using ChatGPT, the OpenAI API, or Codex for individual, application, and development workflows.",
+      "level": "intermediate",
+      "moduleIds": [
+        "openai-ecosystem-and-interfaces",
+        "openai-prompting-in-practice"
+      ],
+      "badge": {
+        "id": "badge-openai-practitioner",
+        "name": "OpenAI Practitioner",
+        "description": "Completed the OpenAI practice path and its evidence-based activities and checks."
+      }
+    },
+    {
       "id": "reliable-agent-workflows",
       "title": "Reliable Agent Workflows",
       "summary": "Turn agent capability into dependable work through clear scope, permission boundaries, and evidence-based review.",
