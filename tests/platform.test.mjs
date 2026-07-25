@@ -21,7 +21,7 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.22.0");
+  assert.equal(starterCatalog.contentVersion, "0.23.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
@@ -40,7 +40,8 @@ test("resources publish complete discovery, ownership, and review metadata", () 
     assert.ok(resource.format);
     assert.ok(Array.isArray(resource.prerequisites));
     assert.equal(resource.owner, "project42-editorial");
-    assert.equal(resource.reviewCadenceDays, 90);
+    assert.ok(resource.reviewCadenceDays >= 30);
+    assert.ok(resource.reviewCadenceDays <= 90);
     assert.ok(resource.tags.length > 0);
     assert.ok(resource.providers.length > 0);
     assert.ok(resource.sources.length > 0);
@@ -118,6 +119,89 @@ test("reports missing new resource arrays instead of throwing on legacy JSON", (
       "Resource ai-glossary has invalid or duplicate audience values",
     ),
   );
+});
+
+test("publishes six source-backed prompting and context field guides", () => {
+  const expected = new Map([
+    ["task-framing-contract", "template"],
+    ["prompt-pattern-decision-guide", "decision-path"],
+    ["context-selection-checklist", "checklist"],
+    ["context-refresh-runbook", "playbook"],
+    ["structured-output-contract", "how-to"],
+    ["reusable-prompt-template-pack", "template"],
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    expected.has(resource.id),
+  );
+
+  assert.equal(starterCatalog.resources.length, 13);
+  assert.equal(resources.length, expected.size);
+  for (const resource of resources) {
+    assert.equal(resource.format, expected.get(resource.id));
+    assert.ok(resource.providers.includes("provider-neutral"));
+    assert.ok(resource.audience.length > 0);
+    assert.equal(resource.owner, "project42-editorial");
+    assert.ok(resource.prerequisites);
+    assert.equal(resource.sections.length, 3);
+    assert.ok(
+      resource.sections.some((section) =>
+        section.title.toLowerCase().includes("expected result and verification"),
+      ),
+      `${resource.id} must state its expected result and verification`,
+    );
+    assert.ok(
+      resource.sections.some((section) => section.code?.code.includes("[")),
+      `${resource.id} must include a reusable template with safe placeholders`,
+    );
+    assert.ok(resource.sources.length >= 3);
+    assert.ok(
+      resource.sources.every((source) => source.lastVerified === "2026-07-25"),
+    );
+  }
+});
+
+test("prompting and context templates preserve safety and evidence boundaries", () => {
+  const resources = starterCatalog.resources.filter((resource) =>
+    [
+      "task-framing-contract",
+      "prompt-pattern-decision-guide",
+      "context-selection-checklist",
+      "context-refresh-runbook",
+      "structured-output-contract",
+      "reusable-prompt-template-pack",
+    ].includes(resource.id),
+  );
+  const text = resources
+    .flatMap((resource) => [
+      resource.summary,
+      ...resource.sections.flatMap((section) => [
+        ...section.paragraphs,
+        section.callout ?? "",
+        section.code?.code ?? "",
+      ]),
+    ])
+    .join("\n")
+    .toLowerCase();
+
+  for (const required of [
+    "expected result",
+    "verify",
+    "evidence",
+    "secret",
+    "untrusted",
+  ]) {
+    assert.ok(text.includes(required), `field-guide pack must cover ${required}`);
+  }
+  assert.doesNotMatch(text, /\bsk-[a-z0-9]{12,}\b/i);
+
+  const structured = starterCatalog.resources.find(
+    (resource) => resource.id === "structured-output-contract",
+  );
+  const envelope = structured?.sections.find(
+    (section) => section.id === "define-output-envelope",
+  )?.code?.code;
+  assert.ok(envelope);
+  assert.equal(JSON.parse(envelope).contractVersion, "1.0");
 });
 
 test("AI Foundations preserves its prerequisite chain and varied answer positions", () => {

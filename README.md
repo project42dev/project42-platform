@@ -21,6 +21,13 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.26.0` adds six source-backed prompting and context field guides:
+task framing, prompt-pattern selection, context selection, context refresh,
+structured-output contracts, and a five-template daily-use pack. Each guide
+includes safe placeholders, an expected result, verification steps, audience and
+provider metadata, editorial ownership, review cadence, and current primary
+sources. New resources are modular JSON documents discovered during the build.
+
 Release `0.13.0` completes the twelve-module Reliable Agent Workflows path with
 an evidence-mapped practical capstone. Learners produce an architecture and state
 model, permission matrix, threat model, evaluation set, failure tests, observability
