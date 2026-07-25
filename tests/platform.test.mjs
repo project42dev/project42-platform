@@ -20,9 +20,9 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.10.0");
+  assert.equal(starterCatalog.contentVersion, "0.11.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
-  assert.equal(starterCatalog.modules.length, 31);
+  assert.equal(starterCatalog.modules.length, 33);
 });
 
 test("AI Foundations preserves its prerequisite chain and varied answer positions", () => {
@@ -131,6 +131,44 @@ test("publishes the complete agent-loop tool context and memory curriculum unit"
         `${moduleId} must require ${path.moduleIds[index - 1]}`,
       );
     }
+  }
+});
+
+test("publishes the Claude orientation and prompting curriculum unit", () => {
+  const path = starterCatalog.paths.find(
+    (candidate) => candidate.id === "anthropic-claude-practice",
+  );
+  assert.ok(path);
+  assert.deepEqual(path.moduleIds.slice(0, 2), [
+    "anthropic-ecosystem-and-interfaces",
+    "claude-prompting-in-practice",
+  ]);
+
+  const modules = new Map(
+    starterCatalog.modules.map((module) => [module.id, module]),
+  );
+  for (const [index, moduleId] of path.moduleIds.slice(0, 2).entries()) {
+    const module = modules.get(moduleId);
+    assert.ok(module);
+    assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
+    assert.ok(module.activity?.evidence.length >= 2, `${moduleId} needs evidence`);
+    assert.equal(module.knowledgeCheck.questions.length, 5);
+    assert.ok(
+      new Set(module.knowledgeCheck.questions.map((question) => question.answerIndex))
+        .size >= 3,
+      `${moduleId} must vary correct-answer positions`,
+    );
+    assert.ok(module.sources.length >= 4, `${moduleId} needs primary sources`);
+    assert.equal(module.instructorScript?.schemaVersion, "1.1");
+    assert.ok(module.instructorScript?.transcript);
+    assert.ok(module.instructorScript?.captions?.length >= 5);
+    assert.ok(module.instructorScript?.reducedMotionAlternative);
+    const expectedPrerequisite =
+      index === 0 ? "ai-foundations-capstone" : path.moduleIds[index - 1];
+    assert.ok(
+      module.prerequisites.includes(expectedPrerequisite),
+      `${moduleId} must require ${expectedPrerequisite}`,
+    );
   }
 });
 
@@ -804,7 +842,7 @@ test("content freshness gate passes current sources and rejects stale ones", () 
   const stale = runFreshnessCheck("2027-07-23");
 
   assert.equal(current.status, 0, current.stderr);
-  assert.match(current.stdout, /Checked 98 references/);
+  assert.match(current.stdout, /Checked 106 references/);
   assert.equal(stale.status, 1);
   assert.match(stale.stderr, /ERROR .* is \d+ days old/);
 });

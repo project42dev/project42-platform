@@ -50,6 +50,14 @@
       "owner": "provider-anthropic"
     },
     {
+      "id": "anthropic-help",
+      "urlPrefix": "https://support.claude.com/",
+      "publisher": "Anthropic",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-anthropic"
+    },
+    {
       "id": "openai-platform-docs",
       "urlPrefix": "https://platform.openai.com/docs/",
       "publisher": "OpenAI",
