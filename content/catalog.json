@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.17.0",
+  "contentVersion": "0.18.0",
   "title": "Project 42 Learning Catalog",
   "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [
@@ -119,7 +119,9 @@
       "level": "intermediate",
       "moduleIds": [
         "gemini-ecosystem-and-interfaces",
-        "gemini-prompting-in-practice"
+        "gemini-prompting-in-practice",
+        "gemini-api-and-sdk-workflows",
+        "gemini-tools-and-agent-loops"
       ],
       "badge": {
         "id": "badge-google-gemini-practitioner",
