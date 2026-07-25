@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.7.0",
+  "contentVersion": "0.8.0",
   "title": "Project 42 Learning Catalog",
   "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [
@@ -80,6 +80,10 @@
         "control-agent-actions",
         "context-engineering",
         "memory-boundaries",
+        "mcp-architecture",
+        "mcp-trust-and-security",
+        "orchestration-patterns",
+        "multi-agent-handoffs",
         "review-agent-results"
       ],
       "badge": {
@@ -790,7 +794,7 @@
         "Distinguish tool output from proof of user-visible behavior.",
         "Create a concise handoff that preserves uncertainty and follow-up work."
       ],
-      "prerequisites": ["memory-boundaries"],
+      "prerequisites": ["multi-agent-handoffs"],
       "sections": [
         {
           "id": "evidence-ladder",

@@ -80,6 +80,30 @@
       "trustTier": "primary",
       "reviewCadenceDays": 30,
       "owner": "provider-google"
+    },
+    {
+      "id": "mcp-official-docs",
+      "urlPrefix": "https://modelcontextprotocol.io/",
+      "publisher": "Model Context Protocol",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "openai-agents-sdk-docs",
+      "urlPrefix": "https://openai.github.io/openai-agents-js/",
+      "publisher": "OpenAI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-openai"
+    },
+    {
+      "id": "google-adk-docs",
+      "urlPrefix": "https://google.github.io/adk-docs/",
+      "publisher": "Google",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-google"
     }
   ]
 }
