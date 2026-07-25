@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.20.0",
+  "contentVersion": "0.21.0",
   "title": "Project 42 Learning Catalog",
   "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [
@@ -66,7 +66,9 @@
         "anthropic-in-practice",
         "openai-in-practice",
         "choose-a-provider",
-        "compare-provider-capabilities"
+        "compare-provider-capabilities",
+        "plan-cross-provider-migration",
+        "execute-cross-provider-cutover"
       ],
       "badge": {
         "id": "badge-provider-practitioner",

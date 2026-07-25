@@ -20,7 +20,7 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.20.0");
+  assert.equal(starterCatalog.contentVersion, "0.21.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
@@ -659,7 +659,7 @@ test("publishes a balanced source-backed provider comparison matrix", () => {
   );
   assert.ok(path);
   assert.ok(module);
-  assert.equal(path.moduleIds.at(-1), module.id);
+  assert.equal(path.moduleIds[3], module.id);
   assert.ok(module.prerequisites.includes("choose-a-provider"));
   assert.equal(module.sections.length, 5);
   assert.ok(module.activity?.instructions.length >= 5);
@@ -724,6 +724,136 @@ test("publishes a balanced source-backed provider comparison matrix", () => {
     JSON.stringify(module.activity),
     /synthetic no-paid-call fixtures/i,
   );
+});
+
+test("publishes cross-provider migration planning and cutover runbooks", () => {
+  const path = starterCatalog.paths.find(
+    (candidate) => candidate.id === "providers-in-practice",
+  );
+  assert.ok(path);
+  assert.deepEqual(path.moduleIds.slice(-2), [
+    "plan-cross-provider-migration",
+    "execute-cross-provider-cutover",
+  ]);
+
+  const modules = new Map(
+    starterCatalog.modules.map((module) => [module.id, module]),
+  );
+  for (const [index, moduleId] of path.moduleIds.slice(-2).entries()) {
+    const module = modules.get(moduleId);
+    assert.ok(module);
+    assert.equal(module.sections.length, 5);
+    assert.ok(module.activity?.instructions.length >= 5);
+    assert.equal(module.activity?.evidence.length, 2);
+    assert.equal(module.knowledgeCheck.questions.length, 5);
+    assert.ok(
+      new Set(module.knowledgeCheck.questions.map((question) => question.answerIndex))
+        .size >= 3,
+      `${moduleId} must vary correct-answer positions`,
+    );
+    assert.ok(module.sources.length >= 8);
+    assert.equal(module.instructorScript?.schemaVersion, "1.1");
+    assert.ok(module.instructorScript?.transcript);
+    assert.ok(module.instructorScript?.captions?.length >= 5);
+    assert.ok(module.instructorScript?.reducedMotionAlternative);
+    const expectedPrerequisite =
+      index === 0
+        ? "compare-provider-capabilities"
+        : "plan-cross-provider-migration";
+    assert.ok(module.prerequisites.includes(expectedPrerequisite));
+    assert.match(
+      JSON.stringify(module.activity),
+      /synthetic no-paid-call/i,
+    );
+  }
+
+  const planning = modules.get("plan-cross-provider-migration");
+  const planningText = JSON.stringify(planning);
+  const configCode = planning.sections.find(
+    (section) => section.id === "build-a-compatibility-map",
+  )?.code?.code;
+  assert.ok(configCode);
+  assert.match(planningText, /process\.env\.ANTHROPIC_API_KEY/);
+  assert.match(planningText, /process\.env\.OPENAI_API_KEY/);
+  assert.match(planningText, /process\.env\.GEMINI_API_KEY/);
+  assert.doesNotMatch(configCode, /sk-[A-Za-z0-9_-]{8,}/);
+  assert.doesNotMatch(configCode, /AIza[A-Za-z0-9_-]{20,}/);
+  assert.ok(
+    planning.sources.some((source) => source.url.includes("migration-guide")),
+  );
+  assert.ok(
+    planning.sources.filter((source) => source.url.includes("deprecation")).length >= 3,
+  );
+
+  const cutover = modules.get("execute-cross-provider-cutover");
+  const cutoverText = JSON.stringify(cutover);
+  assert.match(cutoverText, /stable identifiers/i);
+  assert.match(cutoverText, /side effects/i);
+  assert.match(cutoverText, /residual-risk/i);
+  assert.match(cutoverText, /process\.env\.MIGRATION_ROUTE/);
+});
+
+test("restores a v0.20 provider learner record after migration modules are appended", () => {
+  const priorCatalog = structuredClone(starterCatalog);
+  priorCatalog.contentVersion = "0.20.0";
+  const addedIds = new Set([
+    "plan-cross-provider-migration",
+    "execute-cross-provider-cutover",
+  ]);
+  priorCatalog.modules = priorCatalog.modules.filter(
+    (module) => !addedIds.has(module.id),
+  );
+  const priorPath = priorCatalog.paths.find(
+    (candidate) => candidate.id === "providers-in-practice",
+  );
+  assert.ok(priorPath);
+  priorPath.moduleIds = priorPath.moduleIds.filter(
+    (moduleId) => !addedIds.has(moduleId),
+  );
+  assert.deepEqual(validateCatalog(priorCatalog), { valid: true, errors: [] });
+  assert.deepEqual(priorPath.moduleIds, [
+    "anthropic-in-practice",
+    "openai-in-practice",
+    "choose-a-provider",
+    "compare-provider-capabilities",
+  ]);
+
+  const module = priorCatalog.modules.find(
+    (candidate) => candidate.id === "compare-provider-capabilities",
+  );
+  assert.ok(module);
+  const result = scoreKnowledgeCheck(
+    module.knowledgeCheck.questions,
+    Object.fromEntries(
+      module.knowledgeCheck.questions.map((question) => [
+        question.id,
+        question.answerIndex,
+      ]),
+    ),
+    module.knowledgeCheck.passPercent,
+  );
+  const progress = recordAssessmentAttempt(
+    createEmptyProgress("Portable provider learner"),
+    priorCatalog,
+    {
+      attemptId: "attempt-provider-comparison-v020",
+      pathId: priorPath.id,
+      moduleId: module.id,
+      completedAt: "2026-07-25T14:30:00.000Z",
+      result,
+    },
+  );
+  const record = buildPortableLearnerRecord(
+    priorCatalog,
+    progress,
+    "2026-07-25T14:31:00.000Z",
+  );
+  const restored = restorePortableLearnerRecord(record, starterCatalog);
+
+  assert.equal(restored.valid, true);
+  assert.deepEqual(restored.progress, progress);
+  assert.equal(record.catalogVersion, "0.20.0");
+  assert.equal(progress.attempts[0].contentVersion, "0.20.0");
 });
 
 test("publishes the MCP orchestration and handoff curriculum unit", () => {
