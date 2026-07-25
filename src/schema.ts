@@ -1,5 +1,25 @@
 export type Provider = "provider-neutral" | "anthropic" | "openai" | "google";
 export type Level = "beginner" | "intermediate" | "advanced";
+export const RESOURCE_AUDIENCES = [
+  "learner",
+  "practitioner",
+  "developer",
+  "operator",
+  "leader",
+  "educator",
+] as const;
+export type ResourceAudience = (typeof RESOURCE_AUDIENCES)[number];
+export const RESOURCE_FORMATS = [
+  "reference",
+  "how-to",
+  "template",
+  "checklist",
+  "command",
+  "decision-path",
+  "playbook",
+  "troubleshooting",
+] as const;
+export type ResourceFormat = (typeof RESOURCE_FORMATS)[number];
 
 export interface SourceReference {
   title: string;
@@ -182,11 +202,17 @@ export interface LearningPath {
 
 export interface Resource {
   id: string;
+  slug: string;
   title: string;
   summary: string;
   category: string;
+  format: ResourceFormat;
+  audience: ResourceAudience[];
   level: Level;
   providers: Provider[];
+  prerequisites: string[];
+  owner: string;
+  reviewCadenceDays: number;
   lastVerified: string;
   tags: string[];
   sections: LessonSection[];
@@ -216,6 +242,7 @@ export interface ValidationResult {
 export function validateCatalog(catalog: Catalog): ValidationResult {
   const errors: string[] = [];
   const ids = new Set<string>();
+  const resourceSlugs = new Set<string>();
   const moduleIds = new Set(catalog.modules.map((module) => module.id));
   const providerIds = new Set(catalog.providers.map((provider) => provider.id));
 
@@ -288,7 +315,56 @@ export function validateCatalog(catalog: Catalog): ValidationResult {
 
   for (const resource of catalog.resources) {
     register(resource.id, `Resource ${resource.title}`);
+    const audience = Array.isArray(resource.audience) ? resource.audience : [];
+    const prerequisites = Array.isArray(resource.prerequisites)
+      ? resource.prerequisites
+      : [];
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(resource.slug)) {
+      errors.push(`Resource ${resource.id} has an invalid slug: ${resource.slug}`);
+    }
+    if (resourceSlugs.has(resource.slug)) {
+      errors.push(`Duplicate resource slug: ${resource.slug}`);
+    }
+    resourceSlugs.add(resource.slug);
+    if (!resource.title.trim() || !resource.summary.trim() || !resource.category.trim()) {
+      errors.push(`Resource ${resource.id} needs a title, summary, and category`);
+    }
+    if (!(RESOURCE_FORMATS as readonly string[]).includes(resource.format)) {
+      errors.push(`Resource ${resource.id} has an invalid format: ${resource.format}`);
+    }
+    if (
+      audience.length === 0 ||
+      audience.some(
+        (audience) => !(RESOURCE_AUDIENCES as readonly string[]).includes(audience),
+      ) ||
+      new Set(audience).size !== audience.length
+    ) {
+      errors.push(`Resource ${resource.id} has invalid or duplicate audience values`);
+    }
     validateProviders(resource.providers, providerIds, `Resource ${resource.id}`, errors);
+    if (
+      prerequisites.some((prerequisite) => !prerequisite.trim()) ||
+      new Set(prerequisites).size !== prerequisites.length
+    ) {
+      errors.push(`Resource ${resource.id} has empty or duplicate prerequisites`);
+    }
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(resource.owner)) {
+      errors.push(`Resource ${resource.id} has an invalid owner: ${resource.owner}`);
+    }
+    if (
+      !Number.isInteger(resource.reviewCadenceDays) ||
+      resource.reviewCadenceDays < 1 ||
+      resource.reviewCadenceDays > 365
+    ) {
+      errors.push(`Resource ${resource.id} has an invalid review cadence`);
+    }
+    if (
+      resource.tags.length === 0 ||
+      resource.tags.some((tag) => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(tag)) ||
+      new Set(resource.tags).size !== resource.tags.length
+    ) {
+      errors.push(`Resource ${resource.id} has invalid or duplicate tags`);
+    }
     if (resource.sections.length === 0) errors.push(`Resource ${resource.id} has no sections`);
     validateSections(resource.sections, `Resource ${resource.id}`, errors);
     if (resource.sources.length === 0) errors.push(`Resource ${resource.id} has no sources`);

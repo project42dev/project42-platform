@@ -51,8 +51,27 @@ passing `complete` exemplar and one failing `flawed` exemplar when reviewers nee
 machine-validated scoring anchors. Each exemplar carries complete artifact content,
 criterion scores, evidence references, reviewer notes, and its expected result.
 
-Every resource needs the same stable identity, sections, providers, source
-metadata, and search tags. Resources do not create learner completion records.
+Every resource needs:
+
+- a stable `id` plus a unique lowercase `slug` for its route;
+- a display `category` and one typed `format`;
+- one or more typed `audience` values and a difficulty `level`;
+- provider scope, search `tags`, and explicit `prerequisites` (an empty list is
+  valid);
+- a stable editorial `owner`, `lastVerified` review date, and
+  `reviewCadenceDays` from 1 through 365; and
+- one or more sections and primary sources.
+
+The supported formats are `reference`, `how-to`, `template`, `checklist`,
+`command`, `decision-path`, `playbook`, and `troubleshooting`. The supported
+audiences are `learner`, `practitioner`, `developer`, `operator`, `leader`, and
+`educator`.
+
+Resources do not create learner completion records. Consumers derive the
+resource's `current`, `review-due`, or `stale` state with
+`getResourceFreshness`; authors never store that time-sensitive status in
+content. The warning window is the final 20 percent of the review cadence,
+bounded to 7–30 days.
 
 ## Authoring workflow
 

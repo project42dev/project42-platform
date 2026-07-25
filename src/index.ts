@@ -16,6 +16,7 @@ export {
   recordModuleVisit,
 } from "./progress.js";
 export { validateCatalog } from "./schema.js";
+export { getResourceFreshness } from "./resource.js";
 export {
   buildPortableLearnerRecord,
   buildTranscriptCsv,
@@ -59,7 +60,14 @@ export type {
   LessonSection,
   Level,
   Provider,
+  ResourceAudience,
+  ResourceFormat,
   Resource,
   SourceReference,
   ValidationResult,
 } from "./schema.js";
+export type {
+  ResourceFreshness,
+  ResourceFreshnessStatus,
+} from "./resource.js";
+export { RESOURCE_AUDIENCES, RESOURCE_FORMATS } from "./schema.js";
