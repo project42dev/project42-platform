@@ -19,12 +19,18 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
-Release `0.10.0` begins the complete Reliable Agent Workflows path with four
-substantive modules covering bounded agent loops, typed tool contracts, context
-engineering, and governed memory. Each module includes an evidence-producing
-exercise, five scenario-based questions, current primary sources, and a validated
-instructor package. Instructor schema 1.1 binds narration cues to captions and a
-complete transcript while preserving reduced-motion alternatives.
+Release `0.11.0` extends the Reliable Agent Workflows path to eight substantive
+modules. The new unit covers MCP architecture and lifecycle, trust and security,
+orchestration pattern selection, and auditable multi-agent handoffs. It includes
+exercises for tool schemas, permission review, threat modeling, orchestration
+graphs, and versioned handoff contracts. Provider-specific Anthropic, OpenAI, and
+Google examples remain adapters around portable concepts rather than false feature
+equivalents.
+
+Every substantive module includes an evidence-producing exercise, five
+scenario-based questions, current primary sources, and a validated instructor
+package. Instructor schema 1.1 binds narration cues to captions and a complete
+transcript while preserving reduced-motion alternatives.
 
 The prior `0.9.0` release established the sixteen-module AI Foundations path,
 including evidence-based research, writing and transformation, coding and analysis,
