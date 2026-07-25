@@ -18,10 +18,11 @@ contracts—not the private PMO records or Project42dev production configuration
 - Portable JSON learner-record backup/restore, CSV transcripts, and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
-Release `0.7.0` expands AI Foundations to seven sequenced modules. Four substantive
-fundamentals modules add 16 lesson sections, four evidence-producing activities,
-20 reviewed questions, and machine-readable instructor scripts backed by current
-primary-source references.
+Release `0.8.0` expands AI Foundations to eleven sequenced modules. Four new modules
+teach prompt anatomy, context and evidence construction, examples and output
+contracts, and verification with iterative improvement. They add 16 lesson sections,
+four evidence-producing activities, four reusable templates, 20 reviewed questions,
+and machine-readable instructor scripts backed by current primary-source references.
 
 See [Content authoring](docs/content-authoring.md) to add paths, modules, checks,
 and field-guide resources without changing application code.
@@ -47,7 +48,7 @@ import {
 
 - Public hosted application: `project42dev/project-42.dev`
 - Private operations and planning: `project42dev/project42dev-ops`
-- Transitional MVP: `project42dev/project42dev.github.io`
+- Transitional site: `project42dev/project42dev.github.io`
 
 ## Licensing
 

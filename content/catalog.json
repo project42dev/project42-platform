@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.4.0",
+  "contentVersion": "0.5.0",
   "title": "Project 42 Learning Catalog",
   "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [
@@ -39,6 +39,10 @@
         "context-tokens-and-modalities",
         "privacy-safety-and-responsibility",
         "prompt-with-purpose",
+        "prompt-anatomy-and-success-criteria",
+        "context-and-evidence-construction",
+        "examples-and-output-contracts",
+        "verification-and-iterative-improvement",
         "agents-and-guardrails"
       ],
       "badge": {
@@ -155,7 +159,7 @@
         "Separate trusted instructions from untrusted input.",
         "Define a useful stopping condition."
       ],
-      "prerequisites": ["what-ai-does"],
+      "prerequisites": ["privacy-safety-and-responsibility"],
       "sections": [
         {
           "id": "prompt-contract",
@@ -228,7 +232,7 @@
         "Identify tool, permission, and verification boundaries.",
         "Recognize when human approval is required."
       ],
-      "prerequisites": ["prompt-with-purpose"],
+      "prerequisites": ["verification-and-iterative-improvement"],
       "sections": [
         {
           "id": "agent-loop",

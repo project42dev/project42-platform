@@ -18,9 +18,41 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.4.0");
-  assert.equal(starterCatalog.paths[0].moduleIds.length, 7);
-  assert.equal(starterCatalog.modules.length, 13);
+  assert.equal(starterCatalog.contentVersion, "0.5.0");
+  assert.equal(starterCatalog.paths[0].moduleIds.length, 11);
+  assert.equal(starterCatalog.modules.length, 17);
+});
+
+test("AI Foundations preserves its prerequisite chain and varied answer positions", () => {
+  const path = starterCatalog.paths.find((candidate) => candidate.id === "ai-foundations");
+  assert.ok(path);
+  const modules = new Map(
+    starterCatalog.modules.map((module) => [module.id, module]),
+  );
+
+  for (let index = 1; index < path.moduleIds.length; index += 1) {
+    const module = modules.get(path.moduleIds[index]);
+    assert.ok(module);
+    assert.ok(
+      module.prerequisites.includes(path.moduleIds[index - 1]),
+      `${module.id} must require ${path.moduleIds[index - 1]}`,
+    );
+  }
+
+  for (const moduleId of [
+    "prompt-anatomy-and-success-criteria",
+    "context-and-evidence-construction",
+    "examples-and-output-contracts",
+    "verification-and-iterative-improvement",
+  ]) {
+    const module = modules.get(moduleId);
+    assert.ok(module);
+    assert.ok(
+      new Set(module.knowledgeCheck.questions.map((question) => question.answerIndex))
+        .size >= 3,
+      `${moduleId} must vary correct-answer positions`,
+    );
+  }
 });
 
 test("catalog validation catches broken references and unsafe source metadata", () => {
@@ -266,7 +298,7 @@ test("content freshness gate passes current sources and rejects stale ones", () 
   const stale = runFreshnessCheck("2027-07-23");
 
   assert.equal(current.status, 0, current.stderr);
-  assert.match(current.stdout, /Checked 32 references/);
+  assert.match(current.stdout, /Checked 44 references/);
   assert.equal(stale.status, 1);
   assert.match(stale.stderr, /ERROR .* is \d+ days old/);
 });
