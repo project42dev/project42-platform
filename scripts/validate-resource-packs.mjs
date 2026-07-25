@@ -3,6 +3,11 @@ import { extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 import { loadCatalog } from "./load-catalog.mjs";
+import {
+  findUnsafeArtifactCommands,
+  hasRecoveryGuidance,
+  hasVerificationGuidance,
+} from "./resource-pack-rules.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const catalog = await loadCatalog(root);
@@ -58,6 +63,24 @@ async function validateManifest(manifest) {
   if (new Set(manifest.resourceIds).size !== manifest.resourceIds.length) {
     errors.push(`${location} contains duplicate resource IDs`);
   }
+  if (
+    manifest.exactResourceCount !== undefined &&
+    manifest.resourceIds.length !== manifest.exactResourceCount
+  ) {
+    errors.push(
+      `${location} declares ${manifest.resourceIds.length} resources; expected exactly ${manifest.exactResourceCount}`,
+    );
+  }
+  if (
+    !Array.isArray(manifest.resourceRoots) ||
+    manifest.resourceRoots.length === 0
+  ) {
+    errors.push(`${location} has no resource roots`);
+  } else if (
+    new Set(manifest.resourceRoots).size !== manifest.resourceRoots.length
+  ) {
+    errors.push(`${location} contains duplicate resource roots`);
+  }
 
   const packResources = manifest.resourceIds
     .map((id) => resourcesById.get(id))
@@ -109,6 +132,27 @@ async function validateManifest(manifest) {
     }
     if (!resource.sections.some((section) => section.code?.code.trim())) {
       errors.push(`${location} resource ${resource.id} lacks a reusable artifact`);
+    }
+    if (
+      manifest.requiredGuidance?.verification &&
+      !hasVerificationGuidance(resource)
+    ) {
+      errors.push(
+        `${location} resource ${resource.id} lacks verification guidance`,
+      );
+    }
+    if (
+      manifest.requiredGuidance?.recovery &&
+      !hasRecoveryGuidance(resource)
+    ) {
+      errors.push(`${location} resource ${resource.id} lacks recovery guidance`);
+    }
+    if (manifest.requiredGuidance?.safeArtifacts) {
+      for (const unsafeCommand of findUnsafeArtifactCommands(resource)) {
+        errors.push(
+          `${location} resource ${resource.id} artifact contains ${unsafeCommand}`,
+        );
+      }
     }
     if (resource.providers.includes("provider-neutral") === false) {
       errors.push(`${location} resource ${resource.id} lacks provider-neutral scope`);
