@@ -74,6 +74,14 @@
       "owner": "provider-openai"
     },
     {
+      "id": "openai-help",
+      "urlPrefix": "https://help.openai.com/",
+      "publisher": "OpenAI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-openai"
+    },
+    {
       "id": "google-responsible-ai",
       "urlPrefix": "https://ai.google.dev/responsible",
       "publisher": "Google",

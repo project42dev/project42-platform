@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.13.0",
+  "contentVersion": "0.14.0",
   "title": "Project 42 Learning Catalog",
   "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [
@@ -88,6 +88,22 @@
         "id": "badge-anthropic-claude-practitioner",
         "name": "Claude Practitioner",
         "description": "Completed the Claude practice path and its evidence-based activities and checks."
+      }
+    },
+    {
+      "id": "openai-practice",
+      "title": "OpenAI in Practice",
+      "summary": "Choose the right OpenAI surface and build clear, evaluated prompt contracts.",
+      "audience": "Learners and practitioners using ChatGPT, the OpenAI API, or Codex for individual, application, and development workflows.",
+      "level": "intermediate",
+      "moduleIds": [
+        "openai-ecosystem-and-interfaces",
+        "openai-prompting-in-practice"
+      ],
+      "badge": {
+        "id": "badge-openai-practitioner",
+        "name": "OpenAI Practitioner",
+        "description": "Completed the OpenAI practice path and its evidence-based activities and checks."
       }
     },
     {
