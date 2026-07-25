@@ -32,7 +32,7 @@
       "code": {
         "language": "text",
         "label": "Repository orientation record",
-        "code": "Repository and root: [NAME, ABSOLUTE OR WORKSPACE-RELATIVE ROOT]\nRequested outcome: [BOUNDED OUTCOME]\nIn-scope paths: [PATHS]\nOut-of-scope paths: [PATHS]\nGoverning instructions: [FILE -> TARGET PATH]\nBranch and worktree state: [BRANCH, CLEAN | EXISTING CHANGES]\nRuntime and package boundaries: [COMPONENT -> STACK]\nEntry points and data flow: [SOURCE -> PROCESS -> OUTPUT]\nStandard checks: [COMMAND -> EXPECTED RESULT]\nSensitive or generated paths: [PATH -> HANDLING RULE]\nUnknowns and conflicts: [QUESTION -> OWNER]\nEvidence captured: [FILE, COMMAND OUTPUT, OR LINK]"
+        "code": "Repository and root: [NAME, ABSOLUTE OR WORKSPACE-RELATIVE ROOT]\nRequested outcome: [BOUNDED OUTCOME]\nIn-scope paths: [PATHS]\nOut-of-scope paths: [PATHS]\nGoverning instructions: [FILE -> TARGET PATH]\nBranch and worktree state: [BRANCH, CLEAN | EXISTING CHANGES]\nRuntime and package boundaries: [COMPONENT -> STACK]\nEntry points and data flow: [SOURCE -> PROCESS -> OUTPUT]\nStandard checks: [COMMAND -> EXPECTED RESULT]\nSensitive or generated paths: [PATH -> HANDLING RULE]\nUnknowns and conflicts: [QUESTION -> OWNER]\nRollback/recovery: [HOW TO RESTORE THE VERIFIED BASELINE]\nEvidence captured: [FILE, COMMAND OUTPUT, OR LINK]"
       }
     },
     {

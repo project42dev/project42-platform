@@ -21,6 +21,12 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.31.0` adds the consolidated acceptance gate for the eleven AI
+coding-agent and MCP operational guides. The exact-membership manifest verifies
+stable discovery metadata, registered primary sources, provider coverage,
+expected evidence, verification and recovery guidance, credential safety, and
+reusable artifacts free of common destructive command patterns.
+
 Release `0.30.0` adds five MCP and orchestration field guides covering protocol
 roles and lifecycle, server trust review, safe tool contracts, orchestration
 pattern selection, and evidence-preserving handoffs. The reusable aids make
