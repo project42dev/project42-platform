@@ -20,9 +20,9 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.11.0");
+  assert.equal(starterCatalog.contentVersion, "0.12.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
-  assert.equal(starterCatalog.modules.length, 33);
+  assert.equal(starterCatalog.modules.length, 35);
 });
 
 test("AI Foundations preserves its prerequisite chain and varied answer positions", () => {
@@ -170,6 +170,77 @@ test("publishes the Claude orientation and prompting curriculum unit", () => {
       `${moduleId} must require ${expectedPrerequisite}`,
     );
   }
+});
+
+test("publishes the Claude API tool-use and agent curriculum unit", () => {
+  const path = starterCatalog.paths.find(
+    (candidate) => candidate.id === "anthropic-claude-practice",
+  );
+  assert.ok(path);
+  assert.deepEqual(path.moduleIds.slice(2, 4), [
+    "claude-api-and-sdk-workflows",
+    "claude-tools-and-agent-loops",
+  ]);
+
+  const modules = new Map(
+    starterCatalog.modules.map((module) => [module.id, module]),
+  );
+  for (const [index, moduleId] of path.moduleIds.slice(2, 4).entries()) {
+    const module = modules.get(moduleId);
+    assert.ok(module);
+    assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
+    assert.ok(module.activity?.evidence.length >= 2, `${moduleId} needs evidence`);
+    assert.equal(module.knowledgeCheck.questions.length, 5);
+    assert.ok(
+      new Set(module.knowledgeCheck.questions.map((question) => question.answerIndex))
+        .size >= 3,
+      `${moduleId} must vary correct-answer positions`,
+    );
+    assert.ok(module.sources.length >= 4, `${moduleId} needs primary sources`);
+    assert.equal(module.instructorScript?.schemaVersion, "1.1");
+    assert.ok(module.instructorScript?.transcript);
+    assert.ok(module.instructorScript?.captions?.length >= 5);
+    assert.ok(module.instructorScript?.reducedMotionAlternative);
+    const expectedPrerequisite =
+      index === 0 ? path.moduleIds[1] : path.moduleIds[index + 1];
+    assert.ok(
+      module.prerequisites.includes(expectedPrerequisite),
+      `${moduleId} must require ${expectedPrerequisite}`,
+    );
+  }
+
+  const apiModule = modules.get("claude-api-and-sdk-workflows");
+  const apiExample = apiModule?.sections
+    .flatMap((section) => section.code?.code ?? [])
+    .join("\n");
+  assert.match(apiExample, /process\.env\.ANTHROPIC_API_KEY/);
+  assert.match(apiExample, /process\.env\.ANTHROPIC_MODEL/);
+  assert.doesNotMatch(JSON.stringify(apiModule), /sk-ant-/i);
+  assert.ok(
+    apiModule?.sources.some(
+      (source) =>
+        source.url === "https://platform.claude.com/docs/en/api/messages/create",
+    ),
+  );
+
+  const toolsModule = modules.get("claude-tools-and-agent-loops");
+  assert.deepEqual(
+    toolsModule?.sections.map((section) => section.id),
+    [
+      "tool-use-is-a-contract",
+      "design-narrow-tools",
+      "drive-an-explicit-loop",
+      "enforce-side-effect-safety",
+      "workflow-or-agent",
+    ],
+  );
+  assert.ok(
+    toolsModule?.sources.some(
+      (source) =>
+        source.url ===
+        "https://platform.claude.com/docs/en/agents-and-tools/tool-use/how-tool-use-works",
+    ),
+  );
 });
 
 test("publishes the MCP orchestration and handoff curriculum unit", () => {
@@ -842,7 +913,7 @@ test("content freshness gate passes current sources and rejects stale ones", () 
   const stale = runFreshnessCheck("2027-07-23");
 
   assert.equal(current.status, 0, current.stderr);
-  assert.match(current.stdout, /Checked 106 references/);
+  assert.match(current.stdout, /Checked 114 references/);
   assert.equal(stale.status, 1);
   assert.match(stale.stderr, /ERROR .* is \d+ days old/);
 });
