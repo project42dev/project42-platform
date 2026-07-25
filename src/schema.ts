@@ -46,10 +46,20 @@ export interface InstructorCue {
   accessibilityAlternative?: string;
 }
 
+export interface InstructorCaption {
+  cueId: string;
+  startSeconds: number;
+  endSeconds: number;
+  text: string;
+}
+
 export interface InstructorScript {
-  schemaVersion: "1.0";
+  schemaVersion: "1.0" | "1.1";
   estimatedSeconds: number;
   cues: InstructorCue[];
+  transcript?: string;
+  captions?: InstructorCaption[];
+  reducedMotionAlternative?: string;
 }
 
 export interface CapstoneRubricCriterion {
@@ -326,7 +336,7 @@ function validateInstructorScript(
   register: (id: string, location: string) => void,
 ) {
   if (!script) return;
-  if (script.schemaVersion !== "1.0") {
+  if (script.schemaVersion !== "1.0" && script.schemaVersion !== "1.1") {
     errors.push(`Module ${module.id} has an unsupported instructor script version`);
   }
   if (!Number.isInteger(script.estimatedSeconds) || script.estimatedSeconds <= 0) {
@@ -375,6 +385,67 @@ function validateInstructorScript(
   ] satisfies InstructorCueKind[]) {
     if (!cueKinds.has(required)) {
       errors.push(`Module ${module.id} instructor script needs a ${required} cue`);
+    }
+  }
+
+  if (script.schemaVersion === "1.1") {
+    if (!script.transcript?.trim()) {
+      errors.push(`Module ${module.id} instructor script needs a transcript`);
+    }
+    if (!script.reducedMotionAlternative?.trim()) {
+      errors.push(
+        `Module ${module.id} instructor script needs a reduced-motion alternative`,
+      );
+    }
+    if (!script.captions?.length) {
+      errors.push(`Module ${module.id} instructor script needs captions`);
+    } else {
+      const cuesById = new Map(script.cues.map((cue) => [cue.id, cue]));
+      const captionedCueIds = new Set<string>();
+      let previousEnd = 0;
+      for (const caption of script.captions) {
+        if (
+          !Number.isInteger(caption.startSeconds) ||
+          !Number.isInteger(caption.endSeconds) ||
+          caption.startSeconds < previousEnd ||
+          caption.endSeconds <= caption.startSeconds ||
+          caption.endSeconds > script.estimatedSeconds ||
+          !caption.text.trim()
+        ) {
+          errors.push(
+            `Module ${module.id} instructor script has an invalid caption`,
+          );
+        }
+        previousEnd = caption.endSeconds;
+        const cue = cuesById.get(caption.cueId);
+        if (!cue) {
+          errors.push(
+            `Module ${module.id} caption references missing cue ${caption.cueId}`,
+          );
+        } else {
+          captionedCueIds.add(caption.cueId);
+          if (caption.text !== cue.text) {
+            errors.push(
+              `Module ${module.id} caption text differs from cue ${caption.cueId}`,
+            );
+          }
+        }
+      }
+      for (const cue of script.cues.filter((cue) => cue.kind === "narration")) {
+        if (!captionedCueIds.has(cue.id)) {
+          errors.push(
+            `Module ${module.id} narration cue ${cue.id} needs a caption`,
+          );
+        }
+      }
+    }
+
+    for (const cue of script.cues.filter((cue) => cue.kind === "narration")) {
+      if (!script.transcript?.includes(cue.text)) {
+        errors.push(
+          `Module ${module.id} transcript is missing narration cue ${cue.id}`,
+        );
+      }
     }
   }
 }

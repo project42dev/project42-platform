@@ -20,9 +20,9 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.6.0");
+  assert.equal(starterCatalog.contentVersion, "0.7.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
-  assert.equal(starterCatalog.modules.length, 22);
+  assert.equal(starterCatalog.modules.length, 24);
 });
 
 test("AI Foundations preserves its prerequisite chain and varied answer positions", () => {
@@ -75,6 +75,88 @@ test("validates capstone contracts and rejects an incomplete rubric", () => {
   assert.ok(
     validation.errors.includes(
       "Module ai-foundations-capstone capstone rubric must total 100 points",
+    ),
+  );
+});
+
+test("publishes the complete agent-loop tool context and memory curriculum unit", () => {
+  const path = starterCatalog.paths.find(
+    (candidate) => candidate.id === "reliable-agent-workflows",
+  );
+  assert.ok(path);
+  assert.deepEqual(path.moduleIds.slice(0, 4), [
+    "prepare-agent-work",
+    "control-agent-actions",
+    "context-engineering",
+    "memory-boundaries",
+  ]);
+
+  const modules = new Map(
+    starterCatalog.modules.map((module) => [module.id, module]),
+  );
+  for (const [index, moduleId] of path.moduleIds.slice(0, 4).entries()) {
+    const module = modules.get(moduleId);
+    assert.ok(module);
+    assert.ok(module.sections.length >= 4, `${moduleId} needs substantive lessons`);
+    assert.ok(module.activity?.evidence.length >= 2, `${moduleId} needs evidence`);
+    assert.equal(module.knowledgeCheck.questions.length, 5);
+    assert.ok(
+      new Set(module.knowledgeCheck.questions.map((question) => question.answerIndex))
+        .size >= 3,
+      `${moduleId} must vary correct-answer positions`,
+    );
+    assert.ok(module.sources.length >= 2, `${moduleId} needs primary sources`);
+    assert.equal(module.instructorScript?.schemaVersion, "1.1");
+    assert.ok(module.instructorScript?.transcript);
+    assert.ok(module.instructorScript?.captions?.length >= 4);
+    assert.ok(module.instructorScript?.reducedMotionAlternative);
+    if (index > 0) {
+      assert.ok(
+        module.prerequisites.includes(path.moduleIds[index - 1]),
+        `${moduleId} must require ${path.moduleIds[index - 1]}`,
+      );
+    }
+  }
+});
+
+test("rejects incomplete instructor caption and transcript packages", () => {
+  const broken = structuredClone(starterCatalog);
+  const module = broken.modules.find(
+    (candidate) => candidate.id === "context-engineering",
+  );
+  assert.ok(module?.instructorScript);
+  module.instructorScript.transcript = "Incomplete transcript.";
+  module.instructorScript.captions[1].startSeconds =
+    module.instructorScript.captions[0].endSeconds - 1;
+  module.instructorScript.captions[1].cueId = "missing-cue";
+  module.instructorScript.captions[2].text = "Text that differs from its cue.";
+  module.instructorScript.reducedMotionAlternative = "";
+
+  const validation = validateCatalog(broken);
+  assert.equal(validation.valid, false);
+  assert.ok(
+    validation.errors.includes(
+      "Module context-engineering instructor script has an invalid caption",
+    ),
+  );
+  assert.ok(
+    validation.errors.includes(
+      "Module context-engineering instructor script needs a reduced-motion alternative",
+    ),
+  );
+  assert.ok(
+    validation.errors.includes(
+      "Module context-engineering caption references missing cue missing-cue",
+    ),
+  );
+  assert.ok(
+    validation.errors.some((error) =>
+      error.startsWith("Module context-engineering caption text differs from cue"),
+    ),
+  );
+  assert.ok(
+    validation.errors.some((error) =>
+      error.startsWith("Module context-engineering transcript is missing narration cue"),
     ),
   );
 });
@@ -479,7 +561,7 @@ test("content freshness gate passes current sources and rejects stale ones", () 
   const stale = runFreshnessCheck("2027-07-23");
 
   assert.equal(current.status, 0, current.stderr);
-  assert.match(current.stdout, /Checked 59 references/);
+  assert.match(current.stdout, /Checked 68 references/);
   assert.equal(stale.status, 1);
   assert.match(stale.stderr, /ERROR .* is \d+ days old/);
 });

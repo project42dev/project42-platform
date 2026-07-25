@@ -34,6 +34,14 @@
       "owner": "provider-anthropic"
     },
     {
+      "id": "anthropic-engineering",
+      "urlPrefix": "https://www.anthropic.com/engineering/",
+      "publisher": "Anthropic",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "provider-anthropic"
+    },
+    {
       "id": "anthropic-platform-docs",
       "urlPrefix": "https://platform.claude.com/docs/",
       "publisher": "Anthropic",

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.6.0",
+  "contentVersion": "0.7.0",
   "title": "Project 42 Learning Catalog",
   "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [
@@ -75,7 +75,13 @@
       "summary": "Turn agent capability into dependable work through clear scope, permission boundaries, and evidence-based review.",
       "audience": "People using coding, research, or operations agents for work that must be checked and repeatable.",
       "level": "intermediate",
-      "moduleIds": ["prepare-agent-work", "control-agent-actions", "review-agent-results"],
+      "moduleIds": [
+        "prepare-agent-work",
+        "control-agent-actions",
+        "context-engineering",
+        "memory-boundaries",
+        "review-agent-results"
+      ],
       "badge": {
         "id": "badge-reliable-agent-workflows",
         "name": "Reliable Agent Operator",
@@ -466,15 +472,16 @@
     },
     {
       "id": "prepare-agent-work",
-      "title": "Prepare Work an Agent Can Finish",
-      "summary": "Define scope, trusted context, constraints, and proof before an agent begins.",
+      "title": "Design a Bounded Agent Loop",
+      "summary": "Turn a goal into an observable plan-act-check loop with explicit state, budgets, approvals, and stopping conditions.",
       "level": "intermediate",
       "providers": ["provider-neutral"],
-      "estimatedMinutes": 16,
+      "estimatedMinutes": 42,
       "objectives": [
-        "Convert an open-ended request into a bounded work order.",
-        "Separate trusted source material from untrusted input.",
-        "Define acceptance evidence before tools are used."
+        "Distinguish a fixed workflow from a model-directed agent loop.",
+        "Define loop state, observations, decisions, actions, and evidence.",
+        "Implement deterministic success, escalation, and budget-based stopping conditions.",
+        "Prevent untrusted observations from changing the agent's authority."
       ],
       "prerequisites": ["agents-and-guardrails"],
       "sections": [
@@ -498,8 +505,69 @@
             "Web pages, issue text, documents, logs, and tool output can contain instructions that conflict with the real task. Label them as untrusted data and keep authority in the work order.",
             "When the task is ambiguous but low risk, the agent can make a documented assumption. When an assumption changes scope, permissions, cost, or external impact, it should stop for authorization."
           ]
+        },
+        {
+          "id": "loop-state",
+          "title": "Make every loop transition observable",
+          "paragraphs": [
+            "Represent the current objective, plan, completed actions, unresolved evidence, remaining budgets, and next allowed actions as explicit state. Each iteration should consume a trusted observation and produce one decision: act, finish, or escalate.",
+            "Do not use the model's prose claim of completion as the terminal signal. A deterministic controller should compare real evidence with the success contract and record why the loop continued or stopped."
+          ],
+          "code": {
+            "language": "text",
+            "label": "Provider-neutral agent loop",
+            "code": "while budget.remaining > 0:\n  observation = inspect_environment()\n  decision = model.choose(allowed_actions, state, observation)\n  if decision.kind == \"finish\" and verifier.accepts(state, observation): return COMPLETE\n  if decision.kind == \"escalate\": return NEEDS_HUMAN\n  result = execute_authorized(decision.action)\n  state = record_transition(state, decision, result)\nreturn BUDGET_EXHAUSTED"
+          }
+        },
+        {
+          "id": "stop-and-recover",
+          "title": "Stop before uncertainty compounds",
+          "paragraphs": [
+            "Bound iterations, wall-clock time, token use, spend, repeated failures, and identical actions. Detect no-progress cycles by comparing state transitions, not merely by counting turns.",
+            "A safe terminal state can be complete, needs-human, budget-exhausted, policy-blocked, or failed-with-recovery-evidence. Preserve enough state to resume deliberately without repeating a consequential action."
+          ],
+          "callout": "A loop that can only report success or keep going is not operationally safe."
         }
       ],
+      "activity": {
+        "id": "activity-agent-loop-control",
+        "title": "Specify and simulate a bounded agent loop",
+        "instructions": [
+          "Choose a multi-step task and write its success contract, allowed actions, trusted observations, and approval boundaries.",
+          "Define the loop state and the deterministic controller that selects complete, continue, escalate, or stop.",
+          "Simulate a normal completion, three identical no-progress transitions, a budget exhaustion, and an untrusted observation containing an instruction.",
+          "Record the exact evidence and terminal state produced by each scenario."
+        ],
+        "evidence": [
+          "A state-transition table with budgets, approvals, success evidence, and five terminal states.",
+          "A simulation log proving deterministic termination for completion, no progress, budget exhaustion, and untrusted instructions."
+        ],
+        "reflectionPrompt": "Which condition must be enforced by code because a prompt alone cannot guarantee it?"
+      },
+      "instructorScript": {
+        "schemaVersion": "1.1",
+        "estimatedSeconds": 1260,
+        "cues": [
+          {"id": "cue-loop-work-order", "kind": "narration", "sectionId": "bounded-work-order", "text": "Begin with a success contract that removes hidden decisions and names the evidence required to finish."},
+          {"id": "cue-loop-trust", "kind": "narration", "sectionId": "trust-boundaries", "text": "Keep authority in trusted policy while treating retrieved instructions as untrusted observations."},
+          {"id": "cue-loop-state", "kind": "narration", "sectionId": "loop-state", "text": "Model each iteration as an observable state transition from inspect to decide to act to verify."},
+          {"id": "cue-loop-visual", "kind": "visual", "sectionId": "loop-state", "text": "Animate inspect, decide, authorize, act, verify, and stop around a state ledger.", "accessibilityAlternative": "A text sequence lists inspect, decide, authorize, act, verify, and stop, with every step writing to a state ledger. Reduced-motion mode shows the complete sequence at once."},
+          {"id": "cue-loop-stop", "kind": "narration", "sectionId": "stop-and-recover", "text": "Use deterministic success, escalation, no-progress, policy, and budget terminals before uncertainty compounds."},
+          {"id": "cue-loop-prompt", "kind": "learner-prompt", "sectionId": "stop-and-recover", "text": "Ask learners to identify which terminal state handles repeated tool failure without claiming success."},
+          {"id": "cue-loop-pause", "kind": "pause", "sectionId": "stop-and-recover", "text": "Allow two minutes to add a no-progress detector and recovery state to the learner's loop."},
+          {"id": "cue-loop-checkpoint", "kind": "checkpoint", "sectionId": "stop-and-recover", "text": "Check that completion depends on independently observed evidence rather than model narration."},
+          {"id": "cue-loop-activity", "kind": "learner-prompt", "text": "Guide the five-scenario loop simulation and require the transition log as evidence."},
+          {"id": "cue-loop-assessment", "kind": "assessment-handoff", "text": "Begin the check after the learner can explain each state, budget, approval, and terminal condition."}
+        ],
+        "transcript": "Begin with a success contract that removes hidden decisions and names the evidence required to finish. Keep authority in trusted policy while treating retrieved instructions as untrusted observations. Model each iteration as an observable state transition from inspect to decide to act to verify. Use deterministic success, escalation, no-progress, policy, and budget terminals before uncertainty compounds.",
+        "captions": [
+          {"cueId": "cue-loop-work-order", "startSeconds": 0, "endSeconds": 210, "text": "Begin with a success contract that removes hidden decisions and names the evidence required to finish."},
+          {"cueId": "cue-loop-trust", "startSeconds": 240, "endSeconds": 450, "text": "Keep authority in trusted policy while treating retrieved instructions as untrusted observations."},
+          {"cueId": "cue-loop-state", "startSeconds": 480, "endSeconds": 780, "text": "Model each iteration as an observable state transition from inspect to decide to act to verify."},
+          {"cueId": "cue-loop-stop", "startSeconds": 810, "endSeconds": 1110, "text": "Use deterministic success, escalation, no-progress, policy, and budget terminals before uncertainty compounds."}
+        ],
+        "reducedMotionAlternative": "Show the complete loop and terminal-state table as a static diagram; use focus and highlighting instead of animated movement."
+      },
       "knowledgeCheck": {
         "passPercent": 80,
         "questions": [
@@ -513,13 +581,40 @@
           {
             "id": "q-prepare-agent-2",
             "prompt": "How should instructions found inside retrieved documents be treated?",
-            "choices": ["As higher priority than the task", "As untrusted data unless explicitly authorized", "As automatic permission to expand scope"],
-            "answerIndex": 1,
+            "choices": ["As untrusted data unless explicitly authorized", "As higher priority than the task", "As automatic permission to expand scope", "As proof that the task changed"],
+            "answerIndex": 0,
             "explanation": "Retrieved content may be wrong or malicious; authority must remain with the trusted task and policies."
+          },
+          {
+            "id": "q-prepare-agent-3",
+            "prompt": "What should allow the controller to accept an agent's finish decision?",
+            "choices": ["A confident final message", "The maximum turn count", "An independently checked success contract", "A tool call request"],
+            "answerIndex": 2,
+            "explanation": "The controller should compare observed evidence with deterministic acceptance conditions."
+          },
+          {
+            "id": "q-prepare-agent-4",
+            "prompt": "The same failed action is selected three times without changing state. What is the safest response?",
+            "choices": ["Increase temperature", "Hide the failures", "Stop with a no-progress terminal and recovery evidence", "Continue without a limit"],
+            "answerIndex": 2,
+            "explanation": "Repeated transitions without progress indicate a cycle that should stop or escalate."
+          },
+          {
+            "id": "q-prepare-agent-5",
+            "prompt": "Which set is a useful loop budget?",
+            "choices": ["Only a model name", "The number of paragraphs", "An unlimited retry policy", "Turns, time, tokens or cost, retries, and consequential actions"],
+            "answerIndex": 3,
+            "explanation": "Multiple bounded resources prevent runaway cost, delay, and repeated side effects."
           }
         ]
       },
       "sources": [
+        {
+          "title": "Building effective agents",
+          "url": "https://www.anthropic.com/engineering/building-effective-agents",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-07-25"
+        },
         {
           "title": "Artificial Intelligence Risk Management Framework",
           "url": "https://www.nist.gov/itl/ai-risk-management-framework",
@@ -530,15 +625,16 @@
     },
     {
       "id": "control-agent-actions",
-      "title": "Control Tools, Permissions, and Change",
-      "summary": "Match agent permissions and approval gates to the consequence of each action.",
+      "title": "Design Typed Tool Contracts and Action Controls",
+      "summary": "Give an agent narrow, validated interfaces and enforce authority, idempotency, verification, and recovery outside the model.",
       "level": "intermediate",
       "providers": ["provider-neutral"],
-      "estimatedMinutes": 18,
+      "estimatedMinutes": 45,
       "objectives": [
-        "Classify agent actions by reversibility and external impact.",
-        "Apply least privilege to tools and credentials.",
-        "Place human approval before high-consequence actions."
+        "Define typed tool inputs, outputs, errors, and side effects.",
+        "Validate model-selected arguments before executing application code.",
+        "Apply least privilege and exact-target approval to consequential actions.",
+        "Design idempotency, postcondition checks, and recovery for uncertain outcomes."
       ],
       "prerequisites": ["prepare-agent-work"],
       "sections": [
@@ -552,39 +648,133 @@
           "callout": "Read-only inspection, reversible local change, external communication, production change, and destructive change each deserve a distinct policy."
         },
         {
+          "id": "typed-tool-contract",
+          "title": "The schema is an API contract, not a permission grant",
+          "paragraphs": [
+            "Give each tool one clear purpose and a narrow schema with required fields, enums, formats, length and numeric bounds, and additional properties disabled where the provider supports it. Validate again in application code because generated structure can still contain unauthorized or semantically unsafe values.",
+            "Return stable success and error shapes. Separate retriable transport failures from validation, authorization, policy, conflict, and unknown-outcome errors so the controller can make a bounded recovery decision."
+          ],
+          "code": {
+            "language": "json",
+            "label": "Bounded change-request schema",
+            "code": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"resourceId\": {\"type\": \"string\", \"pattern\": \"^doc_[a-z0-9]{8}$\"},\n    \"operation\": {\"type\": \"string\", \"enum\": [\"archive\"]},\n    \"idempotencyKey\": {\"type\": \"string\", \"minLength\": 16, \"maxLength\": 64}\n  },\n  \"required\": [\"resourceId\", \"operation\", \"idempotencyKey\"],\n  \"additionalProperties\": false\n}"
+          }
+        },
+        {
           "id": "approval-before-impact",
           "title": "Approval belongs before the consequential step",
           "paragraphs": [
             "A human gate is useful only when the reviewer can still prevent impact. Ask before sending, purchasing, publishing, deploying, or destroying, not after the action has already happened.",
             "Safe automation also needs an idempotency strategy, a bounded retry policy, and a recovery path. Repeating a failed action blindly can duplicate messages, charges, or changes."
           ]
+        },
+        {
+          "id": "validate-execute-verify",
+          "title": "Separate selection from execution",
+          "paragraphs": [
+            "The model may select a tool and propose arguments. A trusted executor authenticates the caller, validates the schema, authorizes the resolved resource, binds any approval to that exact action, enforces limits, and only then calls the implementation.",
+            "Treat returned content as untrusted data. Verify the real postcondition and record a secret-safe audit event containing the request identity, decision, target, result, and recovery status."
+          ],
+          "callout": "Structured output improves parsing; it does not prove authorization, safety, or success."
         }
       ],
+      "activity": {
+        "id": "activity-typed-tool-threat-test",
+        "title": "Specify and threat-test a consequential tool",
+        "instructions": [
+          "Choose a tool that writes, sends, spends, changes permission, or deletes, and define its narrow JSON input and stable result/error union.",
+          "Write executor checks for identity, schema, semantic validity, authorization, exact-target approval, rate and cost limits, and idempotency.",
+          "Test malformed arguments, an unauthorized target, prompt-injected tool output, timeout after success, and a duplicate call.",
+          "Define the postcondition query and recovery or escalation for each outcome."
+        ],
+        "evidence": [
+          "A typed tool contract with side effects, error taxonomy, approval, idempotency, and postcondition rules.",
+          "A five-case threat-test table showing rejection, verification, and recovery evidence."
+        ],
+        "reflectionPrompt": "Which unsafe request passed JSON validation but failed authorization or policy?"
+      },
+      "instructorScript": {
+        "schemaVersion": "1.1",
+        "estimatedSeconds": 1350,
+        "cues": [
+          {"id": "cue-tool-risk", "kind": "narration", "sectionId": "action-ladder", "text": "Classify tool calls by data access, reversibility, external impact, cost, permission change, and destruction."},
+          {"id": "cue-tool-contract", "kind": "narration", "sectionId": "typed-tool-contract", "text": "Treat the schema as a narrow API contract while keeping authorization and policy in trusted application code."},
+          {"id": "cue-tool-schema-visual", "kind": "visual", "sectionId": "typed-tool-contract", "text": "Build the contract from typed inputs through stable result and error variants.", "accessibilityAlternative": "A static table maps each input constraint to validation, authorization, side effect, and error handling. Reduced-motion mode reveals no moving elements."},
+          {"id": "cue-tool-approval", "kind": "narration", "sectionId": "approval-before-impact", "text": "Bind approval to the exact resolved target before a consequential or irreversible action."},
+          {"id": "cue-tool-executor", "kind": "narration", "sectionId": "validate-execute-verify", "text": "Place identity, validation, authorization, limits, execution, postcondition checks, and audit in a trusted executor."},
+          {"id": "cue-tool-prompt", "kind": "learner-prompt", "sectionId": "validate-execute-verify", "text": "Ask learners which control rejects a validly shaped request for another tenant's resource."},
+          {"id": "cue-tool-pause", "kind": "pause", "sectionId": "validate-execute-verify", "text": "Allow two minutes to add a semantic authorization test to the tool contract."},
+          {"id": "cue-tool-checkpoint", "kind": "checkpoint", "sectionId": "validate-execute-verify", "text": "Check that learners distinguish schema validity, authorization, approval, and postcondition evidence."},
+          {"id": "cue-tool-activity", "kind": "learner-prompt", "text": "Run the five threat cases and retain the contract and result table."},
+          {"id": "cue-tool-assessment", "kind": "assessment-handoff", "text": "Begin the check after every side effect has a validation, authorization, verification, and recovery control."}
+        ],
+        "transcript": "Classify tool calls by data access, reversibility, external impact, cost, permission change, and destruction. Treat the schema as a narrow API contract while keeping authorization and policy in trusted application code. Bind approval to the exact resolved target before a consequential or irreversible action. Place identity, validation, authorization, limits, execution, postcondition checks, and audit in a trusted executor.",
+        "captions": [
+          {"cueId": "cue-tool-risk", "startSeconds": 0, "endSeconds": 240, "text": "Classify tool calls by data access, reversibility, external impact, cost, permission change, and destruction."},
+          {"cueId": "cue-tool-contract", "startSeconds": 270, "endSeconds": 570, "text": "Treat the schema as a narrow API contract while keeping authorization and policy in trusted application code."},
+          {"cueId": "cue-tool-approval", "startSeconds": 600, "endSeconds": 870, "text": "Bind approval to the exact resolved target before a consequential or irreversible action."},
+          {"cueId": "cue-tool-executor", "startSeconds": 900, "endSeconds": 1230, "text": "Place identity, validation, authorization, limits, execution, postcondition checks, and audit in a trusted executor."}
+        ],
+        "reducedMotionAlternative": "Present the tool-contract and trusted-executor stages as one static table with keyboard-focus highlights."
+      },
       "knowledgeCheck": {
         "passPercent": 80,
         "questions": [
           {
             "id": "q-control-agent-1",
             "prompt": "What is the safest default permission strategy?",
-            "choices": ["Grant every available tool", "Grant only the authority required for the task", "Reuse production administrator credentials"],
+            "choices": ["Grant every available tool", "Grant only the authority required for the task", "Reuse production administrator credentials", "Let the model create credentials"],
             "answerIndex": 1,
             "explanation": "Least privilege limits both mistakes and misuse while preserving the ability to complete the task."
           },
           {
             "id": "q-control-agent-2",
             "prompt": "When should approval occur for an external or destructive action?",
-            "choices": ["Before the action can cause impact", "Only after the action succeeds", "At the end of the month"],
+            "choices": ["Before the action can cause impact", "Only after the action succeeds", "At the end of the month", "After an automatic retry"],
             "answerIndex": 0,
             "explanation": "Approval must happen while the reviewer can still prevent or change the action."
+          },
+          {
+            "id": "q-control-agent-3",
+            "prompt": "A tool call matches its JSON schema but targets a resource owned by another tenant. What must happen?",
+            "choices": ["Execute because the JSON is valid", "Authorize the resolved resource for the current identity and reject it", "Ask the model whether it feels safe", "Remove the resource ID"],
+            "answerIndex": 1,
+            "explanation": "Schema validation does not replace object-level authorization."
+          },
+          {
+            "id": "q-control-agent-4",
+            "prompt": "A timeout occurs after a write may have succeeded. What should the controller do?",
+            "choices": ["Retry without limits", "Assume success from the model's narration", "Reconcile the idempotency key and actual postcondition before retrying", "Change the schema"],
+            "answerIndex": 2,
+            "explanation": "Unknown outcome requires reconciliation because a blind retry can duplicate the side effect."
+          },
+          {
+            "id": "q-control-agent-5",
+            "prompt": "Why should tool results be treated as untrusted data?",
+            "choices": ["They can contain stale, malformed, or malicious instructions", "They are always empty", "They cannot affect later decisions", "They replace authorization"],
+            "answerIndex": 0,
+            "explanation": "Results can mislead the model or carry prompt injection and must not change governing authority."
           }
         ]
       },
       "sources": [
         {
-          "title": "Artificial Intelligence Risk Management Framework",
-          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
-          "publisher": "NIST",
-          "lastVerified": "2026-07-23"
+          "title": "Function calling",
+          "url": "https://developers.openai.com/api/docs/guides/function-calling",
+          "publisher": "OpenAI",
+          "lastVerified": "2026-07-25"
+        },
+        {
+          "title": "Tool use with Claude",
+          "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-07-25"
+        },
+        {
+          "title": "Function calling with the Gemini API",
+          "url": "https://ai.google.dev/gemini-api/docs/function-calling",
+          "publisher": "Google",
+          "lastVerified": "2026-07-25"
         }
       ]
     },
@@ -600,7 +790,7 @@
         "Distinguish tool output from proof of user-visible behavior.",
         "Create a concise handoff that preserves uncertainty and follow-up work."
       ],
-      "prerequisites": ["control-agent-actions"],
+      "prerequisites": ["memory-boundaries"],
       "sections": [
         {
           "id": "evidence-ladder",
