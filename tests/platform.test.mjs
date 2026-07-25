@@ -21,7 +21,7 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.25.0");
+  assert.equal(starterCatalog.contentVersion, "0.26.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
@@ -362,6 +362,84 @@ test("coding-agent guides preserve scope, permission, and verification boundarie
     assert.ok(text.includes(required), `coding-agent pack must cover ${required}`);
   }
   assert.doesNotMatch(text, /\bsk-[a-z0-9]{12,}\b/i);
+  assert.doesNotMatch(text, /\b(rm\s+-rf|remove-item\s+-recurse)\b/i);
+});
+
+test("publishes five source-backed MCP and orchestration field guides", () => {
+  const expected = new Map([
+    ["mcp-primitives-reference", "reference"],
+    ["mcp-server-trust-review", "checklist"],
+    ["tool-contract-design-template", "template"],
+    ["orchestration-pattern-decision-guide", "decision-path"],
+    ["agent-handoff-evidence-contract", "template"],
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    expected.has(resource.id),
+  );
+
+  assert.ok(starterCatalog.resources.length >= 29);
+  assert.equal(resources.length, expected.size);
+  for (const resource of resources) {
+    assert.equal(resource.format, expected.get(resource.id));
+    assert.ok(resource.providers.includes("provider-neutral"));
+    assert.ok(resource.prerequisites.length > 0);
+    assert.equal(resource.owner, "project42-editorial");
+    assert.equal(resource.sections.length, 3);
+    assert.ok(
+      resource.sections.some((section) =>
+        section.title.toLowerCase().includes("expected evidence"),
+      ),
+      `${resource.id} must define expected evidence`,
+    );
+    assert.ok(
+      resource.sections.some((section) => section.code?.code.includes("[")),
+      `${resource.id} must include a safe reusable record`,
+    );
+    assert.ok(resource.sources.length >= 3);
+    assert.ok(
+      resource.sources.every((source) => source.lastVerified === "2026-07-25"),
+    );
+  }
+});
+
+test("MCP and orchestration guides preserve trust and handoff boundaries", () => {
+  const ids = new Set([
+    "mcp-primitives-reference",
+    "mcp-server-trust-review",
+    "tool-contract-design-template",
+    "orchestration-pattern-decision-guide",
+    "agent-handoff-evidence-contract",
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    ids.has(resource.id),
+  );
+  const text = resources
+    .flatMap((resource) => [
+      resource.summary,
+      ...resource.sections.flatMap((section) => [
+        ...section.paragraphs,
+        section.callout ?? "",
+        section.code?.code ?? "",
+      ]),
+    ])
+    .join("\n")
+    .toLowerCase();
+
+  for (const required of [
+    "host",
+    "capabilities",
+    "audience",
+    "least-privilege",
+    "side effect",
+    "idempotency",
+    "system of record",
+    "rollback",
+    "receiver",
+    "human",
+  ]) {
+    assert.ok(text.includes(required), `MCP/orchestration pack must cover ${required}`);
+  }
+  assert.doesNotMatch(text, /\b(client_secret|access_token)\s*[:=]\s*[\"'][^\\[<]/i);
   assert.doesNotMatch(text, /\b(rm\s+-rf|remove-item\s+-recurse)\b/i);
 });
 
