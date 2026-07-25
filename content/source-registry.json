@@ -160,6 +160,46 @@
       "trustTier": "primary",
       "reviewCadenceDays": 365,
       "owner": "curriculum"
+    },
+    {
+      "id": "anthropic-code-docs",
+      "urlPrefix": "https://code.claude.com/docs/",
+      "publisher": "Anthropic",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-anthropic"
+    },
+    {
+      "id": "openai-chatgpt-learn-docs",
+      "urlPrefix": "https://learn.chatgpt.com/docs/",
+      "publisher": "OpenAI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-openai"
+    },
+    {
+      "id": "google-gemini-cli-docs",
+      "urlPrefix": "https://geminicli.com/docs/",
+      "publisher": "Google",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-google"
+    },
+    {
+      "id": "github-docs",
+      "urlPrefix": "https://docs.github.com/",
+      "publisher": "GitHub",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "nist-csrc",
+      "urlPrefix": "https://csrc.nist.gov/",
+      "publisher": "NIST",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
     }
   ]
 }
