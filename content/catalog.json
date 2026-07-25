@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.18.0",
+  "contentVersion": "0.19.0",
   "title": "Project 42 Learning Catalog",
   "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [
@@ -114,14 +114,17 @@
     {
       "id": "google-gemini-practice",
       "title": "Gemini in Practice",
-      "summary": "Choose the right Gemini surface and build clear, evaluated prompt contracts across Gemini Apps, Google AI Studio, and the Gemini API.",
+      "summary": "Choose the right Gemini surface and build evaluated, secure, observable, migration-ready API, tool, and agent workflows.",
       "audience": "Learners and practitioners using Gemini Apps, Google AI Studio, or the Gemini API for individual, prototype, and application workflows.",
       "level": "intermediate",
       "moduleIds": [
         "gemini-ecosystem-and-interfaces",
         "gemini-prompting-in-practice",
         "gemini-api-and-sdk-workflows",
-        "gemini-tools-and-agent-loops"
+        "gemini-tools-and-agent-loops",
+        "gemini-safety-and-trust-boundaries",
+        "gemini-evaluation-and-observability",
+        "migrating-to-and-from-gemini"
       ],
       "badge": {
         "id": "badge-google-gemini-practitioner",

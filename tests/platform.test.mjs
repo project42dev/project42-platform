@@ -20,7 +20,7 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.18.0");
+  assert.equal(starterCatalog.contentVersion, "0.19.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
@@ -602,6 +602,52 @@ test("publishes the Gemini API tool-use and agent curriculum unit", () => {
   assert.ok(
     tools.sources.some((source) => source.url.startsWith("https://google.github.io/adk-docs/")),
   );
+});
+
+test("publishes and validates the complete seven-module Gemini practice path", () => {
+  const path = starterCatalog.paths.find(
+    (candidate) => candidate.id === "google-gemini-practice",
+  );
+  assert.ok(path);
+  assert.deepEqual(path.moduleIds.slice(4), [
+    "gemini-safety-and-trust-boundaries",
+    "gemini-evaluation-and-observability",
+    "migrating-to-and-from-gemini",
+  ]);
+  assert.equal(path.moduleIds.length, 7);
+
+  const modules = new Map(
+    starterCatalog.modules.map((module) => [module.id, module]),
+  );
+  for (const [index, moduleId] of path.moduleIds.entries()) {
+    const module = modules.get(moduleId);
+    assert.ok(module);
+    assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
+    assert.ok(module.activity?.evidence.length >= 2, `${moduleId} needs evidence`);
+    assert.equal(module.knowledgeCheck.questions.length, 5);
+    assert.ok(
+      new Set(module.knowledgeCheck.questions.map((question) => question.answerIndex))
+        .size >= 3,
+      `${moduleId} must vary correct-answer positions`,
+    );
+    assert.ok(module.sources.length >= 4, `${moduleId} needs primary sources`);
+    assert.equal(module.instructorScript?.schemaVersion, "1.1");
+    assert.ok(module.instructorScript?.transcript);
+    assert.ok(module.instructorScript?.captions?.length >= 5);
+    assert.ok(module.instructorScript?.reducedMotionAlternative);
+    const expectedPrerequisite =
+      index === 0 ? "ai-foundations-capstone" : path.moduleIds[index - 1];
+    assert.ok(module.prerequisites.includes(expectedPrerequisite));
+    assert.match(JSON.stringify(module.activity), /synthetic|fixture|no-paid-call/i);
+  }
+
+  const safety = modules.get("gemini-safety-and-trust-boundaries");
+  assert.ok(safety.sources.some((source) => source.url.includes("/safety-settings")));
+  const evaluation = modules.get("gemini-evaluation-and-observability");
+  assert.ok(evaluation.sources.some((source) => source.url.includes("/evaluate/")));
+  const migration = modules.get("migrating-to-and-from-gemini");
+  assert.ok(migration.sources.some((source) => source.url.includes("/deprecations")));
+  assert.ok(migration.sources.some((source) => source.url.includes("/libraries")));
 });
 
 test("publishes the MCP orchestration and handoff curriculum unit", () => {
