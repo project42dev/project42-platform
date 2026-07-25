@@ -20,7 +20,7 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.14.0");
+  assert.equal(starterCatalog.contentVersion, "0.15.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
@@ -303,7 +303,7 @@ test("publishes the OpenAI orientation and prompting curriculum unit", () => {
     (candidate) => candidate.id === "openai-practice",
   );
   assert.ok(path);
-  assert.deepEqual(path.moduleIds, [
+  assert.deepEqual(path.moduleIds.slice(0, 2), [
     "openai-ecosystem-and-interfaces",
     "openai-prompting-in-practice",
   ]);
@@ -311,7 +311,7 @@ test("publishes the OpenAI orientation and prompting curriculum unit", () => {
   const modules = new Map(
     starterCatalog.modules.map((module) => [module.id, module]),
   );
-  for (const [index, moduleId] of path.moduleIds.entries()) {
+  for (const [index, moduleId] of path.moduleIds.slice(0, 2).entries()) {
     const module = modules.get(moduleId);
     assert.ok(module);
     assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
@@ -334,6 +334,67 @@ test("publishes the OpenAI orientation and prompting curriculum unit", () => {
       `${moduleId} must require ${expectedPrerequisite}`,
     );
   }
+});
+
+test("publishes the OpenAI Responses API tool-use and agent curriculum unit", () => {
+  const path = starterCatalog.paths.find(
+    (candidate) => candidate.id === "openai-practice",
+  );
+  assert.ok(path);
+  assert.deepEqual(path.moduleIds.slice(2, 4), [
+    "openai-responses-api-and-sdk-workflows",
+    "openai-tools-and-codex-agent-loops",
+  ]);
+
+  const modules = new Map(
+    starterCatalog.modules.map((module) => [module.id, module]),
+  );
+  for (const [index, moduleId] of path.moduleIds.slice(2, 4).entries()) {
+    const module = modules.get(moduleId);
+    assert.ok(module);
+    assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
+    assert.ok(module.activity?.evidence.length >= 2, `${moduleId} needs evidence`);
+    assert.equal(module.knowledgeCheck.questions.length, 5);
+    assert.ok(
+      new Set(module.knowledgeCheck.questions.map((question) => question.answerIndex))
+        .size >= 3,
+      `${moduleId} must vary correct-answer positions`,
+    );
+    assert.ok(module.sources.length >= 4, `${moduleId} needs primary sources`);
+    assert.equal(module.instructorScript?.schemaVersion, "1.1");
+    assert.ok(module.instructorScript?.transcript);
+    assert.ok(module.instructorScript?.captions?.length >= 5);
+    assert.ok(module.instructorScript?.reducedMotionAlternative);
+    const expectedPrerequisite =
+      index === 0 ? path.moduleIds[1] : path.moduleIds[index + 1];
+    assert.ok(
+      module.prerequisites.includes(expectedPrerequisite),
+      `${moduleId} must require ${expectedPrerequisite}`,
+    );
+  }
+
+  const api = modules.get("openai-responses-api-and-sdk-workflows");
+  const apiText = JSON.stringify(api);
+  assert.match(apiText, /process\.env\.OPENAI_MODEL/);
+  assert.doesNotMatch(apiText, /sk-[A-Za-z0-9_-]{8,}/);
+  assert.ok(
+    api.sources.some((source) =>
+      source.url.includes("/api/docs/guides/migrate-to-responses"),
+    ),
+  );
+
+  const tools = modules.get("openai-tools-and-codex-agent-loops");
+  assert.ok(
+    tools.sections.some((section) => section.id === "match-calls-results-and-state"),
+  );
+  assert.ok(
+    tools.sections.some((section) => section.id === "bound-codex-and-agent-autonomy"),
+  );
+  assert.ok(
+    tools.sources.some((source) =>
+      source.url.includes("/api/docs/guides/function-calling"),
+    ),
+  );
 });
 
 test("publishes the MCP orchestration and handoff curriculum unit", () => {
