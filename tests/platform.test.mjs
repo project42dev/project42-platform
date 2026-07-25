@@ -21,7 +21,7 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.24.0");
+  assert.equal(starterCatalog.contentVersion, "0.25.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
@@ -284,6 +284,85 @@ test("research guides distinguish evidence from unsupported confidence", () => {
     new Set(citations?.sources.map((source) => source.publisher)),
     new Set(["OpenAI", "Anthropic", "Google"]),
   );
+});
+
+test("publishes six source-backed AI coding-agent field guides", () => {
+  const expected = new Map([
+    ["repository-orientation-checklist", "checklist"],
+    ["coding-agent-work-plan-template", "template"],
+    ["coding-agent-permission-boundaries", "decision-path"],
+    ["implementation-evidence-loop", "playbook"],
+    ["ai-assisted-code-review-checklist", "checklist"],
+    ["test-debug-handoff", "template"],
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    expected.has(resource.id),
+  );
+
+  assert.ok(starterCatalog.resources.length >= 24);
+  assert.equal(resources.length, expected.size);
+  for (const resource of resources) {
+    assert.equal(resource.format, expected.get(resource.id));
+    assert.ok(resource.providers.includes("provider-neutral"));
+    assert.ok(resource.prerequisites.length > 0);
+    assert.equal(resource.owner, "project42-editorial");
+    assert.equal(resource.sections.length, 3);
+    assert.ok(
+      resource.sections.some((section) =>
+        section.title.toLowerCase().includes("expected evidence"),
+      ),
+      `${resource.id} must define expected evidence`,
+    );
+    assert.ok(
+      resource.sections.some((section) => section.code?.code.includes("[")),
+      `${resource.id} must include a safe reusable record`,
+    );
+    assert.equal(resource.sources.length, 3);
+    assert.ok(
+      resource.sources.every((source) => source.lastVerified === "2026-07-25"),
+    );
+  }
+});
+
+test("coding-agent guides preserve scope, permission, and verification boundaries", () => {
+  const ids = new Set([
+    "repository-orientation-checklist",
+    "coding-agent-work-plan-template",
+    "coding-agent-permission-boundaries",
+    "implementation-evidence-loop",
+    "ai-assisted-code-review-checklist",
+    "test-debug-handoff",
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    ids.has(resource.id),
+  );
+  const text = resources
+    .flatMap((resource) => [
+      resource.summary,
+      ...resource.sections.flatMap((section) => [
+        ...section.paragraphs,
+        section.callout ?? "",
+        section.code?.code ?? "",
+      ]),
+    ])
+    .join("\n")
+    .toLowerCase();
+
+  for (const required of [
+    "scope",
+    "permission",
+    "least-privilege",
+    "evidence",
+    "secret",
+    "recovery",
+    "independent",
+    "reproduce",
+    "system of record",
+  ]) {
+    assert.ok(text.includes(required), `coding-agent pack must cover ${required}`);
+  }
+  assert.doesNotMatch(text, /\bsk-[a-z0-9]{12,}\b/i);
+  assert.doesNotMatch(text, /\b(rm\s+-rf|remove-item\s+-recurse)\b/i);
 });
 
 test("AI Foundations preserves its prerequisite chain and varied answer positions", () => {

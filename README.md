@@ -21,6 +21,13 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.29.0` adds six AI coding-agent field guides covering repository
+orientation, bounded work planning, least-privilege permissions, implementation
+evidence loops, independent code review, and reproducible test/debug handoffs.
+Each guide includes a safe reusable record, explicit expected evidence,
+verification steps, and current primary sources across provider tools and
+software-delivery practice.
+
 Release `0.28.0` adds a reusable resource-pack acceptance gate. Pack manifests
 bind declared IDs to source files and enforce metadata, stable slugs, provider
 coverage, primary-source allowlisting, review dates, reusable artifacts, and
