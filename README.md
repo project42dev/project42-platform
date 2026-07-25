@@ -21,6 +21,12 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.28.0` adds a reusable resource-pack acceptance gate. Pack manifests
+bind declared IDs to source files and enforce metadata, stable slugs, provider
+coverage, primary-source allowlisting, review dates, reusable artifacts, and
+credential-pattern checks. A separate bounded live-link command verifies cited
+pages during release without making ordinary CI depend on public sites.
+
 Release `0.27.0` adds five research and verification field guides covering
 source authority, atomic claim decomposition, citation support, reproducible fact
 verification, and consequence-based review gates. The guides teach learners to

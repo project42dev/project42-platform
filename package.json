@@ -1,6 +1,6 @@
 {
   "name": "@project42/platform",
-  "version": "0.27.0",
+  "version": "0.28.0",
   "description": "Open-source content, assessment, and learning-record core for Project 42.",
   "type": "module",
   "main": "./dist/index.js",
@@ -23,7 +23,9 @@
     "generate": "node scripts/generate-catalog.mjs",
     "build": "npm run generate && tsc -p tsconfig.json",
     "content:freshness": "node scripts/check-freshness.mjs",
-    "test": "npm run build && node --test tests/*.test.mjs",
+    "resources:validate": "node scripts/validate-resource-packs.mjs",
+    "sources:links": "node scripts/check-source-links.mjs",
+    "test": "npm run build && node --test tests/*.test.mjs && npm run resources:validate",
     "check": "npm test && npm run content:freshness",
     "prepare": "npm run build"
   },

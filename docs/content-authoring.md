@@ -11,6 +11,11 @@ New resources live as individual JSON documents under
 to the original seed resources in `content/catalog.json`. Use one resource per file
 so content additions remain independently reviewable as the library grows.
 
+When a group of resources forms a release unit, declare its exact roots, IDs,
+provider coverage, and minimum source count in `content/resource-packs/`. See
+[Resource-pack validation](resource-pack-validation.md) for deterministic and live
+release checks.
+
 ## Choose the content type
 
 Use a **resource** for a standalone reference, checklist, template, or how-to.
