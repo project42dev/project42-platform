@@ -21,6 +21,12 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.27.0` adds five research and verification field guides covering
+source authority, atomic claim decomposition, citation support, reproducible fact
+verification, and consequence-based review gates. The guides teach learners to
+distinguish evidence from inference, seek contradiction, preserve unknowns, and
+scale independent review and approval to realistic harm.
+
 Release `0.26.0` adds six source-backed prompting and context field guides:
 task framing, prompt-pattern selection, context selection, context refresh,
 structured-output contracts, and a five-template daily-use pack. Each guide
