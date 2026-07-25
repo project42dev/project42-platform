@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.19.0",
+  "contentVersion": "0.20.0",
   "title": "Project 42 Learning Catalog",
   "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [
@@ -62,7 +62,12 @@
       "summary": "Learn what transfers across providers and where Anthropic, OpenAI, and Google workflows differ.",
       "audience": "Practitioners choosing tools or supporting a mixed-provider team.",
       "level": "intermediate",
-      "moduleIds": ["anthropic-in-practice", "openai-in-practice", "choose-a-provider"],
+      "moduleIds": [
+        "anthropic-in-practice",
+        "openai-in-practice",
+        "choose-a-provider",
+        "compare-provider-capabilities"
+      ],
       "badge": {
         "id": "badge-provider-practitioner",
         "name": "Provider Practitioner",
