@@ -1,12 +1,11 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadCatalog } from "./load-catalog.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const sourcePath = resolve(root, "content/catalog.json");
 const outputPath = resolve(root, "src/generated/catalog.ts");
-const raw = await readFile(sourcePath, "utf8");
-const parsed = JSON.parse(raw);
+const parsed = await loadCatalog(root);
 
 await mkdir(dirname(outputPath), { recursive: true });
 await writeFile(

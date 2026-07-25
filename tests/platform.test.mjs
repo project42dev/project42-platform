@@ -18,6 +18,9 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
+  assert.equal(starterCatalog.contentVersion, "0.4.0");
+  assert.equal(starterCatalog.paths[0].moduleIds.length, 7);
+  assert.equal(starterCatalog.modules.length, 13);
 });
 
 test("catalog validation catches broken references and unsafe source metadata", () => {
@@ -183,7 +186,11 @@ test("exports individual assessment attempts in the transcript CSV", () => {
   const csv = buildTranscriptCsv(starterCatalog, progress);
 
   assert.ok(csv.includes(module.title));
-  assert.match(csv, /2026-07-23T12:00:00.000Z,100,Yes,0.3.0/);
+  assert.ok(
+    csv.includes(
+      `2026-07-23T12:00:00.000Z,100,Yes,${starterCatalog.contentVersion}`,
+    ),
+  );
 });
 
 test("rejects incompatible learner-record exports", () => {
@@ -259,7 +266,7 @@ test("content freshness gate passes current sources and rejects stale ones", () 
   const stale = runFreshnessCheck("2027-07-23");
 
   assert.equal(current.status, 0, current.stderr);
-  assert.match(current.stdout, /Checked 20 references/);
+  assert.match(current.stdout, /Checked 32 references/);
   assert.equal(stale.status, 1);
   assert.match(stale.stderr, /ERROR .* is \d+ days old/);
 });

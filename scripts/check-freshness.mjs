@@ -1,9 +1,10 @@
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadCatalog } from "./load-catalog.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const catalog = JSON.parse(await readFile(resolve(root, "content/catalog.json"), "utf8"));
+const catalog = await loadCatalog(root);
 const registry = JSON.parse(
   await readFile(resolve(root, "content/source-registry.json"), "utf8"),
 );

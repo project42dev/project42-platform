@@ -39,7 +39,11 @@ export type {
 export type {
   Catalog,
   CodeExample,
+  InstructorCue,
+  InstructorCueKind,
+  InstructorScript,
   KnowledgeQuestion,
+  LearningActivity,
   LearningModule,
   LearningPath,
   LessonSection,

@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.3.0",
-  "title": "Project 42 Starter Catalog",
-  "description": "Provider-neutral AI foundations and practical provider guidance.",
+  "contentVersion": "0.4.0",
+  "title": "Project 42 Learning Catalog",
+  "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [
     {
       "id": "provider-neutral",
@@ -32,7 +32,15 @@
       "summary": "Build a clear mental model of AI, prompts, and agents without assuming technical experience.",
       "audience": "People starting with AI or filling foundational gaps.",
       "level": "beginner",
-      "moduleIds": ["what-ai-does", "prompt-with-purpose", "agents-and-guardrails"],
+      "moduleIds": [
+        "what-ai-does",
+        "ai-systems-and-use-cases",
+        "language-models-and-generation",
+        "context-tokens-and-modalities",
+        "privacy-safety-and-responsibility",
+        "prompt-with-purpose",
+        "agents-and-guardrails"
+      ],
       "badge": {
         "id": "badge-ai-foundations",
         "name": "AI Foundations",

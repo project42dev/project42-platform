@@ -22,6 +22,36 @@ export interface LessonSection {
   code?: CodeExample;
 }
 
+export interface LearningActivity {
+  id: string;
+  title: string;
+  instructions: string[];
+  evidence: string[];
+  reflectionPrompt: string;
+}
+
+export type InstructorCueKind =
+  | "narration"
+  | "visual"
+  | "learner-prompt"
+  | "pause"
+  | "checkpoint"
+  | "assessment-handoff";
+
+export interface InstructorCue {
+  id: string;
+  kind: InstructorCueKind;
+  text: string;
+  sectionId?: string;
+  accessibilityAlternative?: string;
+}
+
+export interface InstructorScript {
+  schemaVersion: "1.0";
+  estimatedSeconds: number;
+  cues: InstructorCue[];
+}
+
 export interface KnowledgeQuestion {
   id: string;
   prompt: string;
@@ -40,6 +70,8 @@ export interface LearningModule {
   objectives: string[];
   prerequisites: string[];
   sections: LessonSection[];
+  activity?: LearningActivity;
+  instructorScript?: InstructorScript;
   knowledgeCheck: {
     passPercent: number;
     questions: KnowledgeQuestion[];
@@ -132,6 +164,8 @@ export function validateCatalog(catalog: Catalog): ValidationResult {
     if (module.objectives.length === 0) errors.push(`Module ${module.id} has no objectives`);
     if (module.sections.length === 0) errors.push(`Module ${module.id} has no sections`);
     validateSections(module.sections, `Module ${module.id}`, errors);
+    validateActivity(module.activity, module.id, errors);
+    validateInstructorScript(module.instructorScript, module, errors, register);
     if (module.sources.length === 0) errors.push(`Module ${module.id} has no sources`);
     if (module.knowledgeCheck.questions.length === 0) {
       errors.push(`Module ${module.id} has no knowledge check`);
@@ -184,6 +218,93 @@ export function validateCatalog(catalog: Catalog): ValidationResult {
   validatePrerequisiteCycles(catalog.modules, errors);
 
   return { valid: errors.length === 0, errors };
+}
+
+function validateActivity(
+  activity: LearningActivity | undefined,
+  moduleId: string,
+  errors: string[],
+) {
+  if (!activity) return;
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(activity.id)) {
+    errors.push(`Module ${moduleId} has an invalid activity id: ${activity.id}`);
+  }
+  if (!activity.title.trim()) errors.push(`Module ${moduleId} activity needs a title`);
+  if (
+    activity.instructions.length === 0 ||
+    activity.instructions.some((instruction) => !instruction.trim())
+  ) {
+    errors.push(`Module ${moduleId} activity needs non-empty instructions`);
+  }
+  if (
+    activity.evidence.length === 0 ||
+    activity.evidence.some((item) => !item.trim())
+  ) {
+    errors.push(`Module ${moduleId} activity needs observable evidence`);
+  }
+  if (!activity.reflectionPrompt.trim()) {
+    errors.push(`Module ${moduleId} activity needs a reflection prompt`);
+  }
+}
+
+function validateInstructorScript(
+  script: InstructorScript | undefined,
+  module: LearningModule,
+  errors: string[],
+  register: (id: string, location: string) => void,
+) {
+  if (!script) return;
+  if (script.schemaVersion !== "1.0") {
+    errors.push(`Module ${module.id} has an unsupported instructor script version`);
+  }
+  if (!Number.isInteger(script.estimatedSeconds) || script.estimatedSeconds <= 0) {
+    errors.push(`Module ${module.id} has an invalid instructor script duration`);
+  }
+  if (script.cues.length === 0) {
+    errors.push(`Module ${module.id} instructor script has no cues`);
+    return;
+  }
+
+  const sectionIds = new Set(module.sections.map((section) => section.id));
+  const cueKinds = new Set<InstructorCueKind>();
+  for (const cue of script.cues) {
+    register(cue.id, `Instructor cue in ${module.id}`);
+    cueKinds.add(cue.kind);
+    if (!cue.text.trim()) {
+      errors.push(`Instructor cue ${cue.id} needs text`);
+    }
+    if (cue.sectionId && !sectionIds.has(cue.sectionId)) {
+      errors.push(
+        `Instructor cue ${cue.id} references missing section ${cue.sectionId}`,
+      );
+    }
+    if (cue.kind === "visual" && !cue.accessibilityAlternative?.trim()) {
+      errors.push(`Visual instructor cue ${cue.id} needs an accessibility alternative`);
+    }
+  }
+
+  for (const section of module.sections) {
+    if (
+      !script.cues.some(
+        (cue) => cue.sectionId === section.id && cue.kind === "narration",
+      )
+    ) {
+      errors.push(
+        `Module ${module.id} section ${section.id} needs an instructor narration cue`,
+      );
+    }
+  }
+  for (const required of [
+    "narration",
+    "visual",
+    "learner-prompt",
+    "checkpoint",
+    "assessment-handoff",
+  ] satisfies InstructorCueKind[]) {
+    if (!cueKinds.has(required)) {
+      errors.push(`Module ${module.id} instructor script needs a ${required} cue`);
+    }
+  }
 }
 
 function validateSections(
