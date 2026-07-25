@@ -98,6 +98,14 @@
       "owner": "provider-google"
     },
     {
+      "id": "google-gemini-help",
+      "urlPrefix": "https://support.google.com/gemini/",
+      "publisher": "Google",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-google"
+    },
+    {
       "id": "mcp-official-docs",
       "urlPrefix": "https://modelcontextprotocol.io/",
       "publisher": "Model Context Protocol",

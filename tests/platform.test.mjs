@@ -20,7 +20,7 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.16.0");
+  assert.equal(starterCatalog.contentVersion, "0.17.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
@@ -462,6 +462,74 @@ test("publishes and validates the complete seven-module OpenAI practice path", (
   assert.ok(
     migration.sources.some((source) =>
       source.url.includes("/api/docs/deprecations"),
+    ),
+  );
+});
+
+test("publishes the Gemini orientation and prompting curriculum unit", () => {
+  const path = starterCatalog.paths.find(
+    (candidate) => candidate.id === "google-gemini-practice",
+  );
+  assert.ok(path);
+  assert.deepEqual(path.moduleIds, [
+    "gemini-ecosystem-and-interfaces",
+    "gemini-prompting-in-practice",
+  ]);
+
+  const modules = new Map(
+    starterCatalog.modules.map((module) => [module.id, module]),
+  );
+  for (const [index, moduleId] of path.moduleIds.entries()) {
+    const module = modules.get(moduleId);
+    assert.ok(module);
+    assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
+    assert.ok(module.activity?.instructions.length >= 4, `${moduleId} needs practice`);
+    assert.ok(module.activity?.evidence.length >= 2, `${moduleId} needs evidence`);
+    assert.equal(module.knowledgeCheck.questions.length, 5);
+    assert.ok(
+      new Set(module.knowledgeCheck.questions.map((question) => question.answerIndex))
+        .size >= 3,
+      `${moduleId} must vary correct-answer positions`,
+    );
+    assert.ok(module.sources.length >= 4, `${moduleId} needs primary sources`);
+    assert.equal(module.instructorScript?.schemaVersion, "1.1");
+    assert.ok(module.instructorScript?.transcript);
+    assert.ok(module.instructorScript?.captions?.length >= 5);
+    assert.ok(module.instructorScript?.reducedMotionAlternative);
+    const expectedPrerequisite =
+      index === 0 ? "ai-foundations-capstone" : path.moduleIds[index - 1];
+    assert.ok(
+      module.prerequisites.includes(expectedPrerequisite),
+      `${moduleId} must require ${expectedPrerequisite}`,
+    );
+    assert.match(
+      JSON.stringify(module.activity),
+      /conceptual|fixture|no-cost/i,
+      `${moduleId} needs a no-paid-call alternative`,
+    );
+  }
+
+  const orientation = modules.get("gemini-ecosystem-and-interfaces");
+  assert.ok(
+    orientation.sources.some((source) =>
+      source.url.startsWith("https://support.google.com/gemini/"),
+    ),
+  );
+  assert.ok(
+    orientation.sources.some((source) =>
+      source.url.includes("/gemini-api/docs/ai-studio-quickstart"),
+    ),
+  );
+
+  const prompting = modules.get("gemini-prompting-in-practice");
+  assert.ok(
+    prompting.sources.some((source) =>
+      source.url.includes("/gemini-api/docs/prompting-strategies"),
+    ),
+  );
+  assert.ok(
+    prompting.sources.some((source) =>
+      source.url.includes("/gemini-api/docs/structured-output"),
     ),
   );
 });
