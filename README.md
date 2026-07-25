@@ -21,6 +21,13 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.36.0` adds five provider-neutral troubleshooting and operations
+playbooks for AI API failures, agent-tool failures, context or quality
+regressions, incident triage, and rollback with closeout. Each decision path
+captures privacy-safe evidence, shared retry budgets, accountable ownership,
+stop conditions, postcondition verification, and bounded recovery without
+destructive automation or blind retries.
+
 Release `0.35.0` adds five provider-neutral evaluation and safety playbooks:
 an evaluation-plan charter, representative dataset ledger, evidence-based rubric,
 bounded red-team rules of engagement, and a human-controlled release gate. Each

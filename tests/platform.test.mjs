@@ -26,7 +26,7 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.29.0");
+  assert.equal(starterCatalog.contentVersion, "0.30.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
@@ -750,6 +750,52 @@ test("publishes five evaluation and safety playbooks with release controls", () 
   );
   assert.match(JSON.stringify(releaseGate), /PROMOTE \| HOLD \| REJECT/);
   assert.match(JSON.stringify(releaseGate), /accountability.*human/i);
+});
+
+test("publishes five troubleshooting and operations playbooks with bounded recovery", () => {
+  const ids = new Set([
+    "ai-api-failure-triage",
+    "agent-tool-failure-recovery",
+    "context-quality-regression-triage",
+    "ai-incident-triage",
+    "ai-rollback-and-incident-closeout",
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    ids.has(resource.id),
+  );
+
+  assert.equal(resources.length, 5);
+  assert.deepEqual(new Set(resources.map((resource) => resource.id)), ids);
+  for (const resource of resources) {
+    assert.equal(resource.slug, resource.id);
+    assert.deepEqual(resource.providers, ["provider-neutral"]);
+    assert.ok(hasVerificationGuidance(resource), `${resource.id} verification`);
+    assert.ok(hasRecoveryGuidance(resource), `${resource.id} recovery`);
+    assert.deepEqual(findUnsafeArtifactCommands(resource), []);
+    assert.ok(resource.sources.length >= 3);
+    const text = JSON.stringify(resource);
+    assert.match(text, /Owner and cadence/i, `${resource.id} ownership`);
+    assert.match(text, /Stop criteria/i, `${resource.id} stop criteria`);
+    assert.match(text, /Verification:/i, `${resource.id} artifact verification`);
+  }
+
+  const api = resources.find(
+    (resource) => resource.id === "ai-api-failure-triage",
+  );
+  assert.match(JSON.stringify(api), /SDK \+ PROXY \+ APP/);
+  assert.match(JSON.stringify(api), /Do not retry authentication/i);
+
+  const tools = resources.find(
+    (resource) => resource.id === "agent-tool-failure-recovery",
+  );
+  assert.match(JSON.stringify(tools), /SUCCESS \| FAILURE \| UNKNOWN/);
+  assert.match(JSON.stringify(tools), /reconciling the target before retry/i);
+
+  const closeout = resources.find(
+    (resource) => resource.id === "ai-rollback-and-incident-closeout",
+  );
+  assert.match(JSON.stringify(closeout), /reconciled operation journal/i);
+  assert.match(JSON.stringify(closeout), /Do not close when/i);
 });
 
 test("resource-pack safety rules reject dangerous artifacts and missing guidance", () => {
