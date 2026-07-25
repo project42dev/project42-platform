@@ -20,7 +20,7 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.15.0");
+  assert.equal(starterCatalog.contentVersion, "0.16.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
@@ -393,6 +393,75 @@ test("publishes the OpenAI Responses API tool-use and agent curriculum unit", ()
   assert.ok(
     tools.sources.some((source) =>
       source.url.includes("/api/docs/guides/function-calling"),
+    ),
+  );
+});
+
+test("publishes and validates the complete seven-module OpenAI practice path", () => {
+  const path = starterCatalog.paths.find(
+    (candidate) => candidate.id === "openai-practice",
+  );
+  assert.ok(path);
+  assert.deepEqual(path.moduleIds.slice(4), [
+    "openai-safety-and-trust-boundaries",
+    "openai-evaluation-and-observability",
+    "migrating-to-and-from-openai",
+  ]);
+  assert.equal(path.moduleIds.length, 7);
+
+  const modules = new Map(
+    starterCatalog.modules.map((module) => [module.id, module]),
+  );
+  for (const [index, moduleId] of path.moduleIds.entries()) {
+    const module = modules.get(moduleId);
+    assert.ok(module);
+    assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
+    assert.ok(module.activity?.evidence.length >= 2, `${moduleId} needs evidence`);
+    assert.equal(module.knowledgeCheck.questions.length, 5);
+    assert.ok(
+      new Set(module.knowledgeCheck.questions.map((question) => question.answerIndex))
+        .size >= 3,
+      `${moduleId} must vary correct-answer positions`,
+    );
+    assert.ok(module.sources.length >= 4, `${moduleId} needs primary sources`);
+    assert.equal(module.instructorScript?.schemaVersion, "1.1");
+    assert.ok(module.instructorScript?.transcript);
+    assert.ok(module.instructorScript?.captions?.length >= 5);
+    assert.ok(module.instructorScript?.reducedMotionAlternative);
+    const expectedPrerequisite =
+      index === 0 ? "ai-foundations-capstone" : path.moduleIds[index - 1];
+    assert.ok(
+      module.prerequisites.includes(expectedPrerequisite),
+      `${moduleId} must require ${expectedPrerequisite}`,
+    );
+  }
+
+  const safety = modules.get("openai-safety-and-trust-boundaries");
+  assert.ok(
+    safety.sources.some((source) =>
+      source.url.includes("/api/docs/guides/safety-best-practices"),
+    ),
+  );
+  assert.ok(
+    safety.sections.some((section) => section.id === "red-team-output-and-trajectories"),
+  );
+
+  const evaluation = modules.get("openai-evaluation-and-observability");
+  assert.ok(
+    evaluation.sources.some((source) =>
+      source.url.includes("/api/docs/guides/trace-grading"),
+    ),
+  );
+
+  const migration = modules.get("migrating-to-and-from-openai");
+  assert.ok(
+    migration.sources.some((source) =>
+      source.url.includes("/api/docs/guides/migrate-to-responses"),
+    ),
+  );
+  assert.ok(
+    migration.sources.some((source) =>
+      source.url.includes("/api/docs/deprecations"),
     ),
   );
 });
