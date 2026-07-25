@@ -7,6 +7,13 @@ source count. Packs can additionally require an exact count, explicit verificati
 and recovery guidance, and reusable artifacts that reject common destructive
 command patterns.
 
+Provider-specific packs can declare `providerProfiles`. Each profile is an exact
+provider set plus an exact resource count, and every resource must match one
+declared profile. This preserves intentional provider-specific references and
+cross-provider resources without forcing a misleading provider-neutral label.
+`providerCredentialEnvironmentVariables` maps provider IDs to the credential
+environment-variable name that every matching resource must document.
+
 Run the deterministic gate with:
 
 ```bash
@@ -16,7 +23,8 @@ npm run resources:validate
 The gate verifies:
 
 - exact agreement between declared IDs and JSON files under each resource root;
-- stable IDs and slugs, required metadata, and provider-neutral scope;
+- stable IDs and slugs, required metadata, and either provider-neutral scope or
+  exact declared provider profiles;
 - pack-level Anthropic, OpenAI, Google, and provider-neutral coverage where
   declared;
 - a reusable artifact and explicit expected-result/evidence verification section
@@ -27,6 +35,7 @@ The gate verifies:
 - allowlisted primary-source families and valid, non-future review dates within
   each resource cadence; and
 - common credential and private-key patterns.
+- provider credential environment-variable names when declared by the pack.
 
 `npm run check` includes this deterministic gate. It does not make live internet
 requests.
@@ -41,6 +50,12 @@ For the coding-agent and MCP operational pack:
 
 ```bash
 npm run sources:links -- coding-agent-mcp-operations
+```
+
+For the provider command and workflow pack:
+
+```bash
+npm run sources:links -- provider-command-workflows
 ```
 
 The live command follows redirects, uses bounded concurrency and timeouts, retries

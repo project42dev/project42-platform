@@ -625,6 +625,65 @@ test("Google and cross-provider workflows preserve state, capability, and migrat
   assert.doesNotMatch(text, /(?:users[\\/][^\\/]+|[a-z]:\\users\\)/i);
 });
 
+test("provider workflow pack has exact provider, credential, and safety coverage", () => {
+  const ids = new Set([
+    "anthropic-messages-api-request",
+    "anthropic-tools-structured-output",
+    "anthropic-evaluation-error-triage",
+    "openai-responses-api-request",
+    "openai-tools-structured-output",
+    "openai-evaluation-error-triage",
+    "google-gemini-interactions-api-request",
+    "google-gemini-tools-structured-output",
+    "google-gemini-evaluation-error-triage",
+    "cross-provider-runtime-configuration",
+    "cross-provider-evaluation-migration-workflow",
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    ids.has(resource.id),
+  );
+  const profileCounts = resources.reduce((counts, resource) => {
+    const key = [...resource.providers].sort().join("+");
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+    return counts;
+  }, new Map());
+
+  assert.equal(resources.length, 11);
+  assert.deepEqual(new Set(resources.map((resource) => resource.id)), ids);
+  assert.deepEqual(
+    profileCounts,
+    new Map([
+      ["anthropic", 3],
+      ["openai", 3],
+      ["google", 3],
+      ["anthropic+google+openai+provider-neutral", 2],
+    ]),
+  );
+
+  const providerCredentials = new Map([
+    ["anthropic", "ANTHROPIC_API_KEY"],
+    ["openai", "OPENAI_API_KEY"],
+    ["google", "GEMINI_API_KEY"],
+  ]);
+  for (const [provider, credential] of providerCredentials) {
+    const providerText = resources
+      .filter((resource) => resource.providers.includes(provider))
+      .map((resource) => JSON.stringify(resource))
+      .join("\n");
+    assert.ok(
+      providerText.includes(credential),
+      `provider pack must document ${credential}`,
+    );
+  }
+  for (const resource of resources) {
+    assert.equal(resource.slug, resource.id);
+    assert.ok(hasVerificationGuidance(resource), `${resource.id} verification`);
+    assert.ok(hasRecoveryGuidance(resource), `${resource.id} recovery`);
+    assert.deepEqual(findUnsafeArtifactCommands(resource), []);
+    assert.ok(resource.sources.length >= 3);
+  }
+});
+
 test("coding-agent and MCP operational pack has exact, safe acceptance coverage", () => {
   const ids = new Set([
     "repository-orientation-checklist",
