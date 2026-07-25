@@ -26,7 +26,7 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.28.0");
+  assert.equal(starterCatalog.contentVersion, "0.29.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
@@ -711,6 +711,45 @@ test("coding-agent and MCP operational pack has exact, safe acceptance coverage"
     assert.deepEqual(findUnsafeArtifactCommands(resource), []);
     assert.ok(resource.sources.length >= 3);
   }
+});
+
+test("publishes five evaluation and safety playbooks with release controls", () => {
+  const ids = new Set([
+    "evaluation-plan-charter",
+    "representative-evaluation-dataset",
+    "evidence-based-evaluation-rubric",
+    "bounded-ai-red-team-exercise",
+    "human-controlled-ai-release-gate",
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    ids.has(resource.id),
+  );
+
+  assert.equal(resources.length, 5);
+  assert.deepEqual(new Set(resources.map((resource) => resource.id)), ids);
+  for (const resource of resources) {
+    assert.equal(resource.slug, resource.id);
+    assert.deepEqual(resource.providers, ["provider-neutral"]);
+    assert.ok(hasVerificationGuidance(resource), `${resource.id} verification`);
+    assert.ok(hasRecoveryGuidance(resource), `${resource.id} recovery`);
+    assert.deepEqual(findUnsafeArtifactCommands(resource), []);
+    assert.ok(resource.sources.length >= 3);
+    const text = JSON.stringify(resource);
+    assert.match(text, /Stop criteria/i, `${resource.id} stop criteria`);
+    assert.match(text, /Owner and cadence/i, `${resource.id} ownership`);
+  }
+
+  const redTeam = resources.find(
+    (resource) => resource.id === "bounded-ai-red-team-exercise",
+  );
+  assert.ok(redTeam.audience.includes("operator"));
+  assert.match(JSON.stringify(redTeam), /Written authorization/i);
+
+  const releaseGate = resources.find(
+    (resource) => resource.id === "human-controlled-ai-release-gate",
+  );
+  assert.match(JSON.stringify(releaseGate), /PROMOTE \| HOLD \| REJECT/);
+  assert.match(JSON.stringify(releaseGate), /accountability.*human/i);
 });
 
 test("resource-pack safety rules reject dangerous artifacts and missing guidance", () => {

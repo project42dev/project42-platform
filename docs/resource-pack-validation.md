@@ -58,6 +58,12 @@ For the provider command and workflow pack:
 npm run sources:links -- provider-command-workflows
 ```
 
+For the evaluation and safety playbooks:
+
+```bash
+npm run sources:links -- evaluation-safety-playbooks
+```
+
 The live command follows redirects, uses bounded concurrency and timeouts, retries
 once, and fails on network errors or non-2xx/3xx responses. It is a release check,
 not a normal CI dependency, because public documentation sites and networks can
