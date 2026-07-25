@@ -26,7 +26,7 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.26.0");
+  assert.equal(starterCatalog.contentVersion, "0.27.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
@@ -446,6 +446,89 @@ test("MCP and orchestration guides preserve trust and handoff boundaries", () =>
   }
   assert.doesNotMatch(text, /\b(client_secret|access_token)\s*[:=]\s*[\"'][^\\[<]/i);
   assert.doesNotMatch(text, /\b(rm\s+-rf|remove-item\s+-recurse)\b/i);
+});
+
+test("publishes six source-backed Anthropic and OpenAI workflow references", () => {
+  const expected = new Map([
+    ["anthropic-messages-api-request", ["playbook", "anthropic"]],
+    ["anthropic-tools-structured-output", ["reference", "anthropic"]],
+    ["anthropic-evaluation-error-triage", ["playbook", "anthropic"]],
+    ["openai-responses-api-request", ["playbook", "openai"]],
+    ["openai-tools-structured-output", ["reference", "openai"]],
+    ["openai-evaluation-error-triage", ["playbook", "openai"]],
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    expected.has(resource.id),
+  );
+
+  assert.ok(starterCatalog.resources.length >= 35);
+  assert.equal(resources.length, expected.size);
+  for (const resource of resources) {
+    const [format, provider] = expected.get(resource.id);
+    assert.equal(resource.format, format);
+    assert.deepEqual(resource.providers, [provider]);
+    assert.ok(resource.prerequisites.length > 0);
+    assert.equal(resource.owner, "project42-editorial");
+    assert.equal(resource.reviewCadenceDays, 30);
+    assert.equal(resource.lastVerified, "2026-07-25");
+    assert.equal(resource.sections.length, 3);
+    assert.ok(
+      resource.sections.some((section) => section.code?.code.includes("[")),
+      `${resource.id} must include a reusable example or evidence record`,
+    );
+    assert.equal(resource.sources.length, 3);
+    assert.ok(
+      resource.sources.every((source) => source.lastVerified === "2026-07-25"),
+    );
+  }
+});
+
+test("provider workflow references keep credentials, execution, and recovery bounded", () => {
+  const ids = new Set([
+    "anthropic-messages-api-request",
+    "anthropic-tools-structured-output",
+    "anthropic-evaluation-error-triage",
+    "openai-responses-api-request",
+    "openai-tools-structured-output",
+    "openai-evaluation-error-triage",
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    ids.has(resource.id),
+  );
+  const text = resources
+    .flatMap((resource) => [
+      resource.summary,
+      ...resource.prerequisites,
+      ...resource.sections.flatMap((section) => [
+        section.title,
+        ...section.paragraphs,
+        section.callout ?? "",
+        section.code?.code ?? "",
+      ]),
+    ])
+    .join("\n");
+
+  for (const resource of resources) {
+    assert.ok(hasVerificationGuidance(resource), `${resource.id} verification`);
+    assert.ok(hasRecoveryGuidance(resource), `${resource.id} recovery`);
+    assert.deepEqual(findUnsafeArtifactCommands(resource), []);
+  }
+  for (const required of [
+    "ANTHROPIC_API_KEY",
+    "PROJECT42_ANTHROPIC_MODEL",
+    "OPENAI_API_KEY",
+    "PROJECT42_OPENAI_MODEL",
+    "Expected",
+    "Verify",
+    "rollback",
+    "request ID",
+    "idempotency",
+  ]) {
+    assert.ok(text.includes(required), `provider workflow pack must cover ${required}`);
+  }
+  assert.doesNotMatch(text, /\bsk-[a-z0-9_-]{12,}\b/i);
+  assert.doesNotMatch(text, /(?:api[_ -]?key|authorization)\s*[:=]\s*["'][^$[<]/i);
+  assert.doesNotMatch(text, /(?:users[\\/][^\\/]+|[a-z]:\\users\\)/i);
 });
 
 test("coding-agent and MCP operational pack has exact, safe acceptance coverage", () => {

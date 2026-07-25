@@ -21,6 +21,13 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.32.0` adds six source-backed Anthropic and OpenAI workflow
+references for first API requests, schema-constrained outputs and tools,
+evaluation, and error triage. Copyable examples use environment-only
+credentials and reviewed model configuration, while every workflow defines
+prerequisites, expected evidence, verification, bounded recovery, ownership,
+freshness cadence, and current first-party sources.
+
 Release `0.31.0` adds the consolidated acceptance gate for the eleven AI
 coding-agent and MCP operational guides. The exact-membership manifest verifies
 stable discovery metadata, registered primary sources, provider coverage,
