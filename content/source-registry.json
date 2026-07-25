@@ -144,6 +144,22 @@
       "trustTier": "primary",
       "reviewCadenceDays": 180,
       "owner": "curriculum"
+    },
+    {
+      "id": "acrl-information-literacy",
+      "urlPrefix": "https://www.ala.org/acrl/standards/",
+      "publisher": "Association of College and Research Libraries",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "w3c-provenance",
+      "urlPrefix": "https://www.w3.org/TR/prov-",
+      "publisher": "W3C",
+      "trustTier": "primary",
+      "reviewCadenceDays": 365,
+      "owner": "curriculum"
     }
   ]
 }

@@ -21,7 +21,7 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.23.0");
+  assert.equal(starterCatalog.contentVersion, "0.24.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
@@ -134,7 +134,7 @@ test("publishes six source-backed prompting and context field guides", () => {
     expected.has(resource.id),
   );
 
-  assert.equal(starterCatalog.resources.length, 13);
+  assert.ok(starterCatalog.resources.length >= 13);
   assert.equal(resources.length, expected.size);
   for (const resource of resources) {
     assert.equal(resource.format, expected.get(resource.id));
@@ -202,6 +202,88 @@ test("prompting and context templates preserve safety and evidence boundaries", 
   )?.code?.code;
   assert.ok(envelope);
   assert.equal(JSON.parse(envelope).contractVersion, "1.0");
+});
+
+test("publishes five source-backed research and verification field guides", () => {
+  const expected = new Map([
+    ["source-authority-ladder", "decision-path"],
+    ["claim-decomposition-map", "template"],
+    ["citation-support-checklist", "checklist"],
+    ["fact-verification-workflow", "playbook"],
+    ["consequence-based-review-gate", "decision-path"],
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    expected.has(resource.id),
+  );
+
+  assert.ok(starterCatalog.resources.length >= 18);
+  assert.equal(resources.length, expected.size);
+  for (const resource of resources) {
+    assert.equal(resource.format, expected.get(resource.id));
+    assert.ok(resource.providers.includes("provider-neutral"));
+    assert.ok(resource.prerequisites.length > 0);
+    assert.equal(resource.owner, "project42-editorial");
+    assert.equal(resource.sections.length, 3);
+    assert.ok(
+      resource.sections.some((section) =>
+        section.title.toLowerCase().includes("expected evidence"),
+      ),
+      `${resource.id} must define expected evidence`,
+    );
+    assert.ok(
+      resource.sections.some((section) => section.code?.code.includes("[")),
+      `${resource.id} must include a safe reusable record`,
+    );
+    assert.equal(resource.sources.length, 3);
+    assert.ok(
+      resource.sources.every((source) => source.lastVerified === "2026-07-25"),
+    );
+  }
+});
+
+test("research guides distinguish evidence from unsupported confidence", () => {
+  const ids = new Set([
+    "source-authority-ladder",
+    "claim-decomposition-map",
+    "citation-support-checklist",
+    "fact-verification-workflow",
+    "consequence-based-review-gate",
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    ids.has(resource.id),
+  );
+  const text = resources
+    .flatMap((resource) => [
+      resource.summary,
+      ...resource.sections.flatMap((section) => [
+        ...section.paragraphs,
+        section.callout ?? "",
+        section.code?.code ?? "",
+      ]),
+    ])
+    .join("\n")
+    .toLowerCase();
+
+  for (const required of [
+    "atomic claim",
+    "contradict",
+    "primary",
+    "scope",
+    "unknown",
+    "consequence",
+    "professional",
+  ]) {
+    assert.ok(text.includes(required), `research pack must cover ${required}`);
+  }
+  assert.doesNotMatch(text, /\bsk-[a-z0-9]{12,}\b/i);
+
+  const citations = starterCatalog.resources.find(
+    (resource) => resource.id === "citation-support-checklist",
+  );
+  assert.deepEqual(
+    new Set(citations?.sources.map((source) => source.publisher)),
+    new Set(["OpenAI", "Anthropic", "Google"]),
+  );
 });
 
 test("AI Foundations preserves its prerequisite chain and varied answer positions", () => {
