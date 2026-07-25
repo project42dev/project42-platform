@@ -20,7 +20,7 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.17.0");
+  assert.equal(starterCatalog.contentVersion, "0.18.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
@@ -471,7 +471,7 @@ test("publishes the Gemini orientation and prompting curriculum unit", () => {
     (candidate) => candidate.id === "google-gemini-practice",
   );
   assert.ok(path);
-  assert.deepEqual(path.moduleIds, [
+  assert.deepEqual(path.moduleIds.slice(0, 2), [
     "gemini-ecosystem-and-interfaces",
     "gemini-prompting-in-practice",
   ]);
@@ -479,7 +479,7 @@ test("publishes the Gemini orientation and prompting curriculum unit", () => {
   const modules = new Map(
     starterCatalog.modules.map((module) => [module.id, module]),
   );
-  for (const [index, moduleId] of path.moduleIds.entries()) {
+  for (const [index, moduleId] of path.moduleIds.slice(0, 2).entries()) {
     const module = modules.get(moduleId);
     assert.ok(module);
     assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
@@ -531,6 +531,76 @@ test("publishes the Gemini orientation and prompting curriculum unit", () => {
     prompting.sources.some((source) =>
       source.url.includes("/gemini-api/docs/structured-output"),
     ),
+  );
+});
+
+test("publishes the Gemini API tool-use and agent curriculum unit", () => {
+  const path = starterCatalog.paths.find(
+    (candidate) => candidate.id === "google-gemini-practice",
+  );
+  assert.ok(path);
+  assert.deepEqual(path.moduleIds.slice(2, 4), [
+    "gemini-api-and-sdk-workflows",
+    "gemini-tools-and-agent-loops",
+  ]);
+
+  const modules = new Map(
+    starterCatalog.modules.map((module) => [module.id, module]),
+  );
+  for (const [index, moduleId] of path.moduleIds.slice(2, 4).entries()) {
+    const module = modules.get(moduleId);
+    assert.ok(module);
+    assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
+    assert.ok(module.activity?.evidence.length >= 2, `${moduleId} needs evidence`);
+    assert.equal(module.knowledgeCheck.questions.length, 5);
+    assert.ok(
+      new Set(module.knowledgeCheck.questions.map((question) => question.answerIndex))
+        .size >= 3,
+      `${moduleId} must vary correct-answer positions`,
+    );
+    assert.ok(module.sources.length >= 4, `${moduleId} needs primary sources`);
+    assert.equal(module.instructorScript?.schemaVersion, "1.1");
+    assert.ok(module.instructorScript?.transcript);
+    assert.ok(module.instructorScript?.captions?.length >= 5);
+    assert.ok(module.instructorScript?.reducedMotionAlternative);
+    const expectedPrerequisite =
+      index === 0 ? path.moduleIds[1] : path.moduleIds[index + 1];
+    assert.ok(
+      module.prerequisites.includes(expectedPrerequisite),
+      `${moduleId} must require ${expectedPrerequisite}`,
+    );
+    assert.match(
+      JSON.stringify(module.activity),
+      /synthetic|fixture|no-paid-call/i,
+      `${moduleId} needs a no-paid-call fixture`,
+    );
+  }
+
+  const api = modules.get("gemini-api-and-sdk-workflows");
+  const apiText = JSON.stringify(api);
+  assert.match(apiText, /process\.env\.GEMINI_API_KEY/);
+  assert.match(apiText, /process\.env\.GEMINI_MODEL/);
+  assert.match(apiText, /SAFETY/);
+  assert.match(apiText, /MAX_TOKENS/);
+  assert.match(apiText, /RECITATION/);
+  assert.doesNotMatch(apiText, /AIza[A-Za-z0-9_-]{20,}/);
+  assert.ok(
+    api.sources.some((source) =>
+      source.url.includes("/gemini-api/docs/troubleshooting"),
+    ),
+  );
+
+  const tools = modules.get("gemini-tools-and-agent-loops");
+  assert.ok(
+    tools.sections.some((section) => section.id === "match-calls-results-and-loop-state"),
+  );
+  assert.ok(
+    tools.sources.some((source) =>
+      source.url.includes("/gemini-api/docs/function-calling"),
+    ),
+  );
+  assert.ok(
+    tools.sources.some((source) => source.url.startsWith("https://google.github.io/adk-docs/")),
   );
 });
 
