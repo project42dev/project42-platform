@@ -19,13 +19,16 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
-Release `0.11.0` extends the Reliable Agent Workflows path to eight substantive
-modules. The new unit covers MCP architecture and lifecycle, trust and security,
-orchestration pattern selection, and auditable multi-agent handoffs. It includes
-exercises for tool schemas, permission review, threat modeling, orchestration
-graphs, and versioned handoff contracts. Provider-specific Anthropic, OpenAI, and
-Google examples remain adapters around portable concepts rather than false feature
-equivalents.
+Release `0.12.0` extends the Reliable Agent Workflows path to eleven substantive
+modules. The new unit covers offline agent evaluation, privacy-preserving
+observability, failure classification, incident containment, reconciliation,
+rollback, recovery, and continuous improvement. Its exercises produce an
+evaluation set and rubric, trace-review artifact, telemetry policy, and operational
+runbook. Provider-specific Anthropic, OpenAI, and Google examples remain adapters
+around portable concepts rather than false feature equivalents.
+
+Release `0.11.0` added MCP architecture and lifecycle, trust and security,
+orchestration pattern selection, and auditable multi-agent handoffs.
 
 Every substantive module includes an evidence-producing exercise, five
 scenario-based questions, current primary sources, and a validated instructor

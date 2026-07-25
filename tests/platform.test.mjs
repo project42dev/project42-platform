@@ -20,9 +20,9 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.8.0");
+  assert.equal(starterCatalog.contentVersion, "0.9.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
-  assert.equal(starterCatalog.modules.length, 28);
+  assert.equal(starterCatalog.modules.length, 30);
 });
 
 test("AI Foundations preserves its prerequisite chain and varied answer positions", () => {
@@ -158,8 +158,47 @@ test("publishes the MCP orchestration and handoff curriculum unit", () => {
     );
   }
 
-  const review = modules.get("review-agent-results");
-  assert.ok(review?.prerequisites.includes("multi-agent-handoffs"));
+  const evaluation = modules.get("agent-evaluation");
+  assert.ok(evaluation?.prerequisites.includes("multi-agent-handoffs"));
+});
+
+test("publishes the evaluation observability and operations curriculum unit", () => {
+  const path = starterCatalog.paths.find(
+    (candidate) => candidate.id === "reliable-agent-workflows",
+  );
+  assert.ok(path);
+  assert.deepEqual(path.moduleIds.slice(8), [
+    "agent-evaluation",
+    "agent-observability",
+    "review-agent-results",
+  ]);
+
+  const modules = new Map(
+    starterCatalog.modules.map((module) => [module.id, module]),
+  );
+  for (const [index, moduleId] of path.moduleIds.slice(8).entries()) {
+    const module = modules.get(moduleId);
+    assert.ok(module);
+    assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
+    assert.ok(module.activity?.evidence.length >= 2, `${moduleId} needs evidence`);
+    assert.equal(module.knowledgeCheck.questions.length, 5);
+    assert.ok(
+      new Set(module.knowledgeCheck.questions.map((question) => question.answerIndex))
+        .size >= 3,
+      `${moduleId} must vary correct-answer positions`,
+    );
+    assert.ok(module.sources.length >= 4, `${moduleId} needs primary sources`);
+    assert.equal(module.instructorScript?.schemaVersion, "1.1");
+    assert.ok(module.instructorScript?.transcript);
+    assert.ok(module.instructorScript?.captions?.length >= 5);
+    assert.ok(module.instructorScript?.reducedMotionAlternative);
+    const expectedPrerequisite =
+      index === 0 ? "multi-agent-handoffs" : path.moduleIds[index + 7];
+    assert.ok(
+      module.prerequisites.includes(expectedPrerequisite),
+      `${moduleId} must require ${expectedPrerequisite}`,
+    );
+  }
 });
 
 test("rejects incomplete instructor caption and transcript packages", () => {
@@ -604,7 +643,7 @@ test("content freshness gate passes current sources and rejects stale ones", () 
   const stale = runFreshnessCheck("2027-07-23");
 
   assert.equal(current.status, 0, current.stderr);
-  assert.match(current.stdout, /Checked 82 references/);
+  assert.match(current.stdout, /Checked 93 references/);
   assert.equal(stale.status, 1);
   assert.match(stale.stderr, /ERROR .* is \d+ days old/);
 });
