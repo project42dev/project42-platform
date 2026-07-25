@@ -42,6 +42,15 @@ capstone module completes only after both its knowledge check and one capstone
 submission pass. Submissions are versioned learning evidence in portable JSON
 records and CSV transcripts.
 
+Set `requiresCriterionEvidence` when every rubric score must name its supporting
+artifact or assessment result. Artifact references must appear in the submission;
+assessment references use `assessment:<attempt-id>` and must name a recorded
+attempt for the same capstone module and path. Set `requiresCalibrationExemplars`
+and provide exactly one
+passing `complete` exemplar and one failing `flawed` exemplar when reviewers need
+machine-validated scoring anchors. Each exemplar carries complete artifact content,
+criterion scores, evidence references, reviewer notes, and its expected result.
+
 Every resource needs the same stable identity, sections, providers, source
 metadata, and search tags. Resources do not create learner completion records.
 

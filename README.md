@@ -19,8 +19,16 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
-Release `0.12.0` extends the Reliable Agent Workflows path to eleven substantive
-modules. The new unit covers offline agent evaluation, privacy-preserving
+Release `0.13.0` completes the twelve-module Reliable Agent Workflows path with
+an evidence-mapped practical capstone. Learners produce an architecture and state
+model, permission matrix, threat model, evaluation set, failure tests, observability
+plan, operating runbook, and operational handoff. A complete and a deliberately
+flawed exemplar calibrate the 100-point rubric across correctness, safety, evidence,
+reliability, maintainability, and communication. Passing requires both the knowledge
+check and a rubric score of at least 80 percent; failed submissions remain available
+for revision.
+
+Release `0.12.0` added offline agent evaluation, privacy-preserving
 observability, failure classification, incident containment, reconciliation,
 rollback, recovery, and continuous improvement. Its exercises produce an
 evaluation set and rubric, trace-review artifact, telemetry policy, and operational

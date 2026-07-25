@@ -73,6 +73,7 @@ export function buildTranscriptCsv(
       "Evidence type",
       "Evidence ID",
       "Artifact references",
+      "Criterion evidence",
     ],
   ];
 
@@ -88,6 +89,7 @@ export function buildTranscriptCsv(
         String(path.completedModules),
         String(path.totalModules),
         String(path.completionPercent),
+        "",
         "",
         "",
         "",
@@ -112,6 +114,7 @@ export function buildTranscriptCsv(
         "Assessment",
         attempt.attemptId,
         "",
+        "",
       ]);
     }
     for (const submission of pathCapstones) {
@@ -128,6 +131,12 @@ export function buildTranscriptCsv(
         "Capstone",
         submission.id,
         submission.artifactRefs.join("; "),
+        submission.criterionScores
+          .map(
+            (score) =>
+              `${score.criterionId}: ${(score.evidenceRefs ?? []).join(" | ")}`,
+          )
+          .join("; "),
       ]);
     }
   }
@@ -239,6 +248,16 @@ export function restorePortableLearnerRecord(
       const expectedScore = Math.round((awarded / available) * 100);
       const expectedPassed =
         expectedScore >= module.capstone.rubric.passPercent;
+      const artifactRefs = new Set(submission.artifactRefs);
+      const assessmentRefs = new Set(
+        value.learner.attempts
+          .filter(
+            (attempt) =>
+              attempt.pathId === submission.pathId &&
+              attempt.moduleId === submission.moduleId,
+          )
+          .map((attempt) => `assessment:${attempt.id}`),
+      );
       if (
         submission.artifactRefs.length <
         module.capstone.requiredArtifacts.length
@@ -260,6 +279,23 @@ export function restorePortableLearnerRecord(
       ) {
         errors.push(
           `Capstone ${submission.id} does not match its current rubric`,
+        );
+      }
+      if (
+        module.capstone.requiresCriterionEvidence &&
+        submission.criterionScores.some(
+          (score) =>
+            !score.evidenceRefs?.length ||
+            new Set(score.evidenceRefs).size !== score.evidenceRefs.length ||
+            score.evidenceRefs.some(
+              (reference) =>
+                !reference.trim() ||
+                (!artifactRefs.has(reference) && !assessmentRefs.has(reference)),
+            ),
+        )
+      ) {
+        errors.push(
+          `Capstone ${submission.id} has unmapped criterion evidence`,
         );
       }
       if (
@@ -387,7 +423,8 @@ function isCapstoneCriterionScore(value: unknown): boolean {
     isNonEmptyString(value.criterionId) &&
     typeof value.pointsAwarded === "number" &&
     Number.isInteger(value.pointsAwarded) &&
-    value.pointsAwarded >= 0
+    value.pointsAwarded >= 0 &&
+    (value.evidenceRefs === undefined || isUniqueStringArray(value.evidenceRefs))
   );
 }
 

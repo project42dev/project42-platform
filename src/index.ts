@@ -44,6 +44,9 @@ export type {
 export type {
   Catalog,
   CapstoneDefinition,
+  CapstoneExemplar,
+  CapstoneExemplarArtifact,
+  CapstoneExemplarCriterionScore,
   CapstoneRubricCriterion,
   CodeExample,
   InstructorCue,
