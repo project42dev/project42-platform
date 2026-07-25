@@ -27,6 +27,14 @@ virtual-instructor packages; it does not require a player. It contains versioned
 stable cues for narration, visuals, learner prompts, checkpoints, and the assessment
 handoff. Visual cues require an accessibility alternative.
 
+Use instructor-script schema `1.1` for new substantive modules. In addition to the
+cue sequence, it requires a complete text transcript, ordered caption segments, and
+a reduced-motion alternative. Captions must have non-overlapping integer
+`startSeconds` and `endSeconds` within the declared duration. Each caption references
+its source cue through `cueId` and repeats that cue's text verbatim. Every narration
+cue must have a caption and appear verbatim in the transcript so a future player can
+prove that its spoken, captioned, and text alternatives describe the same lesson.
+
 A culminating module can also include a `capstone`. Define stable required-artifact
 labels and a rubric whose criteria total 100 points. Each criterion names the
 evidence a reviewer needs, and the module declares the passing percentage. A

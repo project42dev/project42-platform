@@ -11,7 +11,7 @@ contracts—not the private PMO records or Project42dev production configuration
 
 - A typed, validated catalog for resources, learning paths, modules, and checks.
 - Modular curriculum files with hands-on activities and instructor-ready narration,
-  scene, checkpoint, and assessment scripts.
+  scene, checkpoint, assessment, caption, transcript, and reduced-motion packages.
 - A primary-source registry and freshness gate for volatile content.
 - Provider-neutral curriculum with Anthropic, OpenAI, and selected-provider branches.
 - Pure assessment scoring and learner-progress functions.
@@ -19,12 +19,16 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
-Release `0.9.0` expands AI Foundations to sixteen sequenced modules. Five new modules
-teach evidence-based research, writing and transformation, coding and analysis, safe
-tool use, and a scored practical capstone. Every workflow explicitly covers
-preparation, execution, verification, failure recovery, and data safety. The capstone
-requires five traceable artifacts, a knowledge check, and an evidence-backed
-100-point rubric before the path can be completed.
+Release `0.10.0` begins the complete Reliable Agent Workflows path with four
+substantive modules covering bounded agent loops, typed tool contracts, context
+engineering, and governed memory. Each module includes an evidence-producing
+exercise, five scenario-based questions, current primary sources, and a validated
+instructor package. Instructor schema 1.1 binds narration cues to captions and a
+complete transcript while preserving reduced-motion alternatives.
+
+The prior `0.9.0` release established the sixteen-module AI Foundations path,
+including evidence-based research, writing and transformation, coding and analysis,
+safe tool use, and a scored practical capstone.
 
 See [Content authoring](docs/content-authoring.md) to add paths, modules, checks,
 and field-guide resources without changing application code.
