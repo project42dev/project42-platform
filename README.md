@@ -21,6 +21,12 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.30.0` adds five MCP and orchestration field guides covering protocol
+roles and lifecycle, server trust review, safe tool contracts, orchestration
+pattern selection, and evidence-preserving handoffs. The reusable aids make
+identity, authority, data boundaries, side effects, verification, and rollback
+explicit without instructing learners to install unreviewed servers.
+
 Release `0.29.0` adds six AI coding-agent field guides covering repository
 orientation, bounded work planning, least-privilege permissions, implementation
 evidence loops, independent code review, and reproducible test/debug handoffs.
