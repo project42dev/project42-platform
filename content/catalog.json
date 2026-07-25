@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.14.0",
+  "contentVersion": "0.15.0",
   "title": "Project 42 Learning Catalog",
   "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [
@@ -93,12 +93,14 @@
     {
       "id": "openai-practice",
       "title": "OpenAI in Practice",
-      "summary": "Choose the right OpenAI surface and build clear, evaluated prompt contracts.",
+      "summary": "Choose the right OpenAI surface, build evaluated prompts and Responses API workflows, and operate bounded tool and Codex agent loops.",
       "audience": "Learners and practitioners using ChatGPT, the OpenAI API, or Codex for individual, application, and development workflows.",
       "level": "intermediate",
       "moduleIds": [
         "openai-ecosystem-and-interfaces",
-        "openai-prompting-in-practice"
+        "openai-prompting-in-practice",
+        "openai-responses-api-and-sdk-workflows",
+        "openai-tools-and-codex-agent-loops"
       ],
       "badge": {
         "id": "badge-openai-practitioner",
