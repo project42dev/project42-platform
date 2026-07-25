@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.11.0",
+  "contentVersion": "0.12.0",
   "title": "Project 42 Learning Catalog",
   "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [
@@ -77,7 +77,9 @@
       "level": "intermediate",
       "moduleIds": [
         "anthropic-ecosystem-and-interfaces",
-        "claude-prompting-in-practice"
+        "claude-prompting-in-practice",
+        "claude-api-and-sdk-workflows",
+        "claude-tools-and-agent-loops"
       ],
       "badge": {
         "id": "badge-anthropic-claude-practitioner",
