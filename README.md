@@ -21,6 +21,13 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.35.0` adds five provider-neutral evaluation and safety playbooks:
+an evaluation-plan charter, representative dataset ledger, evidence-based rubric,
+bounded red-team rules of engagement, and a human-controlled release gate. Each
+resource defines prerequisites, reusable evidence, accountable ownership and
+cadence, blocking stop criteria, verification, recovery, and current primary
+sources without allowing automated production approval.
+
 Release `0.34.0` adds the consolidated acceptance gate for all eleven provider
 workflow references. Its exact-membership manifest enforces three Anthropic,
 three OpenAI, three Google, and two four-provider resources; environment-only
