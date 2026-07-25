@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.5.0",
+  "contentVersion": "0.6.0",
   "title": "Project 42 Learning Catalog",
   "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [
@@ -43,7 +43,12 @@
         "context-and-evidence-construction",
         "examples-and-output-contracts",
         "verification-and-iterative-improvement",
-        "agents-and-guardrails"
+        "research-with-evidence",
+        "writing-and-transformation-workflow",
+        "coding-and-analysis-workflow",
+        "safe-tool-use-workflow",
+        "agents-and-guardrails",
+        "ai-foundations-capstone"
       ],
       "badge": {
         "id": "badge-ai-foundations",
@@ -232,7 +237,7 @@
         "Identify tool, permission, and verification boundaries.",
         "Recognize when human approval is required."
       ],
-      "prerequisites": ["verification-and-iterative-improvement"],
+      "prerequisites": ["safe-tool-use-workflow"],
       "sections": [
         {
           "id": "agent-loop",

@@ -3,11 +3,13 @@ import { spawnSync } from "node:child_process";
 import test from "node:test";
 import {
   buildAssessmentHistory,
+  buildCapstoneHistory,
   buildPortableLearnerRecord,
   buildTranscriptCsv,
   buildTranscript,
   createEmptyProgress,
   recordAssessmentAttempt,
+  recordCapstoneSubmission,
   recordModuleVisit,
   restorePortableLearnerRecord,
   scoreKnowledgeCheck,
@@ -18,9 +20,9 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.5.0");
-  assert.equal(starterCatalog.paths[0].moduleIds.length, 11);
-  assert.equal(starterCatalog.modules.length, 17);
+  assert.equal(starterCatalog.contentVersion, "0.6.0");
+  assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
+  assert.equal(starterCatalog.modules.length, 22);
 });
 
 test("AI Foundations preserves its prerequisite chain and varied answer positions", () => {
@@ -44,6 +46,11 @@ test("AI Foundations preserves its prerequisite chain and varied answer position
     "context-and-evidence-construction",
     "examples-and-output-contracts",
     "verification-and-iterative-improvement",
+    "research-with-evidence",
+    "writing-and-transformation-workflow",
+    "coding-and-analysis-workflow",
+    "safe-tool-use-workflow",
+    "ai-foundations-capstone",
   ]) {
     const module = modules.get(moduleId);
     assert.ok(module);
@@ -53,6 +60,23 @@ test("AI Foundations preserves its prerequisite chain and varied answer position
       `${moduleId} must vary correct-answer positions`,
     );
   }
+});
+
+test("validates capstone contracts and rejects an incomplete rubric", () => {
+  const broken = structuredClone(starterCatalog);
+  const capstone = broken.modules.find(
+    (candidate) => candidate.id === "ai-foundations-capstone",
+  );
+  assert.ok(capstone?.capstone);
+  capstone.capstone.rubric.criteria[0].maxPoints = 19;
+
+  const validation = validateCatalog(broken);
+  assert.equal(validation.valid, false);
+  assert.ok(
+    validation.errors.includes(
+      "Module ai-foundations-capstone capstone rubric must total 100 points",
+    ),
+  );
 });
 
 test("catalog validation catches broken references and unsafe source metadata", () => {
@@ -169,6 +193,157 @@ test("records a recent module visit without completing the lesson", () => {
   );
 });
 
+test("requires both a passing check and traceable capstone evidence", () => {
+  const path = starterCatalog.paths.find(
+    (candidate) => candidate.id === "ai-foundations",
+  );
+  const module = starterCatalog.modules.find(
+    (candidate) => candidate.id === "ai-foundations-capstone",
+  );
+  assert.ok(path);
+  assert.ok(module?.capstone);
+  const result = scoreKnowledgeCheck(
+    module.knowledgeCheck.questions,
+    Object.fromEntries(
+      module.knowledgeCheck.questions.map((question) => [
+        question.id,
+        question.answerIndex,
+      ]),
+    ),
+    module.knowledgeCheck.passPercent,
+  );
+  const afterCheck = recordAssessmentAttempt(
+    createEmptyProgress("Capstone learner"),
+    starterCatalog,
+    {
+      attemptId: "attempt-capstone-check",
+      pathId: path.id,
+      moduleId: module.id,
+      completedAt: "2026-07-25T12:00:00.000Z",
+      result,
+    },
+  );
+  assert.equal(afterCheck.completedModuleIds.includes(module.id), false);
+
+  const input = {
+    submissionId: "submission-capstone-1",
+    pathId: path.id,
+    moduleId: module.id,
+    submittedAt: "2026-07-25T12:30:00.000Z",
+    artifactRefs: [
+      "portfolio/objective.md",
+      "portfolio/workflow.md",
+      "portfolio/evidence.md",
+      "portfolio/verification.md",
+      "portfolio/handoff.md",
+    ],
+    criterionScores: module.capstone.rubric.criteria.map((criterion) => ({
+      criterionId: criterion.id,
+      pointsAwarded: criterion.maxPoints,
+    })),
+    reflection: "Independent checks changed the final recommendation.",
+  };
+  const completed = recordCapstoneSubmission(
+    afterCheck,
+    starterCatalog,
+    input,
+  );
+  const idempotent = recordCapstoneSubmission(
+    completed,
+    starterCatalog,
+    input,
+  );
+  const history = buildCapstoneHistory(starterCatalog, idempotent);
+  const csv = buildTranscriptCsv(starterCatalog, idempotent);
+
+  assert.deepEqual(completed.completedModuleIds, [module.id]);
+  assert.equal(idempotent.capstoneSubmissions.length, 1);
+  assert.equal(history.length, 1);
+  assert.equal(history[0].capstoneTitle, module.capstone.title);
+  assert.equal(history[0].scorePercent, 100);
+  assert.equal(history[0].passed, true);
+  assert.match(csv, /Capstone/);
+  assert.match(csv, /submission-capstone-1/);
+  assert.match(csv, /portfolio\/objective\.md/);
+
+  const record = buildPortableLearnerRecord(
+    starterCatalog,
+    idempotent,
+    "2026-07-25T13:00:00.000Z",
+  );
+  assert.deepEqual(restorePortableLearnerRecord(record, starterCatalog), {
+    valid: true,
+    progress: idempotent,
+  });
+
+  const capstoneFirst = recordCapstoneSubmission(
+    createEmptyProgress("Capstone first"),
+    starterCatalog,
+    { ...input, submissionId: "submission-capstone-first" },
+  );
+  assert.equal(capstoneFirst.completedModuleIds.includes(module.id), false);
+  const completedAfterCheck = recordAssessmentAttempt(
+    capstoneFirst,
+    starterCatalog,
+    {
+      attemptId: "attempt-after-capstone",
+      pathId: path.id,
+      moduleId: module.id,
+      completedAt: "2026-07-25T13:15:00.000Z",
+      result,
+    },
+  );
+  assert.equal(completedAfterCheck.completedModuleIds.includes(module.id), true);
+
+  const tampered = structuredClone(record);
+  tampered.learner.capstoneSubmissions[0].scorePercent = 99;
+  const rejected = restorePortableLearnerRecord(tampered, starterCatalog);
+  assert.equal(rejected.valid, false);
+  assert.ok(
+    rejected.errors.some((error) => error.includes("inconsistent score")),
+  );
+});
+
+test("rejects capstone submissions with missing artifacts or invalid scores", () => {
+  const path = starterCatalog.paths.find(
+    (candidate) => candidate.id === "ai-foundations",
+  );
+  const module = starterCatalog.modules.find(
+    (candidate) => candidate.id === "ai-foundations-capstone",
+  );
+  assert.ok(path);
+  assert.ok(module?.capstone);
+  const base = {
+    submissionId: "submission-invalid",
+    pathId: path.id,
+    moduleId: module.id,
+    submittedAt: "2026-07-25T12:30:00.000Z",
+    artifactRefs: ["only-one-artifact.md"],
+    criterionScores: module.capstone.rubric.criteria.map((criterion) => ({
+      criterionId: criterion.id,
+      pointsAwarded: criterion.maxPoints,
+    })),
+    reflection: "A reflection.",
+  };
+
+  assert.throws(
+    () => recordCapstoneSubmission(createEmptyProgress(), starterCatalog, base),
+    /at least 5 artifact references/,
+  );
+  assert.throws(
+    () =>
+      recordCapstoneSubmission(createEmptyProgress(), starterCatalog, {
+        ...base,
+        artifactRefs: ["a", "b", "c", "d", "e"],
+        criterionScores: base.criterionScores.map((score, index) => ({
+          ...score,
+          pointsAwarded: index === 0 ? 21 : score.pointsAwarded,
+        })),
+      }),
+    /Invalid score/,
+  );
+});
+
 test("exports a portable learner record and spreadsheet-safe transcript", () => {
   const progress = {
     ...createEmptyProgress("=SUM(A1:A2)"),
@@ -276,10 +451,16 @@ test("rejects unsafe learner records and accepts compatible older catalogs", () 
     "2026-07-23T12:30:00.000Z",
   );
   compatibleOlderRecord.catalogVersion = "0.0.1";
+  delete compatibleOlderRecord.learner.capstoneSubmissions;
+  const restoredOlderRecord = restorePortableLearnerRecord(
+    compatibleOlderRecord,
+    starterCatalog,
+  );
   assert.equal(
-    restorePortableLearnerRecord(compatibleOlderRecord, starterCatalog).valid,
+    restoredOlderRecord.valid,
     true,
   );
+  assert.deepEqual(restoredOlderRecord.progress.capstoneSubmissions, []);
 
   const malformed = buildPortableLearnerRecord(
     starterCatalog,
@@ -298,7 +479,7 @@ test("content freshness gate passes current sources and rejects stale ones", () 
   const stale = runFreshnessCheck("2027-07-23");
 
   assert.equal(current.status, 0, current.stderr);
-  assert.match(current.stdout, /Checked 44 references/);
+  assert.match(current.stdout, /Checked 59 references/);
   assert.equal(stale.status, 1);
   assert.match(stale.stderr, /ERROR .* is \d+ days old/);
 });

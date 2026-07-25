@@ -52,6 +52,25 @@ export interface InstructorScript {
   cues: InstructorCue[];
 }
 
+export interface CapstoneRubricCriterion {
+  id: string;
+  title: string;
+  description: string;
+  maxPoints: number;
+  evidenceRequired: string[];
+}
+
+export interface CapstoneDefinition {
+  id: string;
+  title: string;
+  summary: string;
+  requiredArtifacts: string[];
+  rubric: {
+    passPercent: number;
+    criteria: CapstoneRubricCriterion[];
+  };
+}
+
 export interface KnowledgeQuestion {
   id: string;
   prompt: string;
@@ -72,6 +91,7 @@ export interface LearningModule {
   sections: LessonSection[];
   activity?: LearningActivity;
   instructorScript?: InstructorScript;
+  capstone?: CapstoneDefinition;
   knowledgeCheck: {
     passPercent: number;
     questions: KnowledgeQuestion[];
@@ -166,6 +186,7 @@ export function validateCatalog(catalog: Catalog): ValidationResult {
     validateSections(module.sections, `Module ${module.id}`, errors);
     validateActivity(module.activity, module.id, errors);
     validateInstructorScript(module.instructorScript, module, errors, register);
+    validateCapstone(module.capstone, module.id, errors, register);
     if (module.sources.length === 0) errors.push(`Module ${module.id} has no sources`);
     if (module.knowledgeCheck.questions.length === 0) {
       errors.push(`Module ${module.id} has no knowledge check`);
@@ -218,6 +239,57 @@ export function validateCatalog(catalog: Catalog): ValidationResult {
   validatePrerequisiteCycles(catalog.modules, errors);
 
   return { valid: errors.length === 0, errors };
+}
+
+function validateCapstone(
+  capstone: CapstoneDefinition | undefined,
+  moduleId: string,
+  errors: string[],
+  register: (id: string, location: string) => void,
+) {
+  if (!capstone) return;
+  register(capstone.id, `Capstone in ${moduleId}`);
+  if (!capstone.title.trim() || !capstone.summary.trim()) {
+    errors.push(`Module ${moduleId} capstone needs a title and summary`);
+  }
+  if (
+    capstone.requiredArtifacts.length === 0 ||
+    capstone.requiredArtifacts.some((artifact) => !artifact.trim())
+  ) {
+    errors.push(`Module ${moduleId} capstone needs required artifacts`);
+  }
+  if (
+    capstone.rubric.passPercent < 0 ||
+    capstone.rubric.passPercent > 100
+  ) {
+    errors.push(`Module ${moduleId} capstone has an invalid pass percentage`);
+  }
+  if (capstone.rubric.criteria.length < 3) {
+    errors.push(`Module ${moduleId} capstone needs at least three rubric criteria`);
+  }
+
+  let totalPoints = 0;
+  for (const criterion of capstone.rubric.criteria) {
+    register(criterion.id, `Capstone criterion in ${moduleId}`);
+    totalPoints += criterion.maxPoints;
+    if (
+      !criterion.title.trim() ||
+      !criterion.description.trim() ||
+      !Number.isInteger(criterion.maxPoints) ||
+      criterion.maxPoints <= 0
+    ) {
+      errors.push(`Capstone criterion ${criterion.id} is incomplete`);
+    }
+    if (
+      criterion.evidenceRequired.length === 0 ||
+      criterion.evidenceRequired.some((evidence) => !evidence.trim())
+    ) {
+      errors.push(`Capstone criterion ${criterion.id} needs evidence requirements`);
+    }
+  }
+  if (totalPoints !== 100) {
+    errors.push(`Module ${moduleId} capstone rubric must total 100 points`);
+  }
 }
 
 function validateActivity(

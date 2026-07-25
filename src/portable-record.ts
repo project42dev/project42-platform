@@ -1,5 +1,6 @@
 import {
   buildAssessmentHistory,
+  buildCapstoneHistory,
   buildTranscript,
   type LearnerProgress,
   type TranscriptEntry,
@@ -57,6 +58,7 @@ export function buildTranscriptCsv(
 ): string {
   const transcript = buildTranscript(catalog, progress);
   const history = buildAssessmentHistory(catalog, progress);
+  const capstones = buildCapstoneHistory(catalog, progress);
   const rows = [
     [
       "Path",
@@ -68,18 +70,27 @@ export function buildTranscriptCsv(
       "Score percent",
       "Passed",
       "Content version",
+      "Evidence type",
+      "Evidence ID",
+      "Artifact references",
     ],
   ];
 
   for (const path of transcript) {
     const attempts = history.filter((attempt) => attempt.pathId === path.pathId);
-    if (attempts.length === 0) {
+    const pathCapstones = capstones.filter(
+      (submission) => submission.pathId === path.pathId,
+    );
+    if (attempts.length === 0 && pathCapstones.length === 0) {
       rows.push([
         path.pathTitle,
         "",
         String(path.completedModules),
         String(path.totalModules),
         String(path.completionPercent),
+        "",
+        "",
+        "",
         "",
         "",
         "",
@@ -98,6 +109,25 @@ export function buildTranscriptCsv(
         String(attempt.scorePercent),
         attempt.passed ? "Yes" : "No",
         attempt.contentVersion,
+        "Assessment",
+        attempt.attemptId,
+        "",
+      ]);
+    }
+    for (const submission of pathCapstones) {
+      rows.push([
+        path.pathTitle,
+        submission.moduleTitle,
+        String(path.completedModules),
+        String(path.totalModules),
+        String(path.completionPercent),
+        submission.submittedAt,
+        String(submission.scorePercent),
+        submission.passed ? "Yes" : "No",
+        submission.contentVersion,
+        "Capstone",
+        submission.id,
+        submission.artifactRefs.join("; "),
       ]);
     }
   }
@@ -175,6 +205,73 @@ export function restorePortableLearnerRecord(
       );
     }
   }
+  for (const submission of value.learner.capstoneSubmissions ?? []) {
+    if (!pathIds.has(submission.pathId)) {
+      errors.push(`Capstone ${submission.id} references unknown path ${submission.pathId}`);
+    }
+    const expectedPathId = moduleToPath.get(submission.moduleId);
+    const module = catalog.modules.find(
+      (candidate) => candidate.id === submission.moduleId,
+    );
+    if (!expectedPathId || !module?.capstone) {
+      errors.push(
+        `Capstone ${submission.id} references unknown capstone module ${submission.moduleId}`,
+      );
+    } else if (submission.pathId !== expectedPathId) {
+      errors.push(
+        `Capstone ${submission.id} does not match module ${submission.moduleId}'s learning path`,
+      );
+    } else {
+      const criteria = new Map(
+        module.capstone.rubric.criteria.map((criterion) => [
+          criterion.id,
+          criterion,
+        ]),
+      );
+      const awarded = submission.criterionScores.reduce(
+        (total, score) => total + score.pointsAwarded,
+        0,
+      );
+      const available = module.capstone.rubric.criteria.reduce(
+        (total, criterion) => total + criterion.maxPoints,
+        0,
+      );
+      const expectedScore = Math.round((awarded / available) * 100);
+      const expectedPassed =
+        expectedScore >= module.capstone.rubric.passPercent;
+      if (
+        submission.artifactRefs.length <
+        module.capstone.requiredArtifacts.length
+      ) {
+        errors.push(
+          `Capstone ${submission.id} does not include every required artifact`,
+        );
+      }
+      if (
+        submission.criterionScores.length !== criteria.size ||
+        submission.criterionScores.some((score) => {
+          const criterion = criteria.get(score.criterionId);
+          return (
+            !criterion ||
+            score.pointsAwarded < 0 ||
+            score.pointsAwarded > criterion.maxPoints
+          );
+        })
+      ) {
+        errors.push(
+          `Capstone ${submission.id} does not match its current rubric`,
+        );
+      }
+      if (
+        submission.scorePercent !== expectedScore ||
+        submission.passed !== expectedPassed
+      ) {
+        errors.push(
+          `Capstone ${submission.id} has inconsistent score or pass evidence`,
+        );
+      }
+    }
+  }
   if (value.learner.recentModule) {
     const recent = value.learner.recentModule;
     const expectedPathId = moduleToPath.get(recent.moduleId);
@@ -191,7 +288,12 @@ export function restorePortableLearnerRecord(
 
   return {
     valid: true,
-    progress: structuredClone(value.learner),
+    progress: {
+      ...structuredClone(value.learner),
+      capstoneSubmissions: structuredClone(
+        value.learner.capstoneSubmissions ?? [],
+      ),
+    },
   };
 }
 
@@ -213,6 +315,10 @@ function isLearnerProgress(value: unknown): value is LearnerProgress {
     Array.isArray(value.attempts) &&
     value.attempts.every(isAssessmentAttempt) &&
     hasUniqueIds(value.attempts) &&
+    (value.capstoneSubmissions === undefined ||
+      (Array.isArray(value.capstoneSubmissions) &&
+        value.capstoneSubmissions.every(isCapstoneSubmission) &&
+        hasUniqueIds(value.capstoneSubmissions))) &&
     Array.isArray(value.badges) &&
     value.badges.every(isEarnedBadge) &&
     hasUniqueIds(value.badges) &&
@@ -250,6 +356,47 @@ function isAssessmentAttempt(value: unknown): boolean {
     typeof value.passed === "boolean" &&
     isIsoDate(value.completedAt)
   );
+}
+
+function isCapstoneSubmission(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return (
+    isNonEmptyString(value.id) &&
+    isNonEmptyString(value.pathId) &&
+    isNonEmptyString(value.moduleId) &&
+    isNonEmptyString(value.contentVersion) &&
+    isIsoDate(value.submittedAt) &&
+    isUniqueStringArray(value.artifactRefs) &&
+    value.artifactRefs.length > 0 &&
+    Array.isArray(value.criterionScores) &&
+    value.criterionScores.length > 0 &&
+    value.criterionScores.every(isCapstoneCriterionScore) &&
+    hasUniqueCriterionIds(value.criterionScores) &&
+    typeof value.scorePercent === "number" &&
+    Number.isFinite(value.scorePercent) &&
+    value.scorePercent >= 0 &&
+    value.scorePercent <= 100 &&
+    typeof value.passed === "boolean" &&
+    isNonEmptyString(value.reflection)
+  );
+}
+
+function isCapstoneCriterionScore(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    isNonEmptyString(value.criterionId) &&
+    typeof value.pointsAwarded === "number" &&
+    Number.isInteger(value.pointsAwarded) &&
+    value.pointsAwarded >= 0
+  );
+}
+
+function hasUniqueCriterionIds(values: unknown[]): boolean {
+  const ids = values
+    .filter(isRecord)
+    .map((value) => value.criterionId)
+    .filter((id): id is string => typeof id === "string");
+  return ids.length === values.length && new Set(ids).size === ids.length;
 }
 
 function isEarnedBadge(value: unknown): boolean {
