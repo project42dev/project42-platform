@@ -6,6 +6,11 @@ JSON documents under `content/modules/<path>/`. The build merges those files int
 one typed catalog consumed by hosted and self-hosted applications, so adding
 ordinary learning content does not require an application-code change.
 
+New resources live as individual JSON documents under
+`content/resources/<topic>/`. The build discovers them recursively and appends them
+to the original seed resources in `content/catalog.json`. Use one resource per file
+so content additions remain independently reviewable as the library grows.
+
 ## Choose the content type
 
 Use a **resource** for a standalone reference, checklist, template, or how-to.
@@ -75,8 +80,9 @@ bounded to 7–30 days.
 
 ## Authoring workflow
 
-1. Add or edit catalog metadata in `content/catalog.json`, or create one module
-   document under `content/modules/<path>/`.
+1. Add or edit catalog metadata in `content/catalog.json`, create one module
+   document under `content/modules/<path>/`, or create one resource document
+   under `content/resources/<topic>/`.
 2. Reuse an existing provider ID. Add a new provider only when the platform type
    and site presentation are ready for it.
 3. Use a registered primary source from `content/source-registry.json`. When a

@@ -10,10 +10,16 @@ export async function loadCatalog(root) {
   const additionalModules = await Promise.all(
     moduleFiles.map(async (path) => JSON.parse(await readFile(path, "utf8"))),
   );
+  const resourceRoot = resolve(root, "content/resources");
+  const resourceFiles = await findJsonFiles(resourceRoot);
+  const additionalResources = await Promise.all(
+    resourceFiles.map(async (path) => JSON.parse(await readFile(path, "utf8"))),
+  );
 
   return {
     ...catalog,
     modules: [...catalog.modules, ...additionalModules],
+    resources: [...catalog.resources, ...additionalResources],
   };
 }
 
