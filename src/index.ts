@@ -7,10 +7,12 @@ export {
 export { scoreKnowledgeCheck } from "./assessment.js";
 export {
   buildAssessmentHistory,
+  buildCapstoneHistory,
   buildTranscript,
   createEmptyProgress,
   deriveBadges,
   recordAssessmentAttempt,
+  recordCapstoneSubmission,
   recordModuleVisit,
 } from "./progress.js";
 export { validateCatalog } from "./schema.js";
@@ -26,6 +28,9 @@ export type { AssessmentResult, QuestionFeedback } from "./assessment.js";
 export type {
   AssessmentHistoryEntry,
   AssessmentAttempt,
+  CapstoneCriterionScore,
+  CapstoneHistoryEntry,
+  CapstoneSubmission,
   EarnedBadge,
   LearnerProgress,
   RecentModule,
@@ -38,6 +43,8 @@ export type {
 } from "./portable-record.js";
 export type {
   Catalog,
+  CapstoneDefinition,
+  CapstoneRubricCriterion,
   CodeExample,
   InstructorCue,
   InstructorCueKind,

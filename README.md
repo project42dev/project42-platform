@@ -15,14 +15,16 @@ contracts—not the private PMO records or Project42dev production configuration
 - A primary-source registry and freshness gate for volatile content.
 - Provider-neutral curriculum with Anthropic, OpenAI, and selected-provider branches.
 - Pure assessment scoring and learner-progress functions.
-- Portable JSON learner-record backup/restore, CSV transcripts, and badge derivation.
+- Portable JSON learner-record backup/restore, CSV transcripts, capstone evidence,
+  and badge derivation.
 - Seed content suitable for a hosted site or self-hosted installation.
 
-Release `0.8.0` expands AI Foundations to eleven sequenced modules. Four new modules
-teach prompt anatomy, context and evidence construction, examples and output
-contracts, and verification with iterative improvement. They add 16 lesson sections,
-four evidence-producing activities, four reusable templates, 20 reviewed questions,
-and machine-readable instructor scripts backed by current primary-source references.
+Release `0.9.0` expands AI Foundations to sixteen sequenced modules. Five new modules
+teach evidence-based research, writing and transformation, coding and analysis, safe
+tool use, and a scored practical capstone. Every workflow explicitly covers
+preparation, execution, verification, failure recovery, and data safety. The capstone
+requires five traceable artifacts, a knowledge check, and an evidence-backed
+100-point rubric before the path can be completed.
 
 See [Content authoring](docs/content-authoring.md) to add paths, modules, checks,
 and field-guide resources without changing application code.

@@ -27,6 +27,13 @@ virtual-instructor packages; it does not require a player. It contains versioned
 stable cues for narration, visuals, learner prompts, checkpoints, and the assessment
 handoff. Visual cues require an accessibility alternative.
 
+A culminating module can also include a `capstone`. Define stable required-artifact
+labels and a rubric whose criteria total 100 points. Each criterion names the
+evidence a reviewer needs, and the module declares the passing percentage. A
+capstone module completes only after both its knowledge check and one capstone
+submission pass. Submissions are versioned learning evidence in portable JSON
+records and CSV transcripts.
+
 Every resource needs the same stable identity, sections, providers, source
 metadata, and search tags. Resources do not create learner completion records.
 
@@ -53,8 +60,9 @@ and enforces source review cadences.
 
 Questions should test an objective, not trivia. Use plausible choices, one
 unambiguous answer, and an explanation that teaches why the answer is correct.
-Keep pass criteria explicit. A module is marked complete only after its check
-passes.
+Keep pass criteria explicit. An ordinary module is marked complete only after its
+check passes. A capstone module also requires a passing rubric submission; neither
+piece alone completes it.
 
 Changing question meaning after release should use a new question ID. Do not
 silently reuse an ID for different evidence.
