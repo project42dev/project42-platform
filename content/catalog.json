@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.12.0",
+  "contentVersion": "0.13.0",
   "title": "Project 42 Learning Catalog",
   "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [
@@ -72,14 +72,17 @@
     {
       "id": "anthropic-claude-practice",
       "title": "Claude in Practice",
-      "summary": "Choose the right Claude surface and build clear, testable prompts from evidence.",
+      "summary": "Build practical Claude workflows from surface selection and prompting through APIs, tools, safety, evaluation, and migration.",
       "audience": "Learners and practitioners who want to use Claude deliberately in individual, developer, and agent workflows.",
       "level": "intermediate",
       "moduleIds": [
         "anthropic-ecosystem-and-interfaces",
         "claude-prompting-in-practice",
         "claude-api-and-sdk-workflows",
-        "claude-tools-and-agent-loops"
+        "claude-tools-and-agent-loops",
+        "claude-safety-and-trust-boundaries",
+        "claude-evaluation-and-observability",
+        "migrating-to-and-from-claude"
       ],
       "badge": {
         "id": "badge-anthropic-claude-practitioner",
