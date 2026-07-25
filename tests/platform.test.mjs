@@ -19,9 +19,11 @@ import {
   validatePortableLearnerRecord,
 } from "../dist/index.js";
 import {
+  findMissingArtifactFields,
   findUnsafeArtifactCommands,
   hasRecoveryGuidance,
   hasVerificationGuidance,
+  normalizeRequiredArtifactFields,
 } from "../scripts/resource-pack-rules.mjs";
 
 test("starter catalog is valid", () => {
@@ -796,6 +798,88 @@ test("publishes five troubleshooting and operations playbooks with bounded recov
   );
   assert.match(JSON.stringify(closeout), /reconciled operation journal/i);
   assert.match(JSON.stringify(closeout), /Do not close when/i);
+});
+
+test("evaluation safety and operations pack has exact ten-resource acceptance coverage", () => {
+  const ids = new Set([
+    "evaluation-plan-charter",
+    "representative-evaluation-dataset",
+    "evidence-based-evaluation-rubric",
+    "bounded-ai-red-team-exercise",
+    "human-controlled-ai-release-gate",
+    "ai-api-failure-triage",
+    "agent-tool-failure-recovery",
+    "context-quality-regression-triage",
+    "ai-incident-triage",
+    "ai-rollback-and-incident-closeout",
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    ids.has(resource.id),
+  );
+  const categoryCounts = resources.reduce((counts, resource) => {
+    counts.set(resource.category, (counts.get(resource.category) ?? 0) + 1);
+    return counts;
+  }, new Map());
+
+  assert.equal(resources.length, 10);
+  assert.deepEqual(new Set(resources.map((resource) => resource.id)), ids);
+  assert.deepEqual(
+    categoryCounts,
+    new Map([
+      ["Evaluation and safety", 5],
+      ["Troubleshooting and operations", 5],
+    ]),
+  );
+  assert.ok(new Set(resources.map((resource) => resource.format)).size >= 5);
+
+  for (const resource of resources) {
+    assert.deepEqual(resource.providers, ["provider-neutral"]);
+    assert.ok(hasVerificationGuidance(resource), `${resource.id} verification`);
+    assert.ok(hasRecoveryGuidance(resource), `${resource.id} recovery`);
+    assert.deepEqual(findUnsafeArtifactCommands(resource), []);
+    const artifact = resource.sections
+      .map((section) => section.code?.code ?? "")
+      .join("\n");
+    for (const field of [
+      "Owner and cadence:",
+      "Stop criteria:",
+    ]) {
+      assert.ok(artifact.includes(field), `${resource.id} ${field}`);
+    }
+  }
+});
+
+test("resource-pack artifact-field rules reject malformed and incomplete contracts", () => {
+  assert.deepEqual(normalizeRequiredArtifactFields(undefined), {
+    valid: true,
+    fields: [],
+  });
+  assert.deepEqual(
+    normalizeRequiredArtifactFields(["Owner:", "Owner:"]),
+    { valid: false, fields: [] },
+  );
+  assert.deepEqual(normalizeRequiredArtifactFields({ field: "Owner:" }), {
+    valid: false,
+    fields: [],
+  });
+
+  const resource = {
+    sections: [
+      {
+        code: {
+          code: "Owner and cadence: [ROLE -> DATE]\nStop criteria: [BOUNDARY]",
+        },
+      },
+    ],
+  };
+  assert.deepEqual(
+    findMissingArtifactFields(resource, [
+      "Owner and cadence:",
+      "Stop criteria:",
+      "Verification:",
+    ]),
+    ["Verification:"],
+  );
 });
 
 test("resource-pack safety rules reject dangerous artifacts and missing guidance", () => {
