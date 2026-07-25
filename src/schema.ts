@@ -30,6 +30,35 @@ export interface LearningActivity {
   reflectionPrompt: string;
 }
 
+export type ComparisonStatus =
+  | "documented"
+  | "changing"
+  | "non-equivalent"
+  | "unknown";
+
+export interface ProviderComparisonCell {
+  status: ComparisonStatus;
+  summary: string;
+  sourceUrls: string[];
+}
+
+export interface ProviderComparisonDimension {
+  id: string;
+  title: string;
+  portableCore: string;
+  providers: {
+    anthropic: ProviderComparisonCell;
+    openai: ProviderComparisonCell;
+    google: ProviderComparisonCell;
+  };
+}
+
+export interface ProviderComparisonMatrix {
+  asOf: string;
+  caveat: string;
+  dimensions: ProviderComparisonDimension[];
+}
+
 export type InstructorCueKind =
   | "narration"
   | "visual"
@@ -127,6 +156,7 @@ export interface LearningModule {
   prerequisites: string[];
   sections: LessonSection[];
   activity?: LearningActivity;
+  comparisonMatrix?: ProviderComparisonMatrix;
   instructorScript?: InstructorScript;
   capstone?: CapstoneDefinition;
   knowledgeCheck: {
@@ -222,6 +252,7 @@ export function validateCatalog(catalog: Catalog): ValidationResult {
     if (module.sections.length === 0) errors.push(`Module ${module.id} has no sections`);
     validateSections(module.sections, `Module ${module.id}`, errors);
     validateActivity(module.activity, module.id, errors);
+    validateComparisonMatrix(module.comparisonMatrix, module, errors);
     validateInstructorScript(module.instructorScript, module, errors, register);
     validateCapstone(module.capstone, module.id, errors, register);
     if (module.sources.length === 0) errors.push(`Module ${module.id} has no sources`);
@@ -453,6 +484,72 @@ function validateActivity(
   }
   if (!activity.reflectionPrompt.trim()) {
     errors.push(`Module ${moduleId} activity needs a reflection prompt`);
+  }
+}
+
+function validateComparisonMatrix(
+  matrix: ProviderComparisonMatrix | undefined,
+  module: LearningModule,
+  errors: string[],
+) {
+  if (!matrix) return;
+  if (!isDateOnly(matrix.asOf)) {
+    errors.push(`Module ${module.id} comparison matrix has an invalid asOf date`);
+  }
+  if (!matrix.caveat.trim()) {
+    errors.push(`Module ${module.id} comparison matrix needs a caveat`);
+  }
+  if (matrix.dimensions.length === 0) {
+    errors.push(`Module ${module.id} comparison matrix has no dimensions`);
+    return;
+  }
+
+  const dimensionIds = new Set<string>();
+  const moduleSourceUrls = new Set(module.sources.map((source) => source.url));
+  const statuses = new Set<ComparisonStatus>([
+    "documented",
+    "changing",
+    "non-equivalent",
+    "unknown",
+  ]);
+  for (const dimension of matrix.dimensions) {
+    if (
+      !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(dimension.id) ||
+      dimensionIds.has(dimension.id)
+    ) {
+      errors.push(
+        `Module ${module.id} comparison matrix has an invalid or duplicate dimension id: ${dimension.id}`,
+      );
+    }
+    dimensionIds.add(dimension.id);
+    if (!dimension.title.trim() || !dimension.portableCore.trim()) {
+      errors.push(
+        `Module ${module.id} comparison dimension ${dimension.id} is incomplete`,
+      );
+    }
+
+    for (const provider of ["anthropic", "openai", "google"] as const) {
+      const cell = dimension.providers[provider];
+      if (
+        !cell ||
+        !statuses.has(cell.status) ||
+        !cell.summary.trim() ||
+        cell.sourceUrls.length === 0 ||
+        new Set(cell.sourceUrls).size !== cell.sourceUrls.length
+      ) {
+        errors.push(
+          `Module ${module.id} comparison dimension ${dimension.id} has an incomplete ${provider} cell`,
+        );
+        continue;
+      }
+      for (const sourceUrl of cell.sourceUrls) {
+        if (!moduleSourceUrls.has(sourceUrl)) {
+          errors.push(
+            `Module ${module.id} comparison dimension ${dimension.id} references an undeclared source: ${sourceUrl}`,
+          );
+        }
+      }
+    }
   }
 }
 

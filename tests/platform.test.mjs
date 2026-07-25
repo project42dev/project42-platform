@@ -20,7 +20,7 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
-  assert.equal(starterCatalog.contentVersion, "0.19.0");
+  assert.equal(starterCatalog.contentVersion, "0.20.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
@@ -650,6 +650,82 @@ test("publishes and validates the complete seven-module Gemini practice path", (
   assert.ok(migration.sources.some((source) => source.url.includes("/libraries")));
 });
 
+test("publishes a balanced source-backed provider comparison matrix", () => {
+  const path = starterCatalog.paths.find(
+    (candidate) => candidate.id === "providers-in-practice",
+  );
+  const module = starterCatalog.modules.find(
+    (candidate) => candidate.id === "compare-provider-capabilities",
+  );
+  assert.ok(path);
+  assert.ok(module);
+  assert.equal(path.moduleIds.at(-1), module.id);
+  assert.ok(module.prerequisites.includes("choose-a-provider"));
+  assert.equal(module.sections.length, 5);
+  assert.ok(module.activity?.instructions.length >= 5);
+  assert.equal(module.activity?.evidence.length, 2);
+  assert.equal(module.knowledgeCheck.questions.length, 5);
+  assert.equal(module.instructorScript?.schemaVersion, "1.1");
+  assert.ok(module.instructorScript?.captions?.length >= 5);
+  assert.ok(module.instructorScript?.reducedMotionAlternative);
+
+  const matrix = module.comparisonMatrix;
+  assert.ok(matrix);
+  assert.equal(matrix.asOf, "2026-07-25");
+  assert.deepEqual(
+    matrix.dimensions.map((dimension) => dimension.id),
+    [
+      "provider-interfaces",
+      "api-request-response",
+      "tool-calling",
+      "context-and-state",
+      "safety-controls",
+      "evaluation",
+      "observability",
+      "operational-constraints",
+    ],
+  );
+
+  const declaredSources = new Set(module.sources.map((source) => source.url));
+  const statuses = new Set();
+  const providerCellCounts = { anthropic: 0, openai: 0, google: 0 };
+  for (const dimension of matrix.dimensions) {
+    assert.ok(dimension.portableCore);
+    for (const provider of ["anthropic", "openai", "google"]) {
+      const cell = dimension.providers[provider];
+      assert.ok(cell.summary);
+      assert.ok(cell.sourceUrls.length >= 1);
+      assert.ok(
+        cell.sourceUrls.every((sourceUrl) => declaredSources.has(sourceUrl)),
+      );
+      statuses.add(cell.status);
+      providerCellCounts[provider] += 1;
+    }
+  }
+  assert.deepEqual(providerCellCounts, {
+    anthropic: 8,
+    openai: 8,
+    google: 8,
+  });
+  assert.deepEqual(
+    [...statuses].sort(),
+    ["changing", "documented", "non-equivalent", "unknown"],
+  );
+  assert.deepEqual(
+    Object.fromEntries(
+      ["Anthropic", "OpenAI", "Google"].map((publisher) => [
+        publisher,
+        module.sources.filter((source) => source.publisher === publisher).length,
+      ]),
+    ),
+    { Anthropic: 7, OpenAI: 7, Google: 7 },
+  );
+  assert.match(
+    JSON.stringify(module.activity),
+    /synthetic no-paid-call fixtures/i,
+  );
+});
+
 test("publishes the MCP orchestration and handoff curriculum unit", () => {
   const path = starterCatalog.paths.find(
     (candidate) => candidate.id === "reliable-agent-workflows",
@@ -805,6 +881,37 @@ test("rejects incomplete instructor caption and transcript packages", () => {
   assert.ok(
     validation.errors.some((error) =>
       error.startsWith("Module context-engineering transcript is missing narration cue"),
+    ),
+  );
+});
+
+test("rejects incomplete or unsourced provider comparison cells", () => {
+  const broken = structuredClone(starterCatalog);
+  const module = broken.modules.find(
+    (candidate) => candidate.id === "compare-provider-capabilities",
+  );
+  assert.ok(module?.comparisonMatrix);
+  module.comparisonMatrix.asOf = "whenever";
+  module.comparisonMatrix.dimensions[0].providers.anthropic.sourceUrls = [
+    "https://example.com/unsupported",
+  ];
+  module.comparisonMatrix.dimensions[1].providers.openai.summary = "";
+
+  const validation = validateCatalog(broken);
+  assert.equal(validation.valid, false);
+  assert.ok(
+    validation.errors.includes(
+      "Module compare-provider-capabilities comparison matrix has an invalid asOf date",
+    ),
+  );
+  assert.ok(
+    validation.errors.includes(
+      "Module compare-provider-capabilities comparison dimension provider-interfaces references an undeclared source: https://example.com/unsupported",
+    ),
+  );
+  assert.ok(
+    validation.errors.includes(
+      "Module compare-provider-capabilities comparison dimension api-request-response has an incomplete openai cell",
     ),
   );
 });
