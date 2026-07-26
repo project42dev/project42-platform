@@ -1,5 +1,7 @@
 export {
   starterCatalog,
+  learningCatalog,
+  fieldGuideCatalog,
   getLearningModule,
   getLearningPath,
   getResource,
@@ -15,7 +17,11 @@ export {
   recordCapstoneSubmission,
   recordModuleVisit,
 } from "./progress.js";
-export { validateCatalog } from "./schema.js";
+export {
+  validateCatalog,
+  validateFieldGuideCatalog,
+  validateLearningCatalog,
+} from "./schema.js";
 export { getResourceFreshness } from "./resource.js";
 export {
   buildPortableLearnerRecord,
@@ -64,6 +70,8 @@ export type {
 } from "./learner-data-policy.js";
 export type {
   Catalog,
+  CatalogMetadata,
+  FieldGuideCatalog,
   CapstoneDefinition,
   CapstoneExemplar,
   CapstoneExemplarArtifact,
@@ -76,6 +84,7 @@ export type {
   KnowledgeQuestion,
   LearningActivity,
   LearningModule,
+  LearningCatalog,
   LearningPath,
   LessonSection,
   Level,
