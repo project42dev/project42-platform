@@ -19,7 +19,16 @@ contracts—not the private PMO records or Project42dev production configuration
 - Pure assessment scoring and learner-progress functions.
 - Portable JSON learner-record backup/restore, CSV transcripts, capstone evidence,
   and badge derivation.
+- A versioned learner-data lifecycle policy covering consent, retention, recovery,
+  export, deletion, role boundaries, and hosted/self-host adapter requirements.
 - Seed content suitable for a hosted site or self-hosted installation.
+
+Release `0.38.0` adds the reusable learner-data lifecycle contract. It defines
+issuer-and-subject identity, six account states, allowed transitions, minimal
+profile fields, versioned consent, retention classes, recent-authentication export,
+verified deletion and backup replay, recovery objectives, tenant-scoped roles, and
+the Sites D1 hosted/PostgreSQL reference storage profiles. Validation rejects
+email-keyed identity, cross-tenant defaults, unsafe exports, and incomplete deletion.
 
 Release `0.37.0` adds the consolidated acceptance gate for all ten evaluation,
 safety, troubleshooting, and operations playbooks. Exact membership spans both
@@ -145,15 +154,19 @@ import {
   starterCatalog,
   createEmptyProgress,
   buildPortableLearnerRecord,
+  defaultLearnerDataPolicy,
   getResourceFreshness,
   restorePortableLearnerRecord,
   scoreKnowledgeCheck,
+  validateLearnerDataPolicy,
 } from "@project42/platform";
 
 const freshness = getResourceFreshness(
   starterCatalog.resources[0],
   "2026-07-25",
 );
+
+const policyCheck = validateLearnerDataPolicy(defaultLearnerDataPolicy);
 ```
 
 ## Repository boundaries
