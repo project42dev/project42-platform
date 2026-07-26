@@ -1,6 +1,6 @@
 {
   "name": "@project42/platform",
-  "version": "0.38.0",
+  "version": "0.39.0",
   "description": "Open-source content, assessment, and learning-record core for Project 42.",
   "type": "module",
   "main": "./dist/index.js",
@@ -36,7 +36,13 @@
     "typescript": "5.9.3"
   },
   "license": "Apache-2.0",
-  "keywords": ["ai", "learning", "education", "assessment", "open-source"],
+  "keywords": [
+    "ai",
+    "learning",
+    "education",
+    "assessment",
+    "open-source"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/project42dev/project42-platform.git"

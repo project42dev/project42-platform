@@ -219,7 +219,7 @@ export interface Resource {
   sources: SourceReference[];
 }
 
-export interface Catalog {
+export interface CatalogMetadata {
   schemaVersion: "1.0";
   contentVersion: string;
   title: string;
@@ -229,14 +229,34 @@ export interface Catalog {
     name: string;
     description: string;
   }>;
+}
+
+export interface LearningCatalog extends CatalogMetadata {
   paths: LearningPath[];
   modules: LearningModule[];
+}
+
+export interface FieldGuideCatalog extends CatalogMetadata {
   resources: Resource[];
 }
+
+export interface Catalog extends LearningCatalog, FieldGuideCatalog {}
 
 export interface ValidationResult {
   valid: boolean;
   errors: string[];
+}
+
+export function validateLearningCatalog(
+  catalog: LearningCatalog,
+): ValidationResult {
+  return validateCatalog({ ...catalog, resources: [] });
+}
+
+export function validateFieldGuideCatalog(
+  catalog: FieldGuideCatalog,
+): ValidationResult {
+  return validateCatalog({ ...catalog, paths: [], modules: [] });
 }
 
 export function validateCatalog(catalog: Catalog): ValidationResult {

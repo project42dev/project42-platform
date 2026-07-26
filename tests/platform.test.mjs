@@ -8,7 +8,9 @@ import {
   buildTranscriptCsv,
   buildTranscript,
   createEmptyProgress,
+  fieldGuideCatalog,
   getResourceFreshness,
+  learningCatalog,
   recordAssessmentAttempt,
   recordCapstoneSubmission,
   recordModuleVisit,
@@ -16,6 +18,8 @@ import {
   scoreKnowledgeCheck,
   starterCatalog,
   validateCatalog,
+  validateFieldGuideCatalog,
+  validateLearningCatalog,
   validatePortableLearnerRecord,
 } from "../dist/index.js";
 import {
@@ -28,6 +32,17 @@ import {
 
 test("starter catalog is valid", () => {
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
+  assert.deepEqual(validateLearningCatalog(learningCatalog), {
+    valid: true,
+    errors: [],
+  });
+  assert.deepEqual(validateFieldGuideCatalog(fieldGuideCatalog), {
+    valid: true,
+    errors: [],
+  });
+  assert.equal(learningCatalog.paths.length, starterCatalog.paths.length);
+  assert.equal(learningCatalog.modules.length, starterCatalog.modules.length);
+  assert.equal(fieldGuideCatalog.resources.length, starterCatalog.resources.length);
   assert.equal(starterCatalog.contentVersion, "0.30.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
