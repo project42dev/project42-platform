@@ -1,0 +1,54 @@
+# Learner-data policy contract
+
+Project 42 applications use `LearnerDataPolicyV1` as the portable contract for
+identity, lifecycle, consent, retention, export, deletion, recovery, tenancy, and
+authorization. The default is exported as `defaultLearnerDataPolicy`.
+
+The contract does not enable accounts by itself. `accountBackedRecords` remains
+`planned` until an application has authenticated identity, a conforming record-store
+adapter, authorization checks, backup/restore evidence, and learner-facing controls.
+
+## Required invariants
+
+Every hosted or self-hosted policy must preserve these controls:
+
+- OpenID Connect Authorization Code with PKCE and a stable `(issuer, subject)` key;
+- email is display or contact data, never an identity key or automatic merge key;
+- installation or tenant scope on every command and query, denied by default;
+- append-only assessment, correction, badge, export, and privileged-access evidence;
+- recent authentication for export, single-response delivery, and no public object URL;
+- a deletion cancellation window, verified active-store deletion, finite backup
+  expiry, and restore-time deletion replay;
+- learner, support, content-editor, administrator, and system roles with the
+  content-editor role unable to access learner records; and
+- auditable privileged actions and deterministic recovery objectives.
+
+`validateLearnerDataPolicy` rejects policies that weaken these invariants.
+
+## Default deployment profiles
+
+The hosted Project 42 profile uses Sites-managed D1 for structured learner records.
+The supported reference self-host profile uses PostgreSQL. Both adapters must pass
+the same identity, lifecycle, idempotency, export, deletion, recovery, authorization,
+and transcript-rebuild conformance suite before account-backed records become
+available.
+
+Identity remains an OpenID Connect adapter rather than a vendor-specific record. A
+deployment must provide a stable issuer and subject. If its hosting platform exposes
+only an email address, account-backed records must remain disabled.
+
+## Safe customization
+
+Self-hosters may change policy IDs, dates, display wording, optional consent purposes,
+retention windows, and recovery objectives to match documented legal and operational
+requirements. They must not:
+
+- key or merge accounts by email;
+- remove tenant isolation or deny-by-default authorization;
+- give content editors learner-record access;
+- allow public export URLs;
+- remove export or privileged-action audit events; or
+- create indefinite backup retention or omit deletion replay after restore.
+
+Run `validateLearnerDataPolicy(customPolicy)` during startup and deployment. Treat a
+failed result as a release-blocking configuration error.

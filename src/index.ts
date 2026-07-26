@@ -24,6 +24,15 @@ export {
   serializePortableLearnerRecord,
   validatePortableLearnerRecord,
 } from "./portable-record.js";
+export {
+  LEARNER_ACCOUNT_STATES,
+  LEARNER_DATA_PERMISSIONS,
+  LEARNER_DATA_ROLES,
+  canTransitionLearnerAccount,
+  defaultLearnerDataPolicy,
+  learnerDataRoleCan,
+  validateLearnerDataPolicy,
+} from "./learner-data-policy.js";
 
 export type { AssessmentResult, QuestionFeedback } from "./assessment.js";
 export type {
@@ -42,6 +51,17 @@ export type {
   PortableRecordRestoreResult,
   PortableRecordValidation,
 } from "./portable-record.js";
+export type {
+  ConsentPurpose,
+  LearnerAccountState,
+  LearnerDataPermission,
+  LearnerDataPolicyV1,
+  LearnerDataPolicyValidation,
+  LearnerDataRole,
+  LearnerDataRoleGrant,
+  LifecycleTransition,
+  RetentionClass,
+} from "./learner-data-policy.js";
 export type {
   Catalog,
   CapstoneDefinition,
