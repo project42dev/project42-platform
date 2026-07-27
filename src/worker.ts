@@ -16,6 +16,7 @@ import {
 } from "./identity.js";
 import type {
   Account,
+  AuditEvent,
   ConsentDecision,
   ConsentRecord,
   CreateDomainRuleRequest,
@@ -1217,7 +1218,7 @@ class D1Project42Repository {
     };
   }
 
-  async listAuditEvents(): Promise<unknown[]> {
+  async listAuditEvents(): Promise<AuditEvent[]> {
     const result = await this.db
       .prepare(
         `SELECT id, actor_user_id, action, target_type, target_id, request_id,
@@ -1230,11 +1231,20 @@ class D1Project42Repository {
       .bind(this.installationId)
       .all<Record<string, unknown>>();
     return result.results.map((event) => ({
-      ...event,
-      metadata_json:
+      id: String(event.id),
+      actorUserId:
+        typeof event.actor_user_id === "string" ? event.actor_user_id : null,
+      action: String(event.action),
+      targetType: String(event.target_type),
+      targetId: typeof event.target_id === "string" ? event.target_id : null,
+      requestId: String(event.request_id),
+      outcome: event.outcome as AuditEvent["outcome"],
+      reason: String(event.reason),
+      metadata:
         typeof event.metadata_json === "string"
-          ? JSON.parse(event.metadata_json)
-          : event.metadata_json,
+          ? (JSON.parse(event.metadata_json) as Record<string, unknown>)
+          : (event.metadata_json as Record<string, unknown>),
+      occurredAt: String(event.occurred_at),
     }));
   }
 
