@@ -26,6 +26,7 @@
     "README.md"
   ],
   "scripts": {
+    "lab:agent": "node examples/training/bounded-agent-lab/src/cli.mjs",
     "generate": "node scripts/generate-catalog.mjs && node scripts/generate-training-packages.mjs",
     "training:generate": "node scripts/generate-training-packages.mjs",
     "training:check": "node scripts/generate-training-packages.mjs --check",

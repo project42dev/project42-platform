@@ -83,3 +83,26 @@ The reference lab must preserve truthful terminal outcomes, including failed and
 unknown. It must test injected observations, unauthorized resources, duplicate
 side effects, timeouts after possible writes, poisoned tool output, exhausted
 budgets, stale state, and lost handoffs.
+
+## Executable reference lab
+
+The no-secret reference implementation is in
+`examples/training/bounded-agent-lab/`. Run it from the package root:
+
+```text
+npm run lab:agent
+```
+
+It executes the same ten synthetic cases against the deterministic, single-agent,
+and multi-agent designs. The complete JSON result validates against
+`schemas/training/bounded-agent-lab-evidence.schema.json`. The committed reference
+summary records exact quality, critical-safety, logical-latency, cost,
+coordination, recovery, tool-trajectory, and human-review measurements.
+
+The reference runner uses deterministic model fixtures, an in-memory lab-only
+journal, logical ticks, and zero network calls. Its evidence is reproducible
+contract and control evidence, not live-provider quality evidence. A local,
+open-weight, cloud-provider, or optional Homestead Foundry model adapter must
+preserve the same cases, gates, state, authorization, reconciliation, telemetry,
+and comparison contract. Deployment identifiers and private runtime evidence stay
+outside the public package.

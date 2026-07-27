@@ -150,6 +150,11 @@
       "kind": "recovery",
       "path": "lab/evidence/recovery-result.json",
       "digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+    },
+    {
+      "kind": "comparison",
+      "path": "lab/evidence/design-comparison.json",
+      "digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888"
     }
   ],
   "safety": {

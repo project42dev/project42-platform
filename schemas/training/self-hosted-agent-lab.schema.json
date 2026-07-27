@@ -291,7 +291,7 @@
     },
     "evidence": {
       "type": "array",
-      "minItems": 7,
+      "minItems": 8,
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -305,13 +305,72 @@
               "state",
               "telemetry",
               "evaluation",
-              "recovery"
+              "recovery",
+              "comparison"
             ]
           },
           "path": { "$ref": "#/$defs/safePath" },
           "digest": { "$ref": "#/$defs/sha256" }
         }
-      }
+      },
+      "allOf": [
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "const": "input-output" } },
+            "required": ["kind"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "const": "identity" } },
+            "required": ["kind"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "const": "tools" } },
+            "required": ["kind"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "const": "state" } },
+            "required": ["kind"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "const": "telemetry" } },
+            "required": ["kind"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "const": "evaluation" } },
+            "required": ["kind"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "const": "recovery" } },
+            "required": ["kind"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "const": "comparison" } },
+            "required": ["kind"]
+          }
+        }
+      ]
     },
     "safety": {
       "type": "object",

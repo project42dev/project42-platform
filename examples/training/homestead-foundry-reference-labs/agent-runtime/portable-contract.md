@@ -38,9 +38,10 @@ prove the agent does not duplicate an external effect.
 
 Evaluate task outcome, authorization, prohibited effects, unknown-outcome
 reconciliation, state consistency, memory policy, telemetry coverage, cost or loop
-limits, and recovery objectives. Force one tool timeout after a possible side
-effect, interrupt the runtime, restart it, reconcile the effect, and reach a
-verified terminal state without duplication.
+limits, coordination overhead, and recovery objectives. Run equivalent cases
+through deterministic, single-agent, and multi-agent designs. Force one tool
+timeout after a possible side effect, interrupt the runtime, restart it, reconcile
+the effect, and reach a verified terminal state without duplication.
 
 Stop on identity ambiguity, unauthorized tool access, prohibited data or effect,
 unbounded loop or retry, corrupt state, unreconciled unknown outcome, telemetry

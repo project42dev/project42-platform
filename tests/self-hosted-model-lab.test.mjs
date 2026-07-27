@@ -219,6 +219,7 @@ test("portable agent runtime contract covers identity, tools, state, telemetry, 
       "telemetry",
       "evaluation",
       "recovery",
+      "comparison",
     ]),
   );
   assert.equal(homesteadAgentFixture.releaseStatus, "draft");
