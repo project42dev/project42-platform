@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-42.dev/schemas/self-host-compatibility-v1.json",
+  "title": "Project 42 self-host compatibility manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "release",
+    "supportLevel",
+    "api",
+    "database",
+    "identity",
+    "learn",
+    "update"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "release": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "supportLevel": { "enum": ["evaluation", "production"] },
+    "api": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package", "version", "image", "healthPath", "runsAsNonRoot"],
+      "properties": {
+        "package": { "const": "@project42/platform" },
+        "version": { "type": "string" },
+        "image": { "type": "string", "pattern": "^ghcr\\.io/project42dev/" },
+        "healthPath": { "const": "/health" },
+        "runsAsNonRoot": { "const": true }
+      }
+    },
+    "database": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["adapter", "supportedMajors", "migrationHead"],
+      "properties": {
+        "adapter": { "const": "postgresql" },
+        "supportedMajors": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "integer", "minimum": 14 }
+        },
+        "migrationHead": { "type": "string", "pattern": "^\\d+_[a-z0-9_-]+\\.sql$" }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol",
+        "flow",
+        "requiredClaims",
+        "referenceProvider",
+        "referenceVersion"
+      ],
+      "properties": {
+        "protocol": { "const": "oidc" },
+        "flow": { "const": "authorization-code-pkce" },
+        "requiredClaims": {
+          "type": "array",
+          "minItems": 6,
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        },
+        "referenceProvider": { "const": "keycloak" },
+        "referenceVersion": { "type": "string" }
+      }
+    },
+    "learn": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimumVersion", "configurationContract"],
+      "properties": {
+        "minimumVersion": { "type": "string" },
+        "configurationContract": {
+          "type": "array",
+          "minItems": 4,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^NEXT_PUBLIC_PROJECT42_" }
+        }
+      }
+    },
+    "update": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["channel", "automaticApply", "signature"],
+      "properties": {
+        "channel": { "const": "github-release" },
+        "automaticApply": { "const": false },
+        "signature": { "const": "sigstore-keyless" }
+      }
+    }
+  }
+}

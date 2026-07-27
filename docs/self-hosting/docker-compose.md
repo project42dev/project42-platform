@@ -118,6 +118,29 @@ backup and restore, monitoring, and an approved first-owner process. The API
 rejects insecure HTTP URLs in `NODE_ENV=production`; setting the evaluation
 flag cannot override that rule.
 
+## Verify a release
+
+Download the release archive, compatibility manifest, and their
+`*.sigstore.json` bundles from the matching GitHub release. Verify the signed
+artifacts before extracting or approving an update:
+
+```bash
+cosign verify-blob \
+  --bundle project42-platform.sigstore.json \
+  --certificate-identity-regexp '^https://github.com/project42dev/project42-platform/' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  project42-platform-v0.49.0.tgz
+cosign verify-blob \
+  --bundle compatibility.sigstore.json \
+  --certificate-identity-regexp '^https://github.com/project42dev/project42-platform/' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  compatibility.json
+```
+
+The release workflow also publishes GitHub artifact attestations and signs the
+digest-addressed OCI image. Review `compatibility.json` before approving an
+update; `automaticApply` is deliberately `false`.
+
 See [Identity providers](identity-providers.md) for the adapter contract and
 [learner data policy](../learner-data-policy.md) for retention, deletion, and
 recovery controls.
