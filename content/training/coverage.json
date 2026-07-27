@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.41.0",
   "substantiveModuleCount": 64,
-  "classReadyModuleCount": 23,
-  "outlineOnlyModuleCount": 41,
+  "classReadyModuleCount": 24,
+  "outlineOnlyModuleCount": 40,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -381,8 +381,11 @@
       "pathIds": [
         "self-hosted-model-operations"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "observability-cost-and-performance-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/self-hosted-model-operations/observability-cost-and-performance/class-script.json"
     },
     {
       "moduleId": "openai-ecosystem-and-interfaces",
