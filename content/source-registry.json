@@ -200,6 +200,94 @@
       "trustTier": "primary",
       "reviewCadenceDays": 180,
       "owner": "curriculum"
+    },
+    {
+      "id": "aider-docs",
+      "urlPrefix": "https://aider.chat/docs/",
+      "publisher": "Aider",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "tooling"
+    },
+    {
+      "id": "cline-docs",
+      "urlPrefix": "https://docs.cline.bot/",
+      "publisher": "Cline",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "tooling"
+    },
+    {
+      "id": "continue-docs",
+      "urlPrefix": "https://docs.continue.dev/",
+      "publisher": "Continue",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "tooling"
+    },
+    {
+      "id": "cursor-docs",
+      "urlPrefix": "https://docs.cursor.com/",
+      "publisher": "Cursor",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "tooling"
+    },
+    {
+      "id": "devin-docs",
+      "urlPrefix": "https://docs.devin.ai/",
+      "publisher": "Cognition",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "tooling"
+    },
+    {
+      "id": "jules-docs",
+      "urlPrefix": "https://jules.google/docs/",
+      "publisher": "Google",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "tooling"
+    },
+    {
+      "id": "kilo-docs",
+      "urlPrefix": "https://kilo.ai/docs",
+      "publisher": "Kilo Code",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "tooling"
+    },
+    {
+      "id": "openclaw-docs",
+      "urlPrefix": "https://docs.openclaw.ai/",
+      "publisher": "OpenClaw",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "tooling"
+    },
+    {
+      "id": "opencode-docs",
+      "urlPrefix": "https://opencode.ai/docs",
+      "publisher": "OpenCode",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "tooling"
+    },
+    {
+      "id": "roo-code-docs",
+      "urlPrefix": "https://roocodeinc.github.io/Roo-Code/",
+      "publisher": "Roo Code",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "tooling"
+    },
+    {
+      "id": "windsurf-docs",
+      "urlPrefix": "https://docs.windsurf.com/",
+      "publisher": "Windsurf",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "tooling"
     }
   ]
 }

@@ -4,11 +4,23 @@
   "title": "Current coding-tool Field Guides",
   "resourceRoots": ["coding-tools"],
   "resourceIds": [
+    "aider-operating-card",
     "claude-code-operating-card",
+    "cline-operating-card",
     "codex-cli-operating-card",
-    "gemini-cli-operating-card"
+    "continue-operating-card",
+    "cursor-operating-card",
+    "devin-operating-card",
+    "gemini-cli-operating-card",
+    "github-copilot-operating-card",
+    "jules-operating-card",
+    "kilo-code-operating-card",
+    "openclaw-operating-card",
+    "opencode-operating-card",
+    "roo-code-operating-card",
+    "windsurf-operating-card"
   ],
-  "exactResourceCount": 3,
+  "exactResourceCount": 15,
   "requiredProviders": ["anthropic", "openai", "google"],
   "providerProfiles": [
     {
@@ -22,6 +34,10 @@
     {
       "providers": ["google"],
       "exactResourceCount": 1
+    },
+    {
+      "providers": ["provider-neutral"],
+      "exactResourceCount": 12
     }
   ],
   "minimumSourcesPerResource": 3,
