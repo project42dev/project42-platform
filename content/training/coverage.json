@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.41.0",
   "substantiveModuleCount": 64,
-  "classReadyModuleCount": 20,
-  "outlineOnlyModuleCount": 44,
+  "classReadyModuleCount": 21,
+  "outlineOnlyModuleCount": 43,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -542,8 +542,11 @@
       "pathIds": [
         "self-hosted-model-operations"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "serving-api-and-compatibility-contracts-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/self-hosted-model-operations/serving-api-and-compatibility-contracts/class-script.json"
     },
     {
       "moduleId": "verification-and-iterative-improvement",
