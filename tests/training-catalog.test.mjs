@@ -829,6 +829,50 @@ test("publishes the complete observability, cost, and performance class", () => 
   }
 });
 
+test("publishes the complete scaling, failure, and capacity-controls class", () => {
+  const moduleId = "scaling-failure-and-capacity-controls";
+  const script = getClassScriptPackage(moduleId);
+  const module = getLearningModule(moduleId);
+  assert.ok(script);
+  assert.ok(module);
+  assert.equal(
+    validateClassSchema(script),
+    true,
+    JSON.stringify(validateClassSchema.errors),
+  );
+  assert.deepEqual(validateClassScriptPackage(script, module), {
+    valid: true,
+    errors: [],
+  });
+  assert.equal(script.spokenWordCount, 1250);
+  assert.equal(script.releaseStatus, "draft");
+  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.approvals.length, 0);
+  for (const section of module.sections) {
+    assert.ok(
+      script.segments.some(
+        (segment) =>
+          segment.kind === "narration" &&
+          segment.sectionId === section.id &&
+          segment.delivery === "spoken",
+      ),
+      `missing narrated section ${section.id}`,
+    );
+  }
+  for (const kind of [
+    "demonstration",
+    "learner-prompt",
+    "checkpoint",
+    "feedback",
+    "assessment-handoff",
+  ]) {
+    assert.ok(
+      script.segments.some((segment) => segment.kind === kind),
+      `missing ${kind}`,
+    );
+  }
+});
+
 test("coverage classifies every substantive module without overstating readiness", async () => {
   const committedCoverage = JSON.parse(
     await readFile(resolve(root, "content/training/coverage.json"), "utf8"),

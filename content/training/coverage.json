@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.41.0",
   "substantiveModuleCount": 64,
-  "classReadyModuleCount": 24,
-  "outlineOnlyModuleCount": 40,
+  "classReadyModuleCount": 25,
+  "outlineOnlyModuleCount": 39,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -535,8 +535,11 @@
       "pathIds": [
         "self-hosted-model-operations"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "scaling-failure-and-capacity-controls-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/self-hosted-model-operations/scaling-failure-and-capacity-controls/class-script.json"
     },
     {
       "moduleId": "self-hosted-model-operations-capstone",
