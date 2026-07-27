@@ -309,65 +309,6 @@
       ]
     },
     {
-      "id": "agents-and-guardrails",
-      "title": "Agents, Tools, and Guardrails",
-      "summary": "Understand what changes when a model can take actions.",
-      "level": "beginner",
-      "providers": ["provider-neutral"],
-      "estimatedMinutes": 18,
-      "objectives": [
-        "Distinguish a chat response from an agentic loop.",
-        "Identify tool, permission, and verification boundaries.",
-        "Recognize when human approval is required."
-      ],
-      "prerequisites": ["safe-tool-use-workflow"],
-      "sections": [
-        {
-          "id": "agent-loop",
-          "title": "An agent observes, decides, acts, and checks",
-          "paragraphs": [
-            "An agent combines a model with tools and a loop. It can inspect state, choose an action, use a tool, evaluate the result, and continue toward a goal.",
-            "Capability increases risk. Read access, file edits, messages, deployments, and destructive operations should have different permission and approval policies."
-          ]
-        },
-        {
-          "id": "guardrails",
-          "title": "Guardrails belong around the model",
-          "paragraphs": [
-            "Reliable agent systems constrain tools, scope credentials, validate inputs and outputs, record actions, and stop for human decisions when consequences are difficult to reverse."
-          ],
-          "callout": "The model can recommend a safeguard; the surrounding system must enforce it."
-        }
-      ],
-      "knowledgeCheck": {
-        "passPercent": 80,
-        "questions": [
-          {
-            "id": "q-agent-1",
-            "prompt": "What makes an AI workflow agentic?",
-            "choices": ["It uses a large model", "It can choose and execute actions in a loop", "It returns formatted text"],
-            "answerIndex": 1,
-            "explanation": "Agentic systems combine model decisions, tools, state, and repeated action toward a goal."
-          },
-          {
-            "id": "q-agent-2",
-            "prompt": "Where should irreversible-action approval be enforced?",
-            "choices": ["Only in the prompt", "In the surrounding tool and permission system", "In the model name"],
-            "answerIndex": 1,
-            "explanation": "Prompts guide behavior, but external controls enforce permissions and approval."
-          }
-        ]
-      },
-      "sources": [
-        {
-          "title": "Building effective agents",
-          "url": "https://www.anthropic.com/research/building-effective-agents",
-          "publisher": "Anthropic",
-          "lastVerified": "2026-07-23"
-        }
-      ]
-    },
-    {
       "id": "anthropic-in-practice",
       "title": "Anthropic in Practice",
       "summary": "Map Claude chat, API, and coding-agent workflows to the right job.",

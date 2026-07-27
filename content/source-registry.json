@@ -82,6 +82,14 @@
       "owner": "provider-openai"
     },
     {
+      "id": "openai-business-guides",
+      "urlPrefix": "https://openai.com/business/guides-and-resources/",
+      "publisher": "OpenAI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "provider-openai"
+    },
+    {
       "id": "google-responsible-ai",
       "urlPrefix": "https://ai.google.dev/responsible",
       "publisher": "Google",
@@ -124,6 +132,14 @@
     {
       "id": "google-adk-docs",
       "urlPrefix": "https://google.github.io/adk-docs/",
+      "publisher": "Google",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-google"
+    },
+    {
+      "id": "google-adk-current-docs",
+      "urlPrefix": "https://adk.dev/",
       "publisher": "Google",
       "trustTier": "primary",
       "reviewCadenceDays": 30,
