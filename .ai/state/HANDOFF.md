@@ -2,39 +2,42 @@
 
 ## Active branch
 
-`feature/account-lifecycle-controls`
+`feat/foundations-class-scripts-ab6243`
 
 ## In progress
 
-- Added the reversible `rejected` account state.
-- Added consent history, portable learner export, deletion request/cancellation,
-  owner completion, audit redaction, and pseudonymous deletion tombstones.
-- Prepared package version `0.46.0`.
-
-## Files changed
-
-- `src/api-contract.ts`
-- `src/identity.ts`
-- `src/worker.ts`
-- `migrations/0004_rejected_state_and_data_rights.sql`
-- `tests/d1-migrations.test.mjs`
-- `tests/identity-security.test.mjs`
-- `README.md`
-- `docs/self-hosting/cloudflare-d1.md`
-- `docs/self-hosting/identity-providers.md`
-- `package.json`
-- `package-lock.json`
+- Added the first complete AI Foundations class-script wave for
+  `ai-systems-and-use-cases`, `language-models-and-generation`, and
+  `context-tokens-and-modalities`.
+- Added deterministic class-package discovery, coverage reporting, transcript,
+  WebVTT, text-only, reduced-motion, and integrity generation.
+- Added exact activity/question handoff validation, honest planned/completed
+  model-role provenance, and fail-closed human publication gates.
+- Prepared package `0.50.0` and content `0.37.0`.
+- Kept all three packages `draft`; Foundry role execution and accountable human
+  approvals are still required before publication.
 
 ## Verification
 
-- `npm run check` — passed, 67 tests.
+- `npm run check` — passed: 87 tests, 1 optional PostgreSQL integration test
+  skipped, 11 resource packs / 86 resources, and 464 current source references.
 - `npm run api:check` — passed, including Worker dry-run.
+- `npm audit --audit-level=high` — passed with zero vulnerabilities.
+- `npm pack --dry-run --json` — confirmed class scripts and generated accessible
+  artifacts are included in the reusable package.
+- `git diff --check` — passed.
 
 ## Next steps
 
-1. Commit and push the branch.
-2. Open the pull request and confirm CI.
-3. Merge and tag `v0.46.0`.
-4. Consume the release from Learn and deploy the production Worker/D1 package.
+1. Review the draft pull request and CI evidence.
+2. Run the declared independent Foundry research, writing, factual-verification,
+   learning-design, and accessibility roles.
+3. Record real contribution evidence and complete human editorial,
+   subject-matter, and accessibility approvals.
+4. Continue the coverage migration for the 46 modules currently classified
+   `outline-only`.
+5. Reconcile package `0.50.0` with any earlier self-host release branch before
+   merge.
 
-No secrets or production identifiers belong in this repository.
+No secrets, deployment identifiers, learner data, or private PMO material belong
+in this repository.

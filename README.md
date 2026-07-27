@@ -16,7 +16,9 @@ contracts—not the private PMO records or Project42dev production configuration
   scene, checkpoint, assessment, caption, transcript, and reduced-motion packages.
 - Provider-neutral class-script and immutable virtual-instructor media contracts with
   multi-model provenance, independent verification, accessibility, and human release
-  gates ([production guide](docs/virtual-instructor-production.md)).
+  gates, plus a deterministic class-readiness registry that distinguishes complete
+  teaching packages from production outlines
+  ([production guide](docs/virtual-instructor-production.md)).
 - A primary-source registry and freshness gate for volatile content.
 - Provider-neutral curriculum with Anthropic, OpenAI, and selected-provider branches.
 - Pure assessment scoring and learner-progress functions.
@@ -30,6 +32,16 @@ contracts—not the private PMO records or Project42dev production configuration
 - Versioned, machine-readable content-maintenance evidence, impact, Foundry role,
   multi-model execution, deterministic gate, rollback, and human approval contracts.
 - Seed content suitable for a hosted site or self-hosted installation.
+
+Release `0.50.0` adds the first three class-ready AI Foundations teaching
+packages. Each provides at least 900 words of read-aloud instruction, complete
+section coverage, demonstrations, prompts, checkpoints, corrective feedback,
+exact activity and assessment handoffs, accessible visual direction, current
+primary sources, deterministic WebVTT captions, transcripts, text-only and
+reduced-motion alternatives, and integrity evidence. A generated coverage
+registry classifies all 49 substantive modules without presenting the remaining
+46 production outlines as complete classes. Every package remains a draft until
+independent model-role work and accountable human approvals are recorded.
 
 Release `0.49.0` adds the first independently deployable self-host
 infrastructure profile: a non-root OCI account API, PostgreSQL adapter and

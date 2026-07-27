@@ -61,6 +61,11 @@ export {
   validateClassScriptPackage,
   validateVirtualInstructorMediaManifest,
 } from "./training-package.js";
+export {
+  classScriptPackages,
+  getClassScriptPackage,
+  trainingPackageCoverage,
+} from "./training-catalog.js";
 
 export type { AssessmentResult, QuestionFeedback } from "./assessment.js";
 export type {
@@ -135,10 +140,13 @@ export type {
 export type {
   ClassScriptApproval,
   ClassScriptContribution,
+  ClassScriptLearningHandoff,
   ClassScriptPackage,
   ClassScriptSegment,
   ClassScriptVisual,
   ClassSegmentKind,
+  TrainingPackageCoverage,
+  TrainingPackageCoverageEntry,
   VirtualInstructorArtifact,
   VirtualInstructorMediaManifest,
 } from "./training-package.js";

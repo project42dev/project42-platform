@@ -39,7 +39,10 @@ export function renderTranscript(script) {
     "",
   ];
   for (const segment of script.segments) {
-    lines.push(`## ${titleCase(segment.kind)}`, "");
+    lines.push(
+      `## ${titleCase(segment.kind)}: ${titleCase(segment.id)}`,
+      "",
+    );
     if (segment.spokenText) lines.push(segment.spokenText, "");
     if (segment.expectedLearnerAction) {
       lines.push(`Expected learner action: ${segment.expectedLearnerAction}`, "");
@@ -49,6 +52,14 @@ export function renderTranscript(script) {
         `Correct feedback: ${segment.feedback.correct}`,
         "",
         `Retry feedback: ${segment.feedback.retry}`,
+        "",
+      );
+    }
+    if (segment.sourceUrls.length > 0) {
+      lines.push(
+        "Sources:",
+        "",
+        ...segment.sourceUrls.map((url) => `- <${url}>`),
         "",
       );
     }
@@ -64,7 +75,7 @@ export function renderWebVtt(script) {
     const start = cursor;
     cursor += segment.estimatedSeconds;
     if (!segment.spokenText) continue;
-    const chunks = chunkWords(segment.spokenText, 12);
+    const chunks = chunkCaptionText(segment.spokenText);
     const secondsPerChunk = segment.estimatedSeconds / chunks.length;
     for (let index = 0; index < chunks.length; index += 1) {
       const cueStart = start + index * secondsPerChunk;
@@ -72,7 +83,7 @@ export function renderWebVtt(script) {
       cues.push(
         `${cueNumber}`,
         `${timestamp(cueStart)} --> ${timestamp(cueEnd)}`,
-        chunks[index],
+        chunks[index].join("\n"),
         "",
       );
       cueNumber += 1;
@@ -111,7 +122,10 @@ export function renderTextOnly(script) {
     "",
   ];
   for (const segment of script.segments) {
-    lines.push(`## ${titleCase(segment.kind)}`, "");
+    lines.push(
+      `## ${titleCase(segment.kind)}: ${titleCase(segment.id)}`,
+      "",
+    );
     if (segment.spokenText) lines.push(segment.spokenText, "");
     if (segment.visual) lines.push(`Visual alternative: ${segment.visual.altText}`, "");
     if (segment.expectedLearnerAction) {
@@ -125,17 +139,47 @@ export function renderTextOnly(script) {
         "",
       );
     }
+    if (segment.sourceUrls.length > 0) {
+      lines.push(
+        "Sources:",
+        "",
+        ...segment.sourceUrls.map((url) => `- <${url}>`),
+        "",
+      );
+    }
   }
   return `${lines.join("\n").trim()}\n`;
 }
 
-function chunkWords(text, maximumWords) {
+function chunkCaptionText(text) {
   const words = text.trim().split(/\s+/u);
-  const chunks = [];
-  for (let index = 0; index < words.length; index += maximumWords) {
-    chunks.push(words.slice(index, index + maximumWords).join(" "));
+  const cues = [];
+  let lines = [];
+  let line = "";
+  let cueWordCount = 0;
+
+  for (const word of words) {
+    const candidate = line ? `${line} ${word}` : word;
+    const wouldExceedWords = cueWordCount >= 10;
+    if (candidate.length <= 42 && !wouldExceedWords) {
+      line = candidate;
+      cueWordCount += 1;
+      continue;
+    }
+    if (line) lines.push(line);
+    line = word;
+    cueWordCount += 1;
+    if (lines.length === 2 || cueWordCount >= 10) {
+      cues.push(lines);
+      lines = [];
+      cueWordCount = 1;
+    }
   }
-  return chunks;
+  if (line) lines.push(line);
+  if (lines.length > 0) {
+    cues.push(lines);
+  }
+  return cues;
 }
 
 function timestamp(totalSeconds) {

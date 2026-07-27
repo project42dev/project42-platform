@@ -1,6 +1,6 @@
 {
   "name": "@project42/platform",
-  "version": "0.49.0",
+  "version": "0.50.0",
   "description": "Open-source content, assessment, and learning-record core for Project 42.",
   "type": "module",
   "main": "./dist/index.js",
@@ -26,8 +26,9 @@
     "README.md"
   ],
   "scripts": {
-    "generate": "node scripts/generate-catalog.mjs",
-    "training:generate": "node scripts/generate-training-fixtures.mjs",
+    "generate": "node scripts/generate-catalog.mjs && node scripts/generate-training-packages.mjs",
+    "training:generate": "node scripts/generate-training-packages.mjs",
+    "training:check": "node scripts/generate-training-packages.mjs --check",
     "build": "npm run generate && tsc -p tsconfig.json",
     "api:types": "wrangler types src/worker-configuration.d.ts",
     "api:check": "npm run api:types && wrangler deploy --dry-run",
@@ -37,7 +38,7 @@
     "resources:validate": "node scripts/validate-resource-packs.mjs",
     "sources:links": "node scripts/check-source-links.mjs",
     "test": "npm run build && node --test tests/*.test.mjs && npm run resources:validate",
-    "check": "npm test && npm run content:freshness && npm run self-host:validate",
+    "check": "npm run training:check && npm test && npm run content:freshness && npm run self-host:validate",
     "prepare": "npm run build"
   },
   "engines": {

@@ -86,6 +86,11 @@ test("class-script gate rejects outline-only, unsourced, dependent, and unapprov
   assert.ok(result.errors.some((error) => error.includes("editorial approval")));
   assert.ok(result.errors.some((error) => error.includes("subject-matter approval")));
   assert.ok(result.errors.some((error) => error.includes("accessibility approval")));
+  assert.ok(
+    result.errors.some((error) =>
+      error.includes("completed factual-verification"),
+    ),
+  );
 });
 
 test("media manifest is publish-time, portable, accessible, and human-gated", () => {

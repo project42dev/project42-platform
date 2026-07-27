@@ -45,6 +45,23 @@ its source cue through `cueId` and repeats that cue's text verbatim. Every narra
 cue must have a caption and appear verbatim in the transcript so a future player can
 prove that its spoken, captioned, and text alternatives describe the same lesson.
 
+The module-level `instructorScript` is a production outline. A complete class is a
+separate package at
+`content/training/<path-id>/<module-id>/class-script.json`. Class-ready packages
+must contain at least 900 spoken words; sourced narration for every lesson section;
+demonstrations; learner prompts and pauses; checkpoints and corrective feedback;
+an activity handoff; an assessment handoff that names every canonical question ID;
+a closing; and accessible visual, text-only, caption, transcript, and reduced-motion
+representations.
+
+Do not mark a class script `approved` merely because generation succeeded. Its
+research, writing, independent factual verification, learning-design review, and
+accessibility review contributions must be completed with evidence. Writing and
+factual verification use different provider families, and editorial, subject-matter,
+and accessibility approvals remain human gates. The coverage registry labels a
+complete but unapproved package `class-ready-draft` and every short instructor
+outline `outline-only`.
+
 A culminating module can also include a `capstone`. Define stable required-artifact
 labels and a rubric whose criteria total 100 points. Each criterion names the
 evidence a reviewer needs, and the module declares the passing percentage. A
@@ -101,7 +118,10 @@ bounded to 7–30 days.
 
 The check generates the typed catalog, compiles the package, validates
 references and prerequisite graphs, runs assessment and learner-record tests,
-and enforces source review cadences.
+enforces source review cadences, and fails if generated class captions, transcripts,
+alternatives, integrity files, or coverage are stale. When class-script source
+changes, first run `npm run training:generate`, inspect the generated learner
+artifacts, and then run the full check.
 
 ## Knowledge checks
 

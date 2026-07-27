@@ -39,7 +39,7 @@
       "minimum": 300,
       "maximum": 14400
     },
-    "spokenWordCount": { "type": "integer", "minimum": 1 },
+    "spokenWordCount": { "type": "integer", "minimum": 900 },
     "segments": {
       "type": "array",
       "minItems": 8,
@@ -171,7 +171,24 @@
         },
         "visual": { "$ref": "#/$defs/visual" },
         "expectedLearnerAction": { "type": "string", "minLength": 1 },
+        "learningHandoff": { "$ref": "#/$defs/learningHandoff" },
         "feedback": { "$ref": "#/$defs/feedback" }
+      }
+    },
+    "learningHandoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command"],
+      "properties": {
+        "command": {
+          "enum": ["open-activity", "open-knowledge-check"]
+        },
+        "activityId": { "$ref": "#/$defs/id" },
+        "questionIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
       }
     },
     "contribution": {
@@ -181,7 +198,7 @@
         "role",
         "roleProfileRef",
         "providerFamily",
-        "completedAt"
+        "status"
       ],
       "properties": {
         "role": {
@@ -195,7 +212,9 @@
         },
         "roleProfileRef": { "$ref": "#/$defs/id" },
         "providerFamily": { "type": "string", "minLength": 1 },
-        "completedAt": { "$ref": "#/$defs/dateTime" }
+        "status": { "enum": ["planned", "completed"] },
+        "completedAt": { "$ref": "#/$defs/dateTime" },
+        "evidenceRef": { "$ref": "#/$defs/id" }
       }
     },
     "scriptApproval": {

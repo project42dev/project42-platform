@@ -1,0 +1,411 @@
+{
+  "schemaVersion": "1.0",
+  "canonicalContentVersion": "0.37.0",
+  "substantiveModuleCount": 49,
+  "classReadyModuleCount": 3,
+  "outlineOnlyModuleCount": 46,
+  "coverageStatus": "migration-active",
+  "modules": [
+    {
+      "moduleId": "agent-evaluation",
+      "pathIds": [
+        "reliable-agent-workflows"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "agent-observability",
+      "pathIds": [
+        "reliable-agent-workflows"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "ai-foundations-capstone",
+      "pathIds": [
+        "ai-foundations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.0"
+    },
+    {
+      "moduleId": "ai-systems-and-use-cases",
+      "pathIds": [
+        "ai-foundations"
+      ],
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.0",
+      "classScriptId": "ai-systems-and-use-cases-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/ai-foundations/ai-systems-and-use-cases/class-script.json"
+    },
+    {
+      "moduleId": "anthropic-ecosystem-and-interfaces",
+      "pathIds": [
+        "anthropic-claude-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "claude-api-and-sdk-workflows",
+      "pathIds": [
+        "anthropic-claude-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "claude-evaluation-and-observability",
+      "pathIds": [
+        "anthropic-claude-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "claude-prompting-in-practice",
+      "pathIds": [
+        "anthropic-claude-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "claude-safety-and-trust-boundaries",
+      "pathIds": [
+        "anthropic-claude-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "claude-tools-and-agent-loops",
+      "pathIds": [
+        "anthropic-claude-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "coding-and-analysis-workflow",
+      "pathIds": [
+        "ai-foundations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.0"
+    },
+    {
+      "moduleId": "compare-provider-capabilities",
+      "pathIds": [
+        "providers-in-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "context-and-evidence-construction",
+      "pathIds": [
+        "ai-foundations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.0"
+    },
+    {
+      "moduleId": "context-engineering",
+      "pathIds": [
+        "reliable-agent-workflows"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "context-tokens-and-modalities",
+      "pathIds": [
+        "ai-foundations"
+      ],
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.0",
+      "classScriptId": "context-tokens-and-modalities-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/ai-foundations/context-tokens-and-modalities/class-script.json"
+    },
+    {
+      "moduleId": "control-agent-actions",
+      "pathIds": [
+        "reliable-agent-workflows"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "examples-and-output-contracts",
+      "pathIds": [
+        "ai-foundations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.0"
+    },
+    {
+      "moduleId": "execute-cross-provider-cutover",
+      "pathIds": [
+        "providers-in-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "gemini-api-and-sdk-workflows",
+      "pathIds": [
+        "google-gemini-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "gemini-ecosystem-and-interfaces",
+      "pathIds": [
+        "google-gemini-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "gemini-evaluation-and-observability",
+      "pathIds": [
+        "google-gemini-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "gemini-prompting-in-practice",
+      "pathIds": [
+        "google-gemini-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "gemini-safety-and-trust-boundaries",
+      "pathIds": [
+        "google-gemini-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "gemini-tools-and-agent-loops",
+      "pathIds": [
+        "google-gemini-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "language-models-and-generation",
+      "pathIds": [
+        "ai-foundations"
+      ],
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.0",
+      "classScriptId": "language-models-and-generation-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "examples/training/language-models-and-generation/class-script.json"
+    },
+    {
+      "moduleId": "mcp-architecture",
+      "pathIds": [
+        "reliable-agent-workflows"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "mcp-trust-and-security",
+      "pathIds": [
+        "reliable-agent-workflows"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "memory-boundaries",
+      "pathIds": [
+        "reliable-agent-workflows"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "migrating-to-and-from-claude",
+      "pathIds": [
+        "anthropic-claude-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "migrating-to-and-from-gemini",
+      "pathIds": [
+        "google-gemini-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "migrating-to-and-from-openai",
+      "pathIds": [
+        "openai-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "multi-agent-handoffs",
+      "pathIds": [
+        "reliable-agent-workflows"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "openai-ecosystem-and-interfaces",
+      "pathIds": [
+        "openai-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "openai-evaluation-and-observability",
+      "pathIds": [
+        "openai-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "openai-prompting-in-practice",
+      "pathIds": [
+        "openai-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "openai-responses-api-and-sdk-workflows",
+      "pathIds": [
+        "openai-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "openai-safety-and-trust-boundaries",
+      "pathIds": [
+        "openai-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "openai-tools-and-codex-agent-loops",
+      "pathIds": [
+        "openai-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "orchestration-patterns",
+      "pathIds": [
+        "reliable-agent-workflows"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "plan-cross-provider-migration",
+      "pathIds": [
+        "providers-in-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "prepare-agent-work",
+      "pathIds": [
+        "reliable-agent-workflows"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "privacy-safety-and-responsibility",
+      "pathIds": [
+        "ai-foundations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.0"
+    },
+    {
+      "moduleId": "prompt-anatomy-and-success-criteria",
+      "pathIds": [
+        "ai-foundations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.0"
+    },
+    {
+      "moduleId": "reliable-agent-capstone",
+      "pathIds": [
+        "reliable-agent-workflows"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "research-with-evidence",
+      "pathIds": [
+        "ai-foundations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.0"
+    },
+    {
+      "moduleId": "review-agent-results",
+      "pathIds": [
+        "reliable-agent-workflows"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "safe-tool-use-workflow",
+      "pathIds": [
+        "ai-foundations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.0"
+    },
+    {
+      "moduleId": "verification-and-iterative-improvement",
+      "pathIds": [
+        "ai-foundations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.0"
+    },
+    {
+      "moduleId": "writing-and-transformation-workflow",
+      "pathIds": [
+        "ai-foundations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.0"
+    }
+  ]
+}
