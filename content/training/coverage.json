@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.41.0",
   "substantiveModuleCount": 64,
-  "classReadyModuleCount": 29,
-  "outlineOnlyModuleCount": 35,
+  "classReadyModuleCount": 32,
+  "outlineOnlyModuleCount": 32,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -138,8 +138,11 @@
       "pathIds": [
         "reliable-agent-workflows"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "context-engineering-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/reliable-agent-workflows/context-engineering/class-script.json"
     },
     {
       "moduleId": "context-tokens-and-modalities",
@@ -157,8 +160,11 @@
       "pathIds": [
         "reliable-agent-workflows"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "control-agent-actions-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/reliable-agent-workflows/control-agent-actions/class-script.json"
     },
     {
       "moduleId": "deployment-shape-and-operating-model",
@@ -303,8 +309,11 @@
       "pathIds": [
         "reliable-agent-workflows"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "memory-boundaries-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/reliable-agent-workflows/memory-boundaries/class-script.json"
     },
     {
       "moduleId": "migrating-to-and-from-claude",
