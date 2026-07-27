@@ -26,6 +26,11 @@ contracts—not the private PMO records or Project42dev production configuration
   append-only authorization audits.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.46.4` appends request-correlated denial evidence for identifiable
+non-owner administration attempts and adds a deployment gate that keeps
+exact-domain automatic approval locked until real verified-email token semantics
+are accepted.
+
 Release `0.46.3` adds a real D1-backed account-service lifecycle gate and
 normalizes administrative audit events to the public camel-case API contract.
 The gate covers owner bootstrap, approvals, verified-domain policy, progress,
