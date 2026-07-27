@@ -17,15 +17,15 @@ development mode and the browser-facing endpoints use HTTP on `localhost`.
 From the repository root:
 
 ```bash
-cp self-host/.env.example .env
+cp self-host/.env.example self-host/.env
 ```
 
 Replace both example passwords in `.env` with different random values of at
 least 24 characters. Keep that file out of source control.
 
 ```bash
-docker compose -f self-host/compose.yaml config --quiet
-docker compose -f self-host/compose.yaml up --build --detach --wait
+docker compose --env-file self-host/.env -f self-host/compose.yaml config --quiet
+docker compose --env-file self-host/.env -f self-host/compose.yaml up --build --detach --wait
 curl --fail http://localhost:8787/health
 ```
 
@@ -66,7 +66,7 @@ configuration; it has no client secret and does not enable password grants.
 Create an encrypted or access-controlled backup outside the repository:
 
 ```bash
-docker compose -f self-host/compose.yaml exec -T database \
+docker compose --env-file self-host/.env -f self-host/compose.yaml exec -T database \
   pg_dump --format=custom --no-owner --username=project42 project42 \
   > project42.backup
 ```
@@ -74,9 +74,9 @@ docker compose -f self-host/compose.yaml exec -T database \
 Test restoration in an isolated empty database:
 
 ```bash
-docker compose -f self-host/compose.yaml exec -T database \
+docker compose --env-file self-host/.env -f self-host/compose.yaml exec -T database \
   createdb --username=project42 project42_restore_test
-docker compose -f self-host/compose.yaml exec -T database \
+docker compose --env-file self-host/.env -f self-host/compose.yaml exec -T database \
   pg_restore --exit-on-error --no-owner --username=project42 \
   --dbname=project42_restore_test < project42.backup
 ```
@@ -84,7 +84,7 @@ docker compose -f self-host/compose.yaml exec -T database \
 Delete the restore-test database after validation:
 
 ```bash
-docker compose -f self-host/compose.yaml exec -T database \
+docker compose --env-file self-host/.env -f self-host/compose.yaml exec -T database \
   dropdb --username=project42 project42_restore_test
 ```
 
@@ -97,14 +97,14 @@ production restore.
 Stop without deleting persistent data:
 
 ```bash
-docker compose -f self-host/compose.yaml down
+docker compose --env-file self-host/.env -f self-host/compose.yaml down
 ```
 
 The following evaluation-only reset permanently removes its database and
 reference-identity volumes:
 
 ```bash
-docker compose -f self-host/compose.yaml down --volumes
+docker compose --env-file self-host/.env -f self-host/compose.yaml down --volumes
 ```
 
 ## Production boundary

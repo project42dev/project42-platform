@@ -42,11 +42,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Validate Compose model
-        run: |
-          cp self-host/.env.example .env
-          docker compose -f self-host/compose.yaml config --quiet
+        run: docker compose --env-file self-host/.env.example -f self-host/compose.yaml config --quiet
       - name: Start evaluation stack
-        run: docker compose -f self-host/compose.yaml up --build --detach --wait
+        run: docker compose --env-file self-host/.env.example -f self-host/compose.yaml up --build --detach --wait
       - name: Verify API and identity discovery
         run: |
           curl --fail --show-error --silent http://127.0.0.1:8787/health
@@ -54,7 +52,7 @@ jobs:
             http://127.0.0.1:8080/realms/project42/.well-known/openid-configuration
       - name: Capture diagnostics
         if: failure()
-        run: docker compose -f self-host/compose.yaml logs --no-color
+        run: docker compose --env-file self-host/.env.example -f self-host/compose.yaml logs --no-color
       - name: Stop evaluation stack
         if: always()
-        run: docker compose -f self-host/compose.yaml down --volumes
+        run: docker compose --env-file self-host/.env.example -f self-host/compose.yaml down --volumes

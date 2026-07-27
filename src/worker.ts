@@ -153,14 +153,17 @@ class D1Project42Repository {
       .prepare(
         `SELECT u.id, u.installation_id, i.issuer, i.subject, u.display_name,
                 u.primary_email, u.email_verified, u.account_state, u.created_at,
-                u.updated_at, GROUP_CONCAT(r.role) AS roles
+                u.updated_at, r.roles
            FROM user_identities i
            JOIN users u
              ON u.installation_id = i.installation_id AND u.id = i.user_id
-           LEFT JOIN role_assignments r
+           LEFT JOIN (
+             SELECT installation_id, user_id, GROUP_CONCAT(role) AS roles
+               FROM role_assignments
+              GROUP BY installation_id, user_id
+           ) r
              ON r.installation_id = u.installation_id AND r.user_id = u.id
-          WHERE i.installation_id = ? AND i.issuer = ? AND i.subject = ?
-          GROUP BY u.id`,
+          WHERE i.installation_id = ? AND i.issuer = ? AND i.subject = ?`,
       )
       .bind(this.installationId, identity.issuer, identity.subject)
       .first<AccountRow>();
@@ -323,14 +326,17 @@ class D1Project42Repository {
     const statement = this.db.prepare(
       `SELECT u.id, u.installation_id, i.issuer, i.subject, u.display_name,
               u.primary_email, u.email_verified, u.account_state, u.created_at,
-              u.updated_at, GROUP_CONCAT(r.role) AS roles
+              u.updated_at, r.roles
          FROM users u
          JOIN user_identities i
            ON i.installation_id = u.installation_id AND i.user_id = u.id
-         LEFT JOIN role_assignments r
+         LEFT JOIN (
+           SELECT installation_id, user_id, GROUP_CONCAT(role) AS roles
+             FROM role_assignments
+            GROUP BY installation_id, user_id
+         ) r
            ON r.installation_id = u.installation_id AND r.user_id = u.id
         WHERE u.installation_id = ? ${condition}
-        GROUP BY u.id
         ORDER BY u.created_at ASC
         LIMIT 500`,
     );
