@@ -864,6 +864,79 @@ test("evaluation safety and operations pack has exact ten-resource acceptance co
   }
 });
 
+test("self-hosted model operations pack has exact deployment and recovery coverage", () => {
+  const ids = new Set([
+    "self-hosted-deployment-shape-decision",
+    "workstation-model-service-runbook",
+    "container-on-prem-model-service-runbook",
+    "edge-model-service-runbook",
+    "cloud-managed-model-compute-runbook",
+    "self-hosted-model-security-boundary",
+    "self-hosted-model-evaluation-capacity-observability",
+    "self-hosted-model-update-rollback-incident",
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    ids.has(resource.id),
+  );
+
+  assert.equal(resources.length, 8);
+  assert.deepEqual(new Set(resources.map((resource) => resource.id)), ids);
+  assert.ok(new Set(resources.map((resource) => resource.format)).size >= 5);
+
+  for (const resource of resources) {
+    assert.equal(resource.category, "Self-hosted model operations");
+    assert.deepEqual(resource.providers, ["provider-neutral"]);
+    assert.ok(resource.sources.length >= 3, `${resource.id} sources`);
+    assert.ok(hasVerificationGuidance(resource), `${resource.id} verification`);
+    assert.ok(hasRecoveryGuidance(resource), `${resource.id} recovery`);
+    assert.deepEqual(findUnsafeArtifactCommands(resource), []);
+    const artifact = resource.sections
+      .map((section) => section.code?.code ?? "")
+      .join("\n");
+    for (const field of [
+      "Task:",
+      "Scope:",
+      "Permissions:",
+      "Exact build:",
+      "Verification:",
+      "Stop conditions:",
+      "Recovery:",
+    ]) {
+      assert.ok(artifact.includes(field), `${resource.id} ${field}`);
+    }
+  }
+
+  const serialized = new Map(
+    resources.map((resource) => [resource.id, JSON.stringify(resource)]),
+  );
+  assert.match(
+    serialized.get("self-hosted-deployment-shape-decision"),
+    /WORKSTATION.*CONTAINER\/ON-PREMISES.*EDGE.*CLOUD-MANAGED/,
+  );
+  assert.match(serialized.get("workstation-model-service-runbook"), /thermal/i);
+  assert.match(
+    serialized.get("container-on-prem-model-service-runbook"),
+    /management path/i,
+  );
+  assert.match(serialized.get("edge-model-service-runbook"), /safe mode/i);
+  assert.match(
+    serialized.get("cloud-managed-model-compute-runbook"),
+    /provider exit/i,
+  );
+  assert.match(
+    serialized.get("self-hosted-model-security-boundary"),
+    /Prompt text.*never proof of authority/i,
+  );
+  assert.match(
+    serialized.get("self-hosted-model-evaluation-capacity-observability"),
+    /separately configured model-assisted reviewer/i,
+  );
+  assert.match(
+    serialized.get("self-hosted-model-update-rollback-incident"),
+    /unknown.*reconcil/i,
+  );
+});
+
 test("resource-pack artifact-field rules reject malformed and incomplete contracts", () => {
   assert.deepEqual(normalizeRequiredArtifactFields(undefined), {
     valid: true,
