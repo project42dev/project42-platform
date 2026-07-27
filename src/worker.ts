@@ -20,16 +20,20 @@ import type {
   ConsentDecision,
   ConsentRecord,
   CreateDomainRuleRequest,
+  DeleteDomainRuleRequest,
   DeletionRequest,
   DomainRule,
+  LearnerProfile,
   LearnerDataExport,
   ProgressEnvelope,
   ProgressImportRequest,
   Project42Role,
+  UpdateLearnerProfileRequest,
 } from "./api-contract.js";
 
 type WorkerEnvironment = Omit<Env, "DOMAIN_APPROVAL_ENABLED"> & {
   DOMAIN_APPROVAL_ENABLED?: string;
+  PROFILE_PHOTOS?: R2Bucket;
 };
 
 interface AccountRow {
@@ -53,6 +57,30 @@ interface DomainRow {
   policy_version: number;
   created_at: string;
   updated_at: string;
+}
+
+interface ProfileRow {
+  user_id: string;
+  display_name: string | null;
+  bio: string | null;
+  organization: string | null;
+  location: string | null;
+  website_url: string | null;
+  photo_object_key: string | null;
+  photo_content_type: string | null;
+  photo_byte_length: number | null;
+  photo_etag: string | null;
+  photo_updated_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ProfilePhotoMetadata {
+  objectKey: string;
+  contentType: string;
+  byteLength: number;
+  etag: string;
+  updatedAt: string;
 }
 
 interface ConsentRow {
@@ -483,6 +511,278 @@ class D1Project42Repository {
       createdAt: input.now,
       updatedAt: input.now,
     };
+  }
+
+  async deleteDomain(input: {
+    actor: Account;
+    domainId: string;
+    reason: string;
+    requestId: string;
+    now: string;
+  }): Promise<DomainRule> {
+    const existing = await this.db
+      .prepare(
+        `SELECT id, domain, enabled, policy_version, created_at, updated_at
+           FROM approved_email_domains
+          WHERE installation_id = ? AND id = ?`,
+      )
+      .bind(this.installationId, input.domainId)
+      .first<DomainRow>();
+    if (!existing) {
+      throw new ApiFailure(404, "domain_not_found", "Domain rule was not found.");
+    }
+    if (existing.enabled === 1) {
+      throw new ApiFailure(
+        409,
+        "domain_must_be_disabled",
+        "Disable this domain rule before removing it.",
+      );
+    }
+    await this.db.batch([
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.actor.identity,
+        actorUserId: input.actor.id,
+        action: "domain.delete",
+        targetType: "approved_email_domain",
+        targetId: input.domainId,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: input.reason,
+        metadata: {
+          domain: existing.domain,
+          enabled: false,
+          policyVersion: existing.policy_version,
+        },
+        now: input.now,
+      }),
+      this.db
+        .prepare(
+          `DELETE FROM approved_email_domains
+            WHERE installation_id = ? AND id = ? AND enabled = 0`,
+        )
+        .bind(this.installationId, input.domainId),
+    ]);
+    return mapDomain(existing);
+  }
+
+  async getProfile(account: Account, now: string): Promise<LearnerProfile> {
+    const row = await this.db
+      .prepare(
+        `SELECT u.id AS user_id, u.display_name, p.bio, p.organization,
+                p.location, p.website_url, p.photo_object_key,
+                p.photo_content_type, p.photo_byte_length, p.photo_etag,
+                p.photo_updated_at,
+                COALESCE(p.created_at, u.created_at) AS created_at,
+                COALESCE(p.updated_at, u.updated_at) AS updated_at
+           FROM users u
+           LEFT JOIN user_profiles p
+             ON p.installation_id = u.installation_id AND p.user_id = u.id
+          WHERE u.installation_id = ? AND u.id = ?`,
+      )
+      .bind(this.installationId, account.id)
+      .first<ProfileRow>();
+    if (!row) {
+      throw new ApiFailure(404, "account_not_found", "Account was not found.");
+    }
+    return mapProfile(row, now);
+  }
+
+  async updateProfile(input: {
+    account: Account;
+    request: UpdateLearnerProfileRequest;
+    fields: Array<keyof UpdateLearnerProfileRequest>;
+    requestId: string;
+    now: string;
+  }): Promise<LearnerProfile> {
+    const current = await this.getProfile(input.account, input.now);
+    const next = {
+      displayName:
+        input.request.displayName === undefined
+          ? current.displayName
+          : input.request.displayName,
+      bio: input.request.bio === undefined ? current.bio : input.request.bio,
+      organization:
+        input.request.organization === undefined
+          ? current.organization
+          : input.request.organization,
+      location:
+        input.request.location === undefined
+          ? current.location
+          : input.request.location,
+      websiteUrl:
+        input.request.websiteUrl === undefined
+          ? current.websiteUrl
+          : input.request.websiteUrl,
+    };
+    await this.db.batch([
+      this.db
+        .prepare(
+          `UPDATE users SET display_name = ?, updated_at = ?
+            WHERE installation_id = ? AND id = ?`,
+        )
+        .bind(next.displayName, input.now, this.installationId, input.account.id),
+      this.db
+        .prepare(
+          `INSERT INTO user_profiles (
+             installation_id, user_id, bio, organization, location, website_url,
+             created_at, updated_at
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT (installation_id, user_id) DO UPDATE SET
+             bio = excluded.bio,
+             organization = excluded.organization,
+             location = excluded.location,
+             website_url = excluded.website_url,
+             updated_at = excluded.updated_at`,
+        )
+        .bind(
+          this.installationId,
+          input.account.id,
+          next.bio,
+          next.organization,
+          next.location,
+          next.websiteUrl,
+          input.now,
+          input.now,
+        ),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.account.identity,
+        actorUserId: input.account.id,
+        action: "profile.update",
+        targetType: "user_profile",
+        targetId: input.account.id,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: "Learner updated profile fields.",
+        metadata: { fields: input.fields },
+        now: input.now,
+      }),
+    ]);
+    return {
+      userId: input.account.id,
+      ...next,
+      photoAvailable: current.photoAvailable,
+      photoUpdatedAt: current.photoUpdatedAt,
+      createdAt: current.createdAt,
+      updatedAt: input.now,
+    };
+  }
+
+  async getProfilePhotoMetadata(userId: string): Promise<ProfilePhotoMetadata | null> {
+    const row = await this.db
+      .prepare(
+        `SELECT photo_object_key, photo_content_type, photo_byte_length,
+                photo_etag, photo_updated_at
+           FROM user_profiles
+          WHERE installation_id = ? AND user_id = ?`,
+      )
+      .bind(this.installationId, userId)
+      .first<{
+        photo_object_key: string | null;
+        photo_content_type: string | null;
+        photo_byte_length: number | null;
+        photo_etag: string | null;
+        photo_updated_at: string | null;
+      }>();
+    if (
+      !row?.photo_object_key ||
+      !row.photo_content_type ||
+      !row.photo_byte_length ||
+      !row.photo_etag ||
+      !row.photo_updated_at
+    ) {
+      return null;
+    }
+    return {
+      objectKey: row.photo_object_key,
+      contentType: row.photo_content_type,
+      byteLength: row.photo_byte_length,
+      etag: row.photo_etag,
+      updatedAt: row.photo_updated_at,
+    };
+  }
+
+  async setProfilePhotoMetadata(input: {
+    account: Account;
+    metadata: ProfilePhotoMetadata;
+    requestId: string;
+    now: string;
+  }): Promise<void> {
+    await this.db.batch([
+      this.db
+        .prepare(
+          `INSERT INTO user_profiles (
+             installation_id, user_id, photo_object_key, photo_content_type,
+             photo_byte_length, photo_etag, photo_updated_at, created_at, updated_at
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT (installation_id, user_id) DO UPDATE SET
+             photo_object_key = excluded.photo_object_key,
+             photo_content_type = excluded.photo_content_type,
+             photo_byte_length = excluded.photo_byte_length,
+             photo_etag = excluded.photo_etag,
+             photo_updated_at = excluded.photo_updated_at,
+             updated_at = excluded.updated_at`,
+        )
+        .bind(
+          this.installationId,
+          input.account.id,
+          input.metadata.objectKey,
+          input.metadata.contentType,
+          input.metadata.byteLength,
+          input.metadata.etag,
+          input.metadata.updatedAt,
+          input.now,
+          input.now,
+        ),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.account.identity,
+        actorUserId: input.account.id,
+        action: "profile.photo.update",
+        targetType: "user_profile",
+        targetId: input.account.id,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: "Learner replaced their private profile photo.",
+        metadata: {
+          contentType: input.metadata.contentType,
+          byteLength: input.metadata.byteLength,
+        },
+        now: input.now,
+      }),
+    ]);
+  }
+
+  async clearProfilePhotoMetadata(input: {
+    account: Account;
+    requestId: string;
+    now: string;
+  }): Promise<void> {
+    await this.db.batch([
+      this.db
+        .prepare(
+          `UPDATE user_profiles
+              SET photo_object_key = NULL, photo_content_type = NULL,
+                  photo_byte_length = NULL, photo_etag = NULL,
+                  photo_updated_at = NULL, updated_at = ?
+            WHERE installation_id = ? AND user_id = ?`,
+        )
+        .bind(input.now, this.installationId, input.account.id),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.account.identity,
+        actorUserId: input.account.id,
+        action: "profile.photo.delete",
+        targetType: "user_profile",
+        targetId: input.account.id,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: "Learner removed their private profile photo.",
+        metadata: {},
+        now: input.now,
+      }),
+    ]);
   }
 
   async setDomainEnabled(input: {
@@ -969,6 +1269,7 @@ class D1Project42Repository {
     now: string;
   }): Promise<LearnerDataExport> {
     const [
+      profile,
       progress,
       moduleProgress,
       assessmentAttempts,
@@ -978,6 +1279,7 @@ class D1Project42Repository {
       deletionRequests,
       approvalDecisions,
     ] = await Promise.all([
+      this.getProfile(input.account, input.now),
       this.getProgress(input.account.id),
       this.db
         .prepare(
@@ -1058,6 +1360,7 @@ class D1Project42Repository {
       schemaVersion: 1,
       exportedAt: input.now,
       account: input.account,
+      profile,
       progress,
       moduleProgress: moduleProgress.results,
       assessmentAttempts: assessmentAttempts.results.map((attempt) => ({
@@ -1127,11 +1430,16 @@ class D1Project42Repository {
     reason: string;
     requestId: string;
     now: string;
-  }): Promise<{ deletionRequestId: string; completedAt: string; subjectDigest: string }> {
+  }): Promise<{
+    deletionRequestId: string;
+    completedAt: string;
+    subjectDigest: string;
+    profilePhotoObjectKey: string | null;
+  }> {
     const deletion = await this.db
       .prepare(
         `SELECT d.id, d.user_id, d.state, d.requested_at, d.cancellation_deadline,
-                i.issuer, i.subject,
+                i.issuer, i.subject, p.photo_object_key,
                 EXISTS (
                   SELECT 1 FROM role_assignments r
                    WHERE r.installation_id = d.installation_id
@@ -1140,6 +1448,8 @@ class D1Project42Repository {
            FROM deletion_requests d
            JOIN user_identities i
              ON i.installation_id = d.installation_id AND i.user_id = d.user_id
+           LEFT JOIN user_profiles p
+             ON p.installation_id = d.installation_id AND p.user_id = d.user_id
           WHERE d.installation_id = ? AND d.id = ?
           LIMIT 1`,
       )
@@ -1152,6 +1462,7 @@ class D1Project42Repository {
         cancellation_deadline: string;
         issuer: string;
         subject: string;
+        photo_object_key: string | null;
         is_owner: number;
       }>();
     if (!deletion || !["requested", "processing"].includes(deletion.state)) {
@@ -1248,6 +1559,7 @@ class D1Project42Repository {
       deletionRequestId: deletion.id,
       completedAt: input.now,
       subjectDigest,
+      profilePhotoObjectKey: deletion.photo_object_key,
     };
   }
 
@@ -1346,6 +1658,21 @@ function mapDomain(row: DomainRow): DomainRule {
   };
 }
 
+function mapProfile(row: ProfileRow, fallbackTimestamp: string): LearnerProfile {
+  return {
+    userId: row.user_id,
+    displayName: row.display_name,
+    bio: row.bio,
+    organization: row.organization,
+    location: row.location,
+    websiteUrl: row.website_url,
+    photoAvailable: Boolean(row.photo_object_key),
+    photoUpdatedAt: row.photo_updated_at,
+    createdAt: row.created_at || fallbackTimestamp,
+    updatedAt: row.updated_at || fallbackTimestamp,
+  };
+}
+
 function mapConsent(row: ConsentRow): ConsentRecord {
   return {
     id: row.id,
@@ -1408,6 +1735,16 @@ function requireApproved(account: Account): void {
   }
 }
 
+function requireProfileAccess(account: Account): void {
+  if (account.state === "suspended" || account.state === "revoked") {
+    throw new ApiFailure(
+      403,
+      `account_${account.state}`,
+      `This account is ${account.state} and cannot change its profile.`,
+    );
+  }
+}
+
 async function requireOwner(
   account: Account,
   repository: D1Project42Repository,
@@ -1454,6 +1791,190 @@ function requireDomainApprovalEnabled(env: WorkerEnvironment): void {
   }
 }
 
+function normalizeProfileRequest(
+  value: unknown,
+): {
+  request: UpdateLearnerProfileRequest;
+  fields: Array<keyof UpdateLearnerProfileRequest>;
+} {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new ApiFailure(400, "invalid_profile", "Profile changes must be a JSON object.");
+  }
+  const record = value as Record<string, unknown>;
+  const allowed = [
+    "displayName",
+    "bio",
+    "organization",
+    "location",
+    "websiteUrl",
+  ] as const;
+  const unknown = Object.keys(record).filter(
+    (key) => !allowed.includes(key as (typeof allowed)[number]),
+  );
+  if (unknown.length > 0) {
+    throw new ApiFailure(
+      400,
+      "invalid_profile_field",
+      `Unknown profile field: ${unknown[0]}.`,
+    );
+  }
+  const fields = allowed.filter((field) => field in record);
+  if (fields.length === 0) {
+    throw new ApiFailure(400, "empty_profile_update", "At least one profile field is required.");
+  }
+  const limits: Record<(typeof allowed)[number], number> = {
+    displayName: 80,
+    bio: 500,
+    organization: 120,
+    location: 120,
+    websiteUrl: 2_048,
+  };
+  const request: UpdateLearnerProfileRequest = {};
+  for (const field of fields) {
+    const raw = record[field];
+    if (raw !== null && typeof raw !== "string") {
+      throw new ApiFailure(
+        400,
+        "invalid_profile_field",
+        `${field} must be text or null.`,
+      );
+    }
+    const normalized = typeof raw === "string" ? raw.trim() || null : null;
+    if (normalized && normalized.length > limits[field]) {
+      throw new ApiFailure(
+        400,
+        "profile_field_too_long",
+        `${field} exceeds its ${limits[field]} character limit.`,
+      );
+    }
+    if (
+      normalized &&
+      field !== "bio" &&
+      /[\u0000-\u001f\u007f]/.test(normalized)
+    ) {
+      throw new ApiFailure(
+        400,
+        "invalid_profile_field",
+        `${field} contains unsupported control characters.`,
+      );
+    }
+    request[field] = normalized;
+  }
+  if (request.websiteUrl) {
+    let website: URL;
+    try {
+      website = new URL(request.websiteUrl);
+    } catch {
+      throw new ApiFailure(
+        400,
+        "invalid_website_url",
+        "Website URL must be a valid HTTPS URL.",
+      );
+    }
+    if (website.protocol !== "https:" || website.username || website.password) {
+      throw new ApiFailure(
+        400,
+        "invalid_website_url",
+        "Website URL must use HTTPS and cannot contain credentials.",
+      );
+    }
+    request.websiteUrl = website.toString();
+  }
+  return { request, fields: [...fields] };
+}
+
+async function readProfilePhoto(request: Request): Promise<{
+  bytes: ArrayBuffer;
+  contentType: "image/jpeg" | "image/png" | "image/webp";
+  extension: "jpg" | "png" | "webp";
+}> {
+  const maximumBytes = 2 * 1024 * 1024;
+  const declaredLength = Number(request.headers.get("content-length") ?? "0");
+  if (Number.isFinite(declaredLength) && declaredLength > maximumBytes) {
+    throw new ApiFailure(
+      413,
+      "profile_photo_too_large",
+      "Profile photos must be 2 MB or smaller.",
+    );
+  }
+  const contentType = request.headers
+    .get("content-type")
+    ?.split(";", 1)[0]
+    ?.trim()
+    .toLowerCase();
+  if (!["image/jpeg", "image/png", "image/webp"].includes(contentType ?? "")) {
+    throw new ApiFailure(
+      415,
+      "unsupported_profile_photo",
+      "Profile photos must be JPEG, PNG, or WebP.",
+    );
+  }
+  const bytes = await request.arrayBuffer();
+  if (bytes.byteLength < 12 || bytes.byteLength > maximumBytes) {
+    throw new ApiFailure(
+      bytes.byteLength > maximumBytes ? 413 : 400,
+      bytes.byteLength > maximumBytes
+        ? "profile_photo_too_large"
+        : "invalid_profile_photo",
+      bytes.byteLength > maximumBytes
+        ? "Profile photos must be 2 MB or smaller."
+        : "Profile photo data is incomplete.",
+    );
+  }
+  const value = new Uint8Array(bytes);
+  const isJpeg = value[0] === 0xff && value[1] === 0xd8 && value[2] === 0xff;
+  const isPng =
+    value[0] === 0x89 &&
+    value[1] === 0x50 &&
+    value[2] === 0x4e &&
+    value[3] === 0x47 &&
+    value[4] === 0x0d &&
+    value[5] === 0x0a &&
+    value[6] === 0x1a &&
+    value[7] === 0x0a;
+  const isWebp =
+    value[0] === 0x52 &&
+    value[1] === 0x49 &&
+    value[2] === 0x46 &&
+    value[3] === 0x46 &&
+    value[8] === 0x57 &&
+    value[9] === 0x45 &&
+    value[10] === 0x42 &&
+    value[11] === 0x50;
+  const signatureMatches =
+    (contentType === "image/jpeg" && isJpeg) ||
+    (contentType === "image/png" && isPng) ||
+    (contentType === "image/webp" && isWebp);
+  if (!signatureMatches) {
+    throw new ApiFailure(
+      400,
+      "profile_photo_signature_mismatch",
+      "Profile photo data does not match its declared image type.",
+    );
+  }
+  return {
+    bytes,
+    contentType: contentType as "image/jpeg" | "image/png" | "image/webp",
+    extension:
+      contentType === "image/jpeg"
+        ? "jpg"
+        : contentType === "image/png"
+          ? "png"
+          : "webp",
+  };
+}
+
+function requireProfilePhotoStorage(env: WorkerEnvironment): R2Bucket {
+  if (!env.PROFILE_PHOTOS) {
+    throw new ApiFailure(
+      503,
+      "profile_photo_storage_unavailable",
+      "Profile photo storage is not configured for this deployment.",
+    );
+  }
+  return env.PROFILE_PHOTOS;
+}
+
 async function readJson<T>(request: Request): Promise<T> {
   const contentLength = Number(request.headers.get("content-length") ?? "0");
   if (contentLength > 1_000_000) {
@@ -1496,6 +2017,31 @@ function json(
   }
   const responseBody = status === 204 || status === 304 ? null : JSON.stringify(body);
   return new Response(responseBody, { status, headers });
+}
+
+function profilePhotoResponse(
+  object: R2ObjectBody,
+  metadata: ProfilePhotoMetadata,
+  requestId: string,
+  origin: string | null,
+): Response {
+  const headers = new Headers({
+    "content-type": metadata.contentType,
+    "content-length": String(metadata.byteLength),
+    "cache-control": "private, no-store",
+    etag: metadata.etag,
+    "last-modified": new Date(metadata.updatedAt).toUTCString(),
+    "x-content-type-options": "nosniff",
+    "content-security-policy": "default-src 'none'; sandbox",
+    "referrer-policy": "no-referrer",
+    "x-request-id": requestId,
+  });
+  if (origin) {
+    headers.set("access-control-allow-origin", origin);
+    headers.set("access-control-allow-credentials", "false");
+    headers.set("vary", "Origin");
+  }
+  return new Response(object.body, { status: 200, headers });
 }
 
 function permittedOrigin(request: Request, env: WorkerEnvironment): string | null {
@@ -1567,6 +2113,109 @@ async function handleRequest(
     }
     if (request.method === "GET" && url.pathname === "/v1/me") {
       return json({ account }, 200, requestId, origin);
+    }
+    if (request.method === "GET" && url.pathname === "/v1/me/profile") {
+      return json(
+        { profile: await repository.getProfile(account, now) },
+        200,
+        requestId,
+        origin,
+      );
+    }
+    if (request.method === "PATCH" && url.pathname === "/v1/me/profile") {
+      requireProfileAccess(account);
+      const normalized = normalizeProfileRequest(await readJson<unknown>(request));
+      const profile = await repository.updateProfile({
+        account,
+        ...normalized,
+        requestId,
+        now,
+      });
+      return json({ profile }, 200, requestId, origin);
+    }
+    if (request.method === "GET" && url.pathname === "/v1/me/profile/photo") {
+      requireProfileAccess(account);
+      const metadata = await repository.getProfilePhotoMetadata(account.id);
+      if (!metadata) {
+        throw new ApiFailure(404, "profile_photo_not_found", "No profile photo is set.");
+      }
+      const object = await requireProfilePhotoStorage(env).get(metadata.objectKey);
+      if (!object) {
+        throw new ApiFailure(
+          404,
+          "profile_photo_not_found",
+          "The profile photo object could not be found.",
+        );
+      }
+      return profilePhotoResponse(object, metadata, requestId, origin);
+    }
+    if (request.method === "PUT" && url.pathname === "/v1/me/profile/photo") {
+      requireProfileAccess(account);
+      const storage = requireProfilePhotoStorage(env);
+      const photo = await readProfilePhoto(request);
+      const previous = await repository.getProfilePhotoMetadata(account.id);
+      const installationDigest = (await sha256(env.INSTALLATION_ID)).slice(0, 16);
+      const objectKey =
+        `profiles/${installationDigest}/${account.id}/${crypto.randomUUID()}.${photo.extension}`;
+      const uploaded = await storage.put(objectKey, photo.bytes, {
+        httpMetadata: {
+          contentType: photo.contentType,
+          cacheControl: "private, no-store",
+        },
+      });
+      const metadata: ProfilePhotoMetadata = {
+        objectKey,
+        contentType: photo.contentType,
+        byteLength: photo.bytes.byteLength,
+        etag: uploaded.etag,
+        updatedAt: now,
+      };
+      try {
+        await repository.setProfilePhotoMetadata({
+          account,
+          metadata,
+          requestId,
+          now,
+        });
+      } catch (error) {
+        await storage.delete(objectKey).catch(() => undefined);
+        throw error;
+      }
+      if (previous && previous.objectKey !== objectKey) {
+        await storage.delete(previous.objectKey).catch((error) => {
+          console.error(
+            JSON.stringify({
+              level: "error",
+              requestId,
+              action: "profile.photo.previous.delete",
+              code: "profile_photo_orphan_cleanup_failed",
+              message: error instanceof Error ? error.message : String(error),
+            }),
+          );
+        });
+      }
+      return json(
+        {
+          photo: {
+            available: true,
+            contentType: metadata.contentType,
+            byteLength: metadata.byteLength,
+            updatedAt: metadata.updatedAt,
+          },
+        },
+        200,
+        requestId,
+        origin,
+      );
+    }
+    if (request.method === "DELETE" && url.pathname === "/v1/me/profile/photo") {
+      requireProfileAccess(account);
+      const metadata = await repository.getProfilePhotoMetadata(account.id);
+      if (!metadata) return json({}, 204, requestId, origin);
+      const storage = requireProfilePhotoStorage(env);
+      await storage.delete(metadata.objectKey);
+      await repository.clearProfilePhotoMetadata({ account, requestId, now });
+      return json({}, 204, requestId, origin);
     }
     if (request.method === "GET" && url.pathname === "/v1/me/progress") {
       requireApproved(account);
@@ -1740,11 +2389,11 @@ async function handleRequest(
     }
     if (url.pathname === "/v1/admin/domains" && request.method === "POST") {
       await requireOwner(account, repository, request, requestId, now);
-      requireDomainApprovalEnabled(env);
       const body = await readJson<CreateDomainRuleRequest>(request);
       if (!body.reason || body.reason.trim().length < 5 || body.reason.length > 500) {
         throw new ApiFailure(400, "invalid_reason", "A reason between 5 and 500 characters is required.");
       }
+      if (body.enabled !== false) requireDomainApprovalEnabled(env);
       const domain = await repository.createDomain({
         actor: account,
         request: { ...body, reason: body.reason.trim() },
@@ -1768,6 +2417,21 @@ async function handleRequest(
         actor: account,
         domainId: decodeURIComponent(domainMatch[1] ?? ""),
         enabled: body.enabled,
+        reason: body.reason.trim(),
+        requestId,
+        now,
+      });
+      return json({ domain }, 200, requestId, origin);
+    }
+    if (domainMatch && request.method === "DELETE") {
+      await requireOwner(account, repository, request, requestId, now);
+      const body = await readJson<DeleteDomainRuleRequest>(request);
+      if (!body.reason || body.reason.trim().length < 5 || body.reason.length > 500) {
+        throw new ApiFailure(400, "invalid_reason", "A reason between 5 and 500 characters is required.");
+      }
+      const domain = await repository.deleteDomain({
+        actor: account,
+        domainId: decodeURIComponent(domainMatch[1] ?? ""),
         reason: body.reason.trim(),
         requestId,
         now,
@@ -1801,13 +2465,38 @@ async function handleRequest(
           "A reason between 5 and 500 characters is required.",
         );
       }
-      const completion = await repository.completeDeletion({
+      const completionResult = await repository.completeDeletion({
         actor: account,
         deletionRequestId: decodeURIComponent(deletionMatch[1] ?? ""),
         reason: body.reason.trim(),
         requestId,
         now,
       });
+      const { profilePhotoObjectKey, ...completion } = completionResult;
+      if (profilePhotoObjectKey) {
+        if (env.PROFILE_PHOTOS) {
+          await env.PROFILE_PHOTOS.delete(profilePhotoObjectKey).catch((error) => {
+            console.error(
+              JSON.stringify({
+                level: "error",
+                requestId,
+                action: "profile.photo.account-deletion.cleanup",
+                code: "profile_photo_orphan_cleanup_failed",
+                message: error instanceof Error ? error.message : String(error),
+              }),
+            );
+          });
+        } else {
+          console.error(
+            JSON.stringify({
+              level: "error",
+              requestId,
+              action: "profile.photo.account-deletion.cleanup",
+              code: "profile_photo_storage_unavailable",
+            }),
+          );
+        }
+      }
       return json({ completion }, 200, requestId, origin);
     }
 

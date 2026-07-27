@@ -5,6 +5,7 @@ import {
   handleRequest,
 } from "../worker.js";
 import { readConfiguration } from "./config.js";
+import { FilesystemProfilePhotoBucket } from "./filesystem-profile-photo-bucket.js";
 import { applyPostgresMigrations } from "./migrate.js";
 import { PostgresD1CompatibilityDatabase } from "./postgres-d1.js";
 
@@ -20,6 +21,10 @@ const repository = new D1Project42Repository(
   database as unknown as D1Database,
   configuration.installationId,
 );
+const profilePhotos = new FilesystemProfilePhotoBucket(
+  configuration.profilePhotoDirectory,
+);
+await profilePhotos.initialize();
 const workerEnvironment = {
   PROJECT42_DB: database as unknown as D1Database,
   INSTALLATION_ID: configuration.installationId,
@@ -32,6 +37,7 @@ const workerEnvironment = {
   ALLOWED_ORIGINS: configuration.allowedOrigins.join(","),
   BOOTSTRAP_OWNER_ISSUER: configuration.bootstrapOwnerIssuer,
   BOOTSTRAP_OWNER_SUBJECT: configuration.bootstrapOwnerSubject,
+  PROFILE_PHOTOS: profilePhotos as unknown as R2Bucket,
 } as unknown as Env;
 
 const server = createServer(async (incoming, outgoing) => {
