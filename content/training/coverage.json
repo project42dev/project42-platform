@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.37.0",
-  "substantiveModuleCount": 51,
-  "classReadyModuleCount": 14,
+  "substantiveModuleCount": 52,
+  "classReadyModuleCount": 15,
   "outlineOnlyModuleCount": 37,
   "coverageStatus": "migration-active",
   "modules": [
@@ -387,6 +387,17 @@
       "classScriptId": "prompt-anatomy-and-success-criteria-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/prompt-anatomy-and-success-criteria/class-script.json"
+    },
+    {
+      "moduleId": "prompt-with-purpose",
+      "pathIds": [
+        "ai-foundations"
+      ],
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.0",
+      "classScriptId": "prompt-with-purpose-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/ai-foundations/prompt-with-purpose/class-script.json"
     },
     {
       "moduleId": "reliable-agent-capstone",

@@ -13,7 +13,7 @@ await writeFile(
   [
     "// Generated from content/catalog.json. Do not edit.",
     'import type { Catalog } from "../schema.js";',
-    `export const generatedCatalog = ${JSON.stringify(parsed, null, 2)} as const satisfies Catalog;`,
+    `export const generatedCatalog: Catalog = ${JSON.stringify(parsed, null, 2)};`,
     "",
   ].join("\n"),
 );

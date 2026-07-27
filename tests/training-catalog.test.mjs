@@ -413,12 +413,58 @@ test("publishes the responsible-use and recovery class", () => {
   );
 });
 
+test("publishes the purpose-first prompting class", () => {
+  const moduleId = "prompt-with-purpose";
+  const script = getClassScriptPackage(moduleId);
+  const module = getLearningModule(moduleId);
+  assert.ok(script, `missing class script for ${moduleId}`);
+  assert.ok(module, `missing module ${moduleId}`);
+  assert.equal(
+    validateClassSchema(script),
+    true,
+    JSON.stringify(validateClassSchema.errors),
+  );
+  assert.deepEqual(validateClassScriptPackage(script, module), {
+    valid: true,
+    errors: [],
+  });
+  assert.ok(script.spokenWordCount >= 1_400);
+  assert.equal(script.releaseStatus, "draft");
+  assert.equal(script.provenance.approvals.length, 0);
+  assert.ok(
+    script.provenance.contributions.every(
+      (contribution) => contribution.status === "planned",
+    ),
+  );
+  assert.ok(
+    script.segments.some(
+      (segment) =>
+        segment.kind === "checkpoint" &&
+        segment.id === "suitability-checkpoint",
+    ),
+  );
+  assert.ok(
+    script.segments.some(
+      (segment) =>
+        segment.kind === "feedback" &&
+        segment.feedback?.retry.includes("employment decision"),
+    ),
+  );
+  assert.ok(
+    script.segments.some(
+      (segment) =>
+        segment.kind === "checkpoint" &&
+        segment.id === "untrusted-content-checkpoint",
+    ),
+  );
+});
+
 test("coverage classifies every substantive module without overstating readiness", async () => {
   const committedCoverage = JSON.parse(
     await readFile(resolve(root, "content/training/coverage.json"), "utf8"),
   );
   assert.deepEqual(committedCoverage, trainingPackageCoverage);
-  assert.equal(trainingPackageCoverage.substantiveModuleCount, 51);
+  assert.equal(trainingPackageCoverage.substantiveModuleCount, 52);
   assert.equal(
     trainingPackageCoverage.classReadyModuleCount,
     classScriptPackages.length,
@@ -429,7 +475,7 @@ test("coverage classifies every substantive module without overstating readiness
       trainingPackageCoverage.classReadyModuleCount,
   );
   assert.equal(trainingPackageCoverage.coverageStatus, "migration-active");
-  assert.equal(trainingPackageCoverage.modules.length, 51);
+  assert.equal(trainingPackageCoverage.modules.length, 52);
   assert.ok(
     trainingPackageCoverage.modules.every(
       (entry) =>
