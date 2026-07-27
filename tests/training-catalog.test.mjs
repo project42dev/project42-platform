@@ -59,6 +59,38 @@ test("publishes the first complete AI Foundations class-script wave", () => {
   }
 });
 
+test("publishes the second complete AI Foundations class-script wave", () => {
+  const expectedModuleIds = [
+    "context-and-evidence-construction",
+    "examples-and-output-contracts",
+    "prompt-anatomy-and-success-criteria",
+  ];
+
+  for (const moduleId of expectedModuleIds) {
+    const script = getClassScriptPackage(moduleId);
+    const module = getLearningModule(moduleId);
+    assert.ok(script, `missing class script for ${moduleId}`);
+    assert.ok(module, `missing module ${moduleId}`);
+    assert.equal(
+      validateClassSchema(script),
+      true,
+      JSON.stringify(validateClassSchema.errors),
+    );
+    assert.deepEqual(validateClassScriptPackage(script, module), {
+      valid: true,
+      errors: [],
+    });
+    assert.ok(script.spokenWordCount >= 900);
+    assert.equal(script.releaseStatus, "draft");
+    assert.equal(script.provenance.approvals.length, 0);
+    assert.ok(
+      script.provenance.contributions.every(
+        (contribution) => contribution.status === "planned",
+      ),
+    );
+  }
+});
+
 test("coverage classifies every substantive module without overstating readiness", async () => {
   const committedCoverage = JSON.parse(
     await readFile(resolve(root, "content/training/coverage.json"), "utf8"),

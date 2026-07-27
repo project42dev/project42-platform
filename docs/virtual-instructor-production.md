@@ -48,9 +48,11 @@ Coverage is intentionally explicit:
   package.
 
 The first class-ready draft wave covers `ai-systems-and-use-cases`,
-`language-models-and-generation`, and `context-tokens-and-modalities`. Run
-`npm run training:generate` after authoring and `npm run training:check` to fail on
-missing or stale captions, transcripts, alternatives, integrity files, or coverage.
+`language-models-and-generation`, and `context-tokens-and-modalities`. The second
+adds `prompt-anatomy-and-success-criteria`, `examples-and-output-contracts`, and
+`context-and-evidence-construction`. Run `npm run training:generate` after authoring
+and `npm run training:check` to fail on missing or stale captions, transcripts,
+alternatives, integrity files, or coverage.
 
 ## Model, voice, and avatar policy
 

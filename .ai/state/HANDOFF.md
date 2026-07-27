@@ -2,13 +2,14 @@
 
 ## Active branch
 
-`feat/foundations-class-scripts-ab6243`
+`feat/foundations-class-scripts-wave2-ab6244`
 
 ## In progress
 
-- Added the first complete AI Foundations class-script wave for
+- Added the first two complete AI Foundations class-script waves for
   `ai-systems-and-use-cases`, `language-models-and-generation`, and
-  `context-tokens-and-modalities`.
+  `context-tokens-and-modalities`, plus `prompt-anatomy-and-success-criteria`,
+  `examples-and-output-contracts`, and `context-and-evidence-construction`.
 - Added deterministic class-package discovery, coverage reporting, transcript,
   WebVTT, text-only, reduced-motion, and integrity generation.
 - Added exact activity/question handoff validation, honest planned/completed
@@ -19,7 +20,7 @@
 
 ## Verification
 
-- `npm run check` — passed: 87 tests, 1 optional PostgreSQL integration test
+- `npm run check` — passed: 88 tests, 1 optional PostgreSQL integration test
   skipped, 11 resource packs / 86 resources, and 464 current source references.
 - `npm run api:check` — passed, including Worker dry-run.
 - `npm audit --audit-level=high` — passed with zero vulnerabilities.
@@ -29,12 +30,12 @@
 
 ## Next steps
 
-1. Review the draft pull request and CI evidence.
+1. Review draft PR #53 and the dependent wave-2 pull request and CI evidence.
 2. Run the declared independent Foundry research, writing, factual-verification,
    learning-design, and accessibility roles.
 3. Record real contribution evidence and complete human editorial,
    subject-matter, and accessibility approvals.
-4. Continue the coverage migration for the 46 modules currently classified
+4. Continue the coverage migration for the 43 modules currently classified
    `outline-only`.
 5. Reconcile package `0.50.0` with any earlier self-host release branch before
    merge.

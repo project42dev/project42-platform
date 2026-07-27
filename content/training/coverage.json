@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.37.0",
   "substantiveModuleCount": 49,
-  "classReadyModuleCount": 3,
-  "outlineOnlyModuleCount": 46,
+  "classReadyModuleCount": 6,
+  "outlineOnlyModuleCount": 43,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -110,8 +110,11 @@
       "pathIds": [
         "ai-foundations"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.0"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.0",
+      "classScriptId": "context-and-evidence-construction-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/ai-foundations/context-and-evidence-construction/class-script.json"
     },
     {
       "moduleId": "context-engineering",
@@ -145,8 +148,11 @@
       "pathIds": [
         "ai-foundations"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.0"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.0",
+      "classScriptId": "examples-and-output-contracts-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/ai-foundations/examples-and-output-contracts/class-script.json"
     },
     {
       "moduleId": "execute-cross-provider-cutover",
@@ -356,8 +362,11 @@
       "pathIds": [
         "ai-foundations"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.0"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.0",
+      "classScriptId": "prompt-anatomy-and-success-criteria-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/ai-foundations/prompt-anatomy-and-success-criteria/class-script.json"
     },
     {
       "moduleId": "reliable-agent-capstone",

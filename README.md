@@ -33,14 +33,14 @@ contracts—not the private PMO records or Project42dev production configuration
   multi-model execution, deterministic gate, rollback, and human approval contracts.
 - Seed content suitable for a hosted site or self-hosted installation.
 
-Release `0.50.0` adds the first three class-ready AI Foundations teaching
+Release `0.50.0` adds the first six class-ready AI Foundations teaching
 packages. Each provides at least 900 words of read-aloud instruction, complete
 section coverage, demonstrations, prompts, checkpoints, corrective feedback,
 exact activity and assessment handoffs, accessible visual direction, current
 primary sources, deterministic WebVTT captions, transcripts, text-only and
 reduced-motion alternatives, and integrity evidence. A generated coverage
 registry classifies all 49 substantive modules without presenting the remaining
-46 production outlines as complete classes. Every package remains a draft until
+43 production outlines as complete classes. Every package remains a draft until
 independent model-role work and accountable human approvals are recorded.
 
 Release `0.49.0` adds the first independently deployable self-host
