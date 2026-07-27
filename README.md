@@ -26,6 +26,10 @@ contracts—not the private PMO records or Project42dev production configuration
   append-only authorization audits.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.44.0` restores four AI service operations guides for authentication
+and billing readiness, cost control, gateway decisions, and observability
+platform selection.
+
 Release `0.43.0` adds five model and provider decision guides covering current
 family discovery, hosting shape, role routing, Microsoft Foundry, and open-weight
 adoption.

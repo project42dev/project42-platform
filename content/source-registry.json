@@ -312,6 +312,14 @@
       "trustTier": "primary",
       "reviewCadenceDays": 60,
       "owner": "curriculum"
+    },
+    {
+      "id": "cloudflare-developer-docs",
+      "urlPrefix": "https://developers.cloudflare.com/",
+      "publisher": "Cloudflare",
+      "trustTier": "primary",
+      "reviewCadenceDays": 45,
+      "owner": "curriculum"
     }
   ]
 }
