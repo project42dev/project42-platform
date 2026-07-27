@@ -21,8 +21,74 @@ const fixture = JSON.parse(
     "utf8",
   ),
 );
+const homesteadModelFixture = JSON.parse(
+  await readFile(
+    new URL(
+      "../examples/training/self-hosted-model-lab/homestead-foundry-reference.example.json",
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+);
+const agentSchema = JSON.parse(
+  await readFile(
+    new URL(
+      "../schemas/training/self-hosted-agent-lab.schema.json",
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+);
+const homesteadAgentFixture = JSON.parse(
+  await readFile(
+    new URL(
+      "../examples/training/self-hosted-agent-lab/homestead-foundry-reference.example.json",
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+);
+const referenceLabReadme = await readFile(
+  new URL(
+    "../examples/training/homestead-foundry-reference-labs/README.md",
+    import.meta.url,
+  ),
+  "utf8",
+);
+const portableModelContract = await readFile(
+  new URL(
+    "../examples/training/homestead-foundry-reference-labs/model-service/portable-contract.md",
+    import.meta.url,
+  ),
+  "utf8",
+);
+const homesteadModelAdapter = await readFile(
+  new URL(
+    "../examples/training/homestead-foundry-reference-labs/model-service/homestead-foundry-adapter.md",
+    import.meta.url,
+  ),
+  "utf8",
+);
+const portableAgentContract = await readFile(
+  new URL(
+    "../examples/training/homestead-foundry-reference-labs/agent-runtime/portable-contract.md",
+    import.meta.url,
+  ),
+  "utf8",
+);
+const homesteadAgentAdapter = await readFile(
+  new URL(
+    "../examples/training/homestead-foundry-reference-labs/agent-runtime/homestead-foundry-adapter.md",
+    import.meta.url,
+  ),
+  "utf8",
+);
 
 const validate = new Ajv2020({ allErrors: true, strict: true }).compile(schema);
+const validateAgent = new Ajv2020({
+  allErrors: true,
+  strict: true,
+}).compile(agentSchema);
 
 test("portable self-hosted model lab contract accepts the complete draft fixture", () => {
   assert.equal(validate(fixture), true, JSON.stringify(validate.errors));
@@ -85,4 +151,127 @@ test("public portable lab fixture contains no private operational material", () 
       condition.includes("authority"),
     ),
   );
+});
+
+test("Homestead Foundry model reference preserves the portable contract", () => {
+  assert.equal(
+    validate(homesteadModelFixture),
+    true,
+    JSON.stringify(validate.errors),
+  );
+  assert.equal(
+    homesteadModelFixture.implementation.kind,
+    "homestead-foundry-reference",
+  );
+  assert.equal(
+    homesteadModelFixture.implementation.specificStepsSeparated,
+    true,
+  );
+  assert.ok(
+    homesteadModelFixture.portability.alternatives.some(
+      (entry) => entry.adapter === "generic-openai-compatible-runtime",
+    ),
+  );
+  assert.equal(homesteadModelFixture.releaseStatus, "draft");
+  assert.deepEqual(homesteadModelFixture.approvals, []);
+});
+
+test("portable agent runtime contract covers identity, tools, state, telemetry, evaluation, and recovery", () => {
+  assert.equal(
+    validateAgent(homesteadAgentFixture),
+    true,
+    JSON.stringify(validateAgent.errors),
+  );
+  assert.equal(
+    homesteadAgentFixture.implementation.kind,
+    "homestead-foundry-reference",
+  );
+  assert.deepEqual(homesteadAgentFixture.outputs.terminalStatuses, [
+    "succeeded",
+    "failed",
+    "unknown",
+  ]);
+  assert.deepEqual(homesteadAgentFixture.tools.resultStates, [
+    "success",
+    "failure",
+    "unknown",
+  ]);
+  for (const field of [
+    "identityAndAccess",
+    "tools",
+    "state",
+    "telemetry",
+    "evaluation",
+    "recovery",
+  ]) {
+    assert.ok(homesteadAgentFixture[field], `missing ${field}`);
+  }
+  const kinds = new Set(
+    homesteadAgentFixture.evidence.map((entry) => entry.kind),
+  );
+  assert.deepEqual(
+    kinds,
+    new Set([
+      "input-output",
+      "identity",
+      "tools",
+      "state",
+      "telemetry",
+      "evaluation",
+      "recovery",
+    ]),
+  );
+  assert.equal(homesteadAgentFixture.releaseStatus, "draft");
+  assert.deepEqual(homesteadAgentFixture.approvals, []);
+});
+
+test("agent lab fails closed on missing unknown outcomes and unsafe evidence paths", () => {
+  const invalid = structuredClone(homesteadAgentFixture);
+  invalid.outputs.terminalStatuses = ["succeeded", "failed"];
+  invalid.tools.resultStates = ["success", "failure"];
+  invalid.state.checkpointPath = "../private/checkpoint.json";
+  assert.equal(validateAgent(invalid), false);
+  assert.ok(
+    validateAgent.errors?.some((error) =>
+      error.instancePath.endsWith("/terminalStatuses"),
+    ),
+  );
+  assert.ok(
+    validateAgent.errors?.some((error) =>
+      error.instancePath.endsWith("/resultStates"),
+    ),
+  );
+  assert.ok(
+    validateAgent.errors?.some((error) =>
+      error.instancePath.endsWith("/checkpointPath"),
+    ),
+  );
+});
+
+test("reference labs separate portable concepts from optional adapter steps", () => {
+  assert.doesNotMatch(portableModelContract, /Homestead Foundry/i);
+  assert.doesNotMatch(portableAgentContract, /Homestead Foundry/i);
+  assert.match(homesteadModelAdapter, /OpenAI-compatible v1/i);
+  assert.match(homesteadModelAdapter, /does not promise separate portable health/i);
+  assert.match(homesteadAgentAdapter, /model endpoint behind a portable agent/i);
+  assert.match(homesteadAgentAdapter, /does not create a Foundry prompt agent/i);
+  assert.match(referenceLabReadme, /not\s+live-execution evidence/i);
+  assert.match(referenceLabReadme, /Homestead Foundry is optional/i);
+});
+
+test("public reference lab packages contain no private operational material", () => {
+  const serialized = [
+    JSON.stringify(homesteadModelFixture),
+    JSON.stringify(homesteadAgentFixture),
+    referenceLabReadme,
+    portableModelContract,
+    homesteadModelAdapter,
+    portableAgentContract,
+    homesteadAgentAdapter,
+  ].join("\n");
+  assert.doesNotMatch(
+    serialized,
+    /dev\.azure\.com|tenant[_ -]?id|subscription[_ -]?id|account[_ -]?id|client[_ -]?secret|bearer\s+[a-z0-9._-]+|kristopher|icloud\.com/i,
+  );
+  assert.match(serialized, /illustrative evidence digests/i);
 });
