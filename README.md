@@ -31,6 +31,15 @@ contracts—not the private PMO records or Project42dev production configuration
   multi-model execution, deterministic gate, rollback, and human approval contracts.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.48.0` establishes the class-ready virtual-instructor boundary. It
+distinguishes complete read-aloud teaching scripts from short production cues,
+requires sourced section coverage, demonstrations, feedback, reconciled timing and
+word counts, independent writer/verifier model families, accessibility alternatives,
+media provenance, and human approval. The published representative package includes
+a substantial class script plus deterministic WebVTT captions, transcript, text-only,
+reduced-motion, and integrity artifacts; its voice/avatar manifest remains a draft
+until real qualification and approval occur.
+
 Release `0.47.0` turns the governed content-freshness architecture into reusable
 contracts. It maps a changed primary source to Learn, Field Guide, assessment, and
 instructor-package consumers; qualifies Foundry role profiles against an inventory;
