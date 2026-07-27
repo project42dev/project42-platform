@@ -554,6 +554,61 @@ test("publishes the first complete Self-Hosted Model Operations class", () => {
   }
 });
 
+test("publishes complete model identity and artifact-integrity classes", () => {
+  const expected = new Map([
+    ["model-identity-license-and-provenance", 1060],
+    ["model-artifact-integrity", 992],
+  ]);
+
+  for (const [moduleId, spokenWordCount] of expected) {
+    const script = getClassScriptPackage(moduleId);
+    const module = getLearningModule(moduleId);
+    assert.ok(script, `missing class script for ${moduleId}`);
+    assert.ok(module, `missing module ${moduleId}`);
+    assert.equal(
+      validateClassSchema(script),
+      true,
+      JSON.stringify(validateClassSchema.errors),
+    );
+    assert.deepEqual(validateClassScriptPackage(script, module), {
+      valid: true,
+      errors: [],
+    });
+    assert.equal(script.spokenWordCount, spokenWordCount);
+    assert.equal(script.releaseStatus, "draft");
+    assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+    assert.equal(script.provenance.approvals.length, 0);
+    assert.ok(
+      script.provenance.contributions.every(
+        (contribution) => contribution.status === "planned",
+      ),
+    );
+    for (const section of module.sections) {
+      assert.ok(
+        script.segments.some(
+          (segment) =>
+            segment.kind === "narration" &&
+            segment.sectionId === section.id &&
+            segment.delivery === "spoken",
+        ),
+        `${moduleId} is missing narrated section ${section.id}`,
+      );
+    }
+    for (const kind of [
+      "demonstration",
+      "learner-prompt",
+      "checkpoint",
+      "feedback",
+      "assessment-handoff",
+    ]) {
+      assert.ok(
+        script.segments.some((segment) => segment.kind === kind),
+        `${moduleId} is missing ${kind}`,
+      );
+    }
+  }
+});
+
 test("coverage classifies every substantive module without overstating readiness", async () => {
   const committedCoverage = JSON.parse(
     await readFile(resolve(root, "content/training/coverage.json"), "utf8"),
