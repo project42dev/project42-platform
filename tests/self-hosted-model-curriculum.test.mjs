@@ -22,6 +22,9 @@ test("publishes the first source-backed self-hosted model operations unit", () =
     "evaluate-the-exact-serving-build",
     "observability-cost-and-performance",
     "scaling-failure-and-capacity-controls",
+    "model-update-and-rollback-lifecycle",
+    "model-incident-response-and-recovery",
+    "self-hosted-model-operations-capstone",
   ]);
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
 
@@ -60,6 +63,9 @@ test("self-hosted model unit preserves prerequisites and evidence boundaries", (
   const evaluation = modules.get("evaluate-the-exact-serving-build");
   const observability = modules.get("observability-cost-and-performance");
   const scaling = modules.get("scaling-failure-and-capacity-controls");
+  const lifecycle = modules.get("model-update-and-rollback-lifecycle");
+  const incident = modules.get("model-incident-response-and-recovery");
+  const capstone = modules.get("self-hosted-model-operations-capstone");
   assert.ok(identity);
   assert.ok(integrity);
   assert.ok(deployment);
@@ -69,6 +75,9 @@ test("self-hosted model unit preserves prerequisites and evidence boundaries", (
   assert.ok(evaluation);
   assert.ok(observability);
   assert.ok(scaling);
+  assert.ok(lifecycle);
+  assert.ok(incident);
+  assert.ok(capstone);
   assert.ok(deployment.prerequisites.includes("ai-foundations-capstone"));
   assert.ok(
     identity.prerequisites.includes("deployment-shape-and-operating-model"),
@@ -94,6 +103,15 @@ test("self-hosted model unit preserves prerequisites and evidence boundaries", (
   assert.ok(
     scaling.prerequisites.includes("observability-cost-and-performance"),
   );
+  assert.ok(
+    lifecycle.prerequisites.includes("scaling-failure-and-capacity-controls"),
+  );
+  assert.ok(
+    incident.prerequisites.includes("model-update-and-rollback-lifecycle"),
+  );
+  assert.ok(
+    capstone.prerequisites.includes("model-incident-response-and-recovery"),
+  );
 
   const identityText = JSON.stringify(identity);
   assert.match(identityText, /open-weight/i);
@@ -112,4 +130,47 @@ test("self-hosted model unit preserves prerequisites and evidence boundaries", (
     integrityText,
     /curl\s+[^|]+\|\s*(?:sh|bash)|trust_remote_code\s*[:=]\s*true/i,
   );
+
+  const lifecycleText = JSON.stringify(lifecycle);
+  assert.match(lifecycleText, /complete serving unit/i);
+  assert.match(lifecycleText, /known-good/i);
+  assert.match(lifecycleText, /human approval/i);
+  assert.match(lifecycleText, /rollback/i);
+
+  const incidentText = JSON.stringify(incident);
+  assert.match(incidentText, /contain/i);
+  assert.match(incidentText, /reconcile/i);
+  assert.match(incidentText, /recovery objective/i);
+  assert.match(incidentText, /confirmed facts/i);
+
+  assert.ok(capstone.capstone);
+  assert.equal(capstone.capstone.requiredArtifacts.length, 8);
+  assert.equal(capstone.capstone.requiresCriterionEvidence, true);
+  assert.equal(
+    capstone.capstone.rubric.criteria.reduce(
+      (total, criterion) => total + criterion.maxPoints,
+      0,
+    ),
+    100,
+  );
+  const capstoneText = JSON.stringify(capstone);
+  for (const requiredEvidence of [
+    "artifact",
+    "license",
+    "provenance",
+    "endpoint",
+    "security",
+    "evaluation",
+    "load",
+    "capacity",
+    "telemetry",
+    "cost",
+    "update",
+    "rollback",
+    "incident",
+    "recovery",
+    "approval",
+  ]) {
+    assert.match(capstoneText, new RegExp(requiredEvidence, "i"));
+  }
 });

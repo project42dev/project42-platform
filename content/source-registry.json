@@ -170,6 +170,14 @@
       "owner": "curriculum"
     },
     {
+      "id": "nist-cybersecurity-framework",
+      "urlPrefix": "https://www.nist.gov/cyberframework",
+      "publisher": "NIST",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
       "id": "acrl-information-literacy",
       "urlPrefix": "https://www.ala.org/acrl/standards/",
       "publisher": "Association of College and Research Libraries",

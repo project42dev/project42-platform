@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1.0",
-  "canonicalContentVersion": "0.40.0",
-  "substantiveModuleCount": 61,
+  "canonicalContentVersion": "0.41.0",
+  "substantiveModuleCount": 64,
   "classReadyModuleCount": 16,
-  "outlineOnlyModuleCount": 45,
+  "outlineOnlyModuleCount": 48,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -335,6 +335,22 @@
       "instructorSchemaVersion": "1.1"
     },
     {
+      "moduleId": "model-incident-response-and-recovery",
+      "pathIds": [
+        "self-hosted-model-operations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "model-update-and-rollback-lifecycle",
+      "pathIds": [
+        "self-hosted-model-operations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
       "moduleId": "multi-agent-handoffs",
       "pathIds": [
         "reliable-agent-workflows"
@@ -495,6 +511,14 @@
     },
     {
       "moduleId": "scaling-failure-and-capacity-controls",
+      "pathIds": [
+        "self-hosted-model-operations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "self-hosted-model-operations-capstone",
       "pathIds": [
         "self-hosted-model-operations"
       ],
