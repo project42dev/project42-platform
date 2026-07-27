@@ -23,8 +23,8 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: bootstrap-admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${PROJECT42_IDENTITY_ADMIN_PASSWORD:?set PROJECT42_IDENTITY_ADMIN_PASSWORD}
     volumes:
+      - project42_identity:/opt/keycloak/data
       - ./keycloak/project42-realm.json:/opt/keycloak/data/import/project42-realm.json:ro
-      - project42_identity:/opt/keycloak/data/h2
     ports:
       - "8080:8080"
     healthcheck:
