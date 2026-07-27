@@ -304,6 +304,14 @@
       "trustTier": "primary",
       "reviewCadenceDays": 90,
       "owner": "curriculum"
+    },
+    {
+      "id": "hugging-face-docs",
+      "urlPrefix": "https://huggingface.co/docs/",
+      "publisher": "Hugging Face",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "curriculum"
     }
   ]
 }

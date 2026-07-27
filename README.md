@@ -26,6 +26,10 @@ contracts—not the private PMO records or Project42dev production configuration
   append-only authorization audits.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.43.0` adds five model and provider decision guides covering current
+family discovery, hosting shape, role routing, Microsoft Foundry, and open-weight
+adoption.
+
 Release `0.42.0` adds five setup and quick-reference Field Guides for workspace
 bootstrap, Windows Terminal, configuration layering, commands and hooks, and a
 daily operating loop.
