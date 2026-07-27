@@ -130,6 +130,40 @@ test("publishes the evidence-led research class package", () => {
   );
 });
 
+test("publishes the reviewed writing transformation class package", () => {
+  const moduleId = "writing-and-transformation-workflow";
+  const script = getClassScriptPackage(moduleId);
+  const module = getLearningModule(moduleId);
+  assert.ok(script, `missing class script for ${moduleId}`);
+  assert.ok(module, `missing module ${moduleId}`);
+  assert.equal(
+    validateClassSchema(script),
+    true,
+    JSON.stringify(validateClassSchema.errors),
+  );
+  assert.deepEqual(validateClassScriptPackage(script, module), {
+    valid: true,
+    errors: [],
+  });
+  assert.ok(script.spokenWordCount >= 1_100);
+  assert.equal(script.releaseStatus, "draft");
+  assert.equal(script.provenance.approvals.length, 0);
+  assert.ok(
+    script.segments.some(
+      (segment) =>
+        segment.kind === "checkpoint" &&
+        segment.id === "changed-obligation-checkpoint",
+    ),
+  );
+  assert.ok(
+    script.segments.some(
+      (segment) =>
+        segment.kind === "feedback" &&
+        segment.feedback?.retry.includes("who acts"),
+    ),
+  );
+});
+
 test("coverage classifies every substantive module without overstating readiness", async () => {
   const committedCoverage = JSON.parse(
     await readFile(resolve(root, "content/training/coverage.json"), "utf8"),
