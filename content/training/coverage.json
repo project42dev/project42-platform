@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1.0",
-  "canonicalContentVersion": "0.39.0",
-  "substantiveModuleCount": 57,
+  "canonicalContentVersion": "0.40.0",
+  "substantiveModuleCount": 61,
   "classReadyModuleCount": 16,
-  "outlineOnlyModuleCount": 41,
+  "outlineOnlyModuleCount": 45,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -169,6 +169,22 @@
       "instructorSchemaVersion": "1.1"
     },
     {
+      "moduleId": "endpoint-identity-network-and-secrets",
+      "pathIds": [
+        "self-hosted-model-operations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "evaluate-the-exact-serving-build",
+      "pathIds": [
+        "self-hosted-model-operations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
       "moduleId": "examples-and-output-contracts",
       "pathIds": [
         "ai-foundations"
@@ -327,6 +343,14 @@
       "instructorSchemaVersion": "1.1"
     },
     {
+      "moduleId": "observability-cost-and-performance",
+      "pathIds": [
+        "self-hosted-model-operations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
       "moduleId": "openai-ecosystem-and-interfaces",
       "pathIds": [
         "openai-practice"
@@ -468,6 +492,14 @@
       "classScriptId": "safe-tool-use-workflow-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/safe-tool-use-workflow/class-script.json"
+    },
+    {
+      "moduleId": "scaling-failure-and-capacity-controls",
+      "pathIds": [
+        "self-hosted-model-operations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
     },
     {
       "moduleId": "serving-api-and-compatibility-contracts",

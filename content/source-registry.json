@@ -424,6 +424,22 @@
       "trustTier": "primary",
       "reviewCadenceDays": 90,
       "owner": "curriculum"
+    },
+    {
+      "id": "owasp-api-security",
+      "urlPrefix": "https://owasp.org/API-Security/",
+      "publisher": "OWASP",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "prometheus-documentation",
+      "urlPrefix": "https://prometheus.io/docs/",
+      "publisher": "Prometheus",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
     }
   ]
 }

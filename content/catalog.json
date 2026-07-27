@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.39.0",
+  "contentVersion": "0.40.0",
   "title": "Project 42 Learning Catalog",
   "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [
@@ -176,7 +176,11 @@
         "model-identity-license-and-provenance",
         "model-artifact-integrity",
         "hardware-runtime-and-capacity-planning",
-        "serving-api-and-compatibility-contracts"
+        "serving-api-and-compatibility-contracts",
+        "endpoint-identity-network-and-secrets",
+        "evaluate-the-exact-serving-build",
+        "observability-cost-and-performance",
+        "scaling-failure-and-capacity-controls"
       ],
       "badge": {
         "id": "badge-self-hosted-model-operator",

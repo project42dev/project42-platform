@@ -18,6 +18,10 @@ test("publishes the first source-backed self-hosted model operations unit", () =
     "model-artifact-integrity",
     "hardware-runtime-and-capacity-planning",
     "serving-api-and-compatibility-contracts",
+    "endpoint-identity-network-and-secrets",
+    "evaluate-the-exact-serving-build",
+    "observability-cost-and-performance",
+    "scaling-failure-and-capacity-controls",
   ]);
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
 
@@ -52,11 +56,19 @@ test("self-hosted model unit preserves prerequisites and evidence boundaries", (
   const deployment = modules.get("deployment-shape-and-operating-model");
   const capacity = modules.get("hardware-runtime-and-capacity-planning");
   const serving = modules.get("serving-api-and-compatibility-contracts");
+  const security = modules.get("endpoint-identity-network-and-secrets");
+  const evaluation = modules.get("evaluate-the-exact-serving-build");
+  const observability = modules.get("observability-cost-and-performance");
+  const scaling = modules.get("scaling-failure-and-capacity-controls");
   assert.ok(identity);
   assert.ok(integrity);
   assert.ok(deployment);
   assert.ok(capacity);
   assert.ok(serving);
+  assert.ok(security);
+  assert.ok(evaluation);
+  assert.ok(observability);
+  assert.ok(scaling);
   assert.ok(deployment.prerequisites.includes("ai-foundations-capstone"));
   assert.ok(
     identity.prerequisites.includes("deployment-shape-and-operating-model"),
@@ -69,6 +81,18 @@ test("self-hosted model unit preserves prerequisites and evidence boundaries", (
   );
   assert.ok(
     serving.prerequisites.includes("hardware-runtime-and-capacity-planning"),
+  );
+  assert.ok(
+    security.prerequisites.includes("serving-api-and-compatibility-contracts"),
+  );
+  assert.ok(
+    evaluation.prerequisites.includes("endpoint-identity-network-and-secrets"),
+  );
+  assert.ok(
+    observability.prerequisites.includes("evaluate-the-exact-serving-build"),
+  );
+  assert.ok(
+    scaling.prerequisites.includes("observability-cost-and-performance"),
   );
 
   const identityText = JSON.stringify(identity);
