@@ -1,7 +1,7 @@
 FROM node:22.20.0-alpine3.22 AS build
 WORKDIR /workspace
 COPY package.json package-lock.json tsconfig.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 COPY src ./src
 COPY content ./content
 COPY scripts ./scripts
