@@ -1,0 +1,39 @@
+{
+  "$schema": "./compatibility.schema.json",
+  "schemaVersion": 1,
+  "release": "0.49.0",
+  "supportLevel": "evaluation",
+  "api": {
+    "package": "@project42/platform",
+    "version": "0.49.0",
+    "image": "ghcr.io/project42dev/project42-platform-api:0.49.0",
+    "healthPath": "/health",
+    "runsAsNonRoot": true
+  },
+  "database": {
+    "adapter": "postgresql",
+    "supportedMajors": [17],
+    "migrationHead": "001_initial.sql"
+  },
+  "identity": {
+    "protocol": "oidc",
+    "flow": "authorization-code-pkce",
+    "requiredClaims": ["iss", "sub", "aud", "exp", "iat", "email_verified"],
+    "referenceProvider": "keycloak",
+    "referenceVersion": "26.7.0"
+  },
+  "learn": {
+    "minimumVersion": "0.3.1",
+    "configurationContract": [
+      "NEXT_PUBLIC_PROJECT42_API_ORIGIN",
+      "NEXT_PUBLIC_PROJECT42_OIDC_AUTHORITY",
+      "NEXT_PUBLIC_PROJECT42_OIDC_CLIENT_ID",
+      "NEXT_PUBLIC_PROJECT42_OIDC_SCOPE"
+    ]
+  },
+  "update": {
+    "channel": "github-release",
+    "automaticApply": false,
+    "signature": "sigstore-keyless"
+  }
+}
