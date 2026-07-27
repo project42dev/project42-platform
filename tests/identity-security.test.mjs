@@ -110,6 +110,41 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
     ),
     (error) => error.code === "invalid_access_token",
   );
+
+  const expired = await new SignJWT({})
+    .setProtectedHeader({ alg: "RS256", kid: "test-key" })
+    .setIssuer(issuer)
+    .setSubject("stable-subject")
+    .setAudience("project42-tests")
+    .setIssuedAt(now - 600)
+    .setExpirationTime(now - 300)
+    .sign(privateKey);
+  await assert.rejects(
+    verifier.verify(
+      new Request("https://api.example.test/v1/me", {
+        headers: { authorization: `Bearer ${expired}` },
+      }),
+    ),
+    (error) => error.code === "invalid_access_token",
+  );
+
+  const { privateKey: attackerKey } = await generateKeyPair("RS256");
+  const forged = await new SignJWT({})
+    .setProtectedHeader({ alg: "RS256", kid: "test-key" })
+    .setIssuer(issuer)
+    .setSubject("stable-subject")
+    .setAudience("project42-tests")
+    .setIssuedAt(now)
+    .setExpirationTime(now + 300)
+    .sign(attackerKey);
+  await assert.rejects(
+    verifier.verify(
+      new Request("https://api.example.test/v1/me", {
+        headers: { authorization: `Bearer ${forged}` },
+      }),
+    ),
+    (error) => error.code === "invalid_access_token",
+  );
 });
 
 test("CORS preflight succeeds only for configured origins", async () => {
@@ -230,6 +265,66 @@ test("API denies learner data until approval and protects owner routes", async (
   );
   assert.equal(admin.status, 403);
   assert.equal((await admin.json()).error.code, "owner_required");
+});
+
+test("suspension and revocation disable existing learner and owner access", async () => {
+  const identity = {
+    issuer: "https://issuer.example.test",
+    subject: "previously-approved-subject",
+    email: "owner@example.com",
+    emailVerified: true,
+    displayName: "Previous owner",
+  };
+  const verifier = { verify: async () => identity };
+  const env = {
+    INSTALLATION_ID: "test",
+    ALLOWED_ORIGINS: "https://learn.example.test",
+    BOOTSTRAP_OWNER_ISSUER: "",
+    BOOTSTRAP_OWNER_SUBJECT: "",
+  };
+
+  for (const state of ["suspended", "revoked"]) {
+    const account = {
+      id: "user-previously-approved",
+      installationId: "test",
+      identity: { issuer: identity.issuer, subject: identity.subject },
+      displayName: identity.displayName,
+      primaryEmail: identity.email,
+      emailVerified: true,
+      state,
+      roles: ["learner", "owner"],
+      createdAt: "2026-07-26T00:00:00.000Z",
+      updatedAt: "2026-07-27T00:00:00.000Z",
+    };
+    const repository = {
+      ensureInstallation: async () => {},
+      findAccount: async () => account,
+      getProgress: async () => {
+        throw new Error(`${state} account must not reach learner storage`);
+      },
+      listAccounts: async () => {
+        throw new Error(`${state} owner must not reach administrative storage`);
+      },
+    };
+
+    const progress = await handleRequest(
+      new Request("https://api.example.test/v1/me/progress"),
+      env,
+      verifier,
+      repository,
+    );
+    assert.equal(progress.status, 403);
+    assert.equal((await progress.json()).error.code, `account_${state}`);
+
+    const admin = await handleRequest(
+      new Request("https://api.example.test/v1/admin/accounts"),
+      env,
+      verifier,
+      repository,
+    );
+    assert.equal(admin.status, 403);
+    assert.equal((await admin.json()).error.code, "owner_required");
+  }
 });
 
 test("data-rights routes require recent authentication and explicit deletion confirmation", async () => {
