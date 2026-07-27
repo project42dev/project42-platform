@@ -112,6 +112,60 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
   );
 });
 
+test("CORS preflight succeeds only for configured origins", async () => {
+  const env = {
+    ALLOWED_ORIGINS: "https://learn.example.test",
+  };
+  const verifier = {
+    verify: async () => {
+      throw new Error("preflight must not invoke identity verification");
+    },
+  };
+
+  const allowed = await handleRequest(
+    new Request("https://api.example.test/v1/me", {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://learn.example.test",
+        "access-control-request-method": "GET",
+        "access-control-request-headers": "authorization,content-type",
+      },
+    }),
+    env,
+    verifier,
+  );
+  assert.equal(allowed.status, 204);
+  assert.equal(await allowed.text(), "");
+  assert.equal(
+    allowed.headers.get("access-control-allow-origin"),
+    "https://learn.example.test",
+  );
+  assert.match(
+    allowed.headers.get("access-control-allow-methods") ?? "",
+    /GET/,
+  );
+  assert.match(
+    allowed.headers.get("access-control-allow-headers") ?? "",
+    /authorization/,
+  );
+  assert.equal(allowed.headers.get("access-control-max-age"), "600");
+
+  const denied = await handleRequest(
+    new Request("https://api.example.test/v1/me", {
+      method: "OPTIONS",
+      headers: {
+        origin: "https://untrusted.example",
+        "access-control-request-method": "GET",
+      },
+    }),
+    env,
+    verifier,
+  );
+  assert.equal(denied.status, 403);
+  assert.equal(denied.headers.get("access-control-allow-origin"), null);
+  assert.equal((await denied.json()).error.code, "origin_not_allowed");
+});
+
 test("API denies learner data until approval and protects owner routes", async () => {
   const identity = {
     issuer: "https://issuer.example.test",

@@ -1428,7 +1428,8 @@ function json(
     headers.set("access-control-allow-credentials", "false");
     headers.set("vary", "Origin");
   }
-  return new Response(JSON.stringify(body), { status, headers });
+  const responseBody = status === 204 || status === 304 ? null : JSON.stringify(body);
+  return new Response(responseBody, { status, headers });
 }
 
 function permittedOrigin(request: Request, env: WorkerEnvironment): string | null {
