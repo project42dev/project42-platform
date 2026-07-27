@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1.0",
-  "canonicalContentVersion": "0.38.0",
-  "substantiveModuleCount": 54,
+  "canonicalContentVersion": "0.39.0",
+  "substantiveModuleCount": 57,
   "classReadyModuleCount": 16,
-  "outlineOnlyModuleCount": 38,
+  "outlineOnlyModuleCount": 41,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -161,6 +161,14 @@
       "instructorSchemaVersion": "1.1"
     },
     {
+      "moduleId": "deployment-shape-and-operating-model",
+      "pathIds": [
+        "self-hosted-model-operations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
       "moduleId": "examples-and-output-contracts",
       "pathIds": [
         "ai-foundations"
@@ -223,6 +231,14 @@
       "moduleId": "gemini-tools-and-agent-loops",
       "pathIds": [
         "google-gemini-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "hardware-runtime-and-capacity-planning",
+      "pathIds": [
+        "self-hosted-model-operations"
       ],
       "status": "outline-only",
       "instructorSchemaVersion": "1.1"
@@ -452,6 +468,14 @@
       "classScriptId": "safe-tool-use-workflow-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/safe-tool-use-workflow/class-script.json"
+    },
+    {
+      "moduleId": "serving-api-and-compatibility-contracts",
+      "pathIds": [
+        "self-hosted-model-operations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
     },
     {
       "moduleId": "verification-and-iterative-improvement",

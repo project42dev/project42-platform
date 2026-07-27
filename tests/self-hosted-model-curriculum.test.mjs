@@ -13,8 +13,11 @@ test("publishes the first source-backed self-hosted model operations unit", () =
   assert.ok(path);
   assert.equal(path.level, "advanced");
   assert.deepEqual(path.moduleIds, [
+    "deployment-shape-and-operating-model",
     "model-identity-license-and-provenance",
     "model-artifact-integrity",
+    "hardware-runtime-and-capacity-planning",
+    "serving-api-and-compatibility-contracts",
   ]);
   assert.deepEqual(validateCatalog(starterCatalog), { valid: true, errors: [] });
 
@@ -46,11 +49,26 @@ test("publishes the first source-backed self-hosted model operations unit", () =
 test("self-hosted model unit preserves prerequisites and evidence boundaries", () => {
   const identity = modules.get("model-identity-license-and-provenance");
   const integrity = modules.get("model-artifact-integrity");
+  const deployment = modules.get("deployment-shape-and-operating-model");
+  const capacity = modules.get("hardware-runtime-and-capacity-planning");
+  const serving = modules.get("serving-api-and-compatibility-contracts");
   assert.ok(identity);
   assert.ok(integrity);
-  assert.ok(identity.prerequisites.includes("ai-foundations-capstone"));
+  assert.ok(deployment);
+  assert.ok(capacity);
+  assert.ok(serving);
+  assert.ok(deployment.prerequisites.includes("ai-foundations-capstone"));
+  assert.ok(
+    identity.prerequisites.includes("deployment-shape-and-operating-model"),
+  );
   assert.ok(
     integrity.prerequisites.includes("model-identity-license-and-provenance"),
+  );
+  assert.ok(
+    capacity.prerequisites.includes("model-artifact-integrity"),
+  );
+  assert.ok(
+    serving.prerequisites.includes("hardware-runtime-and-capacity-planning"),
   );
 
   const identityText = JSON.stringify(identity);

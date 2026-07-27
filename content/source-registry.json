@@ -376,6 +376,54 @@
       "trustTier": "primary",
       "reviewCadenceDays": 60,
       "owner": "curriculum"
+    },
+    {
+      "id": "docker-documentation",
+      "urlPrefix": "https://docs.docker.com/",
+      "publisher": "Docker",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "curriculum"
+    },
+    {
+      "id": "kubernetes-documentation",
+      "urlPrefix": "https://kubernetes.io/docs/",
+      "publisher": "Kubernetes",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "curriculum"
+    },
+    {
+      "id": "vllm-documentation",
+      "urlPrefix": "https://docs.vllm.ai/",
+      "publisher": "vLLM",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "kserve-documentation",
+      "urlPrefix": "https://kserve.github.io/website/docs/",
+      "publisher": "KServe",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "curriculum"
+    },
+    {
+      "id": "onnx-runtime-documentation",
+      "urlPrefix": "https://onnxruntime.ai/docs/",
+      "publisher": "ONNX Runtime",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "curriculum"
+    },
+    {
+      "id": "mlcommons-benchmarks",
+      "urlPrefix": "https://mlcommons.org/benchmarks/",
+      "publisher": "MLCommons",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
     }
   ]
 }

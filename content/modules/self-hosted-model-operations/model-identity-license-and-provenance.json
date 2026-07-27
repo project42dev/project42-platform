@@ -11,7 +11,7 @@
     "Evaluate license, acceptable-use, attribution, redistribution, and derivative obligations without treating availability as permission.",
     "Record lineage, model-card evidence, known gaps, accountable reviewers, and a dated adoption decision."
   ],
-  "prerequisites": ["ai-foundations-capstone"],
+  "prerequisites": ["deployment-shape-and-operating-model"],
   "sections": [
     {
       "id": "name-the-deployment-object",
