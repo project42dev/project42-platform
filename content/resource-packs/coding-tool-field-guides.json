@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1.0",
+  "id": "coding-tool-field-guides",
+  "title": "Current coding-tool Field Guides",
+  "resourceRoots": ["coding-tools"],
+  "resourceIds": [
+    "claude-code-operating-card",
+    "codex-cli-operating-card",
+    "gemini-cli-operating-card"
+  ],
+  "exactResourceCount": 3,
+  "requiredProviders": ["anthropic", "openai", "google"],
+  "providerProfiles": [
+    {
+      "providers": ["anthropic"],
+      "exactResourceCount": 1
+    },
+    {
+      "providers": ["openai"],
+      "exactResourceCount": 1
+    },
+    {
+      "providers": ["google"],
+      "exactResourceCount": 1
+    }
+  ],
+  "minimumSourcesPerResource": 3,
+  "requiredArtifactFields": [
+    "Task:",
+    "Scope:",
+    "Permissions:",
+    "Verification:",
+    "Recovery:"
+  ],
+  "requiredGuidance": {
+    "verification": true,
+    "recovery": true,
+    "safeArtifacts": true
+  }
+}

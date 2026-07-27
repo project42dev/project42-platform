@@ -26,6 +26,14 @@ contracts—not the private PMO records or Project42dev production configuration
   append-only authorization audits.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.40.0` adds the provider-neutral account and learning-record API,
+replayable Cloudflare D1 migrations, exact verified-domain approval policy,
+owner administration contracts, immutable authorization audit records, and
+local-to-account progress migration support. It also restores current,
+source-backed operating cards for Claude Code, Codex CLI, and Gemini CLI while
+keeping deployment-specific identity and infrastructure values outside the
+public repository.
+
 Release `0.38.0` adds the reusable learner-data lifecycle contract. It defines
 issuer-and-subject identity, six account states, allowed transitions, minimal
 profile fields, versioned consent, retention classes, recent-authentication export,

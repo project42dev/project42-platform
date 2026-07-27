@@ -43,7 +43,7 @@ test("starter catalog is valid", () => {
   assert.equal(learningCatalog.paths.length, starterCatalog.paths.length);
   assert.equal(learningCatalog.modules.length, starterCatalog.modules.length);
   assert.equal(fieldGuideCatalog.resources.length, starterCatalog.resources.length);
-  assert.equal(starterCatalog.contentVersion, "0.30.0");
+  assert.equal(starterCatalog.contentVersion, "0.31.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
