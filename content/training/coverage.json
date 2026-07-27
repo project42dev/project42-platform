@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.41.0",
   "substantiveModuleCount": 64,
-  "classReadyModuleCount": 36,
-  "outlineOnlyModuleCount": 28,
+  "classReadyModuleCount": 40,
+  "outlineOnlyModuleCount": 24,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -11,16 +11,22 @@
       "pathIds": [
         "reliable-agent-workflows"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "agent-evaluation-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/reliable-agent-workflows/agent-evaluation/class-script.json"
     },
     {
       "moduleId": "agent-observability",
       "pathIds": [
         "reliable-agent-workflows"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "agent-observability-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/reliable-agent-workflows/agent-observability/class-script.json"
     },
     {
       "moduleId": "agents-and-guardrails",
@@ -527,8 +533,11 @@
       "pathIds": [
         "reliable-agent-workflows"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "reliable-agent-capstone-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/reliable-agent-workflows/reliable-agent-capstone/class-script.json"
     },
     {
       "moduleId": "research-with-evidence",
@@ -546,8 +555,11 @@
       "pathIds": [
         "reliable-agent-workflows"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "review-agent-results-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/reliable-agent-workflows/review-agent-results/class-script.json"
     },
     {
       "moduleId": "safe-tool-use-workflow",

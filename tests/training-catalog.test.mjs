@@ -1170,6 +1170,83 @@ test("publishes complete MCP, orchestration, and handoff class packages", () => 
   }
 });
 
+test("publishes complete agent evaluation, operations, and capstone packages", () => {
+  const expectedWordCounts = new Map([
+    ["agent-evaluation", 940],
+    ["agent-observability", 955],
+    ["review-agent-results", 945],
+    ["reliable-agent-capstone", 1178],
+  ]);
+
+  for (const [moduleId, expectedWordCount] of expectedWordCounts) {
+    const script = getClassScriptPackage(moduleId);
+    const module = getLearningModule(moduleId);
+    assert.ok(script, `missing class script for ${moduleId}`);
+    assert.ok(module, `missing module ${moduleId}`);
+    assert.equal(
+      validateClassSchema(script),
+      true,
+      JSON.stringify(validateClassSchema.errors),
+    );
+    assert.deepEqual(validateClassScriptPackage(script, module), {
+      valid: true,
+      errors: [],
+    });
+    assert.equal(script.spokenWordCount, expectedWordCount);
+    assert.equal(script.releaseStatus, "draft");
+    assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+    assert.equal(script.provenance.approvals.length, 0);
+    for (const section of module.sections) {
+      assert.ok(
+        script.segments.some(
+          (segment) =>
+            segment.sectionId === section.id &&
+            segment.delivery === "spoken" &&
+            ["narration", "demonstration"].includes(segment.kind),
+        ),
+        `${moduleId} missing substantive spoken section ${section.id}`,
+      );
+    }
+    for (const kind of [
+      "demonstration",
+      "learner-prompt",
+      "checkpoint",
+      "feedback",
+      "assessment-handoff",
+    ]) {
+      assert.ok(
+        script.segments.some((segment) => segment.kind === kind),
+        `${moduleId} missing ${kind}`,
+      );
+    }
+    assert.deepEqual(
+      script.segments.find(
+        (segment) => segment.kind === "assessment-handoff",
+      )?.learningHandoff.questionIds,
+      module.knowledgeCheck.questions.map((question) => question.id),
+    );
+  }
+
+  const capstoneScript = getClassScriptPackage("reliable-agent-capstone");
+  const capstoneModule = getLearningModule("reliable-agent-capstone");
+  assert.ok(capstoneScript);
+  assert.ok(capstoneModule?.capstone);
+  const spokenText = capstoneScript.segments
+    .map((segment) => segment.spokenText ?? "")
+    .join(" ");
+  assert.equal(capstoneModule.capstone.requiredArtifacts.length, 8);
+  assert.equal(capstoneModule.capstone.rubric.criteria.length, 6);
+  for (const artifact of capstoneModule.capstone.requiredArtifacts) {
+    assert.ok(
+      spokenText.includes(artifact),
+      `capstone narration missing required artifact ${artifact}`,
+    );
+  }
+  assert.match(spokenText, /eighty-percent knowledge check/u);
+  assert.match(spokenText, /capstone score of at least eighty percent/u);
+  assert.match(spokenText, /Preserve the first submission/u);
+});
+
 test("coverage classifies every substantive module without overstating readiness", async () => {
   const committedCoverage = JSON.parse(
     await readFile(resolve(root, "content/training/coverage.json"), "utf8"),
