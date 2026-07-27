@@ -161,4 +161,11 @@ export type {
   PrimarySourceRegistry,
   SourceObservation,
 } from "./content-maintenance.js";
+export { validateReleaseCandidate } from "./release-integrity.js";
+export type {
+  ReleaseArtifactEvidence,
+  ReleaseCandidateEvidence,
+  ReleaseCandidateValidation,
+  ReleaseCompatibilityManifest,
+} from "./release-integrity.js";
 export { RESOURCE_AUDIENCES, RESOURCE_FORMATS } from "./schema.js";

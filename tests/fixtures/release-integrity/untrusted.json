@@ -1,0 +1,8 @@
+{
+  "scenario": "untrusted",
+  "mutation": "replace-certificate-identity",
+  "expectedValid": false,
+  "expectedErrors": [
+    "untrusted_certificate_identity"
+  ]
+}

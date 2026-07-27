@@ -1,0 +1,8 @@
+{
+  "scenario": "revoked",
+  "mutation": "revoke-release",
+  "expectedValid": false,
+  "expectedErrors": [
+    "revoked_release"
+  ]
+}

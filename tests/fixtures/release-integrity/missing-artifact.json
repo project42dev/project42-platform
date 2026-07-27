@@ -1,0 +1,8 @@
+{
+  "scenario": "missing-artifact",
+  "mutation": "remove-training-package",
+  "expectedValid": false,
+  "expectedErrors": [
+    "missing_artifact:language-models-and-generation"
+  ]
+}

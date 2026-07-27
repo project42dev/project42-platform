@@ -1,16 +1,17 @@
 # Docker Compose evaluation deployment
 
-Project 42 publishes a local evaluation profile for the account API, PostgreSQL
-database, and reference OpenID Connect provider. It is intended for a private
-workstation or isolated lab. It is not the production profile: Keycloak runs in
-development mode and the browser-facing endpoints use HTTP on `localhost`.
+Project 42 publishes a complete local evaluation profile for Learn, the account
+API, PostgreSQL database, and reference OpenID Connect provider. It is intended
+for a private workstation or isolated lab. It is not the production profile:
+Keycloak runs in development mode and the browser-facing endpoints use HTTP on
+`localhost`.
 
 ## Prerequisites
 
 - Docker Engine 27 or newer with Docker Compose v2
 - Git
 - 4 GB of available memory
-- ports 8080 and 8787 available on `localhost`
+- ports 3000, 8080, and 8787 available on `localhost`
 
 ## Start the services
 
@@ -27,12 +28,17 @@ least 24 characters. Keep that file out of source control.
 docker compose --env-file self-host/.env -f self-host/compose.yaml config --quiet
 docker compose --env-file self-host/.env -f self-host/compose.yaml up --build --detach --wait
 curl --fail http://localhost:8787/health
+curl --fail http://localhost:3000/health
 ```
+
+Open <http://localhost:3000>, register through the reference identity service,
+and then complete the reviewed first-owner bootstrap described below.
 
 The services are:
 
 | Service | Local address | Purpose |
 | --- | --- | --- |
+| Learn | `http://localhost:3000` | Learning, profile, administration, assessment, and transcript experience |
 | Account API | `http://localhost:8787` | Accounts, authorization, progress, transcripts, badges, privacy, and audit |
 | Keycloak | `http://localhost:8080` | Replaceable reference OIDC provider |
 | PostgreSQL | internal only | Durable learner and administrative records |
@@ -49,9 +55,9 @@ reviewed bootstrap-owner issuer and subject for the first owner or approve the
 account through an existing owner. Never use an email address as the immutable
 owner key.
 
-## Connect a Learn build
+## Learn browser configuration
 
-Build Project 42 Learn with these public values:
+The version-pinned Learn image is built with these public values:
 
 ```text
 NEXT_PUBLIC_PROJECT42_API_ORIGIN=http://localhost:8787
@@ -60,9 +66,14 @@ NEXT_PUBLIC_PROJECT42_OIDC_CLIENT_ID=project42-learn
 NEXT_PUBLIC_PROJECT42_OIDC_SCOPE=openid profile email
 ```
 
-Serve that build at `http://localhost:3000`, which is the redirect origin in
-the reference realm. This is a public-client Authorization Code with PKCE
-configuration; it has no client secret and does not enable password grants.
+The image serves that build at `http://localhost:3000`, which is the redirect
+origin in the reference realm. This is a public-client Authorization Code with
+PKCE configuration; it has no client secret and does not enable password
+grants. The reference pins both the Learn version and immutable registry
+digest. Change `PROJECT42_LEARN_VERSION` and `PROJECT42_LEARN_DIGEST` together
+only after reviewing the matching Learn compatibility manifest and signature.
+Custom origins require rebuilding the Learn image because browser
+configuration is compiled into the static files.
 
 ## Back up and restore
 
@@ -129,7 +140,7 @@ cosign verify-blob \
   --bundle project42-platform.sigstore.json \
   --certificate-identity-regexp '^https://github.com/project42dev/project42-platform/' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  project42-platform-v0.49.0.tgz
+  project42-platform-v0.49.1.tgz
 cosign verify-blob \
   --bundle compatibility.sigstore.json \
   --certificate-identity-regexp '^https://github.com/project42dev/project42-platform/' \

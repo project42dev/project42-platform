@@ -67,6 +67,18 @@ services:
         condition: service_healthy
     ports:
       - "8787:8787"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - >-
+          fetch('http://127.0.0.1:8787/health').then((response) => {
+          if (!response.ok) process.exit(1); }).catch(() => process.exit(1))
+      interval: 5s
+      timeout: 3s
+      start_period: 10s
+      retries: 20
     read_only: true
     tmpfs:
       - /tmp:size=16m,mode=1777
@@ -75,6 +87,26 @@ services:
     cap_drop:
       - ALL
     stop_grace_period: 30s
+    restart: unless-stopped
+
+  learn:
+    image: >-
+      ghcr.io/project42dev/project42-learn:${PROJECT42_LEARN_VERSION:-0.4.0}@${PROJECT42_LEARN_DIGEST:-sha256:903f0ee264ad6930d5092a5ec5ac55a8edee50cc5a699151902a0dfa18df7252}
+    depends_on:
+      api:
+        condition: service_healthy
+      identity:
+        condition: service_healthy
+    ports:
+      - "3000:8080"
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+      - /var/cache/nginx:size=16m,mode=0755
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     restart: unless-stopped
 
 volumes:

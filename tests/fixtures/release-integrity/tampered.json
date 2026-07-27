@@ -1,0 +1,8 @@
+{
+  "scenario": "tampered",
+  "mutation": "tamper-content",
+  "expectedValid": false,
+  "expectedErrors": [
+    "altered_artifact:project42-learning-content"
+  ]
+}

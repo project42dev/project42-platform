@@ -1,6 +1,6 @@
 {
   "name": "@project42/platform",
-  "version": "0.49.0",
+  "version": "0.49.1",
   "description": "Open-source content, assessment, and learning-record core for Project 42.",
   "type": "module",
   "main": "./dist/index.js",
@@ -13,6 +13,7 @@
   },
   "files": [
     "dist",
+    "src",
     "content",
     "docs",
     "examples",
@@ -33,6 +34,7 @@
     "api:check": "npm run api:types && wrangler deploy --dry-run",
     "db:migrate:local": "wrangler d1 migrations apply PROJECT42_DB --local",
     "content:freshness": "node scripts/check-freshness.mjs",
+    "self-host:digests": "node scripts/update-self-host-digests.mjs",
     "self-host:validate": "node scripts/validate-self-host-release.mjs",
     "resources:validate": "node scripts/validate-resource-packs.mjs",
     "sources:links": "node scripts/check-source-links.mjs",

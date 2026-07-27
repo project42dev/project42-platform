@@ -1,35 +1,262 @@
 {
   "$schema": "./compatibility.schema.json",
   "schemaVersion": 1,
-  "release": "0.49.0",
+  "release": "0.49.1",
   "supportLevel": "evaluation",
   "api": {
     "package": "@project42/platform",
-    "version": "0.49.0",
-    "image": "ghcr.io/project42dev/project42-platform-api:0.49.0",
+    "version": "0.49.1",
+    "image": "ghcr.io/project42dev/project42-platform-api:0.49.1",
     "healthPath": "/health",
     "runsAsNonRoot": true
   },
   "database": {
     "adapter": "postgresql",
-    "supportedMajors": [17],
+    "supportedMajors": [
+      17
+    ],
     "migrationHead": "001_initial.sql"
   },
   "identity": {
     "protocol": "oidc",
     "flow": "authorization-code-pkce",
-    "requiredClaims": ["iss", "sub", "aud", "exp", "iat", "email_verified"],
+    "requiredClaims": [
+      "iss",
+      "sub",
+      "aud",
+      "exp",
+      "iat",
+      "email_verified"
+    ],
     "referenceProvider": "keycloak",
     "referenceVersion": "26.7.0"
   },
   "learn": {
-    "minimumVersion": "0.3.1",
+    "version": "0.4.0",
+    "image": "ghcr.io/project42dev/project42-learn:0.4.0",
+    "digest": "sha256:903f0ee264ad6930d5092a5ec5ac55a8edee50cc5a699151902a0dfa18df7252",
+    "healthPath": "/health",
+    "runsAsNonRoot": true,
+    "configurationMode": "build-time",
     "configurationContract": [
       "NEXT_PUBLIC_PROJECT42_API_ORIGIN",
       "NEXT_PUBLIC_PROJECT42_OIDC_AUTHORITY",
       "NEXT_PUBLIC_PROJECT42_OIDC_CLIENT_ID",
       "NEXT_PUBLIC_PROJECT42_OIDC_SCOPE"
     ]
+  },
+  "components": {
+    "application": {
+      "id": "@project42/platform",
+      "version": "0.49.1",
+      "digest": {
+        "algorithm": "sha256",
+        "canonicalization": "utf8-lf",
+        "value": "4f2af66092d8ea0be7e399741fdd049c104820e61ce44e3b7bd7ec8c5b8d417c"
+      },
+      "artifacts": [
+        {
+          "path": "package.json",
+          "sha256": "0e0306bfd1cbf293a856d788053dd1739e0f152f4f058257033c36d8ba0abd4c"
+        },
+        {
+          "path": "self-host/compose.yaml",
+          "sha256": "41485aa5ee79ae61f9ae601285101ef6f0b9a4f2494c681abb67f108596a708c"
+        },
+        {
+          "path": "self-host/Dockerfile",
+          "sha256": "05689dd0f196f0496766d8de6bb9af6b9ca090d08f7c723f269b1522a08f32e8"
+        },
+        {
+          "path": "src/self-host/server.ts",
+          "sha256": "aaf6c82ca184fde2e40d4ca1148ee17222f129465c3f6ef59673cd4a7052ae21"
+        }
+      ]
+    },
+    "schemas": {
+      "id": "project42-contract-schemas",
+      "version": "1.0.0",
+      "digest": {
+        "algorithm": "sha256",
+        "canonicalization": "utf8-lf",
+        "value": "67e05bb828f2424a7e791b25e1c061babdfc4adb43b0f66445a7bbbc1dca1b2e"
+      },
+      "artifacts": [
+        {
+          "path": "schemas/content-maintenance/content-change-packet.schema.json",
+          "sha256": "3c002b872dc71df5f989bb470ae01512bc55940519c41849b95544363ad5cdb5"
+        },
+        {
+          "path": "schemas/content-maintenance/foundry-role-profile.schema.json",
+          "sha256": "3e633b6764c39c7138e8dc65a4e73d029f605beadec48c4f6f522e14262cd26b"
+        },
+        {
+          "path": "schemas/content-maintenance/maintenance-proposal.schema.json",
+          "sha256": "9f9cc8b1e2d37e2dfea8f877b4eccbbe3d960e5ba4acb7bd5e7c53ef4ac98b56"
+        },
+        {
+          "path": "schemas/training/class-script-package.schema.json",
+          "sha256": "9d3751e5e0e7e70564a853ae857c5b1fa43668dc8cb04fd88b66d3172d41d33c"
+        },
+        {
+          "path": "schemas/training/virtual-instructor-media-manifest.schema.json",
+          "sha256": "42352fdf2c041743c1e2358c753720eb785c52ccf1d12862eaeb2df69fdeb9ff"
+        }
+      ]
+    },
+    "content": {
+      "id": "project42-learning-content",
+      "version": "0.36.0",
+      "digest": {
+        "algorithm": "sha256",
+        "canonicalization": "utf8-lf",
+        "value": "aa09b501fcb5155695ca298813101c96bd16b549058b29e780b5d3b78db1a17d"
+      },
+      "artifacts": [
+        {
+          "path": "content/catalog.json",
+          "sha256": "31123792a52eb6f824f8ed20fd3ac3c2840cb8f0c6eba35d3e753a0498ddf09e"
+        }
+      ]
+    },
+    "trainingPackage": {
+      "id": "language-models-and-generation",
+      "version": "1.0.0",
+      "digest": {
+        "algorithm": "sha256",
+        "canonicalization": "utf8-lf",
+        "value": "65b6f8f5d67dd38ac6f32edeb472fe90805009b0787ee72956b0460f79ab81bd"
+      },
+      "artifacts": [
+        {
+          "path": "examples/training/language-models-and-generation/alternatives/en-US-reduced-motion.md",
+          "sha256": "cbc9b51212be84fcbc0f9e4f94e79247d411b5af66f2a799a55f7d15e8343296"
+        },
+        {
+          "path": "examples/training/language-models-and-generation/alternatives/en-US-text-only.md",
+          "sha256": "0345318f26645db286268ed63a59e3256aa5ba504d0bb7c7fbd35b4881c6686b"
+        },
+        {
+          "path": "examples/training/language-models-and-generation/captions/en-US.vtt",
+          "sha256": "7756c113a680bb682b9723201c17a1ceabb678943a4eaf22a5d1ac141d2006cd"
+        },
+        {
+          "path": "examples/training/language-models-and-generation/class-script.json",
+          "sha256": "056010d36c1b9a98408cdee14ab6a8ed7d63f2e6bf6004c9a0b4ad5781c38f12"
+        },
+        {
+          "path": "examples/training/language-models-and-generation/integrity.json",
+          "sha256": "d109bae82d3b86a4a18bbb65fb6d2213b2cee465dd8270a418709c5b340b06ae"
+        },
+        {
+          "path": "examples/training/language-models-and-generation/media-manifest.example.json",
+          "sha256": "3c86da91fb2d4d6cc8c9b1a0545a49b6ab849bcd584e5a36aac763fc93471ed8"
+        },
+        {
+          "path": "examples/training/language-models-and-generation/transcripts/en-US.md",
+          "sha256": "7726773278d4453c09559687005df43c42c53bbcc46fcf78ea1b484e4d8b998e"
+        }
+      ]
+    },
+    "adapters": [
+      {
+        "id": "postgresql-d1-compatibility",
+        "version": "1.0.0",
+        "digest": {
+          "algorithm": "sha256",
+          "canonicalization": "utf8-lf",
+          "value": "eaf4b563b51f936b82255c0ce00e205a006c1af202fe0fb464f7c20261b987cb"
+        },
+        "artifacts": [
+          {
+            "path": "self-host/postgres/001_initial.sql",
+            "sha256": "8a5383d4903d912e54f93616acff6f8446b6c745c5d5062ba527b1b2cf4be5f9"
+          },
+          {
+            "path": "src/self-host/migrate.ts",
+            "sha256": "1f982512391b1a463d7fa3e76dffba09d45217b7056ec2da79de97000e7451fa"
+          },
+          {
+            "path": "src/self-host/postgres-d1.ts",
+            "sha256": "6fe6c71c59c7707ce2d180c7bf93f5515e16179ff6880c209891a78122db3d15"
+          }
+        ]
+      },
+      {
+        "id": "oidc-jwt",
+        "version": "1.0.0",
+        "digest": {
+          "algorithm": "sha256",
+          "canonicalization": "utf8-lf",
+          "value": "cab2faacbdffcebe70940bc6b0f969c0c96c4ec3063ad3591818008c713b6599"
+        },
+        "artifacts": [
+          {
+            "path": "self-host/keycloak/project42-realm.json",
+            "sha256": "ce7d3240c8a3f3f59a8f500146da83f83faa21f6edc62cc59eb5328b0fa76e22"
+          },
+          {
+            "path": "src/identity.ts",
+            "sha256": "ac549c1e036fe294ea78e3ad95b489b687fa5dfd8b2c15dca8cbae1d1383bf09"
+          }
+        ]
+      }
+    ]
+  },
+  "compatibility": {
+    "compatible": {
+      "learn": ">=0.4.0 <0.5.0",
+      "node": ">=22.13.0 <25.0.0",
+      "postgresql": ">=17.0.0 <18.0.0",
+      "keycloak": ">=26.7.0 <27.0.0"
+    },
+    "incompatible": [
+      {
+        "component": "learn",
+        "range": "<0.4.0",
+        "reason": "The complete self-host browser and compatibility contract begins with Learn 0.4.0."
+      },
+      {
+        "component": "postgresql",
+        "range": "<17.0.0 || >=18.0.0",
+        "reason": "Only PostgreSQL 17 is qualified by this release."
+      }
+    ],
+    "requiredMigrations": [
+      {
+        "id": "001_initial",
+        "path": "self-host/postgres/001_initial.sql",
+        "sha256": "8a5383d4903d912e54f93616acff6f8446b6c745c5d5062ba527b1b2cf4be5f9",
+        "required": true,
+        "appliesFrom": "*"
+      }
+    ]
+  },
+  "integrityPolicy": {
+    "signatureRequired": true,
+    "provenanceRequired": true,
+    "certificateIdentity": "https://github.com/project42dev/project42-platform/.github/workflows/release.yml@refs/tags/v0.49.1",
+    "certificateOidcIssuer": "https://token.actions.githubusercontent.com",
+    "trustedTransparencyLog": "https://rekor.sigstore.dev",
+    "allowedRunnerEnvironment": "github-hosted",
+    "rejectAltered": true,
+    "rejectUnsigned": true,
+    "rejectExpired": true,
+    "rejectUntrusted": true
+  },
+  "releaseStatus": {
+    "state": "active",
+    "issuedOn": "2026-07-27",
+    "supersedes": "0.49.0",
+    "revocationAuthority": "https://github.com/project42dev/project42-platform/security/advisories"
+  },
+  "releaseNotes": {
+    "release": "https://github.com/project42dev/project42-platform/releases/tag/v0.49.1",
+    "breakingChanges": "https://github.com/project42dev/project42-platform/blob/v0.49.1/docs/self-hosting/release-v0.49.1.md#breaking-changes",
+    "backup": "https://github.com/project42dev/project42-platform/blob/v0.49.1/docs/self-hosting/release-v0.49.1.md#backup-before-update",
+    "migrations": "https://github.com/project42dev/project42-platform/blob/v0.49.1/docs/self-hosting/release-v0.49.1.md#migrations",
+    "limitations": "https://github.com/project42dev/project42-platform/blob/v0.49.1/docs/self-hosting/release-v0.49.1.md#limitations",
+    "rollback": "https://github.com/project42dev/project42-platform/blob/v0.49.1/docs/self-hosting/release-v0.49.1.md#rollback"
   },
   "update": {
     "channel": "github-release",

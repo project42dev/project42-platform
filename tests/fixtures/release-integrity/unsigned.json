@@ -1,0 +1,9 @@
+{
+  "scenario": "unsigned",
+  "mutation": "remove-signature",
+  "expectedValid": false,
+  "expectedErrors": [
+    "unsigned_release",
+    "unverified_signature"
+  ]
+}

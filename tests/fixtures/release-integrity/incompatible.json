@@ -1,0 +1,8 @@
+{
+  "scenario": "incompatible",
+  "mutation": "reject-compatibility",
+  "expectedValid": false,
+  "expectedErrors": [
+    "incompatible_release"
+  ]
+}

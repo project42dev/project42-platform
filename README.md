@@ -31,12 +31,13 @@ contracts—not the private PMO records or Project42dev production configuration
   multi-model execution, deterministic gate, rollback, and human approval contracts.
 - Seed content suitable for a hosted site or self-hosted installation.
 
-Release `0.49.0` adds the first independently deployable self-host
-infrastructure profile: a non-root OCI account API, PostgreSQL adapter and
-checksum-locked migrations, reference Keycloak OIDC configuration, backup and
-restore guidance, fail-closed production configuration, and Linux integration
-and Compose smoke gates. Release archives and OCI images are signed with
-short-lived Sigstore identities and publish verifiable provenance.
+Release `0.49.1` adds the complete independently deployable self-host
+infrastructure profile: version-pinned non-root Learn and account API images,
+the PostgreSQL adapter and checksum-locked migrations, reference Keycloak OIDC
+configuration, backup and restore guidance, fail-closed production
+configuration, and Linux integration and Compose smoke gates. Release archives
+and OCI images are signed with short-lived Sigstore identities and publish
+verifiable provenance.
 
 Release `0.48.0` establishes the class-ready virtual-instructor boundary. It
 distinguishes complete read-aloud teaching scripts from short production cues,

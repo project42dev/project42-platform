@@ -1,0 +1,8 @@
+{
+  "scenario": "expired",
+  "mutation": "expire-signature",
+  "expectedValid": false,
+  "expectedErrors": [
+    "expired_or_not_yet_valid_signature"
+  ]
+}

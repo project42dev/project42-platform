@@ -1,0 +1,6 @@
+{
+  "scenario": "valid",
+  "mutation": "none",
+  "expectedValid": true,
+  "expectedErrors": []
+}
