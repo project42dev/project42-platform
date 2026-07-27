@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.41.0",
   "substantiveModuleCount": 64,
-  "classReadyModuleCount": 19,
-  "outlineOnlyModuleCount": 45,
+  "classReadyModuleCount": 20,
+  "outlineOnlyModuleCount": 44,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -259,8 +259,11 @@
       "pathIds": [
         "self-hosted-model-operations"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "hardware-runtime-and-capacity-planning-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/self-hosted-model-operations/hardware-runtime-and-capacity-planning/class-script.json"
     },
     {
       "moduleId": "language-models-and-generation",
