@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0",
+  "classScript": {
+    "id": "language-models-and-generation-class",
+    "version": "1.0.0",
+    "sha256": "056010d36c1b9a98408cdee14ab6a8ed7d63f2e6bf6004c9a0b4ad5781c38f12"
+  },
+  "artifacts": [
+    {
+      "path": "captions/en-US.vtt",
+      "sha256": "7756c113a680bb682b9723201c17a1ceabb678943a4eaf22a5d1ac141d2006cd"
+    },
+    {
+      "path": "transcripts/en-US.md",
+      "sha256": "7726773278d4453c09559687005df43c42c53bbcc46fcf78ea1b484e4d8b998e"
+    },
+    {
+      "path": "alternatives/en-US-reduced-motion.md",
+      "sha256": "cbc9b51212be84fcbc0f9e4f94e79247d411b5af66f2a799a55f7d15e8343296"
+    },
+    {
+      "path": "alternatives/en-US-text-only.md",
+      "sha256": "0345318f26645db286268ed63a59e3256aa5ba504d0bb7c7fbd35b4881c6686b"
+    }
+  ]
+}

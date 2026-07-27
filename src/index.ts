@@ -54,6 +54,13 @@ export {
   getVerifiedEmailDomain,
   normalizeExactDomain,
 } from "./identity.js";
+export {
+  CLASS_SCRIPT_SCHEMA_VERSION,
+  CLASS_SEGMENT_KINDS,
+  VIRTUAL_INSTRUCTOR_MEDIA_SCHEMA_VERSION,
+  validateClassScriptPackage,
+  validateVirtualInstructorMediaManifest,
+} from "./training-package.js";
 
 export type { AssessmentResult, QuestionFeedback } from "./assessment.js";
 export type {
@@ -125,6 +132,16 @@ export type {
   SourceReference,
   ValidationResult,
 } from "./schema.js";
+export type {
+  ClassScriptApproval,
+  ClassScriptContribution,
+  ClassScriptPackage,
+  ClassScriptSegment,
+  ClassScriptVisual,
+  ClassSegmentKind,
+  VirtualInstructorArtifact,
+  VirtualInstructorMediaManifest,
+} from "./training-package.js";
 export type {
   ResourceFreshness,
   ResourceFreshnessStatus,
