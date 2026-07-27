@@ -68,6 +68,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     ALLOWED_ORIGINS: allowedOrigin,
     BOOTSTRAP_OWNER_ISSUER: issuer,
     BOOTSTRAP_OWNER_SUBJECT: "owner-subject",
+    DOMAIN_APPROVAL_ENABLED: "false",
   };
 
   async function api(token, path, init = {}) {
@@ -101,6 +102,10 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   const pendingProgress = await api("learner-token", "/v1/me/progress");
   assert.equal(pendingProgress.status, 403);
   assert.equal((await readBody(pendingProgress)).error.code, "account_pending");
+
+  const pendingAdmin = await api("learner-token", "/v1/admin/accounts");
+  assert.equal(pendingAdmin.status, 403);
+  assert.equal((await readBody(pendingAdmin)).error.code, "owner_required");
 
   const accountList = await api("owner-token", "/v1/admin/accounts");
   assert.equal(accountList.status, 200);
@@ -214,6 +219,21 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   );
   assert.equal(restored.status, 200);
 
+  const disabledDomain = await api("owner-token", "/v1/admin/domains", {
+    method: "POST",
+    body: JSON.stringify({
+      domain: "trusted.example",
+      enabled: true,
+      reason: "Prove the verified-claim launch gate stays closed.",
+    }),
+  });
+  assert.equal(disabledDomain.status, 409);
+  assert.equal(
+    (await readBody(disabledDomain)).error.code,
+    "domain_approval_not_enabled",
+  );
+
+  env.DOMAIN_APPROVAL_ENABLED = "true";
   const domain = await api("owner-token", "/v1/admin/domains", {
     method: "POST",
     body: JSON.stringify({
@@ -309,8 +329,17 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     "domain.create",
     "deletion.request",
     "deletion.complete",
+    "authorization.owner.denied",
   ]) {
     assert.ok(events.some((event) => event.action === action), `missing ${action}`);
   }
+  assert.ok(
+    events.some(
+      (event) =>
+        event.action === "authorization.owner.denied" &&
+        event.outcome === "denied" &&
+        event.targetType === "admin_route",
+    ),
+  );
   assert.ok(events.every((event) => event.requestId));
 });

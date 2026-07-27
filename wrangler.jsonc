@@ -26,6 +26,7 @@
     "OIDC_JWKS_URL": "https://identity.example.invalid/.well-known/jwks.json",
     "OIDC_EMAIL_CLAIM": "email",
     "OIDC_EMAIL_VERIFIED_CLAIM": "email_verified",
+    "DOMAIN_APPROVAL_ENABLED": "false",
     "ALLOWED_ORIGINS": "http://localhost:3000",
     "BOOTSTRAP_OWNER_ISSUER": "",
     "BOOTSTRAP_OWNER_SUBJECT": ""

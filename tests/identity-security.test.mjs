@@ -202,6 +202,7 @@ test("CORS preflight succeeds only for configured origins", async () => {
 });
 
 test("API denies learner data until approval and protects owner routes", async () => {
+  const ownerDenials = [];
   const identity = {
     issuer: "https://issuer.example.test",
     subject: "subject-1",
@@ -232,6 +233,7 @@ test("API denies learner data until approval and protects owner routes", async (
     listAccounts: async () => {
       throw new Error("learner must not reach owner storage");
     },
+    recordOwnerAuthorizationDenied: async (input) => ownerDenials.push(input),
   };
   const env = {
     INSTALLATION_ID: "test",
@@ -265,6 +267,11 @@ test("API denies learner data until approval and protects owner routes", async (
   );
   assert.equal(admin.status, 403);
   assert.equal((await admin.json()).error.code, "owner_required");
+  assert.equal(ownerDenials.length, 1);
+  assert.equal(ownerDenials[0].account.id, pending.id);
+  assert.equal(ownerDenials[0].method, "GET");
+  assert.equal(ownerDenials[0].path, "/v1/admin/accounts");
+  assert.ok(ownerDenials[0].requestId);
 });
 
 test("suspension and revocation disable existing learner and owner access", async () => {
@@ -284,6 +291,7 @@ test("suspension and revocation disable existing learner and owner access", asyn
   };
 
   for (const state of ["suspended", "revoked"]) {
+    const ownerDenials = [];
     const account = {
       id: "user-previously-approved",
       installationId: "test",
@@ -305,6 +313,7 @@ test("suspension and revocation disable existing learner and owner access", asyn
       listAccounts: async () => {
         throw new Error(`${state} owner must not reach administrative storage`);
       },
+      recordOwnerAuthorizationDenied: async (input) => ownerDenials.push(input),
     };
 
     const progress = await handleRequest(
@@ -324,6 +333,8 @@ test("suspension and revocation disable existing learner and owner access", asyn
     );
     assert.equal(admin.status, 403);
     assert.equal((await admin.json()).error.code, "owner_required");
+    assert.equal(ownerDenials.length, 1);
+    assert.equal(ownerDenials[0].account.state, state);
   }
 });
 

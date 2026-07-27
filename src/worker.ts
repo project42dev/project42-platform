@@ -28,7 +28,9 @@ import type {
   Project42Role,
 } from "./api-contract.js";
 
-type WorkerEnvironment = Env;
+type WorkerEnvironment = Omit<Env, "DOMAIN_APPROVAL_ENABLED"> & {
+  DOMAIN_APPROVAL_ENABLED?: string;
+};
 
 interface AccountRow {
   id: string;
@@ -1088,6 +1090,31 @@ class D1Project42Repository {
     return result.results;
   }
 
+  async recordOwnerAuthorizationDenied(input: {
+    account: Account;
+    method: string;
+    path: string;
+    requestId: string;
+    now: string;
+  }): Promise<void> {
+    await this.auditStatement({
+      id: crypto.randomUUID(),
+      actor: input.account.identity,
+      actorUserId: input.account.id,
+      action: "authorization.owner.denied",
+      targetType: "admin_route",
+      targetId: input.path,
+      requestId: input.requestId,
+      outcome: "denied",
+      reason: "An approved owner role is required.",
+      metadata: {
+        method: input.method,
+        accountState: input.account.state,
+      },
+      now: input.now,
+    }).run();
+  }
+
   async completeDeletion(input: {
     actor: Account;
     deletionRequestId: string;
@@ -1375,8 +1402,21 @@ function requireApproved(account: Account): void {
   }
 }
 
-function requireOwner(account: Account): void {
+async function requireOwner(
+  account: Account,
+  repository: D1Project42Repository,
+  request: Request,
+  requestId: string,
+  now: string,
+): Promise<void> {
   if (!isOwner(account)) {
+    await repository.recordOwnerAuthorizationDenied({
+      account,
+      method: request.method,
+      path: new URL(request.url).pathname,
+      requestId,
+      now,
+    });
     throw new ApiFailure(403, "owner_required", "An approved owner account is required.");
   }
 }
@@ -1394,6 +1434,16 @@ function requireRecentAuthentication(identity: VerifiedIdentity, now: string): v
       401,
       "recent_authentication_required",
       "Sign in again before exporting or deleting account data.",
+    );
+  }
+}
+
+function requireDomainApprovalEnabled(env: WorkerEnvironment): void {
+  if (env.DOMAIN_APPROVAL_ENABLED !== "true") {
+    throw new ApiFailure(
+      409,
+      "domain_approval_not_enabled",
+      "Exact-domain automatic approval is unavailable until the deployment validates its verified-email token contract.",
     );
   }
 }
@@ -1638,7 +1688,7 @@ async function handleRequest(
     }
 
     if (url.pathname === "/v1/admin/accounts" && request.method === "GET") {
-      requireOwner(account);
+      await requireOwner(account, repository, request, requestId, now);
       const stateValue = url.searchParams.get("state");
       const state =
         stateValue && ACCOUNT_STATES.includes(stateValue as AccountState)
@@ -1651,7 +1701,7 @@ async function handleRequest(
     }
     const accountMatch = url.pathname.match(/^\/v1\/admin\/accounts\/([^/]+)\/state$/);
     if (accountMatch && request.method === "PATCH") {
-      requireOwner(account);
+      await requireOwner(account, repository, request, requestId, now);
       const body = await readJson<{ state: AccountState; reason: string }>(request);
       if (!ACCOUNT_STATES.includes(body.state)) {
         throw new ApiFailure(400, "invalid_account_state", "Unknown account state.");
@@ -1671,11 +1721,20 @@ async function handleRequest(
     }
 
     if (url.pathname === "/v1/admin/domains" && request.method === "GET") {
-      requireOwner(account);
-      return json({ domains: await repository.listDomains() }, 200, requestId, origin);
+      await requireOwner(account, repository, request, requestId, now);
+      return json(
+        {
+          domains: await repository.listDomains(),
+          automaticApprovalEnabled: env.DOMAIN_APPROVAL_ENABLED === "true",
+        },
+        200,
+        requestId,
+        origin,
+      );
     }
     if (url.pathname === "/v1/admin/domains" && request.method === "POST") {
-      requireOwner(account);
+      await requireOwner(account, repository, request, requestId, now);
+      requireDomainApprovalEnabled(env);
       const body = await readJson<CreateDomainRuleRequest>(request);
       if (!body.reason || body.reason.trim().length < 5 || body.reason.length > 500) {
         throw new ApiFailure(400, "invalid_reason", "A reason between 5 and 500 characters is required.");
@@ -1690,7 +1749,7 @@ async function handleRequest(
     }
     const domainMatch = url.pathname.match(/^\/v1\/admin\/domains\/([^/]+)$/);
     if (domainMatch && request.method === "PATCH") {
-      requireOwner(account);
+      await requireOwner(account, repository, request, requestId, now);
       const body = await readJson<{ enabled: boolean; reason: string }>(request);
       if (typeof body.enabled !== "boolean") {
         throw new ApiFailure(400, "invalid_domain_state", "Enabled must be true or false.");
@@ -1698,6 +1757,7 @@ async function handleRequest(
       if (!body.reason || body.reason.trim().length < 5 || body.reason.length > 500) {
         throw new ApiFailure(400, "invalid_reason", "A reason between 5 and 500 characters is required.");
       }
+      if (body.enabled) requireDomainApprovalEnabled(env);
       const domain = await repository.setDomainEnabled({
         actor: account,
         domainId: decodeURIComponent(domainMatch[1] ?? ""),
@@ -1709,11 +1769,11 @@ async function handleRequest(
       return json({ domain }, 200, requestId, origin);
     }
     if (url.pathname === "/v1/admin/audit" && request.method === "GET") {
-      requireOwner(account);
+      await requireOwner(account, repository, request, requestId, now);
       return json({ events: await repository.listAuditEvents() }, 200, requestId, origin);
     }
     if (url.pathname === "/v1/admin/deletions" && request.method === "GET") {
-      requireOwner(account);
+      await requireOwner(account, repository, request, requestId, now);
       return json(
         { requests: await repository.listPendingDeletions() },
         200,
@@ -1725,7 +1785,7 @@ async function handleRequest(
       /^\/v1\/admin\/deletions\/([^/]+)\/complete$/,
     );
     if (deletionMatch && request.method === "POST") {
-      requireOwner(account);
+      await requireOwner(account, repository, request, requestId, now);
       requireRecentAuthentication(identity, now);
       const body = await readJson<{ reason: string }>(request);
       if (!body.reason || body.reason.trim().length < 5 || body.reason.length > 500) {
