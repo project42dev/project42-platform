@@ -28,8 +28,15 @@ The migrations create tenant-scoped tables for:
 - assessment attempts and scores;
 - transcript projections and earned badges;
 - idempotent browser-progress imports;
-- consent and deletion workflow records; and
-- append-only administrative audit events.
+- consent and deletion workflow records;
+- pseudonymous deletion tombstones; and
+- append-only administrative audit events with narrowly controlled privacy
+  redaction during verified deletion.
+
+The Worker exposes learner consent, portable JSON export, and deletion controls
+under `/v1/me`. Export and deletion operations require an access token issued
+within the previous 15 minutes. Account deletion uses a seven-day cancellation
+window and must be completed by an approved owner after the window closes.
 
 Run migrations against a separately provisioned remote D1 database only after
 placing its ID in private deployment configuration:

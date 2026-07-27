@@ -95,11 +95,17 @@ Owners may move accounts through these transitions:
 
 ```text
 pending -> approved -> suspended -> approved
-   |           |           |
-   +-----------+-----------+-> revoked
+   |          |             |
+   |          +-------------+-> revoked
+   |
+   +-> rejected -> approved
+          |
+          +--------------------> revoked
 ```
 
-`revoked` is terminal. Every state and domain-policy change is audited.
+Use `rejected` for a registration decision that an owner may reconsider. Use
+`revoked` for a terminal security or policy decision. Every state and
+domain-policy change is audited.
 
 ## Validation checklist
 
@@ -107,8 +113,12 @@ Before production:
 
 1. Test valid, expired, wrong-issuer, wrong-audience, and unknown-key tokens.
 2. Confirm the browser uses PKCE and stores no client secret.
-3. Confirm pending, suspended, and revoked accounts cannot read or write progress.
+3. Confirm pending, rejected, suspended, and revoked accounts cannot read or write
+   progress.
 4. Confirm only approved owners can manage accounts and domains.
 5. Test exact-domain rules with subdomain and look-alike negative cases.
 6. Rotate the signing key and verify JWKS refresh.
 7. Export and restore the database into an isolated environment.
+8. Confirm export and deletion require authentication issued within 15 minutes.
+9. Confirm deletion observes the cancellation window, removes active learner data,
+   redacts retained audit identity fields, and leaves only a pseudonymous tombstone.

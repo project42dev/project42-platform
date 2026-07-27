@@ -6,6 +6,7 @@ import {
   type LearnerProgress,
 } from "./index.js";
 import {
+  ACCOUNT_STATES,
   canTransitionAccount,
   getVerifiedEmailDomain,
   normalizeExactDomain,
@@ -15,8 +16,12 @@ import {
 } from "./identity.js";
 import type {
   Account,
+  ConsentDecision,
+  ConsentRecord,
   CreateDomainRuleRequest,
+  DeletionRequest,
   DomainRule,
+  LearnerDataExport,
   ProgressEnvelope,
   ProgressImportRequest,
   Project42Role,
@@ -45,6 +50,22 @@ interface DomainRow {
   policy_version: number;
   created_at: string;
   updated_at: string;
+}
+
+interface ConsentRow {
+  id: string;
+  purpose: string;
+  policy_version: string;
+  decision: ConsentDecision;
+  decided_at: string;
+}
+
+interface DeletionRequestRow {
+  id: string;
+  state: DeletionRequest["state"];
+  requested_at: string;
+  cancellation_deadline: string;
+  completed_at: string | null;
 }
 
 class ApiFailure extends Error {
@@ -95,6 +116,7 @@ class OidcJwtVerifier implements IdentityVerifier {
           typeof displayNameValue === "string" && displayNameValue.trim()
             ? displayNameValue.trim()
             : null,
+        ...(typeof payload.iat === "number" ? { issuedAt: payload.iat } : {}),
       };
     } catch (error) {
       if (error instanceof ApiFailure) throw error;
@@ -736,6 +758,465 @@ class D1Project42Repository {
     };
   }
 
+  async listConsents(userId: string): Promise<ConsentRecord[]> {
+    const result = await this.db
+      .prepare(
+        `SELECT id, purpose, policy_version, decision, decided_at
+           FROM consent_records
+          WHERE installation_id = ? AND user_id = ?
+          ORDER BY decided_at ASC`,
+      )
+      .bind(this.installationId, userId)
+      .all<ConsentRow>();
+    return result.results.map(mapConsent);
+  }
+
+  async recordConsent(input: {
+    account: Account;
+    purpose: string;
+    policyVersion: string;
+    decision: ConsentDecision;
+    requestId: string;
+    now: string;
+  }): Promise<ConsentRecord> {
+    const consent: ConsentRecord = {
+      id: crypto.randomUUID(),
+      purpose: input.purpose,
+      policyVersion: input.policyVersion,
+      decision: input.decision,
+      decidedAt: input.now,
+    };
+    await this.db.batch([
+      this.db
+        .prepare(
+          `INSERT INTO consent_records (
+             id, installation_id, user_id, purpose, policy_version, decision, decided_at
+           ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .bind(
+          consent.id,
+          this.installationId,
+          input.account.id,
+          consent.purpose,
+          consent.policyVersion,
+          consent.decision,
+          consent.decidedAt,
+        ),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.account.identity,
+        actorUserId: input.account.id,
+        action: "consent.record",
+        targetType: "consent",
+        targetId: consent.id,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: `${consent.purpose}:${consent.decision}`,
+        metadata: {
+          purpose: consent.purpose,
+          policyVersion: consent.policyVersion,
+          decision: consent.decision,
+        },
+        now: input.now,
+      }),
+    ]);
+    return consent;
+  }
+
+  async listDeletionRequests(userId: string): Promise<DeletionRequest[]> {
+    const result = await this.db
+      .prepare(
+        `SELECT id, state, requested_at, cancellation_deadline, completed_at
+           FROM deletion_requests
+          WHERE installation_id = ? AND user_id = ?
+          ORDER BY requested_at DESC`,
+      )
+      .bind(this.installationId, userId)
+      .all<DeletionRequestRow>();
+    return result.results.map(mapDeletionRequest);
+  }
+
+  async requestDeletion(input: {
+    account: Account;
+    requestId: string;
+    now: string;
+  }): Promise<DeletionRequest> {
+    const existing = await this.db
+      .prepare(
+        `SELECT id, state, requested_at, cancellation_deadline, completed_at
+           FROM deletion_requests
+          WHERE installation_id = ? AND user_id = ?
+            AND state IN ('requested', 'processing')
+          ORDER BY requested_at DESC
+          LIMIT 1`,
+      )
+      .bind(this.installationId, input.account.id)
+      .first<DeletionRequestRow>();
+    if (existing) return mapDeletionRequest(existing);
+
+    const deletionRequest: DeletionRequest = {
+      id: crypto.randomUUID(),
+      state: "requested",
+      requestedAt: input.now,
+      cancellationDeadline: new Date(
+        Date.parse(input.now) + 7 * 24 * 60 * 60 * 1_000,
+      ).toISOString(),
+      completedAt: null,
+    };
+    await this.db.batch([
+      this.db
+        .prepare(
+          `INSERT INTO deletion_requests (
+             id, installation_id, user_id, state, requested_at,
+             cancellation_deadline, completed_at
+           ) VALUES (?, ?, ?, 'requested', ?, ?, NULL)`,
+        )
+        .bind(
+          deletionRequest.id,
+          this.installationId,
+          input.account.id,
+          deletionRequest.requestedAt,
+          deletionRequest.cancellationDeadline,
+        ),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.account.identity,
+        actorUserId: input.account.id,
+        action: "deletion.request",
+        targetType: "user",
+        targetId: input.account.id,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: "Learner requested account and learner-data deletion.",
+        metadata: {
+          deletionRequestId: deletionRequest.id,
+          cancellationDeadline: deletionRequest.cancellationDeadline,
+        },
+        now: input.now,
+      }),
+    ]);
+    return deletionRequest;
+  }
+
+  async cancelDeletion(input: {
+    account: Account;
+    requestId: string;
+    now: string;
+  }): Promise<DeletionRequest> {
+    const existing = await this.db
+      .prepare(
+        `SELECT id, state, requested_at, cancellation_deadline, completed_at
+           FROM deletion_requests
+          WHERE installation_id = ? AND user_id = ? AND state = 'requested'
+          ORDER BY requested_at DESC
+          LIMIT 1`,
+      )
+      .bind(this.installationId, input.account.id)
+      .first<DeletionRequestRow>();
+    if (!existing) {
+      throw new ApiFailure(
+        404,
+        "deletion_request_not_found",
+        "No cancellable deletion request was found.",
+      );
+    }
+    if (Date.parse(input.now) >= Date.parse(existing.cancellation_deadline)) {
+      throw new ApiFailure(
+        409,
+        "deletion_cancellation_closed",
+        "The deletion cancellation period has ended.",
+      );
+    }
+    await this.db.batch([
+      this.db
+        .prepare(
+          `UPDATE deletion_requests SET state = 'cancelled'
+            WHERE installation_id = ? AND user_id = ? AND id = ? AND state = 'requested'`,
+        )
+        .bind(this.installationId, input.account.id, existing.id),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.account.identity,
+        actorUserId: input.account.id,
+        action: "deletion.cancel",
+        targetType: "user",
+        targetId: input.account.id,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: "Learner cancelled the pending deletion request.",
+        metadata: { deletionRequestId: existing.id },
+        now: input.now,
+      }),
+    ]);
+    return {
+      ...mapDeletionRequest(existing),
+      state: "cancelled",
+    };
+  }
+
+  async exportLearnerData(input: {
+    account: Account;
+    requestId: string;
+    now: string;
+  }): Promise<LearnerDataExport> {
+    const [
+      progress,
+      moduleProgress,
+      assessmentAttempts,
+      transcriptEntries,
+      badges,
+      consents,
+      deletionRequests,
+      approvalDecisions,
+    ] = await Promise.all([
+      this.getProgress(input.account.id),
+      this.db
+        .prepare(
+          `SELECT path_id AS pathId, module_id AS moduleId,
+                  content_version AS contentVersion, status,
+                  first_seen_at AS firstSeenAt, completed_at AS completedAt,
+                  updated_at AS updatedAt
+             FROM module_progress
+            WHERE installation_id = ? AND user_id = ?
+            ORDER BY updated_at ASC`,
+        )
+        .bind(this.installationId, input.account.id)
+        .all<Record<string, unknown>>(),
+      this.db
+        .prepare(
+          `SELECT id, path_id AS pathId, module_id AS moduleId,
+                  content_version AS contentVersion, score_percent AS scorePercent,
+                  passed, completed_at AS completedAt, recorded_at AS recordedAt
+             FROM assessment_attempts
+            WHERE installation_id = ? AND user_id = ?
+            ORDER BY completed_at ASC`,
+        )
+        .bind(this.installationId, input.account.id)
+        .all<Record<string, unknown>>(),
+      this.db
+        .prepare(
+          `SELECT path_id AS pathId, path_title AS pathTitle,
+                  completed_modules AS completedModules, total_modules AS totalModules,
+                  completion_percent AS completionPercent,
+                  best_score_percent AS bestScorePercent,
+                  content_version AS contentVersion, updated_at AS updatedAt
+             FROM transcript_entries
+            WHERE installation_id = ? AND user_id = ?
+            ORDER BY path_id ASC`,
+        )
+        .bind(this.installationId, input.account.id)
+        .all<Record<string, unknown>>(),
+      this.db
+        .prepare(
+          `SELECT badge_id AS badgeId, name, description, earned_at AS earnedAt,
+                  evidence_module_ids_json AS evidenceModuleIds,
+                  recorded_at AS recordedAt
+             FROM user_badges
+            WHERE installation_id = ? AND user_id = ?
+            ORDER BY earned_at ASC`,
+        )
+        .bind(this.installationId, input.account.id)
+        .all<Record<string, unknown>>(),
+      this.listConsents(input.account.id),
+      this.listDeletionRequests(input.account.id),
+      this.db
+        .prepare(
+          `SELECT id, from_state AS fromState, to_state AS toState,
+                  decision_kind AS decisionKind, reason, decided_at AS decidedAt
+             FROM approval_decisions
+            WHERE installation_id = ? AND user_id = ?
+            ORDER BY decided_at ASC`,
+        )
+        .bind(this.installationId, input.account.id)
+        .all<Record<string, unknown>>(),
+    ]);
+    await this.db.batch([
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.account.identity,
+        actorUserId: input.account.id,
+        action: "data.export",
+        targetType: "user",
+        targetId: input.account.id,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: "Learner exported their Project 42 account and learning data.",
+        metadata: { schemaVersion: 1 },
+        now: input.now,
+      }),
+    ]);
+    return {
+      schemaVersion: 1,
+      exportedAt: input.now,
+      account: input.account,
+      progress,
+      moduleProgress: moduleProgress.results,
+      assessmentAttempts: assessmentAttempts.results.map((attempt) => ({
+        ...attempt,
+        passed: attempt.passed === 1,
+      })),
+      transcriptEntries: transcriptEntries.results,
+      badges: badges.results.map((badge) => ({
+        ...badge,
+        evidenceModuleIds:
+          typeof badge.evidenceModuleIds === "string"
+            ? JSON.parse(badge.evidenceModuleIds)
+            : badge.evidenceModuleIds,
+      })),
+      consents,
+      deletionRequests,
+      approvalDecisions: approvalDecisions.results,
+    };
+  }
+
+  async listPendingDeletions(): Promise<unknown[]> {
+    const result = await this.db
+      .prepare(
+        `SELECT d.id, d.user_id AS userId, d.state,
+                d.requested_at AS requestedAt,
+                d.cancellation_deadline AS cancellationDeadline,
+                u.display_name AS displayName, u.primary_email AS primaryEmail
+           FROM deletion_requests d
+           JOIN users u
+             ON u.installation_id = d.installation_id AND u.id = d.user_id
+          WHERE d.installation_id = ? AND d.state IN ('requested', 'processing')
+          ORDER BY d.requested_at ASC`,
+      )
+      .bind(this.installationId)
+      .all<Record<string, unknown>>();
+    return result.results;
+  }
+
+  async completeDeletion(input: {
+    actor: Account;
+    deletionRequestId: string;
+    reason: string;
+    requestId: string;
+    now: string;
+  }): Promise<{ deletionRequestId: string; completedAt: string; subjectDigest: string }> {
+    const deletion = await this.db
+      .prepare(
+        `SELECT d.id, d.user_id, d.state, d.requested_at, d.cancellation_deadline,
+                i.issuer, i.subject,
+                EXISTS (
+                  SELECT 1 FROM role_assignments r
+                   WHERE r.installation_id = d.installation_id
+                     AND r.user_id = d.user_id AND r.role = 'owner'
+                ) AS is_owner
+           FROM deletion_requests d
+           JOIN user_identities i
+             ON i.installation_id = d.installation_id AND i.user_id = d.user_id
+          WHERE d.installation_id = ? AND d.id = ?
+          LIMIT 1`,
+      )
+      .bind(this.installationId, input.deletionRequestId)
+      .first<{
+        id: string;
+        user_id: string;
+        state: DeletionRequest["state"];
+        requested_at: string;
+        cancellation_deadline: string;
+        issuer: string;
+        subject: string;
+        is_owner: number;
+      }>();
+    if (!deletion || !["requested", "processing"].includes(deletion.state)) {
+      throw new ApiFailure(
+        404,
+        "deletion_request_not_found",
+        "An active deletion request was not found.",
+      );
+    }
+    if (deletion.is_owner === 1) {
+      throw new ApiFailure(
+        409,
+        "owner_transfer_required",
+        "Transfer or remove the owner role before deleting this account.",
+      );
+    }
+    if (Date.parse(input.now) < Date.parse(deletion.cancellation_deadline)) {
+      throw new ApiFailure(
+        409,
+        "deletion_cancellation_open",
+        "The deletion request is still inside its cancellation period.",
+      );
+    }
+    const subjectDigest = await sha256(`${deletion.issuer}\n${deletion.subject}`);
+    await this.db.batch([
+      this.db
+        .prepare(
+          `UPDATE audit_events
+              SET actor_user_id = CASE
+                    WHEN actor_user_id = ? THEN NULL ELSE actor_user_id
+                  END,
+                  actor_issuer = CASE
+                    WHEN actor_user_id = ? THEN NULL ELSE actor_issuer
+                  END,
+                  actor_subject = CASE
+                    WHEN actor_user_id = ? THEN NULL ELSE actor_subject
+                  END,
+                  target_id = CASE
+                    WHEN target_type = 'user' AND target_id = ? THEN NULL
+                    ELSE target_id
+                  END
+            WHERE installation_id = ?
+              AND (
+                actor_user_id = ? OR
+                (target_type = 'user' AND target_id = ?)
+              )`,
+        )
+        .bind(
+          deletion.user_id,
+          deletion.user_id,
+          deletion.user_id,
+          deletion.user_id,
+          this.installationId,
+          deletion.user_id,
+          deletion.user_id,
+        ),
+      this.db
+        .prepare(
+          `INSERT INTO deletion_tombstones (
+             id, installation_id, subject_digest, deletion_request_id,
+             requested_at, completed_at, completed_by_user_id
+           ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .bind(
+          crypto.randomUUID(),
+          this.installationId,
+          subjectDigest,
+          deletion.id,
+          deletion.requested_at,
+          input.now,
+          input.actor.id,
+        ),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.actor.identity,
+        actorUserId: input.actor.id,
+        action: "deletion.complete",
+        targetType: "deletion_tombstone",
+        targetId: subjectDigest,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: input.reason,
+        metadata: {
+          deletionRequestId: deletion.id,
+          subjectDigest,
+        },
+        now: input.now,
+      }),
+      this.db
+        .prepare(`DELETE FROM users WHERE installation_id = ? AND id = ?`)
+        .bind(this.installationId, deletion.user_id),
+    ]);
+    return {
+      deletionRequestId: deletion.id,
+      completedAt: input.now,
+      subjectDigest,
+    };
+  }
+
   async listAuditEvents(): Promise<unknown[]> {
     const result = await this.db
       .prepare(
@@ -822,6 +1303,26 @@ function mapDomain(row: DomainRow): DomainRule {
   };
 }
 
+function mapConsent(row: ConsentRow): ConsentRecord {
+  return {
+    id: row.id,
+    purpose: row.purpose,
+    policyVersion: row.policy_version,
+    decision: row.decision,
+    decidedAt: row.decided_at,
+  };
+}
+
+function mapDeletionRequest(row: DeletionRequestRow): DeletionRequest {
+  return {
+    id: row.id,
+    state: row.state,
+    requestedAt: row.requested_at,
+    cancellationDeadline: row.cancellation_deadline,
+    completedAt: row.completed_at,
+  };
+}
+
 function validateProgress(value: LearnerProgress): void {
   if (
     value.schemaVersion !== 1 ||
@@ -867,6 +1368,23 @@ function requireApproved(account: Account): void {
 function requireOwner(account: Account): void {
   if (!isOwner(account)) {
     throw new ApiFailure(403, "owner_required", "An approved owner account is required.");
+  }
+}
+
+function requireRecentAuthentication(identity: VerifiedIdentity, now: string): void {
+  const issuedAt = identity.issuedAt;
+  const nowSeconds = Math.floor(Date.parse(now) / 1_000);
+  if (
+    typeof issuedAt !== "number" ||
+    !Number.isFinite(issuedAt) ||
+    issuedAt > nowSeconds + 60 ||
+    nowSeconds - issuedAt > 15 * 60
+  ) {
+    throw new ApiFailure(
+      401,
+      "recent_authentication_required",
+      "Sign in again before exporting or deleting account data.",
+    );
   }
 }
 
@@ -938,7 +1456,10 @@ async function handleRequest(
     if (request.method === "OPTIONS") {
       if (!origin) throw new ApiFailure(400, "origin_required", "CORS preflight requires an origin.");
       const response = json({}, 204, requestId, origin);
-      response.headers.set("access-control-allow-methods", "GET,POST,PATCH,PUT,OPTIONS");
+      response.headers.set(
+        "access-control-allow-methods",
+        "DELETE,GET,POST,PATCH,PUT,OPTIONS",
+      );
       response.headers.set(
         "access-control-allow-headers",
         "authorization,content-type,x-request-id",
@@ -1004,12 +1525,112 @@ async function handleRequest(
       });
       return json({ progress }, 200, requestId, origin);
     }
+    if (request.method === "GET" && url.pathname === "/v1/me/consents") {
+      return json(
+        { consents: await repository.listConsents(account.id) },
+        200,
+        requestId,
+        origin,
+      );
+    }
+    if (request.method === "POST" && url.pathname === "/v1/me/consents") {
+      const body = await readJson<{
+        purpose: string;
+        policyVersion: string;
+        decision: ConsentDecision;
+      }>(request);
+      if (
+        typeof body.purpose !== "string" ||
+        !/^[a-z][a-z0-9-]{2,63}$/.test(body.purpose)
+      ) {
+        throw new ApiFailure(
+          400,
+          "invalid_consent_purpose",
+          "Consent purpose must be a stable lowercase identifier.",
+        );
+      }
+      if (
+        typeof body.policyVersion !== "string" ||
+        body.policyVersion.trim().length < 1 ||
+        body.policyVersion.length > 64
+      ) {
+        throw new ApiFailure(
+          400,
+          "invalid_policy_version",
+          "A policy version of at most 64 characters is required.",
+        );
+      }
+      if (!["granted", "withdrawn"].includes(body.decision)) {
+        throw new ApiFailure(
+          400,
+          "invalid_consent_decision",
+          "Consent decision must be granted or withdrawn.",
+        );
+      }
+      const consent = await repository.recordConsent({
+        account,
+        purpose: body.purpose,
+        policyVersion: body.policyVersion.trim(),
+        decision: body.decision,
+        requestId,
+        now,
+      });
+      return json({ consent }, 201, requestId, origin);
+    }
+    if (request.method === "GET" && url.pathname === "/v1/me/export") {
+      requireRecentAuthentication(identity, now);
+      const response = json(
+        { export: await repository.exportLearnerData({ account, requestId, now }) },
+        200,
+        requestId,
+        origin,
+      );
+      response.headers.set(
+        "content-disposition",
+        `attachment; filename="project42-learner-export-${now.slice(0, 10)}.json"`,
+      );
+      return response;
+    }
+    if (request.method === "GET" && url.pathname === "/v1/me/deletion") {
+      return json(
+        { requests: await repository.listDeletionRequests(account.id) },
+        200,
+        requestId,
+        origin,
+      );
+    }
+    if (request.method === "POST" && url.pathname === "/v1/me/deletion") {
+      requireRecentAuthentication(identity, now);
+      const body = await readJson<{ confirmation: string }>(request);
+      if (body.confirmation !== "DELETE MY PROJECT 42 ACCOUNT") {
+        throw new ApiFailure(
+          400,
+          "deletion_confirmation_required",
+          "Enter the required deletion confirmation exactly.",
+        );
+      }
+      const deletionRequest = await repository.requestDeletion({
+        account,
+        requestId,
+        now,
+      });
+      return json({ deletionRequest }, 202, requestId, origin);
+    }
+    if (request.method === "DELETE" && url.pathname === "/v1/me/deletion") {
+      requireRecentAuthentication(identity, now);
+      const deletionRequest = await repository.cancelDeletion({
+        account,
+        requestId,
+        now,
+      });
+      return json({ deletionRequest }, 200, requestId, origin);
+    }
 
     if (url.pathname === "/v1/admin/accounts" && request.method === "GET") {
       requireOwner(account);
       const stateValue = url.searchParams.get("state");
       const state =
-        stateValue && ["pending", "approved", "suspended", "revoked"].includes(stateValue)
+        stateValue && ACCOUNT_STATES.includes(stateValue as AccountState)
           ? (stateValue as AccountState)
           : undefined;
       if (stateValue && !state) {
@@ -1021,7 +1642,7 @@ async function handleRequest(
     if (accountMatch && request.method === "PATCH") {
       requireOwner(account);
       const body = await readJson<{ state: AccountState; reason: string }>(request);
-      if (!["pending", "approved", "suspended", "revoked"].includes(body.state)) {
+      if (!ACCOUNT_STATES.includes(body.state)) {
         throw new ApiFailure(400, "invalid_account_state", "Unknown account state.");
       }
       if (!body.reason || body.reason.trim().length < 5 || body.reason.length > 500) {
@@ -1079,6 +1700,38 @@ async function handleRequest(
     if (url.pathname === "/v1/admin/audit" && request.method === "GET") {
       requireOwner(account);
       return json({ events: await repository.listAuditEvents() }, 200, requestId, origin);
+    }
+    if (url.pathname === "/v1/admin/deletions" && request.method === "GET") {
+      requireOwner(account);
+      return json(
+        { requests: await repository.listPendingDeletions() },
+        200,
+        requestId,
+        origin,
+      );
+    }
+    const deletionMatch = url.pathname.match(
+      /^\/v1\/admin\/deletions\/([^/]+)\/complete$/,
+    );
+    if (deletionMatch && request.method === "POST") {
+      requireOwner(account);
+      requireRecentAuthentication(identity, now);
+      const body = await readJson<{ reason: string }>(request);
+      if (!body.reason || body.reason.trim().length < 5 || body.reason.length > 500) {
+        throw new ApiFailure(
+          400,
+          "invalid_reason",
+          "A reason between 5 and 500 characters is required.",
+        );
+      }
+      const completion = await repository.completeDeletion({
+        actor: account,
+        deletionRequestId: decodeURIComponent(deletionMatch[1] ?? ""),
+        reason: body.reason.trim(),
+        requestId,
+        now,
+      });
+      return json({ completion }, 200, requestId, origin);
     }
 
     throw new ApiFailure(404, "route_not_found", "API route was not found.");

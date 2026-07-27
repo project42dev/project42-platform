@@ -26,6 +26,11 @@ contracts—not the private PMO records or Project42dev production configuration
   append-only authorization audits.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.46.0` completes the account lifecycle with a reversible rejected state
+and adds recent-authentication-protected learner-data export, consent history,
+seven-day account deletion, owner completion controls, and pseudonymous deletion
+tombstones.
+
 Release `0.45.0` restores four practical workflow recipes for stack-trace
 debugging, bounded critic loops, documentation backfill, and legacy refactoring.
 

@@ -40,6 +40,7 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
       "INSERT INTO users VALUES ('u1','test','Learner','learner@example.com',1,'pending','2026-07-26','2026-07-26');",
       "INSERT INTO user_identities VALUES ('test','https://issuer.example','sub-1','u1','2026-07-26');",
       "INSERT INTO role_assignments VALUES ('test','u1','learner',NULL,'2026-07-26');",
+      "INSERT INTO approved_email_domains (id,installation_id,domain,enabled,created_by_user_id,created_at,updated_at,policy_version) VALUES ('d1','test','example.com',1,'u1','2026-07-26','2026-07-26',1);",
       "INSERT INTO audit_events (id,installation_id,actor_user_id,actor_issuer,actor_subject,action,target_type,target_id,request_id,outcome,reason,metadata_json,occurred_at) VALUES ('a1','test','u1','https://issuer.example','sub-1','test.seed','user','u1','r1','success','seed','{}','2026-07-26');",
     ].join(" ");
     runWrangler(["d1", "execute", "PROJECT42_DB", ...common, "--command", seed]);
@@ -62,9 +63,21 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
       "approval_decisions",
       "approved_email_domains",
       "audit_events",
+      "consent_records",
+      "deletion_requests",
+      "deletion_tombstones",
     ]) {
       assert.match(tables, new RegExp(`\\b${table}\\b`));
     }
+
+    runWrangler([
+      "d1",
+      "execute",
+      "PROJECT42_DB",
+      ...common,
+      "--command",
+      "UPDATE users SET account_state='rejected' WHERE id='u1'; UPDATE users SET account_state='approved' WHERE id='u1';",
+    ]);
 
     const invalidTransition = runWrangler(
       [
@@ -73,7 +86,7 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
         "PROJECT42_DB",
         ...common,
         "--command",
-        "UPDATE users SET account_state='suspended' WHERE id='u1';",
+        "UPDATE users SET account_state='rejected' WHERE id='u1';",
       ],
       1,
     );
@@ -91,6 +104,15 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
       1,
     );
     assert.match(mutableAudit, /audit events are immutable/);
+
+    runWrangler([
+      "d1",
+      "execute",
+      "PROJECT42_DB",
+      ...common,
+      "--command",
+      "UPDATE audit_events SET actor_user_id=NULL, actor_issuer=NULL, actor_subject=NULL, target_id=NULL WHERE id='a1';",
+    ]);
 
     const foreignKeyGuard = runWrangler(
       [
@@ -114,7 +136,26 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
       "SELECT id, account_state FROM users WHERE id='u1';",
     ]);
     assert.match(recovered, /u1/);
-    assert.match(recovered, /pending/);
+    assert.match(recovered, /approved/);
+
+    runWrangler([
+      "d1",
+      "execute",
+      "PROJECT42_DB",
+      ...common,
+      "--command",
+      "DELETE FROM users WHERE id='u1';",
+    ]);
+    const retainedDomain = runWrangler([
+      "d1",
+      "execute",
+      "PROJECT42_DB",
+      ...common,
+      "--command",
+      "SELECT id, created_by_user_id FROM approved_email_domains WHERE id='d1';",
+    ]);
+    assert.match(retainedDomain, /d1/);
+    assert.doesNotMatch(retainedDomain, /u1/);
   } finally {
     rmSync(persistence, { recursive: true, force: true });
   }
