@@ -26,6 +26,12 @@ contracts—not the private PMO records or Project42dev production configuration
   append-only authorization audits.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.46.3` adds a real D1-backed account-service lifecycle gate and
+normalizes administrative audit events to the public camel-case API contract.
+The gate covers owner bootstrap, approvals, verified-domain policy, progress,
+assessment evidence, transcripts, badges, export, suspension, recovery,
+deletion, revocation, and audit correlation.
+
 Release `0.46.0` completes the account lifecycle with a reversible rejected state
 and adds recent-authentication-protected learner-data export, consent history,
 seven-day account deletion, owner completion controls, and pseudonymous deletion
