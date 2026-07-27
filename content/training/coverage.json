@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.41.0",
   "substantiveModuleCount": 64,
-  "classReadyModuleCount": 26,
-  "outlineOnlyModuleCount": 38,
+  "classReadyModuleCount": 27,
+  "outlineOnlyModuleCount": 37,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -357,8 +357,11 @@
       "pathIds": [
         "self-hosted-model-operations"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "model-incident-response-and-recovery-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/self-hosted-model-operations/model-incident-response-and-recovery/class-script.json"
     },
     {
       "moduleId": "model-update-and-rollback-lifecycle",
