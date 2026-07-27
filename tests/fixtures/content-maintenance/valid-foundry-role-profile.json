@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "1.0",
+  "id": "project42-maintenance-qualified-20260727",
+  "effectiveAt": "2026-07-27T12:00:00.000Z",
+  "stages": [
+    {
+      "stage": "evidence-research",
+      "primaryDeploymentAlias": "foundry-research-primary",
+      "providerFamily": "microsoft-ai",
+      "modelVersion": "research-qualified-2026-07",
+      "fallbackDeploymentAliases": ["foundry-research-fallback"],
+      "qualification": {
+        "benchmarkId": "maintenance-research-benchmark-1.0",
+        "evaluatedAt": "2026-07-27T10:00:00.000Z",
+        "score": 0.94,
+        "threshold": 0.9
+      }
+    },
+    {
+      "stage": "curriculum-writing",
+      "primaryDeploymentAlias": "foundry-writer-primary",
+      "providerFamily": "openai",
+      "modelVersion": "writer-qualified-2026-07",
+      "fallbackDeploymentAliases": ["foundry-writer-fallback"],
+      "qualification": {
+        "benchmarkId": "maintenance-writing-benchmark-1.0",
+        "evaluatedAt": "2026-07-27T10:10:00.000Z",
+        "score": 0.93,
+        "threshold": 0.9
+      }
+    },
+    {
+      "stage": "factual-verification",
+      "primaryDeploymentAlias": "foundry-verifier-primary",
+      "providerFamily": "anthropic",
+      "modelVersion": "verifier-qualified-2026-07",
+      "fallbackDeploymentAliases": ["foundry-verifier-fallback"],
+      "qualification": {
+        "benchmarkId": "maintenance-verification-benchmark-1.0",
+        "evaluatedAt": "2026-07-27T10:20:00.000Z",
+        "score": 0.96,
+        "threshold": 0.92
+      }
+    },
+    {
+      "stage": "assessment-review",
+      "primaryDeploymentAlias": "foundry-research-primary",
+      "providerFamily": "microsoft-ai",
+      "modelVersion": "assessment-qualified-2026-07",
+      "fallbackDeploymentAliases": ["foundry-research-fallback"],
+      "qualification": {
+        "benchmarkId": "maintenance-assessment-benchmark-1.0",
+        "evaluatedAt": "2026-07-27T10:30:00.000Z",
+        "score": 0.93,
+        "threshold": 0.9
+      }
+    },
+    {
+      "stage": "accessibility-review",
+      "primaryDeploymentAlias": "foundry-verifier-primary",
+      "providerFamily": "anthropic",
+      "modelVersion": "accessibility-qualified-2026-07",
+      "fallbackDeploymentAliases": ["foundry-verifier-fallback"],
+      "qualification": {
+        "benchmarkId": "maintenance-accessibility-benchmark-1.0",
+        "evaluatedAt": "2026-07-27T10:40:00.000Z",
+        "score": 0.95,
+        "threshold": 0.92
+      }
+    },
+    {
+      "stage": "release-proposal",
+      "primaryDeploymentAlias": "foundry-writer-primary",
+      "providerFamily": "openai",
+      "modelVersion": "release-qualified-2026-07",
+      "fallbackDeploymentAliases": ["foundry-writer-fallback"],
+      "qualification": {
+        "benchmarkId": "maintenance-release-benchmark-1.0",
+        "evaluatedAt": "2026-07-27T10:50:00.000Z",
+        "score": 0.92,
+        "threshold": 0.9
+      }
+    }
+  ]
+}
