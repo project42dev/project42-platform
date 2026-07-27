@@ -16,10 +16,11 @@ test("publishes a valid, versioned, pre-account learner-data policy", () => {
     errors: [],
   });
   assert.equal(defaultLearnerDataPolicy.schemaVersion, 1);
+  assert.equal(defaultLearnerDataPolicy.policyVersion, "2026-07-27");
   assert.equal(defaultLearnerDataPolicy.accountBackedRecords, "planned");
   assert.equal(defaultLearnerDataPolicy.identity.authoritativeKey, "issuer-subject");
   assert.equal(defaultLearnerDataPolicy.identity.emailIsAuthoritative, false);
-  assert.equal(defaultLearnerDataPolicy.adapters.hostedRecordStore, "sites-d1");
+  assert.equal(defaultLearnerDataPolicy.adapters.hostedRecordStore, "cloudflare-d1");
   assert.equal(defaultLearnerDataPolicy.adapters.referenceRecordStore, "postgresql");
 });
 
@@ -140,6 +141,9 @@ test("rejects unsafe identity, tenancy, export, deletion, and role policies", ()
   const invalidEffectiveDate = structuredClone(defaultLearnerDataPolicy);
   invalidEffectiveDate.effectiveDate = "soon";
 
+  const obsoleteHostedAdapter = structuredClone(defaultLearnerDataPolicy);
+  obsoleteHostedAdapter.adapters.hostedRecordStore = "sites-d1";
+
   for (const [policy, message] of [
     [unsafeIdentity, /issuer and subject|email cannot/],
     [unstableIdentity, /Authorization Code with PKCE|stable subject/],
@@ -148,6 +152,7 @@ test("rejects unsafe identity, tenancy, export, deletion, and role policies", ()
     [unsafeDeletion, /expire from backups/],
     [invalidRecovery, /recovery objectives/],
     [invalidEffectiveDate, /effectiveDate/],
+    [obsoleteHostedAdapter, /Cloudflare D1/],
     [unsafeEditor, /content editors/],
   ]) {
     const result = validateLearnerDataPolicy(policy);
