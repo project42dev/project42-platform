@@ -14,6 +14,9 @@ contracts—not the private PMO records or Project42dev production configuration
   stable slugs, typed audiences, formats, prerequisites, and review policy.
 - Modular curriculum files with hands-on activities and instructor-ready narration,
   scene, checkpoint, assessment, caption, transcript, and reduced-motion packages.
+- Provider-neutral class-script and immutable virtual-instructor media contracts with
+  multi-model provenance, independent verification, accessibility, and human release
+  gates ([production guide](docs/virtual-instructor-production.md)).
 - A primary-source registry and freshness gate for volatile content.
 - Provider-neutral curriculum with Anthropic, OpenAI, and selected-provider branches.
 - Pure assessment scoring and learner-progress functions.

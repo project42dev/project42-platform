@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-42.dev/schemas/training/virtual-instructor-media-manifest.schema.json",
+  "title": "Project 42 virtual-instructor media manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "version",
+    "classScript",
+    "production",
+    "artifacts",
+    "approvals",
+    "releaseStatus"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "id": { "$ref": "#/$defs/id" },
+    "version": { "$ref": "#/$defs/semver" },
+    "classScript": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "sha256"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "version": { "$ref": "#/$defs/semver" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "production": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "generatedAt",
+        "adapter",
+        "modelProfileRef",
+        "voiceProfileRef",
+        "pronunciationReviewEvidenceRef",
+        "disclosure"
+      ],
+      "properties": {
+        "mode": { "const": "pre-rendered" },
+        "generatedAt": { "$ref": "#/$defs/dateTime" },
+        "adapter": { "$ref": "#/$defs/id" },
+        "modelProfileRef": { "$ref": "#/$defs/id" },
+        "voiceProfileRef": { "$ref": "#/$defs/id" },
+        "avatarProfileRef": { "$ref": "#/$defs/id" },
+        "pronunciationReviewEvidenceRef": { "$ref": "#/$defs/id" },
+        "disclosure": { "type": "string", "minLength": 1 }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 5,
+      "items": { "$ref": "#/$defs/artifact" }
+    },
+    "approvals": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/mediaApproval" }
+    },
+    "releaseStatus": {
+      "enum": ["draft", "approved"]
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "dateTime": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+    },
+    "path": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*\\.\\.)(?!.*\\\\)[a-zA-Z0-9._/-]+$"
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "mediaType", "sha256", "locale"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "audio",
+            "video",
+            "captions",
+            "transcript",
+            "poster",
+            "text-only",
+            "reduced-motion"
+          ]
+        },
+        "path": { "$ref": "#/$defs/path" },
+        "mediaType": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "locale": { "type": "string", "minLength": 2, "maxLength": 35 }
+      }
+    },
+    "mediaApproval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "status", "reviewedAt", "evidenceRef"],
+      "properties": {
+        "role": {
+          "enum": [
+            "editorial",
+            "factual",
+            "accessibility",
+            "media-release"
+          ]
+        },
+        "status": { "const": "approved" },
+        "reviewedAt": { "$ref": "#/$defs/dateTime" },
+        "evidenceRef": { "$ref": "#/$defs/id" }
+      }
+    }
+  }
+}
