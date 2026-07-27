@@ -12,7 +12,10 @@ import { OidcJwtVerifier, handleRequest } from "../dist/worker.js";
 
 test("account states enforce approval, suspension, and terminal revocation", () => {
   assert.equal(canTransitionAccount("pending", "approved"), true);
+  assert.equal(canTransitionAccount("pending", "rejected"), true);
   assert.equal(canTransitionAccount("pending", "suspended"), false);
+  assert.equal(canTransitionAccount("rejected", "approved"), true);
+  assert.equal(canTransitionAccount("approved", "rejected"), false);
   assert.equal(canTransitionAccount("approved", "suspended"), true);
   assert.equal(canTransitionAccount("suspended", "approved"), true);
   assert.equal(canTransitionAccount("approved", "revoked"), true);
@@ -88,6 +91,7 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
     email: "learner@example.com",
     emailVerified: true,
     displayName: "Learner",
+    issuedAt: now,
   });
 
   const wrongAudience = await new SignJWT({})
@@ -172,4 +176,135 @@ test("API denies learner data until approval and protects owner routes", async (
   );
   assert.equal(admin.status, 403);
   assert.equal((await admin.json()).error.code, "owner_required");
+});
+
+test("data-rights routes require recent authentication and explicit deletion confirmation", async () => {
+  const issuedAt = Math.floor(Date.now() / 1000);
+  const identity = {
+    issuer: "https://issuer.example.test",
+    subject: "subject-2",
+    email: "approved@example.com",
+    emailVerified: true,
+    displayName: "Approved learner",
+    issuedAt,
+  };
+  const approved = {
+    id: "user-2",
+    installationId: "test",
+    identity: { issuer: identity.issuer, subject: identity.subject },
+    displayName: identity.displayName,
+    primaryEmail: identity.email,
+    emailVerified: true,
+    state: "approved",
+    roles: ["learner"],
+    createdAt: "2026-07-26T00:00:00.000Z",
+    updatedAt: "2026-07-26T00:00:00.000Z",
+  };
+  const calls = [];
+  const verifier = { verify: async () => identity };
+  const repository = {
+    ensureInstallation: async () => {},
+    findAccount: async () => approved,
+    listConsents: async () => [],
+    recordConsent: async (input) => {
+      calls.push(["consent", input]);
+      return {
+        id: "consent-1",
+        purpose: input.purpose,
+        policyVersion: input.policyVersion,
+        decision: input.decision,
+        decidedAt: input.now,
+      };
+    },
+    exportLearnerData: async (input) => {
+      calls.push(["export", input]);
+      return { schemaVersion: 1, exportedAt: input.now };
+    },
+    listDeletionRequests: async () => [],
+    requestDeletion: async (input) => {
+      calls.push(["request-deletion", input]);
+      return {
+        id: "deletion-1",
+        state: "requested",
+        requestedAt: input.now,
+        cancellationDeadline: new Date(Date.parse(input.now) + 86_400_000).toISOString(),
+        completedAt: null,
+      };
+    },
+  };
+  const env = {
+    INSTALLATION_ID: "test",
+    ALLOWED_ORIGINS: "https://learn.example.test",
+    BOOTSTRAP_OWNER_ISSUER: "",
+    BOOTSTRAP_OWNER_SUBJECT: "",
+  };
+
+  const consent = await handleRequest(
+    new Request("https://api.example.test/v1/me/consents", {
+      method: "POST",
+      body: JSON.stringify({
+        purpose: "learner-records",
+        policyVersion: "2026-07-26",
+        decision: "granted",
+      }),
+    }),
+    env,
+    verifier,
+    repository,
+  );
+  assert.equal(consent.status, 201);
+
+  const learnerExport = await handleRequest(
+    new Request("https://api.example.test/v1/me/export"),
+    env,
+    verifier,
+    repository,
+  );
+  assert.equal(learnerExport.status, 200);
+  assert.match(learnerExport.headers.get("content-disposition"), /project42-learner-export/);
+
+  const missingConfirmation = await handleRequest(
+    new Request("https://api.example.test/v1/me/deletion", {
+      method: "POST",
+      body: JSON.stringify({ confirmation: "delete" }),
+    }),
+    env,
+    verifier,
+    repository,
+  );
+  assert.equal(missingConfirmation.status, 400);
+  assert.equal(
+    (await missingConfirmation.json()).error.code,
+    "deletion_confirmation_required",
+  );
+
+  const deletion = await handleRequest(
+    new Request("https://api.example.test/v1/me/deletion", {
+      method: "POST",
+      body: JSON.stringify({ confirmation: "DELETE MY PROJECT 42 ACCOUNT" }),
+    }),
+    env,
+    verifier,
+    repository,
+  );
+  assert.equal(deletion.status, 202);
+  assert.deepEqual(
+    calls.map(([name]) => name),
+    ["consent", "export", "request-deletion"],
+  );
+
+  const staleVerifier = {
+    verify: async () => ({ ...identity, issuedAt: issuedAt - 3_600 }),
+  };
+  const staleExport = await handleRequest(
+    new Request("https://api.example.test/v1/me/export"),
+    env,
+    staleVerifier,
+    repository,
+  );
+  assert.equal(staleExport.status, 401);
+  assert.equal(
+    (await staleExport.json()).error.code,
+    "recent_authentication_required",
+  );
 });

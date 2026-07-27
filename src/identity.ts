@@ -1,6 +1,7 @@
 export const ACCOUNT_STATES = [
   "pending",
   "approved",
+  "rejected",
   "suspended",
   "revoked",
 ] as const;
@@ -13,6 +14,7 @@ export interface VerifiedIdentity {
   email: string | null;
   emailVerified: boolean;
   displayName: string | null;
+  issuedAt?: number;
 }
 
 export interface IdentityVerifier {
@@ -20,8 +22,9 @@ export interface IdentityVerifier {
 }
 
 const allowedTransitions: Readonly<Record<AccountState, readonly AccountState[]>> = {
-  pending: ["approved", "revoked"],
+  pending: ["approved", "rejected", "revoked"],
   approved: ["suspended", "revoked"],
+  rejected: ["approved", "revoked"],
   suspended: ["approved", "revoked"],
   revoked: [],
 };

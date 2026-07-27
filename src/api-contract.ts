@@ -48,6 +48,44 @@ export interface CreateDomainRuleRequest {
   reason: string;
 }
 
+export type ConsentDecision = "granted" | "withdrawn";
+
+export interface ConsentRecord {
+  id: string;
+  purpose: string;
+  policyVersion: string;
+  decision: ConsentDecision;
+  decidedAt: string;
+}
+
+export type DeletionRequestState =
+  | "requested"
+  | "cancelled"
+  | "processing"
+  | "completed";
+
+export interface DeletionRequest {
+  id: string;
+  state: DeletionRequestState;
+  requestedAt: string;
+  cancellationDeadline: string;
+  completedAt: string | null;
+}
+
+export interface LearnerDataExport {
+  schemaVersion: 1;
+  exportedAt: string;
+  account: Account;
+  progress: ProgressEnvelope;
+  moduleProgress: unknown[];
+  assessmentAttempts: unknown[];
+  transcriptEntries: unknown[];
+  badges: unknown[];
+  consents: ConsentRecord[];
+  deletionRequests: DeletionRequest[];
+  approvalDecisions: unknown[];
+}
+
 export interface ApiErrorBody {
   error: {
     code: string;
