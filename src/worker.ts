@@ -42,6 +42,7 @@ interface DomainRow {
   id: string;
   domain: string;
   enabled: number;
+  policy_version: number;
   created_at: string;
   updated_at: string;
 }
@@ -182,11 +183,11 @@ class D1Project42Repository {
     const domainRule = verifiedDomain
       ? await this.db
           .prepare(
-            `SELECT id, domain FROM approved_email_domains
+            `SELECT id, domain, policy_version FROM approved_email_domains
               WHERE installation_id = ? AND domain = ? AND enabled = 1`,
           )
           .bind(this.installationId, verifiedDomain)
-          .first<{ id: string; domain: string }>()
+          .first<{ id: string; domain: string; policy_version: number }>()
       : null;
     const state: AccountState = ownerBootstrap || domainRule ? "approved" : "pending";
     const userId = crypto.randomUUID();
@@ -261,7 +262,11 @@ class D1Project42Repository {
         requestId,
         outcome: "success",
         reason,
-        metadata: { state, decisionKind },
+        metadata: {
+          state,
+          decisionKind,
+          domainPolicyVersion: domainRule?.policy_version ?? null,
+        },
         now,
       }),
     ];
@@ -379,7 +384,7 @@ class D1Project42Repository {
   async listDomains(): Promise<DomainRule[]> {
     const result = await this.db
       .prepare(
-        `SELECT id, domain, enabled, created_at, updated_at
+        `SELECT id, domain, enabled, policy_version, created_at, updated_at
            FROM approved_email_domains
           WHERE installation_id = ?
           ORDER BY domain`,
@@ -403,8 +408,8 @@ class D1Project42Repository {
           .prepare(
             `INSERT INTO approved_email_domains (
                id, installation_id, domain, enabled, created_by_user_id,
-               created_at, updated_at
-             ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+               created_at, updated_at, policy_version
+             ) VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
           )
           .bind(
             id,
@@ -425,7 +430,11 @@ class D1Project42Repository {
           requestId: input.requestId,
           outcome: "success",
           reason: input.request.reason,
-          metadata: { domain, enabled: input.request.enabled !== false },
+          metadata: {
+            domain,
+            enabled: input.request.enabled !== false,
+            policyVersion: 1,
+          },
           now: input.now,
         }),
       ]);
@@ -439,6 +448,7 @@ class D1Project42Repository {
       id,
       domain,
       enabled: input.request.enabled !== false,
+      policyVersion: 1,
       createdAt: input.now,
       updatedAt: input.now,
     };
@@ -454,7 +464,7 @@ class D1Project42Repository {
   }): Promise<DomainRule> {
     const existing = await this.db
       .prepare(
-        `SELECT id, domain, enabled, created_at, updated_at
+        `SELECT id, domain, enabled, policy_version, created_at, updated_at
            FROM approved_email_domains
           WHERE installation_id = ? AND id = ?`,
       )
@@ -478,7 +488,11 @@ class D1Project42Repository {
         requestId: input.requestId,
         outcome: "success",
         reason: input.reason,
-        metadata: { enabled: input.enabled, domain: existing.domain },
+        metadata: {
+          enabled: input.enabled,
+          domain: existing.domain,
+          policyVersion: existing.policy_version,
+        },
         now: input.now,
       }),
     ]);
@@ -802,6 +816,7 @@ function mapDomain(row: DomainRow): DomainRule {
     id: row.id,
     domain: row.domain,
     enabled: row.enabled === 1,
+    policyVersion: row.policy_version,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

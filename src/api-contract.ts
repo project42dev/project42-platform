@@ -37,6 +37,7 @@ export interface DomainRule {
   id: string;
   domain: string;
   enabled: boolean;
+  policyVersion: number;
   createdAt: string;
   updatedAt: string;
 }
