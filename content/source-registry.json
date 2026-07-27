@@ -288,6 +288,22 @@
       "trustTier": "primary",
       "reviewCadenceDays": 30,
       "owner": "tooling"
+    },
+    {
+      "id": "microsoft-learn",
+      "urlPrefix": "https://learn.microsoft.com/",
+      "publisher": "Microsoft",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "git-documentation",
+      "urlPrefix": "https://git-scm.com/",
+      "publisher": "Git",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
     }
   ]
 }
