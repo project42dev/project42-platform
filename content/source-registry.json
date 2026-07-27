@@ -344,6 +344,38 @@
       "trustTier": "primary",
       "reviewCadenceDays": 45,
       "owner": "curriculum"
+    },
+    {
+      "id": "osi-open-source-ai",
+      "urlPrefix": "https://opensource.org/ai/",
+      "publisher": "Open Source Initiative",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "spdx-specification",
+      "urlPrefix": "https://spdx.github.io/spdx-spec/",
+      "publisher": "SPDX",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "slsa-specification",
+      "urlPrefix": "https://slsa.dev/spec/",
+      "publisher": "SLSA",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "pytorch-documentation",
+      "urlPrefix": "https://docs.pytorch.org/docs/",
+      "publisher": "PyTorch",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "curriculum"
     }
   ]
 }

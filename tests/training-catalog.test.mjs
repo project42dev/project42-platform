@@ -510,7 +510,7 @@ test("coverage classifies every substantive module without overstating readiness
     await readFile(resolve(root, "content/training/coverage.json"), "utf8"),
   );
   assert.deepEqual(committedCoverage, trainingPackageCoverage);
-  assert.equal(trainingPackageCoverage.substantiveModuleCount, 52);
+  assert.equal(trainingPackageCoverage.substantiveModuleCount, 54);
   assert.equal(
     trainingPackageCoverage.classReadyModuleCount,
     classScriptPackages.length,
@@ -521,7 +521,7 @@ test("coverage classifies every substantive module without overstating readiness
       trainingPackageCoverage.classReadyModuleCount,
   );
   assert.equal(trainingPackageCoverage.coverageStatus, "migration-active");
-  assert.equal(trainingPackageCoverage.modules.length, 52);
+  assert.equal(trainingPackageCoverage.modules.length, 54);
   assert.ok(
     trainingPackageCoverage.modules.every(
       (entry) =>

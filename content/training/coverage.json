@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1.0",
-  "canonicalContentVersion": "0.37.0",
-  "substantiveModuleCount": 52,
+  "canonicalContentVersion": "0.38.0",
+  "substantiveModuleCount": 54,
   "classReadyModuleCount": 16,
-  "outlineOnlyModuleCount": 36,
+  "outlineOnlyModuleCount": 38,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -282,6 +282,22 @@
       "moduleId": "migrating-to-and-from-openai",
       "pathIds": [
         "openai-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "model-artifact-integrity",
+      "pathIds": [
+        "self-hosted-model-operations"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "model-identity-license-and-provenance",
+      "pathIds": [
+        "self-hosted-model-operations"
       ],
       "status": "outline-only",
       "instructorSchemaVersion": "1.1"
