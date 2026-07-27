@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.41.0",
   "substantiveModuleCount": 64,
-  "classReadyModuleCount": 28,
-  "outlineOnlyModuleCount": 36,
+  "classReadyModuleCount": 29,
+  "outlineOnlyModuleCount": 35,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -462,8 +462,11 @@
       "pathIds": [
         "reliable-agent-workflows"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "prepare-agent-work-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/reliable-agent-workflows/prepare-agent-work/class-script.json"
     },
     {
       "moduleId": "privacy-safety-and-responsibility",

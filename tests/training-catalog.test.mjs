@@ -1005,6 +1005,56 @@ test("publishes the complete self-hosted model operations capstone class", () =>
   }
 });
 
+test("publishes the bounded agent work-order class package", () => {
+  const moduleId = "prepare-agent-work";
+  const script = getClassScriptPackage(moduleId);
+  const module = getLearningModule(moduleId);
+  assert.ok(script);
+  assert.ok(module);
+  assert.equal(
+    validateClassSchema(script),
+    true,
+    JSON.stringify(validateClassSchema.errors),
+  );
+  assert.deepEqual(validateClassScriptPackage(script, module), {
+    valid: true,
+    errors: [],
+  });
+  assert.equal(script.spokenWordCount, 1103);
+  assert.equal(script.releaseStatus, "draft");
+  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.approvals.length, 0);
+  for (const section of module.sections) {
+    assert.ok(
+      script.segments.some(
+        (segment) =>
+          segment.sectionId === section.id &&
+          segment.delivery === "spoken" &&
+          ["narration", "demonstration"].includes(segment.kind),
+      ),
+      `missing substantive spoken section ${section.id}`,
+    );
+  }
+  for (const kind of [
+    "demonstration",
+    "learner-prompt",
+    "checkpoint",
+    "feedback",
+    "assessment-handoff",
+  ]) {
+    assert.ok(
+      script.segments.some((segment) => segment.kind === kind),
+      `missing ${kind}`,
+    );
+  }
+  assert.deepEqual(
+    script.segments.find(
+      (segment) => segment.kind === "assessment-handoff",
+    )?.learningHandoff.questionIds,
+    module.knowledgeCheck.questions.map((question) => question.id),
+  );
+});
+
 test("coverage classifies every substantive module without overstating readiness", async () => {
   const committedCoverage = JSON.parse(
     await readFile(resolve(root, "content/training/coverage.json"), "utf8"),
