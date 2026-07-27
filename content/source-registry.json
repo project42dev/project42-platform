@@ -448,6 +448,38 @@
       "trustTier": "primary",
       "reviewCadenceDays": 90,
       "owner": "curriculum"
+    },
+    {
+      "id": "openai-product",
+      "urlPrefix": "https://openai.com/",
+      "publisher": "OpenAI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-openai"
+    },
+    {
+      "id": "xai-docs",
+      "urlPrefix": "https://docs.x.ai/",
+      "publisher": "xAI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-xai"
+    },
+    {
+      "id": "kimi-platform-docs",
+      "urlPrefix": "https://platform.kimi.ai/docs/",
+      "publisher": "Moonshot AI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-kimi"
+    },
+    {
+      "id": "deepseek-api-docs",
+      "urlPrefix": "https://api-docs.deepseek.com/",
+      "publisher": "DeepSeek",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-deepseek"
     }
   ]
 }
