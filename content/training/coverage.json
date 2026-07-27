@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.41.0",
   "substantiveModuleCount": 64,
-  "classReadyModuleCount": 27,
-  "outlineOnlyModuleCount": 37,
+  "classReadyModuleCount": 28,
+  "outlineOnlyModuleCount": 36,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -552,8 +552,11 @@
       "pathIds": [
         "self-hosted-model-operations"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "self-hosted-model-operations-capstone-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/self-hosted-model-operations/self-hosted-model-operations-capstone/class-script.json"
     },
     {
       "moduleId": "serving-api-and-compatibility-contracts",
