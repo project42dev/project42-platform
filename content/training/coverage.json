@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.41.0",
   "substantiveModuleCount": 64,
-  "classReadyModuleCount": 22,
-  "outlineOnlyModuleCount": 42,
+  "classReadyModuleCount": 23,
+  "outlineOnlyModuleCount": 41,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -187,8 +187,11 @@
       "pathIds": [
         "self-hosted-model-operations"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "evaluate-the-exact-serving-build-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/self-hosted-model-operations/evaluate-the-exact-serving-build/class-script.json"
     },
     {
       "moduleId": "examples-and-output-contracts",
