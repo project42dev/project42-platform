@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.37.0",
   "substantiveModuleCount": 49,
-  "classReadyModuleCount": 9,
-  "outlineOnlyModuleCount": 40,
+  "classReadyModuleCount": 10,
+  "outlineOnlyModuleCount": 39,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -403,8 +403,11 @@
       "pathIds": [
         "ai-foundations"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.0"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.0",
+      "classScriptId": "safe-tool-use-workflow-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/ai-foundations/safe-tool-use-workflow/class-script.json"
     },
     {
       "moduleId": "verification-and-iterative-improvement",

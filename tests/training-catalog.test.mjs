@@ -203,6 +203,45 @@ test("publishes the verified coding and analysis class package", () => {
   );
 });
 
+test("publishes the safe tool-use class package", () => {
+  const moduleId = "safe-tool-use-workflow";
+  const script = getClassScriptPackage(moduleId);
+  const module = getLearningModule(moduleId);
+  assert.ok(script, `missing class script for ${moduleId}`);
+  assert.ok(module, `missing module ${moduleId}`);
+  assert.equal(
+    validateClassSchema(script),
+    true,
+    JSON.stringify(validateClassSchema.errors),
+  );
+  assert.deepEqual(validateClassScriptPackage(script, module), {
+    valid: true,
+    errors: [],
+  });
+  assert.ok(script.spokenWordCount >= 1_300);
+  assert.equal(script.releaseStatus, "draft");
+  assert.equal(script.provenance.approvals.length, 0);
+  assert.ok(
+    script.provenance.contributions.every(
+      (contribution) => contribution.status === "planned",
+    ),
+  );
+  assert.ok(
+    script.segments.some(
+      (segment) =>
+        segment.kind === "checkpoint" &&
+        segment.id === "timeout-after-success-checkpoint",
+    ),
+  );
+  assert.ok(
+    script.segments.some(
+      (segment) =>
+        segment.kind === "feedback" &&
+        segment.feedback?.retry.includes("missing response"),
+    ),
+  );
+});
+
 test("coverage classifies every substantive module without overstating readiness", async () => {
   const committedCoverage = JSON.parse(
     await readFile(resolve(root, "content/training/coverage.json"), "utf8"),
