@@ -79,7 +79,7 @@ export interface LearnerDataPolicyV1 {
     stableSubjectRequired: true;
   };
   adapters: {
-    hostedRecordStore: "sites-d1";
+    hostedRecordStore: "cloudflare-d1";
     referenceRecordStore: "postgresql";
     identity: "openid-connect";
     identityRequirement: string;
@@ -222,8 +222,8 @@ const transitions: LifecycleTransition[] = [
 export const defaultLearnerDataPolicy: LearnerDataPolicyV1 = {
   schemaVersion: 1,
   policyId: "project42-learner-data",
-  policyVersion: "2026-07-25",
-  effectiveDate: "2026-07-25",
+  policyVersion: "2026-07-27",
+  effectiveDate: "2026-07-27",
   accountBackedRecords: "planned",
   currentStorageNotice:
     "Project 42 currently keeps learner progress in this browser. Account-backed cross-device records are not enabled yet.",
@@ -235,7 +235,7 @@ export const defaultLearnerDataPolicy: LearnerDataPolicyV1 = {
     stableSubjectRequired: true,
   },
   adapters: {
-    hostedRecordStore: "sites-d1",
+    hostedRecordStore: "cloudflare-d1",
     referenceRecordStore: "postgresql",
     identity: "openid-connect",
     identityRequirement:
@@ -448,8 +448,8 @@ export function validateLearnerDataPolicy(
   if (!policy.identity.stableSubjectRequired) {
     errors.push("identity must require a stable subject");
   }
-  if (policy.adapters.hostedRecordStore !== "sites-d1") {
-    errors.push("the default hosted record store must be Sites-managed D1");
+  if (policy.adapters.hostedRecordStore !== "cloudflare-d1") {
+    errors.push("the default hosted record store must be Cloudflare D1");
   }
   if (policy.adapters.referenceRecordStore !== "postgresql") {
     errors.push("the reference self-host record store must be PostgreSQL");

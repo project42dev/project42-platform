@@ -27,11 +27,11 @@ Every hosted or self-hosted policy must preserve these controls:
 
 ## Default deployment profiles
 
-The hosted Project 42 profile uses Sites-managed D1 for structured learner records.
-The supported reference self-host profile uses PostgreSQL. Both adapters must pass
-the same identity, lifecycle, idempotency, export, deletion, recovery, authorization,
-and transcript-rebuild conformance suite before account-backed records become
-available.
+The hosted Project 42 profile uses Cloudflare D1 for structured learner records
+behind the authenticated Cloudflare Worker API. The supported reference self-host
+profile uses PostgreSQL. Both adapters must pass the same identity, lifecycle,
+idempotency, export, deletion, recovery, authorization, and transcript-rebuild
+conformance suite before account-backed records become available.
 
 Identity remains an OpenID Connect adapter rather than a vendor-specific record. A
 deployment must provide a stable issuer and subject. If its hosting platform exposes
