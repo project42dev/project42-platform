@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.37.0",
   "substantiveModuleCount": 52,
-  "classReadyModuleCount": 15,
-  "outlineOnlyModuleCount": 37,
+  "classReadyModuleCount": 16,
+  "outlineOnlyModuleCount": 36,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -442,8 +442,11 @@
       "pathIds": [
         "ai-foundations"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.0"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.0",
+      "classScriptId": "verification-and-iterative-improvement-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/ai-foundations/verification-and-iterative-improvement/class-script.json"
     },
     {
       "moduleId": "what-ai-does",
