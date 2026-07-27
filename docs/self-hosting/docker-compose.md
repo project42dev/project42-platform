@@ -40,6 +40,9 @@ The services are:
 The API applies checksum-locked PostgreSQL migrations under an advisory lock
 before accepting traffic. A changed migration that has already been applied
 causes startup to fail instead of silently changing the database.
+The identity readiness probe follows the
+[official Keycloak health-check guidance](https://www.keycloak.org/observability/health)
+for its internal management port (verified 2026-07-27).
 
 This repository does not assign a default owner. After a user signs in, use a
 reviewed bootstrap-owner issuer and subject for the first owner or approve the

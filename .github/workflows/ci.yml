@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:17.6-alpine3.22
+        image: postgres:17.10-alpine3.23
         env:
           POSTGRES_DB: project42_test
           POSTGRES_USER: project42
@@ -48,7 +48,7 @@ jobs:
       - name: Verify API and identity discovery
         run: |
           curl --fail --show-error --silent http://127.0.0.1:8787/health
-          curl --fail --show-error --silent \
+          curl --fail --show-error --silent --retry 10 --retry-all-errors --retry-delay 2 \
             http://127.0.0.1:8080/realms/project42/.well-known/openid-configuration
       - name: Capture diagnostics
         if: failure()
