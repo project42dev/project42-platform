@@ -24,7 +24,15 @@ contracts—not the private PMO records or Project42dev production configuration
 - A provider-neutral OIDC Worker API with approval states, exact-domain rules,
   owner administration endpoints, D1 migrations, progress synchronization, and
   append-only authorization audits.
+- Versioned, machine-readable content-maintenance evidence, impact, Foundry role,
+  multi-model execution, deterministic gate, rollback, and human approval contracts.
 - Seed content suitable for a hosted site or self-hosted installation.
+
+Release `0.47.0` turns the governed content-freshness architecture into reusable
+contracts. It maps a changed primary source to Learn, Field Guide, assessment, and
+instructor-package consumers; qualifies Foundry role profiles against an inventory;
+requires three model deployments and writer/verifier provider independence; and
+fails publication closed until deterministic gates and a human approval pass.
 
 Release `0.46.4` appends request-correlated denial evidence for identifiable
 non-owner administration attempts and adds a deployment gate that keeps
