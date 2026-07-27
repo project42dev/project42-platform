@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.35.0",
+  "contentVersion": "0.36.0",
   "title": "Project 42 Learning Catalog",
   "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [

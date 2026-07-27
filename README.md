@@ -26,6 +26,9 @@ contracts—not the private PMO records or Project42dev production configuration
   append-only authorization audits.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.45.0` restores four practical workflow recipes for stack-trace
+debugging, bounded critic loops, documentation backfill, and legacy refactoring.
+
 Release `0.44.0` restores four AI service operations guides for authentication
 and billing readiness, cost control, gateway decisions, and observability
 platform selection.
