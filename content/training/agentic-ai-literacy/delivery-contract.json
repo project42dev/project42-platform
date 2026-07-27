@@ -32,6 +32,7 @@
   "learnSequence": [
     {
       "id": "name-the-layers",
+      "moduleId": "agentic-ai-layers",
       "order": 1,
       "audienceFloor": "beginner",
       "title": "Name the model, product, and runtime layers",
@@ -52,6 +53,7 @@
     },
     {
       "id": "classify-control-flow",
+      "moduleId": "agentic-control-flow",
       "order": 2,
       "audienceFloor": "beginner",
       "title": "Classify who chooses the next step",
@@ -72,6 +74,7 @@
     },
     {
       "id": "locate-tools-state-and-authority",
+      "moduleId": "agentic-tools-state-authority",
       "order": 3,
       "audienceFloor": "practitioner",
       "title": "Locate tools, state, side effects, and human authority",
@@ -92,6 +95,7 @@
     },
     {
       "id": "compare-product-experiences",
+      "moduleId": "agentic-product-comparison",
       "order": 4,
       "audienceFloor": "practitioner",
       "title": "Compare exact product experiences across providers",
@@ -112,6 +116,7 @@
     },
     {
       "id": "justify-system-classification",
+      "moduleId": "agentic-classification-capstone",
       "order": 5,
       "audienceFloor": "advanced",
       "title": "Defend an agentic and multi-agent classification",

@@ -35,6 +35,10 @@ test("publishes a schema-valid beginner-to-advanced delivery contract", () => {
     contract.learnSequence.map((stage) => stage.order),
     [1, 2, 3, 4, 5],
   );
+  assert.equal(
+    new Set(contract.learnSequence.map((stage) => stage.moduleId)).size,
+    5,
+  );
   assert.deepEqual(
     contract.learnSequence.map((stage) => stage.audienceFloor),
     ["beginner", "beginner", "practitioner", "practitioner", "advanced"],

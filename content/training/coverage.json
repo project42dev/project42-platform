@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1.0",
-  "canonicalContentVersion": "0.41.0",
-  "substantiveModuleCount": 64,
+  "canonicalContentVersion": "0.42.0",
+  "substantiveModuleCount": 69,
   "classReadyModuleCount": 40,
-  "outlineOnlyModuleCount": 24,
+  "outlineOnlyModuleCount": 29,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -27,6 +27,46 @@
       "classScriptId": "agent-observability-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/reliable-agent-workflows/agent-observability/class-script.json"
+    },
+    {
+      "moduleId": "agentic-ai-layers",
+      "pathIds": [
+        "agentic-ai-literacy"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.0"
+    },
+    {
+      "moduleId": "agentic-classification-capstone",
+      "pathIds": [
+        "agentic-ai-literacy"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.0"
+    },
+    {
+      "moduleId": "agentic-control-flow",
+      "pathIds": [
+        "agentic-ai-literacy"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.0"
+    },
+    {
+      "moduleId": "agentic-product-comparison",
+      "pathIds": [
+        "agentic-ai-literacy"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.0"
+    },
+    {
+      "moduleId": "agentic-tools-state-authority",
+      "pathIds": [
+        "agentic-ai-literacy"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.0"
     },
     {
       "moduleId": "agents-and-guardrails",

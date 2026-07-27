@@ -327,6 +327,7 @@
       "additionalProperties": false,
       "required": [
         "id",
+        "moduleId",
         "order",
         "audienceFloor",
         "title",
@@ -337,6 +338,7 @@
       ],
       "properties": {
         "id": { "$ref": "#/$defs/id" },
+        "moduleId": { "$ref": "#/$defs/id" },
         "order": {
           "type": "integer",
           "minimum": 1,
