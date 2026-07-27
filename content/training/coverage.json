@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.41.0",
   "substantiveModuleCount": 64,
-  "classReadyModuleCount": 25,
-  "outlineOnlyModuleCount": 39,
+  "classReadyModuleCount": 26,
+  "outlineOnlyModuleCount": 38,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -365,8 +365,11 @@
       "pathIds": [
         "self-hosted-model-operations"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "model-update-and-rollback-lifecycle-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/self-hosted-model-operations/model-update-and-rollback-lifecycle/class-script.json"
     },
     {
       "moduleId": "multi-agent-handoffs",
