@@ -91,6 +91,45 @@ test("publishes the second complete AI Foundations class-script wave", () => {
   }
 });
 
+test("publishes the evidence-led research class package", () => {
+  const moduleId = "research-with-evidence";
+  const script = getClassScriptPackage(moduleId);
+  const module = getLearningModule(moduleId);
+  assert.ok(script, `missing class script for ${moduleId}`);
+  assert.ok(module, `missing module ${moduleId}`);
+  assert.equal(
+    validateClassSchema(script),
+    true,
+    JSON.stringify(validateClassSchema.errors),
+  );
+  assert.deepEqual(validateClassScriptPackage(script, module), {
+    valid: true,
+    errors: [],
+  });
+  assert.ok(script.spokenWordCount >= 1_200);
+  assert.equal(script.releaseStatus, "draft");
+  assert.equal(script.provenance.approvals.length, 0);
+  assert.ok(
+    script.provenance.contributions.every(
+      (contribution) => contribution.status === "planned",
+    ),
+  );
+  assert.ok(
+    script.segments.some(
+      (segment) =>
+        segment.kind === "demonstration" &&
+        segment.id === "removed-source-demonstration",
+    ),
+  );
+  assert.ok(
+    script.segments.some(
+      (segment) =>
+        segment.kind === "feedback" &&
+        segment.feedback?.retry.includes("geographic scope"),
+    ),
+  );
+});
+
 test("coverage classifies every substantive module without overstating readiness", async () => {
   const committedCoverage = JSON.parse(
     await readFile(resolve(root, "content/training/coverage.json"), "utf8"),
