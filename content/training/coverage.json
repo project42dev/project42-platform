@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.41.0",
   "substantiveModuleCount": 64,
-  "classReadyModuleCount": 32,
-  "outlineOnlyModuleCount": 32,
+  "classReadyModuleCount": 36,
+  "outlineOnlyModuleCount": 28,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -293,16 +293,22 @@
       "pathIds": [
         "reliable-agent-workflows"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "mcp-architecture-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/reliable-agent-workflows/mcp-architecture/class-script.json"
     },
     {
       "moduleId": "mcp-trust-and-security",
       "pathIds": [
         "reliable-agent-workflows"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "mcp-trust-and-security-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/reliable-agent-workflows/mcp-trust-and-security/class-script.json"
     },
     {
       "moduleId": "memory-boundaries",
@@ -388,8 +394,11 @@
       "pathIds": [
         "reliable-agent-workflows"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "multi-agent-handoffs-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/reliable-agent-workflows/multi-agent-handoffs/class-script.json"
     },
     {
       "moduleId": "observability-cost-and-performance",
@@ -455,8 +464,11 @@
       "pathIds": [
         "reliable-agent-workflows"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "orchestration-patterns-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/reliable-agent-workflows/orchestration-patterns/class-script.json"
     },
     {
       "moduleId": "plan-cross-provider-migration",
