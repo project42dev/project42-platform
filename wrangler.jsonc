@@ -1,0 +1,33 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "project42-api-local",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-07-26",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    }
+  },
+  "d1_databases": [
+    {
+      "binding": "PROJECT42_DB",
+      "database_name": "project42-local",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    "INSTALLATION_ID": "local",
+    "OIDC_ISSUER": "https://identity.example.invalid",
+    "OIDC_AUDIENCE": "project42-local",
+    "OIDC_JWKS_URL": "https://identity.example.invalid/.well-known/jwks.json",
+    "OIDC_EMAIL_CLAIM": "email",
+    "OIDC_EMAIL_VERIFIED_CLAIM": "email_verified",
+    "ALLOWED_ORIGINS": "http://localhost:3000",
+    "BOOTSTRAP_OWNER_ISSUER": "",
+    "BOOTSTRAP_OWNER_SUBJECT": ""
+  }
+}

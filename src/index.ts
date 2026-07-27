@@ -39,6 +39,13 @@ export {
   learnerDataRoleCan,
   validateLearnerDataPolicy,
 } from "./learner-data-policy.js";
+export {
+  ACCOUNT_STATES,
+  canTransitionAccount,
+  exactDomainMatches,
+  getVerifiedEmailDomain,
+  normalizeExactDomain,
+} from "./identity.js";
 
 export type { AssessmentResult, QuestionFeedback } from "./assessment.js";
 export type {
@@ -68,6 +75,21 @@ export type {
   LifecycleTransition,
   RetentionClass,
 } from "./learner-data-policy.js";
+export type {
+  AccountState,
+  IdentityVerifier,
+  VerifiedIdentity,
+} from "./identity.js";
+export type {
+  Account,
+  AccountStateChangeRequest,
+  ApiErrorBody,
+  CreateDomainRuleRequest,
+  DomainRule,
+  ProgressEnvelope,
+  ProgressImportRequest,
+  Project42Role,
+} from "./api-contract.js";
 export type {
   Catalog,
   CatalogMetadata,

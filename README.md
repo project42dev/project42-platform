@@ -21,6 +21,9 @@ contracts—not the private PMO records or Project42dev production configuration
   and badge derivation.
 - A versioned learner-data lifecycle policy covering consent, retention, recovery,
   export, deletion, role boundaries, and hosted/self-host adapter requirements.
+- A provider-neutral OIDC Worker API with approval states, exact-domain rules,
+  owner administration endpoints, D1 migrations, progress synchronization, and
+  append-only authorization audits.
 - Seed content suitable for a hosted site or self-hosted installation.
 
 Release `0.38.0` adds the reusable learner-data lifecycle contract. It defines
@@ -141,6 +144,10 @@ safe tool use, and a scored practical capstone.
 
 See [Content authoring](docs/content-authoring.md) to add paths, modules, checks,
 and field-guide resources without changing application code.
+
+See [Identity providers](docs/self-hosting/identity-providers.md) and
+[Cloudflare D1 deployment](docs/self-hosting/cloudflare-d1.md) to run the
+account-backed API without embedding a hosted tenant in the public source.
 
 ## Quick start
 
