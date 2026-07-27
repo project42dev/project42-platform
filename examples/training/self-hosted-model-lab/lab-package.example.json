@@ -1,0 +1,179 @@
+{
+  "schemaVersion": "1.0",
+  "id": "portable-model-endpoint-lab",
+  "version": "0.1.0",
+  "title": "Portable self-hosted model endpoint operations lab",
+  "learningPathId": "self-hosted-model-operations",
+  "implementation": {
+    "kind": "portable",
+    "adapter": "generic-openai-compatible",
+    "specificStepsSeparated": true
+  },
+  "environment": {
+    "shape": "workstation",
+    "configurationPath": "lab/config/runtime.example.yaml",
+    "hardwareProfilePath": "lab/evidence/hardware-profile.json"
+  },
+  "modelArtifact": {
+    "identity": "example-open-weight-instruct",
+    "revision": "example-revision",
+    "publisher": "Example publisher",
+    "sourceUrl": "https://example.org/models/example-open-weight-instruct",
+    "licenseId": "LicenseRef-Review-Required",
+    "licenseReviewPath": "lab/evidence/license-review.md",
+    "provenancePath": "lab/evidence/provenance.json",
+    "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "signatureStatus": "unavailable-documented",
+    "dependencyManifestPath": "lab/evidence/dependencies.cdx.json",
+    "scanEvidencePath": "lab/evidence/artifact-scan.json"
+  },
+  "endpoint": {
+    "protocol": "http",
+    "compatibilityProfile": "openai-compatible-chat-subset",
+    "baseUrlTemplate": "http://localhost:8080",
+    "healthPath": "/health",
+    "readinessPath": "/ready",
+    "modelIdentityPath": "/v1/models"
+  },
+  "identityAndAccess": {
+    "principalType": "local-lab-principal",
+    "authorizationPolicyPath": "lab/policy/authorization.md",
+    "secretSource": "local-environment-placeholder",
+    "networkExposure": "loopback",
+    "auditEvidencePath": "lab/evidence/access-audit.jsonl"
+  },
+  "evaluation": {
+    "caseSetPath": "lab/evaluation/cases.jsonl",
+    "configurationPath": "lab/evaluation/config.json",
+    "metrics": [
+      "task-pass-rate",
+      "unsafe-action-rate",
+      "unsupported-claim-rate"
+    ],
+    "passCriteria": [
+      "Every required normal case passes its observable task contract.",
+      "No prohibited side effect occurs in safety or adversarial-like cases.",
+      "Unsupported claims remain below the reviewed lab threshold."
+    ],
+    "resultsPath": "lab/evidence/evaluation-results.json"
+  },
+  "load": {
+    "profilePath": "lab/load/profile.json",
+    "resultsPath": "lab/evidence/load-results.json",
+    "capacityDecisionPath": "lab/evidence/capacity-decision.md",
+    "stopConditions": [
+      "Stop when host memory pressure crosses the reviewed lab threshold.",
+      "Stop when error rate or latency crosses the documented safety limit."
+    ]
+  },
+  "telemetry": {
+    "logsEvidencePath": "lab/evidence/log-sample.jsonl",
+    "metricsEvidencePath": "lab/evidence/metrics.json",
+    "tracesEvidencePath": "lab/evidence/traces.json",
+    "alertEvidencePath": "lab/evidence/alert.json",
+    "dataHandlingPath": "lab/policy/telemetry-data-handling.md"
+  },
+  "lifecycle": {
+    "currentVersion": "example-revision",
+    "targetVersion": "example-revision-next",
+    "compatibilityManifestPath": "lab/lifecycle/compatibility.json",
+    "backupEvidencePath": "lab/evidence/backup.json",
+    "updatePlanPath": "lab/lifecycle/update-plan.md",
+    "updateEvidencePath": "lab/evidence/update-result.json",
+    "rollbackPlanPath": "lab/lifecycle/rollback-plan.md",
+    "rollbackEvidencePath": "lab/evidence/rollback-result.json"
+  },
+  "recovery": {
+    "incidentScenario": "The updated endpoint fails its readiness and representative evaluation gates.",
+    "runbookPath": "lab/runbooks/endpoint-recovery.md",
+    "recoveryObjective": "Restore the last verified endpoint and evidence set.",
+    "recoveryEvidencePath": "lab/evidence/recovery-result.json",
+    "postIncidentPath": "lab/evidence/post-incident-review.md"
+  },
+  "portability": {
+    "portableConcepts": [
+      "artifact-identity",
+      "endpoint-contract",
+      "scoped-access",
+      "representative-evaluation",
+      "load-and-capacity",
+      "privacy-aware-telemetry",
+      "update-and-rollback",
+      "incident-recovery"
+    ],
+    "adapterSpecificStepsPath": "lab/adapters/generic-openai-compatible.md",
+    "alternatives": [
+      {
+        "adapter": "homestead-foundry-reference",
+        "mappingPath": "lab/adapters/homestead-foundry-reference.md"
+      },
+      {
+        "adapter": "alternative-runtime",
+        "mappingPath": "lab/adapters/alternative-runtime.md"
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "kind": "artifact",
+      "path": "lab/evidence/artifact.json",
+      "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "kind": "license-provenance",
+      "path": "lab/evidence/license-review.md",
+      "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "kind": "endpoint",
+      "path": "lab/evidence/endpoint.json",
+      "digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    {
+      "kind": "evaluation",
+      "path": "lab/evidence/evaluation-results.json",
+      "digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    {
+      "kind": "load-capacity",
+      "path": "lab/evidence/load-results.json",
+      "digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    {
+      "kind": "telemetry",
+      "path": "lab/evidence/metrics.json",
+      "digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+    },
+    {
+      "kind": "update",
+      "path": "lab/evidence/update-result.json",
+      "digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+    },
+    {
+      "kind": "rollback",
+      "path": "lab/evidence/rollback-result.json",
+      "digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888"
+    },
+    {
+      "kind": "recovery",
+      "path": "lab/evidence/recovery-result.json",
+      "digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999"
+    }
+  ],
+  "safety": {
+    "prohibitedData": [
+      "No personal, regulated, confidential, secret, or production learner data.",
+      "No private deployment identifiers, credentials, or resource inventory."
+    ],
+    "stopConditions": [
+      "Stop before execution when artifact identity, license, target, or authority is unresolved.",
+      "Stop an update when evaluation, readiness, capacity, or rollback evidence fails."
+    ],
+    "humanApprovalBoundaries": [
+      "A human reviewer approves artifact and license use before deployment.",
+      "A human reviewer approves the update and rollback evidence before release."
+    ]
+  },
+  "approvals": [],
+  "releaseStatus": "draft"
+}
