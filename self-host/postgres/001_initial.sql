@@ -280,4 +280,3 @@ BEFORE UPDATE OF account_state ON users
 FOR EACH ROW EXECUTE FUNCTION enforce_account_state_transition();
 
 COMMIT;
-
