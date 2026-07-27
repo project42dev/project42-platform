@@ -106,6 +106,14 @@
       "owner": "provider-google"
     },
     {
+      "id": "google-machine-learning-docs",
+      "urlPrefix": "https://developers.google.com/machine-learning/",
+      "publisher": "Google",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "provider-google"
+    },
+    {
       "id": "google-gemini-help",
       "urlPrefix": "https://support.google.com/gemini/",
       "publisher": "Google",

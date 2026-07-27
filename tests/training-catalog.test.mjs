@@ -327,12 +327,51 @@ test("publishes the mastery-evidence AI Foundations capstone class", () => {
   );
 });
 
+test("publishes the evidence-aware What AI Does opening class", () => {
+  const moduleId = "what-ai-does";
+  const script = getClassScriptPackage(moduleId);
+  const module = getLearningModule(moduleId);
+  assert.ok(script, `missing class script for ${moduleId}`);
+  assert.ok(module, `missing module ${moduleId}`);
+  assert.equal(
+    validateClassSchema(script),
+    true,
+    JSON.stringify(validateClassSchema.errors),
+  );
+  assert.deepEqual(validateClassScriptPackage(script, module), {
+    valid: true,
+    errors: [],
+  });
+  assert.ok(script.spokenWordCount >= 1_250);
+  assert.equal(script.releaseStatus, "draft");
+  assert.equal(script.provenance.approvals.length, 0);
+  assert.ok(
+    script.provenance.contributions.every(
+      (contribution) => contribution.status === "planned",
+    ),
+  );
+  assert.ok(
+    script.segments.some(
+      (segment) =>
+        segment.kind === "checkpoint" &&
+        segment.id === "current-policy-checkpoint",
+    ),
+  );
+  assert.ok(
+    script.segments.some(
+      (segment) =>
+        segment.kind === "feedback" &&
+        segment.feedback?.retry.includes("current effective policy"),
+    ),
+  );
+});
+
 test("coverage classifies every substantive module without overstating readiness", async () => {
   const committedCoverage = JSON.parse(
     await readFile(resolve(root, "content/training/coverage.json"), "utf8"),
   );
   assert.deepEqual(committedCoverage, trainingPackageCoverage);
-  assert.equal(trainingPackageCoverage.substantiveModuleCount, 50);
+  assert.equal(trainingPackageCoverage.substantiveModuleCount, 51);
   assert.equal(
     trainingPackageCoverage.classReadyModuleCount,
     classScriptPackages.length,
@@ -343,7 +382,7 @@ test("coverage classifies every substantive module without overstating readiness
       trainingPackageCoverage.classReadyModuleCount,
   );
   assert.equal(trainingPackageCoverage.coverageStatus, "migration-active");
-  assert.equal(trainingPackageCoverage.modules.length, 50);
+  assert.equal(trainingPackageCoverage.modules.length, 51);
   assert.ok(
     trainingPackageCoverage.modules.every(
       (entry) =>

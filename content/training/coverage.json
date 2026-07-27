@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.37.0",
-  "substantiveModuleCount": 50,
-  "classReadyModuleCount": 12,
+  "substantiveModuleCount": 51,
+  "classReadyModuleCount": 13,
   "outlineOnlyModuleCount": 38,
   "coverageStatus": "migration-active",
   "modules": [
@@ -430,6 +430,17 @@
       ],
       "status": "outline-only",
       "instructorSchemaVersion": "1.0"
+    },
+    {
+      "moduleId": "what-ai-does",
+      "pathIds": [
+        "ai-foundations"
+      ],
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.0",
+      "classScriptId": "what-ai-does-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/ai-foundations/what-ai-does/class-script.json"
     },
     {
       "moduleId": "writing-and-transformation-workflow",
