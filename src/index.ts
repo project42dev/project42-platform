@@ -24,6 +24,14 @@ export {
 } from "./schema.js";
 export { getResourceFreshness } from "./resource.js";
 export {
+  buildContentImpactAnalysis,
+  CONTENT_MAINTENANCE_SCHEMA_VERSION,
+  MAINTENANCE_MODEL_STAGES,
+  validateContentChangePacket,
+  validateFoundryRoleProfile,
+  validateMaintenanceProposal,
+} from "./content-maintenance.js";
+export {
   buildPortableLearnerRecord,
   buildTranscriptCsv,
   restorePortableLearnerRecord,
@@ -121,4 +129,19 @@ export type {
   ResourceFreshness,
   ResourceFreshnessStatus,
 } from "./resource.js";
+export type {
+  ClaimEvidence,
+  ContentChangePacket,
+  ContentImpactAnalysis,
+  DeterministicGateResult,
+  FoundryRoleProfile,
+  MaintenanceClaim,
+  MaintenanceModelStage,
+  MaintenanceProposal,
+  MaintenanceProposalValidation,
+  ModelStageExecution,
+  PrimarySourceRegistration,
+  PrimarySourceRegistry,
+  SourceObservation,
+} from "./content-maintenance.js";
 export { RESOURCE_AUDIENCES, RESOURCE_FORMATS } from "./schema.js";

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "1.0",
+  "id": "packet-google-function-calling-20260727",
+  "createdAt": "2026-07-27T12:00:00.000Z",
+  "observations": [
+    {
+      "id": "observation-google-function-calling-20260727",
+      "sourceId": "google-ai-developer-docs",
+      "canonicalUrl": "https://ai.google.dev/gemini-api/docs/function-calling",
+      "retrievedAt": "2026-07-27T11:55:00.000Z",
+      "previousHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "currentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "changed": true,
+      "boundedDiff": [
+        {
+          "section": "Function-calling lifecycle",
+          "before": "The prior fixture described the earlier lifecycle.",
+          "after": "The current fixture describes the changed lifecycle."
+        }
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim-google-function-calling-lifecycle",
+      "statement": "The function-calling lifecycle changed and requires editorial review.",
+      "volatility": "volatile",
+      "verificationState": "supported",
+      "evidence": [
+        {
+          "observationId": "observation-google-function-calling-20260727",
+          "excerpt": "The current fixture describes the changed lifecycle.",
+          "relation": "supports"
+        }
+      ],
+      "affectedContentIds": [
+        "compare-provider-capabilities",
+        "gemini-tools-and-agent-loops",
+        "google-gemini-tools-structured-output"
+      ],
+      "affectedAssessmentIds": [
+        "q-gemini-tools-1",
+        "q-provider-compare-1"
+      ]
+    }
+  ],
+  "impact": {
+    "learnModuleIds": [
+      "compare-provider-capabilities",
+      "control-agent-actions",
+      "gemini-tools-and-agent-loops",
+      "safe-tool-use-workflow"
+    ],
+    "fieldGuideResourceIds": [
+      "agent-tool-failure-recovery",
+      "google-gemini-tools-structured-output"
+    ],
+    "assessmentQuestionIds": [
+      "q-control-agent-1",
+      "q-control-agent-2",
+      "q-control-agent-3",
+      "q-control-agent-4",
+      "q-control-agent-5",
+      "q-gemini-tools-1",
+      "q-gemini-tools-2",
+      "q-gemini-tools-3",
+      "q-gemini-tools-4",
+      "q-gemini-tools-5",
+      "q-provider-compare-1",
+      "q-provider-compare-2",
+      "q-provider-compare-3",
+      "q-provider-compare-4",
+      "q-provider-compare-5",
+      "q-tool-workflow-1",
+      "q-tool-workflow-2",
+      "q-tool-workflow-3",
+      "q-tool-workflow-4",
+      "q-tool-workflow-5"
+    ],
+    "instructorPackageModuleIds": [
+      "compare-provider-capabilities",
+      "control-agent-actions",
+      "gemini-tools-and-agent-loops",
+      "safe-tool-use-workflow"
+    ]
+  },
+  "disposition": "ready-for-draft"
+}

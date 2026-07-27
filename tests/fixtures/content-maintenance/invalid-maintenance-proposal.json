@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0",
+  "id": "proposal-invalid-agent-approval",
+  "packetId": "packet-google-function-calling-20260727",
+  "packetDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "targets": [
+    {
+      "repository": "project42dev/project42-platform",
+      "pathPrefixes": ["../"]
+    }
+  ],
+  "modelStages": [],
+  "deterministicGates": [],
+  "unresolvedConflicts": ["The primary sources disagree."],
+  "rollbackPlan": "",
+  "humanDecision": {
+    "status": "approved",
+    "reviewerRef": null,
+    "decidedAt": null,
+    "note": "A model approved this proposal."
+  },
+  "modelApproval": true
+}

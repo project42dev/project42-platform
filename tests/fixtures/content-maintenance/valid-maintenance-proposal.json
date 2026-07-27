@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "1.0",
+  "id": "proposal-google-function-calling-20260727",
+  "packetId": "packet-google-function-calling-20260727",
+  "packetDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "targets": [
+    {
+      "repository": "project42dev/project42-platform",
+      "pathPrefixes": ["content/modules/", "content/resources/"]
+    }
+  ],
+  "modelStages": [
+    {
+      "stage": "evidence-research",
+      "deploymentAlias": "foundry-research-primary",
+      "providerFamily": "microsoft-ai",
+      "modelVersion": "research-qualified-2026-07",
+      "contractVersion": "research-1.0",
+      "temperature": 0,
+      "maxOutputTokens": 8000,
+      "inputEvidenceDigest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "outputDigest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "latencyMs": 1200,
+      "costUsd": 0.02,
+      "status": "passed",
+      "findings": []
+    },
+    {
+      "stage": "curriculum-writing",
+      "deploymentAlias": "foundry-writer-primary",
+      "providerFamily": "openai",
+      "modelVersion": "writer-qualified-2026-07",
+      "contractVersion": "writer-1.0",
+      "temperature": 0.2,
+      "maxOutputTokens": 12000,
+      "inputEvidenceDigest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "outputDigest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "latencyMs": 1800,
+      "costUsd": 0.04,
+      "status": "passed",
+      "findings": []
+    },
+    {
+      "stage": "factual-verification",
+      "deploymentAlias": "foundry-verifier-primary",
+      "providerFamily": "anthropic",
+      "modelVersion": "verifier-qualified-2026-07",
+      "contractVersion": "verifier-1.0",
+      "temperature": 0,
+      "maxOutputTokens": 8000,
+      "inputEvidenceDigest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "outputDigest": "1111111111111111111111111111111111111111111111111111111111111111",
+      "latencyMs": 1500,
+      "costUsd": 0.03,
+      "status": "passed",
+      "findings": []
+    },
+    {
+      "stage": "assessment-review",
+      "deploymentAlias": "foundry-research-primary",
+      "providerFamily": "microsoft-ai",
+      "modelVersion": "assessment-qualified-2026-07",
+      "contractVersion": "assessment-1.0",
+      "temperature": 0,
+      "maxOutputTokens": 6000,
+      "inputEvidenceDigest": "1111111111111111111111111111111111111111111111111111111111111111",
+      "outputDigest": "2222222222222222222222222222222222222222222222222222222222222222",
+      "latencyMs": 900,
+      "costUsd": 0.01,
+      "status": "passed",
+      "findings": []
+    },
+    {
+      "stage": "accessibility-review",
+      "deploymentAlias": "foundry-verifier-primary",
+      "providerFamily": "anthropic",
+      "modelVersion": "accessibility-qualified-2026-07",
+      "contractVersion": "accessibility-1.0",
+      "temperature": 0,
+      "maxOutputTokens": 6000,
+      "inputEvidenceDigest": "2222222222222222222222222222222222222222222222222222222222222222",
+      "outputDigest": "3333333333333333333333333333333333333333333333333333333333333333",
+      "latencyMs": 800,
+      "costUsd": 0.01,
+      "status": "passed",
+      "findings": []
+    },
+    {
+      "stage": "release-proposal",
+      "deploymentAlias": "foundry-writer-primary",
+      "providerFamily": "openai",
+      "modelVersion": "release-qualified-2026-07",
+      "contractVersion": "release-1.0",
+      "temperature": 0,
+      "maxOutputTokens": 4000,
+      "inputEvidenceDigest": "3333333333333333333333333333333333333333333333333333333333333333",
+      "outputDigest": "4444444444444444444444444444444444444444444444444444444444444444",
+      "latencyMs": 600,
+      "costUsd": 0.01,
+      "status": "passed",
+      "findings": []
+    }
+  ],
+  "deterministicGates": [
+    {
+      "id": "catalog-validation",
+      "status": "passed",
+      "evidenceRef": "ci://project42-platform/catalog-validation"
+    },
+    {
+      "id": "assessment-validation",
+      "status": "passed",
+      "evidenceRef": "ci://project42-platform/assessment-validation"
+    }
+  ],
+  "unresolvedConflicts": [],
+  "rollbackPlan": "Revert the bounded content commit and republish the prior accepted content version.",
+  "humanDecision": {
+    "status": "pending",
+    "reviewerRef": null,
+    "decidedAt": null,
+    "note": null
+  }
+}
