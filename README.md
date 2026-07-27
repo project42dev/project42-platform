@@ -214,6 +214,11 @@ See [Identity providers](docs/self-hosting/identity-providers.md) and
 [Cloudflare D1 deployment](docs/self-hosting/cloudflare-d1.md) to run the
 account-backed API without embedding a hosted tenant in the public source.
 
+For a local PostgreSQL and reference-OIDC evaluation stack, follow the
+[Docker Compose deployment guide](docs/self-hosting/docker-compose.md). The
+guide states the production boundary explicitly and includes backup and
+restore-test procedures.
+
 ## Quick start
 
 ```bash

@@ -11,6 +11,22 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.10-alpine3.23
+        env:
+          POSTGRES_DB: project42_test
+          POSTGRES_USER: project42
+          POSTGRES_PASSWORD: project42-ci-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U project42 -d project42_test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      TEST_POSTGRES_URL: postgresql://project42:project42-ci-only@127.0.0.1:5432/project42_test
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -19,3 +35,24 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
+
+  self-host-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - name: Validate Compose model
+        run: docker compose --env-file self-host/.env.example -f self-host/compose.yaml config --quiet
+      - name: Start evaluation stack
+        run: docker compose --env-file self-host/.env.example -f self-host/compose.yaml up --build --detach --wait
+      - name: Verify API and identity discovery
+        run: |
+          curl --fail --show-error --silent http://127.0.0.1:8787/health
+          curl --fail --show-error --silent --retry 10 --retry-all-errors --retry-delay 2 \
+            http://127.0.0.1:8080/realms/project42/.well-known/openid-configuration
+      - name: Capture diagnostics
+        if: failure()
+        run: docker compose --env-file self-host/.env.example -f self-host/compose.yaml logs --no-color
+      - name: Stop evaluation stack
+        if: always()
+        run: docker compose --env-file self-host/.env.example -f self-host/compose.yaml down --volumes
