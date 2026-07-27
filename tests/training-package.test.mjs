@@ -115,7 +115,8 @@ test("caption, transcript, text-only, reduced-motion, and integrity fixtures are
   const expected = buildTrainingFixtureArtifacts(classScript);
   const generatedRoot = fixtureRoot;
   for (const [path, content] of Object.entries(expected)) {
-    assert.equal(await readFile(new URL(path, generatedRoot), "utf8"), content);
+    const fixture = await readFile(new URL(path, generatedRoot), "utf8");
+    assert.equal(fixture.replaceAll("\r\n", "\n"), content.replaceAll("\r\n", "\n"));
   }
   assert.ok(expected["captions/en-US.vtt"].startsWith("WEBVTT\n"));
   assert.ok(expected["transcripts/en-US.md"].includes(classScript.title));
