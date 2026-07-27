@@ -2,8 +2,8 @@
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.37.0",
   "substantiveModuleCount": 51,
-  "classReadyModuleCount": 13,
-  "outlineOnlyModuleCount": 38,
+  "classReadyModuleCount": 14,
+  "outlineOnlyModuleCount": 37,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -371,8 +371,11 @@
       "pathIds": [
         "ai-foundations"
       ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.0"
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.0",
+      "classScriptId": "privacy-safety-and-responsibility-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/ai-foundations/privacy-safety-and-responsibility/class-script.json"
     },
     {
       "moduleId": "prompt-anatomy-and-success-criteria",
