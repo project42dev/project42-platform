@@ -72,6 +72,19 @@ export interface DeletionRequest {
   completedAt: string | null;
 }
 
+export interface AuditEvent {
+  id: string;
+  actorUserId: string | null;
+  action: string;
+  targetType: string;
+  targetId: string | null;
+  requestId: string;
+  outcome: "success" | "denied" | "failed";
+  reason: string;
+  metadata: Record<string, unknown>;
+  occurredAt: string;
+}
+
 export interface LearnerDataExport {
   schemaVersion: 1;
   exportedAt: string;
