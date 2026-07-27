@@ -16,6 +16,27 @@ export interface Account {
   updatedAt: string;
 }
 
+export interface LearnerProfile {
+  userId: string;
+  displayName: string | null;
+  bio: string | null;
+  organization: string | null;
+  location: string | null;
+  websiteUrl: string | null;
+  photoAvailable: boolean;
+  photoUpdatedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpdateLearnerProfileRequest {
+  displayName?: string | null;
+  bio?: string | null;
+  organization?: string | null;
+  location?: string | null;
+  websiteUrl?: string | null;
+}
+
 export interface ProgressEnvelope {
   revision: number;
   progress: LearnerProgress;
@@ -45,6 +66,10 @@ export interface DomainRule {
 export interface CreateDomainRuleRequest {
   domain: string;
   enabled?: boolean;
+  reason: string;
+}
+
+export interface DeleteDomainRuleRequest {
   reason: string;
 }
 
@@ -89,6 +114,7 @@ export interface LearnerDataExport {
   schemaVersion: 1;
   exportedAt: string;
   account: Account;
+  profile: LearnerProfile;
   progress: ProgressEnvelope;
   moduleProgress: unknown[];
   assessmentAttempts: unknown[];

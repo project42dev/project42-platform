@@ -14,6 +14,7 @@ export interface SelfHostConfiguration {
   domainApprovalEnabled: boolean;
   bootstrapOwnerIssuer: string;
   bootstrapOwnerSubject: string;
+  profilePhotoDirectory: string;
   migrationDirectory: string;
 }
 
@@ -96,6 +97,8 @@ export function readConfiguration(
     domainApprovalEnabled: String(environment.DOMAIN_APPROVAL_ENABLED) === "true",
     bootstrapOwnerIssuer: environment.BOOTSTRAP_OWNER_ISSUER?.trim() ?? "",
     bootstrapOwnerSubject: environment.BOOTSTRAP_OWNER_SUBJECT?.trim() ?? "",
+    profilePhotoDirectory:
+      environment.PROFILE_PHOTO_DIRECTORY?.trim() || "data/profile-photos",
     migrationDirectory:
       environment.MIGRATION_DIRECTORY?.trim() || "self-host/postgres",
   };

@@ -100,10 +100,13 @@ export type {
   AccountStateChangeRequest,
   ApiErrorBody,
   CreateDomainRuleRequest,
+  DeleteDomainRuleRequest,
   DomainRule,
+  LearnerProfile,
   ProgressEnvelope,
   ProgressImportRequest,
   Project42Role,
+  UpdateLearnerProfileRequest,
 } from "./api-contract.js";
 export type {
   Catalog,

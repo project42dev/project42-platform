@@ -59,6 +59,7 @@ services:
       OIDC_EMAIL_VERIFIED_CLAIM: email_verified
       ALLOWED_ORIGINS: ${PROJECT42_ALLOWED_ORIGINS:-http://localhost:3000}
       DOMAIN_APPROVAL_ENABLED: "false"
+      PROFILE_PHOTO_DIRECTORY: /var/lib/project42/profile-photos
       MIGRATION_DIRECTORY: self-host/postgres
     depends_on:
       database:
@@ -67,6 +68,8 @@ services:
         condition: service_healthy
     ports:
       - "8787:8787"
+    volumes:
+      - project42_profile_photos:/var/lib/project42/profile-photos
     read_only: true
     tmpfs:
       - /tmp:size=16m,mode=1777
@@ -80,3 +83,4 @@ services:
 volumes:
   project42_database:
   project42_identity:
+  project42_profile_photos:
