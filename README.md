@@ -36,6 +36,10 @@ contracts—not the private PMO records or Project42dev production configuration
 - A provider-neutral OIDC Worker API with approval states, exact-domain rules,
   owner administration endpoints, D1 migrations, progress synchronization, and
   append-only authorization audits.
+- Server-side OIDC Authorization Code with PKCE, nonce and state binding,
+  rotating opaque sessions, secure HttpOnly host cookies, CSRF origin checks,
+  account-state invalidation, and audited sign-out
+  ([browser-session guide](docs/browser-sessions.md)).
 - Versioned, machine-readable content-maintenance evidence, impact, Foundry role,
   multi-model execution, deterministic gate, rollback, and human approval contracts.
 - Evidence-backed contributor-credit packages with stable provider identity,
@@ -52,6 +56,16 @@ contracts—not the private PMO records or Project42dev production configuration
   least-privilege drift detection, overlapping rotation, recovery, disablement,
   and retirement.
 - Seed content suitable for a hosted site or self-hosted installation.
+
+Release `0.60.0` replaces browser bearer-token storage with an OIDC
+Authorization Code and PKCE boundary owned by the API. Encrypted one-time
+transactions bind state, nonce, verifier, return target, and expiry; signed ID
+tokens must contain fresh `auth_time` evidence. Opaque session identifiers are
+stored only as SHA-256 digests, rotate atomically with audit evidence, expire
+absolutely, and are invalidated by suspension, revocation, account merge, and
+rollback. Host-only Secure HttpOnly cookies, exact-origin credentialed CORS,
+origin checks on cookie mutations, invalid-cookie recovery, bounded cleanup,
+and matching D1/PostgreSQL schema guards complete the boundary.
 
 Release `0.59.1` adds a fail-closed learning-record recovery promotion gate and
 brackets the actual recovery operation with its runtime RTO clock.

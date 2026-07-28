@@ -97,6 +97,35 @@ export {
   readLearningRecordAdapterConfiguration,
 } from "./learning-record-adapter.js";
 export {
+  BROWSER_SESSION_COOKIE,
+  clearHostCookie,
+  createHostCookie,
+  createPkceChallenge,
+  normalizeReturnTarget,
+  OIDC_TRANSACTION_COOKIE,
+  openOidcTransaction,
+  randomBase64Url,
+  readBrowserOidcConfiguration,
+  readCookie,
+  sealOidcTransaction,
+  sha256Base64Url,
+} from "./browser-session.js";
+export {
+  AUTH_ABUSE_ROUTES,
+  AuthAbuseLimiterUnavailableError,
+  CloudflareAuthAbuseLimiter,
+  normalizeAuthClientAddress,
+  readCloudflareClientAddress,
+} from "./auth-abuse-limiter.js";
+export type {
+  AuthAbuseLimitDecision,
+  AuthAbuseLimiter,
+  AuthAbuseLimitRequest,
+  AuthAbuseRoute,
+  CloudflareAuthAbuseBindings,
+  CloudflareRateLimitBinding,
+} from "./auth-abuse-limiter.js";
+export {
   runLearningRecordAdapterConformance,
   verifyLearningRecordAdapterParity,
 } from "./learning-record-adapter-conformance.js";
@@ -210,6 +239,11 @@ export type {
   LearningEventDatabase,
   LearningEventPreparedStatement,
 } from "./sql-learning-event-store.js";
+export type {
+  BrowserOidcConfiguration,
+  BrowserOidcTransaction,
+  BrowserSessionEnvironment,
+} from "./browser-session.js";
 export type {
   LearningEventConformanceReport,
   LearningEventConformanceScope,

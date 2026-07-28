@@ -47,6 +47,10 @@ public learning-event conformance harness against PostgreSQL 17.
 Migration `006_learning_record_receipts.sql` adds immutable, pseudonymous deletion
 receipts and deletion-replay evidence. Back up the post-backup deletion-receipt
 ledger separately and import/replay it before promoting a restored service.
+Migration `007_secure_browser_sessions.sql` adds the portable session schema and
+its tenant, chronology, lifecycle, and immutability guards. A production
+self-hosted deployment must configure HTTPS OIDC browser endpoints and its own
+persistent session-encryption secret before enabling API-owned browser sessions.
 The identity readiness probe follows the
 [official Keycloak health-check guidance](https://www.keycloak.org/observability/health)
 for its internal management port (verified 2026-07-27).
@@ -63,20 +67,61 @@ API requests. Set `PROFILE_PHOTO_DIRECTORY` to a writable private mount when
 building another self-hosted profile; do not place photos in a public static
 asset directory.
 
-## Connect a Learn build
+## Identity modes and Learn compatibility
 
-Build Project 42 Learn with these public values:
+The default HTTP evaluation profile is deliberately **bearer-only**. It can
+exercise signed access-token validation, including the recent `auth_time`
+evidence required by sensitive account routes, but it cannot issue the
+`Secure` API-owned browser-session cookie. `BROWSER_SESSION_MODE=disabled`
+fails closed if a browser-session endpoint is called.
+
+Learn 0.9.0 is the coordinated candidate implementing the API-owned HTTP-only
+cookie contract, but it has not been published. The machine-readable
+compatibility manifest therefore marks 0.9.0 as `candidate`, not `released`,
+and does not claim that the older browser-side OIDC client is compatible. The
+candidate needs only this public runtime value:
 
 ```text
-NEXT_PUBLIC_PROJECT42_API_ORIGIN=http://localhost:8787
-NEXT_PUBLIC_PROJECT42_OIDC_AUTHORITY=http://localhost:8080/realms/project42
-NEXT_PUBLIC_PROJECT42_OIDC_CLIENT_ID=project42-learn
-NEXT_PUBLIC_PROJECT42_OIDC_SCOPE=openid profile email
+NEXT_PUBLIC_PROJECT42_API_ORIGIN=https://api.example.org
 ```
 
-Serve that build at `http://localhost:3000`, which is the redirect origin in
-the reference realm. This is a public-client Authorization Code with PKCE
-configuration; it has no client secret and does not enable password grants.
+Learn must send same-site API requests with credentials included and initiate
+sign-in through `/v1/auth/start`; it must not store access or refresh tokens.
+
+### Enable API-owned browser sessions behind HTTPS
+
+Do not disable `Secure` cookies or relax the HTTPS checks for local testing.
+Instead, put the API, Learn, and identity provider behind a trusted local or
+external HTTPS reverse proxy, register the exact API callback, and set:
+
+```text
+PROJECT42_PUBLIC_URL=https://api.example.org
+PROJECT42_ALLOWED_ORIGINS=https://learn.example.org
+PROJECT42_OIDC_ISSUER=https://identity.example.org/realms/project42
+PROJECT42_OIDC_JWKS_URL=https://identity.example.org/realms/project42/protocol/openid-connect/certs
+PROJECT42_BROWSER_SESSION_MODE=oidc
+PROJECT42_OIDC_AUTHORIZATION_ENDPOINT=https://identity.example.org/realms/project42/protocol/openid-connect/auth
+PROJECT42_OIDC_TOKEN_ENDPOINT=https://identity.example.org/realms/project42/protocol/openid-connect/token
+PROJECT42_OIDC_CLIENT_ID=project42-api-browser
+PROJECT42_OIDC_CLIENT_SECRET=
+PROJECT42_OIDC_REDIRECT_URI=https://api.example.org/v1/auth/callback
+PROJECT42_OIDC_LOGOUT_ENDPOINT=https://identity.example.org/realms/project42/protocol/openid-connect/logout
+PROJECT42_SESSION_ENCRYPTION_KEY=<base64url-encoded-32-byte-random-key>
+```
+
+The reference realm includes a public PKCE browser client with an exact
+`https://localhost:8787/v1/auth/callback` demonstration redirect. Replace that
+registration with the deployment's exact HTTPS API origin; do not add a
+wildcard. A production operator may instead provision a confidential client
+and place its secret in the deployment's secret manager.
+
+Keycloak 26.7 full access tokens include `auth_time`; both reference clients
+explicitly disable lightweight access tokens so bearer authorization retains
+that claim. Project 42 sends `prompt=login` and `max_age=0`, validates a fresh
+`auth_time`, and binds the ID token to the authorization transaction's
+`nonce`. The release tests verify those request and claim contracts. Validate
+the same behavior with a real token from any replacement provider before
+promotion.
 
 ## Back up and restore
 
@@ -149,7 +194,7 @@ cosign verify-blob \
   --bundle project42-platform.sigstore.json \
   --certificate-identity-regexp '^https://github.com/project42dev/project42-platform/' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  project42-platform-v0.52.0.tgz
+  project42-platform-v0.60.0.tgz
 cosign verify-blob \
   --bundle compatibility.sigstore.json \
   --certificate-identity-regexp '^https://github.com/project42dev/project42-platform/' \

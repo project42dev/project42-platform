@@ -20,6 +20,7 @@ function identity(subject, email) {
     emailVerified: true,
     displayName: subject,
     issuedAt: Math.floor(Date.now() / 1_000),
+    authenticatedAt: Math.floor(Date.now() / 1_000),
   };
 }
 
@@ -95,7 +96,11 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
       const token = request.headers.get("authorization")?.replace(/^Bearer /, "");
       const verified = token ? identities.get(token) : null;
       if (!verified) throw new Error("Unknown merge test identity.");
-      return { ...verified, issuedAt: Math.floor(Date.now() / 1_000) };
+      return {
+        ...verified,
+        issuedAt: Math.floor(Date.now() / 1_000),
+        authenticatedAt: Math.floor(Date.now() / 1_000),
+      };
     },
   };
   const repository = new D1Project42Repository(database, "merge-e2e");

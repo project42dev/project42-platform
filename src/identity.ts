@@ -16,6 +16,7 @@ export interface VerifiedIdentity {
   emailVerified: boolean;
   displayName: string | null;
   issuedAt?: number;
+  authenticatedAt?: number;
 }
 
 export interface IdentityVerifier {

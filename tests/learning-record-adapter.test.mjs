@@ -20,9 +20,9 @@ test("runtime configuration selects only the supported learning-record adapter",
     "node",
   );
   assert.equal(hosted.adapter, "cloudflare-d1");
-  assert.equal(hosted.migrationHead, "0009_learning_record_receipts.sql");
+  assert.equal(hosted.migrationHead, "0010_secure_browser_sessions.sql");
   assert.equal(selfHosted.adapter, "postgresql");
-  assert.equal(selfHosted.migrationHead, "006_learning_record_receipts.sql");
+  assert.equal(selfHosted.migrationHead, "007_secure_browser_sessions.sql");
   assert.equal(hosted.semanticFingerprint, selfHosted.semanticFingerprint);
   assert.equal(
     hosted.semanticFingerprint,

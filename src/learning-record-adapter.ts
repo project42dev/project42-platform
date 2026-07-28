@@ -42,8 +42,8 @@ export interface LearningRecordAdapterConfiguration {
   receiptContractVersion: typeof LEARNING_RECORD_RECEIPT_VERSION;
   semanticFingerprint: typeof LEARNING_RECORD_SEMANTIC_FINGERPRINT;
   migrationHead:
-    | "0009_learning_record_receipts.sql"
-    | "006_learning_record_receipts.sql";
+    | "0010_secure_browser_sessions.sql"
+    | "007_secure_browser_sessions.sql";
   transactionMode: "atomic-sequential-batch";
 }
 
@@ -138,8 +138,8 @@ export function describeLearningRecordAdapter(
     semanticFingerprint: LEARNING_RECORD_SEMANTIC_FINGERPRINT,
     migrationHead:
       adapter === "cloudflare-d1"
-        ? "0009_learning_record_receipts.sql"
-        : "006_learning_record_receipts.sql",
+      ? "0010_secure_browser_sessions.sql"
+      : "007_secure_browser_sessions.sql",
     transactionMode: "atomic-sequential-batch",
   };
 }

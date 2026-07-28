@@ -37,6 +37,8 @@ The migrations create tenant-scoped tables for:
 - consent and deletion workflow records;
 - proof-bound duplicate-account previews, recovery snapshots, aliases, and
   immutable merge and rollback receipts;
+- one-time OIDC authorization transactions and rotating browser sessions stored
+  only as token digests;
 - pseudonymous deletion tombstones; and
 - append-only administrative audit events with narrowly controlled privacy
   redaction during verified deletion.
@@ -83,6 +85,12 @@ Migration `0009_learning_record_receipts.sql` adds immutable pseudonymous deleti
 receipts and restore-specific deletion-replay evidence. Retain deletion receipts
 in a protected post-backup ledger so a restore created before a deletion cannot
 silently reactivate the deleted learning record.
+
+Migration `0010_secure_browser_sessions.sql` adds one-time authorization
+transactions and rotating browser sessions. Apply it before enabling the
+API-owned browser sign-in endpoints. See the
+[browser-session guide](../browser-sessions.md) for identity-provider,
+cookie, secret, CORS, and rollback requirements.
 
 Run migrations against a separately provisioned remote D1 database only after
 placing its ID in private deployment configuration. The packaged runner verifies
