@@ -14,10 +14,11 @@ contracts—not the private PMO records or Project42dev production configuration
   stable slugs, typed audiences, formats, prerequisites, and review policy.
 - Modular curriculum files with hands-on activities and instructor-ready narration,
   scene, checkpoint, assessment, caption, transcript, and reduced-motion packages.
-- Provider-neutral class-script and immutable virtual-instructor media contracts with
-  multi-model provenance, independent verification, accessibility, and human release
-  gates ([production guide](docs/virtual-instructor-production.md)).
-- A primary-source registry and freshness gate for volatile content.
+- Provider-neutral class-script and immutable virtual-instructor media contracts
+  with multi-model provenance, independent verification, accessibility, and human
+  release gates ([production guide](docs/virtual-instructor-production.md)).
+- A primary-source registry and freshness gate for volatile
+  content.
 - Provider-neutral curriculum with Anthropic, OpenAI, and selected-provider branches.
 - Pure assessment scoring and learner-progress functions.
 - Portable JSON learner-record backup/restore, CSV transcripts, capstone evidence,
@@ -35,7 +36,18 @@ contracts—not the private PMO records or Project42dev production configuration
 - Provider-neutral identity-client provisioning plans, durable lifecycle records,
   secret-manager adapters, resumable owner gates, drift detection, rollback, and
   provider compatibility contracts.
+- A resumable provisioning engine with compare-and-set state persistence,
+  idempotent execution, authority-proof verification, provider recovery, rotation,
+  upgrade reconciliation, disablement, and retirement.
 - Seed content suitable for a hosted site or self-hosted installation.
+
+Release `0.54.0` adds the resumable identity-provisioning engine. It resumes
+provider operations across process restarts, binds authority decisions to expiring
+SHA-256 continuation proofs, prevents duplicate clients, sends raw credentials only
+to the injected secret sink, fails closed on post-provider drift, and records every
+attempt and transition. Deterministic tests prove API and owner-gated deployment,
+rerun, denial, expiry, outage recovery, callback-drift recovery, rotation, upgrade,
+disablement, retirement, and unsupported-capability rejection.
 
 Release `0.53.0` adds the identity-client provisioning contract used by hosted and
 self-hosted installers. It supports backend APIs, bounded owner/admin gates, and

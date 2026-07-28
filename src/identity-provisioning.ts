@@ -287,6 +287,7 @@ export interface IdentityProvisioningAdapterResult {
   secret: IdentityProvisioningSecretReference | null;
   observation: IdentityProvisioningObservation | null;
   rollback: IdentityProvisioningRollback;
+  error: IdentityProvisioningError | null;
   detailCode: string;
 }
 
@@ -329,7 +330,14 @@ const transitions: Readonly<
     "retired",
   ],
   "awaiting-authority": ["provisioning", "failed", "retired"],
-  provisioning: ["secret-pending", "validating", "failed", "recovering"],
+  provisioning: [
+    "secret-pending",
+    "validating",
+    "disabled",
+    "failed",
+    "recovering",
+    "retired",
+  ],
   "secret-pending": ["validating", "failed", "recovering"],
   validating: ["ready", "disabled", "failed", "recovering"],
   ready: ["validating", "rotating", "disabled", "failed", "retired"],
