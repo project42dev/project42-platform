@@ -83,7 +83,9 @@ parameters or learner data.
 
 Before the hosted API accepts learning commands:
 
-1. Apply migrations through `0009_learning_record_receipts.sql`.
+1. Preview and apply migrations through
+   `0009_learning_record_receipts.sql` with the packaged checksum-bound remote
+   runner. Existing unbound ledgers require explicit exact-release adoption.
 2. Set `LEARNING_RECORD_ADAPTER=cloudflare-d1` in private deployment
    configuration.
 3. Confirm `/health` reports adapter `cloudflare-d1`, contract `1.0`, and the

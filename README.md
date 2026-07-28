@@ -50,6 +50,13 @@ contracts—not the private PMO records or Project42dev production configuration
   and retirement.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.58.1` adds a checksum-bound remote D1 migration runner for the
+Project 42 schema. It validates exact migration order, rejects previously
+applied SQL drift, applies each migration and its ledger records together, and
+requires explicit operator adoption before binding a pre-existing Wrangler
+ledger. This preserves trigger-bearing migrations without weakening the
+production deployment gate.
+
 Release `0.58.0` completes the hosted D1 learning-record adapter boundary.
 Hosted and self-hosted runtimes select their adapter through validated,
 fail-closed configuration; `/health` exposes only the provider-neutral contract
