@@ -118,6 +118,7 @@ test(
         "001_initial.sql",
         "002_learner_profiles.sql",
         "003_linked_identities.sql",
+        "004_account_merges.sql",
       ]);
       assert.deepEqual(
         await applyPostgresMigrations(pool, "self-host/postgres"),
