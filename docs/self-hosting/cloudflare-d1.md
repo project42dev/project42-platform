@@ -85,11 +85,27 @@ in a protected post-backup ledger so a restore created before a deletion cannot
 silently reactivate the deleted learning record.
 
 Run migrations against a separately provisioned remote D1 database only after
-placing its ID in private deployment configuration:
+placing its ID in private deployment configuration. The packaged runner verifies
+the ordered Wrangler ledger, binds every applied file to a SHA-256 checksum, and
+applies each pending migration with its ledger records as one remote import:
 
-```bash
-npx wrangler d1 migrations apply PROJECT42_DB --remote
+```powershell
+npm run db:migrate:remote -- -ConfigurationPath ./wrangler.private.jsonc
 ```
+
+For a database whose existing `d1_migrations` ledger predates checksum binding,
+first verify that the deployed release exactly matches every applied migration.
+Then perform the one-time, explicit adoption:
+
+```powershell
+npm run db:migrate:remote -- -ConfigurationPath ./wrangler.private.jsonc `
+  -AdoptExistingLedger
+```
+
+Do not use adoption to conceal missing, reordered, unknown, or modified
+migrations. The runner rejects those states. Use `-Plan` for a read-only preview.
+Private configuration, resource identifiers, and recovery evidence remain
+outside this repository.
 
 ## Production controls
 
@@ -106,6 +122,8 @@ npx wrangler d1 migrations apply PROJECT42_DB --remote
 - Set the bootstrap owner by immutable issuer and subject, then protect changes to
   those values as a privileged operation.
 - Export, encrypt, and restore-test the database on a documented cadence.
+- Preview the checksum-bound remote migration plan, capture a recovery point,
+  and require exact release verification before adopting an older ledger.
 - Revalidate Cloudflare quotas and pricing before each production release.
 - Use a separate D1 database for restoration tests.
 

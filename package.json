@@ -1,6 +1,6 @@
 {
   "name": "@project42/platform",
-  "version": "0.58.0",
+  "version": "0.58.1",
   "description": "Open-source content, assessment, and learning-record core for Project 42.",
   "type": "module",
   "main": "./dist/index.js",
@@ -15,6 +15,7 @@
     "dist",
     "content",
     "docs",
+    "deployment",
     "examples",
     "migrations",
     "schemas",
@@ -32,6 +33,7 @@
     "api:types": "wrangler types src/worker-configuration.d.ts",
     "api:check": "npm run api:types && wrangler deploy --dry-run",
     "db:migrate:local": "wrangler d1 migrations apply PROJECT42_DB --local",
+    "db:migrate:remote": "pwsh -NoProfile -File deployment/cloudflare/Invoke-Project42D1RemoteMigrations.ps1 -Database PROJECT42_DB",
     "content:freshness": "node scripts/check-freshness.mjs",
     "self-host:validate": "node scripts/validate-self-host-release.mjs",
     "resources:validate": "node scripts/validate-resource-packs.mjs",
