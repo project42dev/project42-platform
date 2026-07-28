@@ -37,6 +37,7 @@ export interface IdentityLinkTransaction {
   id: string;
   provider: string;
   state: string;
+  codeChallenge: string;
   codeChallengeMethod: "S256";
   returnPath: string;
   expiresAt: string;
@@ -47,6 +48,24 @@ export interface CreateIdentityLinkTransactionRequest {
   codeChallenge: string;
   codeChallengeMethod: "S256";
   returnPath: string;
+}
+
+export interface GithubIdentityLinkStartRequest {
+  codeChallenge: string;
+  codeChallengeMethod: "S256";
+  returnPath: string;
+}
+
+export interface GithubIdentityLinkStart {
+  link: IdentityLinkTransaction;
+  authorizationUrl: string;
+}
+
+export interface GithubIdentityLinkCompletionRequest {
+  transactionId: string;
+  state: string;
+  code: string;
+  codeVerifier: string;
 }
 
 export interface LearnerProfile {

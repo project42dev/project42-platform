@@ -3,7 +3,11 @@ import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 import { Miniflare } from "miniflare";
 import { starterCatalog } from "../dist/index.js";
-import { D1Project42Repository, handleRequest } from "../dist/worker.js";
+import {
+  D1Project42Repository,
+  GithubIdentityLinkAdapter,
+  handleRequest,
+} from "../dist/worker.js";
 
 const issuer = "https://issuer.example.test";
 const allowedOrigin = "https://learn.example.test";
@@ -21,6 +25,14 @@ function identity(subject, email, emailVerified = true, roles = {}) {
 
 async function readBody(response) {
   return response.json();
+}
+
+async function pkceChallenge(verifier) {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(verifier),
+  );
+  return Buffer.from(digest).toString("base64url");
 }
 
 test("account service completes lifecycle, progress, privacy, and audit journeys on D1", async (t) => {
@@ -50,6 +62,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   const identities = new Map([
     ["owner-token", identity("owner-subject", "owner@example.test")],
     ["learner-token", identity("learner-subject", "learner@other.example")],
+    ["other-token", identity("other-subject", "other@other.example")],
     ["delete-token", identity("delete-subject", "delete@trusted.example")],
     [
       "unverified-token",
@@ -72,7 +85,37 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     BOOTSTRAP_OWNER_SUBJECT: "owner-subject",
     DOMAIN_APPROVAL_ENABLED: "false",
     PROFILE_PHOTOS: profilePhotos,
+    GITHUB_LINK_CLIENT_ID: "Iv1.1234567890abcdef",
+    GITHUB_LINK_CLIENT_SECRET: "s".repeat(40),
+    GITHUB_LINK_REDIRECT_URI: `${allowedOrigin}/account/github/callback/`,
   };
+  const githubRequests = [];
+  const githubLinkAdapter = new GithubIdentityLinkAdapter(
+    env,
+    async (input, init) => {
+      const url = String(input);
+      githubRequests.push({ url, init });
+      if (url === "https://github.com/login/oauth/access_token") {
+        return Response.json({
+          access_token: "ephemeral-github-token",
+          token_type: "bearer",
+          scope: "",
+        });
+      }
+      if (url === "https://api.github.com/user") {
+        assert.equal(
+          new Headers(init.headers).get("authorization"),
+          "Bearer ephemeral-github-token",
+        );
+        return Response.json({
+          id: 424242,
+          login: "project42-learner",
+          name: "Project 42 learner",
+        });
+      }
+      throw new Error(`Unexpected GitHub test URL: ${url}`);
+    },
+  );
 
   async function api(token, path, init = {}) {
     const headers = new Headers(init.headers);
@@ -86,6 +129,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
       env,
       verifier,
       repository,
+      githubLinkAdapter,
     );
   }
 
@@ -281,20 +325,30 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     "primary_identity_required",
   );
 
-  const linkStartResponse = await api("learner-token", "/v1/me/identity-links", {
-    method: "POST",
-    body: JSON.stringify({
-      provider: "github",
-      codeChallenge: "A".repeat(43),
-      codeChallengeMethod: "S256",
-      returnPath: "/account?linked=github",
-    }),
-  });
+  const codeVerifier = "v".repeat(43);
+  const linkStartResponse = await api(
+    "learner-token",
+    "/v1/me/identity-links/github",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        codeChallenge: await pkceChallenge(codeVerifier),
+        codeChallengeMethod: "S256",
+        returnPath: "/account?linked=github",
+      }),
+    },
+  );
   assert.equal(linkStartResponse.status, 201);
-  const link = (await readBody(linkStartResponse)).link;
+  const linkStart = await readBody(linkStartResponse);
+  const link = linkStart.link;
   assert.equal(link.provider, "github");
   assert.equal(link.codeChallengeMethod, "S256");
   assert.equal(link.returnPath, "/account?linked=github");
+  const authorizationUrl = new URL(linkStart.authorizationUrl);
+  assert.equal(authorizationUrl.origin, "https://github.com");
+  assert.equal(authorizationUrl.pathname, "/login/oauth/authorize");
+  assert.equal(authorizationUrl.searchParams.get("state"), link.state);
+  assert.equal(authorizationUrl.searchParams.has("scope"), false);
   const storedLink = await database
     .prepare(
       "SELECT state_digest, status FROM identity_link_transactions WHERE id = ?",
@@ -308,41 +362,132 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     identities.get("learner-token"),
   );
   assert.ok(currentLearner);
-  const githubIdentity = await repository.completeIdentityLink({
-    account: currentLearner,
-    transactionId: link.id,
-    state: link.state,
-    providerIdentity: {
-      provider: "github",
-      issuer: "https://github.com",
-      subject: "424242",
-      providerLogin: "project42-learner",
-      displayName: "Project 42 learner",
+  const wrongVerifier = await api(
+    "learner-token",
+    "/v1/me/identity-links/github/complete",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        transactionId: link.id,
+        state: link.state,
+        code: "temporary-code",
+        codeVerifier: "w".repeat(43),
+      }),
     },
-    requestId: "link-complete-e2e",
-    now: new Date().toISOString(),
-  });
+  );
+  assert.equal(wrongVerifier.status, 400);
+  assert.equal(githubRequests.length, 0);
+  const linkCompleteResponse = await api(
+    "learner-token",
+    "/v1/me/identity-links/github/complete",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        transactionId: link.id,
+        state: link.state,
+        code: "temporary-code",
+        codeVerifier,
+      }),
+    },
+  );
+  assert.equal(linkCompleteResponse.status, 200);
+  const linkCompletion = await readBody(linkCompleteResponse);
+  const githubIdentity = linkCompletion.linkedIdentity;
+  assert.equal(linkCompletion.returnPath, "/account?linked=github");
+  assert.equal(githubRequests.length, 2);
+  const tokenRequestBody = new URLSearchParams(githubRequests[0].init.body);
+  assert.equal(tokenRequestBody.get("code"), "temporary-code");
+  assert.equal(tokenRequestBody.get("code_verifier"), codeVerifier);
+  assert.equal(tokenRequestBody.has("scope"), false);
+  assert.equal(
+    JSON.stringify(linkCompletion).includes("ephemeral-github-token"),
+    false,
+  );
   assert.equal(githubIdentity.provider, "github");
   assert.equal(githubIdentity.primary, false);
   assert.equal(githubIdentity.canUnlink, true);
-  await assert.rejects(
-    () =>
-      repository.completeIdentityLink({
-        account: currentLearner,
+  const replay = await api(
+    "learner-token",
+    "/v1/me/identity-links/github/complete",
+    {
+      method: "POST",
+      body: JSON.stringify({
         transactionId: link.id,
         state: link.state,
-        providerIdentity: {
-          provider: "github",
-          issuer: "https://github.com",
-          subject: "424242",
-          providerLogin: "project42-learner",
-          displayName: "Project 42 learner",
-        },
-        requestId: "link-replay-e2e",
-        now: new Date().toISOString(),
+        code: "replayed-code",
+        codeVerifier,
       }),
-    (error) => error?.code === "invalid_identity_link",
+    },
   );
+  assert.equal(replay.status, 400);
+  assert.equal((await readBody(replay)).error.code, "invalid_identity_link");
+  assert.equal(githubRequests.length, 2);
+
+  const otherSession = await api("other-token", "/v1/session", {
+    method: "POST",
+  });
+  assert.equal(otherSession.status, 202);
+  const otherAccount = (await readBody(otherSession)).account;
+  const approveOther = await api(
+    "owner-token",
+    `/v1/admin/accounts/${encodeURIComponent(otherAccount.id)}/state`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        state: "approved",
+        reason: "Approve the linked-identity collision fixture.",
+      }),
+    },
+  );
+  assert.equal(approveOther.status, 200);
+  const otherVerifier = "o".repeat(43);
+  const otherLinkStart = await api(
+    "other-token",
+    "/v1/me/identity-links/github",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        codeChallenge: await pkceChallenge(otherVerifier),
+        codeChallengeMethod: "S256",
+        returnPath: "/account?linked=github",
+      }),
+    },
+  );
+  assert.equal(otherLinkStart.status, 201);
+  const otherLink = (await readBody(otherLinkStart)).link;
+  const collision = await api(
+    "other-token",
+    "/v1/me/identity-links/github/complete",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        transactionId: otherLink.id,
+        state: otherLink.state,
+        code: "other-temporary-code",
+        codeVerifier: otherVerifier,
+      }),
+    },
+  );
+  assert.equal(collision.status, 409);
+  assert.equal(
+    (await readBody(collision)).error.code,
+    "identity_already_linked",
+  );
+  assert.equal(githubRequests.length, 4);
+  assert.equal(
+    (
+      await database
+        .prepare(
+          "SELECT status FROM identity_link_transactions WHERE id = ?",
+        )
+        .bind(otherLink.id)
+        .first()
+    ).status,
+    "failed",
+  );
+  const otherIdentities = await api("other-token", "/v1/me/identities");
+  assert.equal(otherIdentities.status, 200);
+  assert.equal((await readBody(otherIdentities)).identities.length, 1);
 
   const linkedIdentitiesResponse = await api(
     "learner-token",
