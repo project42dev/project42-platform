@@ -4,7 +4,10 @@ import {
   type LearningEventAccess,
   type LearningEventStore,
 } from "./learning-event-engine.js";
-import type { LearningCommand } from "./learning-events.js";
+import {
+  LEARNING_EVENT_CONTRACT_VERSION,
+  type LearningCommand,
+} from "./learning-events.js";
 
 export interface LearningEventConformanceScope {
   installationId: string;
@@ -14,7 +17,7 @@ export interface LearningEventConformanceScope {
 }
 
 export interface LearningEventConformanceReport {
-  contractVersion: "1.0";
+  contractVersion: typeof LEARNING_EVENT_CONTRACT_VERSION;
   checks: string[];
   eventCountBeforeDeletion: number;
   deletedEventCount: number;
@@ -68,7 +71,7 @@ export async function runLearningEventStoreConformance(
     },
   ): LearningCommand =>
     ({
-      schemaVersion: "1.0",
+      schemaVersion: LEARNING_EVENT_CONTRACT_VERSION,
       type,
       installationId: scope.installationId,
       learnerId: scope.learnerId,
@@ -224,6 +227,44 @@ export async function runLearningEventStoreConformance(
   );
   checks.push("deterministic-rebuild", "transcript-badge-correction");
 
+  const importedProgress = {
+    schemaVersion: 1 as const,
+    displayName: "Conformance learner",
+    startedPathIds: ["portable-path"],
+    completedModuleIds: ["portable-module"],
+    attempts: [],
+    capstoneSubmissions: [],
+    badges: [],
+    updatedAt: "2026-07-28T12:06:00.000Z",
+  };
+  const progressImport = command(
+    "progress.import",
+    "progress-import",
+    {
+      source: "browser-local-v1",
+      sourceChecksum:
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      synchronizedAt: "2026-07-28T12:06:00.000Z",
+      progress: importedProgress,
+    },
+    "2026-07-28T12:06:00.000Z",
+  );
+  const firstImport = await engine.execute(progressImport, learnerAccess);
+  const replayedImport = await engine.execute(progressImport, learnerAccess);
+  expect(!firstImport.replayed, "The first progress import was incorrectly replayed.");
+  expect(replayedImport.replayed, "An identical progress import was not replayed.");
+  expect(
+    JSON.stringify(replayedImport.projection.progressSnapshot) ===
+      JSON.stringify(importedProgress),
+    "The imported progress snapshot was not rebuilt exactly.",
+  );
+  expect(
+    replayedImport.projection.enrollments.length === 0 &&
+      replayedImport.projection.attempts.length === 0,
+    "A progress import did not reset earlier granular projection state.",
+  );
+  checks.push("authoritative-progress-import");
+
   await expectEngineError(
     () =>
       engine.rebuild(scope.installationId, scope.learnerId, {
@@ -264,7 +305,7 @@ export async function runLearningEventStoreConformance(
   checks.push("governed-deletion");
 
   return {
-    contractVersion: "1.0",
+    contractVersion: LEARNING_EVENT_CONTRACT_VERSION,
     checks,
     eventCountBeforeDeletion: exported.length,
     deletedEventCount,

@@ -92,6 +92,13 @@ API-owned browser sign-in endpoints. See the
 [browser-session guide](../browser-sessions.md) for identity-provider,
 cookie, secret, CORS, and rollback requirements.
 
+Migration `0011_authoritative_progress_imports.sql` adds event schema versions and
+the immutable `progress.imported` event. The Worker then reads
+`/v1/me/progress` from the event projection, writes browser and portable imports
+to the event stream first, and keeps the older progress tables only as rebuildable
+compatibility projections. Existing hosted snapshots are promoted lazily and
+idempotently on an authorized learner read.
+
 Run migrations against a separately provisioned remote D1 database only after
 placing its ID in private deployment configuration. The packaged runner verifies
 the ordered Wrangler ledger, binds every applied file to a SHA-256 checksum, and

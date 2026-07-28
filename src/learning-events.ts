@@ -1,6 +1,13 @@
+import type { LearnerProgress } from "./progress.js";
 import type { ValidationResult } from "./schema.js";
 
-export const LEARNING_EVENT_CONTRACT_VERSION = "1.0" as const;
+export const LEARNING_EVENT_CONTRACT_VERSION = "1.1" as const;
+export const SUPPORTED_LEARNING_EVENT_CONTRACT_VERSIONS = [
+  "1.0",
+  LEARNING_EVENT_CONTRACT_VERSION,
+] as const;
+export type LearningEventContractVersion =
+  (typeof SUPPORTED_LEARNING_EVENT_CONTRACT_VERSIONS)[number];
 
 export const LEARNING_COMMAND_TYPES = [
   "path.enroll",
@@ -8,6 +15,7 @@ export const LEARNING_COMMAND_TYPES = [
   "assessment.record",
   "module.complete",
   "assessment.correct",
+  "progress.import",
 ] as const;
 
 export const LEARNING_EVENT_TYPES = [
@@ -16,6 +24,7 @@ export const LEARNING_EVENT_TYPES = [
   "assessment.recorded",
   "module.completed",
   "assessment.corrected",
+  "progress.imported",
 ] as const;
 
 export type LearningCommandType = (typeof LEARNING_COMMAND_TYPES)[number];
@@ -34,7 +43,7 @@ export interface LearningBadgeDefinition {
 }
 
 export interface LearningCommandBase {
-  schemaVersion: typeof LEARNING_EVENT_CONTRACT_VERSION;
+  schemaVersion: LearningEventContractVersion;
   type: LearningCommandType;
   installationId: string;
   learnerId: string;
@@ -96,15 +105,33 @@ export interface CorrectAssessmentCommand extends LearningCommandBase {
   };
 }
 
+export type LearningProgressImportSource =
+  | "browser-local-v1"
+  | "project42-portable-json"
+  | "legacy-hosted-v1"
+  | "account-merge-v1";
+
+export interface ImportProgressCommand extends LearningCommandBase {
+  type: "progress.import";
+  schemaVersion: typeof LEARNING_EVENT_CONTRACT_VERSION;
+  payload: {
+    source: LearningProgressImportSource;
+    sourceChecksum: string;
+    synchronizedAt: string;
+    progress: LearnerProgress;
+  };
+}
+
 export type LearningCommand =
   | EnrollPathCommand
   | VisitModuleCommand
   | RecordAssessmentCommand
   | CompleteModuleCommand
-  | CorrectAssessmentCommand;
+  | CorrectAssessmentCommand
+  | ImportProgressCommand;
 
 export interface LearningEventBase {
-  schemaVersion: typeof LEARNING_EVENT_CONTRACT_VERSION;
+  schemaVersion: LearningEventContractVersion;
   id: string;
   sequence: number;
   type: LearningEventType;
@@ -143,12 +170,19 @@ export interface AssessmentCorrectedEvent extends LearningEventBase {
   payload: CorrectAssessmentCommand["payload"];
 }
 
+export interface ProgressImportedEvent extends LearningEventBase {
+  type: "progress.imported";
+  schemaVersion: typeof LEARNING_EVENT_CONTRACT_VERSION;
+  payload: ImportProgressCommand["payload"];
+}
+
 export type LearningEvent =
   | PathEnrolledEvent
   | ModuleVisitedEvent
   | AssessmentRecordedEvent
   | ModuleCompletedEvent
-  | AssessmentCorrectedEvent;
+  | AssessmentCorrectedEvent
+  | ProgressImportedEvent;
 
 const stableIdPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$/;
 const idempotencyPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]{15,127}$/;
@@ -180,6 +214,14 @@ export function validateLearningCommand(
   if (!LEARNING_COMMAND_TYPES.includes(value.type)) {
     errors.push("command type is unsupported");
     return { valid: false, errors };
+  }
+  if (
+    value.type === "progress.import" &&
+    value.schemaVersion !== LEARNING_EVENT_CONTRACT_VERSION
+  ) {
+    errors.push(
+      `progress import commands require schemaVersion ${LEARNING_EVENT_CONTRACT_VERSION}`,
+    );
   }
   validateStableId(value.installationId, "installation ID", errors);
   validateStableId(value.learnerId, "learner ID", errors);
@@ -223,6 +265,14 @@ export function validateLearningEvent(value: LearningEvent): ValidationResult {
   if (!LEARNING_EVENT_TYPES.includes(value.type)) {
     errors.push("event type is unsupported");
     return { valid: false, errors };
+  }
+  if (
+    value.type === "progress.imported" &&
+    value.schemaVersion !== LEARNING_EVENT_CONTRACT_VERSION
+  ) {
+    errors.push(
+      `progress imported events require schemaVersion ${LEARNING_EVENT_CONTRACT_VERSION}`,
+    );
   }
   validateStableId(value.installationId, "installation ID", errors);
   validateStableId(value.learnerId, "learner ID", errors);
@@ -268,9 +318,13 @@ export async function digestLearningCommand(
 }
 
 function validateContractVersion(value: string, errors: string[]): void {
-  if (value !== LEARNING_EVENT_CONTRACT_VERSION) {
+  if (
+    !SUPPORTED_LEARNING_EVENT_CONTRACT_VERSIONS.includes(
+      value as LearningEventContractVersion,
+    )
+  ) {
     errors.push(
-      `schemaVersion must be ${LEARNING_EVENT_CONTRACT_VERSION}`,
+      `schemaVersion must be one of ${SUPPORTED_LEARNING_EVENT_CONTRACT_VERSIONS.join(", ")}`,
     );
   }
 }
@@ -309,6 +363,9 @@ function validateCommandPayload(
       return;
     case "assessment.correct":
       validateCorrectionPayload(command.payload, errors);
+      return;
+    case "progress.import":
+      validateProgressImportPayload(command.payload, errors);
   }
 }
 
@@ -331,6 +388,9 @@ function validateEventPayload(
       return;
     case "assessment.corrected":
       validateCorrectionPayload(event.payload, errors);
+      return;
+    case "progress.imported":
+      validateProgressImportPayload(event.payload, errors);
   }
 }
 
@@ -489,6 +549,387 @@ function validateCorrectionPayload(
     errors,
     500,
   );
+}
+
+function validateProgressImportPayload(
+  payload: ImportProgressCommand["payload"],
+  errors: string[],
+): void {
+  rejectUnknownKeys(
+    payload,
+    ["source", "sourceChecksum", "synchronizedAt", "progress"],
+    "progress import payload",
+    errors,
+  );
+  if (!isRecord(payload)) return;
+  if (
+    ![
+      "browser-local-v1",
+      "project42-portable-json",
+      "legacy-hosted-v1",
+      "account-merge-v1",
+    ].includes(payload.source)
+  ) {
+    errors.push("progress import source is unsupported");
+  }
+  if (!digestPattern.test(payload.sourceChecksum)) {
+    errors.push(
+      "progress import sourceChecksum must be a lowercase SHA-256 digest",
+    );
+  }
+  validateTimestamp(
+    payload.synchronizedAt,
+    "progress import synchronizedAt",
+    errors,
+  );
+  validateProgressSnapshot(payload.progress, errors);
+}
+
+function validateProgressSnapshot(
+  progress: LearnerProgress,
+  errors: string[],
+): void {
+  if (!isRecord(progress)) {
+    errors.push("progress import progress must be an object");
+    return;
+  }
+  rejectUnknownKeys(
+    progress,
+    [
+      "schemaVersion",
+      "displayName",
+      "startedPathIds",
+      "completedModuleIds",
+      "attempts",
+      "capstoneSubmissions",
+      "badges",
+      "recentModule",
+      "updatedAt",
+    ],
+    "progress import progress",
+    errors,
+  );
+  if (
+    progress.schemaVersion !== 1 ||
+    typeof progress.displayName !== "string" ||
+    !Array.isArray(progress.startedPathIds) ||
+    !Array.isArray(progress.completedModuleIds) ||
+    !Array.isArray(progress.attempts) ||
+    !Array.isArray(progress.badges) ||
+    (progress.capstoneSubmissions !== undefined &&
+      !Array.isArray(progress.capstoneSubmissions))
+  ) {
+    errors.push("progress import progress must use the Project 42 v1 schema");
+    return;
+  }
+  validateDisplayText(
+    progress.displayName,
+    "progress display name",
+    errors,
+    80,
+  );
+  validateProgressStringArray(
+    progress.startedPathIds,
+    "started path ID",
+    1_000,
+    errors,
+  );
+  validateProgressStringArray(
+    progress.completedModuleIds,
+    "completed module ID",
+    10_000,
+    errors,
+  );
+  validateTimestamp(progress.updatedAt, "progress updatedAt", errors);
+  if (
+    progress.attempts.length > 10_000 ||
+    progress.badges.length > 1_000 ||
+    progress.completedModuleIds.length > 10_000 ||
+    (progress.capstoneSubmissions?.length ?? 0) > 10_000
+  ) {
+    errors.push("progress import progress exceeds supported record limits");
+  }
+  validateUniqueProgressRecords(
+    progress.attempts,
+    "progress assessment attempt",
+    errors,
+    validateProgressAttempt,
+  );
+  validateUniqueProgressRecords(
+    progress.capstoneSubmissions ?? [],
+    "progress capstone submission",
+    errors,
+    validateProgressCapstone,
+  );
+  validateUniqueProgressRecords(
+    progress.badges,
+    "progress badge",
+    errors,
+    validateProgressBadge,
+  );
+  if (progress.recentModule !== undefined) {
+    validateProgressRecentModule(progress.recentModule, errors);
+  }
+}
+
+function validateProgressAttempt(
+  value: unknown,
+  label: string,
+  errors: string[],
+): void {
+  if (!isRecord(value)) {
+    errors.push(`${label} must be an object`);
+    return;
+  }
+  rejectUnknownKeys(
+    value,
+    [
+      "id",
+      "pathId",
+      "moduleId",
+      "contentVersion",
+      "scorePercent",
+      "passed",
+      "completedAt",
+    ],
+    label,
+    errors,
+  );
+  validateProgressString(value.id, `${label} ID`, 128, errors);
+  validateProgressString(value.pathId, `${label} path ID`, 128, errors);
+  validateProgressString(value.moduleId, `${label} module ID`, 128, errors);
+  validateProgressString(
+    value.contentVersion,
+    `${label} content version`,
+    128,
+    errors,
+  );
+  validateProgressScore(value.scorePercent, `${label} score`, errors);
+  if (typeof value.passed !== "boolean") {
+    errors.push(`${label} passed must be boolean`);
+  }
+  validateTimestamp(value.completedAt as string, `${label} completedAt`, errors);
+}
+
+function validateProgressCapstone(
+  value: unknown,
+  label: string,
+  errors: string[],
+): void {
+  if (!isRecord(value)) {
+    errors.push(`${label} must be an object`);
+    return;
+  }
+  rejectUnknownKeys(
+    value,
+    [
+      "id",
+      "pathId",
+      "moduleId",
+      "contentVersion",
+      "submittedAt",
+      "artifactRefs",
+      "criterionScores",
+      "scorePercent",
+      "passed",
+      "reflection",
+    ],
+    label,
+    errors,
+  );
+  validateProgressString(value.id, `${label} ID`, 128, errors);
+  validateProgressString(value.pathId, `${label} path ID`, 128, errors);
+  validateProgressString(value.moduleId, `${label} module ID`, 128, errors);
+  validateProgressString(
+    value.contentVersion,
+    `${label} content version`,
+    128,
+    errors,
+  );
+  validateTimestamp(value.submittedAt as string, `${label} submittedAt`, errors);
+  validateProgressStringArray(
+    value.artifactRefs,
+    `${label} artifact reference`,
+    1_000,
+    errors,
+  );
+  if (!Array.isArray(value.criterionScores) || value.criterionScores.length === 0) {
+    errors.push(`${label} criterion scores are required`);
+  } else {
+    validateUniqueProgressRecords(
+      value.criterionScores,
+      `${label} criterion score`,
+      errors,
+      validateProgressCriterionScore,
+      "criterionId",
+    );
+  }
+  validateProgressScore(value.scorePercent, `${label} score`, errors);
+  if (typeof value.passed !== "boolean") {
+    errors.push(`${label} passed must be boolean`);
+  }
+  validateDisplayText(
+    value.reflection as string,
+    `${label} reflection`,
+    errors,
+    10_000,
+  );
+}
+
+function validateProgressCriterionScore(
+  value: unknown,
+  label: string,
+  errors: string[],
+): void {
+  if (!isRecord(value)) {
+    errors.push(`${label} must be an object`);
+    return;
+  }
+  rejectUnknownKeys(
+    value,
+    ["criterionId", "pointsAwarded", "evidenceRefs"],
+    label,
+    errors,
+  );
+  validateProgressString(
+    value.criterionId,
+    `${label} criterion ID`,
+    128,
+    errors,
+  );
+  if (
+    !Number.isInteger(value.pointsAwarded) ||
+    (value.pointsAwarded as number) < 0
+  ) {
+    errors.push(`${label} pointsAwarded must be a nonnegative integer`);
+  }
+  if (value.evidenceRefs !== undefined) {
+    validateProgressStringArray(
+      value.evidenceRefs,
+      `${label} evidence reference`,
+      1_000,
+      errors,
+    );
+  }
+}
+
+function validateProgressBadge(
+  value: unknown,
+  label: string,
+  errors: string[],
+): void {
+  if (!isRecord(value)) {
+    errors.push(`${label} must be an object`);
+    return;
+  }
+  rejectUnknownKeys(
+    value,
+    ["id", "name", "description", "earnedAt", "evidenceModuleIds"],
+    label,
+    errors,
+  );
+  validateProgressString(value.id, `${label} ID`, 128, errors);
+  validateDisplayText(value.name as string, `${label} name`, errors, 120);
+  validateDisplayText(
+    value.description as string,
+    `${label} description`,
+    errors,
+    500,
+  );
+  validateTimestamp(value.earnedAt as string, `${label} earnedAt`, errors);
+  validateProgressStringArray(
+    value.evidenceModuleIds,
+    `${label} evidence module ID`,
+    10_000,
+    errors,
+  );
+}
+
+function validateProgressRecentModule(
+  value: unknown,
+  errors: string[],
+): void {
+  const label = "progress recent module";
+  if (!isRecord(value)) {
+    errors.push(`${label} must be an object`);
+    return;
+  }
+  rejectUnknownKeys(value, ["pathId", "moduleId", "visitedAt"], label, errors);
+  validateProgressString(value.pathId, `${label} path ID`, 128, errors);
+  validateProgressString(value.moduleId, `${label} module ID`, 128, errors);
+  validateTimestamp(value.visitedAt as string, `${label} visitedAt`, errors);
+}
+
+function validateUniqueProgressRecords(
+  values: unknown[],
+  label: string,
+  errors: string[],
+  validate: (value: unknown, label: string, errors: string[]) => void,
+  idField = "id",
+): void {
+  const observed = new Set<string>();
+  for (const [index, value] of values.entries()) {
+    const itemLabel = `${label} ${index + 1}`;
+    validate(value, itemLabel, errors);
+    if (!isRecord(value) || typeof value[idField] !== "string") continue;
+    const id = value[idField] as string;
+    if (observed.has(id)) errors.push(`duplicate ${label} ID: ${id}`);
+    observed.add(id);
+  }
+}
+
+function validateProgressStringArray(
+  value: unknown,
+  label: string,
+  maximumItems: number,
+  errors: string[],
+): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${label} collection is required`);
+    return;
+  }
+  if (value.length > maximumItems) {
+    errors.push(`${label} collection exceeds ${maximumItems} items`);
+  }
+  const observed = new Set<string>();
+  for (const item of value) {
+    validateProgressString(item, label, 2_048, errors);
+    if (typeof item !== "string") continue;
+    if (observed.has(item)) errors.push(`duplicate ${label}: ${item}`);
+    observed.add(item);
+  }
+}
+
+function validateProgressString(
+  value: unknown,
+  label: string,
+  maximumLength: number,
+  errors: string[],
+): void {
+  if (
+    typeof value !== "string" ||
+    value.trim() !== value ||
+    value.length < 1 ||
+    value.length > maximumLength ||
+    /[\u0000-\u001f\u007f]/.test(value)
+  ) {
+    errors.push(`${label} is invalid`);
+  }
+}
+
+function validateProgressScore(
+  value: unknown,
+  label: string,
+  errors: string[],
+): void {
+  if (
+    typeof value !== "number" ||
+    !Number.isFinite(value) ||
+    value < 0 ||
+    value > 100
+  ) {
+    errors.push(`${label} must be a finite number from 0–100`);
+  }
 }
 
 function validateScore(value: number, errors: string[]): void {

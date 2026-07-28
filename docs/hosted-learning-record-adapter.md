@@ -8,11 +8,12 @@ PostgreSQL 17. The hosted Worker must explicitly select `cloudflare-d1` through
 The current semantic fingerprint is:
 
 ```text
-learning-records/1.0;events/1.0;receipts/1.0;append-only;atomic-batch;optimistic-revision;verified-deletion-replay
+learning-records/1.1;events/1.1;receipts/1.0;append-only;atomic-batch;optimistic-revision;authoritative-progress-import;verified-deletion-replay
 ```
 
 It binds contract versions, append-only history, optimistic stream revisions,
-transactional batches, verified export/deletion receipts, and deletion replay.
+transactional batches, authoritative progress imports, verified export/deletion
+receipts, and deletion replay.
 It contains no deployment, tenant, database, learner, or owner identifier.
 
 ## Transaction behavior
@@ -84,11 +85,11 @@ parameters or learner data.
 Before the hosted API accepts learning commands:
 
 1. Preview and apply migrations through
-`0010_secure_browser_sessions.sql` with the packaged checksum-bound remote
+   `0011_authoritative_progress_imports.sql` with the packaged checksum-bound remote
    runner. Existing unbound ledgers require explicit exact-release adoption.
 2. Set `LEARNING_RECORD_ADAPTER=cloudflare-d1` in private deployment
    configuration.
-3. Confirm `/health` reports adapter `cloudflare-d1`, contract `1.0`, and the
+3. Confirm `/health` reports adapter `cloudflare-d1`, contract `1.1`, and the
    expected semantic fingerprint.
 4. Run the public conformance and reference-measurement gates.
 5. Capture production metrics and verify the thresholds above.

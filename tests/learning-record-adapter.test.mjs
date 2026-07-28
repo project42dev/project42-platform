@@ -20,9 +20,9 @@ test("runtime configuration selects only the supported learning-record adapter",
     "node",
   );
   assert.equal(hosted.adapter, "cloudflare-d1");
-  assert.equal(hosted.migrationHead, "0010_secure_browser_sessions.sql");
+  assert.equal(hosted.migrationHead, "0011_authoritative_progress_imports.sql");
   assert.equal(selfHosted.adapter, "postgresql");
-  assert.equal(selfHosted.migrationHead, "007_secure_browser_sessions.sql");
+  assert.equal(selfHosted.migrationHead, "008_authoritative_progress_imports.sql");
   assert.equal(hosted.semanticFingerprint, selfHosted.semanticFingerprint);
   assert.equal(
     hosted.semanticFingerprint,
@@ -110,10 +110,10 @@ test("adapter transaction guard enforces the accepted statement boundary", async
 
 test("semantic parity rejects missing adapters and behavioral drift", () => {
   const report = {
-    adapterContractVersion: "1.0",
+    adapterContractVersion: "1.1",
     semanticFingerprint: LEARNING_RECORD_SEMANTIC_FINGERPRINT,
     event: {
-      contractVersion: "1.0",
+      contractVersion: "1.1",
       checks: ["idempotent-retry"],
       eventCountBeforeDeletion: 1,
       deletedEventCount: 1,

@@ -412,6 +412,7 @@ test(
         "005_learning_events.sql",
         "006_learning_record_receipts.sql",
         "007_secure_browser_sessions.sql",
+        "008_authoritative_progress_imports.sql",
       ]);
       assert.deepEqual(
         await applyPostgresMigrations(pool, "self-host/postgres"),
@@ -475,9 +476,9 @@ test(
           keyPrefix: "adapter-parity",
         },
       );
-      assert.equal(postgresReport.event.contractVersion, "1.0");
-      assert.equal(postgresReport.event.eventCountBeforeDeletion, 6);
-      assert.equal(postgresReport.event.deletedEventCount, 6);
+      assert.equal(postgresReport.event.contractVersion, "1.1");
+      assert.equal(postgresReport.event.eventCountBeforeDeletion, 7);
+      assert.equal(postgresReport.event.deletedEventCount, 7);
       assert.equal(postgresReport.receipt.exportedEventCount, 2);
       assert.equal(postgresReport.receipt.deletedEventCount, 2);
       assert.equal(postgresReport.receipt.replayedEventCount, 2);

@@ -73,7 +73,22 @@ import {
   type AuthAbuseLimiter,
   type AuthAbuseRoute,
 } from "./auth-abuse-limiter.js";
-import type { LearningEventDatabase } from "./sql-learning-event-store.js";
+import {
+  LearningEventEngine,
+  LearningEventEngineError,
+  projectLearningEvents,
+  type LearningEventAccess,
+  type LearningProjection,
+} from "./learning-event-engine.js";
+import {
+  LEARNING_EVENT_CONTRACT_VERSION,
+  type LearningEvent,
+  type LearningProgressImportSource,
+} from "./learning-events.js";
+import {
+  SqlLearningEventStore,
+  type LearningEventDatabase,
+} from "./sql-learning-event-store.js";
 
 type WorkerEnvironment = Omit<
   Env,
@@ -649,10 +664,19 @@ class GithubIdentityLinkAdapter {
 }
 
 class D1Project42Repository {
+  private readonly learningEvents: SqlLearningEventStore;
+
   constructor(
     private readonly db: D1Database,
     private readonly installationId: string,
-  ) {}
+    learningEvents?: SqlLearningEventStore,
+  ) {
+    this.learningEvents =
+      learningEvents ??
+      new SqlLearningEventStore(
+        db as unknown as LearningEventDatabase,
+      );
+  }
 
   async ensureInstallation(now: string): Promise<void> {
     await this.db
@@ -1609,6 +1633,14 @@ class D1Project42Repository {
       );
     }
     if (mergeCase.status === "completed") {
+      if (mergeCase.survivor_user_id) {
+        await this.promoteCurrentLegacyProgress({
+          userId: mergeCase.survivor_user_id,
+          importId: `account-merge-${mergeCase.id}`,
+          actorUserId: input.actor.id,
+          now: input.now,
+        });
+      }
       return this.getAccountMergeReceipt(mergeCase.id);
     }
     if (mergeCase.status !== "preview") {
@@ -2080,10 +2112,22 @@ class D1Project42Repository {
     } catch (error) {
       const completed = await this.getAccountMergeCase(mergeCase.id);
       if (completed?.status === "completed") {
+        await this.promoteCurrentLegacyProgress({
+          userId: mergeCase.survivor_user_id,
+          importId: `account-merge-${mergeCase.id}`,
+          actorUserId: input.actor.id,
+          now: input.now,
+        });
         return this.getAccountMergeReceipt(mergeCase.id);
       }
       throw error;
     }
+    await this.promoteCurrentLegacyProgress({
+      userId: mergeCase.survivor_user_id,
+      importId: `account-merge-${mergeCase.id}`,
+      actorUserId: input.actor.id,
+      now: input.now,
+    });
     return {
       id: receiptId,
       mergeCaseId: mergeCase.id,
@@ -2156,6 +2200,19 @@ class D1Project42Repository {
       );
     }
     if (mergeCase.status === "rolled-back") {
+      for (const userId of [
+        mergeCase.source_user_id,
+        mergeCase.survivor_user_id,
+      ]) {
+        if (userId) {
+          await this.promoteCurrentLegacyProgress({
+            userId,
+            importId: `account-merge-rollback-${mergeCase.id}-${userId}`,
+            actorUserId: input.actor.id,
+            now: input.now,
+          });
+        }
+      }
       return this.getAccountMergeReceipt(mergeCase.id);
     }
     if (
@@ -2314,6 +2371,17 @@ class D1Project42Repository {
       }),
     );
     await this.db.batch(statements);
+    for (const userId of [
+      mergeCase.source_user_id,
+      mergeCase.survivor_user_id,
+    ]) {
+      await this.promoteCurrentLegacyProgress({
+        userId,
+        importId: `account-merge-rollback-${mergeCase.id}-${userId}`,
+        actorUserId: input.actor.id,
+        now: input.now,
+      });
+    }
     const receipt = await this.getAccountMergeReceipt(mergeCase.id);
     return { ...receipt, status: "rolled-back" };
   }
@@ -3289,7 +3357,7 @@ class D1Project42Repository {
   }
 
   async getProgress(userId: string): Promise<ProgressEnvelope> {
-    const row = await this.db
+    const legacy = await this.db
       .prepare(
         `SELECT revision, progress_json, updated_at
            FROM learning_progress
@@ -3297,14 +3365,75 @@ class D1Project42Repository {
       )
       .bind(this.installationId, userId)
       .first<{ revision: number; progress_json: string; updated_at: string }>();
-    if (!row) {
-      return { revision: 0, progress: createEmptyProgress(), synchronizedAt: new Date(0).toISOString() };
+    let events = await this.learningEvents.list(this.installationId, userId);
+    let projection = await new LearningEventEngine(
+      this.learningEvents,
+    ).rebuild(
+      this.installationId,
+      userId,
+      {
+        installationId: this.installationId,
+        actorType: "learner",
+        actorUserId: userId,
+        permissions: ["learning:read:self"],
+      },
+    );
+    if (legacy) {
+      const legacyProgress = JSON.parse(
+        legacy.progress_json,
+      ) as LearnerProgress;
+      validateProgress(legacyProgress);
+      const checksum = await sha256(canonicalJson(legacyProgress));
+      const lastImport = events
+        .filter(
+          (
+            event,
+          ): event is Extract<LearningEvent, { type: "progress.imported" }> =>
+            event.type === "progress.imported",
+        )
+        .at(-1);
+      const shouldMigrate =
+        events.length === 0 ||
+        Boolean(
+          lastImport &&
+            lastImport.payload.sourceChecksum !== checksum &&
+            Date.parse(legacy.updated_at) >=
+              Date.parse(lastImport.payload.synchronizedAt),
+        );
+      if (shouldMigrate) {
+        const recordedAt = new Date().toISOString();
+        const synchronizedAt =
+          validUtcTimestamp(legacy.updated_at) &&
+          Date.parse(legacy.updated_at) <= Date.parse(recordedAt)
+            ? legacy.updated_at
+            : recordedAt;
+        projection = (
+          await this.executeProgressImport({
+            userId,
+            importId: `legacy-${legacy.revision}-${checksum}`,
+            source: "legacy-hosted-v1",
+            progress: legacyProgress,
+            checksum,
+            synchronizedAt,
+            recordedAt,
+            actorType: "system",
+          })
+        ).projection;
+        events = await this.learningEvents.list(this.installationId, userId);
+      }
     }
-    return {
-      revision: row.revision,
-      progress: JSON.parse(row.progress_json) as LearnerProgress,
-      synchronizedAt: row.updated_at,
-    };
+    const displayName = await this.db
+      .prepare(
+        `SELECT display_name FROM users
+          WHERE installation_id = ? AND id = ?`,
+      )
+      .bind(this.installationId, userId)
+      .first<{ display_name: string | null }>();
+    return progressEnvelopeFromProjection(
+      projection,
+      events,
+      displayName?.display_name ?? "Explorer",
+    );
   }
 
   async importProgress(input: {
@@ -3313,20 +3442,45 @@ class D1Project42Repository {
     requestId: string;
     now: string;
   }): Promise<ProgressEnvelope> {
-    const duplicate = await this.db
-      .prepare(
-        `SELECT imported_revision FROM progress_imports
-          WHERE installation_id = ? AND user_id = ? AND id = ?`,
-      )
-      .bind(this.installationId, input.account.id, input.request.importId)
-      .first<{ imported_revision: number }>();
-    if (duplicate) return this.getProgress(input.account.id);
-
     validateProgress(input.request.progress);
-    const current = await this.getProgress(input.account.id);
-    const revision = current.revision + 1;
     const progressJson = JSON.stringify(input.request.progress);
-    const checksum = await sha256(progressJson);
+    const checksum = await sha256(canonicalJson(input.request.progress));
+    let commandResult;
+    try {
+      commandResult = await this.executeProgressImport({
+        userId: input.account.id,
+        importId: input.request.importId,
+        source: input.request.source,
+        progress: input.request.progress,
+        checksum,
+        synchronizedAt: input.now,
+        recordedAt: input.now,
+        actorType: "learner",
+      });
+    } catch (error) {
+      if (
+        error instanceof LearningEventEngineError &&
+        error.code === "idempotency-conflict"
+      ) {
+        throw new ApiFailure(
+          409,
+          "progress_import_conflict",
+          "The import ID is already bound to different progress.",
+        );
+      }
+      if (
+        error instanceof LearningEventEngineError &&
+        error.code === "concurrency-conflict"
+      ) {
+        throw new ApiFailure(
+          409,
+          "progress_revision_conflict",
+          "Progress changed concurrently; retry the import.",
+        );
+      }
+      throw error;
+    }
+    const revision = commandResult.projection.revision;
     const transcript = buildTranscript(starterCatalog, input.request.progress);
     const statements: D1PreparedStatement[] = [
       this.db
@@ -3346,7 +3500,12 @@ class D1Project42Repository {
           `INSERT INTO progress_imports (
              id, installation_id, user_id, source, source_checksum,
              imported_revision, imported_at
-           ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+           ) VALUES (?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT (installation_id, user_id, id) DO UPDATE SET
+             source = excluded.source,
+             source_checksum = excluded.source_checksum,
+             imported_revision = excluded.imported_revision,
+             imported_at = excluded.imported_at`,
         )
         .bind(
           input.request.importId,
@@ -3498,27 +3657,174 @@ class D1Project42Repository {
           ),
       );
     }
-    statements.push(
-      this.auditStatement({
-        id: crypto.randomUUID(),
-        actor: input.account.identity,
-        actorUserId: input.account.id,
-        action: "progress.import",
-        targetType: "learning_progress",
-        targetId: input.account.id,
-        requestId: input.requestId,
-        outcome: "success",
-        reason: input.request.source,
-        metadata: { revision, checksum },
-        now: input.now,
-      }),
-    );
+    if (!commandResult.replayed) {
+      statements.push(
+        this.auditStatement({
+          id: crypto.randomUUID(),
+          actor: input.account.identity,
+          actorUserId: input.account.id,
+          action: "progress.import",
+          targetType: "learning_event_stream",
+          targetId: input.account.id,
+          requestId: input.requestId,
+          outcome: "success",
+          reason: input.request.source,
+          metadata: {
+            revision,
+            checksum,
+            learningEventId: commandResult.event.id,
+          },
+          now: input.now,
+        }),
+      );
+    }
     await this.db.batch(statements);
-    return {
-      revision,
-      progress: input.request.progress,
-      synchronizedAt: input.now,
+    const events = await this.learningEvents.list(
+      this.installationId,
+      input.account.id,
+    );
+    return progressEnvelopeFromProjection(
+      commandResult.projection,
+      events,
+      input.request.progress.displayName,
+    );
+  }
+
+  private async executeProgressImport(input: {
+    userId: string;
+    importId: string;
+    source: LearningProgressImportSource;
+    progress: LearnerProgress;
+    checksum: string;
+    synchronizedAt: string;
+    recordedAt: string;
+    actorType: "learner" | "owner" | "system";
+    actorUserId?: string;
+  }) {
+    const actor =
+      input.actorType === "system"
+        ? ({ type: "system", userId: null } as const)
+        : ({
+            type: input.actorType,
+            userId: input.actorUserId ?? input.userId,
+          } as const);
+    const access: LearningEventAccess = {
+      installationId: this.installationId,
+      actorType: actor.type,
+      actorUserId: actor.userId,
+      permissions:
+        input.actorType === "system" || input.actorType === "owner"
+          ? ["learning:write:any", "learning:read:any"]
+          : ["learning:write:self", "learning:read:self"],
     };
+    const idempotencyDigest = await sha256(
+      `${this.installationId}\u0000${input.userId}\u0000${input.importId}`,
+    );
+    const idempotencyKey = `progress-import-${idempotencyDigest.slice(0, 48)}`;
+    const currentEvents = await this.learningEvents.list(
+      this.installationId,
+      input.userId,
+    );
+    if (input.source === "legacy-hosted-v1") {
+      const latestImport = currentEvents
+        .filter(
+          (
+            event,
+          ): event is Extract<LearningEvent, { type: "progress.imported" }> =>
+            event.type === "progress.imported",
+        )
+        .at(-1);
+      if (
+        latestImport &&
+        Date.parse(latestImport.payload.synchronizedAt) >=
+          Date.parse(input.synchronizedAt)
+      ) {
+        return {
+          event: latestImport,
+          replayed: true,
+          projection: projectLearningEvents(
+            currentEvents,
+            this.installationId,
+            input.userId,
+          ),
+        };
+      }
+    }
+    const existing = currentEvents.find(
+      (event) => event.idempotencyKey === idempotencyKey,
+    );
+    if (existing) {
+      if (
+        existing.type !== "progress.imported" ||
+        existing.payload.source !== input.source ||
+        existing.payload.sourceChecksum !== input.checksum
+      ) {
+        throw new LearningEventEngineError(
+          "idempotency-conflict",
+          "The progress import ID is already bound to another snapshot.",
+        );
+      }
+      return {
+        event: existing,
+        replayed: true,
+        projection: projectLearningEvents(
+          currentEvents,
+          this.installationId,
+          input.userId,
+        ),
+      };
+    }
+    return new LearningEventEngine(this.learningEvents, {
+      now: () => input.recordedAt,
+    }).execute(
+      {
+        schemaVersion: LEARNING_EVENT_CONTRACT_VERSION,
+        type: "progress.import",
+        installationId: this.installationId,
+        learnerId: input.userId,
+        idempotencyKey,
+        contentVersion: starterCatalog.contentVersion,
+        occurredAt: input.synchronizedAt,
+        actor,
+        payload: {
+          source: input.source,
+          sourceChecksum: input.checksum,
+          synchronizedAt: input.synchronizedAt,
+          progress: structuredClone(input.progress),
+        },
+      },
+      access,
+    );
+  }
+
+  private async promoteCurrentLegacyProgress(input: {
+    userId: string;
+    importId: string;
+    actorUserId: string;
+    now: string;
+  }): Promise<void> {
+    const row = await this.db
+      .prepare(
+        `SELECT progress_json
+           FROM learning_progress
+          WHERE installation_id = ? AND user_id = ?`,
+      )
+      .bind(this.installationId, input.userId)
+      .first<{ progress_json: string }>();
+    if (!row) return;
+    const progress = JSON.parse(row.progress_json) as LearnerProgress;
+    validateProgress(progress);
+    await this.executeProgressImport({
+      userId: input.userId,
+      importId: input.importId,
+      source: "account-merge-v1",
+      progress,
+      checksum: await sha256(canonicalJson(progress)),
+      synchronizedAt: input.now,
+      recordedAt: input.now,
+      actorType: "owner",
+      actorUserId: input.actorUserId,
+    });
   }
 
   async listConsents(userId: string): Promise<ConsentRecord[]> {
@@ -5378,6 +5684,102 @@ function mapDeletionRequest(row: DeletionRequestRow): DeletionRequest {
   };
 }
 
+function progressEnvelopeFromProjection(
+  projection: LearningProjection,
+  events: LearningEvent[],
+  displayName: string,
+): ProgressEnvelope {
+  const progress = projection.progressSnapshot
+    ? structuredClone(projection.progressSnapshot)
+    : createEmptyProgress(displayName);
+  const afterSnapshot = events.filter(
+    (event) => event.sequence > projection.progressSnapshotSequence,
+  );
+  progress.startedPathIds = [
+    ...new Set([
+      ...progress.startedPathIds,
+      ...projection.enrollments.map((enrollment) => enrollment.pathId),
+    ]),
+  ];
+  progress.completedModuleIds = [
+    ...new Set([
+      ...progress.completedModuleIds,
+      ...projection.modules
+        .filter((module) => module.status === "completed")
+        .map((module) => module.moduleId),
+    ]),
+  ];
+  const attempts = new Map(
+    progress.attempts.map((attempt) => [attempt.id, attempt]),
+  );
+  for (const attempt of projection.attempts) {
+    attempts.set(attempt.attemptId, {
+      id: attempt.attemptId,
+      pathId: attempt.pathId,
+      moduleId: attempt.moduleId,
+      contentVersion: attempt.contentVersion,
+      scorePercent: attempt.effectiveScorePercent,
+      passed: attempt.effectivePassed,
+      completedAt: attempt.completedAt,
+    });
+  }
+  progress.attempts = [...attempts.values()].sort((left, right) =>
+    left.completedAt.localeCompare(right.completedAt),
+  );
+  const badges = new Map(
+    progress.badges.map((badge) => [badge.id, badge]),
+  );
+  for (const badge of projection.badges) {
+    badges.set(badge.id, {
+      id: badge.id,
+      name: badge.name,
+      description: badge.description,
+      earnedAt: badge.earnedAt,
+      evidenceModuleIds: [...badge.evidenceModuleIds],
+    });
+  }
+  progress.badges = [...badges.values()].sort((left, right) =>
+    left.earnedAt.localeCompare(right.earnedAt),
+  );
+  const latestVisit = afterSnapshot
+    .filter(
+      (
+        event,
+      ): event is Extract<LearningEvent, { type: "module.visited" }> =>
+        event.type === "module.visited",
+    )
+    .sort((left, right) => right.occurredAt.localeCompare(left.occurredAt))[0];
+  if (latestVisit) {
+    progress.recentModule = {
+      pathId: latestVisit.payload.pathId,
+      moduleId: latestVisit.payload.moduleId,
+      visitedAt: latestVisit.occurredAt,
+    };
+  }
+  const latestChange = afterSnapshot
+    .map((event) => event.occurredAt)
+    .sort()
+    .at(-1);
+  if (latestChange && latestChange.localeCompare(progress.updatedAt) > 0) {
+    progress.updatedAt = latestChange;
+  }
+  return {
+    revision: projection.revision,
+    progress,
+    synchronizedAt:
+      projection.progressSynchronizedAt ??
+      events.at(-1)?.recordedAt ??
+      new Date(0).toISOString(),
+  };
+}
+
+function validUtcTimestamp(value: string): boolean {
+  return (
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value) &&
+    Number.isFinite(Date.parse(value))
+  );
+}
+
 function validateProgress(value: LearnerProgress): void {
   if (
     value.schemaVersion !== 1 ||
@@ -6339,15 +6741,19 @@ async function handleRequest(
     }
 
     const now = new Date().toISOString();
-    if (!repositoryOverride) {
-      configureLearningRecordAdapter(
+    const configuredLearningRecords = !repositoryOverride
+      ? configureLearningRecordAdapter(
         env.PROJECT42_DB as unknown as LearningEventDatabase,
         learningRecordConfiguration,
-      );
-    }
+      )
+      : null;
     const repository =
       repositoryOverride ??
-      new D1Project42Repository(env.PROJECT42_DB, env.INSTALLATION_ID);
+      new D1Project42Repository(
+        env.PROJECT42_DB,
+        env.INSTALLATION_ID,
+        configuredLearningRecords!.store,
+      );
     await repository.ensureInstallation(now);
     if (request.method === "GET" && url.pathname === "/v1/auth/start") {
       const transaction: BrowserOidcTransaction = {

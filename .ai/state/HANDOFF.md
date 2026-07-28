@@ -2,45 +2,51 @@
 
 ## Active branch
 
-`feat/postgres-learning-receipts-ab5422`
+`feat/authoritative-progress-adapter`
 
 ## Current work
 
-AB#5422 completes the PostgreSQL learning-record adapter acceptance criteria that
-remain after authoritative events shipped in platform `v0.56.0`.
+AB#6355 replaces the hosted progress API's legacy snapshot authority with the
+shared append-only learning-event adapter while preserving existing browser
+imports, exports, account merges, and API response compatibility.
 
 ## Implemented
 
-- Package candidate `0.57.0`.
-- Verified export receipts binding exact scope, revision, event count, canonical
-  event digest, and export time.
-- Idempotent pseudonymous deletion receipts that survive record deletion without
-  raw installation or learner identifiers.
-- Restore-specific deletion replay receipts binding the restored event digest,
-  count, deletion result, restore ID, and replay time.
-- Engine authorization for verified export, deletion, and replay.
-- Atomic SQL deletion and replay in the shared D1/PostgreSQL adapter.
-- D1 migration `0009` and PostgreSQL migration `006` with immutable receipt rows.
-- Strict JSON Schema, runtime verification, documentation, and a public receipt
-  conformance harness.
+- Learning-event contract `1.1` with immutable, checksum-bound
+  `progress.imported` events.
+- Event-backed reads for `/v1/me/progress` with lazy migration of legacy hosted
+  snapshots.
+- Retry-safe browser imports and explicit conflicts for reused import IDs or
+  concurrent stream revisions.
+- Event-backed account merge and rollback projections.
+- D1 migration `0011_authoritative_progress_imports.sql` and PostgreSQL migration
+  `008_authoritative_progress_imports.sql`.
+- Adapter contract `1.1`, conformance coverage, public documentation, and
+  self-host compatibility metadata for candidate release `0.61.0`.
 
 ## Verification
 
-- Receipt unit tests and real Miniflare D1 conformance pass.
-- The prior event conformance still covers retry-safe duplicate commands,
-  concurrent distinct attempts, deterministic projection, authorization, export,
-  and deletion.
-- Pull-request CI must run both public suites against PostgreSQL 17 before merge.
+- Rebased onto platform `v0.60.0`; the D1 chain contains secure-session
+  migration `0010` before authoritative-progress migration `0011`, and the
+  PostgreSQL chain contains `007` before `008`.
+- Complete local gate: 166 tests, 165 passed, one optional PostgreSQL integration
+  test skipped because no test database was supplied.
+- D1 migration replay, immutable-event enforcement, account merge/rollback,
+  package build, Worker dry run, resource validation, freshness, recovery
+  measurement, and self-host validation pass.
+- Production dependency audit reports zero vulnerabilities.
+- Package dry run contains 354 files and passes.
+- Docker, PostgreSQL, and `psql` are unavailable on this workstation, so the
+  Docker Compose model and live PostgreSQL 17 integration must run in CI.
 
 ## Next steps
 
-1. Run the complete local platform, Worker, package, audit, and whitespace gates.
-2. Commit and open the public pull request without private ADO links.
-3. Require green PostgreSQL 17 conformance and full CI before merge.
-4. Publish and validate signed platform release `v0.57.0`.
-5. Record private evidence, return Tasks AB#6345–AB#6347 to New plus
-   `Ready for Acceptance`, and move AB#5422 to Resolved without closing it.
-6. Continue AB#5423 hosted adapter operating limits and configuration selection.
+1. Open the public pull request
+   without private work-tracking links.
+2. Require green PostgreSQL 17 conformance, Compose smoke, and full CI before
+   merge.
+3. Record evidence and close only Task AB#6355 after delivery; do not close its
+   parent User Story.
 
 No production tenant, organization, owner, account, learner, database, bucket,
 credential, recovery, or private operational identifier belongs in this repository.
