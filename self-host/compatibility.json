@@ -1,12 +1,12 @@
 {
   "$schema": "./compatibility.schema.json",
   "schemaVersion": 1,
-  "release": "0.51.0",
+  "release": "0.51.1",
   "supportLevel": "evaluation",
   "api": {
     "package": "@project42/platform",
-    "version": "0.51.0",
-    "image": "ghcr.io/project42dev/project42-platform-api:0.51.0",
+    "version": "0.51.1",
+    "image": "ghcr.io/project42dev/project42-platform-api:0.51.1",
     "healthPath": "/health",
     "runsAsNonRoot": true
   },

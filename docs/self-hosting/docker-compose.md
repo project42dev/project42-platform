@@ -143,7 +143,7 @@ cosign verify-blob \
   --bundle project42-platform.sigstore.json \
   --certificate-identity-regexp '^https://github.com/project42dev/project42-platform/' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  project42-platform-v0.51.0.tgz
+  project42-platform-v0.51.1.tgz
 cosign verify-blob \
   --bundle compatibility.sigstore.json \
   --certificate-identity-regexp '^https://github.com/project42dev/project42-platform/' \

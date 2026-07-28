@@ -4417,6 +4417,15 @@ async function buildAccountMergeConflicts(
         mergeRowUserId(entry.tableName, entry.row) === userId,
     )?.row;
   const conflicts: AccountMergeConflict[] = [];
+  const displayValue = (
+    field: AccountMergeConflict["field"],
+    value: unknown,
+  ): string | boolean | null => {
+    if (value === null || value === undefined || value === "") return null;
+    if (field === "photo") return true;
+    if (typeof value === "boolean") return value;
+    return String(value);
+  };
   const addValueConflict = (
     key: string,
     field: AccountMergeConflict["field"],
@@ -4440,6 +4449,8 @@ async function buildAccountMergeConflicts(
         field,
         sourcePresent,
         survivorPresent,
+        sourceValue: displayValue(field, sourceValue),
+        survivorValue: displayValue(field, survivorValue),
         required: true,
         description,
       });
@@ -4515,6 +4526,8 @@ async function buildAccountMergeConflicts(
       field: "ownerRole",
       sourcePresent: hasRole(sourceUserId, "owner"),
       survivorPresent: hasRole(survivorUserId, "owner"),
+      sourceValue: hasRole(sourceUserId, "owner"),
+      survivorValue: hasRole(survivorUserId, "owner"),
       required: true,
       description:
         "Choose which account's owner-role state survives; the last owner cannot be removed.",
