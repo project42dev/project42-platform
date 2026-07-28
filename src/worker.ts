@@ -24,6 +24,8 @@ import type {
   DeleteDomainRuleRequest,
   DeletionRequest,
   DomainRule,
+  GithubIdentityLinkCompletionRequest,
+  GithubIdentityLinkStartRequest,
   IdentityLinkTransaction,
   LearnerProfile,
   LearnerDataExport,
@@ -38,6 +40,9 @@ import type {
 type WorkerEnvironment = Omit<Env, "DOMAIN_APPROVAL_ENABLED"> & {
   DOMAIN_APPROVAL_ENABLED?: string;
   PROFILE_PHOTOS?: R2Bucket;
+  GITHUB_LINK_CLIENT_ID?: string;
+  GITHUB_LINK_CLIENT_SECRET?: string;
+  GITHUB_LINK_REDIRECT_URI?: string;
 };
 
 interface AccountRow {
@@ -87,6 +92,14 @@ interface IdentityLinkTransactionRow {
   expires_at: string;
   completed_at: string | null;
   request_id: string;
+}
+
+interface ExternalProviderIdentity {
+  provider: string;
+  issuer: string;
+  subject: string;
+  providerLogin: string | null;
+  displayName: string | null;
 }
 
 interface DomainRow {
@@ -195,6 +208,118 @@ class OidcJwtVerifier implements IdentityVerifier {
         throw new ApiFailure(401, "invalid_access_token", "The access token is not valid.");
       }
       throw error;
+    }
+  }
+}
+
+class GithubIdentityLinkAdapter {
+  constructor(
+    private readonly env: WorkerEnvironment,
+    private readonly fetcher: typeof fetch = fetch,
+  ) {}
+
+  createAuthorizationUrl(link: IdentityLinkTransaction): string {
+    const configuration = requireGithubLinkConfiguration(this.env);
+    const authorizationUrl = new URL("https://github.com/login/oauth/authorize");
+    authorizationUrl.searchParams.set("client_id", configuration.clientId);
+    authorizationUrl.searchParams.set("redirect_uri", configuration.redirectUri);
+    authorizationUrl.searchParams.set("state", link.state);
+    authorizationUrl.searchParams.set("code_challenge", link.codeChallenge);
+    authorizationUrl.searchParams.set(
+      "code_challenge_method",
+      link.codeChallengeMethod,
+    );
+    return authorizationUrl.toString();
+  }
+
+  async verify(input: {
+    code: string;
+    codeVerifier: string;
+  }): Promise<ExternalProviderIdentity> {
+    try {
+      const configuration = requireGithubLinkConfiguration(this.env);
+      const tokenResponse = await this.fetcher(
+        "https://github.com/login/oauth/access_token",
+        {
+        method: "POST",
+        redirect: "error",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/x-www-form-urlencoded",
+          "user-agent": "project42-account-service",
+        },
+        body: new URLSearchParams({
+          client_id: configuration.clientId,
+          client_secret: configuration.clientSecret,
+          code: input.code,
+          redirect_uri: configuration.redirectUri,
+          code_verifier: input.codeVerifier,
+        }),
+        },
+      );
+      const tokenBody = await readProviderJson(tokenResponse);
+      const accessToken =
+        tokenBody && typeof tokenBody.access_token === "string"
+          ? tokenBody.access_token
+          : null;
+      if (
+        !tokenResponse.ok ||
+        !accessToken ||
+        typeof tokenBody.token_type !== "string" ||
+        tokenBody.token_type.toLowerCase() !== "bearer"
+      ) {
+        throw new ApiFailure(
+          502,
+          "github_authorization_failed",
+          "GitHub did not confirm this identity-link request.",
+        );
+      }
+      const userResponse = await this.fetcher("https://api.github.com/user", {
+        method: "GET",
+        redirect: "error",
+        headers: {
+          accept: "application/vnd.github+json",
+          authorization: `Bearer ${accessToken}`,
+          "user-agent": "project42-account-service",
+          "x-github-api-version": "2022-11-28",
+        },
+      });
+      const user = await readProviderJson(userResponse);
+      const subject =
+        typeof user.id === "number" &&
+        Number.isSafeInteger(user.id) &&
+        user.id > 0
+          ? String(user.id)
+          : null;
+      const providerLogin =
+        typeof user.login === "string" && user.login.trim()
+          ? user.login.trim().slice(0, 100)
+          : null;
+      const displayName =
+        typeof user.name === "string" && user.name.trim()
+          ? user.name.trim().slice(0, 255)
+          : providerLogin;
+      if (!userResponse.ok || !subject || !providerLogin) {
+        throw new ApiFailure(
+          502,
+          "github_identity_unavailable",
+          "GitHub did not return a stable user identity.",
+        );
+      }
+      return {
+        provider: "github",
+        issuer: "https://github.com",
+        subject,
+        providerLogin,
+        displayName,
+      };
+    } catch (error) {
+      if (error instanceof ApiFailure) throw error;
+      throw new ApiFailure(
+        502,
+        "github_provider_unavailable",
+        "GitHub account linking is temporarily unavailable.",
+      );
     }
   }
 }
@@ -538,6 +663,7 @@ class D1Project42Repository {
       id,
       provider,
       state,
+      codeChallenge: input.request.codeChallenge,
       codeChallengeMethod: "S256",
       returnPath: input.request.returnPath,
       expiresAt,
@@ -596,22 +722,21 @@ class D1Project42Repository {
     ]);
   }
 
-  async completeIdentityLink(input: {
+  async beginIdentityLinkCompletion(input: {
     account: Account;
     transactionId: string;
     state: string;
-    providerIdentity: {
-      provider: string;
-      issuer: string;
-      subject: string;
-      providerLogin: string | null;
-      displayName: string | null;
-    };
+    provider: string;
+    codeVerifier: string;
     requestId: string;
     now: string;
-  }): Promise<LinkedIdentity> {
-    const provider = normalizeProviderId(input.providerIdentity.provider);
-    const stateDigest = await sha256(input.state);
+  }): Promise<{ id: string; returnPath: string }> {
+    const provider = normalizeProviderId(input.provider);
+    const codeVerifier = normalizePkceCodeVerifier(input.codeVerifier);
+    const [stateDigest, codeChallenge] = await Promise.all([
+      sha256(input.state),
+      sha256Base64Url(codeVerifier),
+    ]);
     const transaction = await this.db
       .prepare(
         `SELECT id, user_id, provider, state_digest, code_challenge,
@@ -626,7 +751,8 @@ class D1Project42Repository {
       !transaction ||
       transaction.status !== "pending" ||
       transaction.provider !== provider ||
-      transaction.state_digest !== stateDigest
+      transaction.state_digest !== stateDigest ||
+      transaction.code_challenge !== codeChallenge
     ) {
       throw new ApiFailure(
         400,
@@ -649,6 +775,52 @@ class D1Project42Repository {
         "The identity-link transaction has expired.",
       );
     }
+    const claim = await this.db
+      .prepare(
+        `UPDATE identity_link_transactions
+            SET status = 'processing'
+          WHERE installation_id = ? AND id = ? AND user_id = ?
+            AND status = 'pending'`,
+      )
+      .bind(this.installationId, transaction.id, input.account.id)
+      .run();
+    if ((claim.meta.changes ?? 0) !== 1) {
+      throw new ApiFailure(
+        400,
+        "invalid_identity_link",
+        "The identity-link transaction is invalid or has already been used.",
+      );
+    }
+    return { id: transaction.id, returnPath: transaction.return_path };
+  }
+
+  async completeIdentityLink(input: {
+    account: Account;
+    transactionId: string;
+    providerIdentity: ExternalProviderIdentity;
+    requestId: string;
+    now: string;
+  }): Promise<LinkedIdentity> {
+    const provider = normalizeProviderId(input.providerIdentity.provider);
+    const transaction = await this.db
+      .prepare(
+        `SELECT id, provider, status
+           FROM identity_link_transactions
+          WHERE installation_id = ? AND id = ? AND user_id = ?`,
+      )
+      .bind(this.installationId, input.transactionId, input.account.id)
+      .first<Pick<IdentityLinkTransactionRow, "id" | "provider" | "status">>();
+    if (
+      !transaction ||
+      transaction.status !== "processing" ||
+      transaction.provider !== provider
+    ) {
+      throw new ApiFailure(
+        400,
+        "invalid_identity_link",
+        "The identity-link transaction is invalid or has already been used.",
+      );
+    }
     const existing = await this.db
       .prepare(
         `SELECT id, user_id, status
@@ -667,22 +839,6 @@ class D1Project42Repository {
         409,
         "identity_already_linked",
         "This external identity is already linked to another Project 42 account.",
-      );
-    }
-    const claim = await this.db
-      .prepare(
-        `UPDATE identity_link_transactions
-            SET status = 'processing'
-          WHERE installation_id = ? AND id = ? AND user_id = ?
-            AND status = 'pending'`,
-      )
-      .bind(this.installationId, transaction.id, input.account.id)
-      .run();
-    if ((claim.meta.changes ?? 0) !== 1) {
-      throw new ApiFailure(
-        400,
-        "invalid_identity_link",
-        "The identity-link transaction is invalid or has already been used.",
       );
     }
     const identityId = existing?.id ?? crypto.randomUUID();
@@ -752,14 +908,6 @@ class D1Project42Repository {
         }),
       ]);
     } catch (error) {
-      await this.db
-        .prepare(
-          `UPDATE identity_link_transactions
-              SET status = 'failed', completed_at = ?
-            WHERE installation_id = ? AND id = ? AND status = 'processing'`,
-        )
-        .bind(input.now, this.installationId, transaction.id)
-        .run();
       const collision = await this.db
         .prepare(
           `SELECT user_id
@@ -787,6 +935,45 @@ class D1Project42Repository {
     const linked = identities.find((identity) => identity.id === identityId);
     if (!linked) throw new Error("Linked identity was not returned after completion.");
     return linked;
+  }
+
+  async failIdentityLinkCompletion(input: {
+    account: Account;
+    transactionId: string;
+    requestId: string;
+    reasonCode: string;
+    now: string;
+  }): Promise<void> {
+    const result = await this.db
+      .prepare(
+        `UPDATE identity_link_transactions
+            SET status = 'failed', completed_at = ?
+          WHERE installation_id = ? AND id = ? AND user_id = ?
+            AND status = 'processing'`,
+      )
+      .bind(
+        input.now,
+        this.installationId,
+        input.transactionId,
+        input.account.id,
+      )
+      .run();
+    if ((result.meta.changes ?? 0) !== 1) return;
+    await this.db.batch([
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.account.identity,
+        actorUserId: input.account.id,
+        action: "identity.link.complete",
+        targetType: "identity_link_transaction",
+        targetId: input.transactionId,
+        requestId: input.requestId,
+        outcome: "failed",
+        reason: "A verified external identity link did not complete.",
+        metadata: { reasonCode: input.reasonCode },
+        now: input.now,
+      }),
+    ]);
   }
 
   async unlinkIdentity(input: {
@@ -2280,6 +2467,91 @@ async function sha256(value: string): Promise<string> {
     .join("");
 }
 
+async function sha256Base64Url(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  const binary = String.fromCharCode(...new Uint8Array(digest));
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+async function readProviderJson(response: Response): Promise<Record<string, unknown>> {
+  try {
+    const value: unknown = await response.json();
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      return value as Record<string, unknown>;
+    }
+  } catch {
+    // The caller maps malformed provider responses to a bounded upstream failure.
+  }
+  throw new ApiFailure(
+    502,
+    "identity_provider_response_invalid",
+    "The external identity provider returned an invalid response.",
+  );
+}
+
+function requireGithubLinkConfiguration(env: WorkerEnvironment): {
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
+} {
+  const clientId = env.GITHUB_LINK_CLIENT_ID?.trim() ?? "";
+  const clientSecret = env.GITHUB_LINK_CLIENT_SECRET?.trim() ?? "";
+  const redirectUri = env.GITHUB_LINK_REDIRECT_URI?.trim() ?? "";
+  if (
+    !/^[A-Za-z0-9._-]{10,255}$/.test(clientId) ||
+    clientSecret.length < 20 ||
+    clientSecret.length > 500
+  ) {
+    throw new ApiFailure(
+      503,
+      "github_link_not_configured",
+      "GitHub account linking is not configured for this installation.",
+    );
+  }
+  let redirect: URL;
+  try {
+    redirect = new URL(redirectUri);
+  } catch {
+    throw new ApiFailure(
+      503,
+      "github_link_not_configured",
+      "GitHub account linking is not configured for this installation.",
+    );
+  }
+  const localHttp =
+    redirect.protocol === "http:" &&
+    ["localhost", "127.0.0.1", "[::1]"].includes(redirect.hostname);
+  const allowedOrigins = env.ALLOWED_ORIGINS.split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  if (
+    (redirect.protocol !== "https:" && !localHttp) ||
+    redirect.username ||
+    redirect.password ||
+    redirect.hash ||
+    !allowedOrigins.includes(redirect.origin)
+  ) {
+    throw new ApiFailure(
+      503,
+      "github_link_not_configured",
+      "GitHub account linking is not configured for this installation.",
+    );
+  }
+  return { clientId, clientSecret, redirectUri: redirect.toString() };
+}
+
+function normalizePkceCodeVerifier(value: string): string {
+  const codeVerifier = value.trim();
+  if (!/^[A-Za-z0-9_-]{43,128}$/.test(codeVerifier)) {
+    throw new ApiFailure(
+      400,
+      "invalid_code_verifier",
+      "The PKCE code verifier must use 43–128 base64url characters.",
+    );
+  }
+  return codeVerifier;
+}
+
 function normalizeProviderId(value: string): string {
   const provider = value.trim().toLowerCase();
   if (!/^[a-z0-9](?:[a-z0-9-]{0,48}[a-z0-9])?$/.test(provider)) {
@@ -2330,11 +2602,11 @@ function normalizeIdentityLinkRequest(
     );
   }
   const codeChallenge = record.codeChallenge.trim();
-  if (!/^[A-Za-z0-9_-]{43,128}$/.test(codeChallenge)) {
+  if (!/^[A-Za-z0-9_-]{43}$/.test(codeChallenge)) {
     throw new ApiFailure(
       400,
       "invalid_code_challenge",
-      "The PKCE code challenge must use 43–128 base64url characters.",
+      "The S256 PKCE code challenge must use 43 base64url characters.",
     );
   }
   const returnPath = record.returnPath.trim();
@@ -2356,6 +2628,95 @@ function normalizeIdentityLinkRequest(
     codeChallenge,
     codeChallengeMethod: "S256",
     returnPath,
+  };
+}
+
+function normalizeGithubLinkStartRequest(
+  value: unknown,
+): GithubIdentityLinkStartRequest {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new ApiFailure(
+      400,
+      "invalid_identity_link_request",
+      "GitHub identity-link settings must be a JSON object.",
+    );
+  }
+  const record = value as Record<string, unknown>;
+  const allowed = ["codeChallenge", "codeChallengeMethod", "returnPath"];
+  const unknown = Object.keys(record).filter((key) => !allowed.includes(key));
+  if (unknown.length > 0) {
+    throw new ApiFailure(
+      400,
+      "invalid_identity_link_request",
+      `Unknown GitHub identity-link field: ${unknown[0]}.`,
+    );
+  }
+  const normalized = normalizeIdentityLinkRequest({
+    provider: "github",
+    ...record,
+  });
+  return {
+    codeChallenge: normalized.codeChallenge,
+    codeChallengeMethod: normalized.codeChallengeMethod,
+    returnPath: normalized.returnPath,
+  };
+}
+
+function normalizeGithubLinkCompletionRequest(
+  value: unknown,
+): GithubIdentityLinkCompletionRequest {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new ApiFailure(
+      400,
+      "invalid_identity_link_completion",
+      "GitHub identity-link completion must be a JSON object.",
+    );
+  }
+  const record = value as Record<string, unknown>;
+  const allowed = ["transactionId", "state", "code", "codeVerifier"];
+  const unknown = Object.keys(record).filter((key) => !allowed.includes(key));
+  if (unknown.length > 0) {
+    throw new ApiFailure(
+      400,
+      "invalid_identity_link_completion",
+      `Unknown GitHub identity-link completion field: ${unknown[0]}.`,
+    );
+  }
+  if (
+    typeof record.transactionId !== "string" ||
+    typeof record.state !== "string" ||
+    typeof record.code !== "string" ||
+    typeof record.codeVerifier !== "string"
+  ) {
+    throw new ApiFailure(
+      400,
+      "invalid_identity_link_completion",
+      "Transaction, state, authorization code, and PKCE verifier are required.",
+    );
+  }
+  const transactionId = record.transactionId.trim();
+  const state = record.state.trim();
+  const code = record.code.trim();
+  if (
+    !/^[0-9a-f-]{36}$/i.test(transactionId) ||
+    state.length < 32 ||
+    state.length > 200 ||
+    code.length < 1 ||
+    code.length > 2_048 ||
+    /[\u0000-\u001f\u007f]/.test(state) ||
+    /[\u0000-\u001f\u007f]/.test(code)
+  ) {
+    throw new ApiFailure(
+      400,
+      "invalid_identity_link_completion",
+      "GitHub identity-link completion values are invalid.",
+    );
+  }
+  return {
+    transactionId,
+    state,
+    code,
+    codeVerifier: normalizePkceCodeVerifier(record.codeVerifier),
   };
 }
 
@@ -2699,6 +3060,7 @@ async function handleRequest(
   env: WorkerEnvironment,
   verifier: IdentityVerifier = new OidcJwtVerifier(env),
   repositoryOverride?: D1Project42Repository,
+  githubLinkAdapter: GithubIdentityLinkAdapter = new GithubIdentityLinkAdapter(env),
 ): Promise<Response> {
   const requestId = request.headers.get("x-request-id")?.slice(0, 100) || crypto.randomUUID();
   let origin: string | null = null;
@@ -2768,6 +3130,80 @@ async function handleRequest(
         requestId,
         origin,
       );
+    }
+    if (
+      request.method === "POST" &&
+      url.pathname === "/v1/me/identity-links/github"
+    ) {
+      requireApproved(account);
+      requireRecentAuthentication(identity, now);
+      requireGithubLinkConfiguration(env);
+      const requestBody = normalizeGithubLinkStartRequest(
+        await readJson<unknown>(request),
+      );
+      const link = await repository.createIdentityLinkTransaction({
+        account,
+        request: { provider: "github", ...requestBody },
+        requestId,
+        now,
+      });
+      return json(
+        {
+          link,
+          authorizationUrl: githubLinkAdapter.createAuthorizationUrl(link),
+        },
+        201,
+        requestId,
+        origin,
+      );
+    }
+    if (
+      request.method === "POST" &&
+      url.pathname === "/v1/me/identity-links/github/complete"
+    ) {
+      requireApproved(account);
+      requireRecentAuthentication(identity, now);
+      const completion = normalizeGithubLinkCompletionRequest(
+        await readJson<unknown>(request),
+      );
+      const claimed = await repository.beginIdentityLinkCompletion({
+        account,
+        transactionId: completion.transactionId,
+        state: completion.state,
+        provider: "github",
+        codeVerifier: completion.codeVerifier,
+        requestId,
+        now,
+      });
+      try {
+        const providerIdentity = await githubLinkAdapter.verify({
+          code: completion.code,
+          codeVerifier: completion.codeVerifier,
+        });
+        const linkedIdentity = await repository.completeIdentityLink({
+          account,
+          transactionId: claimed.id,
+          providerIdentity,
+          requestId,
+          now,
+        });
+        return json(
+          { linkedIdentity, returnPath: claimed.returnPath },
+          200,
+          requestId,
+          origin,
+        );
+      } catch (error) {
+        await repository.failIdentityLinkCompletion({
+          account,
+          transactionId: claimed.id,
+          requestId,
+          reasonCode:
+            error instanceof ApiFailure ? error.code : "provider_failure",
+          now,
+        });
+        throw error;
+      }
     }
     if (request.method === "POST" && url.pathname === "/v1/me/identity-links") {
       requireApproved(account);
@@ -3211,7 +3647,12 @@ async function handleRequest(
   }
 }
 
-export { D1Project42Repository, OidcJwtVerifier, handleRequest };
+export {
+  D1Project42Repository,
+  GithubIdentityLinkAdapter,
+  OidcJwtVerifier,
+  handleRequest,
+};
 
 export default {
   fetch(request: Request, env: WorkerEnvironment): Promise<Response> {

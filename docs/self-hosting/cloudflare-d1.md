@@ -51,6 +51,13 @@ globally locked. Enabling a rule still fails closed until
 `DOMAIN_APPROVAL_ENABLED=true` is set after real signed-token verification.
 Removal is audited and requires the rule to be disabled first.
 
+Optional GitHub account linkage requires a dedicated GitHub App or OAuth App
+configured with the exact Learn callback URL. Set `GITHUB_LINK_CLIENT_ID` and
+`GITHUB_LINK_REDIRECT_URI` as deployment configuration and store
+`GITHUB_LINK_CLIENT_SECRET` with `wrangler secret put`. The flow requests no
+GitHub scopes, uses S256 PKCE and one-time state, fetches the immutable numeric
+GitHub user ID, and discards the provider token after verification.
+
 Run migrations against a separately provisioned remote D1 database only after
 placing its ID in private deployment configuration:
 
@@ -66,6 +73,8 @@ npx wrangler d1 migrations apply PROJECT42_DB --remote
   verification.
 - Configure exact frontend origins; never use `*`.
 - Store sensitive values with `wrangler secret put` or equivalent secret management.
+- Keep the GitHub linkage client secret out of Wrangler variables, logs, exports,
+  and browser bundles.
 - Set the bootstrap owner by immutable issuer and subject, then protect changes to
   those values as a privileged operation.
 - Export, encrypt, and restore-test the database on a documented cadence.

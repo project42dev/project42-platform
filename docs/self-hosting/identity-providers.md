@@ -33,10 +33,13 @@ The Worker reads the following non-secret values:
 | `ALLOWED_ORIGINS` | Comma-separated exact frontend origins |
 | `BOOTSTRAP_OWNER_ISSUER` | First owner's immutable issuer |
 | `BOOTSTRAP_OWNER_SUBJECT` | First owner's immutable subject |
+| `GITHUB_LINK_CLIENT_ID` | Optional GitHub App or OAuth App client ID for account linkage |
+| `GITHUB_LINK_REDIRECT_URI` | Exact Learn callback URL; its origin must be allowed |
 
 The public `wrangler.jsonc` and `.dev.vars.example` contain local placeholders.
 Keep real resource IDs in private deployment inventory and secrets in the platform
-secret manager.
+secret manager. Store `GITHUB_LINK_CLIENT_SECRET` only as a Worker or platform
+secret.
 
 ## Browser configuration
 
@@ -95,6 +98,12 @@ return path. A provider adapter must independently complete its authorization
 flow, retrieve the provider's immutable subject, and pass only the freshly
 verified identity attributes to the account service. An identity already linked
 to another learner is rejected; it is never used to silently combine accounts.
+
+The built-in GitHub adapter supports a dedicated GitHub App or OAuth App web
+authorization flow. It requests no GitHub scopes, exchanges the code server-side,
+calls `/user` for the immutable numeric account ID, and immediately discards the
+provider token. The client secret never belongs in a browser bundle, learner
+record, export, or audit event.
 
 Learners may unlink a non-primary identity after recent authentication. The
 primary identity and the last usable identity cannot be removed through this
