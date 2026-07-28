@@ -115,6 +115,8 @@ export interface AccountMergeConflict {
     | "assessmentAttempt";
   sourcePresent: boolean;
   survivorPresent: boolean;
+  sourceValue?: string | boolean | null;
+  survivorValue?: string | boolean | null;
   required: boolean;
   description: string;
 }

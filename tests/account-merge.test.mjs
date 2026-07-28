@@ -64,6 +64,7 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
   const miniflare = new Miniflare({
     compatibilityDate: "2026-07-26",
     d1Databases: { PROJECT42_DB: "project42-account-merge" },
+    r2Buckets: { PROFILE_PHOTOS: "project42-account-merge-photos" },
     d1Persist: false,
     modules: true,
     script: "export default { fetch() { return new Response('fixture'); } };",
@@ -71,6 +72,7 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
   t.after(() => miniflare.dispose());
 
   const database = await miniflare.getD1Database("PROJECT42_DB");
+  const profilePhotos = await miniflare.getR2Bucket("PROFILE_PHOTOS");
   const migrations = (await readdir(new URL("../migrations/", import.meta.url)))
     .filter((name) => name.endsWith(".sql"))
     .sort();
@@ -103,6 +105,7 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
     BOOTSTRAP_OWNER_ISSUER: issuer,
     BOOTSTRAP_OWNER_SUBJECT: "merge-owner",
     DOMAIN_APPROVAL_ENABLED: "false",
+    PROFILE_PHOTOS: profilePhotos,
   };
   async function api(token, path, init = {}) {
     const headers = new Headers(init.headers);
@@ -198,6 +201,26 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
       201,
     );
   }
+  const pngPhoto = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+    "base64",
+  );
+  for (const token of ["source-token", "survivor-token"]) {
+    assert.equal(
+      (
+        await api(token, "/v1/me/profile/photo", {
+          method: "PUT",
+          headers: { "content-type": "image/png" },
+          body: pngPhoto,
+        })
+      ).status,
+      200,
+    );
+  }
+  const photoObjectKeys = (await profilePhotos.list()).objects.map(
+    (object) => object.key,
+  );
+  assert.equal(photoObjectKeys.length, 2);
 
   const deletion = await api("source-token", "/v1/me/deletion", {
     method: "POST",
@@ -395,6 +418,19 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
   assert.equal(preview.sourceUserId, source.id);
   assert.equal(preview.survivorUserId, survivor.id);
   assert.ok(preview.conflicts.some((conflict) => conflict.key === "profile.bio"));
+  const biographyConflict = preview.conflicts.find(
+    (conflict) => conflict.key === "profile.bio",
+  );
+  assert.equal(biographyConflict.sourceValue, "Source biography");
+  assert.equal(biographyConflict.survivorValue, "Survivor biography");
+  const photoConflict = preview.conflicts.find(
+    (conflict) => conflict.key === "profile.photo",
+  );
+  assert.equal(photoConflict.sourceValue, true);
+  assert.equal(photoConflict.survivorValue, true);
+  for (const objectKey of photoObjectKeys) {
+    assert.equal(JSON.stringify(preview).includes(objectKey), false);
+  }
   assert.equal(
     JSON.stringify(preview).includes(sourceProof.token),
     false,
