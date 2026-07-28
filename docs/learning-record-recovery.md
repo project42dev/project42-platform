@@ -12,7 +12,7 @@ learners in isolated databases and never requires production learner data.
 
 1. Start with empty, isolated source and restore learner streams.
 2. Create retained and later-deleted learner evidence.
-3. capture verified exports before the deletion request.
+3. Capture verified exports before the deletion request.
 4. Retain the deletion receipt outside the older backup.
 5. Verify every export before the first restored event is written.
 6. Restore events in their exact authoritative order. A clean database may
@@ -37,11 +37,11 @@ partially-ready state.
 
 ```ts
 import {
-  runLearningRecordRecoveryConformance,
+  runMeasuredLearningRecordRecoveryConformance,
   SqlLearningEventStore,
 } from "@project42/platform";
 
-const report = await runLearningRecordRecoveryConformance(
+const report = await runMeasuredLearningRecordRecoveryConformance(
   new SqlLearningEventStore(isolatedSourceDatabase),
   new SqlLearningEventStore(isolatedRestoreDatabase),
   {
@@ -53,13 +53,22 @@ const report = await runLearningRecordRecoveryConformance(
   {
     backupCapturedAt: "2026-07-28T18:00:00.000Z",
     sourceCurrentAt: "2026-07-28T18:02:00.000Z",
-    recoveryStartedAt: "2026-07-28T18:03:00.000Z",
-    recoveryCompletedAt: "2026-07-28T18:03:01.500Z",
     maximumRecoveryPointSeconds: 300,
     maximumRecoveryTimeSeconds: 10,
   },
 );
 ```
+
+The measured gate captures the recovery start immediately before its first
+precondition check and captures completion only after projection rebuild,
+deletion replay, and empty-stream verification pass. Its default UTC clock is
+the system clock. Tests may inject `now` for deterministic evidence, but
+production release gates should use the default.
+
+`runLearningRecordRecoveryConformance` remains available when an operator must
+validate already-recorded start and completion timestamps from an external
+recovery orchestrator. It does not substitute for the measured gate when the
+platform itself performs the rehearsal.
 
 `restoreVerifiedLearningRecordExport` is the lower-level restore primitive. It
 validates the receipt, scope, event digest, count, and revision before writing,

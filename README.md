@@ -53,7 +53,8 @@ contracts—not the private PMO records or Project42dev production configuration
   and retirement.
 - Seed content suitable for a hosted site or self-hosted installation.
 
-Release `0.59.0` adds a fail-closed learning-record recovery promotion gate.
+Release `0.59.1` adds a fail-closed learning-record recovery promotion gate and
+brackets the actual recovery operation with its runtime RTO clock.
 Verified exports are checked before any restore write; corrupt and incomplete
 backups are rejected; restored event semantics and order are compared while
 allowing new database-assigned sequence values; transcripts and badges are

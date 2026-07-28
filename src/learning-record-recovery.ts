@@ -32,6 +32,14 @@ export interface LearningRecordRecoveryMeasurement {
   maximumRecoveryTimeSeconds: number;
 }
 
+export interface MeasuredLearningRecordRecoveryOptions {
+  backupCapturedAt: string;
+  sourceCurrentAt: string;
+  maximumRecoveryPointSeconds: number;
+  maximumRecoveryTimeSeconds: number;
+  now?: () => string;
+}
+
 export interface LearningRecordRecoveryReport {
   contractVersion: typeof LEARNING_RECORD_RECOVERY_CONTRACT_VERSION;
   promotionStatus: "ready";
@@ -168,6 +176,53 @@ export async function runLearningRecordRecoveryConformance(
   scope: LearningRecordRecoveryScope,
   measurement: LearningRecordRecoveryMeasurement,
 ): Promise<LearningRecordRecoveryReport> {
+  return runLearningRecordRecoveryConformanceInternal(
+    sourceStore,
+    restoredStore,
+    scope,
+    measurement,
+  );
+}
+
+export async function runMeasuredLearningRecordRecoveryConformance(
+  sourceStore: LearningEventStore & LearningRecordReceiptStore,
+  restoredStore: LearningEventStore & LearningRecordReceiptStore,
+  scope: LearningRecordRecoveryScope,
+  options: MeasuredLearningRecordRecoveryOptions,
+): Promise<LearningRecordRecoveryReport> {
+  const now = options.now ?? (() => new Date().toISOString());
+  return runLearningRecordRecoveryConformanceInternal(
+    sourceStore,
+    restoredStore,
+    scope,
+    {
+      backupCapturedAt: options.backupCapturedAt,
+      sourceCurrentAt: options.sourceCurrentAt,
+      recoveryStartedAt: options.sourceCurrentAt,
+      recoveryCompletedAt: options.sourceCurrentAt,
+      maximumRecoveryPointSeconds: options.maximumRecoveryPointSeconds,
+      maximumRecoveryTimeSeconds: options.maximumRecoveryTimeSeconds,
+    },
+    now,
+  );
+}
+
+async function runLearningRecordRecoveryConformanceInternal(
+  sourceStore: LearningEventStore & LearningRecordReceiptStore,
+  restoredStore: LearningEventStore & LearningRecordReceiptStore,
+  scope: LearningRecordRecoveryScope,
+  measurement: LearningRecordRecoveryMeasurement,
+  recoveryClock?: () => string,
+): Promise<LearningRecordRecoveryReport> {
+  const recoveryStartedAt =
+    recoveryClock?.() ?? measurement.recoveryStartedAt;
+  measureLearningRecordRecovery({
+    ...measurement,
+    recoveryStartedAt,
+    recoveryCompletedAt: recoveryClock
+      ? recoveryStartedAt
+      : measurement.recoveryCompletedAt,
+  });
   const prefix = scope.keyPrefix ?? "recovery-conformance";
   await assertEmptyScope(sourceStore, scope);
   await assertEmptyScope(restoredStore, scope);
@@ -176,7 +231,7 @@ export async function runLearningRecordRecoveryConformance(
     now: () => measurement.backupCapturedAt,
   });
   const restoredEngine = new LearningEventEngine(restoredStore, {
-    now: () => measurement.recoveryCompletedAt,
+    now: () => recoveryStartedAt,
   });
   const retainedAccess = learnerAccess(
     scope.installationId,
@@ -249,9 +304,15 @@ export async function runLearningRecordRecoveryConformance(
     deletionReceipt,
     `${prefix}-restore-0001`,
     deletedAccess,
-    measurement.recoveryCompletedAt,
+    recoveryStartedAt,
   );
-  const recovery = measureLearningRecordRecovery(measurement);
+  const recoveryCompletedAt =
+    recoveryClock?.() ?? measurement.recoveryCompletedAt;
+  const recovery = measureLearningRecordRecovery({
+    ...measurement,
+    recoveryStartedAt,
+    recoveryCompletedAt,
+  });
 
   return {
     contractVersion: LEARNING_RECORD_RECOVERY_CONTRACT_VERSION,
