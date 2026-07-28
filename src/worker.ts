@@ -47,9 +47,19 @@ import type {
   RollbackAccountMergeRequest,
   UpdateLearnerProfileRequest,
 } from "./api-contract.js";
+import {
+  configureLearningRecordAdapter,
+  readLearningRecordAdapterConfiguration,
+  type LearningRecordAdapterConfiguration,
+} from "./learning-record-adapter.js";
+import type { LearningEventDatabase } from "./sql-learning-event-store.js";
 
-type WorkerEnvironment = Omit<Env, "DOMAIN_APPROVAL_ENABLED"> & {
+type WorkerEnvironment = Omit<
+  Env,
+  "DOMAIN_APPROVAL_ENABLED" | "LEARNING_RECORD_ADAPTER"
+> & {
   DOMAIN_APPROVAL_ENABLED?: string;
+  LEARNING_RECORD_ADAPTER?: string;
   PROFILE_PHOTOS?: R2Bucket;
   GITHUB_LINK_CLIENT_ID?: string;
   GITHUB_LINK_CLIENT_SECRET?: string;
@@ -5580,10 +5590,14 @@ async function handleRequest(
   verifier: IdentityVerifier = new OidcJwtVerifier(env),
   repositoryOverride?: D1Project42Repository,
   githubLinkAdapter: GithubIdentityLinkAdapter = new GithubIdentityLinkAdapter(env),
+  learningRecordConfigurationOverride?: LearningRecordAdapterConfiguration,
 ): Promise<Response> {
   const requestId = request.headers.get("x-request-id")?.slice(0, 100) || crypto.randomUUID();
   let origin: string | null = null;
   try {
+    const learningRecordConfiguration =
+      learningRecordConfigurationOverride ??
+      readLearningRecordAdapterConfiguration(env, "cloudflare-worker");
     origin = permittedOrigin(request, env);
     if (request.method === "OPTIONS") {
       if (!origin) throw new ApiFailure(400, "origin_required", "CORS preflight requires an origin.");
@@ -5602,11 +5616,29 @@ async function handleRequest(
 
     const url = new URL(request.url);
     if (request.method === "GET" && url.pathname === "/health") {
-      return json({ status: "ok" }, 200, requestId, origin);
+      return json(
+        {
+          status: "ok",
+          learningRecords: {
+            adapter: learningRecordConfiguration.adapter,
+            contractVersion: learningRecordConfiguration.contractVersion,
+            semanticFingerprint: learningRecordConfiguration.semanticFingerprint,
+          },
+        },
+        200,
+        requestId,
+        origin,
+      );
     }
 
     const identity = await verifier.verify(request);
     const now = new Date().toISOString();
+    if (!repositoryOverride) {
+      configureLearningRecordAdapter(
+        env.PROJECT42_DB as unknown as LearningEventDatabase,
+        learningRecordConfiguration,
+      );
+    }
     const repository =
       repositoryOverride ??
       new D1Project42Repository(env.PROJECT42_DB, env.INSTALLATION_ID);

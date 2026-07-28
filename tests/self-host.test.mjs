@@ -1,13 +1,14 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { Pool } from "pg";
+import { Miniflare } from "miniflare";
 import {
-  runLearningEventStoreConformance,
-  runLearningRecordReceiptConformance,
+  runLearningRecordAdapterConformance,
   SqlLearningEventStore,
+  verifyLearningRecordAdapterParity,
 } from "../dist/index.js";
 import { readConfiguration } from "../dist/self-host/config.js";
 import { FilesystemProfilePhotoBucket } from "../dist/self-host/filesystem-profile-photo-bucket.js";
@@ -30,7 +31,21 @@ const evaluationEnvironment = {
   OIDC_JWKS_URL:
     "http://identity:8080/realms/project42/protocol/openid-connect/certs",
   ALLOWED_ORIGINS: "http://localhost:3000",
+  LEARNING_RECORD_ADAPTER: "postgresql",
 };
+
+async function applyD1Migrations(database) {
+  const migrations = (await readdir(new URL("../migrations/", import.meta.url)))
+    .filter((name) => name.endsWith(".sql"))
+    .sort();
+  for (const migration of migrations) {
+    const sql = await readFile(
+      new URL(`../migrations/${migration}`, import.meta.url),
+      "utf8",
+    );
+    await database.exec(sql.replace(/\r?\n/g, " "));
+  }
+}
 
 test("local evaluation profile permits only its explicit HTTP service hosts", () => {
   const configuration = readConfiguration(evaluationEnvironment);
@@ -157,29 +172,82 @@ test(
       assert.deepEqual(account.roles, ["learner", "owner"]);
       assert.deepEqual(await repository.findAccount(identity), account);
 
-      const report = await runLearningEventStoreConformance(
+      const postgresReport = await runLearningRecordAdapterConformance(
         new SqlLearningEventStore(database),
         {
           installationId: "postgres-integration-test",
           learnerId: account.id,
-          keyPrefix: "postgres-contract",
+          keyPrefix: "adapter-parity",
         },
       );
-      assert.equal(report.contractVersion, "1.0");
-      assert.equal(report.eventCountBeforeDeletion, 6);
-      assert.equal(report.deletedEventCount, 6);
+      assert.equal(postgresReport.event.contractVersion, "1.0");
+      assert.equal(postgresReport.event.eventCountBeforeDeletion, 6);
+      assert.equal(postgresReport.event.deletedEventCount, 6);
+      assert.equal(postgresReport.receipt.exportedEventCount, 2);
+      assert.equal(postgresReport.receipt.deletedEventCount, 2);
+      assert.equal(postgresReport.receipt.replayedEventCount, 2);
 
-      const receiptReport = await runLearningRecordReceiptConformance(
-        new SqlLearningEventStore(database),
-        {
-          installationId: "postgres-integration-test",
-          learnerId: account.id,
-          keyPrefix: "postgres-receipt-contract",
-        },
-      );
-      assert.equal(receiptReport.exportedEventCount, 2);
-      assert.equal(receiptReport.deletedEventCount, 2);
-      assert.equal(receiptReport.replayedEventCount, 2);
+      const miniflare = new Miniflare({
+        compatibilityDate: "2026-07-28",
+        d1Databases: { PROJECT42_DB: "project42-adapter-parity" },
+        d1Persist: false,
+        modules: true,
+        script:
+          "export default { fetch() { return new Response('fixture'); } };",
+      });
+      try {
+        const d1 = await miniflare.getD1Database("PROJECT42_DB");
+        await applyD1Migrations(d1);
+        await d1
+          .prepare("INSERT INTO installations VALUES (?, ?, ?, ?)")
+          .bind(
+            "adapter-parity",
+            "Adapter parity",
+            "2026-07-28T00:00:00.000Z",
+            "2026-07-28T00:00:00.000Z",
+          )
+          .run();
+        await d1
+          .prepare(
+            `INSERT INTO users (
+               id, installation_id, display_name, primary_email,
+               email_verified, account_state, created_at, updated_at
+             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          )
+          .bind(
+            "adapter-parity-learner",
+            "adapter-parity",
+            "Adapter parity learner",
+            null,
+            0,
+            "approved",
+            "2026-07-28T00:00:00.000Z",
+            "2026-07-28T00:00:00.000Z",
+          )
+          .run();
+        const d1Report = await runLearningRecordAdapterConformance(
+          new SqlLearningEventStore(d1),
+          {
+            installationId: "adapter-parity",
+            learnerId: "adapter-parity-learner",
+            keyPrefix: "adapter-parity",
+          },
+        );
+        const parity = verifyLearningRecordAdapterParity([
+          { adapter: "cloudflare-d1", report: d1Report },
+          { adapter: "postgresql", report: postgresReport },
+        ]);
+        assert.deepEqual(parity.adapters, ["cloudflare-d1", "postgresql"]);
+        assert.deepEqual(parity.checks, [
+          "contract-version",
+          "semantic-fingerprint",
+          "event-behavior",
+          "receipt-behavior",
+          "counts",
+        ]);
+      } finally {
+        await miniflare.dispose();
+      }
       assert.equal(
         Number(
           (

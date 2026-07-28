@@ -1,19 +1,27 @@
 {
   "$schema": "./compatibility.schema.json",
   "schemaVersion": 1,
-  "release": "0.57.0",
+  "release": "0.58.0",
   "supportLevel": "evaluation",
   "api": {
     "package": "@project42/platform",
-    "version": "0.57.0",
-    "image": "ghcr.io/project42dev/project42-platform-api:0.57.0",
+    "version": "0.58.0",
+    "image": "ghcr.io/project42dev/project42-platform-api:0.58.0",
     "healthPath": "/health",
     "runsAsNonRoot": true
   },
   "database": {
     "adapter": "postgresql",
     "supportedMajors": [17],
-    "migrationHead": "006_learning_record_receipts.sql"
+    "migrationHead": "006_learning_record_receipts.sql",
+    "learningRecords": {
+      "selectionVariable": "LEARNING_RECORD_ADAPTER",
+      "contractVersion": "1.0",
+      "eventContractVersion": "1.0",
+      "receiptContractVersion": "1.0",
+      "semanticFingerprint": "learning-records/1.0;events/1.0;receipts/1.0;append-only;atomic-batch;optimistic-revision;verified-deletion-replay",
+      "transactionMode": "atomic-sequential-batch"
+    }
   },
   "identity": {
     "protocol": "oidc",

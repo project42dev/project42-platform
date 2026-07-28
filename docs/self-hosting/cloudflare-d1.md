@@ -18,6 +18,11 @@ Replace local identity placeholders in the ignored `.dev.vars` file with a
 non-production OIDC tenant. The generic zero UUID in `wrangler.jsonc` is for local
 D1 emulation only.
 
+The Worker requires `LEARNING_RECORD_ADAPTER=cloudflare-d1`. Unknown, missing, or
+PostgreSQL values fail closed. See the
+[hosted learning-record adapter guide](../hosted-learning-record-adapter.md) for
+the semantic parity, measurement, capacity, and production metrics gates.
+
 ## Database contents
 
 The migrations create tenant-scoped tables for:
@@ -89,6 +94,8 @@ npx wrangler d1 migrations apply PROJECT42_DB --remote
 ## Production controls
 
 - Bind D1 as `PROJECT42_DB`.
+- Set `LEARNING_RECORD_ADAPTER=cloudflare-d1` in private deployment
+  configuration and verify the adapter contract on `/health`.
 - Bind a private R2 bucket as `PROFILE_PHOTOS` when profile-photo support is
   enabled; include that bucket in backup, restore, retention, and deletion
   verification.

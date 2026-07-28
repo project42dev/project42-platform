@@ -9,6 +9,7 @@ const schema = JSON.parse(
   await readFile("self-host/compatibility.schema.json", "utf8"),
 );
 const compose = await readFile("self-host/compose.yaml", "utf8");
+const exampleEnvironment = await readFile("self-host/.env.example", "utf8");
 const migrations = (await readdir("self-host/postgres"))
   .filter((name) => /^\d+_[a-z0-9_-]+\.sql$/i.test(name))
   .sort();
@@ -37,6 +38,28 @@ if (migrations.at(-1) !== manifest.database.migrationHead) {
 }
 if (!compose.includes("PROJECT42_VERSION:-local")) {
   throw new Error("Compose must preserve an administrator-selected image version");
+}
+if (
+  !exampleEnvironment.includes(
+    `PROJECT42_VERSION=${packageDocument.version}`,
+  )
+) {
+  throw new Error("Example environment version must equal package.json version");
+}
+if (
+  !compose.includes(
+    "LEARNING_RECORD_ADAPTER: ${PROJECT42_LEARNING_RECORD_ADAPTER:-postgresql}",
+  )
+) {
+  throw new Error(
+    "Compose must select the PostgreSQL learning-record adapter explicitly",
+  );
+}
+if (
+  manifest.database.learningRecords.semanticFingerprint !==
+  "learning-records/1.0;events/1.0;receipts/1.0;append-only;atomic-batch;optimistic-revision;verified-deletion-replay"
+) {
+  throw new Error("Compatibility manifest learning-record semantics have drifted");
 }
 if (manifest.supportLevel === "production" && compose.includes("start-dev")) {
   throw new Error("A production manifest cannot point to a development identity profile");

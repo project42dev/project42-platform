@@ -1,3 +1,8 @@
+import {
+  readLearningRecordAdapterConfiguration,
+  type LearningRecordAdapterConfiguration,
+} from "../learning-record-adapter.js";
+
 export interface SelfHostConfiguration {
   port: number;
   publicUrl: URL;
@@ -16,6 +21,7 @@ export interface SelfHostConfiguration {
   bootstrapOwnerSubject: string;
   profilePhotoDirectory: string;
   migrationDirectory: string;
+  learningRecordAdapter: LearningRecordAdapterConfiguration;
 }
 
 export function readConfiguration(
@@ -101,5 +107,9 @@ export function readConfiguration(
       environment.PROFILE_PHOTO_DIRECTORY?.trim() || "data/profile-photos",
     migrationDirectory:
       environment.MIGRATION_DIRECTORY?.trim() || "self-host/postgres",
+    learningRecordAdapter: readLearningRecordAdapterConfiguration(
+      environment,
+      "node",
+    ),
   };
 }

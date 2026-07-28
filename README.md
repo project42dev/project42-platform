@@ -50,6 +50,14 @@ contracts—not the private PMO records or Project42dev production configuration
   and retirement.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.58.0` completes the hosted D1 learning-record adapter boundary.
+Hosted and self-hosted runtimes select their adapter through validated,
+fail-closed configuration; `/health` exposes only the provider-neutral contract
+version and semantic fingerprint. The same combined conformance report now runs
+against D1 and PostgreSQL and an explicit parity gate rejects semantic drift.
+An executable D1 reference measurement and documented production thresholds
+cover transaction size, latency, overload, and capacity headroom.
+
 Release `0.57.0` completes the PostgreSQL learning-record adapter receipt boundary.
 Verified exports bind the exact event stream, revision, and learner scope;
 idempotent deletion writes a durable pseudonymous receipt before removing events;
@@ -289,6 +297,9 @@ content evidence and render consented public attribution.
 See [Identity providers](docs/self-hosting/identity-providers.md) and
 [Cloudflare D1 deployment](docs/self-hosting/cloudflare-d1.md) to run the
 account-backed API without embedding a hosted tenant in the public source.
+The [hosted learning-record adapter guide](docs/hosted-learning-record-adapter.md)
+defines adapter selection, cross-database parity, measurement, and operating
+thresholds.
 
 For a local PostgreSQL and reference-OIDC evaluation stack, follow the
 [Docker Compose deployment guide](docs/self-hosting/docker-compose.md). The

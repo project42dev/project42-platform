@@ -1,6 +1,6 @@
 {
   "name": "@project42/platform",
-  "version": "0.57.0",
+  "version": "0.58.0",
   "description": "Open-source content, assessment, and learning-record core for Project 42.",
   "type": "module",
   "main": "./dist/index.js",
@@ -36,8 +36,9 @@
     "self-host:validate": "node scripts/validate-self-host-release.mjs",
     "resources:validate": "node scripts/validate-resource-packs.mjs",
     "sources:links": "node scripts/check-source-links.mjs",
+    "learning-records:measure": "node scripts/measure-hosted-learning-record-adapter.mjs",
     "test": "npm run build && node --test tests/*.test.mjs && npm run resources:validate",
-    "check": "npm test && npm run content:freshness && npm run self-host:validate",
+    "check": "npm test && npm run learning-records:measure && npm run content:freshness && npm run self-host:validate",
     "prepare": "npm run build"
   },
   "engines": {
