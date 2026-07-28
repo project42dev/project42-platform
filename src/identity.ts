@@ -9,6 +9,7 @@ export const ACCOUNT_STATES = [
 export type AccountState = (typeof ACCOUNT_STATES)[number];
 
 export interface VerifiedIdentity {
+  provider?: string;
   issuer: string;
   subject: string;
   email: string | null;

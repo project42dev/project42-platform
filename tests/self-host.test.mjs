@@ -114,7 +114,11 @@ test(
     const pool = new Pool({ connectionString: process.env.TEST_POSTGRES_URL });
     try {
       const applied = await applyPostgresMigrations(pool, "self-host/postgres");
-      assert.deepEqual(applied, ["001_initial.sql", "002_learner_profiles.sql"]);
+      assert.deepEqual(applied, [
+        "001_initial.sql",
+        "002_learner_profiles.sql",
+        "003_linked_identities.sql",
+      ]);
       assert.deepEqual(
         await applyPostgresMigrations(pool, "self-host/postgres"),
         [],

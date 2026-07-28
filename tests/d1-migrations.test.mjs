@@ -38,7 +38,7 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
     const seed = [
       "INSERT INTO installations VALUES ('test','Test','2026-07-26','2026-07-26');",
       "INSERT INTO users VALUES ('u1','test','Learner','learner@example.com',1,'pending','2026-07-26','2026-07-26');",
-      "INSERT INTO user_identities VALUES ('test','https://issuer.example','sub-1','u1','2026-07-26');",
+      "INSERT INTO user_identities (id,installation_id,provider,issuer,subject,user_id,provider_login,display_name,status,is_primary,link_method,linked_at,last_verified_at,last_seen_at,unlinked_at) VALUES ('i1','test','oidc','https://issuer.example','sub-1','u1',NULL,'Learner','active',1,'registration','2026-07-26','2026-07-26','2026-07-26',NULL);",
       "INSERT INTO role_assignments VALUES ('test','u1','learner',NULL,'2026-07-26');",
       "INSERT INTO approved_email_domains (id,installation_id,domain,enabled,created_by_user_id,created_at,updated_at,policy_version) VALUES ('d1','test','example.com',1,'u1','2026-07-26','2026-07-26',1);",
       "INSERT INTO audit_events (id,installation_id,actor_user_id,actor_issuer,actor_subject,action,target_type,target_id,request_id,outcome,reason,metadata_json,occurred_at) VALUES ('a1','test','u1','https://issuer.example','sub-1','test.seed','user','u1','r1','success','seed','{}','2026-07-26');",
@@ -56,6 +56,8 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
     for (const table of [
       "users",
       "user_identities",
+      "identity_link_transactions",
+      "deleted_identity_tombstones",
       "learning_progress",
       "assessment_attempts",
       "transcript_entries",
@@ -137,6 +139,51 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
     ]);
     assert.match(recovered, /u1/);
     assert.match(recovered, /approved/);
+
+    runWrangler([
+      "d1",
+      "execute",
+      "PROJECT42_DB",
+      ...common,
+      "--command",
+      "INSERT INTO user_identities (id,installation_id,provider,issuer,subject,user_id,provider_login,display_name,status,is_primary,link_method,linked_at,last_verified_at,last_seen_at,unlinked_at) VALUES ('i2','test','github','https://github.com','42','u1','learner','Learner','active',0,'self-service','2026-07-27','2026-07-27','2026-07-27',NULL);",
+    ]);
+    const multipleIdentities = runWrangler([
+      "d1",
+      "execute",
+      "PROJECT42_DB",
+      ...common,
+      "--command",
+      "SELECT provider, is_primary FROM user_identities WHERE user_id='u1' ORDER BY provider;",
+    ]);
+    assert.match(multipleIdentities, /github/);
+    assert.match(multipleIdentities, /oidc/);
+
+    const duplicateProviderIdentity = runWrangler(
+      [
+        "d1",
+        "execute",
+        "PROJECT42_DB",
+        ...common,
+        "--command",
+        "INSERT INTO user_identities (id,installation_id,provider,issuer,subject,user_id,status,is_primary,link_method,linked_at,last_verified_at,last_seen_at) VALUES ('i3','test','github','https://github.com','42','u1','active',0,'self-service','2026-07-27','2026-07-27','2026-07-27');",
+      ],
+      1,
+    );
+    assert.match(duplicateProviderIdentity, /UNIQUE constraint failed/);
+
+    const secondPrimary = runWrangler(
+      [
+        "d1",
+        "execute",
+        "PROJECT42_DB",
+        ...common,
+        "--command",
+        "UPDATE user_identities SET is_primary=1 WHERE id='i2';",
+      ],
+      1,
+    );
+    assert.match(secondPrimary, /UNIQUE constraint failed/);
 
     runWrangler([
       "d1",

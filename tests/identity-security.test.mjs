@@ -86,6 +86,7 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
     }),
   );
   assert.deepEqual(identity, {
+    provider: "oidc",
     issuer,
     subject: "stable-subject",
     email: "learner@example.com",

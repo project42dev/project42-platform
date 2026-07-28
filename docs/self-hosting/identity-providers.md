@@ -81,6 +81,32 @@ the ID token—contains the API audience and configured email-verification claim
 Other conforming OIDC providers work when they satisfy the same contract. Provider
 names are examples, not hard-coded adapters.
 
+## Linked identities
+
+The learner account is stable even when it has more than one verified external
+identity. Each identity records a provider-neutral provider ID, immutable issuer
+and subject, optional provider display metadata, verification timestamps, and
+whether it is the account's primary sign-in identity. Provider access tokens and
+refresh tokens are never stored.
+
+Self-service linking uses a short-lived, single-use transaction bound to the
+authenticated learner, an opaque state digest, an S256 PKCE challenge, and a local
+return path. A provider adapter must independently complete its authorization
+flow, retrieve the provider's immutable subject, and pass only the freshly
+verified identity attributes to the account service. An identity already linked
+to another learner is rejected; it is never used to silently combine accounts.
+
+Learners may unlink a non-primary identity after recent authentication. The
+primary identity and the last usable identity cannot be removed through this
+operation. Account merge, primary-identity replacement, and owner recovery are
+separate audited workflows and must preserve progress, attempts, transcripts,
+badges, consent, deletion state, and attribution evidence.
+
+The learner-data export includes active and previously unlinked identity history
+without exposing issuer or subject values. Account deletion removes active
+identity records and retains only digested identity tombstones required to prevent
+accidental reattachment after a completed deletion.
+
 ## Approval behavior
 
 New identities are `pending` unless either:
@@ -122,3 +148,8 @@ Before production:
 8. Confirm export and deletion require authentication issued within 15 minutes.
 9. Confirm deletion observes the cancellation window, removes active learner data,
    redacts retained audit identity fields, and leaves only a pseudonymous tombstone.
+10. Confirm link state and PKCE values expire, cannot be replayed, and are bound to
+    the learner who created them.
+11. Confirm the same external identity cannot be linked to two learner accounts.
+12. Confirm unlink cannot remove the primary or last usable identity and that
+    export and deletion cover linked-identity history.
