@@ -14,14 +14,23 @@ contracts—not the private PMO records or Project42dev production configuration
   stable slugs, typed audiences, formats, prerequisites, and review policy.
 - Modular curriculum files with hands-on activities and instructor-ready narration,
   scene, checkpoint, assessment, caption, transcript, and reduced-motion packages.
-- Provider-neutral class-script and immutable virtual-instructor media contracts with
-  multi-model provenance, independent verification, accessibility, and human release
-  gates, plus a deterministic class-readiness registry that distinguishes complete
-  teaching packages from production outlines
+- Provider-neutral class-script and immutable virtual-instructor media contracts
+  with multi-model provenance, independent verification, accessibility, and human
+  release gates, plus a deterministic class-readiness registry that distinguishes
+  complete teaching packages from production outlines
   ([production guide](docs/virtual-instructor-production.md)).
-- A primary-source registry and freshness gate for volatile content.
+- A primary-source registry and freshness gate for volatile
+  content.
 - Provider-neutral curriculum with Anthropic, OpenAI, and selected-provider branches.
 - Pure assessment scoring and learner-progress functions.
+- Versioned learning commands, immutable retry-safe events, deterministic
+  progress/transcript/badge projection, and a shared D1/PostgreSQL storage
+  conformance harness.
+- Cryptographically verified learner-record exports, pseudonymous idempotent
+  deletion receipts, and backup deletion-replay evidence.
+- A fail-closed recovery promotion gate covering verified restore, post-backup
+  deletion replay, transcript and badge rebuild, corrupt-backup rejection, and
+  measured recovery objectives.
 - Portable JSON learner-record backup/restore, CSV transcripts, capstone evidence,
   and badge derivation.
 - A versioned learner-data lifecycle policy covering consent, retention, recovery,
@@ -31,17 +40,101 @@ contracts—not the private PMO records or Project42dev production configuration
   append-only authorization audits.
 - Versioned, machine-readable content-maintenance evidence, impact, Foundry role,
   multi-model execution, deterministic gate, rollback, and human approval contracts.
+- Evidence-backed contributor-credit packages with stable provider identity,
+  consent and deletion boundaries, AI-assistance disclosure, public export, and
+  equivalent accessible Learn and Field Guide rendering contracts.
+- Provider-neutral identity-client provisioning plans, durable lifecycle records,
+  secret-manager adapters, resumable owner gates, drift detection, rollback, and
+  provider compatibility contracts.
+- A resumable provisioning engine with compare-and-set state persistence,
+  idempotent execution, authority-proof verification, provider recovery, rotation,
+  upgrade reconciliation, disablement, and retirement.
+- A concrete Keycloak Admin REST adapter with exact client reconciliation,
+  secret-sink isolation, discovery and credential verification, callback and
+  least-privilege drift detection, overlapping rotation, recovery, disablement,
+  and retirement.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.59.1` adds a fail-closed learning-record recovery promotion gate and
+brackets the actual recovery operation with its runtime RTO clock.
+Verified exports are checked before any restore write; corrupt and incomplete
+backups are rejected; restored event semantics and order are compared while
+allowing new database-assigned sequence values; transcripts and badges are
+rebuilt; post-backup deletion receipts are replayed before promotion; and
+measured recovery point and recovery time must remain within declared
+objectives. The reference gate uses local ephemeral D1 and consumes no
+Cloudflare account database quota.
+
+Release `0.58.1` adds a checksum-bound remote D1 migration runner for the
+Project 42 schema. It validates exact migration order, rejects previously
+applied SQL drift, applies each migration and its ledger records together, and
+requires explicit operator adoption before binding a pre-existing Wrangler
+ledger. This preserves trigger-bearing migrations without weakening the
+production deployment gate.
+
+Release `0.58.0` completes the hosted D1 learning-record adapter boundary.
+Hosted and self-hosted runtimes select their adapter through validated,
+fail-closed configuration; `/health` exposes only the provider-neutral contract
+version and semantic fingerprint. The same combined conformance report now runs
+against D1 and PostgreSQL and an explicit parity gate rejects semantic drift.
+An executable D1 reference measurement and documented production thresholds
+cover transaction size, latency, overload, and capacity headroom.
+
+Release `0.57.0` completes the PostgreSQL learning-record adapter receipt boundary.
+Verified exports bind the exact event stream, revision, and learner scope;
+idempotent deletion writes a durable pseudonymous receipt before removing events;
+and backup replay records the restored event digest and deletion outcome without
+retaining raw learner or installation identifiers. A public receipt conformance
+suite now runs alongside the learning-event suite on Cloudflare D1 and
+PostgreSQL 17.
+
+Release `0.56.0` adds the authoritative learner-event contract and shared hosted
+and self-hosted storage conformance suite. Caller-generated idempotency keys
+prevent duplicate writes while distinct concurrent assessment attempts retain
+their original answers and scores. Append-only corrections preserve historical
+evidence, deterministic projections rebuild progress, transcripts, and badges,
+and D1 plus PostgreSQL migrations enforce tenant boundaries and immutable event
+rows. The public harness validates retry, authorization, export, and governed
+deletion behavior for replacement adapters.
+
+Release `0.55.0` adds the executable Keycloak reference adapter for self-hosted
+identity-client provisioning. The adapter uses a caller-supplied administration
+token, verifies the configured tenant-authority digest, reconciles exact OIDC
+callbacks and web origins, prevents broad client permissions, sends generated
+credentials directly to the injected secret sink, checks discovery and credential
+state, and implements rotation, recovery, disablement, and retirement through the
+current Keycloak Admin REST API.
+
+Release `0.54.0` adds the resumable identity-provisioning engine. It resumes
+provider operations across process restarts, binds authority decisions to expiring
+SHA-256 continuation proofs, prevents duplicate clients, sends raw credentials only
+to the injected secret sink, fails closed on post-provider drift, and records every
+attempt and transition. Deterministic tests prove API and owner-gated deployment,
+rerun, denial, expiry, outage recovery, callback-drift recovery, rotation, upgrade,
+disablement, retirement, and unsupported-capability rejection.
+
+Release `0.53.0` adds the identity-client provisioning contract used by hosted and
+self-hosted installers. It supports backend APIs, bounded owner/admin gates, and
+validated preconfiguration without exposing credentials. Versioned plans and
+records cover idempotency, exact callbacks, least privilege, secret rotation,
+post-registration observation, drift, recovery, retirement, audit evidence, and
+fail-closed readiness.
+
+Release `0.52.0` adds the provider-neutral contributor-credit contract. It binds
+human roles to stable provider identity and accepted repository evidence,
+survives username changes, discloses accountable AI assistance, removes private
+identity from public exports, and gives Learn and Field Guide an equivalent
+accessible rendering contract. Consent revocation and account deletion preserve
+change integrity while suppressing public identity.
+
 Release `0.50.0` adds the first six class-ready AI Foundations teaching
-packages. Each provides at least 900 words of read-aloud instruction, complete
-section coverage, demonstrations, prompts, checkpoints, corrective feedback,
-exact activity and assessment handoffs, accessible visual direction, current
-primary sources, deterministic WebVTT captions, transcripts, text-only and
-reduced-motion alternatives, and integrity evidence. A generated coverage
-registry classifies all 49 substantive modules without presenting the remaining
-43 production outlines as complete classes. Every package remains a draft until
-independent model-role work and accountable human approvals are recorded.
+packages. Each provides substantial read-aloud instruction, complete section
+coverage, demonstrations, prompts, checkpoints, corrective feedback, exact
+activity and assessment handoffs, accessible visual direction, deterministic
+WebVTT captions, transcripts, text-only and reduced-motion alternatives, and
+integrity evidence. A generated coverage registry distinguishes complete
+classes from production outlines; publication remains gated on independent
+model-role work and accountable human approvals.
 
 Release `0.49.0` adds the first independently deployable self-host
 infrastructure profile: a non-root OCI account API, PostgreSQL adapter and
@@ -229,9 +322,18 @@ safe tool use, and a scored practical capstone.
 See [Content authoring](docs/content-authoring.md) to add paths, modules, checks,
 and field-guide resources without changing application code.
 
+See [Contributor-credit packages](docs/contributor-credit.md) to record accepted
+content evidence and render consented public attribution.
+
 See [Identity providers](docs/self-hosting/identity-providers.md) and
 [Cloudflare D1 deployment](docs/self-hosting/cloudflare-d1.md) to run the
 account-backed API without embedding a hosted tenant in the public source.
+The [hosted learning-record adapter guide](docs/hosted-learning-record-adapter.md)
+defines adapter selection, cross-database parity, measurement, and operating
+thresholds.
+The [learning-record recovery gate](docs/learning-record-recovery.md) defines
+restore verification, deletion replay, projection comparison, objective
+measurement, and quota-safe rehearsal boundaries.
 
 For a local PostgreSQL and reference-OIDC evaluation stack, follow the
 [Docker Compose deployment guide](docs/self-hosting/docker-compose.md). The

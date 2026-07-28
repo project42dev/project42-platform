@@ -86,6 +86,7 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
     }),
   );
   assert.deepEqual(identity, {
+    provider: "oidc",
     issuer,
     subject: "stable-subject",
     email: "learner@example.com",
@@ -150,6 +151,7 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
 test("CORS preflight succeeds only for configured origins", async () => {
   const env = {
     ALLOWED_ORIGINS: "https://learn.example.test",
+    LEARNING_RECORD_ADAPTER: "cloudflare-d1",
   };
   const verifier = {
     verify: async () => {
@@ -238,6 +240,7 @@ test("API denies learner data until approval and protects owner routes", async (
   const env = {
     INSTALLATION_ID: "test",
     ALLOWED_ORIGINS: "https://learn.example.test",
+    LEARNING_RECORD_ADAPTER: "cloudflare-d1",
     BOOTSTRAP_OWNER_ISSUER: "",
     BOOTSTRAP_OWNER_SUBJECT: "",
   };
@@ -286,6 +289,7 @@ test("suspension and revocation disable existing learner and owner access", asyn
   const env = {
     INSTALLATION_ID: "test",
     ALLOWED_ORIGINS: "https://learn.example.test",
+    LEARNING_RECORD_ADAPTER: "cloudflare-d1",
     BOOTSTRAP_OWNER_ISSUER: "",
     BOOTSTRAP_OWNER_SUBJECT: "",
   };
@@ -395,6 +399,7 @@ test("data-rights routes require recent authentication and explicit deletion con
   const env = {
     INSTALLATION_ID: "test",
     ALLOWED_ORIGINS: "https://learn.example.test",
+    LEARNING_RECORD_ADAPTER: "cloudflare-d1",
     BOOTSTRAP_OWNER_ISSUER: "",
     BOOTSTRAP_OWNER_SUBJECT: "",
   };

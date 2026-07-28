@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0",
+  "id": "credit.revoked-consent.1",
+  "createdAt": "2026-07-28T14:00:00.000Z",
+  "content": {
+    "contentId": "ai-foundations.safe-tool-use-workflow",
+    "contentKind": "learn-module",
+    "acceptedVersion": "1.2.0"
+  },
+  "repository": {
+    "provider": "github",
+    "repositoryId": "project42dev/project42-platform",
+    "repositoryUrl": "https://github.com/project42dev/project42-platform"
+  },
+  "acceptedChange": {
+    "pullRequestId": "93",
+    "pullRequestUrl": "https://github.com/project42dev/project42-platform/pull/93",
+    "mergedAt": "2026-07-28T13:45:00.000Z",
+    "mergeCommitSha": "5555555555555555555555555555555555555555",
+    "acceptedCommitSha": "6666666666666666666666666666666666666666"
+  },
+  "credits": [
+    {
+      "id": "credit.author.revoked",
+      "role": "author",
+      "contributor": {
+        "contributorRef": "contributor.revoked",
+        "provider": "github",
+        "providerAccountRef": "github-account-3001",
+        "identityProofDigest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "accountState": "active"
+      },
+      "consent": {
+        "status": "revoked",
+        "recordedAt": "2026-07-27T16:00:00.000Z",
+        "revokedAt": "2026-07-28T10:00:00.000Z"
+      },
+      "publicProfile": null,
+      "contributionSummary": "Authored the accepted lesson revision.",
+      "aiAssistance": {
+        "used": false,
+        "disclosure": null,
+        "humanAccountabilityAccepted": true
+      }
+    }
+  ]
+}

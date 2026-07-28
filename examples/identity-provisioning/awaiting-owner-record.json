@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "1.0",
+  "operationId": "operation-owner-gate-create",
+  "planId": "plan-owner-gate-reference",
+  "clientRef": "github-link-client",
+  "idempotencyKey": "deploy-2026-07-28-owner-reference",
+  "operation": "create",
+  "state": "awaiting-authority",
+  "attempt": 1,
+  "startedAt": "2026-07-28T09:05:00.000Z",
+  "updatedAt": "2026-07-28T09:05:30.000Z",
+  "continuation": {
+    "gateId": "gate-owner-create",
+    "requiredAuthority": "organization-admin",
+    "reasonCode": "provider-requires-owner-confirmation",
+    "continuationDigest": "3333333333333333333333333333333333333333333333333333333333333333",
+    "providerActionUrl": "https://github.com/organizations/example/settings/apps/new",
+    "expiresAt": "2026-07-28T10:05:00.000Z",
+    "status": "pending"
+  },
+  "secret": null,
+  "observation": null,
+  "drift": [],
+  "audit": [
+    {
+      "sequence": 1,
+      "occurredAt": "2026-07-28T09:05:00.000Z",
+      "eventType": "operation-started",
+      "actor": "automation",
+      "result": "started",
+      "correlationId": "correlation-owner-create",
+      "detailCode": "create-requested"
+    },
+    {
+      "sequence": 2,
+      "occurredAt": "2026-07-28T09:05:30.000Z",
+      "eventType": "authority-required",
+      "actor": "automation",
+      "result": "succeeded",
+      "correlationId": "correlation-owner-create",
+      "detailCode": "owner-gate-created"
+    }
+  ],
+  "rollback": {
+    "allowed": false,
+    "restoreState": null,
+    "reasonCode": "no-provider-write",
+    "snapshotDigest": null
+  },
+  "error": null
+}

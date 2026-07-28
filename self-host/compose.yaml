@@ -52,6 +52,7 @@ services:
       INSTALLATION_ID: ${PROJECT42_INSTALLATION_ID:?set PROJECT42_INSTALLATION_ID}
       DATABASE_URL: postgresql://project42:${PROJECT42_DATABASE_PASSWORD}@database:5432/project42
       DATABASE_TLS: "false"
+      LEARNING_RECORD_ADAPTER: ${PROJECT42_LEARNING_RECORD_ADAPTER:-postgresql}
       OIDC_ISSUER: ${PROJECT42_OIDC_ISSUER:-http://localhost:8080/realms/project42}
       OIDC_AUDIENCE: ${PROJECT42_OIDC_AUDIENCE:-project42-api}
       OIDC_JWKS_URL: ${PROJECT42_OIDC_JWKS_URL:-http://identity:8080/realms/project42/protocol/openid-connect/certs}
@@ -59,6 +60,7 @@ services:
       OIDC_EMAIL_VERIFIED_CLAIM: email_verified
       ALLOWED_ORIGINS: ${PROJECT42_ALLOWED_ORIGINS:-http://localhost:3000}
       DOMAIN_APPROVAL_ENABLED: "false"
+      PROFILE_PHOTO_DIRECTORY: /var/lib/project42/profile-photos
       MIGRATION_DIRECTORY: self-host/postgres
     depends_on:
       database:
@@ -67,6 +69,8 @@ services:
         condition: service_healthy
     ports:
       - "8787:8787"
+    volumes:
+      - project42_profile_photos:/var/lib/project42/profile-photos
     read_only: true
     tmpfs:
       - /tmp:size=16m,mode=1777
@@ -80,3 +84,4 @@ services:
 volumes:
   project42_database:
   project42_identity:
+  project42_profile_photos:

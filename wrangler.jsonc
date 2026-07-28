@@ -27,8 +27,11 @@
     "OIDC_EMAIL_CLAIM": "email",
     "OIDC_EMAIL_VERIFIED_CLAIM": "email_verified",
     "DOMAIN_APPROVAL_ENABLED": "false",
+    "LEARNING_RECORD_ADAPTER": "cloudflare-d1",
     "ALLOWED_ORIGINS": "http://localhost:3000",
     "BOOTSTRAP_OWNER_ISSUER": "",
-    "BOOTSTRAP_OWNER_SUBJECT": ""
+    "BOOTSTRAP_OWNER_SUBJECT": "",
+    "GITHUB_LINK_CLIENT_ID": "",
+    "GITHUB_LINK_REDIRECT_URI": "http://localhost:3000/account/github/callback/"
   }
 }

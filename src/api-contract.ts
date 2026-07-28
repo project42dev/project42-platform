@@ -6,7 +6,8 @@ export type Project42Role = "learner" | "owner";
 export interface Account {
   id: string;
   installationId: string;
-  identity: Pick<VerifiedIdentity, "issuer" | "subject">;
+  identity: Required<Pick<VerifiedIdentity, "provider">> &
+    Pick<VerifiedIdentity, "issuer" | "subject">;
   displayName: string | null;
   primaryEmail: string | null;
   emailVerified: boolean;
@@ -14,6 +15,170 @@ export interface Account {
   roles: Project42Role[];
   createdAt: string;
   updatedAt: string;
+}
+
+export type LinkedIdentityStatus = "active" | "unlinked";
+
+export interface LinkedIdentity {
+  id: string;
+  provider: string;
+  providerLogin: string | null;
+  displayName: string | null;
+  status: LinkedIdentityStatus;
+  primary: boolean;
+  linkedAt: string;
+  lastVerifiedAt: string;
+  lastSeenAt: string;
+  unlinkedAt: string | null;
+  canUnlink: boolean;
+}
+
+export interface IdentityLinkTransaction {
+  id: string;
+  provider: string;
+  state: string;
+  codeChallenge: string;
+  codeChallengeMethod: "S256";
+  returnPath: string;
+  expiresAt: string;
+}
+
+export interface CreateIdentityLinkTransactionRequest {
+  provider: string;
+  codeChallenge: string;
+  codeChallengeMethod: "S256";
+  returnPath: string;
+}
+
+export interface GithubIdentityLinkStartRequest {
+  codeChallenge: string;
+  codeChallengeMethod: "S256";
+  returnPath: string;
+}
+
+export interface GithubIdentityLinkStart {
+  link: IdentityLinkTransaction;
+  authorizationUrl: string;
+}
+
+export interface GithubIdentityLinkCompletionRequest {
+  transactionId: string;
+  state: string;
+  code: string;
+  codeVerifier: string;
+}
+
+export type AccountMergeProofMethod =
+  | "recent-authentication"
+  | "owner-assisted-recovery";
+
+export interface AccountMergeProof {
+  token: string;
+  userId: string;
+  method: AccountMergeProofMethod;
+  expiresAt: string;
+}
+
+export interface OwnerRecoveryProofRequest {
+  userId: string;
+  methods: Array<
+    | "identity-provider-recovery"
+    | "support-video-verification"
+    | "signed-owner-attestation"
+    | "legacy-account-evidence"
+  >;
+  referenceId: string;
+  summary: string;
+}
+
+export interface AccountMergePreviewRequest {
+  sourceUserId: string;
+  survivorUserId: string;
+  sourceProofToken: string;
+  survivorProofToken: string;
+  idempotencyKey: string;
+}
+
+export type AccountMergeResolutionChoice = "source" | "survivor";
+
+export interface AccountMergeConflict {
+  key: string;
+  field:
+    | "displayName"
+    | "primaryEmail"
+    | "bio"
+    | "organization"
+    | "location"
+    | "websiteUrl"
+    | "photo"
+    | "ownerRole"
+    | "assessmentAttempt";
+  sourcePresent: boolean;
+  survivorPresent: boolean;
+  sourceValue?: string | boolean | null;
+  survivorValue?: string | boolean | null;
+  required: boolean;
+  description: string;
+}
+
+export interface AccountMergePreview {
+  id: string;
+  status: "preview" | "completed" | "rolled-back";
+  sourceUserId: string;
+  survivorUserId: string;
+  sourceDisplayName: string | null;
+  survivorDisplayName: string | null;
+  sourcePrimaryEmail: string | null;
+  survivorPrimaryEmail: string | null;
+  proofMethods: {
+    source: AccountMergeProofMethod;
+    survivor: AccountMergeProofMethod;
+  };
+  conflicts: AccountMergeConflict[];
+  recordCounts: Record<string, { source: number; survivor: number }>;
+  expiresAt: string;
+}
+
+export interface CompleteAccountMergeRequest {
+  confirmation: string;
+  idempotencyKey: string;
+  resolutions: Record<string, AccountMergeResolutionChoice>;
+}
+
+export interface AccountMergeReceipt {
+  id: string;
+  mergeCaseId: string;
+  receiptDigest: string;
+  snapshotDigest: string;
+  mergedAt: string;
+  recordCounts: Record<string, number>;
+  status: "completed" | "rolled-back";
+}
+
+export interface RollbackAccountMergeRequest {
+  confirmation: string;
+  reason: string;
+}
+
+export interface LearnerProfile {
+  userId: string;
+  displayName: string | null;
+  bio: string | null;
+  organization: string | null;
+  location: string | null;
+  websiteUrl: string | null;
+  photoAvailable: boolean;
+  photoUpdatedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpdateLearnerProfileRequest {
+  displayName?: string | null;
+  bio?: string | null;
+  organization?: string | null;
+  location?: string | null;
+  websiteUrl?: string | null;
 }
 
 export interface ProgressEnvelope {
@@ -45,6 +210,10 @@ export interface DomainRule {
 export interface CreateDomainRuleRequest {
   domain: string;
   enabled?: boolean;
+  reason: string;
+}
+
+export interface DeleteDomainRuleRequest {
   reason: string;
 }
 
@@ -89,6 +258,8 @@ export interface LearnerDataExport {
   schemaVersion: 1;
   exportedAt: string;
   account: Account;
+  profile: LearnerProfile;
+  linkedIdentities: LinkedIdentity[];
   progress: ProgressEnvelope;
   moduleProgress: unknown[];
   assessmentAttempts: unknown[];

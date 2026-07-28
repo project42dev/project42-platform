@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "1.0",
+  "id": "credit.multiple-reviewers.1",
+  "createdAt": "2026-07-28T14:00:00.000Z",
+  "content": {
+    "contentId": "research-verification.fact-verification-workflow",
+    "contentKind": "field-guide-resource",
+    "acceptedVersion": "2.1.0"
+  },
+  "repository": {
+    "provider": "github",
+    "repositoryId": "project42dev/project42-platform",
+    "repositoryUrl": "https://github.com/project42dev/project42-platform"
+  },
+  "acceptedChange": {
+    "pullRequestId": "92",
+    "pullRequestUrl": "https://github.com/project42dev/project42-platform/pull/92",
+    "mergedAt": "2026-07-28T13:45:00.000Z",
+    "mergeCommitSha": "3333333333333333333333333333333333333333",
+    "acceptedCommitSha": "4444444444444444444444444444444444444444"
+  },
+  "credits": [
+    {
+      "id": "credit.author.1",
+      "role": "author",
+      "contributor": {
+        "contributorRef": "contributor.author",
+        "provider": "github",
+        "providerAccountRef": "github-account-2001",
+        "identityProofDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "accountState": "active"
+      },
+      "consent": {
+        "status": "granted",
+        "recordedAt": "2026-07-27T16:00:00.000Z",
+        "revokedAt": null
+      },
+      "publicProfile": {
+        "displayName": "Lesson author",
+        "profileUrl": null
+      },
+      "contributionSummary": "Wrote the accepted resource.",
+      "aiAssistance": {
+        "used": false,
+        "disclosure": null,
+        "humanAccountabilityAccepted": true
+      }
+    },
+    {
+      "id": "credit.reviewer.1",
+      "role": "reviewer",
+      "contributor": {
+        "contributorRef": "contributor.reviewer",
+        "provider": "github",
+        "providerAccountRef": "github-account-2002",
+        "identityProofDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "accountState": "active"
+      },
+      "consent": {
+        "status": "granted",
+        "recordedAt": "2026-07-27T16:10:00.000Z",
+        "revokedAt": null
+      },
+      "publicProfile": {
+        "displayName": "Editorial reviewer",
+        "profileUrl": null
+      },
+      "contributionSummary": "Reviewed structure, clarity, and evidence coverage.",
+      "aiAssistance": {
+        "used": false,
+        "disclosure": null,
+        "humanAccountabilityAccepted": true
+      }
+    },
+    {
+      "id": "credit.sme.1",
+      "role": "subject-matter-expert",
+      "contributor": {
+        "contributorRef": "contributor.sme",
+        "provider": "github",
+        "providerAccountRef": "github-account-2003",
+        "identityProofDigest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "accountState": "active"
+      },
+      "consent": {
+        "status": "granted",
+        "recordedAt": "2026-07-27T16:20:00.000Z",
+        "revokedAt": null
+      },
+      "publicProfile": {
+        "displayName": "Subject-matter reviewer",
+        "profileUrl": null
+      },
+      "contributionSummary": "Validated the technical claims against primary sources.",
+      "aiAssistance": {
+        "used": false,
+        "disclosure": null,
+        "humanAccountabilityAccepted": true
+      }
+    },
+    {
+      "id": "credit.accessibility.1",
+      "role": "accessibility-reviewer",
+      "contributor": {
+        "contributorRef": "contributor.accessibility",
+        "provider": "github",
+        "providerAccountRef": "github-account-2004",
+        "identityProofDigest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "accountState": "active"
+      },
+      "consent": {
+        "status": "granted",
+        "recordedAt": "2026-07-27T16:30:00.000Z",
+        "revokedAt": null
+      },
+      "publicProfile": {
+        "displayName": "Accessibility reviewer",
+        "profileUrl": null
+      },
+      "contributionSummary": "Validated headings, link purpose, text alternatives, and reduced-motion equivalence.",
+      "aiAssistance": {
+        "used": false,
+        "disclosure": null,
+        "humanAccountabilityAccepted": true
+      }
+    }
+  ]
+}

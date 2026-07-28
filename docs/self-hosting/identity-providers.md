@@ -33,10 +33,13 @@ The Worker reads the following non-secret values:
 | `ALLOWED_ORIGINS` | Comma-separated exact frontend origins |
 | `BOOTSTRAP_OWNER_ISSUER` | First owner's immutable issuer |
 | `BOOTSTRAP_OWNER_SUBJECT` | First owner's immutable subject |
+| `GITHUB_LINK_CLIENT_ID` | Optional GitHub App or OAuth App client ID for account linkage |
+| `GITHUB_LINK_REDIRECT_URI` | Exact Learn callback URL; its origin must be allowed |
 
 The public `wrangler.jsonc` and `.dev.vars.example` contain local placeholders.
 Keep real resource IDs in private deployment inventory and secrets in the platform
-secret manager.
+secret manager. Store `GITHUB_LINK_CLIENT_SECRET` only as a Worker or platform
+secret.
 
 ## Browser configuration
 
@@ -81,6 +84,93 @@ the ID token—contains the API audience and configured email-verification claim
 Other conforming OIDC providers work when they satisfy the same contract. Provider
 names are examples, not hard-coded adapters.
 
+## Deployment-time client provisioning
+
+Use the versioned
+[identity-client provisioning contract](identity-client-provisioning.md) to create,
+validate, rotate, recover, disable, and retire provider clients. It distinguishes
+supported backend APIs from resumable owner/admin gates and validated
+preconfiguration. Learners and routine Project 42 account administrators never
+register infrastructure identity applications.
+
+## Linked identities
+
+The learner account is stable even when it has more than one verified external
+identity. Each identity records a provider-neutral provider ID, immutable issuer
+and subject, optional provider display metadata, verification timestamps, and
+whether it is the account's primary sign-in identity. Provider access tokens and
+refresh tokens are never stored.
+
+Self-service linking uses a short-lived, single-use transaction bound to the
+authenticated learner, an opaque state digest, an S256 PKCE challenge, and a local
+return path. A provider adapter must independently complete its authorization
+flow, retrieve the provider's immutable subject, and pass only the freshly
+verified identity attributes to the account service. An identity already linked
+to another learner is rejected; it is never used to silently combine accounts.
+
+The built-in GitHub adapter supports a dedicated GitHub App or OAuth App web
+authorization flow. It requests no GitHub scopes, exchanges the code server-side,
+calls `/user` for the immutable numeric account ID, and immediately discards the
+provider token. The client secret never belongs in a browser bundle, learner
+record, export, or audit event.
+
+Learners may unlink a non-primary identity after recent authentication. The
+primary identity and the last usable identity cannot be removed through this
+operation. Account merge, primary-identity replacement, and owner recovery are
+separate audited workflows and must preserve progress, attempts, transcripts,
+badges, consent, deletion state, and attribution evidence.
+
+## Duplicate-account recovery and merge
+
+Account merge never uses matching email addresses as proof. Each account must
+provide either a one-time proof created from a recent authenticated session or a
+governed owner-recovery proof based on at least two independent, non-email
+verification methods. Proofs expire after 15 minutes, are stored only as SHA-256
+digests, and are consumed by one merge.
+
+An approved owner creates a 30-minute preview before completing a merge. The
+preview identifies the source account, the survivor, proof methods, record
+counts, and every profile or owner-role conflict. Completion requires:
+
+- the exact source-to-survivor confirmation;
+- the preview's idempotency key;
+- an explicit `source` or `survivor` choice for every conflict;
+- unchanged account data since preview; and
+- both one-time proofs to remain unused and unexpired.
+
+Completion writes the recovery snapshot, reconciliation changes, source identity
+alias, consumed-proof state, immutable receipt, and audit event in one database
+transaction. The service preserves both accounts' progress, module state,
+assessment attempts, transcript projections, badges, progress-import history,
+consent, and completed deletion history. Colliding attempt or import identifiers
+are deterministically remapped rather than discarded.
+
+The source identity continues to resolve to the survivor without moving or
+reissuing the provider identity. A rollback restores the pre-merge records only
+when no learner record, profile, consent, identity link, or deletion activity
+occurred after completion. Otherwise the service refuses destructive rollback
+and requires a reviewed recovery plan. Completed deletion removes the survivor,
+all merged source identities, recovery snapshots, and proof evidence while
+retaining only pseudonymous identity tombstones and non-personal receipt
+digests.
+
+The account service exposes:
+
+| Method and route | Purpose |
+|---|---|
+| `POST /v1/me/account-merge-proof` | Create a recent-session proof for the signed-in account |
+| `POST /v1/admin/account-merges/recovery-proofs` | Record a two-method owner-assisted recovery proof |
+| `POST /v1/admin/account-merges/preview` | Create an idempotent, proof-bound preview |
+| `GET /v1/admin/account-merges/{id}` | Review conflicts, evidence classes, and record counts |
+| `POST /v1/admin/account-merges/{id}/complete` | Reconcile records and create the immutable receipt |
+| `GET /v1/admin/account-merges/{id}/receipt` | Retrieve receipt and snapshot digests |
+| `POST /v1/admin/account-merges/{id}/rollback` | Restore the snapshot when no later activity exists |
+
+The learner-data export includes active and previously unlinked identity history
+without exposing issuer or subject values. Account deletion removes active
+identity records and retains only digested identity tombstones required to prevent
+accidental reattachment after a completed deletion.
+
 ## Approval behavior
 
 New identities are `pending` unless either:
@@ -122,3 +212,15 @@ Before production:
 8. Confirm export and deletion require authentication issued within 15 minutes.
 9. Confirm deletion observes the cancellation window, removes active learner data,
    redacts retained audit identity fields, and leaves only a pseudonymous tombstone.
+10. Confirm link state and PKCE values expire, cannot be replayed, and are bound to
+    the learner who created them.
+11. Confirm the same external identity cannot be linked to two learner accounts.
+12. Confirm unlink cannot remove the primary or last usable identity and that
+    export and deletion cover linked-identity history.
+13. Confirm account merge rejects email-only, wrong-account, expired, consumed,
+    and replayed proofs.
+14. Confirm every merge conflict requires an explicit choice and a stale preview
+    cannot complete.
+15. Confirm retry returns the original receipt, receipt rows are immutable,
+    rollback refuses post-merge activity, and merged-account deletion removes all
+    source identities and recovery snapshots.

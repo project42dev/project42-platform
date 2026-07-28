@@ -36,10 +36,17 @@ The services are:
 | Account API | `http://localhost:8787` | Accounts, authorization, progress, transcripts, badges, privacy, and audit |
 | Keycloak | `http://localhost:8080` | Replaceable reference OIDC provider |
 | PostgreSQL | internal only | Durable learner and administrative records |
+| Profile-photo volume | internal only | Private account photos through the replaceable filesystem storage adapter |
 
 The API applies checksum-locked PostgreSQL migrations under an advisory lock
 before accepting traffic. A changed migration that has already been applied
 causes startup to fail instead of silently changing the database.
+Migration `005_learning_events.sql` adds the same immutable event store and
+optimistic learner-stream revisions used by hosted D1. The release gate runs the
+public learning-event conformance harness against PostgreSQL 17.
+Migration `006_learning_record_receipts.sql` adds immutable, pseudonymous deletion
+receipts and deletion-replay evidence. Back up the post-backup deletion-receipt
+ledger separately and import/replay it before promoting a restored service.
 The identity readiness probe follows the
 [official Keycloak health-check guidance](https://www.keycloak.org/observability/health)
 for its internal management port (verified 2026-07-27).
@@ -48,6 +55,13 @@ This repository does not assign a default owner. After a user signs in, use a
 reviewed bootstrap-owner issuer and subject for the first owner or approve the
 account through an existing owner. Never use an email address as the immutable
 owner key.
+
+The reference API stores profile photos in the named
+`project42_profile_photos` volume. Files use random internal keys, are never
+served directly by the container, and are returned only through authenticated
+API requests. Set `PROFILE_PHOTO_DIRECTORY` to a writable private mount when
+building another self-hosted profile; do not place photos in a public static
+asset directory.
 
 ## Connect a Learn build
 
@@ -95,6 +109,12 @@ Backups contain learner and identity-adjacent records. Encrypt them, restrict
 access, document retention, and replay completed deletion tombstones after any
 production restore.
 
+The database backup contains profile-photo metadata but not the photo bytes.
+Back up and restore the `project42_profile_photos` volume as a coordinated,
+encrypted artifact, and validate both together in the isolated restoration
+test. A database-only restore may contain photo metadata whose object no longer
+exists; the API fails closed rather than substituting another object.
+
 ## Stop or reset
 
 Stop without deleting persistent data:
@@ -129,7 +149,7 @@ cosign verify-blob \
   --bundle project42-platform.sigstore.json \
   --certificate-identity-regexp '^https://github.com/project42dev/project42-platform/' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  project42-platform-v0.50.0.tgz
+  project42-platform-v0.52.0.tgz
 cosign verify-blob \
   --bundle compatibility.sigstore.json \
   --certificate-identity-regexp '^https://github.com/project42dev/project42-platform/' \

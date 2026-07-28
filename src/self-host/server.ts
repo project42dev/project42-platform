@@ -5,6 +5,7 @@ import {
   handleRequest,
 } from "../worker.js";
 import { readConfiguration } from "./config.js";
+import { FilesystemProfilePhotoBucket } from "./filesystem-profile-photo-bucket.js";
 import { applyPostgresMigrations } from "./migrate.js";
 import { PostgresD1CompatibilityDatabase } from "./postgres-d1.js";
 
@@ -20,6 +21,10 @@ const repository = new D1Project42Repository(
   database as unknown as D1Database,
   configuration.installationId,
 );
+const profilePhotos = new FilesystemProfilePhotoBucket(
+  configuration.profilePhotoDirectory,
+);
+await profilePhotos.initialize();
 const workerEnvironment = {
   PROJECT42_DB: database as unknown as D1Database,
   INSTALLATION_ID: configuration.installationId,
@@ -29,9 +34,11 @@ const workerEnvironment = {
   OIDC_EMAIL_CLAIM: configuration.oidcEmailClaim,
   OIDC_EMAIL_VERIFIED_CLAIM: configuration.oidcEmailVerifiedClaim,
   DOMAIN_APPROVAL_ENABLED: String(configuration.domainApprovalEnabled),
+  LEARNING_RECORD_ADAPTER: configuration.learningRecordAdapter.adapter,
   ALLOWED_ORIGINS: configuration.allowedOrigins.join(","),
   BOOTSTRAP_OWNER_ISSUER: configuration.bootstrapOwnerIssuer,
   BOOTSTRAP_OWNER_SUBJECT: configuration.bootstrapOwnerSubject,
+  PROFILE_PHOTOS: profilePhotos as unknown as R2Bucket,
 } as unknown as Env;
 
 const server = createServer(async (incoming, outgoing) => {
@@ -42,6 +49,8 @@ const server = createServer(async (incoming, outgoing) => {
       workerEnvironment,
       undefined,
       repository,
+      undefined,
+      configuration.learningRecordAdapter,
     );
     outgoing.statusCode = response.status;
     response.headers.forEach((value, name) => outgoing.setHeader(name, value));

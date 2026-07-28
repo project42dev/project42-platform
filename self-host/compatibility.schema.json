@@ -34,7 +34,12 @@
     "database": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["adapter", "supportedMajors", "migrationHead"],
+      "required": [
+        "adapter",
+        "supportedMajors",
+        "migrationHead",
+        "learningRecords"
+      ],
       "properties": {
         "adapter": { "const": "postgresql" },
         "supportedMajors": {
@@ -43,7 +48,31 @@
           "uniqueItems": true,
           "items": { "type": "integer", "minimum": 14 }
         },
-        "migrationHead": { "type": "string", "pattern": "^\\d+_[a-z0-9_-]+\\.sql$" }
+        "migrationHead": { "type": "string", "pattern": "^\\d+_[a-z0-9_-]+\\.sql$" },
+        "learningRecords": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "selectionVariable",
+            "contractVersion",
+            "eventContractVersion",
+            "receiptContractVersion",
+            "recoveryContractVersion",
+            "semanticFingerprint",
+            "transactionMode"
+          ],
+          "properties": {
+            "selectionVariable": { "const": "LEARNING_RECORD_ADAPTER" },
+            "contractVersion": { "const": "1.0" },
+            "eventContractVersion": { "const": "1.0" },
+            "receiptContractVersion": { "const": "1.0" },
+            "recoveryContractVersion": { "const": "1.0" },
+            "semanticFingerprint": {
+              "const": "learning-records/1.0;events/1.0;receipts/1.0;append-only;atomic-batch;optimistic-revision;verified-deletion-replay"
+            },
+            "transactionMode": { "const": "atomic-sequential-batch" }
+          }
+        }
       }
     },
     "identity": {
@@ -54,7 +83,8 @@
         "flow",
         "requiredClaims",
         "referenceProvider",
-        "referenceVersion"
+        "referenceVersion",
+        "provisioning"
       ],
       "properties": {
         "protocol": { "const": "oidc" },
@@ -66,7 +96,56 @@
           "items": { "type": "string" }
         },
         "referenceProvider": { "const": "keycloak" },
-        "referenceVersion": { "type": "string" }
+        "referenceVersion": { "type": "string" },
+        "provisioning": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contractVersion",
+            "supportedModes",
+            "referenceAdapter",
+            "referenceAdapterVersion",
+            "engineVersion",
+            "stateStoreContract",
+            "authorityContinuation"
+          ],
+          "properties": {
+            "contractVersion": { "const": "1.0" },
+            "supportedModes": {
+              "type": "array",
+              "minItems": 3,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "api",
+                  "resumable-owner-gate",
+                  "preconfigured"
+                ]
+              },
+              "allOf": [
+                { "contains": { "const": "api" } },
+                { "contains": { "const": "resumable-owner-gate" } },
+                { "contains": { "const": "preconfigured" } }
+              ]
+            },
+            "referenceAdapter": {
+              "const": "keycloak-admin-rest"
+            },
+            "referenceAdapterVersion": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$"
+            },
+            "engineVersion": {
+              "const": "1.0.0"
+            },
+            "stateStoreContract": {
+              "const": "compare-and-set"
+            },
+            "authorityContinuation": {
+              "const": "sha256-bound"
+            }
+          }
+        }
       }
     },
     "learn": {

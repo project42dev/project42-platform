@@ -3,7 +3,11 @@ import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 import { Miniflare } from "miniflare";
 import { starterCatalog } from "../dist/index.js";
-import { D1Project42Repository, handleRequest } from "../dist/worker.js";
+import {
+  D1Project42Repository,
+  GithubIdentityLinkAdapter,
+  handleRequest,
+} from "../dist/worker.js";
 
 const issuer = "https://issuer.example.test";
 const allowedOrigin = "https://learn.example.test";
@@ -23,10 +27,19 @@ async function readBody(response) {
   return response.json();
 }
 
+async function pkceChallenge(verifier) {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(verifier),
+  );
+  return Buffer.from(digest).toString("base64url");
+}
+
 test("account service completes lifecycle, progress, privacy, and audit journeys on D1", async (t) => {
   const miniflare = new Miniflare({
     compatibilityDate: "2026-07-26",
     d1Databases: { PROJECT42_DB: "project42-account-e2e" },
+    r2Buckets: { PROFILE_PHOTOS: "project42-profile-photos-e2e" },
     d1Persist: false,
     modules: true,
     script: "export default { fetch() { return new Response('fixture'); } };",
@@ -34,6 +47,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   t.after(() => miniflare.dispose());
 
   const database = await miniflare.getD1Database("PROJECT42_DB");
+  const profilePhotos = await miniflare.getR2Bucket("PROFILE_PHOTOS");
   const migrations = (await readdir(new URL("../migrations/", import.meta.url)))
     .filter((name) => name.endsWith(".sql"))
     .sort();
@@ -48,6 +62,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   const identities = new Map([
     ["owner-token", identity("owner-subject", "owner@example.test")],
     ["learner-token", identity("learner-subject", "learner@other.example")],
+    ["other-token", identity("other-subject", "other@other.example")],
     ["delete-token", identity("delete-subject", "delete@trusted.example")],
     [
       "unverified-token",
@@ -69,7 +84,39 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     BOOTSTRAP_OWNER_ISSUER: issuer,
     BOOTSTRAP_OWNER_SUBJECT: "owner-subject",
     DOMAIN_APPROVAL_ENABLED: "false",
+    LEARNING_RECORD_ADAPTER: "cloudflare-d1",
+    PROFILE_PHOTOS: profilePhotos,
+    GITHUB_LINK_CLIENT_ID: "Iv1.1234567890abcdef",
+    GITHUB_LINK_CLIENT_SECRET: "s".repeat(40),
+    GITHUB_LINK_REDIRECT_URI: `${allowedOrigin}/account/github/callback/`,
   };
+  const githubRequests = [];
+  const githubLinkAdapter = new GithubIdentityLinkAdapter(
+    env,
+    async (input, init) => {
+      const url = String(input);
+      githubRequests.push({ url, init });
+      if (url === "https://github.com/login/oauth/access_token") {
+        return Response.json({
+          access_token: "ephemeral-github-token",
+          token_type: "bearer",
+          scope: "",
+        });
+      }
+      if (url === "https://api.github.com/user") {
+        assert.equal(
+          new Headers(init.headers).get("authorization"),
+          "Bearer ephemeral-github-token",
+        );
+        return Response.json({
+          id: 424242,
+          login: "project42-learner",
+          name: "Project 42 learner",
+        });
+      }
+      throw new Error(`Unexpected GitHub test URL: ${url}`);
+    },
+  );
 
   async function api(token, path, init = {}) {
     const headers = new Headers(init.headers);
@@ -83,6 +130,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
       env,
       verifier,
       repository,
+      githubLinkAdapter,
     );
   }
 
@@ -91,6 +139,80 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   const owner = (await readBody(ownerSession)).account;
   assert.equal(owner.state, "approved");
   assert.deepEqual(new Set(owner.roles), new Set(["learner", "owner"]));
+
+  const initialProfileResponse = await api("owner-token", "/v1/me/profile");
+  assert.equal(initialProfileResponse.status, 200);
+  const initialProfile = (await readBody(initialProfileResponse)).profile;
+  assert.equal(initialProfile.displayName, "owner-subject");
+  assert.equal(initialProfile.bio, null);
+
+  const updatedProfileResponse = await api("owner-token", "/v1/me/profile", {
+    method: "PATCH",
+    body: JSON.stringify({
+      displayName: "Owner Example",
+      bio: "Teaches and learns with Project 42.",
+      organization: "Example learning team",
+      location: "Remote",
+      websiteUrl: "https://example.test/about",
+    }),
+  });
+  assert.equal(updatedProfileResponse.status, 200);
+  const updatedProfile = (await readBody(updatedProfileResponse)).profile;
+  assert.equal(updatedProfile.displayName, "Owner Example");
+  assert.equal(updatedProfile.websiteUrl, "https://example.test/about");
+
+  const refreshedOwnerResponse = await api("owner-token", "/v1/me");
+  assert.equal(refreshedOwnerResponse.status, 200);
+  assert.equal((await readBody(refreshedOwnerResponse)).account.displayName, "Owner Example");
+
+  const unsafeWebsiteResponse = await api("owner-token", "/v1/me/profile", {
+    method: "PATCH",
+    body: JSON.stringify({ websiteUrl: "http://example.test" }),
+  });
+  assert.equal(unsafeWebsiteResponse.status, 400);
+  assert.equal((await readBody(unsafeWebsiteResponse)).error.code, "invalid_website_url");
+
+  const pngPhoto = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+    "base64",
+  );
+  const mismatchedPhotoResponse = await api(
+    "owner-token",
+    "/v1/me/profile/photo",
+    {
+      method: "PUT",
+      headers: { "content-type": "image/png" },
+      body: Buffer.from("This is not a PNG image."),
+    },
+  );
+  assert.equal(mismatchedPhotoResponse.status, 400);
+  assert.equal(
+    (await readBody(mismatchedPhotoResponse)).error.code,
+    "profile_photo_signature_mismatch",
+  );
+  const photoUploadResponse = await api("owner-token", "/v1/me/profile/photo", {
+    method: "PUT",
+    headers: { "content-type": "image/png" },
+    body: pngPhoto,
+  });
+  assert.equal(photoUploadResponse.status, 200);
+  assert.equal((await readBody(photoUploadResponse)).photo.available, true);
+
+  const photoResponse = await api("owner-token", "/v1/me/profile/photo");
+  assert.equal(photoResponse.status, 200);
+  assert.equal(photoResponse.headers.get("content-type"), "image/png");
+  assert.deepEqual(Buffer.from(await photoResponse.arrayBuffer()), pngPhoto);
+
+  const profileWithPhotoResponse = await api("owner-token", "/v1/me/profile");
+  assert.equal(profileWithPhotoResponse.status, 200);
+  assert.equal((await readBody(profileWithPhotoResponse)).profile.photoAvailable, true);
+
+  const photoDeleteResponse = await api("owner-token", "/v1/me/profile/photo", {
+    method: "DELETE",
+  });
+  assert.equal(photoDeleteResponse.status, 204);
+  const missingPhotoResponse = await api("owner-token", "/v1/me/profile/photo");
+  assert.equal(missingPhotoResponse.status, 404);
 
   const learnerSession = await api("learner-token", "/v1/session", {
     method: "POST",
@@ -181,14 +303,239 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   assert.equal(synchronized.status, 200);
   assert.deepEqual((await readBody(synchronized)).progress.progress, progress);
 
+  const initialIdentitiesResponse = await api(
+    "learner-token",
+    "/v1/me/identities",
+  );
+  assert.equal(initialIdentitiesResponse.status, 200);
+  const initialIdentities = (await readBody(initialIdentitiesResponse)).identities;
+  assert.equal(initialIdentities.length, 1);
+  assert.equal(initialIdentities[0].provider, "oidc");
+  assert.equal(initialIdentities[0].primary, true);
+  assert.equal(initialIdentities[0].canUnlink, false);
+  assert.equal("subject" in initialIdentities[0], false);
+
+  const primaryUnlink = await api(
+    "learner-token",
+    `/v1/me/identities/${encodeURIComponent(initialIdentities[0].id)}`,
+    { method: "DELETE" },
+  );
+  assert.equal(primaryUnlink.status, 409);
+  assert.equal(
+    (await readBody(primaryUnlink)).error.code,
+    "primary_identity_required",
+  );
+
+  const codeVerifier = "v".repeat(43);
+  const linkStartResponse = await api(
+    "learner-token",
+    "/v1/me/identity-links/github",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        codeChallenge: await pkceChallenge(codeVerifier),
+        codeChallengeMethod: "S256",
+        returnPath: "/account?linked=github",
+      }),
+    },
+  );
+  assert.equal(linkStartResponse.status, 201);
+  const linkStart = await readBody(linkStartResponse);
+  const link = linkStart.link;
+  assert.equal(link.provider, "github");
+  assert.equal(link.codeChallengeMethod, "S256");
+  assert.equal(link.returnPath, "/account?linked=github");
+  const authorizationUrl = new URL(linkStart.authorizationUrl);
+  assert.equal(authorizationUrl.origin, "https://github.com");
+  assert.equal(authorizationUrl.pathname, "/login/oauth/authorize");
+  assert.equal(authorizationUrl.searchParams.get("state"), link.state);
+  assert.equal(authorizationUrl.searchParams.has("scope"), false);
+  const storedLink = await database
+    .prepare(
+      "SELECT state_digest, status FROM identity_link_transactions WHERE id = ?",
+    )
+    .bind(link.id)
+    .first();
+  assert.equal(storedLink.status, "pending");
+  assert.notEqual(storedLink.state_digest, link.state);
+
+  const currentLearner = await repository.findAccount(
+    identities.get("learner-token"),
+  );
+  assert.ok(currentLearner);
+  const wrongVerifier = await api(
+    "learner-token",
+    "/v1/me/identity-links/github/complete",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        transactionId: link.id,
+        state: link.state,
+        code: "temporary-code",
+        codeVerifier: "w".repeat(43),
+      }),
+    },
+  );
+  assert.equal(wrongVerifier.status, 400);
+  assert.equal(githubRequests.length, 0);
+  const linkCompleteResponse = await api(
+    "learner-token",
+    "/v1/me/identity-links/github/complete",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        transactionId: link.id,
+        state: link.state,
+        code: "temporary-code",
+        codeVerifier,
+      }),
+    },
+  );
+  assert.equal(linkCompleteResponse.status, 200);
+  const linkCompletion = await readBody(linkCompleteResponse);
+  const githubIdentity = linkCompletion.linkedIdentity;
+  assert.equal(linkCompletion.returnPath, "/account?linked=github");
+  assert.equal(githubRequests.length, 2);
+  const tokenRequestBody = new URLSearchParams(githubRequests[0].init.body);
+  assert.equal(tokenRequestBody.get("code"), "temporary-code");
+  assert.equal(tokenRequestBody.get("code_verifier"), codeVerifier);
+  assert.equal(tokenRequestBody.has("scope"), false);
+  assert.equal(
+    JSON.stringify(linkCompletion).includes("ephemeral-github-token"),
+    false,
+  );
+  assert.equal(githubIdentity.provider, "github");
+  assert.equal(githubIdentity.primary, false);
+  assert.equal(githubIdentity.canUnlink, true);
+  const replay = await api(
+    "learner-token",
+    "/v1/me/identity-links/github/complete",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        transactionId: link.id,
+        state: link.state,
+        code: "replayed-code",
+        codeVerifier,
+      }),
+    },
+  );
+  assert.equal(replay.status, 400);
+  assert.equal((await readBody(replay)).error.code, "invalid_identity_link");
+  assert.equal(githubRequests.length, 2);
+
+  const otherSession = await api("other-token", "/v1/session", {
+    method: "POST",
+  });
+  assert.equal(otherSession.status, 202);
+  const otherAccount = (await readBody(otherSession)).account;
+  const approveOther = await api(
+    "owner-token",
+    `/v1/admin/accounts/${encodeURIComponent(otherAccount.id)}/state`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        state: "approved",
+        reason: "Approve the linked-identity collision fixture.",
+      }),
+    },
+  );
+  assert.equal(approveOther.status, 200);
+  const otherVerifier = "o".repeat(43);
+  const otherLinkStart = await api(
+    "other-token",
+    "/v1/me/identity-links/github",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        codeChallenge: await pkceChallenge(otherVerifier),
+        codeChallengeMethod: "S256",
+        returnPath: "/account?linked=github",
+      }),
+    },
+  );
+  assert.equal(otherLinkStart.status, 201);
+  const otherLink = (await readBody(otherLinkStart)).link;
+  const collision = await api(
+    "other-token",
+    "/v1/me/identity-links/github/complete",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        transactionId: otherLink.id,
+        state: otherLink.state,
+        code: "other-temporary-code",
+        codeVerifier: otherVerifier,
+      }),
+    },
+  );
+  assert.equal(collision.status, 409);
+  assert.equal(
+    (await readBody(collision)).error.code,
+    "identity_already_linked",
+  );
+  assert.equal(githubRequests.length, 4);
+  assert.equal(
+    (
+      await database
+        .prepare(
+          "SELECT status FROM identity_link_transactions WHERE id = ?",
+        )
+        .bind(otherLink.id)
+        .first()
+    ).status,
+    "failed",
+  );
+  const otherIdentities = await api("other-token", "/v1/me/identities");
+  assert.equal(otherIdentities.status, 200);
+  assert.equal((await readBody(otherIdentities)).identities.length, 1);
+
+  const linkedIdentitiesResponse = await api(
+    "learner-token",
+    "/v1/me/identities",
+  );
+  assert.equal(linkedIdentitiesResponse.status, 200);
+  assert.equal((await readBody(linkedIdentitiesResponse)).identities.length, 2);
+
   const learnerExport = await api("learner-token", "/v1/me/export");
   assert.equal(learnerExport.status, 200);
   const exported = (await readBody(learnerExport)).export;
   assert.equal(exported.progress.revision, 1);
+  assert.equal(exported.profile.displayName, "learner-subject");
   assert.equal(exported.assessmentAttempts.length, 1);
   assert.equal(exported.transcriptEntries.length, starterCatalog.paths.length);
   assert.equal(exported.badges.length, 1);
   assert.equal(exported.consents.length, 1);
+  assert.equal(exported.linkedIdentities.length, 2);
+
+  const unlinkGithub = await api(
+    "learner-token",
+    `/v1/me/identities/${encodeURIComponent(githubIdentity.id)}`,
+    { method: "DELETE" },
+  );
+  assert.equal(unlinkGithub.status, 204);
+  const activeIdentitiesAfterUnlink = await api(
+    "learner-token",
+    "/v1/me/identities",
+  );
+  assert.equal(activeIdentitiesAfterUnlink.status, 200);
+  assert.equal(
+    (await readBody(activeIdentitiesAfterUnlink)).identities.length,
+    1,
+  );
+  const exportAfterUnlink = await api("learner-token", "/v1/me/export");
+  assert.equal(exportAfterUnlink.status, 200);
+  const exportedIdentityHistory = (await readBody(exportAfterUnlink)).export
+    .linkedIdentities;
+  assert.equal(exportedIdentityHistory.length, 2);
+  assert.ok(
+    exportedIdentityHistory.some(
+      (linkedIdentity) =>
+        linkedIdentity.provider === "github" &&
+        linkedIdentity.status === "unlinked" &&
+        linkedIdentity.unlinkedAt,
+    ),
+  );
 
   const suspended = await api(
     "owner-token",
@@ -205,6 +552,15 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   const blocked = await api("learner-token", "/v1/me/progress");
   assert.equal(blocked.status, 403);
   assert.equal((await readBody(blocked)).error.code, "account_suspended");
+  const blockedProfileUpdate = await api("learner-token", "/v1/me/profile", {
+    method: "PATCH",
+    body: JSON.stringify({ displayName: "Suspended learner" }),
+  });
+  assert.equal(blockedProfileUpdate.status, 403);
+  assert.equal(
+    (await readBody(blockedProfileUpdate)).error.code,
+    "account_suspended",
+  );
 
   const restored = await api(
     "owner-token",
@@ -231,6 +587,39 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   assert.equal(
     (await readBody(disabledDomain)).error.code,
     "domain_approval_not_enabled",
+  );
+
+  const stagedDomainResponse = await api("owner-token", "/v1/admin/domains", {
+    method: "POST",
+    body: JSON.stringify({
+      domain: "staged.example",
+      enabled: false,
+      reason: "Stage the exact domain before claim validation.",
+    }),
+  });
+  assert.equal(stagedDomainResponse.status, 201);
+  const stagedDomain = (await readBody(stagedDomainResponse)).domain;
+  assert.equal(stagedDomain.enabled, false);
+
+  const removedDomainResponse = await api(
+    "owner-token",
+    `/v1/admin/domains/${encodeURIComponent(stagedDomain.id)}`,
+    {
+      method: "DELETE",
+      body: JSON.stringify({
+        reason: "Remove the unused staged domain.",
+      }),
+    },
+  );
+  assert.equal(removedDomainResponse.status, 200);
+  assert.equal(
+    (
+      await database
+        .prepare("SELECT COUNT(*) AS count FROM approved_email_domains WHERE id = ?")
+        .bind(stagedDomain.id)
+        .first()
+    ).count,
+    0,
   );
 
   env.DOMAIN_APPROVAL_ENABLED = "true";
@@ -301,6 +690,17 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     ).count,
     1,
   );
+  assert.equal(
+    (
+      await database
+        .prepare(
+          "SELECT COUNT(*) AS count FROM deleted_identity_tombstones WHERE deletion_request_id = ?",
+        )
+        .bind(deletionRequest.id)
+        .first()
+    ).count,
+    1,
+  );
 
   const revoked = await api(
     "owner-token",
@@ -326,7 +726,14 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     "account.state.change",
     "consent.record",
     "progress.import",
+    "profile.update",
+    "profile.photo.update",
+    "profile.photo.delete",
+    "identity.link.start",
+    "identity.link.complete",
+    "identity.unlink",
     "domain.create",
+    "domain.delete",
     "deletion.request",
     "deletion.complete",
     "authorization.owner.denied",

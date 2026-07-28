@@ -7,5 +7,10 @@ OIDC_EMAIL_CLAIM=email
 OIDC_EMAIL_VERIFIED_CLAIM=email_verified
 INSTALLATION_ID=local
 ALLOWED_ORIGINS=http://localhost:3000
+LEARNING_RECORD_ADAPTER=cloudflare-d1
 BOOTSTRAP_OWNER_ISSUER=
 BOOTSTRAP_OWNER_SUBJECT=
+# Optional GitHub App or OAuth App user-authorization linkage.
+GITHUB_LINK_CLIENT_ID=
+GITHUB_LINK_CLIENT_SECRET=
+GITHUB_LINK_REDIRECT_URI=http://localhost:3000/account/github/callback/

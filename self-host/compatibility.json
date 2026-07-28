@@ -1,26 +1,48 @@
 {
   "$schema": "./compatibility.schema.json",
   "schemaVersion": 1,
-  "release": "0.50.0",
+  "release": "0.59.1",
   "supportLevel": "evaluation",
   "api": {
     "package": "@project42/platform",
-    "version": "0.50.0",
-    "image": "ghcr.io/project42dev/project42-platform-api:0.50.0",
+    "version": "0.59.1",
+    "image": "ghcr.io/project42dev/project42-platform-api:0.59.1",
     "healthPath": "/health",
     "runsAsNonRoot": true
   },
   "database": {
     "adapter": "postgresql",
     "supportedMajors": [17],
-    "migrationHead": "001_initial.sql"
+    "migrationHead": "006_learning_record_receipts.sql",
+    "learningRecords": {
+      "selectionVariable": "LEARNING_RECORD_ADAPTER",
+      "contractVersion": "1.0",
+      "eventContractVersion": "1.0",
+      "receiptContractVersion": "1.0",
+      "recoveryContractVersion": "1.0",
+      "semanticFingerprint": "learning-records/1.0;events/1.0;receipts/1.0;append-only;atomic-batch;optimistic-revision;verified-deletion-replay",
+      "transactionMode": "atomic-sequential-batch"
+    }
   },
   "identity": {
     "protocol": "oidc",
     "flow": "authorization-code-pkce",
     "requiredClaims": ["iss", "sub", "aud", "exp", "iat", "email_verified"],
     "referenceProvider": "keycloak",
-    "referenceVersion": "26.7.0"
+    "referenceVersion": "26.7.0",
+    "provisioning": {
+      "contractVersion": "1.0",
+      "supportedModes": [
+        "api",
+        "resumable-owner-gate",
+        "preconfigured"
+      ],
+      "referenceAdapter": "keycloak-admin-rest",
+      "referenceAdapterVersion": "1.0.0",
+      "engineVersion": "1.0.0",
+      "stateStoreContract": "compare-and-set",
+      "authorityContinuation": "sha256-bound"
+    }
   },
   "learn": {
     "minimumVersion": "0.3.1",

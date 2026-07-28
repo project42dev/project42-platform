@@ -2,43 +2,45 @@
 
 ## Active branch
 
-`feat/foundations-class-scripts-wave2-ab6244`
+`feat/postgres-learning-receipts-ab5422`
 
-## In progress
+## Current work
 
-- Added the first two complete AI Foundations class-script waves for
-  `ai-systems-and-use-cases`, `language-models-and-generation`, and
-  `context-tokens-and-modalities`, plus `prompt-anatomy-and-success-criteria`,
-  `examples-and-output-contracts`, and `context-and-evidence-construction`.
-- Added deterministic class-package discovery, coverage reporting, transcript,
-  WebVTT, text-only, reduced-motion, and integrity generation.
-- Added exact activity/question handoff validation, honest planned/completed
-  model-role provenance, and fail-closed human publication gates.
-- Prepared package `0.50.0` and content `0.37.0`.
-- Kept all three packages `draft`; Foundry role execution and accountable human
-  approvals are still required before publication.
+AB#5422 completes the PostgreSQL learning-record adapter acceptance criteria that
+remain after authoritative events shipped in platform `v0.56.0`.
+
+## Implemented
+
+- Package candidate `0.57.0`.
+- Verified export receipts binding exact scope, revision, event count, canonical
+  event digest, and export time.
+- Idempotent pseudonymous deletion receipts that survive record deletion without
+  raw installation or learner identifiers.
+- Restore-specific deletion replay receipts binding the restored event digest,
+  count, deletion result, restore ID, and replay time.
+- Engine authorization for verified export, deletion, and replay.
+- Atomic SQL deletion and replay in the shared D1/PostgreSQL adapter.
+- D1 migration `0009` and PostgreSQL migration `006` with immutable receipt rows.
+- Strict JSON Schema, runtime verification, documentation, and a public receipt
+  conformance harness.
 
 ## Verification
 
-- `npm run check` — passed: 88 tests, 1 optional PostgreSQL integration test
-  skipped, 11 resource packs / 86 resources, and 464 current source references.
-- `npm run api:check` — passed, including Worker dry-run.
-- `npm audit --audit-level=high` — passed with zero vulnerabilities.
-- `npm pack --dry-run --json` — confirmed class scripts and generated accessible
-  artifacts are included in the reusable package.
-- `git diff --check` — passed.
+- Receipt unit tests and real Miniflare D1 conformance pass.
+- The prior event conformance still covers retry-safe duplicate commands,
+  concurrent distinct attempts, deterministic projection, authorization, export,
+  and deletion.
+- Pull-request CI must run both public suites against PostgreSQL 17 before merge.
 
 ## Next steps
 
-1. Review draft PR #53 and the dependent wave-2 pull request and CI evidence.
-2. Run the declared independent Foundry research, writing, factual-verification,
-   learning-design, and accessibility roles.
-3. Record real contribution evidence and complete human editorial,
-   subject-matter, and accessibility approvals.
-4. Continue the coverage migration for the 43 modules currently classified
-   `outline-only`.
-5. Reconcile package `0.50.0` with any earlier self-host release branch before
-   merge.
+1. Run the complete local platform, Worker, package, audit, and whitespace gates.
+2. Commit and open the public pull request without private ADO links.
+3. Require green PostgreSQL 17 conformance and full CI before merge.
+4. Publish and validate signed platform release `v0.57.0`.
+5. Record private evidence, return Tasks AB#6345–AB#6347 to New plus
+   `Ready for Acceptance`, and move AB#5422 to Resolved without closing it.
+6. Continue AB#5423 hosted adapter operating limits and configuration selection.
 
-No secrets, deployment identifiers, learner data, or private PMO material belong
-in this repository.
+No production tenant, organization, owner, account, learner, database, bucket,
+credential, recovery, or private operational identifier belongs in this repository.
