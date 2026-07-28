@@ -498,7 +498,12 @@ export function validateIdentityProvisioningPlan(
   if (!IDENTITY_PROVISIONING_MODES.includes(value.provider.mode)) {
     errors.push("provider mode is unsupported");
   }
-  validateHttpsUrl(value.provider.issuer, "provider issuer", errors);
+  validateHttpsUrl(
+    value.provider.issuer,
+    "provider issuer",
+    errors,
+    true,
+  );
   rejectUnknownKeys(
     value.provider.authorityBoundary,
     ["kind", "referenceDigest"],
@@ -731,14 +736,30 @@ function validateClient(
   if (!IDENTITY_PROVISIONING_CLIENT_KINDS.includes(client.clientKind)) {
     errors.push("client kind is unsupported");
   }
-  validateUniqueUrls(client.redirectUris, "redirect URI", true, errors);
+  validateUniqueUrls(
+    client.redirectUris,
+    "redirect URI",
+    true,
+    errors,
+    false,
+    true,
+  );
   validateUniqueUrls(
     client.postLogoutRedirectUris,
     "post-logout redirect URI",
     false,
     errors,
+    false,
+    true,
   );
-  validateUniqueUrls(client.allowedOrigins, "allowed origin", true, errors, true);
+  validateUniqueUrls(
+    client.allowedOrigins,
+    "allowed origin",
+    true,
+    errors,
+    true,
+    true,
+  );
   if (
     client.grantTypes.length !== 1 ||
     client.grantTypes[0] !== "authorization_code"
@@ -1159,10 +1180,28 @@ function validateHttpsUrl(
   value: string,
   label: string,
   errors: string[],
+  allowLoopbackHttp = false,
 ): void {
   try {
     const parsed = new URL(value);
-    if (parsed.protocol !== "https:") errors.push(`${label} must use HTTPS`);
+    const loopback =
+      parsed.hostname === "localhost" ||
+      parsed.hostname === "127.0.0.1" ||
+      parsed.hostname === "[::1]";
+    if (
+      parsed.protocol !== "https:" &&
+      !(
+        allowLoopbackHttp &&
+        parsed.protocol === "http:" &&
+        loopback
+      )
+    ) {
+      errors.push(
+        allowLoopbackHttp
+          ? `${label} must use HTTPS or explicit loopback HTTP`
+          : `${label} must use HTTPS`,
+      );
+    }
     if (parsed.username || parsed.password) {
       errors.push(`${label} cannot contain URL credentials`);
     }
@@ -1178,6 +1217,7 @@ function validateUniqueUrls(
   required: boolean,
   errors: string[],
   originOnly = false,
+  allowLoopbackHttp = false,
 ): void {
   if (required && values.length === 0) {
     errors.push(`at least one ${label} is required`);
@@ -1186,7 +1226,7 @@ function validateUniqueUrls(
     errors.push(`${label}s must be unique`);
   }
   for (const value of values) {
-    validateHttpsUrl(value, label, errors);
+    validateHttpsUrl(value, label, errors, allowLoopbackHttp);
     if (originOnly) {
       try {
         const parsed = new URL(value);

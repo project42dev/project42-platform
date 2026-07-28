@@ -98,6 +98,40 @@ test("runtime plan validation enforces OIDC, PKCE, and secret boundaries", () =>
   assert.match(result.errors.join("\n"), /exact origin/);
 });
 
+test("evaluation plans permit HTTP only on explicit loopback hosts", () => {
+  const local = structuredClone(apiPlan);
+  local.provider.issuer = "http://127.0.0.1:8080/realms/project42";
+  local.client.redirectUris = [
+    "http://localhost:3000/auth/callback",
+  ];
+  local.client.postLogoutRedirectUris = [
+    "http://localhost:3000/",
+  ];
+  local.client.allowedOrigins = ["http://localhost:3000"];
+
+  assert.deepEqual(validateIdentityProvisioningPlan(local), {
+    valid: true,
+    errors: [],
+  });
+
+  const ajv = new Ajv2020({ allErrors: true, strict: true });
+  const validate = ajv.compile(schema);
+  assert.equal(validate(local), true, ajv.errorsText(validate.errors));
+
+  local.provider.issuer =
+    "http://identity.internal.example/realms/project42";
+  local.client.redirectUris = [
+    "http://learn.internal.example/auth/callback",
+  ];
+  const rejected = validateIdentityProvisioningPlan(local);
+  assert.equal(rejected.valid, false);
+  assert.match(
+    rejected.errors.join("\n"),
+    /explicit loopback HTTP/,
+  );
+  assert.equal(validate(local), false);
+});
+
 test("credential values are forbidden while opaque references remain valid", () => {
   const result = validateIdentityProvisioningPlan(invalidCredentialLeak);
   assert.equal(result.valid, false);

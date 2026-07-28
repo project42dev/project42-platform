@@ -100,7 +100,7 @@
               ]
             },
             "referenceAdapter": {
-              "const": "keycloak-client-registration"
+              "const": "keycloak-admin-rest"
             },
             "referenceAdapterVersion": {
               "type": "string",

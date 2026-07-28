@@ -269,4 +269,12 @@ export type {
   IdentityProvisioningRecordStore,
   IdentityProvisioningRunRequest,
 } from "./identity-provisioning-engine.js";
+export {
+  KeycloakIdentityProvisioningAdapter,
+  KeycloakIdentityProvisioningAdapterError,
+  keycloakIdentityProviderCompatibility,
+} from "./keycloak-identity-provisioning-adapter.js";
+export type {
+  KeycloakIdentityProvisioningAdapterOptions,
+} from "./keycloak-identity-provisioning-adapter.js";
 export { RESOURCE_AUDIENCES, RESOURCE_FORMATS } from "./schema.js";

@@ -297,3 +297,54 @@ exercise API and owner-gated creation, process restart, exact authority and proo
 denial, expiration, retry, drift, rotation, adapter upgrade, disablement, retirement,
 and unsupported operations without calling an external provider or persisting raw
 credentials.
+
+## Keycloak Admin REST reference adapter
+
+`KeycloakIdentityProvisioningAdapter` is the executable API-mode reference for
+self-hosted deployments. Configure it with:
+
+- the Keycloak base URL and realm;
+- a SHA-256 digest that binds the installer to the expected tenant-administration
+  boundary;
+- an asynchronous function that returns a short-lived Keycloak administration
+  access token;
+- the deployment secret sink; and
+- a durable engine record store.
+
+The adapter supports `create`, `validate`, `observe`, `reconcile`, `rotate`,
+`recover`, `disable`, and `retire`. It uses the current Keycloak Admin REST client
+endpoints and OIDC discovery. It does not persist or log the administration token
+or generated client secret.
+
+```ts
+const adapter = new KeycloakIdentityProvisioningAdapter({
+  baseUrl: configuration.keycloakBaseUrl,
+  realm: configuration.realm,
+  authorityReferenceDigest: configuration.authorityDigest,
+  accessToken: () => tokenProvider.getShortLivedAdminToken(),
+});
+```
+
+The desired client is Authorization Code only, disables implicit and password
+grants, disables service accounts and authorization services, sets
+`fullScopeAllowed=false`, and accepts no Project 42 management permissions. Exact
+redirect URIs, post-logout URIs, web origins, PKCE policy, issuer discovery,
+enabled state, and credential digest are observed after each provider write.
+
+For confidential clients, Keycloak returns the generated secret only to the
+adapter. The adapter immediately copies it into `IdentityProvisioningSecretSink`,
+zeros its byte buffer, and persists only the returned opaque reference. Rotation
+first stores and verifies the new version, then invalidates Keycloak's rotated
+secret and revokes the previous secret-manager reference.
+
+Production Keycloak endpoints must use HTTPS. The adapter permits HTTP only for
+explicit loopback evaluation URLs. Its access-token callback should obtain a
+short-lived token from the deployment's protected identity or secret system; do
+not put an administrator password or token in a plan, record, browser, command
+line, source file, or generated artifact.
+
+The deterministic adapter tests emulate the current Admin REST behavior and cover
+first deployment, idempotent rerun, wrong authority, callback drift, same-operation
+recovery, provider interruption, overlapping rotation, disablement, retirement,
+and browser-public PKCE clients. The self-host Compose gate remains responsible
+for verifying the selected Keycloak image and deployment configuration together.

@@ -4,11 +4,11 @@
   "adapterVersion": "1.0.0",
   "evidenceReviewedAt": "2026-07-28",
   "evidenceSources": [
+    "https://www.keycloak.org/docs-api/latest/rest-api/index.html",
     "https://www.keycloak.org/securing-apps/client-registration"
   ],
   "modes": [
-    "api",
-    "preconfigured"
+    "api"
   ],
   "operations": [
     "create",
@@ -30,13 +30,54 @@
       "operation": "create",
       "requiredAuthority": "tenant-admin",
       "interactive": false,
-      "reasonCode": "initial-access-token-required"
+      "reasonCode": "keycloak-admin-api-authority"
+    },
+    {
+      "operation": "validate",
+      "requiredAuthority": "tenant-admin",
+      "interactive": false,
+      "reasonCode": "keycloak-admin-api-authority"
+    },
+    {
+      "operation": "observe",
+      "requiredAuthority": "tenant-admin",
+      "interactive": false,
+      "reasonCode": "keycloak-admin-api-authority"
+    },
+    {
+      "operation": "reconcile",
+      "requiredAuthority": "tenant-admin",
+      "interactive": false,
+      "reasonCode": "keycloak-admin-api-authority"
+    },
+    {
+      "operation": "rotate",
+      "requiredAuthority": "tenant-admin",
+      "interactive": false,
+      "reasonCode": "keycloak-admin-api-authority"
+    },
+    {
+      "operation": "recover",
+      "requiredAuthority": "tenant-admin",
+      "interactive": false,
+      "reasonCode": "keycloak-admin-api-authority"
+    },
+    {
+      "operation": "disable",
+      "requiredAuthority": "tenant-admin",
+      "interactive": false,
+      "reasonCode": "keycloak-admin-api-authority"
+    },
+    {
+      "operation": "retire",
+      "requiredAuthority": "tenant-admin",
+      "interactive": false,
+      "reasonCode": "keycloak-admin-api-authority"
     }
   ],
   "secretKinds": [
     "none",
-    "client-secret",
-    "private-key"
+    "client-secret"
   ],
   "overlappingRotation": true,
   "registrationManagement": true,
