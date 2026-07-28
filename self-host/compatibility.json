@@ -13,7 +13,7 @@
   "database": {
     "adapter": "postgresql",
     "supportedMajors": [17],
-    "migrationHead": "003_linked_identities.sql"
+    "migrationHead": "004_account_merges.sql"
   },
   "identity": {
     "protocol": "oidc",

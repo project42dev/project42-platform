@@ -13,6 +13,7 @@ export {
   buildTranscript,
   createEmptyProgress,
   deriveBadges,
+  mergeLearnerProgress,
   recordAssessmentAttempt,
   recordCapstoneSubmission,
   recordModuleVisit,
@@ -97,7 +98,15 @@ export type {
 } from "./identity.js";
 export type {
   Account,
+  AccountMergeConflict,
+  AccountMergePreview,
+  AccountMergePreviewRequest,
+  AccountMergeProof,
+  AccountMergeProofMethod,
+  AccountMergeReceipt,
+  AccountMergeResolutionChoice,
   AccountStateChangeRequest,
+  CompleteAccountMergeRequest,
   CreateIdentityLinkTransactionRequest,
   GithubIdentityLinkCompletionRequest,
   GithubIdentityLinkStart,
@@ -113,6 +122,8 @@ export type {
   ProgressEnvelope,
   ProgressImportRequest,
   Project42Role,
+  OwnerRecoveryProofRequest,
+  RollbackAccountMergeRequest,
   UpdateLearnerProfileRequest,
 } from "./api-contract.js";
 export type {

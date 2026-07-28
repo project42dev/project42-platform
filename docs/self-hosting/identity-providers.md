@@ -111,6 +111,52 @@ operation. Account merge, primary-identity replacement, and owner recovery are
 separate audited workflows and must preserve progress, attempts, transcripts,
 badges, consent, deletion state, and attribution evidence.
 
+## Duplicate-account recovery and merge
+
+Account merge never uses matching email addresses as proof. Each account must
+provide either a one-time proof created from a recent authenticated session or a
+governed owner-recovery proof based on at least two independent, non-email
+verification methods. Proofs expire after 15 minutes, are stored only as SHA-256
+digests, and are consumed by one merge.
+
+An approved owner creates a 30-minute preview before completing a merge. The
+preview identifies the source account, the survivor, proof methods, record
+counts, and every profile or owner-role conflict. Completion requires:
+
+- the exact source-to-survivor confirmation;
+- the preview's idempotency key;
+- an explicit `source` or `survivor` choice for every conflict;
+- unchanged account data since preview; and
+- both one-time proofs to remain unused and unexpired.
+
+Completion writes the recovery snapshot, reconciliation changes, source identity
+alias, consumed-proof state, immutable receipt, and audit event in one database
+transaction. The service preserves both accounts' progress, module state,
+assessment attempts, transcript projections, badges, progress-import history,
+consent, and completed deletion history. Colliding attempt or import identifiers
+are deterministically remapped rather than discarded.
+
+The source identity continues to resolve to the survivor without moving or
+reissuing the provider identity. A rollback restores the pre-merge records only
+when no learner record, profile, consent, identity link, or deletion activity
+occurred after completion. Otherwise the service refuses destructive rollback
+and requires a reviewed recovery plan. Completed deletion removes the survivor,
+all merged source identities, recovery snapshots, and proof evidence while
+retaining only pseudonymous identity tombstones and non-personal receipt
+digests.
+
+The account service exposes:
+
+| Method and route | Purpose |
+|---|---|
+| `POST /v1/me/account-merge-proof` | Create a recent-session proof for the signed-in account |
+| `POST /v1/admin/account-merges/recovery-proofs` | Record a two-method owner-assisted recovery proof |
+| `POST /v1/admin/account-merges/preview` | Create an idempotent, proof-bound preview |
+| `GET /v1/admin/account-merges/{id}` | Review conflicts, evidence classes, and record counts |
+| `POST /v1/admin/account-merges/{id}/complete` | Reconcile records and create the immutable receipt |
+| `GET /v1/admin/account-merges/{id}/receipt` | Retrieve receipt and snapshot digests |
+| `POST /v1/admin/account-merges/{id}/rollback` | Restore the snapshot when no later activity exists |
+
 The learner-data export includes active and previously unlinked identity history
 without exposing issuer or subject values. Account deletion removes active
 identity records and retains only digested identity tombstones required to prevent
@@ -162,3 +208,10 @@ Before production:
 11. Confirm the same external identity cannot be linked to two learner accounts.
 12. Confirm unlink cannot remove the primary or last usable identity and that
     export and deletion cover linked-identity history.
+13. Confirm account merge rejects email-only, wrong-account, expired, consumed,
+    and replayed proofs.
+14. Confirm every merge conflict requires an explicit choice and a stale preview
+    cannot complete.
+15. Confirm retry returns the original receipt, receipt rows are immutable,
+    rollback refuses post-merge activity, and merged-account deletion removes all
+    source identities and recovery snapshots.

@@ -96,6 +96,111 @@ export function createEmptyProgress(displayName = "Explorer"): LearnerProgress {
   };
 }
 
+export function mergeLearnerProgress(
+  survivor: LearnerProgress,
+  source: LearnerProgress,
+  options: {
+    displayName: string;
+    sourceRecordPrefix: string;
+  },
+): LearnerProgress {
+  const attemptIds = new Set(survivor.attempts.map((attempt) => attempt.id));
+  const sourceAttempts = source.attempts.map((attempt) => {
+    if (!attemptIds.has(attempt.id)) {
+      attemptIds.add(attempt.id);
+      return { ...attempt };
+    }
+    const existing = survivor.attempts.find(
+      (candidate) => candidate.id === attempt.id,
+    );
+    if (existing && JSON.stringify(existing) === JSON.stringify(attempt)) {
+      return null;
+    }
+    const id = `${options.sourceRecordPrefix}:${attempt.id}`;
+    attemptIds.add(id);
+    return { ...attempt, id };
+  });
+  const capstoneIds = new Set(
+    (survivor.capstoneSubmissions ?? []).map((submission) => submission.id),
+  );
+  const sourceCapstones = (source.capstoneSubmissions ?? []).map((submission) => {
+    if (!capstoneIds.has(submission.id)) {
+      capstoneIds.add(submission.id);
+      return { ...submission };
+    }
+    const existing = (survivor.capstoneSubmissions ?? []).find(
+      (candidate) => candidate.id === submission.id,
+    );
+    if (existing && JSON.stringify(existing) === JSON.stringify(submission)) {
+      return null;
+    }
+    const id = `${options.sourceRecordPrefix}:${submission.id}`;
+    capstoneIds.add(id);
+    return { ...submission, id };
+  });
+  const badges = new Map(
+    survivor.badges.map((badge) => [badge.id, { ...badge }]),
+  );
+  for (const badge of source.badges) {
+    const existing = badges.get(badge.id);
+    if (!existing) {
+      badges.set(badge.id, { ...badge });
+      continue;
+    }
+    badges.set(badge.id, {
+      ...existing,
+      earnedAt:
+        existing.earnedAt.localeCompare(badge.earnedAt) <= 0
+          ? existing.earnedAt
+          : badge.earnedAt,
+      evidenceModuleIds: [
+        ...new Set([...existing.evidenceModuleIds, ...badge.evidenceModuleIds]),
+      ],
+    });
+  }
+  const recentCandidates = [survivor.recentModule, source.recentModule].filter(
+    (candidate): candidate is RecentModule => Boolean(candidate),
+  );
+  const recentModule = recentCandidates.sort((left, right) =>
+    right.visitedAt.localeCompare(left.visitedAt),
+  )[0];
+  return {
+    schemaVersion: 1,
+    displayName: options.displayName,
+    startedPathIds: [
+      ...new Set([...survivor.startedPathIds, ...source.startedPathIds]),
+    ],
+    completedModuleIds: [
+      ...new Set([
+        ...survivor.completedModuleIds,
+        ...source.completedModuleIds,
+      ]),
+    ],
+    attempts: [
+      ...survivor.attempts.map((attempt) => ({ ...attempt })),
+      ...sourceAttempts.filter(
+        (attempt): attempt is AssessmentAttempt => Boolean(attempt),
+      ),
+    ].sort((left, right) => left.completedAt.localeCompare(right.completedAt)),
+    capstoneSubmissions: [
+      ...(survivor.capstoneSubmissions ?? []).map((submission) => ({
+        ...submission,
+      })),
+      ...sourceCapstones.filter(
+        (submission): submission is CapstoneSubmission => Boolean(submission),
+      ),
+    ].sort((left, right) => left.submittedAt.localeCompare(right.submittedAt)),
+    badges: [...badges.values()].sort((left, right) =>
+      left.earnedAt.localeCompare(right.earnedAt),
+    ),
+    ...(recentModule ? { recentModule: { ...recentModule } } : {}),
+    updatedAt:
+      survivor.updatedAt.localeCompare(source.updatedAt) >= 0
+        ? survivor.updatedAt
+        : source.updatedAt,
+  };
+}
+
 export function recordAssessmentAttempt(
   progress: LearnerProgress,
   catalog: Catalog,

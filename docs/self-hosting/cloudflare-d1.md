@@ -30,6 +30,8 @@ The migrations create tenant-scoped tables for:
 - transcript projections and earned badges;
 - idempotent browser-progress imports;
 - consent and deletion workflow records;
+- proof-bound duplicate-account previews, recovery snapshots, aliases, and
+  immutable merge and rollback receipts;
 - pseudonymous deletion tombstones; and
 - append-only administrative audit events with narrowly controlled privacy
   redaction during verified deletion.
@@ -57,6 +59,13 @@ configured with the exact Learn callback URL. Set `GITHUB_LINK_CLIENT_ID` and
 `GITHUB_LINK_CLIENT_SECRET` with `wrangler secret put`. The flow requests no
 GitHub scopes, uses S256 PKCE and one-time state, fetches the immutable numeric
 GitHub user ID, and discards the provider token after verification.
+
+Account merges require recent authentication, two account-bound proofs, an owner
+preview, explicit conflict resolution, and an exact confirmation. D1 `batch()`
+keeps snapshot capture, reconciliation, aliasing, proof consumption, receipt, and
+audit writes atomic. Apply migration `0007_account_merges.sql` before enabling
+the owner merge UI. Backup and restore rehearsals must include all
+`account_merge_*` tables.
 
 Run migrations against a separately provisioned remote D1 database only after
 placing its ID in private deployment configuration:
