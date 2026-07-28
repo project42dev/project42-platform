@@ -54,7 +54,8 @@
         "flow",
         "requiredClaims",
         "referenceProvider",
-        "referenceVersion"
+        "referenceVersion",
+        "provisioning"
       ],
       "properties": {
         "protocol": { "const": "oidc" },
@@ -66,7 +67,44 @@
           "items": { "type": "string" }
         },
         "referenceProvider": { "const": "keycloak" },
-        "referenceVersion": { "type": "string" }
+        "referenceVersion": { "type": "string" },
+        "provisioning": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contractVersion",
+            "supportedModes",
+            "referenceAdapter",
+            "referenceAdapterVersion"
+          ],
+          "properties": {
+            "contractVersion": { "const": "1.0" },
+            "supportedModes": {
+              "type": "array",
+              "minItems": 3,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "api",
+                  "resumable-owner-gate",
+                  "preconfigured"
+                ]
+              },
+              "allOf": [
+                { "contains": { "const": "api" } },
+                { "contains": { "const": "resumable-owner-gate" } },
+                { "contains": { "const": "preconfigured" } }
+              ]
+            },
+            "referenceAdapter": {
+              "const": "keycloak-client-registration"
+            },
+            "referenceAdapterVersion": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$"
+            }
+          }
+        }
       }
     },
     "learn": {

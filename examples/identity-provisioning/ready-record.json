@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "1.0",
+  "operationId": "operation-api-create",
+  "planId": "plan-api-reference",
+  "clientRef": "project42-api",
+  "idempotencyKey": "deploy-2026-07-28-api-reference",
+  "operation": "create",
+  "state": "ready",
+  "attempt": 1,
+  "startedAt": "2026-07-28T09:00:00.000Z",
+  "updatedAt": "2026-07-28T09:02:00.000Z",
+  "continuation": null,
+  "secret": {
+    "secretManagerRef": "deployment-vault",
+    "secretRef": "identity-client-reference",
+    "versionRef": "version-0001",
+    "valueDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "status": "active",
+    "createdAt": "2026-07-28T09:01:00.000Z",
+    "expiresAt": "2027-01-24T09:01:00.000Z"
+  },
+  "observation": {
+    "observedAt": "2026-07-28T09:02:00.000Z",
+    "providerClientRefDigest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "observedStateDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "ownershipVerified": true,
+    "issuerVerified": true,
+    "callbacksVerified": true,
+    "permissionsVerified": true,
+    "credentialVerified": true,
+    "clientEnabled": true
+  },
+  "drift": [],
+  "audit": [
+    {
+      "sequence": 1,
+      "occurredAt": "2026-07-28T09:00:00.000Z",
+      "eventType": "operation-started",
+      "actor": "automation",
+      "result": "started",
+      "correlationId": "correlation-api-create",
+      "detailCode": "create-requested"
+    },
+    {
+      "sequence": 2,
+      "occurredAt": "2026-07-28T09:02:00.000Z",
+      "eventType": "validation-completed",
+      "actor": "automation",
+      "result": "succeeded",
+      "correlationId": "correlation-api-create",
+      "detailCode": "client-ready"
+    }
+  ],
+  "rollback": {
+    "allowed": true,
+    "restoreState": "planned",
+    "reasonCode": "created-client-can-retire",
+    "snapshotDigest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  },
+  "error": null
+}

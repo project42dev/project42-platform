@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "1.0",
+  "planId": "plan-owner-gate-reference",
+  "installationRef": "installation-reference",
+  "createdAt": "2026-07-28T09:05:00.000Z",
+  "desiredStateDigest": "1111111111111111111111111111111111111111111111111111111111111111",
+  "provider": {
+    "id": "github",
+    "adapterVersion": "1.0.0",
+    "mode": "resumable-owner-gate",
+    "issuer": "https://github.com/login/oauth",
+    "authorityBoundary": {
+      "kind": "organization-admin",
+      "referenceDigest": "2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    "capabilities": [
+      "create",
+      "validate",
+      "observe",
+      "reconcile",
+      "rotate",
+      "disable",
+      "retire"
+    ]
+  },
+  "client": {
+    "clientRef": "github-link-client",
+    "clientKind": "identity-link-confidential",
+    "redirectUris": [
+      "https://learn.example.test/account/github/callback"
+    ],
+    "postLogoutRedirectUris": [],
+    "allowedOrigins": [
+      "https://learn.example.test"
+    ],
+    "grantTypes": [
+      "authorization_code"
+    ],
+    "tokenEndpointAuthMethod": "client_secret_basic",
+    "pkceRequired": true,
+    "scopes": [],
+    "permissions": []
+  },
+  "secretPolicy": {
+    "required": true,
+    "secretManagerRef": "deployment-vault",
+    "rotationIntervalDays": 180,
+    "overlapRequired": true
+  }
+}

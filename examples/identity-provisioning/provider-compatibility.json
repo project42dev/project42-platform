@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0",
+  "provider": "keycloak",
+  "adapterVersion": "1.0.0",
+  "evidenceReviewedAt": "2026-07-28",
+  "evidenceSources": [
+    "https://www.keycloak.org/securing-apps/client-registration"
+  ],
+  "modes": [
+    "api",
+    "preconfigured"
+  ],
+  "operations": [
+    "create",
+    "validate",
+    "observe",
+    "reconcile",
+    "rotate",
+    "recover",
+    "disable",
+    "retire"
+  ],
+  "clientKinds": [
+    "browser-public",
+    "api-confidential",
+    "identity-link-confidential"
+  ],
+  "authorityGates": [
+    {
+      "operation": "create",
+      "requiredAuthority": "tenant-admin",
+      "interactive": false,
+      "reasonCode": "initial-access-token-required"
+    }
+  ],
+  "secretKinds": [
+    "none",
+    "client-secret",
+    "private-key"
+  ],
+  "overlappingRotation": true,
+  "registrationManagement": true,
+  "recovery": true
+}

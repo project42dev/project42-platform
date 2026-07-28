@@ -32,7 +32,17 @@ contracts—not the private PMO records or Project42dev production configuration
 - Evidence-backed contributor-credit packages with stable provider identity,
   consent and deletion boundaries, AI-assistance disclosure, public export, and
   equivalent accessible Learn and Field Guide rendering contracts.
+- Provider-neutral identity-client provisioning plans, durable lifecycle records,
+  secret-manager adapters, resumable owner gates, drift detection, rollback, and
+  provider compatibility contracts.
 - Seed content suitable for a hosted site or self-hosted installation.
+
+Release `0.53.0` adds the identity-client provisioning contract used by hosted and
+self-hosted installers. It supports backend APIs, bounded owner/admin gates, and
+validated preconfiguration without exposing credentials. Versioned plans and
+records cover idempotency, exact callbacks, least privilege, secret rotation,
+post-registration observation, drift, recovery, retirement, audit evidence, and
+fail-closed readiness.
 
 Release `0.52.0` adds the provider-neutral contributor-credit contract. It binds
 human roles to stable provider identity and accepted repository evidence,

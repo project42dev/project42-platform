@@ -1,0 +1,625 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-42.dev/schemas/identity/identity-provisioning-contract-1.0.json",
+  "title": "Project 42 identity-client provisioning contract",
+  "oneOf": [
+    { "$ref": "#/$defs/plan" },
+    { "$ref": "#/$defs/record" },
+    { "$ref": "#/$defs/compatibility" }
+  ],
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,255}$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[A-Za-z0-9.-]+)?$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "httpsUrl": {
+      "type": "string",
+      "pattern": "^https://[^#]+$"
+    },
+    "safeCode": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,127}$"
+    },
+    "mode": {
+      "enum": ["api", "resumable-owner-gate", "preconfigured"]
+    },
+    "operation": {
+      "enum": [
+        "create",
+        "validate",
+        "observe",
+        "reconcile",
+        "rotate",
+        "recover",
+        "disable",
+        "retire"
+      ]
+    },
+    "state": {
+      "enum": [
+        "planned",
+        "preflight",
+        "awaiting-authority",
+        "provisioning",
+        "secret-pending",
+        "validating",
+        "ready",
+        "rotating",
+        "disabled",
+        "failed",
+        "recovering",
+        "retired"
+      ]
+    },
+    "clientKind": {
+      "enum": [
+        "browser-public",
+        "api-confidential",
+        "identity-link-confidential"
+      ]
+    },
+    "authority": {
+      "enum": [
+        "deployment-owner",
+        "tenant-admin",
+        "organization-admin",
+        "provider-account-holder",
+        "operator"
+      ]
+    },
+    "actor": {
+      "enum": [
+        "automation",
+        "deployment-owner",
+        "tenant-admin",
+        "organization-admin",
+        "provider-account-holder",
+        "operator"
+      ]
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "referenceDigest"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/authority" },
+        "referenceDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "adapterVersion",
+        "mode",
+        "issuer",
+        "authorityBoundary",
+        "capabilities"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "adapterVersion": { "$ref": "#/$defs/version" },
+        "mode": { "$ref": "#/$defs/mode" },
+        "issuer": { "$ref": "#/$defs/httpsUrl" },
+        "authorityBoundary": { "$ref": "#/$defs/authorityBoundary" },
+        "capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "contains": { "const": "validate" },
+          "items": { "$ref": "#/$defs/operation" }
+        }
+      }
+    },
+    "client": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "clientRef",
+        "clientKind",
+        "redirectUris",
+        "postLogoutRedirectUris",
+        "allowedOrigins",
+        "grantTypes",
+        "tokenEndpointAuthMethod",
+        "pkceRequired",
+        "scopes",
+        "permissions"
+      ],
+      "properties": {
+        "clientRef": { "$ref": "#/$defs/stableId" },
+        "clientKind": { "$ref": "#/$defs/clientKind" },
+        "redirectUris": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/httpsUrl" }
+        },
+        "postLogoutRedirectUris": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/httpsUrl" }
+        },
+        "allowedOrigins": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^https://[^/?#]+/?$"
+          }
+        },
+        "grantTypes": {
+          "const": ["authorization_code"]
+        },
+        "tokenEndpointAuthMethod": {
+          "enum": [
+            "none",
+            "client_secret_basic",
+            "client_secret_post",
+            "private_key_jwt"
+          ]
+        },
+        "pkceRequired": { "type": "boolean" },
+        "scopes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^\\S+$"
+          }
+        },
+        "permissions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^\\S+$"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "clientKind": { "const": "browser-public" }
+            },
+            "required": ["clientKind"]
+          },
+          "then": {
+            "properties": {
+              "tokenEndpointAuthMethod": { "const": "none" },
+              "pkceRequired": { "const": true }
+            }
+          },
+          "else": {
+            "properties": {
+              "tokenEndpointAuthMethod": {
+                "enum": [
+                  "client_secret_basic",
+                  "client_secret_post",
+                  "private_key_jwt"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "secretPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required",
+        "secretManagerRef",
+        "rotationIntervalDays",
+        "overlapRequired"
+      ],
+      "properties": {
+        "required": { "type": "boolean" },
+        "secretManagerRef": { "$ref": "#/$defs/stableId" },
+        "rotationIntervalDays": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 3650
+        },
+        "overlapRequired": { "type": "boolean" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "required": { "const": false } },
+            "required": ["required"]
+          },
+          "then": {
+            "properties": {
+              "rotationIntervalDays": { "type": "null" },
+              "overlapRequired": { "const": false }
+            }
+          },
+          "else": {
+            "properties": {
+              "rotationIntervalDays": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3650
+              }
+            }
+          }
+        }
+      ]
+    },
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "planId",
+        "installationRef",
+        "createdAt",
+        "desiredStateDigest",
+        "provider",
+        "client",
+        "secretPolicy"
+      ],
+      "properties": {
+        "schemaVersion": { "const": "1.0" },
+        "planId": { "$ref": "#/$defs/stableId" },
+        "installationRef": { "$ref": "#/$defs/stableId" },
+        "createdAt": { "$ref": "#/$defs/timestamp" },
+        "desiredStateDigest": { "$ref": "#/$defs/digest" },
+        "provider": { "$ref": "#/$defs/provider" },
+        "client": { "$ref": "#/$defs/client" },
+        "secretPolicy": { "$ref": "#/$defs/secretPolicy" }
+      }
+    },
+    "continuation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gateId",
+        "requiredAuthority",
+        "reasonCode",
+        "continuationDigest",
+        "providerActionUrl",
+        "expiresAt",
+        "status"
+      ],
+      "properties": {
+        "gateId": { "$ref": "#/$defs/stableId" },
+        "requiredAuthority": { "$ref": "#/$defs/authority" },
+        "reasonCode": { "$ref": "#/$defs/safeCode" },
+        "continuationDigest": { "$ref": "#/$defs/digest" },
+        "providerActionUrl": { "$ref": "#/$defs/httpsUrl" },
+        "expiresAt": { "$ref": "#/$defs/timestamp" },
+        "status": {
+          "enum": ["pending", "approved", "denied", "expired", "cancelled"]
+        }
+      }
+    },
+    "secretReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "secretManagerRef",
+        "secretRef",
+        "versionRef",
+        "valueDigest",
+        "status",
+        "createdAt",
+        "expiresAt"
+      ],
+      "properties": {
+        "secretManagerRef": { "$ref": "#/$defs/stableId" },
+        "secretRef": { "$ref": "#/$defs/stableId" },
+        "versionRef": { "$ref": "#/$defs/stableId" },
+        "valueDigest": { "$ref": "#/$defs/digest" },
+        "status": {
+          "enum": ["pending", "active", "retiring", "revoked"]
+        },
+        "createdAt": { "$ref": "#/$defs/timestamp" },
+        "expiresAt": {
+          "oneOf": [
+            { "$ref": "#/$defs/timestamp" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observedAt",
+        "providerClientRefDigest",
+        "observedStateDigest",
+        "ownershipVerified",
+        "issuerVerified",
+        "callbacksVerified",
+        "permissionsVerified",
+        "credentialVerified",
+        "clientEnabled"
+      ],
+      "properties": {
+        "observedAt": { "$ref": "#/$defs/timestamp" },
+        "providerClientRefDigest": { "$ref": "#/$defs/digest" },
+        "observedStateDigest": { "$ref": "#/$defs/digest" },
+        "ownershipVerified": { "type": "boolean" },
+        "issuerVerified": { "type": "boolean" },
+        "callbacksVerified": { "type": "boolean" },
+        "permissionsVerified": { "type": "boolean" },
+        "credentialVerified": { "type": "boolean" },
+        "clientEnabled": { "type": "boolean" }
+      }
+    },
+    "drift": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "severity", "securityCritical", "path"],
+      "properties": {
+        "code": {
+          "enum": [
+            "state-digest-mismatch",
+            "ownership-unverified",
+            "issuer-mismatch",
+            "callback-mismatch",
+            "permission-mismatch",
+            "credential-unusable",
+            "client-disabled"
+          ]
+        },
+        "severity": {
+          "enum": ["informational", "operational", "security"]
+        },
+        "securityCritical": { "type": "boolean" },
+        "path": {
+          "type": "string",
+          "pattern": "^/"
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sequence",
+        "occurredAt",
+        "eventType",
+        "actor",
+        "result",
+        "correlationId",
+        "detailCode"
+      ],
+      "properties": {
+        "sequence": { "type": "integer", "minimum": 1 },
+        "occurredAt": { "$ref": "#/$defs/timestamp" },
+        "eventType": { "$ref": "#/$defs/safeCode" },
+        "actor": { "$ref": "#/$defs/actor" },
+        "result": {
+          "enum": ["started", "succeeded", "failed", "cancelled"]
+        },
+        "correlationId": { "$ref": "#/$defs/stableId" },
+        "detailCode": { "$ref": "#/$defs/safeCode" }
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowed",
+        "restoreState",
+        "reasonCode",
+        "snapshotDigest"
+      ],
+      "properties": {
+        "allowed": { "type": "boolean" },
+        "restoreState": {
+          "oneOf": [
+            { "$ref": "#/$defs/state" },
+            { "type": "null" }
+          ]
+        },
+        "reasonCode": { "$ref": "#/$defs/safeCode" },
+        "snapshotDigest": {
+          "oneOf": [
+            { "$ref": "#/$defs/digest" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "retryable", "retryAfter", "publicMessage"],
+      "properties": {
+        "code": { "$ref": "#/$defs/safeCode" },
+        "retryable": { "type": "boolean" },
+        "retryAfter": {
+          "oneOf": [
+            { "$ref": "#/$defs/timestamp" },
+            { "type": "null" }
+          ]
+        },
+        "publicMessage": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      }
+    },
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "operationId",
+        "planId",
+        "clientRef",
+        "idempotencyKey",
+        "operation",
+        "state",
+        "attempt",
+        "startedAt",
+        "updatedAt",
+        "continuation",
+        "secret",
+        "observation",
+        "drift",
+        "audit",
+        "rollback",
+        "error"
+      ],
+      "properties": {
+        "schemaVersion": { "const": "1.0" },
+        "operationId": { "$ref": "#/$defs/stableId" },
+        "planId": { "$ref": "#/$defs/stableId" },
+        "clientRef": { "$ref": "#/$defs/stableId" },
+        "idempotencyKey": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{15,255}$"
+        },
+        "operation": { "$ref": "#/$defs/operation" },
+        "state": { "$ref": "#/$defs/state" },
+        "attempt": { "type": "integer", "minimum": 1 },
+        "startedAt": { "$ref": "#/$defs/timestamp" },
+        "updatedAt": { "$ref": "#/$defs/timestamp" },
+        "continuation": {
+          "oneOf": [
+            { "$ref": "#/$defs/continuation" },
+            { "type": "null" }
+          ]
+        },
+        "secret": {
+          "oneOf": [
+            { "$ref": "#/$defs/secretReference" },
+            { "type": "null" }
+          ]
+        },
+        "observation": {
+          "oneOf": [
+            { "$ref": "#/$defs/observation" },
+            { "type": "null" }
+          ]
+        },
+        "drift": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/drift" }
+        },
+        "audit": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/audit" }
+        },
+        "rollback": { "$ref": "#/$defs/rollback" },
+        "error": {
+          "oneOf": [
+            { "$ref": "#/$defs/error" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "authorityGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation",
+        "requiredAuthority",
+        "interactive",
+        "reasonCode"
+      ],
+      "properties": {
+        "operation": { "$ref": "#/$defs/operation" },
+        "requiredAuthority": { "$ref": "#/$defs/authority" },
+        "interactive": { "type": "boolean" },
+        "reasonCode": { "$ref": "#/$defs/safeCode" }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "provider",
+        "adapterVersion",
+        "evidenceReviewedAt",
+        "evidenceSources",
+        "modes",
+        "operations",
+        "clientKinds",
+        "authorityGates",
+        "secretKinds",
+        "overlappingRotation",
+        "registrationManagement",
+        "recovery"
+      ],
+      "properties": {
+        "schemaVersion": { "const": "1.0" },
+        "provider": { "$ref": "#/$defs/stableId" },
+        "adapterVersion": { "$ref": "#/$defs/version" },
+        "evidenceReviewedAt": { "$ref": "#/$defs/date" },
+        "evidenceSources": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/httpsUrl" }
+        },
+        "modes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/mode" }
+        },
+        "operations": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "contains": { "const": "validate" },
+          "items": { "$ref": "#/$defs/operation" }
+        },
+        "clientKinds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/clientKind" }
+        },
+        "authorityGates": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/authorityGate" }
+        },
+        "secretKinds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["none", "client-secret", "private-key"]
+          }
+        },
+        "overlappingRotation": { "type": "boolean" },
+        "registrationManagement": { "type": "boolean" },
+        "recovery": { "type": "boolean" }
+      }
+    }
+  }
+}

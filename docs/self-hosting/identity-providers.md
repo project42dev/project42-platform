@@ -84,6 +84,15 @@ the ID token—contains the API audience and configured email-verification claim
 Other conforming OIDC providers work when they satisfy the same contract. Provider
 names are examples, not hard-coded adapters.
 
+## Deployment-time client provisioning
+
+Use the versioned
+[identity-client provisioning contract](identity-client-provisioning.md) to create,
+validate, rotate, recover, disable, and retire provider clients. It distinguishes
+supported backend APIs from resumable owner/admin gates and validated
+preconfiguration. Learners and routine Project 42 account administrators never
+register infrastructure identity applications.
+
 ## Linked identities
 
 The learner account is stable even when it has more than one verified external
