@@ -67,6 +67,8 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
       "learning_progress",
       "learning_event_streams",
       "learning_events",
+      "learning_record_deletion_receipts",
+      "learning_record_deletion_replays",
       "assessment_attempts",
       "transcript_entries",
       "user_badges",

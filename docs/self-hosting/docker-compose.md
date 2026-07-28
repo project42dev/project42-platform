@@ -44,6 +44,9 @@ causes startup to fail instead of silently changing the database.
 Migration `005_learning_events.sql` adds the same immutable event store and
 optimistic learner-stream revisions used by hosted D1. The release gate runs the
 public learning-event conformance harness against PostgreSQL 17.
+Migration `006_learning_record_receipts.sql` adds immutable, pseudonymous deletion
+receipts and deletion-replay evidence. Back up the post-backup deletion-receipt
+ledger separately and import/replay it before promoting a restored service.
 The identity readiness probe follows the
 [official Keycloak health-check guidance](https://www.keycloak.org/observability/health)
 for its internal management port (verified 2026-07-27).

@@ -6,6 +6,7 @@ import { test } from "node:test";
 import { Pool } from "pg";
 import {
   runLearningEventStoreConformance,
+  runLearningRecordReceiptConformance,
   SqlLearningEventStore,
 } from "../dist/index.js";
 import { readConfiguration } from "../dist/self-host/config.js";
@@ -124,6 +125,7 @@ test(
         "003_linked_identities.sql",
         "004_account_merges.sql",
         "005_learning_events.sql",
+        "006_learning_record_receipts.sql",
       ]);
       assert.deepEqual(
         await applyPostgresMigrations(pool, "self-host/postgres"),
@@ -166,6 +168,45 @@ test(
       assert.equal(report.contractVersion, "1.0");
       assert.equal(report.eventCountBeforeDeletion, 6);
       assert.equal(report.deletedEventCount, 6);
+
+      const receiptReport = await runLearningRecordReceiptConformance(
+        new SqlLearningEventStore(database),
+        {
+          installationId: "postgres-integration-test",
+          learnerId: account.id,
+          keyPrefix: "postgres-receipt-contract",
+        },
+      );
+      assert.equal(receiptReport.exportedEventCount, 2);
+      assert.equal(receiptReport.deletedEventCount, 2);
+      assert.equal(receiptReport.replayedEventCount, 2);
+      assert.equal(
+        Number(
+          (
+            await pool.query(
+              "SELECT COUNT(*) AS count FROM learning_record_deletion_receipts",
+            )
+          ).rows[0].count,
+        ),
+        1,
+      );
+      assert.equal(
+        Number(
+          (
+            await pool.query(
+              "SELECT COUNT(*) AS count FROM learning_record_deletion_replays",
+            )
+          ).rows[0].count,
+        ),
+        1,
+      );
+      await assert.rejects(
+        () =>
+          pool.query(
+            "UPDATE learning_record_deletion_receipts SET event_count = 0",
+          ),
+        /learning record receipts are immutable/,
+      );
     } finally {
       await pool.end();
     }
