@@ -75,7 +75,10 @@
             "contractVersion",
             "supportedModes",
             "referenceAdapter",
-            "referenceAdapterVersion"
+            "referenceAdapterVersion",
+            "engineVersion",
+            "stateStoreContract",
+            "authorityContinuation"
           ],
           "properties": {
             "contractVersion": { "const": "1.0" },
@@ -102,6 +105,15 @@
             "referenceAdapterVersion": {
               "type": "string",
               "pattern": "^\\d+\\.\\d+\\.\\d+$"
+            },
+            "engineVersion": {
+              "const": "1.0.0"
+            },
+            "stateStoreContract": {
+              "const": "compare-and-set"
+            },
+            "authorityContinuation": {
+              "const": "sha256-bound"
             }
           }
         }

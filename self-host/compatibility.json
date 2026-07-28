@@ -1,12 +1,12 @@
 {
   "$schema": "./compatibility.schema.json",
   "schemaVersion": 1,
-  "release": "0.53.0",
+  "release": "0.54.0",
   "supportLevel": "evaluation",
   "api": {
     "package": "@project42/platform",
-    "version": "0.53.0",
-    "image": "ghcr.io/project42dev/project42-platform-api:0.53.0",
+    "version": "0.54.0",
+    "image": "ghcr.io/project42dev/project42-platform-api:0.54.0",
     "healthPath": "/health",
     "runsAsNonRoot": true
   },
@@ -29,7 +29,10 @@
         "preconfigured"
       ],
       "referenceAdapter": "keycloak-client-registration",
-      "referenceAdapterVersion": "1.0.0"
+      "referenceAdapterVersion": "1.0.0",
+      "engineVersion": "1.0.0",
+      "stateStoreContract": "compare-and-set",
+      "authorityContinuation": "sha256-bound"
     }
   },
   "learn": {

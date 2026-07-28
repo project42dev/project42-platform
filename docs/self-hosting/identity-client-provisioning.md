@@ -224,3 +224,76 @@ A supported installer must:
 
 Provider-specific setup instructions supplement this contract; they cannot weaken
 it.
+
+## Resumable engine
+
+`IdentityProvisioningEngine` is the reference orchestrator. It accepts:
+
+- an `IdentityProvisioningRecordStore`;
+- an `IdentityProvisioningSecretSink`;
+- one capability declaration and adapter per provider;
+- an injectable UTC clock; and
+- an injectable operation/correlation ID factory.
+
+The record store uses compare-and-set persistence. `save(record,
+expectedUpdatedAt)` fails when another process changed or replaced the operation.
+The included `InMemoryIdentityProvisioningRecordStore` is for tests, evaluation, and
+installer prototypes. Production deployments must persist the same records in a
+durable database or state service.
+
+Start or resume an operation with:
+
+```ts
+const result = await engine.run({
+  plan,
+  operation: "create",
+  idempotencyKey: deploymentOperationId,
+  actor: "automation",
+});
+```
+
+Calling `run` again with the same bound idempotency key returns the completed or
+pending result without creating another provider client or secret. A different key
+cannot create a second non-retired client for the same client reference.
+
+When the result is `awaiting-authority`, show the provider action to the exact
+required authority. Retrieve the raw continuation value from the protected
+deployment channel and resume with:
+
+```ts
+const result = await engine.decideAuthority({
+  plan,
+  idempotencyKey: deploymentOperationId,
+  actor: "organization-admin",
+  decision: "approved",
+  continuationValue: readFromProtectedChannel(),
+});
+```
+
+The engine hashes the supplied value, compares it to the persisted digest without
+early-exit comparison, verifies the actor class and expiry, then resumes through the
+same adapter and operation. Wrong actor and proof attempts add public-safe audit
+events but do not consume a valid pending gate. Denial, cancellation, and expiry
+produce typed failed states without a provider write.
+
+Retryable adapter or readiness failures keep the same operation and idempotency key,
+increment the durable attempt, enter recovery, and re-observe provider state. A
+non-retryable failure returns the original result until an operator starts a
+different governed operation.
+
+The engine rejects:
+
+- invalid plans, records, adapter compatibility, or state transitions;
+- missing provider adapters;
+- mode, version, operation, or client-kind capability mismatches;
+- idempotency rebinding;
+- stale compare-and-set writes;
+- duplicate create operations;
+- malformed authority results; and
+- persisted provider results that fail the public record contract.
+
+The packaged tests use a deterministic provider control plane and secret sink. They
+exercise API and owner-gated creation, process restart, exact authority and proof,
+denial, expiration, retry, drift, rotation, adapter upgrade, disablement, retirement,
+and unsupported operations without calling an external provider or persisting raw
+credentials.

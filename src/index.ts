@@ -56,6 +56,11 @@ export {
   validateIdentityProvisioningRecord,
 } from "./identity-provisioning.js";
 export {
+  IdentityProvisioningEngine,
+  IdentityProvisioningEngineError,
+  InMemoryIdentityProvisioningRecordStore,
+} from "./identity-provisioning-engine.js";
+export {
   buildPortableLearnerRecord,
   buildTranscriptCsv,
   restorePortableLearnerRecord,
@@ -258,4 +263,10 @@ export type {
   IdentityProvisioningSecretStatus,
   IdentityProvisioningState,
 } from "./identity-provisioning.js";
+export type {
+  IdentityProvisioningAuthorityDecisionRequest,
+  IdentityProvisioningEngineOptions,
+  IdentityProvisioningRecordStore,
+  IdentityProvisioningRunRequest,
+} from "./identity-provisioning-engine.js";
 export { RESOURCE_AUDIENCES, RESOURCE_FORMATS } from "./schema.js";
