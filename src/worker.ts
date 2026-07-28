@@ -20,11 +20,15 @@ import type {
   ConsentDecision,
   ConsentRecord,
   CreateDomainRuleRequest,
+  CreateIdentityLinkTransactionRequest,
   DeleteDomainRuleRequest,
   DeletionRequest,
   DomainRule,
+  IdentityLinkTransaction,
   LearnerProfile,
   LearnerDataExport,
+  LinkedIdentity,
+  LinkedIdentityStatus,
   ProgressEnvelope,
   ProgressImportRequest,
   Project42Role,
@@ -39,6 +43,7 @@ type WorkerEnvironment = Omit<Env, "DOMAIN_APPROVAL_ENABLED"> & {
 interface AccountRow {
   id: string;
   installation_id: string;
+  provider: string;
   issuer: string;
   subject: string;
   display_name: string | null;
@@ -48,6 +53,40 @@ interface AccountRow {
   created_at: string;
   updated_at: string;
   roles: string | null;
+}
+
+interface LinkedIdentityRow {
+  id: string;
+  provider: string;
+  provider_login: string | null;
+  display_name: string | null;
+  status: LinkedIdentityStatus;
+  is_primary: number;
+  linked_at: string;
+  last_verified_at: string;
+  last_seen_at: string;
+  unlinked_at: string | null;
+}
+
+interface IdentityLinkTransactionRow {
+  id: string;
+  user_id: string;
+  provider: string;
+  state_digest: string;
+  code_challenge: string;
+  code_challenge_method: "S256";
+  return_path: string;
+  status:
+    | "pending"
+    | "processing"
+    | "completed"
+    | "cancelled"
+    | "expired"
+    | "failed";
+  created_at: string;
+  expires_at: string;
+  completed_at: string | null;
+  request_id: string;
 }
 
 interface DomainRow {
@@ -139,6 +178,7 @@ class OidcJwtVerifier implements IdentityVerifier {
       const verifiedValue = payload[this.env.OIDC_EMAIL_VERIFIED_CLAIM];
       const displayNameValue = payload.name;
       return {
+        provider: "oidc",
         issuer: payload.iss,
         subject: payload.sub,
         email: typeof emailValue === "string" ? emailValue.trim().toLowerCase() : null,
@@ -177,9 +217,11 @@ class D1Project42Repository {
   }
 
   async findAccount(identity: VerifiedIdentity): Promise<Account | null> {
+    const provider = normalizeProviderId(identity.provider ?? "oidc");
     const row = await this.db
       .prepare(
-        `SELECT u.id, u.installation_id, i.issuer, i.subject, u.display_name,
+        `SELECT u.id, u.installation_id, i.provider, i.issuer, i.subject,
+                u.display_name,
                 u.primary_email, u.email_verified, u.account_state, u.created_at,
                 u.updated_at, r.roles
            FROM user_identities i
@@ -191,9 +233,10 @@ class D1Project42Repository {
               GROUP BY installation_id, user_id
            ) r
              ON r.installation_id = u.installation_id AND r.user_id = u.id
-          WHERE i.installation_id = ? AND i.issuer = ? AND i.subject = ?`,
+          WHERE i.installation_id = ? AND i.provider = ?
+            AND i.issuer = ? AND i.subject = ? AND i.status = 'active'`,
       )
-      .bind(this.installationId, identity.issuer, identity.subject)
+      .bind(this.installationId, provider, identity.issuer, identity.subject)
       .first<AccountRow>();
     return row ? mapAccount(row) : null;
   }
@@ -206,6 +249,7 @@ class D1Project42Repository {
   ): Promise<Account> {
     const existing = await this.findAccount(identity);
     if (existing) {
+      const provider = normalizeProviderId(identity.provider ?? "oidc");
       await this.db.batch([
         this.db
           .prepare(
@@ -227,10 +271,19 @@ class D1Project42Repository {
           ),
         this.db
           .prepare(
-            `UPDATE user_identities SET last_seen_at = ?
-              WHERE installation_id = ? AND issuer = ? AND subject = ?`,
+            `UPDATE user_identities
+                SET last_seen_at = ?, last_verified_at = ?
+              WHERE installation_id = ? AND provider = ?
+                AND issuer = ? AND subject = ? AND status = 'active'`,
           )
-          .bind(now, this.installationId, identity.issuer, identity.subject),
+          .bind(
+            now,
+            now,
+            this.installationId,
+            provider,
+            identity.issuer,
+            identity.subject,
+          ),
       ]);
       return (await this.findAccount(identity)) ?? existing;
     }
@@ -280,10 +333,24 @@ class D1Project42Repository {
       this.db
         .prepare(
           `INSERT INTO user_identities (
-             installation_id, issuer, subject, user_id, last_seen_at
-           ) VALUES (?, ?, ?, ?, ?)`,
+             id, installation_id, provider, issuer, subject, user_id,
+             provider_login, display_name, status, is_primary, link_method,
+             linked_at, last_verified_at, last_seen_at, unlinked_at
+           ) VALUES (?, ?, ?, ?, ?, ?, NULL, ?, 'active', 1, 'registration',
+                     ?, ?, ?, NULL)`,
         )
-        .bind(this.installationId, identity.issuer, identity.subject, userId, now),
+        .bind(
+          crypto.randomUUID(),
+          this.installationId,
+          normalizeProviderId(identity.provider ?? "oidc"),
+          identity.issuer,
+          identity.subject,
+          userId,
+          identity.displayName,
+          now,
+          now,
+          now,
+        ),
       this.db
         .prepare(
           `INSERT INTO role_assignments (
@@ -352,12 +419,14 @@ class D1Project42Repository {
   async listAccounts(state?: AccountState): Promise<Account[]> {
     const condition = state ? "AND u.account_state = ?" : "";
     const statement = this.db.prepare(
-      `SELECT u.id, u.installation_id, i.issuer, i.subject, u.display_name,
+      `SELECT u.id, u.installation_id, i.provider, i.issuer, i.subject,
+              u.display_name,
               u.primary_email, u.email_verified, u.account_state, u.created_at,
               u.updated_at, r.roles
          FROM users u
          JOIN user_identities i
            ON i.installation_id = u.installation_id AND i.user_id = u.id
+          AND i.status = 'active' AND i.is_primary = 1
          LEFT JOIN (
            SELECT installation_id, user_id, GROUP_CONCAT(role) AS roles
              FROM role_assignments
@@ -372,6 +441,426 @@ class D1Project42Repository {
       ? await statement.bind(this.installationId, state).all<AccountRow>()
       : await statement.bind(this.installationId).all<AccountRow>();
     return result.results.map(mapAccount);
+  }
+
+  async listLinkedIdentities(
+    userId: string,
+    includeUnlinked = false,
+  ): Promise<LinkedIdentity[]> {
+    const statusClause = includeUnlinked ? "" : "AND status = 'active'";
+    const result = await this.db
+      .prepare(
+        `SELECT id, provider, provider_login, display_name, status, is_primary,
+                linked_at, last_verified_at, last_seen_at, unlinked_at
+           FROM user_identities
+          WHERE installation_id = ? AND user_id = ? ${statusClause}
+          ORDER BY is_primary DESC, linked_at ASC, id ASC`,
+      )
+      .bind(this.installationId, userId)
+      .all<LinkedIdentityRow>();
+    const activeCount = result.results.filter(
+      (identity) => identity.status === "active",
+    ).length;
+    return result.results.map((identity) => mapLinkedIdentity(identity, activeCount));
+  }
+
+  async createIdentityLinkTransaction(input: {
+    account: Account;
+    request: CreateIdentityLinkTransactionRequest;
+    requestId: string;
+    now: string;
+  }): Promise<IdentityLinkTransaction> {
+    const provider = normalizeProviderId(input.request.provider);
+    const expiresAt = new Date(Date.parse(input.now) + 10 * 60 * 1_000).toISOString();
+    await this.db
+      .prepare(
+        `UPDATE identity_link_transactions
+            SET status = 'expired'
+          WHERE installation_id = ? AND user_id = ? AND status = 'pending'
+            AND expires_at <= ?`,
+      )
+      .bind(this.installationId, input.account.id, input.now)
+      .run();
+    const pending = await this.db
+      .prepare(
+        `SELECT COUNT(*) AS count
+           FROM identity_link_transactions
+          WHERE installation_id = ? AND user_id = ? AND status = 'pending'`,
+      )
+      .bind(this.installationId, input.account.id)
+      .first<{ count: number }>();
+    if ((pending?.count ?? 0) >= 5) {
+      throw new ApiFailure(
+        429,
+        "too_many_identity_link_attempts",
+        "Cancel an existing identity-link attempt or wait for it to expire.",
+      );
+    }
+    const id = crypto.randomUUID();
+    const state = `${crypto.randomUUID()}.${crypto.randomUUID()}`;
+    const stateDigest = await sha256(state);
+    await this.db.batch([
+      this.db
+        .prepare(
+          `INSERT INTO identity_link_transactions (
+             id, installation_id, user_id, provider, state_digest,
+             code_challenge, code_challenge_method, return_path, status,
+             created_at, expires_at, completed_at, request_id
+           ) VALUES (?, ?, ?, ?, ?, ?, 'S256', ?, 'pending', ?, ?, NULL, ?)`,
+        )
+        .bind(
+          id,
+          this.installationId,
+          input.account.id,
+          provider,
+          stateDigest,
+          input.request.codeChallenge,
+          input.request.returnPath,
+          input.now,
+          expiresAt,
+          input.requestId,
+        ),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.account.identity,
+        actorUserId: input.account.id,
+        action: "identity.link.start",
+        targetType: "identity_link_transaction",
+        targetId: id,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: "Learner started a recent-authentication identity-link transaction.",
+        metadata: { provider, expiresAt },
+        now: input.now,
+      }),
+    ]);
+    return {
+      id,
+      provider,
+      state,
+      codeChallengeMethod: "S256",
+      returnPath: input.request.returnPath,
+      expiresAt,
+    };
+  }
+
+  async cancelIdentityLinkTransaction(input: {
+    account: Account;
+    transactionId: string;
+    requestId: string;
+    now: string;
+  }): Promise<void> {
+    const transaction = await this.db
+      .prepare(
+        `SELECT id
+           FROM identity_link_transactions
+          WHERE installation_id = ? AND user_id = ? AND id = ?
+            AND status = 'pending'`,
+      )
+      .bind(this.installationId, input.account.id, input.transactionId)
+      .first<{ id: string }>();
+    if (!transaction) {
+      throw new ApiFailure(
+        404,
+        "identity_link_not_found",
+        "A pending identity-link transaction was not found.",
+      );
+    }
+    await this.db.batch([
+      this.db
+        .prepare(
+          `UPDATE identity_link_transactions
+              SET status = 'cancelled', completed_at = ?
+            WHERE installation_id = ? AND user_id = ? AND id = ?
+              AND status = 'pending'`,
+        )
+        .bind(
+          input.now,
+          this.installationId,
+          input.account.id,
+          input.transactionId,
+        ),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.account.identity,
+        actorUserId: input.account.id,
+        action: "identity.link.cancel",
+        targetType: "identity_link_transaction",
+        targetId: input.transactionId,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: "Learner cancelled a pending identity-link transaction.",
+        metadata: {},
+        now: input.now,
+      }),
+    ]);
+  }
+
+  async completeIdentityLink(input: {
+    account: Account;
+    transactionId: string;
+    state: string;
+    providerIdentity: {
+      provider: string;
+      issuer: string;
+      subject: string;
+      providerLogin: string | null;
+      displayName: string | null;
+    };
+    requestId: string;
+    now: string;
+  }): Promise<LinkedIdentity> {
+    const provider = normalizeProviderId(input.providerIdentity.provider);
+    const stateDigest = await sha256(input.state);
+    const transaction = await this.db
+      .prepare(
+        `SELECT id, user_id, provider, state_digest, code_challenge,
+                code_challenge_method, return_path, status, created_at,
+                expires_at, completed_at, request_id
+           FROM identity_link_transactions
+          WHERE installation_id = ? AND id = ? AND user_id = ?`,
+      )
+      .bind(this.installationId, input.transactionId, input.account.id)
+      .first<IdentityLinkTransactionRow>();
+    if (
+      !transaction ||
+      transaction.status !== "pending" ||
+      transaction.provider !== provider ||
+      transaction.state_digest !== stateDigest
+    ) {
+      throw new ApiFailure(
+        400,
+        "invalid_identity_link",
+        "The identity-link transaction is invalid or has already been used.",
+      );
+    }
+    if (Date.parse(input.now) >= Date.parse(transaction.expires_at)) {
+      await this.db
+        .prepare(
+          `UPDATE identity_link_transactions
+              SET status = 'expired', completed_at = ?
+            WHERE installation_id = ? AND id = ? AND status = 'pending'`,
+        )
+        .bind(input.now, this.installationId, transaction.id)
+        .run();
+      throw new ApiFailure(
+        400,
+        "identity_link_expired",
+        "The identity-link transaction has expired.",
+      );
+    }
+    const existing = await this.db
+      .prepare(
+        `SELECT id, user_id, status
+           FROM user_identities
+          WHERE installation_id = ? AND provider = ? AND issuer = ? AND subject = ?`,
+      )
+      .bind(
+        this.installationId,
+        provider,
+        input.providerIdentity.issuer,
+        input.providerIdentity.subject,
+      )
+      .first<{ id: string; user_id: string; status: LinkedIdentityStatus }>();
+    if (existing && existing.user_id !== input.account.id) {
+      throw new ApiFailure(
+        409,
+        "identity_already_linked",
+        "This external identity is already linked to another Project 42 account.",
+      );
+    }
+    const claim = await this.db
+      .prepare(
+        `UPDATE identity_link_transactions
+            SET status = 'processing'
+          WHERE installation_id = ? AND id = ? AND user_id = ?
+            AND status = 'pending'`,
+      )
+      .bind(this.installationId, transaction.id, input.account.id)
+      .run();
+    if ((claim.meta.changes ?? 0) !== 1) {
+      throw new ApiFailure(
+        400,
+        "invalid_identity_link",
+        "The identity-link transaction is invalid or has already been used.",
+      );
+    }
+    const identityId = existing?.id ?? crypto.randomUUID();
+    const identityStatement = existing
+      ? this.db
+          .prepare(
+            `UPDATE user_identities
+                SET provider_login = ?, display_name = ?, status = 'active',
+                    link_method = 'self-service', linked_at = ?,
+                    last_verified_at = ?, last_seen_at = ?, unlinked_at = NULL
+              WHERE installation_id = ? AND id = ? AND user_id = ?`,
+          )
+          .bind(
+            input.providerIdentity.providerLogin,
+            input.providerIdentity.displayName,
+            input.now,
+            input.now,
+            input.now,
+            this.installationId,
+            identityId,
+            input.account.id,
+          )
+      : this.db
+          .prepare(
+            `INSERT INTO user_identities (
+               id, installation_id, provider, issuer, subject, user_id,
+               provider_login, display_name, status, is_primary, link_method,
+               linked_at, last_verified_at, last_seen_at, unlinked_at
+             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', 0, 'self-service',
+                       ?, ?, ?, NULL)`,
+          )
+          .bind(
+            identityId,
+            this.installationId,
+            provider,
+            input.providerIdentity.issuer,
+            input.providerIdentity.subject,
+            input.account.id,
+            input.providerIdentity.providerLogin,
+            input.providerIdentity.displayName,
+            input.now,
+            input.now,
+            input.now,
+          );
+    try {
+      await this.db.batch([
+        identityStatement,
+        this.db
+          .prepare(
+            `UPDATE identity_link_transactions
+                SET status = 'completed', completed_at = ?
+              WHERE installation_id = ? AND id = ? AND status = 'processing'`,
+          )
+          .bind(input.now, this.installationId, transaction.id),
+        this.auditStatement({
+          id: crypto.randomUUID(),
+          actor: input.account.identity,
+          actorUserId: input.account.id,
+          action: "identity.link.complete",
+          targetType: "user_identity",
+          targetId: identityId,
+          requestId: input.requestId,
+          outcome: "success",
+          reason: "Learner linked a freshly verified external identity.",
+          metadata: { provider },
+          now: input.now,
+        }),
+      ]);
+    } catch (error) {
+      await this.db
+        .prepare(
+          `UPDATE identity_link_transactions
+              SET status = 'failed', completed_at = ?
+            WHERE installation_id = ? AND id = ? AND status = 'processing'`,
+        )
+        .bind(input.now, this.installationId, transaction.id)
+        .run();
+      const collision = await this.db
+        .prepare(
+          `SELECT user_id
+             FROM user_identities
+            WHERE installation_id = ? AND provider = ?
+              AND issuer = ? AND subject = ?`,
+        )
+        .bind(
+          this.installationId,
+          provider,
+          input.providerIdentity.issuer,
+          input.providerIdentity.subject,
+        )
+        .first<{ user_id: string }>();
+      if (collision?.user_id && collision.user_id !== input.account.id) {
+        throw new ApiFailure(
+          409,
+          "identity_already_linked",
+          "This external identity is already linked to another Project 42 account.",
+        );
+      }
+      throw error;
+    }
+    const identities = await this.listLinkedIdentities(input.account.id);
+    const linked = identities.find((identity) => identity.id === identityId);
+    if (!linked) throw new Error("Linked identity was not returned after completion.");
+    return linked;
+  }
+
+  async unlinkIdentity(input: {
+    account: Account;
+    identityId: string;
+    requestId: string;
+    now: string;
+  }): Promise<void> {
+    const identity = await this.db
+      .prepare(
+        `SELECT id, provider, is_primary
+           FROM user_identities
+          WHERE installation_id = ? AND user_id = ? AND id = ?
+            AND status = 'active'`,
+      )
+      .bind(this.installationId, input.account.id, input.identityId)
+      .first<{ id: string; provider: string; is_primary: number }>();
+    if (!identity) {
+      throw new ApiFailure(
+        404,
+        "linked_identity_not_found",
+        "An active linked identity was not found.",
+      );
+    }
+    if (identity.is_primary === 1) {
+      throw new ApiFailure(
+        409,
+        "primary_identity_required",
+        "The primary sign-in identity cannot be unlinked without an accepted recovery path.",
+      );
+    }
+    const active = await this.db
+      .prepare(
+        `SELECT COUNT(*) AS count
+           FROM user_identities
+          WHERE installation_id = ? AND user_id = ? AND status = 'active'`,
+      )
+      .bind(this.installationId, input.account.id)
+      .first<{ count: number }>();
+    if ((active?.count ?? 0) <= 1) {
+      throw new ApiFailure(
+        409,
+        "last_identity_required",
+        "The last usable sign-in identity cannot be unlinked.",
+      );
+    }
+    await this.db.batch([
+      this.db
+        .prepare(
+          `UPDATE user_identities
+              SET status = 'unlinked', unlinked_at = ?
+            WHERE installation_id = ? AND user_id = ? AND id = ?
+              AND status = 'active' AND is_primary = 0`,
+        )
+        .bind(
+          input.now,
+          this.installationId,
+          input.account.id,
+          input.identityId,
+        ),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.account.identity,
+        actorUserId: input.account.id,
+        action: "identity.unlink",
+        targetType: "user_identity",
+        targetId: input.identityId,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: "Learner unlinked a non-primary external identity.",
+        metadata: { provider: identity.provider },
+        now: input.now,
+      }),
+    ]);
   }
 
   async changeAccountState(input: {
@@ -1270,6 +1759,7 @@ class D1Project42Repository {
   }): Promise<LearnerDataExport> {
     const [
       profile,
+      linkedIdentities,
       progress,
       moduleProgress,
       assessmentAttempts,
@@ -1280,6 +1770,7 @@ class D1Project42Repository {
       approvalDecisions,
     ] = await Promise.all([
       this.getProfile(input.account, input.now),
+      this.listLinkedIdentities(input.account.id, true),
       this.getProgress(input.account.id),
       this.db
         .prepare(
@@ -1361,6 +1852,7 @@ class D1Project42Repository {
       exportedAt: input.now,
       account: input.account,
       profile,
+      linkedIdentities,
       progress,
       moduleProgress: moduleProgress.results,
       assessmentAttempts: assessmentAttempts.results.map((attempt) => ({
@@ -1448,6 +1940,7 @@ class D1Project42Repository {
            FROM deletion_requests d
            JOIN user_identities i
              ON i.installation_id = d.installation_id AND i.user_id = d.user_id
+            AND i.status = 'active' AND i.is_primary = 1
            LEFT JOIN user_profiles p
              ON p.installation_id = d.installation_id AND p.user_id = d.user_id
           WHERE d.installation_id = ? AND d.id = ?
@@ -1486,8 +1979,26 @@ class D1Project42Repository {
         "The deletion request is still inside its cancellation period.",
       );
     }
-    const subjectDigest = await sha256(`${deletion.issuer}\n${deletion.subject}`);
-    await this.db.batch([
+    const identities = await this.db
+      .prepare(
+        `SELECT provider, issuer, subject
+           FROM user_identities
+          WHERE installation_id = ? AND user_id = ?
+          ORDER BY is_primary DESC, linked_at ASC`,
+      )
+      .bind(this.installationId, deletion.user_id)
+      .all<{ provider: string; issuer: string; subject: string }>();
+    const identityDigests = await Promise.all(
+      identities.results.map(async (identity) => ({
+        provider: identity.provider,
+        issuerDigest: await sha256(identity.issuer),
+        subjectDigest: await sha256(`${identity.issuer}\n${identity.subject}`),
+      })),
+    );
+    const subjectDigest =
+      identityDigests[0]?.subjectDigest ??
+      (await sha256(`${deletion.issuer}\n${deletion.subject}`));
+    const statements = [
       this.db
         .prepare(
           `UPDATE audit_events
@@ -1548,13 +2059,37 @@ class D1Project42Repository {
         metadata: {
           deletionRequestId: deletion.id,
           subjectDigest,
+          identityCount: identityDigests.length,
         },
         now: input.now,
       }),
       this.db
         .prepare(`DELETE FROM users WHERE installation_id = ? AND id = ?`)
         .bind(this.installationId, deletion.user_id),
-    ]);
+    ];
+    statements.splice(
+      statements.length - 1,
+      0,
+      ...identityDigests.map((identity) =>
+        this.db
+          .prepare(
+            `INSERT INTO deleted_identity_tombstones (
+               id, installation_id, provider, issuer_digest, subject_digest,
+               deletion_request_id, completed_at
+             ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          )
+          .bind(
+            crypto.randomUUID(),
+            this.installationId,
+            identity.provider,
+            identity.issuerDigest,
+            identity.subjectDigest,
+            deletion.id,
+            input.now,
+          ),
+      ),
+    );
+    await this.db.batch(statements);
     return {
       deletionRequestId: deletion.id,
       completedAt: input.now,
@@ -1636,7 +2171,11 @@ function mapAccount(row: AccountRow): Account {
   return {
     id: row.id,
     installationId: row.installation_id,
-    identity: { issuer: row.issuer, subject: row.subject },
+    identity: {
+      provider: row.provider,
+      issuer: row.issuer,
+      subject: row.subject,
+    },
     displayName: row.display_name,
     primaryEmail: row.primary_email,
     emailVerified: row.email_verified === 1,
@@ -1644,6 +2183,26 @@ function mapAccount(row: AccountRow): Account {
     roles: (row.roles?.split(",").filter(Boolean) ?? []) as Project42Role[],
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+function mapLinkedIdentity(
+  row: LinkedIdentityRow,
+  activeCount: number,
+): LinkedIdentity {
+  return {
+    id: row.id,
+    provider: row.provider,
+    providerLogin: row.provider_login,
+    displayName: row.display_name,
+    status: row.status,
+    primary: row.is_primary === 1,
+    linkedAt: row.linked_at,
+    lastVerifiedAt: row.last_verified_at,
+    lastSeenAt: row.last_seen_at,
+    unlinkedAt: row.unlinked_at,
+    canUnlink:
+      row.status === "active" && row.is_primary !== 1 && activeCount > 1,
   };
 }
 
@@ -1719,6 +2278,85 @@ async function sha256(value: string): Promise<string> {
   return [...new Uint8Array(digest)]
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
+}
+
+function normalizeProviderId(value: string): string {
+  const provider = value.trim().toLowerCase();
+  if (!/^[a-z0-9](?:[a-z0-9-]{0,48}[a-z0-9])?$/.test(provider)) {
+    throw new ApiFailure(
+      400,
+      "invalid_identity_provider",
+      "Identity provider IDs use 1–50 lowercase letters, numbers, or internal hyphens.",
+    );
+  }
+  return provider;
+}
+
+function normalizeIdentityLinkRequest(
+  value: unknown,
+): CreateIdentityLinkTransactionRequest {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new ApiFailure(
+      400,
+      "invalid_identity_link_request",
+      "Identity-link settings must be a JSON object.",
+    );
+  }
+  const record = value as Record<string, unknown>;
+  const allowed = [
+    "provider",
+    "codeChallenge",
+    "codeChallengeMethod",
+    "returnPath",
+  ];
+  const unknown = Object.keys(record).filter((key) => !allowed.includes(key));
+  if (unknown.length > 0) {
+    throw new ApiFailure(
+      400,
+      "invalid_identity_link_request",
+      `Unknown identity-link field: ${unknown[0]}.`,
+    );
+  }
+  if (
+    typeof record.provider !== "string" ||
+    typeof record.codeChallenge !== "string" ||
+    record.codeChallengeMethod !== "S256" ||
+    typeof record.returnPath !== "string"
+  ) {
+    throw new ApiFailure(
+      400,
+      "invalid_identity_link_request",
+      "Provider, S256 code challenge, and return path are required.",
+    );
+  }
+  const codeChallenge = record.codeChallenge.trim();
+  if (!/^[A-Za-z0-9_-]{43,128}$/.test(codeChallenge)) {
+    throw new ApiFailure(
+      400,
+      "invalid_code_challenge",
+      "The PKCE code challenge must use 43–128 base64url characters.",
+    );
+  }
+  const returnPath = record.returnPath.trim();
+  if (
+    !returnPath.startsWith("/") ||
+    returnPath.startsWith("//") ||
+    returnPath.includes("\\") ||
+    returnPath.length > 512 ||
+    /[\u0000-\u001f\u007f]/.test(returnPath)
+  ) {
+    throw new ApiFailure(
+      400,
+      "invalid_return_path",
+      "The return path must be a local absolute path.",
+    );
+  }
+  return {
+    provider: normalizeProviderId(record.provider),
+    codeChallenge,
+    codeChallengeMethod: "S256",
+    returnPath,
+  };
 }
 
 function isOwner(account: Account): boolean {
@@ -2121,6 +2759,54 @@ async function handleRequest(
         requestId,
         origin,
       );
+    }
+    if (request.method === "GET" && url.pathname === "/v1/me/identities") {
+      requireApproved(account);
+      return json(
+        { identities: await repository.listLinkedIdentities(account.id) },
+        200,
+        requestId,
+        origin,
+      );
+    }
+    if (request.method === "POST" && url.pathname === "/v1/me/identity-links") {
+      requireApproved(account);
+      requireRecentAuthentication(identity, now);
+      const link = await repository.createIdentityLinkTransaction({
+        account,
+        request: normalizeIdentityLinkRequest(await readJson<unknown>(request)),
+        requestId,
+        now,
+      });
+      return json({ link }, 201, requestId, origin);
+    }
+    const linkTransactionMatch = url.pathname.match(
+      /^\/v1\/me\/identity-links\/([^/]+)$/,
+    );
+    if (request.method === "DELETE" && linkTransactionMatch) {
+      requireApproved(account);
+      requireRecentAuthentication(identity, now);
+      await repository.cancelIdentityLinkTransaction({
+        account,
+        transactionId: decodeURIComponent(linkTransactionMatch[1]!),
+        requestId,
+        now,
+      });
+      return json({}, 204, requestId, origin);
+    }
+    const linkedIdentityMatch = url.pathname.match(
+      /^\/v1\/me\/identities\/([^/]+)$/,
+    );
+    if (request.method === "DELETE" && linkedIdentityMatch) {
+      requireApproved(account);
+      requireRecentAuthentication(identity, now);
+      await repository.unlinkIdentity({
+        account,
+        identityId: decodeURIComponent(linkedIdentityMatch[1]!),
+        requestId,
+        now,
+      });
+      return json({}, 204, requestId, origin);
     }
     if (request.method === "PATCH" && url.pathname === "/v1/me/profile") {
       requireProfileAccess(account);

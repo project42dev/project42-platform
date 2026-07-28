@@ -98,6 +98,10 @@ export type {
 export type {
   Account,
   AccountStateChangeRequest,
+  CreateIdentityLinkTransactionRequest,
+  IdentityLinkTransaction,
+  LinkedIdentity,
+  LinkedIdentityStatus,
   ApiErrorBody,
   CreateDomainRuleRequest,
   DeleteDomainRuleRequest,

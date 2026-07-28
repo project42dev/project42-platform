@@ -6,7 +6,8 @@ export type Project42Role = "learner" | "owner";
 export interface Account {
   id: string;
   installationId: string;
-  identity: Pick<VerifiedIdentity, "issuer" | "subject">;
+  identity: Required<Pick<VerifiedIdentity, "provider">> &
+    Pick<VerifiedIdentity, "issuer" | "subject">;
   displayName: string | null;
   primaryEmail: string | null;
   emailVerified: boolean;
@@ -14,6 +15,38 @@ export interface Account {
   roles: Project42Role[];
   createdAt: string;
   updatedAt: string;
+}
+
+export type LinkedIdentityStatus = "active" | "unlinked";
+
+export interface LinkedIdentity {
+  id: string;
+  provider: string;
+  providerLogin: string | null;
+  displayName: string | null;
+  status: LinkedIdentityStatus;
+  primary: boolean;
+  linkedAt: string;
+  lastVerifiedAt: string;
+  lastSeenAt: string;
+  unlinkedAt: string | null;
+  canUnlink: boolean;
+}
+
+export interface IdentityLinkTransaction {
+  id: string;
+  provider: string;
+  state: string;
+  codeChallengeMethod: "S256";
+  returnPath: string;
+  expiresAt: string;
+}
+
+export interface CreateIdentityLinkTransactionRequest {
+  provider: string;
+  codeChallenge: string;
+  codeChallengeMethod: "S256";
+  returnPath: string;
 }
 
 export interface LearnerProfile {
@@ -115,6 +148,7 @@ export interface LearnerDataExport {
   exportedAt: string;
   account: Account;
   profile: LearnerProfile;
+  linkedIdentities: LinkedIdentity[];
   progress: ProgressEnvelope;
   moduleProgress: unknown[];
   assessmentAttempts: unknown[];

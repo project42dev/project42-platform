@@ -258,6 +258,99 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   assert.equal(synchronized.status, 200);
   assert.deepEqual((await readBody(synchronized)).progress.progress, progress);
 
+  const initialIdentitiesResponse = await api(
+    "learner-token",
+    "/v1/me/identities",
+  );
+  assert.equal(initialIdentitiesResponse.status, 200);
+  const initialIdentities = (await readBody(initialIdentitiesResponse)).identities;
+  assert.equal(initialIdentities.length, 1);
+  assert.equal(initialIdentities[0].provider, "oidc");
+  assert.equal(initialIdentities[0].primary, true);
+  assert.equal(initialIdentities[0].canUnlink, false);
+  assert.equal("subject" in initialIdentities[0], false);
+
+  const primaryUnlink = await api(
+    "learner-token",
+    `/v1/me/identities/${encodeURIComponent(initialIdentities[0].id)}`,
+    { method: "DELETE" },
+  );
+  assert.equal(primaryUnlink.status, 409);
+  assert.equal(
+    (await readBody(primaryUnlink)).error.code,
+    "primary_identity_required",
+  );
+
+  const linkStartResponse = await api("learner-token", "/v1/me/identity-links", {
+    method: "POST",
+    body: JSON.stringify({
+      provider: "github",
+      codeChallenge: "A".repeat(43),
+      codeChallengeMethod: "S256",
+      returnPath: "/account?linked=github",
+    }),
+  });
+  assert.equal(linkStartResponse.status, 201);
+  const link = (await readBody(linkStartResponse)).link;
+  assert.equal(link.provider, "github");
+  assert.equal(link.codeChallengeMethod, "S256");
+  assert.equal(link.returnPath, "/account?linked=github");
+  const storedLink = await database
+    .prepare(
+      "SELECT state_digest, status FROM identity_link_transactions WHERE id = ?",
+    )
+    .bind(link.id)
+    .first();
+  assert.equal(storedLink.status, "pending");
+  assert.notEqual(storedLink.state_digest, link.state);
+
+  const currentLearner = await repository.findAccount(
+    identities.get("learner-token"),
+  );
+  assert.ok(currentLearner);
+  const githubIdentity = await repository.completeIdentityLink({
+    account: currentLearner,
+    transactionId: link.id,
+    state: link.state,
+    providerIdentity: {
+      provider: "github",
+      issuer: "https://github.com",
+      subject: "424242",
+      providerLogin: "project42-learner",
+      displayName: "Project 42 learner",
+    },
+    requestId: "link-complete-e2e",
+    now: new Date().toISOString(),
+  });
+  assert.equal(githubIdentity.provider, "github");
+  assert.equal(githubIdentity.primary, false);
+  assert.equal(githubIdentity.canUnlink, true);
+  await assert.rejects(
+    () =>
+      repository.completeIdentityLink({
+        account: currentLearner,
+        transactionId: link.id,
+        state: link.state,
+        providerIdentity: {
+          provider: "github",
+          issuer: "https://github.com",
+          subject: "424242",
+          providerLogin: "project42-learner",
+          displayName: "Project 42 learner",
+        },
+        requestId: "link-replay-e2e",
+        now: new Date().toISOString(),
+      }),
+    (error) => error?.code === "invalid_identity_link",
+  );
+
+  const linkedIdentitiesResponse = await api(
+    "learner-token",
+    "/v1/me/identities",
+  );
+  assert.equal(linkedIdentitiesResponse.status, 200);
+  assert.equal((await readBody(linkedIdentitiesResponse)).identities.length, 2);
+
   const learnerExport = await api("learner-token", "/v1/me/export");
   assert.equal(learnerExport.status, 200);
   const exported = (await readBody(learnerExport)).export;
@@ -267,6 +360,36 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   assert.equal(exported.transcriptEntries.length, starterCatalog.paths.length);
   assert.equal(exported.badges.length, 1);
   assert.equal(exported.consents.length, 1);
+  assert.equal(exported.linkedIdentities.length, 2);
+
+  const unlinkGithub = await api(
+    "learner-token",
+    `/v1/me/identities/${encodeURIComponent(githubIdentity.id)}`,
+    { method: "DELETE" },
+  );
+  assert.equal(unlinkGithub.status, 204);
+  const activeIdentitiesAfterUnlink = await api(
+    "learner-token",
+    "/v1/me/identities",
+  );
+  assert.equal(activeIdentitiesAfterUnlink.status, 200);
+  assert.equal(
+    (await readBody(activeIdentitiesAfterUnlink)).identities.length,
+    1,
+  );
+  const exportAfterUnlink = await api("learner-token", "/v1/me/export");
+  assert.equal(exportAfterUnlink.status, 200);
+  const exportedIdentityHistory = (await readBody(exportAfterUnlink)).export
+    .linkedIdentities;
+  assert.equal(exportedIdentityHistory.length, 2);
+  assert.ok(
+    exportedIdentityHistory.some(
+      (linkedIdentity) =>
+        linkedIdentity.provider === "github" &&
+        linkedIdentity.status === "unlinked" &&
+        linkedIdentity.unlinkedAt,
+    ),
+  );
 
   const suspended = await api(
     "owner-token",
@@ -421,6 +544,17 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     ).count,
     1,
   );
+  assert.equal(
+    (
+      await database
+        .prepare(
+          "SELECT COUNT(*) AS count FROM deleted_identity_tombstones WHERE deletion_request_id = ?",
+        )
+        .bind(deletionRequest.id)
+        .first()
+    ).count,
+    1,
+  );
 
   const revoked = await api(
     "owner-token",
@@ -449,6 +583,9 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     "profile.update",
     "profile.photo.update",
     "profile.photo.delete",
+    "identity.link.start",
+    "identity.link.complete",
+    "identity.unlink",
     "domain.create",
     "domain.delete",
     "deletion.request",
