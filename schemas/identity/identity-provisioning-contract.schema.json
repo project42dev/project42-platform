@@ -32,6 +32,14 @@
       "type": "string",
       "pattern": "^https://[^#]+$"
     },
+    "secureOrLoopbackUrl": {
+      "type": "string",
+      "pattern": "^(?:https://[^#]+|http://(?:localhost|127\\.0\\.0\\.1|\\[::1\\])(?::[0-9]{1,5})?(?:/[^#]*)?)$"
+    },
+    "secureOrLoopbackOrigin": {
+      "type": "string",
+      "pattern": "^(?:https://[^/?#]+|http://(?:localhost|127\\.0\\.0\\.1|\\[::1\\])(?::[0-9]{1,5})?)/?$"
+    },
     "safeCode": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9-]{1,127}$"
@@ -117,7 +125,7 @@
         "id": { "$ref": "#/$defs/stableId" },
         "adapterVersion": { "$ref": "#/$defs/version" },
         "mode": { "$ref": "#/$defs/mode" },
-        "issuer": { "$ref": "#/$defs/httpsUrl" },
+        "issuer": { "$ref": "#/$defs/secureOrLoopbackUrl" },
         "authorityBoundary": { "$ref": "#/$defs/authorityBoundary" },
         "capabilities": {
           "type": "array",
@@ -150,21 +158,18 @@
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": { "$ref": "#/$defs/httpsUrl" }
+          "items": { "$ref": "#/$defs/secureOrLoopbackUrl" }
         },
         "postLogoutRedirectUris": {
           "type": "array",
           "uniqueItems": true,
-          "items": { "$ref": "#/$defs/httpsUrl" }
+          "items": { "$ref": "#/$defs/secureOrLoopbackUrl" }
         },
         "allowedOrigins": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": {
-            "type": "string",
-            "pattern": "^https://[^/?#]+/?$"
-          }
+          "items": { "$ref": "#/$defs/secureOrLoopbackOrigin" }
         },
         "grantTypes": {
           "const": ["authorization_code"]

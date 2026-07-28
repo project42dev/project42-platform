@@ -1,12 +1,12 @@
 {
   "$schema": "./compatibility.schema.json",
   "schemaVersion": 1,
-  "release": "0.54.0",
+  "release": "0.55.0",
   "supportLevel": "evaluation",
   "api": {
     "package": "@project42/platform",
-    "version": "0.54.0",
-    "image": "ghcr.io/project42dev/project42-platform-api:0.54.0",
+    "version": "0.55.0",
+    "image": "ghcr.io/project42dev/project42-platform-api:0.55.0",
     "healthPath": "/health",
     "runsAsNonRoot": true
   },
@@ -28,7 +28,7 @@
         "resumable-owner-gate",
         "preconfigured"
       ],
-      "referenceAdapter": "keycloak-client-registration",
+      "referenceAdapter": "keycloak-admin-rest",
       "referenceAdapterVersion": "1.0.0",
       "engineVersion": "1.0.0",
       "stateStoreContract": "compare-and-set",

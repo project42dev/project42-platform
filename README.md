@@ -39,7 +39,19 @@ contracts—not the private PMO records or Project42dev production configuration
 - A resumable provisioning engine with compare-and-set state persistence,
   idempotent execution, authority-proof verification, provider recovery, rotation,
   upgrade reconciliation, disablement, and retirement.
+- A concrete Keycloak Admin REST adapter with exact client reconciliation,
+  secret-sink isolation, discovery and credential verification, callback and
+  least-privilege drift detection, overlapping rotation, recovery, disablement,
+  and retirement.
 - Seed content suitable for a hosted site or self-hosted installation.
+
+Release `0.55.0` adds the executable Keycloak reference adapter for self-hosted
+identity-client provisioning. The adapter uses a caller-supplied administration
+token, verifies the configured tenant-authority digest, reconciles exact OIDC
+callbacks and web origins, prevents broad client permissions, sends generated
+credentials directly to the injected secret sink, checks discovery and credential
+state, and implements rotation, recovery, disablement, and retirement through the
+current Keycloak Admin REST API.
 
 Release `0.54.0` adds the resumable identity-provisioning engine. It resumes
 provider operations across process restarts, binds authority decisions to expiring
