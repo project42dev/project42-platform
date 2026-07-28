@@ -1,26 +1,26 @@
 {
   "$schema": "./compatibility.schema.json",
   "schemaVersion": 1,
-  "release": "0.60.0",
+  "release": "0.61.0",
   "supportLevel": "evaluation",
   "api": {
     "package": "@project42/platform",
-    "version": "0.60.0",
-    "image": "ghcr.io/project42dev/project42-platform-api:0.60.0",
+    "version": "0.61.0",
+    "image": "ghcr.io/project42dev/project42-platform-api:0.61.0",
     "healthPath": "/health",
     "runsAsNonRoot": true
   },
   "database": {
     "adapter": "postgresql",
     "supportedMajors": [17],
-    "migrationHead": "007_secure_browser_sessions.sql",
+    "migrationHead": "008_authoritative_progress_imports.sql",
     "learningRecords": {
       "selectionVariable": "LEARNING_RECORD_ADAPTER",
-      "contractVersion": "1.0",
-      "eventContractVersion": "1.0",
+      "contractVersion": "1.1",
+      "eventContractVersion": "1.1",
       "receiptContractVersion": "1.0",
       "recoveryContractVersion": "1.0",
-      "semanticFingerprint": "learning-records/1.0;events/1.0;receipts/1.0;append-only;atomic-batch;optimistic-revision;verified-deletion-replay",
+      "semanticFingerprint": "learning-records/1.1;events/1.1;receipts/1.0;append-only;atomic-batch;optimistic-revision;authoritative-progress-import;verified-deletion-replay",
       "transactionMode": "atomic-sequential-batch"
     }
   },

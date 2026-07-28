@@ -57,6 +57,13 @@ contracts—not the private PMO records or Project42dev production configuration
   and retirement.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.61.0` makes the hosted progress API use the append-only learning-event
+stream as its read and write authority. Browser-local and portable imports become
+idempotent `progress.imported` events, existing hosted snapshots are promoted
+lazily without a second database, and the historical progress tables remain only
+as rebuildable compatibility projections for current exports and account merges.
+The `1.1` event contract remains able to read stored `1.0` events.
+
 Release `0.60.0` replaces browser bearer-token storage with an OIDC
 Authorization Code and PKCE boundary owned by the API. Encrypted one-time
 transactions bind state, nonce, verifier, return target, and expiry; signed ID

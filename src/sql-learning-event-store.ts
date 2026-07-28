@@ -5,6 +5,7 @@ import {
   type LearningEventStore,
 } from "./learning-event-engine.js";
 import {
+  type LearningEventContractVersion,
   type LearningEvent,
   validateLearningEvent,
 } from "./learning-events.js";
@@ -55,6 +56,7 @@ interface LearningEventRow {
   installation_id: string;
   user_id: string;
   idempotency_key: string;
+  schema_version: LearningEventContractVersion;
   event_type: LearningEvent["type"];
   content_version: string;
   command_digest: string;
@@ -145,12 +147,13 @@ export class SqlLearningEventStore
         this.database
           .prepare(
             `INSERT INTO learning_events (
-               id, installation_id, user_id, idempotency_key, event_type,
+               id, installation_id, user_id, idempotency_key, schema_version,
+               event_type,
                content_version, command_digest, occurred_at, recorded_at,
                actor_type, actor_user_id, payload_json, assessment_attempt_id,
                assessment_correction_id, append_token
              )
-             SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+             SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
               WHERE EXISTS (
                 SELECT 1 FROM learning_event_streams
                  WHERE installation_id = ? AND user_id = ?
@@ -162,6 +165,7 @@ export class SqlLearningEventStore
             candidate.installationId,
             candidate.learnerId,
             candidate.idempotencyKey,
+            candidate.schemaVersion,
             candidate.type,
             candidate.contentVersion,
             candidate.commandDigest,
@@ -221,7 +225,7 @@ export class SqlLearningEventStore
     const rows = await this.database
       .prepare(
         `SELECT sequence, id, installation_id, user_id, idempotency_key,
-                event_type, content_version, command_digest, occurred_at,
+                schema_version, event_type, content_version, command_digest, occurred_at,
                 recorded_at, actor_type, actor_user_id, payload_json,
                 append_token
            FROM learning_events
@@ -530,7 +534,7 @@ export class SqlLearningEventStore
     const row = await this.database
       .prepare(
         `SELECT sequence, id, installation_id, user_id, idempotency_key,
-                event_type, content_version, command_digest, occurred_at,
+                schema_version, event_type, content_version, command_digest, occurred_at,
                 recorded_at, actor_type, actor_user_id, payload_json,
                 append_token
            FROM learning_events
@@ -640,7 +644,7 @@ function compareIdempotent(
 
 function mapEventRow(row: LearningEventRow): LearningEvent {
   const event = {
-    schemaVersion: "1.0",
+    schemaVersion: row.schema_version,
     id: row.id,
     sequence: Number(row.sequence),
     type: row.event_type,

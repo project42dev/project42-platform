@@ -70,9 +70,9 @@ test("D1 satisfies the published authoritative learning-event contract", async (
       keyPrefix: "d1-contract",
     },
   );
-  assert.equal(report.contractVersion, "1.0");
-  assert.equal(report.eventCountBeforeDeletion, 6);
-  assert.equal(report.deletedEventCount, 6);
+  assert.equal(report.contractVersion, "1.1");
+  assert.equal(report.eventCountBeforeDeletion, 7);
+  assert.equal(report.deletedEventCount, 7);
   assert.deepEqual(report.checks, [
     "idempotent-retry",
     "idempotency-rebinding-denied",
@@ -80,6 +80,7 @@ test("D1 satisfies the published authoritative learning-event contract", async (
     "immutable-original-attempt",
     "deterministic-rebuild",
     "transcript-badge-correction",
+    "authoritative-progress-import",
     "authorization-isolation",
     "lossless-export",
     "governed-deletion",

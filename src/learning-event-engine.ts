@@ -129,6 +129,12 @@ export interface LearningProjection {
   attempts: LearningAssessmentAttemptProjection[];
   transcript: LearningTranscriptProjection[];
   badges: LearningBadgeProjection[];
+  progressSnapshot: Extract<
+    LearningEvent,
+    { type: "progress.imported" }
+  >["payload"]["progress"] | null;
+  progressSnapshotSequence: number;
+  progressSynchronizedAt: string | null;
 }
 
 export interface LearningCommandResult {
@@ -465,6 +471,9 @@ export function projectLearningEvents(
   const modules = new Map<string, LearningModuleProjection>();
   const attempts = new Map<string, LearningAssessmentAttemptProjection>();
   const correctionIds = new Set<string>();
+  let progressSnapshot: LearningProjection["progressSnapshot"] = null;
+  let progressSnapshotSequence = 0;
+  let progressSynchronizedAt: string | null = null;
   let lastSequence = 0;
 
   for (const event of events) {
@@ -491,6 +500,16 @@ export function projectLearningEvents(
       );
     }
     lastSequence = event.sequence;
+    if (event.type === "progress.imported") {
+      enrollments.clear();
+      modules.clear();
+      attempts.clear();
+      correctionIds.clear();
+      progressSnapshot = clone(event.payload.progress);
+      progressSnapshotSequence = event.sequence;
+      progressSynchronizedAt = event.payload.synchronizedAt;
+      continue;
+    }
     applyEvent(event, enrollments, modules, attempts, correctionIds);
   }
 
@@ -516,6 +535,9 @@ export function projectLearningEvents(
     attempts: attemptList,
     transcript,
     badges,
+    progressSnapshot,
+    progressSnapshotSequence,
+    progressSynchronizedAt,
   };
 }
 
@@ -544,6 +566,9 @@ function applyEvent(
       return;
     case "assessment.corrected":
       applyCorrection(event, attempts, correctionIds);
+      return;
+    case "progress.imported":
+      return;
   }
 }
 
@@ -891,6 +916,12 @@ function commandToEvent(
       return {
         ...common,
         type: "assessment.corrected",
+        payload: clone(command.payload),
+      };
+    case "progress.import":
+      return {
+        ...common,
+        type: "progress.imported",
         payload: clone(command.payload),
       };
   }

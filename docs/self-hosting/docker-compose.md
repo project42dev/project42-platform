@@ -51,6 +51,11 @@ Migration `007_secure_browser_sessions.sql` adds the portable session schema and
 its tenant, chronology, lifecycle, and immutability guards. A production
 self-hosted deployment must configure HTTPS OIDC browser endpoints and its own
 persistent session-encryption secret before enabling API-owned browser sessions.
+
+Migration `008_authoritative_progress_imports.sql` adds schema-versioned
+`progress.imported` events. The API reads progress from the rebuilt event
+projection while retaining the older relational progress tables as compatibility
+read models for current exports and merge workflows.
 The identity readiness probe follows the
 [official Keycloak health-check guidance](https://www.keycloak.org/observability/health)
 for its internal management port (verified 2026-07-27).

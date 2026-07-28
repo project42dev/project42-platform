@@ -63,12 +63,12 @@
           ],
           "properties": {
             "selectionVariable": { "const": "LEARNING_RECORD_ADAPTER" },
-            "contractVersion": { "const": "1.0" },
-            "eventContractVersion": { "const": "1.0" },
+            "contractVersion": { "const": "1.1" },
+            "eventContractVersion": { "const": "1.1" },
             "receiptContractVersion": { "const": "1.0" },
             "recoveryContractVersion": { "const": "1.0" },
             "semanticFingerprint": {
-              "const": "learning-records/1.0;events/1.0;receipts/1.0;append-only;atomic-batch;optimistic-revision;verified-deletion-replay"
+              "const": "learning-records/1.1;events/1.1;receipts/1.0;append-only;atomic-batch;optimistic-revision;authoritative-progress-import;verified-deletion-replay"
             },
             "transactionMode": { "const": "atomic-sequential-batch" }
           }
