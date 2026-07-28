@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "1.0",
+  "planId": "plan-api-reference",
+  "installationRef": "installation-reference",
+  "createdAt": "2026-07-28T09:00:00.000Z",
+  "desiredStateDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "provider": {
+    "id": "microsoft-entra",
+    "adapterVersion": "1.0.0",
+    "mode": "api",
+    "issuer": "https://identity.example.test/tenant/v2.0",
+    "authorityBoundary": {
+      "kind": "tenant-admin",
+      "referenceDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "capabilities": [
+      "create",
+      "validate",
+      "observe",
+      "reconcile",
+      "rotate",
+      "recover",
+      "disable",
+      "retire"
+    ]
+  },
+  "client": {
+    "clientRef": "project42-api",
+    "clientKind": "api-confidential",
+    "redirectUris": [
+      "https://api.example.test/oidc/callback"
+    ],
+    "postLogoutRedirectUris": [],
+    "allowedOrigins": [
+      "https://learn.example.test"
+    ],
+    "grantTypes": [
+      "authorization_code"
+    ],
+    "tokenEndpointAuthMethod": "client_secret_basic",
+    "pkceRequired": true,
+    "scopes": [
+      "openid",
+      "profile"
+    ],
+    "permissions": [
+      "application-owned-write"
+    ]
+  },
+  "secretPolicy": {
+    "required": true,
+    "secretManagerRef": "deployment-vault",
+    "rotationIntervalDays": 180,
+    "overlapRequired": true
+  }
+}
