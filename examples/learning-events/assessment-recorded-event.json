@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0",
+  "id": "event-7ba2f20538814f99903d",
+  "sequence": 3,
+  "type": "assessment.recorded",
+  "installationId": "example-installation",
+  "learnerId": "learner-42",
+  "idempotencyKey": "assessment-attempt-example-0001",
+  "contentVersion": "0.36.0",
+  "commandDigest": "7f1800ee55166f1c897167456a977ef524b312f5b1c3f93ef0c2128de44371c5",
+  "occurredAt": "2026-07-28T12:00:00.000Z",
+  "recordedAt": "2026-07-28T12:00:01.000Z",
+  "actor": {
+    "type": "learner",
+    "userId": "learner-42"
+  },
+  "payload": {
+    "attemptId": "attempt-0001",
+    "pathId": "ai-foundations",
+    "moduleId": "how-models-generate",
+    "assessmentVersion": "1.0.0",
+    "answers": {
+      "question-1": 1,
+      "question-2": 0
+    },
+    "scorePercent": 50,
+    "passed": false
+  }
+}

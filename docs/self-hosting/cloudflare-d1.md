@@ -25,9 +25,9 @@ The migrations create tenant-scoped tables for:
 - users, editable learner profiles, immutable OIDC identities, roles, and
   account states;
 - approval decisions and exact email-domain rules;
-- progress snapshots and normalized module progress;
-- assessment attempts and scores;
-- transcript projections and earned badges;
+- legacy progress snapshots plus authoritative, versioned learning-event streams;
+- immutable assessment attempts, answers, scores, and append-only corrections;
+- deterministic transcript projections and earned badges;
 - idempotent browser-progress imports;
 - consent and deletion workflow records;
 - proof-bound duplicate-account previews, recovery snapshots, aliases, and
@@ -66,6 +66,13 @@ keeps snapshot capture, reconciliation, aliasing, proof consumption, receipt, an
 audit writes atomic. Apply migration `0007_account_merges.sql` before enabling
 the owner merge UI. Backup and restore rehearsals must include all
 `account_merge_*` tables.
+
+Apply migration `0008_authoritative_learning_events.sql` before accepting
+versioned learning commands. The SQL adapter uses one optimistic stream revision
+per installation and learner, rejects idempotency-key rebinding, and prevents
+updates to committed event rows. Backups and restoration tests must include both
+`learning_event_streams` and `learning_events`; a projection can then be rebuilt
+from the restored event sequence.
 
 Run migrations against a separately provisioned remote D1 database only after
 placing its ID in private deployment configuration:
