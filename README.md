@@ -29,7 +29,17 @@ contracts—not the private PMO records or Project42dev production configuration
   append-only authorization audits.
 - Versioned, machine-readable content-maintenance evidence, impact, Foundry role,
   multi-model execution, deterministic gate, rollback, and human approval contracts.
+- Evidence-backed contributor-credit packages with stable provider identity,
+  consent and deletion boundaries, AI-assistance disclosure, public export, and
+  equivalent accessible Learn and Field Guide rendering contracts.
 - Seed content suitable for a hosted site or self-hosted installation.
+
+Release `0.52.0` adds the provider-neutral contributor-credit contract. It binds
+human roles to stable provider identity and accepted repository evidence,
+survives username changes, discloses accountable AI assistance, removes private
+identity from public exports, and gives Learn and Field Guide an equivalent
+accessible rendering contract. Consent revocation and account deletion preserve
+change integrity while suppressing public identity.
 
 Release `0.49.0` adds the first independently deployable self-host
 infrastructure profile: a non-root OCI account API, PostgreSQL adapter and
@@ -216,6 +226,9 @@ safe tool use, and a scored practical capstone.
 
 See [Content authoring](docs/content-authoring.md) to add paths, modules, checks,
 and field-guide resources without changing application code.
+
+See [Contributor-credit packages](docs/contributor-credit.md) to record accepted
+content evidence and render consented public attribution.
 
 See [Identity providers](docs/self-hosting/identity-providers.md) and
 [Cloudflare D1 deployment](docs/self-hosting/cloudflare-d1.md) to run the

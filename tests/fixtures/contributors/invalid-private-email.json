@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "1.0",
+  "id": "credit.invalid-private-email.1",
+  "createdAt": "2026-07-28T14:00:00.000Z",
+  "content": {
+    "contentId": "ai-foundations.language-models-and-generation",
+    "contentKind": "learn-module",
+    "acceptedVersion": "1.4.0"
+  },
+  "repository": {
+    "provider": "github",
+    "repositoryId": "project42dev/project42-platform",
+    "repositoryUrl": "https://github.com/project42dev/project42-platform"
+  },
+  "acceptedChange": {
+    "pullRequestId": "95",
+    "pullRequestUrl": "https://github.com/project42dev/project42-platform/pull/95",
+    "mergedAt": "2026-07-28T13:45:00.000Z",
+    "mergeCommitSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "acceptedCommitSha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "credits": [
+    {
+      "id": "credit.author.invalid",
+      "role": "author",
+      "contributor": {
+        "contributorRef": "contributor.invalid",
+        "provider": "github",
+        "providerAccountRef": "github-account-4001",
+        "identityProofDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "accountState": "active"
+      },
+      "consent": {
+        "status": "granted",
+        "recordedAt": "2026-07-27T16:00:00.000Z",
+        "revokedAt": null
+      },
+      "publicProfile": {
+        "displayName": "Invalid fixture",
+        "profileUrl": null,
+        "privateEmail": "must-not-appear@example.test"
+      },
+      "contributionSummary": "This fixture must fail closed.",
+      "aiAssistance": {
+        "used": false,
+        "disclosure": null,
+        "humanAccountabilityAccepted": true
+      }
+    }
+  ]
+}

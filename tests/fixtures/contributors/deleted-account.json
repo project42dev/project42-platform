@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0",
+  "id": "credit.deleted-account.1",
+  "createdAt": "2026-07-28T14:00:00.000Z",
+  "content": {
+    "contentId": "ai-foundations.context-and-evidence-construction",
+    "contentKind": "learn-module",
+    "acceptedVersion": "1.1.0"
+  },
+  "repository": {
+    "provider": "github",
+    "repositoryId": "project42dev/project42-platform",
+    "repositoryUrl": "https://github.com/project42dev/project42-platform"
+  },
+  "acceptedChange": {
+    "pullRequestId": "94",
+    "pullRequestUrl": "https://github.com/project42dev/project42-platform/pull/94",
+    "mergedAt": "2026-07-28T13:45:00.000Z",
+    "mergeCommitSha": "7777777777777777777777777777777777777777",
+    "acceptedCommitSha": "8888888888888888888888888888888888888888"
+  },
+  "credits": [
+    {
+      "id": "credit.author.deleted",
+      "role": "author",
+      "contributor": {
+        "contributorRef": "contributor.deleted.tombstone",
+        "provider": "github",
+        "providerAccountRef": null,
+        "identityProofDigest": "9999999999999999999999999999999999999999999999999999999999999999",
+        "accountState": "deleted"
+      },
+      "consent": {
+        "status": "not-granted",
+        "recordedAt": "2026-07-28T10:00:00.000Z",
+        "revokedAt": null
+      },
+      "publicProfile": null,
+      "contributionSummary": "Authored the accepted lesson revision before account deletion.",
+      "aiAssistance": {
+        "used": false,
+        "disclosure": null,
+        "humanAccountabilityAccepted": true
+      }
+    }
+  ]
+}

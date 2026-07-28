@@ -33,6 +33,14 @@ export {
   validateMaintenanceProposal,
 } from "./content-maintenance.js";
 export {
+  buildContributorCreditView,
+  buildPublicContributorCreditExport,
+  CONTRIBUTION_ROLES,
+  CONTRIBUTOR_CONTENT_KINDS,
+  CONTRIBUTOR_CREDIT_SCHEMA_VERSION,
+  validateContributorCreditPackage,
+} from "./contributor-credit.js";
+export {
   buildPortableLearnerRecord,
   buildTranscriptCsv,
   restorePortableLearnerRecord,
@@ -182,4 +190,23 @@ export type {
   PrimarySourceRegistry,
   SourceObservation,
 } from "./content-maintenance.js";
+export type {
+  AcceptedChangeEvidence,
+  AiAssistanceDisclosure,
+  AttributionConsent,
+  AttributionConsentStatus,
+  ContributionCredit,
+  ContributionRole,
+  ContributorAccountState,
+  ContributorContentReference,
+  ContributorCreditPackage,
+  ContributorCreditSurface,
+  ContributorCreditView,
+  ContributorCreditViewEntry,
+  ContributorIdentityEvidence,
+  ContributorRepositoryEvidence,
+  PublicContributorCredit,
+  PublicContributorCreditExport,
+  PublicContributorProfile,
+} from "./contributor-credit.js";
 export { RESOURCE_AUDIENCES, RESOURCE_FORMATS } from "./schema.js";
