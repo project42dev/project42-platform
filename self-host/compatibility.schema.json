@@ -57,6 +57,7 @@
             "contractVersion",
             "eventContractVersion",
             "receiptContractVersion",
+            "recoveryContractVersion",
             "semanticFingerprint",
             "transactionMode"
           ],
@@ -65,6 +66,7 @@
             "contractVersion": { "const": "1.0" },
             "eventContractVersion": { "const": "1.0" },
             "receiptContractVersion": { "const": "1.0" },
+            "recoveryContractVersion": { "const": "1.0" },
             "semanticFingerprint": {
               "const": "learning-records/1.0;events/1.0;receipts/1.0;append-only;atomic-batch;optimistic-revision;verified-deletion-replay"
             },
