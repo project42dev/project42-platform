@@ -95,6 +95,95 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
     issuedAt: now,
   });
 
+  const browserIdentityToken = await new SignJWT({
+    nonce: "expected-nonce",
+    auth_time: now,
+    azp: "project42-browser",
+  })
+    .setProtectedHeader({ alg: "RS256", kid: "test-key" })
+    .setIssuer(issuer)
+    .setSubject("stable-subject")
+    .setAudience(["project42-browser", "project42-secondary"])
+    .setIssuedAt(now)
+    .setExpirationTime(now + 300)
+    .sign(privateKey);
+  const browserIdentity = await verifier.verifyToken(browserIdentityToken, {
+    audience: "project42-browser",
+    nonce: "expected-nonce",
+    requireAuthenticationTime: true,
+  });
+  assert.equal(browserIdentity.authenticatedAt, now);
+  await assert.rejects(
+    verifier.verifyToken(browserIdentityToken, {
+      audience: "project42-browser",
+      nonce: "wrong-nonce",
+      requireAuthenticationTime: true,
+    }),
+    (error) => error.code === "invalid_identity_token",
+  );
+
+  const missingAuthenticationTime = await new SignJWT({
+    nonce: "expected-nonce",
+  })
+    .setProtectedHeader({ alg: "RS256", kid: "test-key" })
+    .setIssuer(issuer)
+    .setSubject("stable-subject")
+    .setAudience("project42-browser")
+    .setIssuedAt(now)
+    .setExpirationTime(now + 300)
+    .sign(privateKey);
+  await assert.rejects(
+    verifier.verifyToken(missingAuthenticationTime, {
+      audience: "project42-browser",
+      nonce: "expected-nonce",
+      requireAuthenticationTime: true,
+    }),
+    (error) => error.code === "invalid_identity_token",
+  );
+
+  const wrongAuthorizedParty = await new SignJWT({
+    nonce: "expected-nonce",
+    auth_time: now,
+    azp: "different-browser",
+  })
+    .setProtectedHeader({ alg: "RS256", kid: "test-key" })
+    .setIssuer(issuer)
+    .setSubject("stable-subject")
+    .setAudience("project42-browser")
+    .setIssuedAt(now)
+    .setExpirationTime(now + 300)
+    .sign(privateKey);
+  await assert.rejects(
+    verifier.verifyToken(wrongAuthorizedParty, {
+      audience: "project42-browser",
+      nonce: "expected-nonce",
+      requireAuthenticationTime: true,
+    }),
+    (error) => error.code === "invalid_identity_token",
+  );
+
+  for (const invalidAuthenticationTime of [now - 3_600, now + 3_600]) {
+    const invalidAuthenticationToken = await new SignJWT({
+      nonce: "expected-nonce",
+      auth_time: invalidAuthenticationTime,
+    })
+      .setProtectedHeader({ alg: "RS256", kid: "test-key" })
+      .setIssuer(issuer)
+      .setSubject("stable-subject")
+      .setAudience("project42-browser")
+      .setIssuedAt(now)
+      .setExpirationTime(now + 300)
+      .sign(privateKey);
+    await assert.rejects(
+      verifier.verifyToken(invalidAuthenticationToken, {
+        audience: "project42-browser",
+        nonce: "expected-nonce",
+        requireAuthenticationTime: true,
+      }),
+      (error) => error.code === "invalid_identity_token",
+    );
+  }
+
   const wrongAudience = await new SignJWT({})
     .setProtectedHeader({ alg: "RS256", kid: "test-key" })
     .setIssuer(issuer)
@@ -351,6 +440,7 @@ test("data-rights routes require recent authentication and explicit deletion con
     emailVerified: true,
     displayName: "Approved learner",
     issuedAt,
+    authenticatedAt: issuedAt,
   };
   const approved = {
     id: "user-2",
@@ -459,7 +549,10 @@ test("data-rights routes require recent authentication and explicit deletion con
   );
 
   const staleVerifier = {
-    verify: async () => ({ ...identity, issuedAt: issuedAt - 3_600 }),
+    verify: async () => ({
+      ...identity,
+      authenticatedAt: issuedAt - 3_600,
+    }),
   };
   const staleExport = await handleRequest(
     new Request("https://api.example.test/v1/me/export"),

@@ -20,6 +20,7 @@ function identity(subject, email, emailVerified = true, roles = {}) {
     emailVerified,
     displayName: roles.displayName ?? subject,
     issuedAt: Math.floor(Date.now() / 1_000),
+    authenticatedAt: Math.floor(Date.now() / 1_000),
   };
 }
 
@@ -33,6 +34,14 @@ async function pkceChallenge(verifier) {
     new TextEncoder().encode(verifier),
   );
   return Buffer.from(digest).toString("base64url");
+}
+
+async function sha256Hex(value) {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value),
+  );
+  return Buffer.from(digest).toString("hex");
 }
 
 test("account service completes lifecycle, progress, privacy, and audit journeys on D1", async (t) => {
@@ -245,7 +254,22 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     },
   );
   assert.equal(approved.status, 200);
-  assert.equal((await readBody(approved)).account.state, "approved");
+  const approvedLearner = (await readBody(approved)).account;
+  assert.equal(approvedLearner.state, "approved");
+  const learnerBrowserToken = "learner-browser-session-before-suspension";
+  await repository.createBrowserSession({
+    account: approvedLearner,
+    identity: identities.get("learner-token"),
+    tokenDigest: await sha256Hex(learnerBrowserToken),
+    requestId: "learner-browser-session-create",
+    now: new Date().toISOString(),
+  });
+  assert.ok(
+    await repository.resolveBrowserSession(
+      await sha256Hex(learnerBrowserToken),
+      new Date().toISOString(),
+    ),
+  );
 
   const consent = await api("learner-token", "/v1/me/consents", {
     method: "POST",
@@ -549,6 +573,13 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     },
   );
   assert.equal(suspended.status, 200);
+  assert.equal(
+    await repository.resolveBrowserSession(
+      await sha256Hex(learnerBrowserToken),
+      new Date().toISOString(),
+    ),
+    null,
+  );
   const blocked = await api("learner-token", "/v1/me/progress");
   assert.equal(blocked.status, 403);
   assert.equal((await readBody(blocked)).error.code, "account_suspended");
@@ -574,6 +605,15 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     },
   );
   assert.equal(restored.status, 200);
+  const restoredLearner = (await readBody(restored)).account;
+  const restoredBrowserToken = "learner-browser-session-before-revocation";
+  await repository.createBrowserSession({
+    account: restoredLearner,
+    identity: identities.get("learner-token"),
+    tokenDigest: await sha256Hex(restoredBrowserToken),
+    requestId: "learner-browser-session-restored",
+    now: new Date().toISOString(),
+  });
 
   const disabledDomain = await api("owner-token", "/v1/admin/domains", {
     method: "POST",
@@ -714,6 +754,13 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     },
   );
   assert.equal(revoked.status, 200);
+  assert.equal(
+    await repository.resolveBrowserSession(
+      await sha256Hex(restoredBrowserToken),
+      new Date().toISOString(),
+    ),
+    null,
+  );
   const revokedProgress = await api("learner-token", "/v1/me/progress");
   assert.equal(revokedProgress.status, 403);
   assert.equal((await readBody(revokedProgress)).error.code, "account_revoked");

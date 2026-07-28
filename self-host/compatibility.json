@@ -1,19 +1,19 @@
 {
   "$schema": "./compatibility.schema.json",
   "schemaVersion": 1,
-  "release": "0.59.1",
+  "release": "0.60.0",
   "supportLevel": "evaluation",
   "api": {
     "package": "@project42/platform",
-    "version": "0.59.1",
-    "image": "ghcr.io/project42dev/project42-platform-api:0.59.1",
+    "version": "0.60.0",
+    "image": "ghcr.io/project42dev/project42-platform-api:0.60.0",
     "healthPath": "/health",
     "runsAsNonRoot": true
   },
   "database": {
     "adapter": "postgresql",
     "supportedMajors": [17],
-    "migrationHead": "006_learning_record_receipts.sql",
+    "migrationHead": "007_secure_browser_sessions.sql",
     "learningRecords": {
       "selectionVariable": "LEARNING_RECORD_ADAPTER",
       "contractVersion": "1.0",
@@ -27,7 +27,7 @@
   "identity": {
     "protocol": "oidc",
     "flow": "authorization-code-pkce",
-    "requiredClaims": ["iss", "sub", "aud", "exp", "iat", "email_verified"],
+    "requiredClaims": ["iss", "sub", "aud", "exp", "iat", "auth_time", "email_verified"],
     "referenceProvider": "keycloak",
     "referenceVersion": "26.7.0",
     "provisioning": {

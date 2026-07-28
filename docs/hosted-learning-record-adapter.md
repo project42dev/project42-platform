@@ -84,7 +84,7 @@ parameters or learner data.
 Before the hosted API accepts learning commands:
 
 1. Preview and apply migrations through
-   `0009_learning_record_receipts.sql` with the packaged checksum-bound remote
+`0010_secure_browser_sessions.sql` with the packaged checksum-bound remote
    runner. Existing unbound ledgers require explicit exact-release adoption.
 2. Set `LEARNING_RECORD_ADAPTER=cloudflare-d1` in private deployment
    configuration.

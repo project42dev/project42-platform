@@ -47,6 +47,10 @@ public learning-event conformance harness against PostgreSQL 17.
 Migration `006_learning_record_receipts.sql` adds immutable, pseudonymous deletion
 receipts and deletion-replay evidence. Back up the post-backup deletion-receipt
 ledger separately and import/replay it before promoting a restored service.
+Migration `007_secure_browser_sessions.sql` adds the portable session schema and
+its tenant, chronology, lifecycle, and immutability guards. A production
+self-hosted deployment must configure HTTPS OIDC browser endpoints and its own
+persistent session-encryption secret before enabling API-owned browser sessions.
 The identity readiness probe follows the
 [official Keycloak health-check guidance](https://www.keycloak.org/observability/health)
 for its internal management port (verified 2026-07-27).

@@ -78,6 +78,8 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
       "consent_records",
       "deletion_requests",
       "deletion_tombstones",
+      "oidc_authorization_transactions",
+      "browser_sessions",
     ]) {
       assert.match(tables, new RegExp(`\\b${table}\\b`));
     }
@@ -159,6 +161,64 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
       1,
     );
     assert.match(foreignKeyGuard, /FOREIGN KEY constraint failed/);
+
+    runWrangler([
+      "d1",
+      "execute",
+      "PROJECT42_DB",
+      ...common,
+      "--command",
+      "INSERT INTO browser_sessions (id,installation_id,user_id,token_digest,identity_issuer,identity_subject,authenticated_at,created_at,last_seen_at,expires_at,absolute_expires_at,revoked_at,replaced_by_session_id) VALUES ('session-1','test','u1','aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','https://issuer.example','sub-1',1785196800,'2026-07-28T00:00:00.000Z','2026-07-28T00:00:00.000Z','2026-07-28T08:00:00.000Z','2026-07-29T00:00:00.000Z',NULL,NULL);",
+    ]);
+    const mutableSession = runWrangler(
+      [
+        "d1",
+        "execute",
+        "PROJECT42_DB",
+        ...common,
+        "--command",
+        "UPDATE browser_sessions SET token_digest='bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' WHERE id='session-1';",
+      ],
+      1,
+    );
+    assert.match(mutableSession, /browser session token digest is immutable/);
+
+    const invalidChronology = runWrangler(
+      [
+        "d1",
+        "execute",
+        "PROJECT42_DB",
+        ...common,
+        "--command",
+        "INSERT INTO browser_sessions (id,installation_id,user_id,token_digest,identity_issuer,identity_subject,authenticated_at,created_at,last_seen_at,expires_at,absolute_expires_at,revoked_at,replaced_by_session_id) VALUES ('session-invalid','test','u1','cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc','https://issuer.example','sub-1',1785196800,'2026-07-28T08:00:00.000Z','2026-07-28T08:00:00.000Z','2026-07-28T07:00:00.000Z','2026-07-29T00:00:00.000Z',NULL,NULL);",
+      ],
+      1,
+    );
+    assert.match(invalidChronology, /CHECK constraint failed/);
+
+    runWrangler([
+      "d1",
+      "execute",
+      "PROJECT42_DB",
+      ...common,
+      "--command",
+      "INSERT INTO installations VALUES ('other','Other','2026-07-26','2026-07-26'); INSERT INTO users VALUES ('u2','other','Other learner','other@example.com',1,'approved','2026-07-26','2026-07-26');",
+    ]);
+    const crossInstallationSession = runWrangler(
+      [
+        "d1",
+        "execute",
+        "PROJECT42_DB",
+        ...common,
+        "--command",
+        "INSERT INTO browser_sessions (id,installation_id,user_id,token_digest,identity_issuer,identity_subject,authenticated_at,created_at,last_seen_at,expires_at,absolute_expires_at,revoked_at,replaced_by_session_id) VALUES ('session-cross','test','u2','dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd','https://issuer.example','sub-2',1785196800,'2026-07-28T00:00:00.000Z','2026-07-28T00:00:00.000Z','2026-07-28T08:00:00.000Z','2026-07-29T00:00:00.000Z',NULL,NULL);",
+      ],
+      1,
+    );
+    assert.match(
+      crossInstallationSession,
+      /browser session user belongs to another installation/,
+    );
 
     const recovered = runWrangler([
       "d1",

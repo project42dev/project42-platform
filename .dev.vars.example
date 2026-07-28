@@ -5,6 +5,14 @@ OIDC_AUDIENCE=project42-local
 OIDC_JWKS_URL=https://identity.example.invalid/.well-known/jwks.json
 OIDC_EMAIL_CLAIM=email
 OIDC_EMAIL_VERIFIED_CLAIM=email_verified
+OIDC_AUTHORIZATION_ENDPOINT=https://identity.example.invalid/oauth2/v2.0/authorize
+OIDC_TOKEN_ENDPOINT=https://identity.example.invalid/oauth2/v2.0/token
+OIDC_CLIENT_ID=project42-browser-local
+OIDC_CLIENT_SECRET=
+OIDC_REDIRECT_URI=https://api.example.invalid/v1/auth/callback
+OIDC_LOGOUT_ENDPOINT=https://identity.example.invalid/oauth2/v2.0/logout
+# Generate a base64url-encoded 32-byte key; never commit its real value.
+SESSION_ENCRYPTION_KEY=
 INSTALLATION_ID=local
 ALLOWED_ORIGINS=http://localhost:3000
 LEARNING_RECORD_ADAPTER=cloudflare-d1

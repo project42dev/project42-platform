@@ -141,6 +141,7 @@ test(
         "004_account_merges.sql",
         "005_learning_events.sql",
         "006_learning_record_receipts.sql",
+        "007_secure_browser_sessions.sql",
       ]);
       assert.deepEqual(
         await applyPostgresMigrations(pool, "self-host/postgres"),

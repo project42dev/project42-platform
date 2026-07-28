@@ -52,6 +52,20 @@ import {
   readLearningRecordAdapterConfiguration,
   type LearningRecordAdapterConfiguration,
 } from "./learning-record-adapter.js";
+import {
+  BROWSER_SESSION_COOKIE,
+  clearHostCookie,
+  createHostCookie,
+  createPkceChallenge,
+  normalizeReturnTarget,
+  OIDC_TRANSACTION_COOKIE,
+  openOidcTransaction,
+  randomBase64Url,
+  readBrowserOidcConfiguration,
+  readCookie,
+  sealOidcTransaction,
+  type BrowserOidcTransaction,
+} from "./browser-session.js";
 import type { LearningEventDatabase } from "./sql-learning-event-store.js";
 
 type WorkerEnvironment = Omit<
@@ -64,7 +78,31 @@ type WorkerEnvironment = Omit<
   GITHUB_LINK_CLIENT_ID?: string;
   GITHUB_LINK_CLIENT_SECRET?: string;
   GITHUB_LINK_REDIRECT_URI?: string;
+  OIDC_AUTHORIZATION_ENDPOINT?: string;
+  OIDC_TOKEN_ENDPOINT?: string;
+  OIDC_CLIENT_ID?: string;
+  OIDC_CLIENT_SECRET?: string;
+  OIDC_REDIRECT_URI?: string;
+  OIDC_LOGOUT_ENDPOINT?: string;
+  SESSION_ENCRYPTION_KEY?: string;
 };
+
+interface BrowserSessionRow {
+  id: string;
+  user_id: string;
+  identity_issuer: string;
+  identity_subject: string;
+  authenticated_at: number;
+  expires_at: string;
+  absolute_expires_at: string;
+}
+
+interface ResolvedBrowserSession {
+  id: string;
+  identity: VerifiedIdentity;
+  expiresAt: string;
+  absoluteExpiresAt: string;
+}
 
 interface AccountRow {
   id: string;
@@ -272,14 +310,60 @@ class OidcJwtVerifier implements IdentityVerifier {
       throw new ApiFailure(401, "missing_access_token", "A Bearer access token is required.");
     }
 
+    return this.verifyToken(token);
+  }
+
+  async verifyToken(
+    token: string,
+    options: {
+      audience?: string;
+      nonce?: string;
+      requireAuthenticationTime?: boolean;
+    } = {},
+  ): Promise<VerifiedIdentity> {
     try {
+      const requiredClaims = ["iss", "sub", "aud", "exp", "iat"];
+      if (options.requireAuthenticationTime) requiredClaims.push("auth_time");
       const { payload } = await jwtVerify(token, this.keySet, {
         issuer: this.env.OIDC_ISSUER,
-        audience: this.env.OIDC_AUDIENCE,
-        requiredClaims: ["iss", "sub", "aud", "exp", "iat"],
+        audience: options.audience ?? this.env.OIDC_AUDIENCE,
+        requiredClaims,
       });
       if (!payload.iss || !payload.sub) {
         throw new ApiFailure(401, "invalid_access_token", "Token identity is incomplete.");
+      }
+      if (options.nonce && payload.nonce !== options.nonce) {
+        throw new ApiFailure(
+          401,
+          "invalid_identity_token",
+          "The identity response could not be verified.",
+        );
+      }
+      const expectedAudience = options.audience ?? this.env.OIDC_AUDIENCE;
+      if (
+        (payload.azp !== undefined && payload.azp !== expectedAudience) ||
+        (Array.isArray(payload.aud) &&
+          payload.aud.length > 1 &&
+          payload.azp !== expectedAudience)
+      ) {
+        throw new ApiFailure(
+          401,
+          options.nonce ? "invalid_identity_token" : "invalid_access_token",
+          "The token authorized party could not be verified.",
+        );
+      }
+      if (
+        options.requireAuthenticationTime &&
+        (typeof payload.auth_time !== "number" ||
+          !Number.isFinite(payload.auth_time) ||
+          payload.auth_time > Math.floor(Date.now() / 1_000) + 60 ||
+          Math.floor(Date.now() / 1_000) - payload.auth_time > 5 * 60)
+      ) {
+        throw new ApiFailure(
+          401,
+          "invalid_identity_token",
+          "The identity provider did not supply fresh-authentication evidence.",
+        );
       }
       const emailValue = payload[this.env.OIDC_EMAIL_CLAIM];
       const verifiedValue = payload[this.env.OIDC_EMAIL_VERIFIED_CLAIM];
@@ -295,14 +379,138 @@ class OidcJwtVerifier implements IdentityVerifier {
             ? displayNameValue.trim()
             : null,
         ...(typeof payload.iat === "number" ? { issuedAt: payload.iat } : {}),
+        ...(typeof payload.auth_time === "number"
+          ? { authenticatedAt: payload.auth_time }
+          : {}),
       };
     } catch (error) {
       if (error instanceof ApiFailure) throw error;
       if (error instanceof joseErrors.JOSEError) {
-        throw new ApiFailure(401, "invalid_access_token", "The access token is not valid.");
+        throw new ApiFailure(
+          401,
+          options.nonce ? "invalid_identity_token" : "invalid_access_token",
+          options.nonce
+            ? "The identity response could not be verified."
+            : "The access token is not valid.",
+        );
       }
       throw error;
     }
+  }
+}
+
+class BrowserOidcAdapter {
+  constructor(
+    private readonly env: WorkerEnvironment,
+    private readonly fetcher: typeof fetch = fetch,
+  ) {}
+
+  async createAuthorization(
+    transaction: BrowserOidcTransaction,
+  ): Promise<{ location: string; cookie: string }> {
+    const configuration = await readBrowserOidcConfiguration(this.env);
+    const authorization = new URL(configuration.authorizationEndpoint);
+    authorization.searchParams.set("client_id", configuration.clientId);
+    authorization.searchParams.set("response_type", "code");
+    authorization.searchParams.set("redirect_uri", configuration.redirectUri);
+    authorization.searchParams.set("response_mode", "query");
+    authorization.searchParams.set("scope", "openid profile email");
+    authorization.searchParams.set("prompt", "login");
+    authorization.searchParams.set("max_age", "0");
+    authorization.searchParams.set("state", transaction.state);
+    authorization.searchParams.set("nonce", transaction.nonce);
+    authorization.searchParams.set(
+      "code_challenge",
+      await createPkceChallenge(transaction.codeVerifier),
+    );
+    authorization.searchParams.set("code_challenge_method", "S256");
+    return {
+      location: authorization.toString(),
+      cookie: createHostCookie(
+        OIDC_TRANSACTION_COOKIE,
+        await sealOidcTransaction(
+          transaction,
+          configuration.encryptionKey,
+        ),
+        10 * 60,
+      ),
+    };
+  }
+
+  async readTransaction(request: Request): Promise<BrowserOidcTransaction> {
+    const cookie = readCookie(request, OIDC_TRANSACTION_COOKIE);
+    if (!cookie) {
+      throw new ApiFailure(
+        400,
+        "authorization_transaction_missing",
+        "The sign-in response is missing its secure transaction. Start sign-in again.",
+      );
+    }
+    try {
+      const configuration = await readBrowserOidcConfiguration(this.env);
+      return await openOidcTransaction(cookie, configuration.encryptionKey);
+    } catch {
+      throw new ApiFailure(
+        400,
+        "authorization_transaction_invalid",
+        "The sign-in response is invalid or expired. Start sign-in again.",
+      );
+    }
+  }
+
+  async exchange(
+    code: string,
+    transaction: BrowserOidcTransaction,
+  ): Promise<{ idToken: string; clientId: string }> {
+    const configuration = await readBrowserOidcConfiguration(this.env);
+    const body = new URLSearchParams({
+      grant_type: "authorization_code",
+      client_id: configuration.clientId,
+      code,
+      redirect_uri: configuration.redirectUri,
+      code_verifier: transaction.codeVerifier,
+    });
+    if (configuration.clientSecret) {
+      body.set("client_secret", configuration.clientSecret);
+    }
+    let response: Response;
+    try {
+      response = await this.fetcher(configuration.tokenEndpoint, {
+        method: "POST",
+        redirect: "error",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/x-www-form-urlencoded",
+        },
+        body,
+      });
+    } catch {
+      throw new ApiFailure(
+        502,
+        "identity_provider_unavailable",
+        "Sign-in could not be completed. Try again.",
+      );
+    }
+    const tokenBody = await readProviderJson(response);
+    const idToken =
+      typeof tokenBody.id_token === "string" ? tokenBody.id_token : null;
+    if (!response.ok || !idToken) {
+      throw new ApiFailure(
+        400,
+        "authorization_code_rejected",
+        "Sign-in could not be completed. Start sign-in again.",
+      );
+    }
+    return { idToken, clientId: configuration.clientId };
+  }
+
+  async createLogoutUrl(returnTo: string): Promise<string | null> {
+    const configuration = await readBrowserOidcConfiguration(this.env);
+    if (!configuration.logoutEndpoint) return null;
+    const logout = new URL(configuration.logoutEndpoint);
+    logout.searchParams.set("post_logout_redirect_uri", returnTo);
+    logout.searchParams.set("client_id", configuration.clientId);
+    return logout.toString();
   }
 }
 
@@ -433,6 +641,344 @@ class D1Project42Repository {
       )
       .bind(this.installationId, "Project 42", now, now)
       .run();
+  }
+
+  async createOidcAuthorizationTransaction(input: {
+    transaction: BrowserOidcTransaction;
+    stateDigest: string;
+    nonceDigest: string;
+    requestId: string;
+    now: string;
+  }): Promise<void> {
+    await this.db.batch([
+      this.db
+        .prepare(
+          `DELETE FROM oidc_authorization_transactions
+            WHERE installation_id = ?
+              AND (expires_at <= ? OR consumed_at IS NOT NULL)`,
+        )
+        .bind(this.installationId, input.now),
+      this.db
+        .prepare(
+          `DELETE FROM browser_sessions
+            WHERE installation_id = ?
+              AND (
+                absolute_expires_at <= ?
+                OR (revoked_at IS NOT NULL AND revoked_at <= ?)
+              )`,
+        )
+        .bind(
+          this.installationId,
+          subtractSeconds(input.now, 30 * 24 * 60 * 60),
+          subtractSeconds(input.now, 30 * 24 * 60 * 60),
+        ),
+      this.db
+        .prepare(
+          `INSERT INTO oidc_authorization_transactions (
+             id, installation_id, state_digest, nonce_digest, request_id,
+             created_at, expires_at, consumed_at
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, NULL)`,
+        )
+        .bind(
+          input.transaction.id,
+          this.installationId,
+          input.stateDigest,
+          input.nonceDigest,
+          input.requestId,
+          input.now,
+          input.transaction.expiresAt,
+        ),
+    ]);
+  }
+
+  async consumeOidcAuthorizationTransaction(input: {
+    transactionId: string;
+    stateDigest: string;
+    nonceDigest: string;
+    now: string;
+  }): Promise<void> {
+    const result = await this.db
+      .prepare(
+        `UPDATE oidc_authorization_transactions
+            SET consumed_at = ?
+          WHERE id = ? AND installation_id = ?
+            AND state_digest = ? AND nonce_digest = ?
+            AND consumed_at IS NULL AND expires_at > ?`,
+      )
+      .bind(
+        input.now,
+        input.transactionId,
+        this.installationId,
+        input.stateDigest,
+        input.nonceDigest,
+        input.now,
+      )
+      .run();
+    if ((result.meta.changes ?? 0) !== 1) {
+      throw new ApiFailure(
+        400,
+        "invalid_authorization_transaction",
+        "The sign-in response is invalid or expired. Start sign-in again.",
+      );
+    }
+  }
+
+  async createBrowserSession(input: {
+    account: Account;
+    identity: VerifiedIdentity;
+    tokenDigest: string;
+    requestId: string;
+    now: string;
+    priorSession?: ResolvedBrowserSession | null;
+  }): Promise<{ id: string; expiresAt: string; absoluteExpiresAt: string }> {
+    const id = crypto.randomUUID();
+    const expiresAt = addSeconds(input.now, 8 * 60 * 60);
+    const absoluteExpiresAt = addSeconds(input.now, 24 * 60 * 60);
+    const authenticatedAt = input.identity.authenticatedAt;
+    if (
+      typeof authenticatedAt !== "number" ||
+      !Number.isFinite(authenticatedAt)
+    ) {
+      throw new ApiFailure(
+        401,
+        "recent_authentication_required",
+        "Complete a fresh sign-in before creating a browser session.",
+      );
+    }
+    const statements: D1PreparedStatement[] = [
+      this.db
+        .prepare(
+          `INSERT INTO browser_sessions (
+             id, installation_id, user_id, token_digest, identity_issuer,
+             identity_subject, authenticated_at, created_at, last_seen_at,
+             expires_at, absolute_expires_at, revoked_at, replaced_by_session_id
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL)`,
+        )
+        .bind(
+          id,
+          this.installationId,
+          input.account.id,
+          input.tokenDigest,
+          input.identity.issuer,
+          input.identity.subject,
+          authenticatedAt,
+          input.now,
+          input.now,
+          expiresAt,
+          absoluteExpiresAt,
+        ),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.identity,
+        actorUserId: input.account.id,
+        action: "session.create",
+        targetType: "browser-session",
+        targetId: id,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: "OIDC authorization code and nonce validation completed.",
+        metadata: {
+          expiresAt,
+          absoluteExpiresAt,
+        },
+        now: input.now,
+      }),
+    ];
+    if (input.priorSession) {
+      statements.splice(
+        1,
+        0,
+        this.db
+          .prepare(
+            `UPDATE browser_sessions
+                SET revoked_at = ?, replaced_by_session_id = ?
+              WHERE id = ? AND installation_id = ? AND revoked_at IS NULL`,
+          )
+          .bind(
+            input.now,
+            id,
+            input.priorSession.id,
+            this.installationId,
+          ),
+      );
+    }
+    await this.db.batch(statements);
+    return { id, expiresAt, absoluteExpiresAt };
+  }
+
+  async resolveBrowserSession(
+    tokenDigest: string,
+    now: string,
+  ): Promise<ResolvedBrowserSession | null> {
+    const row = await this.db
+      .prepare(
+        `SELECT id, user_id, identity_issuer, identity_subject,
+                authenticated_at, expires_at, absolute_expires_at
+           FROM browser_sessions
+          WHERE installation_id = ? AND token_digest = ?
+            AND revoked_at IS NULL AND expires_at > ? AND absolute_expires_at > ?
+          LIMIT 1`,
+      )
+      .bind(this.installationId, tokenDigest, now, now)
+      .first<BrowserSessionRow>();
+    if (!row) return null;
+    await this.db
+      .prepare(
+        `UPDATE browser_sessions
+            SET last_seen_at = ?
+          WHERE id = ? AND installation_id = ? AND revoked_at IS NULL
+            AND last_seen_at < ?`,
+      )
+      .bind(now, row.id, this.installationId, subtractSeconds(now, 5 * 60))
+      .run();
+    return {
+      id: row.id,
+      identity: {
+        provider: "oidc",
+        issuer: row.identity_issuer,
+        subject: row.identity_subject,
+        email: null,
+        emailVerified: false,
+        displayName: null,
+        authenticatedAt: row.authenticated_at,
+      },
+      expiresAt: row.expires_at,
+      absoluteExpiresAt: row.absolute_expires_at,
+    };
+  }
+
+  async rotateBrowserSession(input: {
+    session: ResolvedBrowserSession;
+    account: Account;
+    tokenDigest: string;
+    requestId: string;
+    now: string;
+  }): Promise<{ id: string; expiresAt: string; absoluteExpiresAt: string }> {
+    if (Date.parse(input.session.absoluteExpiresAt) <= Date.parse(input.now)) {
+      throw new ApiFailure(
+        401,
+        "session_expired",
+        "Your session has expired. Sign in again.",
+      );
+    }
+    const id = crypto.randomUUID();
+    const expiresAt = new Date(
+      Math.min(
+        Date.parse(input.session.absoluteExpiresAt),
+        Date.parse(input.now) + 8 * 60 * 60 * 1000,
+      ),
+    ).toISOString();
+    const inserted = this.db
+      .prepare(
+        `INSERT INTO browser_sessions (
+           id, installation_id, user_id, token_digest, identity_issuer,
+           identity_subject, authenticated_at, created_at, last_seen_at,
+           expires_at, absolute_expires_at, revoked_at, replaced_by_session_id
+         )
+         SELECT ?, installation_id, user_id, ?, identity_issuer,
+                identity_subject, authenticated_at, ?, ?, ?, absolute_expires_at,
+                NULL, NULL
+           FROM browser_sessions
+          WHERE id = ? AND installation_id = ? AND revoked_at IS NULL`,
+      )
+      .bind(
+        id,
+        input.tokenDigest,
+        input.now,
+        input.now,
+        expiresAt,
+        input.session.id,
+        this.installationId,
+      );
+    const revoked = this.db
+      .prepare(
+        `UPDATE browser_sessions
+            SET revoked_at = ?, replaced_by_session_id = ?
+          WHERE id = ? AND installation_id = ? AND revoked_at IS NULL`,
+      )
+      .bind(input.now, id, input.session.id, this.installationId);
+    const audit = this.db
+      .prepare(
+        `INSERT INTO audit_events (
+           id, installation_id, actor_user_id, actor_issuer, actor_subject,
+           action, target_type, target_id, request_id, outcome, reason,
+           metadata_json, occurred_at
+         )
+         SELECT ?, ?, ?, ?, ?, 'session.rotate', 'browser-session', ?, ?,
+                'success', ?, ?, ?
+          WHERE EXISTS (
+            SELECT 1
+              FROM browser_sessions
+             WHERE id = ? AND installation_id = ?
+               AND replaced_by_session_id = ? AND revoked_at = ?
+          )`,
+      )
+      .bind(
+        crypto.randomUUID(),
+        this.installationId,
+        input.account.id,
+        input.session.identity.issuer,
+        input.session.identity.subject,
+        id,
+        input.requestId,
+        "The browser session identifier was rotated.",
+        JSON.stringify({
+          priorSessionId: input.session.id,
+          expiresAt,
+        }),
+        input.now,
+        input.session.id,
+        this.installationId,
+        id,
+        input.now,
+      );
+    const results = await this.db.batch([inserted, revoked, audit]);
+    if (
+      (results[0]?.meta.changes ?? 0) !== 1 ||
+      (results[1]?.meta.changes ?? 0) !== 1 ||
+      (results[2]?.meta.changes ?? 0) !== 1
+    ) {
+      throw new ApiFailure(
+        409,
+        "session_rotation_conflict",
+        "Your session changed. Sign in again.",
+      );
+    }
+    return {
+      id,
+      expiresAt,
+      absoluteExpiresAt: input.session.absoluteExpiresAt,
+    };
+  }
+
+  async revokeBrowserSession(input: {
+    session: ResolvedBrowserSession;
+    account: Account;
+    requestId: string;
+    now: string;
+  }): Promise<void> {
+    await this.db.batch([
+      this.db
+        .prepare(
+          `UPDATE browser_sessions
+              SET revoked_at = ?
+            WHERE id = ? AND installation_id = ? AND revoked_at IS NULL`,
+        )
+        .bind(input.now, input.session.id, this.installationId),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.session.identity,
+        actorUserId: input.account.id,
+        action: "session.revoke",
+        targetType: "browser-session",
+        targetId: input.session.id,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: "The learner signed out.",
+        metadata: {},
+        now: input.now,
+      }),
+    ]);
   }
 
   async findAccount(identity: VerifiedIdentity): Promise<Account | null> {
@@ -1414,6 +1960,19 @@ class D1Project42Repository {
     statements.push(
       this.db
         .prepare(
+          `UPDATE browser_sessions
+              SET revoked_at = ?
+            WHERE installation_id = ? AND user_id IN (?, ?)
+              AND revoked_at IS NULL`,
+        )
+        .bind(
+          input.now,
+          this.installationId,
+          mergeCase.source_user_id,
+          mergeCase.survivor_user_id,
+        ),
+      this.db
+        .prepare(
           `INSERT INTO account_merge_aliases (
              installation_id, source_user_id, survivor_user_id, merge_case_id,
              created_at
@@ -1609,6 +2168,19 @@ class D1Project42Repository {
             WHERE installation_id = ? AND merge_case_id = ?`,
         )
         .bind(this.installationId, mergeCase.id),
+      this.db
+        .prepare(
+          `UPDATE browser_sessions
+              SET revoked_at = ?
+            WHERE installation_id = ? AND user_id IN (?, ?)
+              AND revoked_at IS NULL`,
+        )
+        .bind(
+          input.now,
+          this.installationId,
+          mergeCase.source_user_id,
+          mergeCase.survivor_user_id,
+        ),
     ];
     const restoreTables = ACCOUNT_MERGE_SNAPSHOT_TABLES.filter(
       (tableName) => !["users", "user_identities"].includes(tableName),
@@ -2274,6 +2846,18 @@ class D1Project42Repository {
         metadata: { from: current.account_state, to: input.to },
         now: input.now,
       }),
+      ...(input.to === "suspended" || input.to === "revoked"
+        ? [
+            this.db
+              .prepare(
+                `UPDATE browser_sessions
+                    SET revoked_at = ?
+                  WHERE installation_id = ? AND user_id = ?
+                    AND revoked_at IS NULL`,
+              )
+              .bind(input.now, this.installationId, input.targetId),
+          ]
+        : []),
     ]);
     const accounts = await this.listAccounts();
     const updated = accounts.find((account) => account.id === input.targetId);
@@ -4793,6 +5377,34 @@ async function sha256(value: string): Promise<string> {
     .join("");
 }
 
+function addSeconds(value: string, seconds: number): string {
+  const parsed = Date.parse(value);
+  if (!Number.isFinite(parsed) || !Number.isSafeInteger(seconds) || seconds < 0) {
+    throw new Error("Session timestamp or lifetime is invalid.");
+  }
+  return new Date(parsed + seconds * 1000).toISOString();
+}
+
+function subtractSeconds(value: string, seconds: number): string {
+  const parsed = Date.parse(value);
+  if (!Number.isFinite(parsed) || !Number.isSafeInteger(seconds) || seconds < 0) {
+    throw new Error("Session timestamp or lifetime is invalid.");
+  }
+  return new Date(parsed - seconds * 1000).toISOString();
+}
+
+function secondsUntil(now: string, future: string): number {
+  const seconds = Math.floor((Date.parse(future) - Date.parse(now)) / 1000);
+  if (!Number.isSafeInteger(seconds) || seconds < 1) {
+    throw new ApiFailure(
+      401,
+      "session_expired",
+      "Your session has expired. Sign in again.",
+    );
+  }
+  return seconds;
+}
+
 async function sha256Base64Url(value: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
   const binary = String.fromCharCode(...new Uint8Array(digest));
@@ -5293,18 +5905,28 @@ async function requireOwner(
 }
 
 function requireRecentAuthentication(identity: VerifiedIdentity, now: string): void {
-  const issuedAt = identity.issuedAt;
+  const authenticatedAt = identity.authenticatedAt;
   const nowSeconds = Math.floor(Date.parse(now) / 1_000);
   if (
-    typeof issuedAt !== "number" ||
-    !Number.isFinite(issuedAt) ||
-    issuedAt > nowSeconds + 60 ||
-    nowSeconds - issuedAt > 15 * 60
+    typeof authenticatedAt !== "number" ||
+    !Number.isFinite(authenticatedAt) ||
+    authenticatedAt > nowSeconds + 60 ||
+    nowSeconds - authenticatedAt > 15 * 60
   ) {
     throw new ApiFailure(
       401,
       "recent_authentication_required",
       "Sign in again before exporting or deleting account data.",
+    );
+  }
+}
+
+function requireCookieMutationOrigin(origin: string | null): void {
+  if (!origin) {
+    throw new ApiFailure(
+      403,
+      "origin_required",
+      "Browser session changes require an approved Origin header.",
     );
   }
 }
@@ -5540,11 +6162,33 @@ function json(
   });
   if (origin) {
     headers.set("access-control-allow-origin", origin);
-    headers.set("access-control-allow-credentials", "false");
+    headers.set("access-control-allow-credentials", "true");
     headers.set("vary", "Origin");
   }
   const responseBody = status === 204 || status === 304 ? null : JSON.stringify(body);
   return new Response(responseBody, { status, headers });
+}
+
+function redirect(
+  location: string,
+  cookies: string[],
+  requestId: string,
+  origin: string | null,
+): Response {
+  const headers = new Headers({
+    location,
+    "cache-control": "no-store",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "no-referrer",
+    "x-request-id": requestId,
+  });
+  for (const cookie of cookies) headers.append("set-cookie", cookie);
+  if (origin) {
+    headers.set("access-control-allow-origin", origin);
+    headers.set("access-control-allow-credentials", "true");
+    headers.set("vary", "Origin");
+  }
+  return new Response(null, { status: 302, headers });
 }
 
 function profilePhotoResponse(
@@ -5566,7 +6210,7 @@ function profilePhotoResponse(
   });
   if (origin) {
     headers.set("access-control-allow-origin", origin);
-    headers.set("access-control-allow-credentials", "false");
+    headers.set("access-control-allow-credentials", "true");
     headers.set("vary", "Origin");
   }
   return new Response(object.body, { status: 200, headers });
@@ -5591,6 +6235,7 @@ async function handleRequest(
   repositoryOverride?: D1Project42Repository,
   githubLinkAdapter: GithubIdentityLinkAdapter = new GithubIdentityLinkAdapter(env),
   learningRecordConfigurationOverride?: LearningRecordAdapterConfiguration,
+  browserOidcAdapter: BrowserOidcAdapter = new BrowserOidcAdapter(env),
 ): Promise<Response> {
   const requestId = request.headers.get("x-request-id")?.slice(0, 100) || crypto.randomUUID();
   let origin: string | null = null;
@@ -5631,7 +6276,6 @@ async function handleRequest(
       );
     }
 
-    const identity = await verifier.verify(request);
     const now = new Date().toISOString();
     if (!repositoryOverride) {
       configureLearningRecordAdapter(
@@ -5643,12 +6287,191 @@ async function handleRequest(
       repositoryOverride ??
       new D1Project42Repository(env.PROJECT42_DB, env.INSTALLATION_ID);
     await repository.ensureInstallation(now);
+    if (request.method === "GET" && url.pathname === "/v1/auth/start") {
+      const transaction: BrowserOidcTransaction = {
+        id: crypto.randomUUID(),
+        state: randomBase64Url(),
+        nonce: randomBase64Url(),
+        codeVerifier: randomBase64Url(48),
+        returnTo: normalizeReturnTarget(
+          url.searchParams.get("return_to"),
+          env.ALLOWED_ORIGINS,
+        ),
+        expiresAt: addSeconds(now, 10 * 60),
+      };
+      await repository.createOidcAuthorizationTransaction({
+        transaction,
+        stateDigest: await sha256(transaction.state),
+        nonceDigest: await sha256(transaction.nonce),
+        requestId,
+        now,
+      });
+      const authorization =
+        await browserOidcAdapter.createAuthorization(transaction);
+      return redirect(
+        authorization.location,
+        [authorization.cookie],
+        requestId,
+        origin,
+      );
+    }
+
+    if (request.method === "GET" && url.pathname === "/v1/auth/callback") {
+      const transaction = await browserOidcAdapter.readTransaction(request);
+      const state = url.searchParams.get("state");
+      if (!state || state !== transaction.state) {
+        throw new ApiFailure(
+          400,
+          "authorization_state_mismatch",
+          "The sign-in response could not be verified. Start sign-in again.",
+        );
+      }
+      await repository.consumeOidcAuthorizationTransaction({
+        transactionId: transaction.id,
+        stateDigest: await sha256(state),
+        nonceDigest: await sha256(transaction.nonce),
+        now,
+      });
+      const returnTarget = new URL(transaction.returnTo);
+      const providerError = url.searchParams.get("error");
+      if (providerError) {
+        returnTarget.searchParams.set("auth", "error");
+        return redirect(
+          returnTarget.toString(),
+          [clearHostCookie(OIDC_TRANSACTION_COOKIE)],
+          requestId,
+          origin,
+        );
+      }
+      const code = url.searchParams.get("code");
+      if (!code || code.length > 4096) {
+        throw new ApiFailure(
+          400,
+          "authorization_code_missing",
+          "The sign-in response is incomplete. Start sign-in again.",
+        );
+      }
+      const exchanged = await browserOidcAdapter.exchange(code, transaction);
+      const tokenVerifier = verifier as IdentityVerifier & {
+        verifyToken?: (
+          token: string,
+          options?: {
+            audience?: string;
+            nonce?: string;
+            requireAuthenticationTime?: boolean;
+          },
+        ) => Promise<VerifiedIdentity>;
+      };
+      if (!tokenVerifier.verifyToken) {
+        throw new ApiFailure(
+          503,
+          "identity_token_verifier_unavailable",
+          "Secure sign-in is temporarily unavailable.",
+        );
+      }
+      const identity = await tokenVerifier.verifyToken(exchanged.idToken, {
+        audience: exchanged.clientId,
+        nonce: transaction.nonce,
+        requireAuthenticationTime: true,
+      });
+      const ownerBootstrap =
+        Boolean(env.BOOTSTRAP_OWNER_ISSUER && env.BOOTSTRAP_OWNER_SUBJECT) &&
+        identity.issuer === env.BOOTSTRAP_OWNER_ISSUER &&
+        identity.subject === env.BOOTSTRAP_OWNER_SUBJECT;
+      const account = await repository.createOrRefreshAccount(
+        identity,
+        ownerBootstrap,
+        requestId,
+        now,
+      );
+      const sessionToken = randomBase64Url(48);
+      const priorSessionToken = readCookie(request, BROWSER_SESSION_COOKIE);
+      const priorSession = priorSessionToken
+        ? await repository.resolveBrowserSession(
+            await sha256(priorSessionToken),
+            now,
+          )
+        : null;
+      const session = await repository.createBrowserSession({
+        account,
+        identity,
+        tokenDigest: await sha256(sessionToken),
+        requestId,
+        now,
+        priorSession,
+      });
+      returnTarget.searchParams.set("auth", "success");
+      return redirect(
+        returnTarget.toString(),
+        [
+          createHostCookie(
+            BROWSER_SESSION_COOKIE,
+            sessionToken,
+            secondsUntil(now, session.expiresAt),
+          ),
+          clearHostCookie(OIDC_TRANSACTION_COOKIE),
+        ],
+        requestId,
+        origin,
+      );
+    }
+
+    let browserSession: ResolvedBrowserSession | null = null;
+    let identity: VerifiedIdentity;
+    const sessionToken = readCookie(request, BROWSER_SESSION_COOKIE);
+    if (sessionToken) {
+      browserSession = await repository.resolveBrowserSession(
+        await sha256(sessionToken),
+        now,
+      );
+      if (!browserSession) {
+        if (request.method === "POST" && url.pathname === "/v1/auth/signout") {
+          requireCookieMutationOrigin(origin);
+          const returnTo = normalizeReturnTarget(
+            url.searchParams.get("return_to"),
+            env.ALLOWED_ORIGINS,
+          );
+          const response = json(
+            {
+              signedOut: true,
+              logoutUrl: await browserOidcAdapter.createLogoutUrl(returnTo),
+            },
+            200,
+            requestId,
+            origin,
+          );
+          response.headers.append(
+            "set-cookie",
+            clearHostCookie(BROWSER_SESSION_COOKIE),
+          );
+          return response;
+        }
+        throw new ApiFailure(
+          401,
+          "session_expired",
+          "Your session has expired. Sign in again.",
+        );
+      }
+      if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
+        requireCookieMutationOrigin(origin);
+      }
+      identity = browserSession.identity;
+    } else {
+      identity = await verifier.verify(request);
+    }
     const ownerBootstrap =
       Boolean(env.BOOTSTRAP_OWNER_ISSUER && env.BOOTSTRAP_OWNER_SUBJECT) &&
       identity.issuer === env.BOOTSTRAP_OWNER_ISSUER &&
       identity.subject === env.BOOTSTRAP_OWNER_SUBJECT;
 
     if (request.method === "POST" && url.pathname === "/v1/session") {
+      if (browserSession) {
+        throw new ApiFailure(
+          400,
+          "bearer_session_endpoint_required",
+          "Use the browser session endpoints for an HttpOnly browser session.",
+        );
+      }
       const account = await repository.createOrRefreshAccount(
         identity,
         ownerBootstrap,
@@ -5661,6 +6484,88 @@ async function handleRequest(
     const account = await repository.findAccount(identity);
     if (!account) {
       throw new ApiFailure(401, "account_not_registered", "Register this identity first.");
+    }
+    if (request.method === "GET" && url.pathname === "/v1/auth/session") {
+      return json(
+        {
+          account,
+          session: browserSession
+            ? {
+                expiresAt: browserSession.expiresAt,
+                absoluteExpiresAt: browserSession.absoluteExpiresAt,
+              }
+            : null,
+        },
+        200,
+        requestId,
+        origin,
+      );
+    }
+    if (request.method === "POST" && url.pathname === "/v1/auth/renew") {
+      if (!browserSession) {
+        throw new ApiFailure(
+          400,
+          "browser_session_required",
+          "Sign in with a browser session before renewing.",
+        );
+      }
+      requireApproved(account);
+      const replacementToken = randomBase64Url(48);
+      const replacement = await repository.rotateBrowserSession({
+        session: browserSession,
+        account,
+        tokenDigest: await sha256(replacementToken),
+        requestId,
+        now,
+      });
+      const response = json(
+        {
+          session: {
+            expiresAt: replacement.expiresAt,
+            absoluteExpiresAt: replacement.absoluteExpiresAt,
+          },
+        },
+        200,
+        requestId,
+        origin,
+      );
+      response.headers.append(
+        "set-cookie",
+        createHostCookie(
+          BROWSER_SESSION_COOKIE,
+          replacementToken,
+          secondsUntil(now, replacement.expiresAt),
+        ),
+      );
+      return response;
+    }
+    if (request.method === "POST" && url.pathname === "/v1/auth/signout") {
+      if (browserSession) {
+        await repository.revokeBrowserSession({
+          session: browserSession,
+          account,
+          requestId,
+          now,
+        });
+      }
+      const returnTo = normalizeReturnTarget(
+        url.searchParams.get("return_to"),
+        env.ALLOWED_ORIGINS,
+      );
+      const response = json(
+        {
+          signedOut: true,
+          logoutUrl: await browserOidcAdapter.createLogoutUrl(returnTo),
+        },
+        200,
+        requestId,
+        origin,
+      );
+      response.headers.append(
+        "set-cookie",
+        clearHostCookie(BROWSER_SESSION_COOKIE),
+      );
+      return response;
     }
     if (request.method === "GET" && url.pathname === "/v1/me") {
       return json({ account }, 200, requestId, origin);
@@ -6294,16 +7199,27 @@ async function handleRequest(
         code: failure.code,
       }),
     );
-    return json(
+    const response = json(
       { error: { code: failure.code, message: failure.message, requestId } },
       failure.status,
       requestId,
       origin,
     );
+    if (
+      failure.code === "session_expired" &&
+      readCookie(request, BROWSER_SESSION_COOKIE)
+    ) {
+      response.headers.append(
+        "set-cookie",
+        clearHostCookie(BROWSER_SESSION_COOKIE),
+      );
+    }
+    return response;
   }
 }
 
 export {
+  BrowserOidcAdapter,
   D1Project42Repository,
   GithubIdentityLinkAdapter,
   OidcJwtVerifier,
