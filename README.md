@@ -24,6 +24,8 @@ contracts—not the private PMO records or Project42dev production configuration
 - Versioned learning commands, immutable retry-safe events, deterministic
   progress/transcript/badge projection, and a shared D1/PostgreSQL storage
   conformance harness.
+- Cryptographically verified learner-record exports, pseudonymous idempotent
+  deletion receipts, and backup deletion-replay evidence.
 - Portable JSON learner-record backup/restore, CSV transcripts, capstone evidence,
   and badge derivation.
 - A versioned learner-data lifecycle policy covering consent, retention, recovery,
@@ -47,6 +49,14 @@ contracts—not the private PMO records or Project42dev production configuration
   least-privilege drift detection, overlapping rotation, recovery, disablement,
   and retirement.
 - Seed content suitable for a hosted site or self-hosted installation.
+
+Release `0.57.0` completes the PostgreSQL learning-record adapter receipt boundary.
+Verified exports bind the exact event stream, revision, and learner scope;
+idempotent deletion writes a durable pseudonymous receipt before removing events;
+and backup replay records the restored event digest and deletion outcome without
+retaining raw learner or installation identifiers. A public receipt conformance
+suite now runs alongside the learning-event suite on Cloudflare D1 and
+PostgreSQL 17.
 
 Release `0.56.0` adds the authoritative learner-event contract and shared hosted
 and self-hosted storage conformance suite. Caller-generated idempotency keys

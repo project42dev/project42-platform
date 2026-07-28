@@ -85,6 +85,18 @@ export {
 } from "./learning-event-engine.js";
 export { SqlLearningEventStore } from "./sql-learning-event-store.js";
 export { runLearningEventStoreConformance } from "./learning-event-conformance.js";
+export { runLearningRecordReceiptConformance } from "./learning-record-receipt-conformance.js";
+export {
+  createLearningRecordDeletionReceipt,
+  createLearningRecordDeletionReplay,
+  createVerifiedLearningRecordExport,
+  digestLearningEvents,
+  digestLearningRecordScope,
+  LEARNING_RECORD_RECEIPT_VERSION,
+  verifyLearningRecordDeletionReceipt,
+  verifyLearningRecordDeletionReplay,
+  verifyLearningRecordExport,
+} from "./learning-record-receipts.js";
 export {
   LEARNER_ACCOUNT_STATES,
   LEARNER_DATA_PERMISSIONS,
@@ -171,6 +183,18 @@ export type {
   LearningEventConformanceReport,
   LearningEventConformanceScope,
 } from "./learning-event-conformance.js";
+export type {
+  LearningRecordReceiptConformanceReport,
+  LearningRecordReceiptConformanceScope,
+} from "./learning-record-receipt-conformance.js";
+export type {
+  LearningRecordDeletionReceipt,
+  LearningRecordDeletionReplay,
+  LearningRecordExportReceipt,
+  LearningRecordReceiptValidation,
+  LearningRecordReceiptStore,
+  VerifiedLearningRecordExport,
+} from "./learning-record-receipts.js";
 export type {
   ConsentPurpose,
   LearnerAccountState,

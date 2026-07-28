@@ -10,6 +10,12 @@ import {
   validateLearningCommand,
   validateLearningEvent,
 } from "./learning-events.js";
+import type {
+  LearningRecordDeletionReceipt,
+  LearningRecordDeletionReplay,
+  LearningRecordReceiptStore,
+  VerifiedLearningRecordExport,
+} from "./learning-record-receipts.js";
 
 export const LEARNING_EVENT_PERMISSIONS = [
   "learning:write:self",
@@ -146,7 +152,8 @@ export class LearningEventEngineError extends Error {
       | "duplicate-correction-id"
       | "projection-conflict"
       | "concurrency-conflict"
-      | "clock-invalid",
+      | "clock-invalid"
+      | "adapter-unsupported",
     message: string,
   ) {
     super(message);
@@ -334,6 +341,54 @@ export class LearningEventEngine {
     return this.store.delete(installationId, learnerId);
   }
 
+  async exportVerified(
+    installationId: string,
+    learnerId: string,
+    access: LearningEventAccess,
+    exportedAt = this.#now(),
+  ): Promise<VerifiedLearningRecordExport> {
+    assertCanRead(installationId, learnerId, access);
+    return requireReceiptStore(this.store).exportVerified(
+      installationId,
+      learnerId,
+      exportedAt,
+    );
+  }
+
+  async deleteVerified(
+    installationId: string,
+    learnerId: string,
+    operationKey: string,
+    access: LearningEventAccess,
+    deletedAt = this.#now(),
+  ): Promise<LearningRecordDeletionReceipt> {
+    assertCanDelete(installationId, learnerId, access);
+    return requireReceiptStore(this.store).deleteVerified(
+      installationId,
+      learnerId,
+      operationKey,
+      deletedAt,
+    );
+  }
+
+  async replayDeletion(
+    installationId: string,
+    learnerId: string,
+    deletionReceipt: LearningRecordDeletionReceipt,
+    restoreId: string,
+    access: LearningEventAccess,
+    replayedAt = this.#now(),
+  ): Promise<LearningRecordDeletionReplay> {
+    assertCanDelete(installationId, learnerId, access);
+    return requireReceiptStore(this.store).replayDeletion(
+      installationId,
+      learnerId,
+      deletionReceipt,
+      restoreId,
+      replayedAt,
+    );
+  }
+
   async appendWithProjectionGuard(
     candidate: LearningEventCandidate,
     installationId: string,
@@ -376,6 +431,25 @@ export class LearningEventEngine {
       "The learner event stream changed repeatedly; retry the command.",
     );
   }
+}
+
+function requireReceiptStore(
+  store: LearningEventStore,
+): LearningEventStore & LearningRecordReceiptStore {
+  if (
+    !("exportVerified" in store) ||
+    typeof store.exportVerified !== "function" ||
+    !("deleteVerified" in store) ||
+    typeof store.deleteVerified !== "function" ||
+    !("replayDeletion" in store) ||
+    typeof store.replayDeletion !== "function"
+  ) {
+    throw new LearningEventEngineError(
+      "adapter-unsupported",
+      "The configured learning-event adapter does not support verified receipts.",
+    );
+  }
+  return store as LearningEventStore & LearningRecordReceiptStore;
 }
 
 export function projectLearningEvents(

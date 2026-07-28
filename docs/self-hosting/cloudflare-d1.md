@@ -74,6 +74,11 @@ updates to committed event rows. Backups and restoration tests must include both
 `learning_event_streams` and `learning_events`; a projection can then be rebuilt
 from the restored event sequence.
 
+Migration `0009_learning_record_receipts.sql` adds immutable pseudonymous deletion
+receipts and restore-specific deletion-replay evidence. Retain deletion receipts
+in a protected post-backup ledger so a restore created before a deletion cannot
+silently reactivate the deleted learning record.
+
 Run migrations against a separately provisioned remote D1 database only after
 placing its ID in private deployment configuration:
 

@@ -68,6 +68,9 @@ isolated, pre-created installation and learner. The public harness proves:
 The harness removes only the learning-event stream in the supplied scope. It does
 not delete the installation or learner.
 
+Verified export, governed deletion, and post-backup replay are defined separately
+in [learning-record receipts](learning-record-receipts.md).
+
 JSON Schema:
 
 `schemas/learning/learning-event-contract.schema.json`

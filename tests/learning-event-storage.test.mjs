@@ -4,6 +4,7 @@ import test from "node:test";
 import { Miniflare } from "miniflare";
 import {
   runLearningEventStoreConformance,
+  runLearningRecordReceiptConformance,
   SqlLearningEventStore,
 } from "../dist/index.js";
 
@@ -83,4 +84,44 @@ test("D1 satisfies the published authoritative learning-event contract", async (
     "lossless-export",
     "governed-deletion",
   ]);
+
+  const receiptReport = await runLearningRecordReceiptConformance(
+    new SqlLearningEventStore(database),
+    {
+      installationId: "d1-conformance",
+      learnerId: "d1-learner",
+      keyPrefix: "d1-receipt-contract",
+    },
+  );
+  assert.equal(receiptReport.exportedEventCount, 2);
+  assert.equal(receiptReport.deletedEventCount, 2);
+  assert.equal(receiptReport.replayedEventCount, 2);
+  const deletionRows = await database
+    .prepare(
+      "SELECT scope_digest, operation_key FROM learning_record_deletion_receipts",
+    )
+    .all();
+  assert.equal(deletionRows.results.length, 1);
+  assert.match(deletionRows.results[0].scope_digest, /^[a-f0-9]{64}$/);
+  assert.equal(
+    JSON.stringify(deletionRows.results).includes("d1-learner"),
+    false,
+  );
+  assert.equal(
+    (
+      await database
+        .prepare("SELECT COUNT(*) AS count FROM learning_record_deletion_replays")
+        .first()
+    ).count,
+    1,
+  );
+  await assert.rejects(
+    () =>
+      database
+        .prepare(
+          "UPDATE learning_record_deletion_receipts SET event_count = 0",
+        )
+        .run(),
+    /learning record deletion receipts are immutable/,
+  );
 });

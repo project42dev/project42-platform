@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-42.dev/schemas/learning/learning-record-receipt.schema.json",
+  "title": "Project 42 learning-record receipt",
+  "oneOf": [
+    { "$ref": "#/$defs/exportReceipt" },
+    { "$ref": "#/$defs/deletionReceipt" },
+    { "$ref": "#/$defs/deletionReplay" }
+  ],
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{2,127}$"
+    },
+    "operationKey": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{15,127}$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "exportReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "receiptType",
+        "id",
+        "scopeDigest",
+        "sourceRevision",
+        "eventCount",
+        "eventDigest",
+        "exportedAt",
+        "receiptDigest"
+      ],
+      "properties": {
+        "schemaVersion": { "const": "1.0" },
+        "receiptType": { "const": "learning-record.exported" },
+        "id": { "$ref": "#/$defs/identifier" },
+        "scopeDigest": { "$ref": "#/$defs/digest" },
+        "sourceRevision": { "$ref": "#/$defs/count" },
+        "eventCount": { "$ref": "#/$defs/count" },
+        "eventDigest": { "$ref": "#/$defs/digest" },
+        "exportedAt": { "$ref": "#/$defs/timestamp" },
+        "receiptDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "deletionReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "receiptType",
+        "id",
+        "operationKey",
+        "scopeDigest",
+        "sourceRevision",
+        "eventCount",
+        "eventDigest",
+        "deletedAt",
+        "receiptDigest"
+      ],
+      "properties": {
+        "schemaVersion": { "const": "1.0" },
+        "receiptType": { "const": "learning-record.deleted" },
+        "id": { "$ref": "#/$defs/identifier" },
+        "operationKey": { "$ref": "#/$defs/operationKey" },
+        "scopeDigest": { "$ref": "#/$defs/digest" },
+        "sourceRevision": { "$ref": "#/$defs/count" },
+        "eventCount": { "$ref": "#/$defs/count" },
+        "eventDigest": { "$ref": "#/$defs/digest" },
+        "deletedAt": { "$ref": "#/$defs/timestamp" },
+        "receiptDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "deletionReplay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "receiptType",
+        "id",
+        "deletionReceiptId",
+        "restoreId",
+        "scopeDigest",
+        "preReplayRevision",
+        "preReplayEventCount",
+        "preReplayEventDigest",
+        "deletedEventCount",
+        "replayedAt",
+        "receiptDigest"
+      ],
+      "properties": {
+        "schemaVersion": { "const": "1.0" },
+        "receiptType": {
+          "const": "learning-record.deletion-replayed"
+        },
+        "id": { "$ref": "#/$defs/identifier" },
+        "deletionReceiptId": { "$ref": "#/$defs/identifier" },
+        "restoreId": { "$ref": "#/$defs/identifier" },
+        "scopeDigest": { "$ref": "#/$defs/digest" },
+        "preReplayRevision": { "$ref": "#/$defs/count" },
+        "preReplayEventCount": { "$ref": "#/$defs/count" },
+        "preReplayEventDigest": { "$ref": "#/$defs/digest" },
+        "deletedEventCount": { "$ref": "#/$defs/count" },
+        "replayedAt": { "$ref": "#/$defs/timestamp" },
+        "receiptDigest": { "$ref": "#/$defs/digest" }
+      }
+    }
+  }
+}
