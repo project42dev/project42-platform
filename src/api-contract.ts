@@ -68,6 +68,96 @@ export interface GithubIdentityLinkCompletionRequest {
   codeVerifier: string;
 }
 
+export type AccountMergeProofMethod =
+  | "recent-authentication"
+  | "owner-assisted-recovery";
+
+export interface AccountMergeProof {
+  token: string;
+  userId: string;
+  method: AccountMergeProofMethod;
+  expiresAt: string;
+}
+
+export interface OwnerRecoveryProofRequest {
+  userId: string;
+  methods: Array<
+    | "identity-provider-recovery"
+    | "support-video-verification"
+    | "signed-owner-attestation"
+    | "legacy-account-evidence"
+  >;
+  referenceId: string;
+  summary: string;
+}
+
+export interface AccountMergePreviewRequest {
+  sourceUserId: string;
+  survivorUserId: string;
+  sourceProofToken: string;
+  survivorProofToken: string;
+  idempotencyKey: string;
+}
+
+export type AccountMergeResolutionChoice = "source" | "survivor";
+
+export interface AccountMergeConflict {
+  key: string;
+  field:
+    | "displayName"
+    | "primaryEmail"
+    | "bio"
+    | "organization"
+    | "location"
+    | "websiteUrl"
+    | "photo"
+    | "ownerRole"
+    | "assessmentAttempt";
+  sourcePresent: boolean;
+  survivorPresent: boolean;
+  required: boolean;
+  description: string;
+}
+
+export interface AccountMergePreview {
+  id: string;
+  status: "preview" | "completed" | "rolled-back";
+  sourceUserId: string;
+  survivorUserId: string;
+  sourceDisplayName: string | null;
+  survivorDisplayName: string | null;
+  sourcePrimaryEmail: string | null;
+  survivorPrimaryEmail: string | null;
+  proofMethods: {
+    source: AccountMergeProofMethod;
+    survivor: AccountMergeProofMethod;
+  };
+  conflicts: AccountMergeConflict[];
+  recordCounts: Record<string, { source: number; survivor: number }>;
+  expiresAt: string;
+}
+
+export interface CompleteAccountMergeRequest {
+  confirmation: string;
+  idempotencyKey: string;
+  resolutions: Record<string, AccountMergeResolutionChoice>;
+}
+
+export interface AccountMergeReceipt {
+  id: string;
+  mergeCaseId: string;
+  receiptDigest: string;
+  snapshotDigest: string;
+  mergedAt: string;
+  recordCounts: Record<string, number>;
+  status: "completed" | "rolled-back";
+}
+
+export interface RollbackAccountMergeRequest {
+  confirmation: string;
+  reason: string;
+}
+
 export interface LearnerProfile {
   userId: string;
   displayName: string | null;

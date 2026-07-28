@@ -58,6 +58,12 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
       "user_identities",
       "identity_link_transactions",
       "deleted_identity_tombstones",
+      "account_merge_proofs",
+      "account_merge_cases",
+      "account_merge_snapshot_rows",
+      "account_merge_aliases",
+      "account_merge_receipts",
+      "account_merge_recovery_receipts",
       "learning_progress",
       "assessment_attempts",
       "transcript_entries",
@@ -184,6 +190,27 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
       1,
     );
     assert.match(secondPrimary, /UNIQUE constraint failed/);
+
+    runWrangler([
+      "d1",
+      "execute",
+      "PROJECT42_DB",
+      ...common,
+      "--command",
+      "INSERT INTO account_merge_proofs (id,installation_id,user_id,proof_method,token_digest,evidence_json,status,created_by_user_id,created_at,expires_at,consumed_at,request_id) VALUES ('proof-1','test','u1','recent-authentication','digest-1','{}','available','u1','2026-07-27','2026-07-28',NULL,'request-1'); INSERT INTO account_merge_cases (id,installation_id,source_user_id,survivor_user_id,source_proof_id,survivor_proof_id,created_by_user_id,status,preview_json,preview_digest,resolutions_json,snapshot_digest,idempotency_key,request_id,created_at,expires_at,completed_at,rolled_back_at) VALUES ('merge-1','test','u1',NULL,'proof-1',NULL,'u1','completed','{\"conflicts\":[],\"recordCounts\":{},\"proofMethods\":{\"source\":\"recent-authentication\",\"survivor\":\"recent-authentication\"}}','preview-digest','{}','snapshot-digest','merge-idempotency-1','request-1','2026-07-27','2026-07-28','2026-07-27',NULL); INSERT INTO account_merge_receipts (id,installation_id,merge_case_id,receipt_json,receipt_digest,created_at) VALUES ('receipt-1','test','merge-1','{}','receipt-digest','2026-07-27');",
+    ]);
+    const mutableMergeReceipt = runWrangler(
+      [
+        "d1",
+        "execute",
+        "PROJECT42_DB",
+        ...common,
+        "--command",
+        "UPDATE account_merge_receipts SET receipt_digest='changed' WHERE id='receipt-1';",
+      ],
+      1,
+    );
+    assert.match(mutableMergeReceipt, /account merge receipts are immutable/);
 
     runWrangler([
       "d1",

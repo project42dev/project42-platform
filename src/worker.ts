@@ -2,6 +2,7 @@ import { createRemoteJWKSet, errors as joseErrors, jwtVerify } from "jose";
 import {
   buildTranscript,
   createEmptyProgress,
+  mergeLearnerProgress,
   starterCatalog,
   type LearnerProgress,
 } from "./index.js";
@@ -16,6 +17,14 @@ import {
 } from "./identity.js";
 import type {
   Account,
+  AccountMergeConflict,
+  AccountMergePreview,
+  AccountMergePreviewRequest,
+  AccountMergeProof,
+  AccountMergeProofMethod,
+  AccountMergeReceipt,
+  AccountMergeResolutionChoice,
+  CompleteAccountMergeRequest,
   AuditEvent,
   ConsentDecision,
   ConsentRecord,
@@ -31,9 +40,11 @@ import type {
   LearnerDataExport,
   LinkedIdentity,
   LinkedIdentityStatus,
+  OwnerRecoveryProofRequest,
   ProgressEnvelope,
   ProgressImportRequest,
   Project42Role,
+  RollbackAccountMergeRequest,
   UpdateLearnerProfileRequest,
 } from "./api-contract.js";
 
@@ -71,6 +82,7 @@ interface LinkedIdentityRow {
   last_verified_at: string;
   last_seen_at: string;
   unlinked_at: string | null;
+  merge_source: number;
 }
 
 interface IdentityLinkTransactionRow {
@@ -150,6 +162,78 @@ interface DeletionRequestRow {
   cancellation_deadline: string;
   completed_at: string | null;
 }
+
+interface AccountMergeProofRow {
+  id: string;
+  user_id: string | null;
+  proof_method: AccountMergeProofMethod;
+  token_digest: string;
+  evidence_json: string | Record<string, unknown>;
+  status: "available" | "consumed" | "expired" | "cancelled";
+  created_at: string;
+  expires_at: string;
+  consumed_at: string | null;
+}
+
+interface AccountMergeCaseRow {
+  id: string;
+  source_user_id: string | null;
+  survivor_user_id: string | null;
+  source_proof_id: string | null;
+  survivor_proof_id: string | null;
+  status: "preview" | "completed" | "rolled-back" | "cancelled" | "failed";
+  preview_json: string | {
+    conflicts: AccountMergeConflict[];
+    recordCounts: Record<string, { source: number; survivor: number }>;
+    proofMethods: {
+      source: AccountMergeProofMethod;
+      survivor: AccountMergeProofMethod;
+    };
+  };
+  preview_digest: string;
+  resolutions_json: string | Record<string, AccountMergeResolutionChoice> | null;
+  snapshot_digest: string | null;
+  idempotency_key: string;
+  created_at: string;
+  expires_at: string;
+  completed_at: string | null;
+  rolled_back_at: string | null;
+}
+
+interface AccountMergeSnapshotRow {
+  table_name: string;
+  row_key: string;
+  row_json: string | Record<string, unknown>;
+  row_digest: string;
+}
+
+interface MergeSnapshotEntry {
+  tableName: string;
+  rowKey: string;
+  row: Record<string, unknown>;
+  rowDigest: string;
+}
+
+interface MergeSnapshot {
+  entries: MergeSnapshotEntry[];
+  digest: string;
+  recordCounts: Record<string, { source: number; survivor: number }>;
+}
+
+const ACCOUNT_MERGE_SNAPSHOT_TABLES = [
+  "users",
+  "role_assignments",
+  "user_profiles",
+  "user_identities",
+  "learning_progress",
+  "module_progress",
+  "assessment_attempts",
+  "transcript_entries",
+  "user_badges",
+  "progress_imports",
+  "consent_records",
+  "deletion_requests",
+] as const;
 
 class ApiFailure extends Error {
   constructor(
@@ -350,8 +434,12 @@ class D1Project42Repository {
                 u.primary_email, u.email_verified, u.account_state, u.created_at,
                 u.updated_at, r.roles
            FROM user_identities i
+           LEFT JOIN account_merge_aliases m
+             ON m.installation_id = i.installation_id
+            AND m.source_user_id = i.user_id
            JOIN users u
-             ON u.installation_id = i.installation_id AND u.id = i.user_id
+             ON u.installation_id = i.installation_id
+            AND u.id = COALESCE(m.survivor_user_id, i.user_id)
            LEFT JOIN (
              SELECT installation_id, user_id, GROUP_CONCAT(role) AS roles
                FROM role_assignments
@@ -375,25 +463,21 @@ class D1Project42Repository {
     const existing = await this.findAccount(identity);
     if (existing) {
       const provider = normalizeProviderId(identity.provider ?? "oidc");
-      await this.db.batch([
-        this.db
-          .prepare(
-            `UPDATE users
-                SET display_name = COALESCE(?, display_name),
-                    primary_email = CASE WHEN ? = 1 THEN ? ELSE primary_email END,
-                    email_verified = CASE WHEN ? = 1 THEN 1 ELSE email_verified END,
-                    updated_at = ?
-              WHERE installation_id = ? AND id = ?`,
-          )
-          .bind(
-            identity.displayName,
-            identity.emailVerified ? 1 : 0,
-            identity.email,
-            identity.emailVerified ? 1 : 0,
-            now,
-            this.installationId,
-            existing.id,
-          ),
+      const identityOwner = await this.db
+        .prepare(
+          `SELECT user_id
+             FROM user_identities
+            WHERE installation_id = ? AND provider = ?
+              AND issuer = ? AND subject = ? AND status = 'active'`,
+        )
+        .bind(
+          this.installationId,
+          provider,
+          identity.issuer,
+          identity.subject,
+        )
+        .first<{ user_id: string }>();
+      const statements = [
         this.db
           .prepare(
             `UPDATE user_identities
@@ -409,7 +493,30 @@ class D1Project42Repository {
             identity.issuer,
             identity.subject,
           ),
-      ]);
+      ];
+      if (identityOwner?.user_id === existing.id) {
+        statements.unshift(
+          this.db
+            .prepare(
+              `UPDATE users
+                  SET display_name = COALESCE(?, display_name),
+                      primary_email = CASE WHEN ? = 1 THEN ? ELSE primary_email END,
+                      email_verified = CASE WHEN ? = 1 THEN 1 ELSE email_verified END,
+                      updated_at = ?
+                WHERE installation_id = ? AND id = ?`,
+            )
+            .bind(
+              identity.displayName,
+              identity.emailVerified ? 1 : 0,
+              identity.email,
+              identity.emailVerified ? 1 : 0,
+              now,
+              this.installationId,
+              existing.id,
+            ),
+        );
+      }
+      await this.db.batch(statements);
       return (await this.findAccount(identity)) ?? existing;
     }
 
@@ -559,6 +666,12 @@ class D1Project42Repository {
          ) r
            ON r.installation_id = u.installation_id AND r.user_id = u.id
         WHERE u.installation_id = ? ${condition}
+          AND NOT EXISTS (
+            SELECT 1
+              FROM account_merge_aliases m
+             WHERE m.installation_id = u.installation_id
+               AND m.source_user_id = u.id
+          )
         ORDER BY u.created_at ASC
         LIMIT 500`,
     );
@@ -568,6 +681,1032 @@ class D1Project42Repository {
     return result.results.map(mapAccount);
   }
 
+  async getAccountById(userId: string): Promise<Account | null> {
+    const row = await this.db
+      .prepare(
+        `SELECT u.id, u.installation_id, i.provider, i.issuer, i.subject,
+                u.display_name, u.primary_email, u.email_verified,
+                u.account_state, u.created_at, u.updated_at, r.roles
+           FROM users u
+           JOIN user_identities i
+             ON i.installation_id = u.installation_id AND i.user_id = u.id
+            AND i.status = 'active' AND i.is_primary = 1
+           LEFT JOIN (
+             SELECT installation_id, user_id, GROUP_CONCAT(role) AS roles
+               FROM role_assignments
+              GROUP BY installation_id, user_id
+           ) r
+             ON r.installation_id = u.installation_id AND r.user_id = u.id
+          WHERE u.installation_id = ? AND u.id = ?
+          LIMIT 1`,
+      )
+      .bind(this.installationId, userId)
+      .first<AccountRow>();
+    return row ? mapAccount(row) : null;
+  }
+
+  async createRecentAccountMergeProof(input: {
+    account: Account;
+    requestId: string;
+    now: string;
+  }): Promise<AccountMergeProof> {
+    return this.createAccountMergeProof({
+      actor: input.account,
+      targetUserId: input.account.id,
+      method: "recent-authentication",
+      evidence: { kind: "recent-authenticated-session" },
+      requestId: input.requestId,
+      now: input.now,
+    });
+  }
+
+  async createOwnerRecoveryProof(input: {
+    actor: Account;
+    request: OwnerRecoveryProofRequest;
+    requestId: string;
+    now: string;
+  }): Promise<AccountMergeProof> {
+    const target = await this.getAccountById(input.request.userId);
+    if (!target) {
+      throw new ApiFailure(
+        404,
+        "account_not_found",
+        "The recovery account was not found.",
+      );
+    }
+    if (target.state === "revoked") {
+      throw new ApiFailure(
+        409,
+        "revoked_account_cannot_merge",
+        "A revoked account cannot enter account recovery.",
+      );
+    }
+    return this.createAccountMergeProof({
+      actor: input.actor,
+      targetUserId: target.id,
+      method: "owner-assisted-recovery",
+      evidence: {
+        methods: input.request.methods,
+        referenceId: input.request.referenceId,
+        summary: input.request.summary,
+      },
+      requestId: input.requestId,
+      now: input.now,
+    });
+  }
+
+  async createAccountMergePreview(input: {
+    actor: Account;
+    request: AccountMergePreviewRequest;
+    requestId: string;
+    now: string;
+  }): Promise<AccountMergePreview> {
+    const existing = await this.db
+      .prepare(
+        `SELECT id, source_user_id, survivor_user_id, source_proof_id,
+                survivor_proof_id, status, preview_json, preview_digest,
+                resolutions_json, snapshot_digest, idempotency_key, created_at,
+                expires_at, completed_at, rolled_back_at
+           FROM account_merge_cases
+          WHERE installation_id = ? AND idempotency_key = ?`,
+      )
+      .bind(this.installationId, input.request.idempotencyKey)
+      .first<AccountMergeCaseRow>();
+    if (existing) {
+      if (
+        existing.source_user_id !== input.request.sourceUserId ||
+        existing.survivor_user_id !== input.request.survivorUserId
+      ) {
+        throw new ApiFailure(
+          409,
+          "merge_idempotency_conflict",
+          "The idempotency key is already assigned to a different merge.",
+        );
+      }
+      return this.mapAccountMergePreview(existing);
+    }
+    if (input.request.sourceUserId === input.request.survivorUserId) {
+      throw new ApiFailure(
+        400,
+        "merge_accounts_must_differ",
+        "Source and survivor accounts must be different.",
+      );
+    }
+    const [source, survivor] = await Promise.all([
+      this.getAccountById(input.request.sourceUserId),
+      this.getAccountById(input.request.survivorUserId),
+    ]);
+    if (!source || !survivor) {
+      throw new ApiFailure(
+        404,
+        "account_not_found",
+        "Both merge accounts must exist in this installation.",
+      );
+    }
+    if (source.state === "revoked" || survivor.state === "revoked") {
+      throw new ApiFailure(
+        409,
+        "revoked_account_cannot_merge",
+        "Revoked accounts cannot be merged or restored.",
+      );
+    }
+    if (
+      (source.roles.includes("owner") || survivor.roles.includes("owner")) &&
+      input.actor.id !== source.id &&
+      input.actor.id !== survivor.id
+    ) {
+      throw new ApiFailure(
+        403,
+        "owner_merge_self_control_required",
+        "A merge involving an owner requires that owner to control one of the accounts.",
+      );
+    }
+    const mergeAlias = await this.db
+      .prepare(
+        `SELECT source_user_id
+           FROM account_merge_aliases
+          WHERE installation_id = ?
+            AND (
+              source_user_id IN (?, ?) OR survivor_user_id = ?
+            )
+          LIMIT 1`,
+      )
+      .bind(
+        this.installationId,
+        source.id,
+        survivor.id,
+        source.id,
+      )
+      .first<{ source_user_id: string }>();
+    if (mergeAlias) {
+      throw new ApiFailure(
+        409,
+        "account_already_merged",
+        "Merged accounts must be rolled back before another merge.",
+      );
+    }
+    const activeDeletion = await this.db
+      .prepare(
+        `SELECT id
+           FROM deletion_requests
+          WHERE installation_id = ? AND user_id IN (?, ?)
+            AND state IN ('requested', 'processing')
+          LIMIT 1`,
+      )
+      .bind(this.installationId, source.id, survivor.id)
+      .first<{ id: string }>();
+    if (activeDeletion) {
+      throw new ApiFailure(
+        409,
+        "active_deletion_blocks_merge",
+        "Cancel or complete active deletion requests before merging accounts.",
+      );
+    }
+    const activeIdentityLink = await this.db
+      .prepare(
+        `SELECT id
+           FROM identity_link_transactions
+          WHERE installation_id = ? AND user_id IN (?, ?)
+            AND status IN ('pending', 'processing')
+          LIMIT 1`,
+      )
+      .bind(this.installationId, source.id, survivor.id)
+      .first<{ id: string }>();
+    if (activeIdentityLink) {
+      throw new ApiFailure(
+        409,
+        "active_identity_link_blocks_merge",
+        "Finish or cancel active identity-link requests before merging accounts.",
+      );
+    }
+    const [sourceProof, survivorProof] = await Promise.all([
+      this.requireAvailableMergeProof(
+        input.request.sourceProofToken,
+        source.id,
+        input.now,
+      ),
+      this.requireAvailableMergeProof(
+        input.request.survivorProofToken,
+        survivor.id,
+        input.now,
+      ),
+    ]);
+    if (sourceProof.id === survivorProof.id) {
+      throw new ApiFailure(
+        400,
+        "distinct_merge_proofs_required",
+        "Each account requires its own recovery proof.",
+      );
+    }
+    const snapshot = await this.captureMergeSnapshot(source.id, survivor.id);
+    const conflicts = await buildAccountMergeConflicts(
+      snapshot,
+      source.id,
+      survivor.id,
+    );
+    const id = crypto.randomUUID();
+    const expiresAt = new Date(
+      Date.parse(input.now) + 30 * 60 * 1_000,
+    ).toISOString();
+    const previewRecord = {
+      conflicts,
+      recordCounts: snapshot.recordCounts,
+      proofMethods: {
+        source: sourceProof.proof_method,
+        survivor: survivorProof.proof_method,
+      },
+    };
+    await this.db.batch([
+      this.db
+        .prepare(
+          `UPDATE account_merge_cases
+              SET status = 'cancelled'
+            WHERE installation_id = ? AND source_user_id = ?
+              AND status = 'preview' AND id <> ?`,
+        )
+        .bind(this.installationId, source.id, id),
+      this.db
+        .prepare(
+          `INSERT INTO account_merge_cases (
+             id, installation_id, source_user_id, survivor_user_id,
+             source_proof_id, survivor_proof_id, created_by_user_id, status,
+             preview_json, preview_digest, resolutions_json, snapshot_digest,
+             idempotency_key, request_id, created_at, expires_at, completed_at,
+             rolled_back_at
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, 'preview', ?, ?, NULL, NULL, ?, ?,
+                     ?, ?, NULL, NULL)`,
+        )
+        .bind(
+          id,
+          this.installationId,
+          source.id,
+          survivor.id,
+          sourceProof.id,
+          survivorProof.id,
+          input.actor.id,
+          JSON.stringify(previewRecord),
+          snapshot.digest,
+          input.request.idempotencyKey,
+          input.requestId,
+          input.now,
+          expiresAt,
+        ),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.actor.identity,
+        actorUserId: input.actor.id,
+        action: "account.merge.preview",
+        targetType: "account_merge_case",
+        targetId: id,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: "Owner reviewed a proof-bound duplicate-account merge preview.",
+        metadata: {
+          sourceProofMethod: sourceProof.proof_method,
+          survivorProofMethod: survivorProof.proof_method,
+          conflictCount: conflicts.length,
+          snapshotDigest: snapshot.digest,
+        },
+        now: input.now,
+      }),
+    ]);
+    return this.mapAccountMergePreview({
+      id,
+      source_user_id: source.id,
+      survivor_user_id: survivor.id,
+      source_proof_id: sourceProof.id,
+      survivor_proof_id: survivorProof.id,
+      status: "preview",
+      preview_json: previewRecord,
+      preview_digest: snapshot.digest,
+      resolutions_json: null,
+      snapshot_digest: null,
+      idempotency_key: input.request.idempotencyKey,
+      created_at: input.now,
+      expires_at: expiresAt,
+      completed_at: null,
+      rolled_back_at: null,
+    });
+  }
+
+  async getAccountMergePreview(mergeCaseId: string): Promise<AccountMergePreview> {
+    const mergeCase = await this.getAccountMergeCase(mergeCaseId);
+    if (!mergeCase) {
+      throw new ApiFailure(
+        404,
+        "account_merge_not_found",
+        "The account merge was not found.",
+      );
+    }
+    return this.mapAccountMergePreview(mergeCase);
+  }
+
+  async completeAccountMerge(input: {
+    actor: Account;
+    mergeCaseId: string;
+    request: CompleteAccountMergeRequest;
+    requestId: string;
+    now: string;
+  }): Promise<AccountMergeReceipt> {
+    const mergeCase = await this.getAccountMergeCase(input.mergeCaseId);
+    if (!mergeCase) {
+      throw new ApiFailure(
+        404,
+        "account_merge_not_found",
+        "The account merge was not found.",
+      );
+    }
+    if (mergeCase.idempotency_key !== input.request.idempotencyKey) {
+      throw new ApiFailure(
+        409,
+        "merge_idempotency_conflict",
+        "The completion key does not match this merge preview.",
+      );
+    }
+    if (mergeCase.status === "completed") {
+      return this.getAccountMergeReceipt(mergeCase.id);
+    }
+    if (mergeCase.status !== "preview") {
+      throw new ApiFailure(
+        409,
+        "account_merge_not_completable",
+        "This account merge cannot be completed in its current state.",
+      );
+    }
+    if (
+      !mergeCase.source_user_id ||
+      !mergeCase.survivor_user_id ||
+      !mergeCase.source_proof_id ||
+      !mergeCase.survivor_proof_id
+    ) {
+      throw new ApiFailure(
+        409,
+        "account_merge_evidence_unavailable",
+        "The merge evidence is no longer available.",
+      );
+    }
+    if (Date.parse(input.now) >= Date.parse(mergeCase.expires_at)) {
+      throw new ApiFailure(
+        409,
+        "account_merge_expired",
+        "Create a new merge preview with fresh account proofs.",
+      );
+    }
+    const requiredConfirmation =
+      `MERGE ${mergeCase.source_user_id} INTO ${mergeCase.survivor_user_id}`;
+    if (input.request.confirmation !== requiredConfirmation) {
+      throw new ApiFailure(
+        400,
+        "account_merge_confirmation_required",
+        "Enter the exact source-to-survivor merge confirmation.",
+      );
+    }
+    const previewData = parseMergePreviewRecord(mergeCase.preview_json);
+    validateMergeResolutions(previewData.conflicts, input.request.resolutions);
+    const proofResult = await this.db
+      .prepare(
+        `SELECT id, user_id, proof_method, token_digest, evidence_json, status,
+                created_at, expires_at, consumed_at
+           FROM account_merge_proofs
+          WHERE installation_id = ? AND id IN (?, ?)
+          ORDER BY id`,
+      )
+      .bind(
+        this.installationId,
+        mergeCase.source_proof_id,
+        mergeCase.survivor_proof_id,
+      )
+      .all<AccountMergeProofRow>();
+    const proofs = new Map(proofResult.results.map((proof) => [proof.id, proof]));
+    const sourceProof = proofs.get(mergeCase.source_proof_id);
+    const survivorProof = proofs.get(mergeCase.survivor_proof_id);
+    if (
+      !sourceProof ||
+      !survivorProof ||
+      sourceProof.user_id !== mergeCase.source_user_id ||
+      survivorProof.user_id !== mergeCase.survivor_user_id ||
+      sourceProof.status !== "available" ||
+      survivorProof.status !== "available" ||
+      Date.parse(input.now) >= Date.parse(sourceProof.expires_at) ||
+      Date.parse(input.now) >= Date.parse(survivorProof.expires_at)
+    ) {
+      throw new ApiFailure(
+        409,
+        "account_merge_proof_unavailable",
+        "Both account proofs must be unused and unexpired.",
+      );
+    }
+    const snapshot = await this.captureMergeSnapshot(
+      mergeCase.source_user_id,
+      mergeCase.survivor_user_id,
+    );
+    if (snapshot.digest !== mergeCase.preview_digest) {
+      throw new ApiFailure(
+        409,
+        "account_merge_preview_stale",
+        "Account data changed after preview. Create and review a new merge.",
+      );
+    }
+    const rows = (tableName: string, userId: string) =>
+      snapshot.entries
+        .filter(
+          (entry) =>
+            entry.tableName === tableName &&
+            mergeRowUserId(entry.tableName, entry.row) === userId,
+        )
+        .map((entry) => entry.row);
+    const sourceUser = rows("users", mergeCase.source_user_id)[0];
+    const survivorUser = rows("users", mergeCase.survivor_user_id)[0];
+    if (!sourceUser || !survivorUser) {
+      throw new ApiFailure(
+        409,
+        "account_merge_preview_stale",
+        "Both accounts must still exist at completion time.",
+      );
+    }
+    const sourceProfile = rows("user_profiles", mergeCase.source_user_id)[0];
+    const survivorProfile = rows("user_profiles", mergeCase.survivor_user_id)[0];
+    const selectedDisplayName = selectMergeValue(
+      "account.displayName",
+      sourceUser.display_name,
+      survivorUser.display_name,
+      input.request.resolutions,
+    );
+    const selectedEmail = selectMergeValue(
+      "account.primaryEmail",
+      sourceUser.primary_email,
+      survivorUser.primary_email,
+      input.request.resolutions,
+    );
+    const selectedEmailVerified =
+      selectedEmail === sourceUser.primary_email &&
+      selectedEmail === survivorUser.primary_email
+        ? Math.max(
+            Number(sourceUser.email_verified ?? 0),
+            Number(survivorUser.email_verified ?? 0),
+          )
+        : selectedEmail === sourceUser.primary_email
+          ? Number(sourceUser.email_verified ?? 0)
+          : Number(survivorUser.email_verified ?? 0);
+    const profileFields = [
+      ["profile.bio", "bio"],
+      ["profile.organization", "organization"],
+      ["profile.location", "location"],
+      ["profile.websiteUrl", "website_url"],
+    ] as const;
+    const selectedProfile: Record<string, unknown> = {};
+    for (const [conflictKey, column] of profileFields) {
+      selectedProfile[column] = selectMergeValue(
+        conflictKey,
+        sourceProfile?.[column] ?? null,
+        survivorProfile?.[column] ?? null,
+        input.request.resolutions,
+      );
+    }
+    const photoChoice =
+      input.request.resolutions["profile.photo"] ??
+      (survivorProfile?.photo_object_key ? "survivor" : "source");
+    const photoProfile =
+      photoChoice === "source" ? sourceProfile : survivorProfile;
+    for (const column of [
+      "photo_object_key",
+      "photo_content_type",
+      "photo_byte_length",
+      "photo_etag",
+      "photo_updated_at",
+    ]) {
+      selectedProfile[column] = photoProfile?.[column] ?? null;
+    }
+    const sourceRoles = new Set(
+      rows("role_assignments", mergeCase.source_user_id).map((row) =>
+        String(row.role),
+      ),
+    );
+    const survivorRoles = new Set(
+      rows("role_assignments", mergeCase.survivor_user_id).map((row) =>
+        String(row.role),
+      ),
+    );
+    const finalRoles = new Set<string>(["learner"]);
+    const ownerChoice = input.request.resolutions["roles.owner"];
+    const selectedOwner =
+      sourceRoles.has("owner") === survivorRoles.has("owner")
+        ? sourceRoles.has("owner")
+        : ownerChoice === "source"
+          ? sourceRoles.has("owner")
+          : survivorRoles.has("owner");
+    if (selectedOwner) finalRoles.add("owner");
+    if (!selectedOwner && (sourceRoles.has("owner") || survivorRoles.has("owner"))) {
+      const otherOwner = await this.db
+        .prepare(
+          `SELECT user_id
+             FROM role_assignments
+            WHERE installation_id = ? AND role = 'owner'
+              AND user_id NOT IN (?, ?)
+            LIMIT 1`,
+        )
+        .bind(
+          this.installationId,
+          mergeCase.source_user_id,
+          mergeCase.survivor_user_id,
+        )
+        .first<{ user_id: string }>();
+      if (!otherOwner) {
+        throw new ApiFailure(
+          409,
+          "last_owner_required",
+          "The merge cannot remove the installation's last owner.",
+        );
+      }
+    }
+    const sourceProgress = rows(
+      "learning_progress",
+      mergeCase.source_user_id,
+    )[0];
+    const survivorProgress = rows(
+      "learning_progress",
+      mergeCase.survivor_user_id,
+    )[0];
+    const sourceProgressValue = sourceProgress
+      ? parseJsonRecord<LearnerProgress>(sourceProgress.progress_json)
+      : createEmptyProgress(String(sourceUser.display_name ?? "Explorer"));
+    const survivorProgressValue = survivorProgress
+      ? parseJsonRecord<LearnerProgress>(survivorProgress.progress_json)
+      : createEmptyProgress(String(survivorUser.display_name ?? "Explorer"));
+    const mergedProgress = mergeLearnerProgress(
+      survivorProgressValue,
+      sourceProgressValue,
+      {
+        displayName: String(selectedDisplayName ?? "Explorer"),
+        sourceRecordPrefix: mergeCase.source_user_id,
+      },
+    );
+    mergedProgress.updatedAt = input.now;
+    const snapshotRows = await chunkMergeSnapshot(snapshot.entries);
+    const statements: D1PreparedStatement[] = snapshotRows.map((snapshotRow) =>
+      this.db
+        .prepare(
+          `INSERT INTO account_merge_snapshot_rows (
+             merge_case_id, table_name, row_key, row_json, row_digest, created_at
+           ) VALUES (?, ?, ?, ?, ?, ?)`,
+        )
+        .bind(
+          mergeCase.id,
+          snapshotRow.tableName,
+          snapshotRow.rowKey,
+          JSON.stringify(snapshotRow.rows),
+          snapshotRow.rowDigest,
+          input.now,
+        ),
+    );
+    statements.push(
+      this.db
+        .prepare(
+          `UPDATE users
+              SET display_name = ?, primary_email = ?, email_verified = ?,
+                  updated_at = ?
+            WHERE installation_id = ? AND id = ?`,
+        )
+        .bind(
+          selectedDisplayName,
+          selectedEmail,
+          selectedEmailVerified,
+          input.now,
+          this.installationId,
+          mergeCase.survivor_user_id,
+        ),
+      this.db
+        .prepare(
+          `INSERT INTO user_profiles (
+             installation_id, user_id, bio, organization, location, website_url,
+             photo_object_key, photo_content_type, photo_byte_length, photo_etag,
+             photo_updated_at, created_at, updated_at
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT (installation_id, user_id) DO UPDATE SET
+             bio = excluded.bio,
+             organization = excluded.organization,
+             location = excluded.location,
+             website_url = excluded.website_url,
+             photo_object_key = excluded.photo_object_key,
+             photo_content_type = excluded.photo_content_type,
+             photo_byte_length = excluded.photo_byte_length,
+             photo_etag = excluded.photo_etag,
+             photo_updated_at = excluded.photo_updated_at,
+             updated_at = excluded.updated_at`,
+        )
+        .bind(
+          this.installationId,
+          mergeCase.survivor_user_id,
+          selectedProfile.bio,
+          selectedProfile.organization,
+          selectedProfile.location,
+          selectedProfile.website_url,
+          selectedProfile.photo_object_key,
+          selectedProfile.photo_content_type,
+          selectedProfile.photo_byte_length,
+          selectedProfile.photo_etag,
+          selectedProfile.photo_updated_at,
+          String(
+            survivorProfile?.created_at ??
+              sourceProfile?.created_at ??
+              input.now,
+          ),
+          input.now,
+        ),
+      this.db
+        .prepare(
+          `DELETE FROM user_profiles
+            WHERE installation_id = ? AND user_id = ?`,
+        )
+        .bind(this.installationId, mergeCase.source_user_id),
+      this.db
+        .prepare(
+          `DELETE FROM role_assignments
+            WHERE installation_id = ? AND user_id IN (?, ?)`,
+        )
+        .bind(
+          this.installationId,
+          mergeCase.source_user_id,
+          mergeCase.survivor_user_id,
+        ),
+    );
+    for (const role of finalRoles) {
+      statements.push(
+        this.db
+          .prepare(
+            `INSERT INTO role_assignments (
+               installation_id, user_id, role, assigned_by_user_id, assigned_at
+             ) VALUES (?, ?, ?, ?, ?)`,
+          )
+          .bind(
+            this.installationId,
+            mergeCase.survivor_user_id,
+            role,
+            input.actor.id,
+            input.now,
+          ),
+      );
+    }
+    statements.push(
+      this.db
+        .prepare(
+          `INSERT INTO learning_progress (
+             installation_id, user_id, schema_version, revision, progress_json,
+             updated_at
+           ) VALUES (?, ?, 1, ?, ?, ?)
+           ON CONFLICT (installation_id, user_id) DO UPDATE SET
+             schema_version = excluded.schema_version,
+             revision = excluded.revision,
+             progress_json = excluded.progress_json,
+             updated_at = excluded.updated_at`,
+        )
+        .bind(
+          this.installationId,
+          mergeCase.survivor_user_id,
+          Math.max(
+            Number(sourceProgress?.revision ?? 0),
+            Number(survivorProgress?.revision ?? 0),
+          ) + 1,
+          JSON.stringify(mergedProgress),
+          input.now,
+        ),
+      this.db
+        .prepare(
+          `DELETE FROM learning_progress
+            WHERE installation_id = ? AND user_id = ?`,
+        )
+        .bind(this.installationId, mergeCase.source_user_id),
+    );
+    statements.push(
+      ...this.buildStructuredMergeStatements({
+        sourceUserId: mergeCase.source_user_id,
+        survivorUserId: mergeCase.survivor_user_id,
+        snapshot,
+      }),
+    );
+    const receiptId = crypto.randomUUID();
+    const totalCounts = Object.fromEntries(
+      Object.entries(snapshot.recordCounts).map(([table, counts]) => [
+        table,
+        counts.source + counts.survivor,
+      ]),
+    );
+    const receiptPayload = {
+      schemaVersion: 1,
+      mergeCaseId: mergeCase.id,
+      snapshotDigest: snapshot.digest,
+      recordCounts: totalCounts,
+      proofMethods: previewData.proofMethods,
+      conflictKeys: previewData.conflicts.map((conflict) => conflict.key),
+      mergedAt: input.now,
+    };
+    const receiptDigest = await sha256(canonicalJson(receiptPayload));
+    statements.push(
+      this.db
+        .prepare(
+          `INSERT INTO account_merge_aliases (
+             installation_id, source_user_id, survivor_user_id, merge_case_id,
+             created_at
+           ) VALUES (?, ?, ?, ?, ?)`,
+        )
+        .bind(
+          this.installationId,
+          mergeCase.source_user_id,
+          mergeCase.survivor_user_id,
+          mergeCase.id,
+          input.now,
+        ),
+      this.db
+        .prepare(
+          `UPDATE account_merge_proofs
+              SET status = 'consumed', consumed_at = ?
+            WHERE installation_id = ? AND id IN (?, ?)
+              AND status = 'available'`,
+        )
+        .bind(
+          input.now,
+          this.installationId,
+          mergeCase.source_proof_id,
+          mergeCase.survivor_proof_id,
+        ),
+      this.db
+        .prepare(
+          `UPDATE account_merge_cases
+              SET status = 'completed', resolutions_json = ?,
+                  snapshot_digest = ?, completed_at = ?
+            WHERE installation_id = ? AND id = ? AND status = 'preview'`,
+        )
+        .bind(
+          JSON.stringify(input.request.resolutions),
+          snapshot.digest,
+          input.now,
+          this.installationId,
+          mergeCase.id,
+        ),
+      this.db
+        .prepare(
+          `INSERT INTO account_merge_receipts (
+             id, installation_id, merge_case_id, receipt_json, receipt_digest,
+             created_at
+           ) VALUES (?, ?, ?, ?, ?, ?)`,
+        )
+        .bind(
+          receiptId,
+          this.installationId,
+          mergeCase.id,
+          JSON.stringify(receiptPayload),
+          receiptDigest,
+          input.now,
+        ),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.actor.identity,
+        actorUserId: input.actor.id,
+        action: "account.merge.complete",
+        targetType: "account_merge_receipt",
+        targetId: receiptId,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: "Owner completed a proof-bound, recoverable account merge.",
+        metadata: {
+          mergeCaseId: mergeCase.id,
+          snapshotDigest: snapshot.digest,
+          receiptDigest,
+          recordCounts: totalCounts,
+        },
+        now: input.now,
+      }),
+    );
+    try {
+      await this.db.batch(statements);
+    } catch (error) {
+      const completed = await this.getAccountMergeCase(mergeCase.id);
+      if (completed?.status === "completed") {
+        return this.getAccountMergeReceipt(mergeCase.id);
+      }
+      throw error;
+    }
+    return {
+      id: receiptId,
+      mergeCaseId: mergeCase.id,
+      receiptDigest,
+      snapshotDigest: snapshot.digest,
+      mergedAt: input.now,
+      recordCounts: totalCounts,
+      status: "completed",
+    };
+  }
+
+  async getAccountMergeReceipt(mergeCaseId: string): Promise<AccountMergeReceipt> {
+    const row = await this.db
+      .prepare(
+        `SELECT r.id, r.merge_case_id, r.receipt_json, r.receipt_digest,
+                r.created_at, c.snapshot_digest, c.status
+           FROM account_merge_receipts r
+           JOIN account_merge_cases c
+             ON c.installation_id = r.installation_id
+            AND c.id = r.merge_case_id
+          WHERE r.installation_id = ? AND r.merge_case_id = ?`,
+      )
+      .bind(this.installationId, mergeCaseId)
+      .first<{
+        id: string;
+        merge_case_id: string;
+        receipt_json:
+          | string
+          | { recordCounts?: Record<string, number> };
+        receipt_digest: string;
+        created_at: string;
+        snapshot_digest: string;
+        status: "completed" | "rolled-back";
+      }>();
+    if (!row) {
+      throw new ApiFailure(
+        404,
+        "account_merge_receipt_not_found",
+        "The account merge receipt was not found.",
+      );
+    }
+    const payload =
+      typeof row.receipt_json === "string"
+        ? (JSON.parse(row.receipt_json) as { recordCounts?: Record<string, number> })
+        : row.receipt_json;
+    return {
+      id: row.id,
+      mergeCaseId: row.merge_case_id,
+      receiptDigest: row.receipt_digest,
+      snapshotDigest: row.snapshot_digest,
+      mergedAt: row.created_at,
+      recordCounts: payload.recordCounts ?? {},
+      status: row.status,
+    };
+  }
+
+  async rollbackAccountMerge(input: {
+    actor: Account;
+    mergeCaseId: string;
+    request: RollbackAccountMergeRequest;
+    requestId: string;
+    now: string;
+  }): Promise<AccountMergeReceipt> {
+    const mergeCase = await this.getAccountMergeCase(input.mergeCaseId);
+    if (!mergeCase) {
+      throw new ApiFailure(
+        404,
+        "account_merge_not_found",
+        "The account merge was not found.",
+      );
+    }
+    if (mergeCase.status === "rolled-back") {
+      return this.getAccountMergeReceipt(mergeCase.id);
+    }
+    if (
+      mergeCase.status !== "completed" ||
+      !mergeCase.completed_at ||
+      !mergeCase.source_user_id ||
+      !mergeCase.survivor_user_id ||
+      !mergeCase.snapshot_digest
+    ) {
+      throw new ApiFailure(
+        409,
+        "account_merge_not_recoverable",
+        "Only a completed merge with retained recovery evidence can be rolled back.",
+      );
+    }
+    if (input.request.confirmation !== `ROLL BACK ${mergeCase.id}`) {
+      throw new ApiFailure(
+        400,
+        "account_merge_rollback_confirmation_required",
+        "Enter the exact merge rollback confirmation.",
+      );
+    }
+    const changed = await this.accountMergeHasPostCompletionChanges(
+      mergeCase.survivor_user_id,
+      mergeCase.completed_at,
+    );
+    if (changed) {
+      throw new ApiFailure(
+        409,
+        "account_merge_rollback_conflict",
+        "The survivor account changed after merge. Use a reviewed recovery plan instead of destructive rollback.",
+      );
+    }
+    const snapshot = await this.loadStoredMergeSnapshot(mergeCase);
+    const statements: D1PreparedStatement[] = [
+      this.db
+        .prepare(
+          `DELETE FROM account_merge_aliases
+            WHERE installation_id = ? AND merge_case_id = ?`,
+        )
+        .bind(this.installationId, mergeCase.id),
+    ];
+    const restoreTables = ACCOUNT_MERGE_SNAPSHOT_TABLES.filter(
+      (tableName) => !["users", "user_identities"].includes(tableName),
+    );
+    const restoreTableSet = new Set<string>(restoreTables);
+    for (const tableName of restoreTables) {
+      statements.push(
+        this.db
+          .prepare(
+            `DELETE FROM ${tableName}
+              WHERE installation_id = ? AND user_id IN (?, ?)`,
+          )
+          .bind(
+            this.installationId,
+            mergeCase.source_user_id,
+            mergeCase.survivor_user_id,
+          ),
+      );
+    }
+    const userRows = snapshot.entries.filter(
+      (entry) => entry.tableName === "users",
+    );
+    for (const entry of userRows) {
+      statements.push(
+        this.db
+          .prepare(
+            `UPDATE users
+                SET display_name = ?, primary_email = ?, email_verified = ?,
+                    account_state = ?, created_at = ?, updated_at = ?
+              WHERE installation_id = ? AND id = ?`,
+          )
+          .bind(
+            entry.row.display_name ?? null,
+            entry.row.primary_email ?? null,
+            entry.row.email_verified,
+            entry.row.account_state,
+            entry.row.created_at,
+            entry.row.updated_at,
+            this.installationId,
+            entry.row.id,
+          ),
+      );
+    }
+    for (const entry of snapshot.entries) {
+      if (!restoreTableSet.has(entry.tableName)) continue;
+      statements.push(this.restoreSnapshotRowStatement(entry));
+    }
+    const recoveryReceiptId = crypto.randomUUID();
+    const recoveryPayload = {
+      schemaVersion: 1,
+      mergeCaseId: mergeCase.id,
+      snapshotDigest: snapshot.digest,
+      reasonDigest: await sha256(input.request.reason),
+      rolledBackAt: input.now,
+    };
+    const recoveryDigest = await sha256(canonicalJson(recoveryPayload));
+    statements.push(
+      this.db
+        .prepare(
+          `DELETE FROM account_merge_snapshot_rows
+            WHERE merge_case_id = ?`,
+        )
+        .bind(mergeCase.id),
+      this.db
+        .prepare(
+          `UPDATE account_merge_cases
+              SET status = 'rolled-back', rolled_back_at = ?
+            WHERE installation_id = ? AND id = ? AND status = 'completed'`,
+        )
+        .bind(input.now, this.installationId, mergeCase.id),
+      this.db
+        .prepare(
+          `INSERT INTO account_merge_recovery_receipts (
+             id, installation_id, merge_case_id, receipt_json, receipt_digest,
+             created_at
+           ) VALUES (?, ?, ?, ?, ?, ?)`,
+        )
+        .bind(
+          recoveryReceiptId,
+          this.installationId,
+          mergeCase.id,
+          JSON.stringify(recoveryPayload),
+          recoveryDigest,
+          input.now,
+        ),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.actor.identity,
+        actorUserId: input.actor.id,
+        action: "account.merge.rollback",
+        targetType: "account_merge_recovery_receipt",
+        targetId: recoveryReceiptId,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: input.request.reason,
+        metadata: {
+          mergeCaseId: mergeCase.id,
+          snapshotDigest: snapshot.digest,
+          recoveryDigest,
+        },
+        now: input.now,
+      }),
+    );
+    await this.db.batch(statements);
+    const receipt = await this.getAccountMergeReceipt(mergeCase.id);
+    return { ...receipt, status: "rolled-back" };
+  }
+
   async listLinkedIdentities(
     userId: string,
     includeUnlinked = false,
@@ -575,13 +1714,29 @@ class D1Project42Repository {
     const statusClause = includeUnlinked ? "" : "AND status = 'active'";
     const result = await this.db
       .prepare(
-        `SELECT id, provider, provider_login, display_name, status, is_primary,
-                linked_at, last_verified_at, last_seen_at, unlinked_at
+        `SELECT id, provider, provider_login, display_name, status,
+                CASE WHEN user_id = ? THEN is_primary ELSE 0 END AS is_primary,
+                linked_at, last_verified_at, last_seen_at, unlinked_at,
+                CASE WHEN user_id = ? THEN 0 ELSE 1 END AS merge_source
            FROM user_identities
-          WHERE installation_id = ? AND user_id = ? ${statusClause}
+          WHERE installation_id = ?
+            AND (
+              user_id = ? OR user_id IN (
+                SELECT source_user_id
+                  FROM account_merge_aliases
+                 WHERE installation_id = ? AND survivor_user_id = ?
+              )
+            ) ${statusClause}
           ORDER BY is_primary DESC, linked_at ASC, id ASC`,
       )
-      .bind(this.installationId, userId)
+      .bind(
+        userId,
+        userId,
+        this.installationId,
+        userId,
+        this.installationId,
+        userId,
+      )
       .all<LinkedIdentityRow>();
     const activeCount = result.results.filter(
       (identity) => identity.status === "active",
@@ -2113,7 +3268,7 @@ class D1Project42Repository {
     deletionRequestId: string;
     completedAt: string;
     subjectDigest: string;
-    profilePhotoObjectKey: string | null;
+    profilePhotoObjectKeys: string[];
   }> {
     const deletion = await this.db
       .prepare(
@@ -2166,14 +3321,40 @@ class D1Project42Repository {
         "The deletion request is still inside its cancellation period.",
       );
     }
+    const aliases = await this.db
+      .prepare(
+        `SELECT source_user_id, merge_case_id
+           FROM account_merge_aliases
+          WHERE installation_id = ? AND survivor_user_id = ?
+          ORDER BY created_at`,
+      )
+      .bind(this.installationId, deletion.user_id)
+      .all<{ source_user_id: string; merge_case_id: string }>();
+    const mergedUserIds = [
+      ...aliases.results.map((alias) => alias.source_user_id),
+      deletion.user_id,
+    ];
+    const placeholders = mergedUserIds.map(() => "?").join(", ");
+    const relatedCases = await this.db
+      .prepare(
+        `SELECT id
+           FROM account_merge_cases
+          WHERE installation_id = ?
+            AND (
+              source_user_id IN (${placeholders}) OR
+              survivor_user_id IN (${placeholders})
+            )`,
+      )
+      .bind(this.installationId, ...mergedUserIds, ...mergedUserIds)
+      .all<{ id: string }>();
     const identities = await this.db
       .prepare(
         `SELECT provider, issuer, subject
            FROM user_identities
-          WHERE installation_id = ? AND user_id = ?
+          WHERE installation_id = ? AND user_id IN (${placeholders})
           ORDER BY is_primary DESC, linked_at ASC`,
       )
-      .bind(this.installationId, deletion.user_id)
+      .bind(this.installationId, ...mergedUserIds)
       .all<{ provider: string; issuer: string; subject: string }>();
     const identityDigests = await Promise.all(
       identities.results.map(async (identity) => ({
@@ -2185,38 +3366,76 @@ class D1Project42Repository {
     const subjectDigest =
       identityDigests[0]?.subjectDigest ??
       (await sha256(`${deletion.issuer}\n${deletion.subject}`));
-    const statements = [
-      this.db
+    const profilePhotoObjectKeys = new Set<string>();
+    if (deletion.photo_object_key) {
+      profilePhotoObjectKeys.add(deletion.photo_object_key);
+    }
+    if (relatedCases.results.length > 0) {
+      const casePlaceholders = relatedCases.results.map(() => "?").join(", ");
+      const snapshotRows = await this.db
         .prepare(
-          `UPDATE audit_events
-              SET actor_user_id = CASE
-                    WHEN actor_user_id = ? THEN NULL ELSE actor_user_id
-                  END,
-                  actor_issuer = CASE
-                    WHEN actor_user_id = ? THEN NULL ELSE actor_issuer
-                  END,
-                  actor_subject = CASE
-                    WHEN actor_user_id = ? THEN NULL ELSE actor_subject
-                  END,
-                  target_id = CASE
-                    WHEN target_type = 'user' AND target_id = ? THEN NULL
-                    ELSE target_id
-                  END
-            WHERE installation_id = ?
-              AND (
-                actor_user_id = ? OR
-                (target_type = 'user' AND target_id = ?)
-              )`,
+          `SELECT row_json
+             FROM account_merge_snapshot_rows
+            WHERE merge_case_id IN (${casePlaceholders})
+              AND table_name = 'user_profiles'`,
         )
-        .bind(
-          deletion.user_id,
-          deletion.user_id,
-          deletion.user_id,
-          deletion.user_id,
-          this.installationId,
-          deletion.user_id,
-          deletion.user_id,
-        ),
+        .bind(...relatedCases.results.map((mergeCase) => mergeCase.id))
+        .all<{ row_json: string | Record<string, unknown>[] }>();
+      for (const chunk of snapshotRows.results) {
+        const rows = parseJsonRecord<unknown>(chunk.row_json);
+        if (!Array.isArray(rows)) continue;
+        for (const value of rows) {
+          if (
+            value &&
+            typeof value === "object" &&
+            !Array.isArray(value) &&
+            typeof (value as Record<string, unknown>).photo_object_key ===
+              "string"
+          ) {
+            profilePhotoObjectKeys.add(
+              String((value as Record<string, unknown>).photo_object_key),
+            );
+          }
+        }
+      }
+    }
+    const statements: D1PreparedStatement[] = [];
+    for (const userId of mergedUserIds) {
+      statements.push(
+        this.db
+          .prepare(
+            `UPDATE audit_events
+                SET actor_user_id = CASE
+                      WHEN actor_user_id = ? THEN NULL ELSE actor_user_id
+                    END,
+                    actor_issuer = CASE
+                      WHEN actor_user_id = ? THEN NULL ELSE actor_issuer
+                    END,
+                    actor_subject = CASE
+                      WHEN actor_user_id = ? THEN NULL ELSE actor_subject
+                    END,
+                    target_id = CASE
+                      WHEN target_type = 'user' AND target_id = ? THEN NULL
+                      ELSE target_id
+                    END
+              WHERE installation_id = ?
+                AND (
+                  actor_user_id = ? OR
+                  (target_type = 'user' AND target_id = ?)
+                )`,
+          )
+          .bind(
+            userId,
+            userId,
+            userId,
+            userId,
+            this.installationId,
+            userId,
+            userId,
+          ),
+      );
+    }
+    statements.push(
       this.db
         .prepare(
           `INSERT INTO deletion_tombstones (
@@ -2250,10 +3469,7 @@ class D1Project42Repository {
         },
         now: input.now,
       }),
-      this.db
-        .prepare(`DELETE FROM users WHERE installation_id = ? AND id = ?`)
-        .bind(this.installationId, deletion.user_id),
-    ];
+    );
     statements.splice(
       statements.length - 1,
       0,
@@ -2276,12 +3492,52 @@ class D1Project42Repository {
           ),
       ),
     );
+    if (relatedCases.results.length > 0) {
+      for (const mergeCase of relatedCases.results) {
+        statements.push(
+          this.db
+            .prepare(
+              `DELETE FROM account_merge_snapshot_rows
+                WHERE merge_case_id = ?`,
+            )
+            .bind(mergeCase.id),
+        );
+      }
+    }
+    statements.push(
+      this.db
+        .prepare(
+          `DELETE FROM account_merge_proofs
+            WHERE installation_id = ? AND user_id IN (${placeholders})`,
+        )
+        .bind(this.installationId, ...mergedUserIds),
+      this.db
+        .prepare(
+          `DELETE FROM account_merge_aliases
+            WHERE installation_id = ? AND survivor_user_id = ?`,
+        )
+        .bind(this.installationId, deletion.user_id),
+    );
+    for (const sourceUserId of aliases.results.map(
+      (alias) => alias.source_user_id,
+    )) {
+      statements.push(
+        this.db
+          .prepare(`DELETE FROM users WHERE installation_id = ? AND id = ?`)
+          .bind(this.installationId, sourceUserId),
+      );
+    }
+    statements.push(
+      this.db
+        .prepare(`DELETE FROM users WHERE installation_id = ? AND id = ?`)
+        .bind(this.installationId, deletion.user_id),
+    );
     await this.db.batch(statements);
     return {
       deletionRequestId: deletion.id,
       completedAt: input.now,
       subjectDigest,
-      profilePhotoObjectKey: deletion.photo_object_key,
+      profilePhotoObjectKeys: [...profilePhotoObjectKeys],
     };
   }
 
@@ -2313,6 +3569,728 @@ class D1Project42Repository {
           : (event.metadata_json as Record<string, unknown>),
       occurredAt: String(event.occurred_at),
     }));
+  }
+
+  private async createAccountMergeProof(input: {
+    actor: Account;
+    targetUserId: string;
+    method: AccountMergeProofMethod;
+    evidence: Record<string, unknown>;
+    requestId: string;
+    now: string;
+  }): Promise<AccountMergeProof> {
+    await this.db
+      .prepare(
+        `UPDATE account_merge_proofs
+            SET status = 'expired'
+          WHERE installation_id = ? AND user_id = ? AND status = 'available'
+            AND expires_at <= ?`,
+      )
+      .bind(this.installationId, input.targetUserId, input.now)
+      .run();
+    const available = await this.db
+      .prepare(
+        `SELECT COUNT(*) AS count
+           FROM account_merge_proofs
+          WHERE installation_id = ? AND user_id = ? AND status = 'available'`,
+      )
+      .bind(this.installationId, input.targetUserId)
+      .first<{ count: number | string }>();
+    if (Number(available?.count ?? 0) >= 5) {
+      throw new ApiFailure(
+        429,
+        "too_many_account_merge_proofs",
+        "Wait for an existing account recovery proof to expire.",
+      );
+    }
+    const id = crypto.randomUUID();
+    const token = `${crypto.randomUUID()}.${crypto.randomUUID()}`;
+    const tokenDigest = await sha256(token);
+    const expiresAt = new Date(
+      Date.parse(input.now) + 15 * 60 * 1_000,
+    ).toISOString();
+    await this.db.batch([
+      this.db
+        .prepare(
+          `INSERT INTO account_merge_proofs (
+             id, installation_id, user_id, proof_method, token_digest,
+             evidence_json, status, created_by_user_id, created_at, expires_at,
+             consumed_at, request_id
+           ) VALUES (?, ?, ?, ?, ?, ?, 'available', ?, ?, ?, NULL, ?)`,
+        )
+        .bind(
+          id,
+          this.installationId,
+          input.targetUserId,
+          input.method,
+          tokenDigest,
+          JSON.stringify(input.evidence),
+          input.actor.id,
+          input.now,
+          expiresAt,
+          input.requestId,
+        ),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.actor.identity,
+        actorUserId: input.actor.id,
+        action: "account.merge.proof.create",
+        targetType: "account_merge_proof",
+        targetId: id,
+        requestId: input.requestId,
+        outcome: "success",
+        reason:
+          input.method === "recent-authentication"
+            ? "Learner created a one-time recent-authentication merge proof."
+            : "Owner recorded a governed account-recovery proof.",
+        metadata: {
+          proofMethod: input.method,
+          expiresAt,
+          targetUserDigest: await sha256(input.targetUserId),
+        },
+        now: input.now,
+      }),
+    ]);
+    return {
+      token,
+      userId: input.targetUserId,
+      method: input.method,
+      expiresAt,
+    };
+  }
+
+  private async requireAvailableMergeProof(
+    token: string,
+    expectedUserId: string,
+    now: string,
+  ): Promise<AccountMergeProofRow> {
+    const tokenDigest = await sha256(token);
+    const proof = await this.db
+      .prepare(
+        `SELECT id, user_id, proof_method, token_digest, evidence_json, status,
+                created_at, expires_at, consumed_at
+           FROM account_merge_proofs
+          WHERE installation_id = ? AND token_digest = ?`,
+      )
+      .bind(this.installationId, tokenDigest)
+      .first<AccountMergeProofRow>();
+    if (
+      !proof ||
+      proof.user_id !== expectedUserId ||
+      proof.status !== "available"
+    ) {
+      throw new ApiFailure(
+        400,
+        "invalid_account_merge_proof",
+        "The account recovery proof is invalid or has already been used.",
+      );
+    }
+    if (Date.parse(now) >= Date.parse(proof.expires_at)) {
+      await this.db
+        .prepare(
+          `UPDATE account_merge_proofs
+              SET status = 'expired'
+            WHERE installation_id = ? AND id = ? AND status = 'available'`,
+        )
+        .bind(this.installationId, proof.id)
+        .run();
+      throw new ApiFailure(
+        400,
+        "account_merge_proof_expired",
+        "Create a fresh account recovery proof.",
+      );
+    }
+    return proof;
+  }
+
+  private async getAccountMergeCase(
+    mergeCaseId: string,
+  ): Promise<AccountMergeCaseRow | null> {
+    return this.db
+      .prepare(
+        `SELECT id, source_user_id, survivor_user_id, source_proof_id,
+                survivor_proof_id, status, preview_json, preview_digest,
+                resolutions_json, snapshot_digest, idempotency_key, created_at,
+                expires_at, completed_at, rolled_back_at
+           FROM account_merge_cases
+          WHERE installation_id = ? AND id = ?`,
+      )
+      .bind(this.installationId, mergeCaseId)
+      .first<AccountMergeCaseRow>();
+  }
+
+  private async mapAccountMergePreview(
+    mergeCase: AccountMergeCaseRow,
+  ): Promise<AccountMergePreview> {
+    if (!mergeCase.source_user_id || !mergeCase.survivor_user_id) {
+      throw new ApiFailure(
+        410,
+        "account_merge_personal_data_deleted",
+        "The merge record remains, but its account data has been deleted.",
+      );
+    }
+    const [source, survivor] = await Promise.all([
+      this.getAccountById(mergeCase.source_user_id),
+      this.getAccountById(mergeCase.survivor_user_id),
+    ]);
+    if (!source || !survivor) {
+      throw new ApiFailure(
+        410,
+        "account_merge_personal_data_deleted",
+        "The merge record remains, but its account data has been deleted.",
+      );
+    }
+    const preview = parseMergePreviewRecord(mergeCase.preview_json);
+    return {
+      id: mergeCase.id,
+      status:
+        mergeCase.status === "rolled-back"
+          ? "rolled-back"
+          : mergeCase.status === "completed"
+            ? "completed"
+            : "preview",
+      sourceUserId: source.id,
+      survivorUserId: survivor.id,
+      sourceDisplayName: source.displayName,
+      survivorDisplayName: survivor.displayName,
+      sourcePrimaryEmail: source.primaryEmail,
+      survivorPrimaryEmail: survivor.primaryEmail,
+      proofMethods: preview.proofMethods,
+      conflicts: preview.conflicts,
+      recordCounts: preview.recordCounts,
+      expiresAt: mergeCase.expires_at,
+    };
+  }
+
+  private async captureMergeSnapshot(
+    sourceUserId: string,
+    survivorUserId: string,
+  ): Promise<MergeSnapshot> {
+    const entries: MergeSnapshotEntry[] = [];
+    const recordCounts: Record<
+      string,
+      { source: number; survivor: number }
+    > = {};
+    for (const tableName of ACCOUNT_MERGE_SNAPSHOT_TABLES) {
+      const userColumn = tableName === "users" ? "id" : "user_id";
+      const result = await this.db
+        .prepare(
+          `SELECT *
+             FROM ${tableName}
+            WHERE installation_id = ? AND ${userColumn} IN (?, ?)`,
+        )
+        .bind(this.installationId, sourceUserId, survivorUserId)
+        .all<Record<string, unknown>>();
+      const tableCounts = { source: 0, survivor: 0 };
+      for (const row of result.results) {
+        const ownerId = mergeRowUserId(tableName, row);
+        if (ownerId === sourceUserId) tableCounts.source += 1;
+        if (ownerId === survivorUserId) tableCounts.survivor += 1;
+        const rowKey = mergeSnapshotRowKey(tableName, row);
+        entries.push({
+          tableName,
+          rowKey,
+          row,
+          rowDigest: await sha256(canonicalJson(row)),
+        });
+      }
+      recordCounts[tableName] = tableCounts;
+    }
+    entries.sort((left, right) =>
+      `${left.tableName}\u0000${left.rowKey}`.localeCompare(
+        `${right.tableName}\u0000${right.rowKey}`,
+      ),
+    );
+    return {
+      entries,
+      digest: await sha256(
+        canonicalJson(
+          entries.map((entry) => ({
+            tableName: entry.tableName,
+            rowKey: entry.rowKey,
+            rowDigest: entry.rowDigest,
+          })),
+        ),
+      ),
+      recordCounts,
+    };
+  }
+
+  private buildStructuredMergeStatements(input: {
+    sourceUserId: string;
+    survivorUserId: string;
+    snapshot: MergeSnapshot;
+  }): D1PreparedStatement[] {
+    const statements: D1PreparedStatement[] = [];
+    statements.push(
+      this.db
+        .prepare(
+          `INSERT INTO module_progress (
+             installation_id, user_id, path_id, module_id, content_version,
+             status, first_seen_at, completed_at, updated_at
+           )
+           SELECT installation_id, ?, path_id, module_id, content_version,
+                  status, first_seen_at, completed_at, updated_at
+             FROM module_progress
+            WHERE installation_id = ? AND user_id = ?
+           ON CONFLICT (
+             installation_id, user_id, path_id, module_id, content_version
+           ) DO UPDATE SET
+             status = CASE
+               WHEN module_progress.status = 'completed'
+                 OR excluded.status = 'completed' THEN 'completed'
+               ELSE 'visited'
+             END,
+             first_seen_at = CASE
+               WHEN module_progress.first_seen_at <= excluded.first_seen_at
+                 THEN module_progress.first_seen_at
+               ELSE excluded.first_seen_at
+             END,
+             completed_at = CASE
+               WHEN module_progress.completed_at IS NULL
+                 THEN excluded.completed_at
+               WHEN excluded.completed_at IS NULL
+                 THEN module_progress.completed_at
+               WHEN module_progress.completed_at <= excluded.completed_at
+                 THEN module_progress.completed_at
+               ELSE excluded.completed_at
+             END,
+             updated_at = CASE
+               WHEN module_progress.updated_at >= excluded.updated_at
+                 THEN module_progress.updated_at
+               ELSE excluded.updated_at
+             END`,
+        )
+        .bind(
+          input.survivorUserId,
+          this.installationId,
+          input.sourceUserId,
+        ),
+      this.db
+        .prepare(
+          `DELETE FROM module_progress
+            WHERE installation_id = ? AND user_id = ?`,
+        )
+        .bind(this.installationId, input.sourceUserId),
+    );
+    const rows = (tableName: string, userId: string) =>
+      input.snapshot.entries
+        .filter(
+          (entry) =>
+            entry.tableName === tableName &&
+            mergeRowUserId(entry.tableName, entry.row) === userId,
+        )
+        .map((entry) => entry.row);
+    const survivorAttempts = new Set(
+      rows("assessment_attempts", input.survivorUserId).map((row) =>
+        String(row.id),
+      ),
+    );
+    for (const sourceAttempt of rows(
+      "assessment_attempts",
+      input.sourceUserId,
+    )) {
+      const id = String(sourceAttempt.id);
+      if (!survivorAttempts.has(id)) continue;
+      statements.push(
+        this.db
+          .prepare(
+            `UPDATE assessment_attempts
+                SET id = ?
+              WHERE installation_id = ? AND user_id = ? AND id = ?`,
+          )
+          .bind(
+            `${input.sourceUserId}:${id}`,
+            this.installationId,
+            input.sourceUserId,
+            id,
+          ),
+      );
+    }
+    statements.push(
+      this.db
+        .prepare(
+          `UPDATE assessment_attempts
+              SET user_id = ?
+            WHERE installation_id = ? AND user_id = ?`,
+        )
+        .bind(
+          input.survivorUserId,
+          this.installationId,
+          input.sourceUserId,
+        ),
+      this.db
+        .prepare(
+          `INSERT INTO transcript_entries (
+             installation_id, user_id, path_id, path_title, completed_modules,
+             total_modules, completion_percent, best_score_percent,
+             content_version, updated_at
+           )
+           SELECT installation_id, ?, path_id, path_title, completed_modules,
+                  total_modules, completion_percent, best_score_percent,
+                  content_version, updated_at
+             FROM transcript_entries
+            WHERE installation_id = ? AND user_id = ?
+           ON CONFLICT (
+             installation_id, user_id, path_id, content_version
+           ) DO UPDATE SET
+             path_title = excluded.path_title,
+             completed_modules = CASE
+               WHEN transcript_entries.completed_modules >= excluded.completed_modules
+                 THEN transcript_entries.completed_modules
+               ELSE excluded.completed_modules
+             END,
+             total_modules = CASE
+               WHEN transcript_entries.total_modules >= excluded.total_modules
+                 THEN transcript_entries.total_modules
+               ELSE excluded.total_modules
+             END,
+             completion_percent = CASE
+               WHEN transcript_entries.completion_percent >= excluded.completion_percent
+                 THEN transcript_entries.completion_percent
+               ELSE excluded.completion_percent
+             END,
+             best_score_percent = CASE
+               WHEN transcript_entries.best_score_percent IS NULL
+                 THEN excluded.best_score_percent
+               WHEN excluded.best_score_percent IS NULL
+                 THEN transcript_entries.best_score_percent
+               WHEN transcript_entries.best_score_percent >= excluded.best_score_percent
+                 THEN transcript_entries.best_score_percent
+               ELSE excluded.best_score_percent
+             END,
+             updated_at = CASE
+               WHEN transcript_entries.updated_at >= excluded.updated_at
+                 THEN transcript_entries.updated_at
+               ELSE excluded.updated_at
+             END`,
+        )
+        .bind(
+          input.survivorUserId,
+          this.installationId,
+          input.sourceUserId,
+        ),
+      this.db
+        .prepare(
+          `DELETE FROM transcript_entries
+            WHERE installation_id = ? AND user_id = ?`,
+        )
+        .bind(this.installationId, input.sourceUserId),
+    );
+    const survivorBadges = new Map(
+      rows("user_badges", input.survivorUserId).map((row) => [
+        String(row.badge_id),
+        row,
+      ]),
+    );
+    for (const sourceBadge of rows("user_badges", input.sourceUserId)) {
+      const badgeId = String(sourceBadge.badge_id);
+      const survivorBadge = survivorBadges.get(badgeId);
+      if (!survivorBadge) continue;
+      const evidence = [
+        ...new Set([
+          ...parseJsonArray(survivorBadge.evidence_module_ids_json),
+          ...parseJsonArray(sourceBadge.evidence_module_ids_json),
+        ]),
+      ];
+      const earnedAt =
+        String(survivorBadge.earned_at).localeCompare(
+          String(sourceBadge.earned_at),
+        ) <= 0
+          ? survivorBadge.earned_at
+          : sourceBadge.earned_at;
+      const recordedAt =
+        String(survivorBadge.recorded_at).localeCompare(
+          String(sourceBadge.recorded_at),
+        ) >= 0
+          ? survivorBadge.recorded_at
+          : sourceBadge.recorded_at;
+      statements.push(
+        this.db
+          .prepare(
+            `UPDATE user_badges
+                SET earned_at = ?, evidence_module_ids_json = ?, recorded_at = ?
+              WHERE installation_id = ? AND user_id = ? AND badge_id = ?`,
+          )
+          .bind(
+            earnedAt,
+            JSON.stringify(evidence),
+            recordedAt,
+            this.installationId,
+            input.survivorUserId,
+            badgeId,
+          ),
+      );
+    }
+    statements.push(
+      this.db
+        .prepare(
+          `INSERT INTO user_badges (
+             installation_id, user_id, badge_id, name, description, earned_at,
+             evidence_module_ids_json, recorded_at
+           )
+           SELECT s.installation_id, ?, s.badge_id, s.name, s.description,
+                  s.earned_at, s.evidence_module_ids_json, s.recorded_at
+             FROM user_badges s
+            WHERE s.installation_id = ? AND s.user_id = ?
+              AND NOT EXISTS (
+                SELECT 1 FROM user_badges d
+                 WHERE d.installation_id = s.installation_id
+                   AND d.user_id = ? AND d.badge_id = s.badge_id
+              )`,
+        )
+        .bind(
+          input.survivorUserId,
+          this.installationId,
+          input.sourceUserId,
+          input.survivorUserId,
+        ),
+      this.db
+        .prepare(
+          `DELETE FROM user_badges
+            WHERE installation_id = ? AND user_id = ?`,
+        )
+        .bind(this.installationId, input.sourceUserId),
+    );
+    const survivorImports = new Set(
+      rows("progress_imports", input.survivorUserId).map((row) =>
+        String(row.id),
+      ),
+    );
+    for (const sourceImport of rows("progress_imports", input.sourceUserId)) {
+      const id = String(sourceImport.id);
+      if (!survivorImports.has(id)) continue;
+      statements.push(
+        this.db
+          .prepare(
+            `UPDATE progress_imports
+                SET id = ?
+              WHERE installation_id = ? AND user_id = ? AND id = ?`,
+          )
+          .bind(
+            `${input.sourceUserId}:${id}`,
+            this.installationId,
+            input.sourceUserId,
+            id,
+          ),
+      );
+    }
+    statements.push(
+      this.db
+        .prepare(
+          `UPDATE progress_imports
+              SET user_id = ?
+            WHERE installation_id = ? AND user_id = ?`,
+        )
+        .bind(
+          input.survivorUserId,
+          this.installationId,
+          input.sourceUserId,
+        ),
+      this.db
+        .prepare(
+          `UPDATE consent_records
+              SET user_id = ?
+            WHERE installation_id = ? AND user_id = ?`,
+        )
+        .bind(
+          input.survivorUserId,
+          this.installationId,
+          input.sourceUserId,
+        ),
+      this.db
+        .prepare(
+          `UPDATE deletion_requests
+              SET user_id = ?
+            WHERE installation_id = ? AND user_id = ?`,
+        )
+        .bind(
+          input.survivorUserId,
+          this.installationId,
+          input.sourceUserId,
+        ),
+    );
+    return statements;
+  }
+
+  private async accountMergeHasPostCompletionChanges(
+    survivorUserId: string,
+    completedAt: string,
+  ): Promise<boolean> {
+    const checks = [
+      ["users", "updated_at"],
+      ["role_assignments", "assigned_at"],
+      ["user_profiles", "updated_at"],
+      ["learning_progress", "updated_at"],
+      ["module_progress", "updated_at"],
+      ["assessment_attempts", "recorded_at"],
+      ["transcript_entries", "updated_at"],
+      ["user_badges", "recorded_at"],
+      ["progress_imports", "imported_at"],
+      ["consent_records", "decided_at"],
+      ["deletion_requests", "requested_at"],
+      ["user_identities", "linked_at"],
+    ] as const;
+    for (const [tableName, timestampColumn] of checks) {
+      const row = await this.db
+        .prepare(
+          `SELECT 1 AS changed
+             FROM ${tableName}
+            WHERE installation_id = ? AND ${
+              tableName === "users" ? "id" : "user_id"
+            } = ? AND ${timestampColumn} > ?
+            LIMIT 1`,
+        )
+        .bind(this.installationId, survivorUserId, completedAt)
+        .first<{ changed: number }>();
+      if (row) return true;
+    }
+    const unlinkedIdentity = await this.db
+      .prepare(
+        `SELECT 1 AS changed
+           FROM user_identities
+          WHERE installation_id = ? AND user_id = ?
+            AND unlinked_at > ?
+          LIMIT 1`,
+      )
+      .bind(this.installationId, survivorUserId, completedAt)
+      .first<{ changed: number }>();
+    if (unlinkedIdentity) return true;
+    return false;
+  }
+
+  private async loadStoredMergeSnapshot(
+    mergeCase: AccountMergeCaseRow,
+  ): Promise<MergeSnapshot> {
+    const result = await this.db
+      .prepare(
+        `SELECT table_name, row_key, row_json, row_digest
+           FROM account_merge_snapshot_rows
+          WHERE merge_case_id = ?
+          ORDER BY table_name, row_key`,
+      )
+      .bind(mergeCase.id)
+      .all<AccountMergeSnapshotRow>();
+    const entries: MergeSnapshotEntry[] = [];
+    const recordCounts: Record<
+      string,
+      { source: number; survivor: number }
+    > = {};
+    for (const chunk of result.results) {
+      if (
+        !ACCOUNT_MERGE_SNAPSHOT_TABLES.includes(
+          chunk.table_name as (typeof ACCOUNT_MERGE_SNAPSHOT_TABLES)[number],
+        )
+      ) {
+        throw new ApiFailure(
+          500,
+          "account_merge_snapshot_invalid",
+          "The account merge recovery snapshot contains an unsupported table.",
+        );
+      }
+      const rows = parseJsonRecord<unknown>(chunk.row_json);
+      if (!Array.isArray(rows)) {
+        throw new ApiFailure(
+          500,
+          "account_merge_snapshot_invalid",
+          "The account merge recovery snapshot is invalid.",
+        );
+      }
+      const digests: string[] = [];
+      for (const value of rows) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) {
+          throw new ApiFailure(
+            500,
+            "account_merge_snapshot_invalid",
+            "The account merge recovery snapshot is invalid.",
+          );
+        }
+        const row = value as Record<string, unknown>;
+        const rowDigest = await sha256(canonicalJson(row));
+        digests.push(rowDigest);
+        entries.push({
+          tableName: chunk.table_name,
+          rowKey: mergeSnapshotRowKey(chunk.table_name, row),
+          row,
+          rowDigest,
+        });
+      }
+      const chunkDigest = await sha256(canonicalJson(digests));
+      if (chunkDigest !== chunk.row_digest) {
+        throw new ApiFailure(
+          500,
+          "account_merge_snapshot_invalid",
+          "The account merge recovery snapshot failed integrity validation.",
+        );
+      }
+    }
+    entries.sort((left, right) =>
+      `${left.tableName}\u0000${left.rowKey}`.localeCompare(
+        `${right.tableName}\u0000${right.rowKey}`,
+      ),
+    );
+    for (const tableName of ACCOUNT_MERGE_SNAPSHOT_TABLES) {
+      recordCounts[tableName] = { source: 0, survivor: 0 };
+    }
+    if (!mergeCase.source_user_id || !mergeCase.survivor_user_id) {
+      throw new ApiFailure(
+        410,
+        "account_merge_personal_data_deleted",
+        "The merge recovery data has been deleted.",
+      );
+    }
+    for (const entry of entries) {
+      const ownerId = mergeRowUserId(entry.tableName, entry.row);
+      const counts = recordCounts[entry.tableName] ?? {
+        source: 0,
+        survivor: 0,
+      };
+      if (ownerId === mergeCase.source_user_id) counts.source += 1;
+      if (ownerId === mergeCase.survivor_user_id) counts.survivor += 1;
+      recordCounts[entry.tableName] = counts;
+    }
+    const digest = await sha256(
+      canonicalJson(
+        entries.map((entry) => ({
+          tableName: entry.tableName,
+          rowKey: entry.rowKey,
+          rowDigest: entry.rowDigest,
+        })),
+      ),
+    );
+    if (digest !== mergeCase.snapshot_digest) {
+      throw new ApiFailure(
+        500,
+        "account_merge_snapshot_invalid",
+        "The account merge recovery snapshot failed integrity validation.",
+      );
+    }
+    return { entries, digest, recordCounts };
+  }
+
+  private restoreSnapshotRowStatement(
+    entry: MergeSnapshotEntry,
+  ): D1PreparedStatement {
+    const columns = Object.keys(entry.row);
+    if (
+      columns.length === 0 ||
+      columns.some((column) => !/^[a-z][a-z0-9_]*$/.test(column))
+    ) {
+      throw new Error("Account merge snapshot has invalid columns.");
+    }
+    const values = columns.map((column) => {
+      const value = entry.row[column];
+      if (value instanceof Date) return value.toISOString();
+      return value && typeof value === "object"
+        ? JSON.stringify(value)
+        : (value as null | string | number | boolean);
+    });
+    return this.db
+      .prepare(
+        `INSERT INTO ${entry.tableName} (${columns.join(", ")})
+         VALUES (${columns.map(() => "?").join(", ")})`,
+      )
+      .bind(...values);
   }
 
   private auditStatement(input: {
@@ -2354,6 +4332,328 @@ class D1Project42Repository {
   }
 }
 
+function canonicalJson(value: unknown): string {
+  if (value instanceof Date) {
+    return JSON.stringify(value.toISOString());
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => canonicalJson(item)).join(",")}]`;
+  }
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return `{${Object.keys(record)
+      .sort()
+      .map(
+        (key) => `${JSON.stringify(key)}:${canonicalJson(record[key])}`,
+      )
+      .join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "null";
+}
+
+function parseJsonRecord<T>(value: unknown): T {
+  return (typeof value === "string" ? JSON.parse(value) : value) as T;
+}
+
+function parseJsonArray(value: unknown): string[] {
+  const parsed = parseJsonRecord<unknown>(value);
+  return Array.isArray(parsed)
+    ? parsed.filter((item): item is string => typeof item === "string")
+    : [];
+}
+
+function mergeRowUserId(
+  tableName: string,
+  row: Record<string, unknown>,
+): string {
+  return String(tableName === "users" ? row.id : row.user_id);
+}
+
+function mergeSnapshotRowKey(
+  tableName: string,
+  row: Record<string, unknown>,
+): string {
+  switch (tableName) {
+    case "users":
+    case "user_profiles":
+    case "learning_progress":
+      return mergeRowUserId(tableName, row);
+    case "role_assignments":
+      return `${row.user_id}:${row.role}`;
+    case "user_identities":
+    case "consent_records":
+    case "deletion_requests":
+      return String(row.id);
+    case "module_progress":
+      return `${row.user_id}:${row.path_id}:${row.module_id}:${row.content_version}`;
+    case "assessment_attempts":
+    case "progress_imports":
+      return `${row.user_id}:${row.id}`;
+    case "transcript_entries":
+      return `${row.user_id}:${row.path_id}:${row.content_version}`;
+    case "user_badges":
+      return `${row.user_id}:${row.badge_id}`;
+    default:
+      throw new Error(`Unsupported account merge snapshot table: ${tableName}`);
+  }
+}
+
+async function buildAccountMergeConflicts(
+  snapshot: MergeSnapshot,
+  sourceUserId: string,
+  survivorUserId: string,
+): Promise<AccountMergeConflict[]> {
+  const source = snapshot.entries.find(
+    (entry) => entry.tableName === "users" && entry.row.id === sourceUserId,
+  )?.row;
+  const survivor = snapshot.entries.find(
+    (entry) => entry.tableName === "users" && entry.row.id === survivorUserId,
+  )?.row;
+  if (!source || !survivor) return [];
+  const rowFor = (tableName: string, userId: string) =>
+    snapshot.entries.find(
+      (entry) =>
+        entry.tableName === tableName &&
+        mergeRowUserId(entry.tableName, entry.row) === userId,
+    )?.row;
+  const conflicts: AccountMergeConflict[] = [];
+  const addValueConflict = (
+    key: string,
+    field: AccountMergeConflict["field"],
+    sourceValue: unknown,
+    survivorValue: unknown,
+    description: string,
+  ) => {
+    const sourcePresent =
+      sourceValue !== null && sourceValue !== undefined && sourceValue !== "";
+    const survivorPresent =
+      survivorValue !== null &&
+      survivorValue !== undefined &&
+      survivorValue !== "";
+    if (
+      sourcePresent &&
+      survivorPresent &&
+      canonicalJson(sourceValue) !== canonicalJson(survivorValue)
+    ) {
+      conflicts.push({
+        key,
+        field,
+        sourcePresent,
+        survivorPresent,
+        required: true,
+        description,
+      });
+    }
+  };
+  addValueConflict(
+    "account.displayName",
+    "displayName",
+    source.display_name,
+    survivor.display_name,
+    "Choose the display name retained by the survivor account.",
+  );
+  addValueConflict(
+    "account.primaryEmail",
+    "primaryEmail",
+    source.primary_email,
+    survivor.primary_email,
+    "Choose the verified primary email retained by the survivor account.",
+  );
+  const sourceProfile = rowFor("user_profiles", sourceUserId);
+  const survivorProfile = rowFor("user_profiles", survivorUserId);
+  for (const [key, field, column, description] of [
+    [
+      "profile.bio",
+      "bio",
+      "bio",
+      "Choose the learner biography retained after merge.",
+    ],
+    [
+      "profile.organization",
+      "organization",
+      "organization",
+      "Choose the organization retained after merge.",
+    ],
+    [
+      "profile.location",
+      "location",
+      "location",
+      "Choose the profile location retained after merge.",
+    ],
+    [
+      "profile.websiteUrl",
+      "websiteUrl",
+      "website_url",
+      "Choose the profile website retained after merge.",
+    ],
+  ] as const) {
+    addValueConflict(
+      key,
+      field,
+      sourceProfile?.[column],
+      survivorProfile?.[column],
+      description,
+    );
+  }
+  addValueConflict(
+    "profile.photo",
+    "photo",
+    sourceProfile?.photo_object_key,
+    survivorProfile?.photo_object_key,
+    "Choose the private profile photo retained after merge.",
+  );
+  const hasRole = (userId: string, role: string) =>
+    snapshot.entries.some(
+      (entry) =>
+        entry.tableName === "role_assignments" &&
+        mergeRowUserId(entry.tableName, entry.row) === userId &&
+        entry.row.role === role,
+    );
+  if (hasRole(sourceUserId, "owner") !== hasRole(survivorUserId, "owner")) {
+    conflicts.push({
+      key: "roles.owner",
+      field: "ownerRole",
+      sourcePresent: hasRole(sourceUserId, "owner"),
+      survivorPresent: hasRole(survivorUserId, "owner"),
+      required: true,
+      description:
+        "Choose which account's owner-role state survives; the last owner cannot be removed.",
+    });
+  }
+  return conflicts.sort((left, right) => left.key.localeCompare(right.key));
+}
+
+function parseMergePreviewRecord(
+  value: AccountMergeCaseRow["preview_json"],
+): {
+  conflicts: AccountMergeConflict[];
+  recordCounts: Record<string, { source: number; survivor: number }>;
+  proofMethods: {
+    source: AccountMergeProofMethod;
+    survivor: AccountMergeProofMethod;
+  };
+} {
+  const parsed =
+    typeof value === "string"
+      ? (JSON.parse(value) as Record<string, unknown>)
+      : (value as Record<string, unknown>);
+  if (
+    !Array.isArray(parsed.conflicts) ||
+    !parsed.recordCounts ||
+    typeof parsed.recordCounts !== "object" ||
+    !parsed.proofMethods ||
+    typeof parsed.proofMethods !== "object"
+  ) {
+    throw new Error("Stored account merge preview is invalid.");
+  }
+  return parsed as {
+    conflicts: AccountMergeConflict[];
+    recordCounts: Record<string, { source: number; survivor: number }>;
+    proofMethods: {
+      source: AccountMergeProofMethod;
+      survivor: AccountMergeProofMethod;
+    };
+  };
+}
+
+function validateMergeResolutions(
+  conflicts: AccountMergeConflict[],
+  resolutions: Record<string, AccountMergeResolutionChoice>,
+): void {
+  if (
+    !resolutions ||
+    typeof resolutions !== "object" ||
+    Array.isArray(resolutions)
+  ) {
+    throw new ApiFailure(
+      400,
+      "invalid_merge_resolutions",
+      "Merge resolutions must be a JSON object.",
+    );
+  }
+  const conflictKeys = new Set(conflicts.map((conflict) => conflict.key));
+  for (const conflict of conflicts) {
+    if (!["source", "survivor"].includes(resolutions[conflict.key] ?? "")) {
+      throw new ApiFailure(
+        400,
+        "merge_resolution_required",
+        `Choose source or survivor for ${conflict.key}.`,
+      );
+    }
+  }
+  const unknown = Object.keys(resolutions).find((key) => !conflictKeys.has(key));
+  if (unknown) {
+    throw new ApiFailure(
+      400,
+      "invalid_merge_resolution",
+      `Unknown merge conflict resolution: ${unknown}.`,
+    );
+  }
+}
+
+function selectMergeValue(
+  conflictKey: string,
+  sourceValue: unknown,
+  survivorValue: unknown,
+  resolutions: Record<string, AccountMergeResolutionChoice>,
+): unknown {
+  const sourcePresent =
+    sourceValue !== null && sourceValue !== undefined && sourceValue !== "";
+  const survivorPresent =
+    survivorValue !== null &&
+    survivorValue !== undefined &&
+    survivorValue !== "";
+  if (!sourcePresent) return survivorValue ?? null;
+  if (!survivorPresent) return sourceValue;
+  if (canonicalJson(sourceValue) === canonicalJson(survivorValue)) {
+    return survivorValue;
+  }
+  return resolutions[conflictKey] === "source" ? sourceValue : survivorValue;
+}
+
+async function chunkMergeSnapshot(
+  entries: MergeSnapshotEntry[],
+): Promise<Array<{
+  tableName: string;
+  rowKey: string;
+  rows: Record<string, unknown>[];
+  rowDigest: string;
+}>> {
+  const result: Array<{
+    tableName: string;
+    rowKey: string;
+    rows: Record<string, unknown>[];
+    rowDigest: string;
+  }> = [];
+  const byTable = new Map<string, MergeSnapshotEntry[]>();
+  for (const entry of entries) {
+    const tableEntries = byTable.get(entry.tableName) ?? [];
+    tableEntries.push(entry);
+    byTable.set(entry.tableName, tableEntries);
+  }
+  for (const [tableName, tableEntries] of byTable) {
+    for (let index = 0; index < tableEntries.length; index += 100) {
+      const rows = tableEntries
+        .slice(index, index + 100)
+        .map((entry) => entry.row);
+      const rowKey = String(index / 100).padStart(6, "0");
+      result.push({
+        tableName,
+        rowKey,
+        rows,
+        rowDigest: await sha256(
+          canonicalJson(
+            tableEntries
+              .slice(index, index + 100)
+              .map((entry) => entry.rowDigest),
+          ),
+        ),
+      });
+    }
+  }
+  return result;
+}
+
 function mapAccount(row: AccountRow): Account {
   return {
     id: row.id,
@@ -2389,7 +4689,10 @@ function mapLinkedIdentity(
     lastSeenAt: row.last_seen_at,
     unlinkedAt: row.unlinked_at,
     canUnlink:
-      row.status === "active" && row.is_primary !== 1 && activeCount > 1,
+      row.status === "active" &&
+      row.is_primary !== 1 &&
+      row.merge_source !== 1 &&
+      activeCount > 1,
   };
 }
 
@@ -2718,6 +5021,209 @@ function normalizeGithubLinkCompletionRequest(
     code,
     codeVerifier: normalizePkceCodeVerifier(record.codeVerifier),
   };
+}
+
+function normalizeOwnerRecoveryProofRequest(
+  value: unknown,
+): OwnerRecoveryProofRequest {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new ApiFailure(
+      400,
+      "invalid_owner_recovery_proof",
+      "Owner recovery evidence must be a JSON object.",
+    );
+  }
+  const record = value as Record<string, unknown>;
+  const allowed = ["userId", "methods", "referenceId", "summary"];
+  const unknown = Object.keys(record).find((key) => !allowed.includes(key));
+  if (unknown) {
+    throw new ApiFailure(
+      400,
+      "invalid_owner_recovery_proof",
+      `Unknown owner recovery field: ${unknown}.`,
+    );
+  }
+  const methodsAllowed = new Set([
+    "identity-provider-recovery",
+    "support-video-verification",
+    "signed-owner-attestation",
+    "legacy-account-evidence",
+  ]);
+  const methods = Array.isArray(record.methods)
+    ? record.methods.filter(
+        (method): method is OwnerRecoveryProofRequest["methods"][number] =>
+          typeof method === "string" && methodsAllowed.has(method),
+      )
+    : [];
+  if (
+    typeof record.userId !== "string" ||
+    !isUuid(record.userId) ||
+    !Array.isArray(record.methods) ||
+    methods.length !== record.methods.length ||
+    new Set(methods).size < 2 ||
+    typeof record.referenceId !== "string" ||
+    record.referenceId.trim().length < 8 ||
+    record.referenceId.length > 200 ||
+    typeof record.summary !== "string" ||
+    record.summary.trim().length < 20 ||
+    record.summary.length > 500
+  ) {
+    throw new ApiFailure(
+      400,
+      "invalid_owner_recovery_proof",
+      "Owner recovery requires an account, two independent non-email methods, a reference, and a substantive summary.",
+    );
+  }
+  return {
+    userId: record.userId,
+    methods: [...new Set(methods)],
+    referenceId: record.referenceId.trim(),
+    summary: record.summary.trim(),
+  };
+}
+
+function normalizeAccountMergePreviewRequest(
+  value: unknown,
+): AccountMergePreviewRequest {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new ApiFailure(
+      400,
+      "invalid_account_merge_preview",
+      "Account merge preview settings must be a JSON object.",
+    );
+  }
+  const record = value as Record<string, unknown>;
+  const allowed = [
+    "sourceUserId",
+    "survivorUserId",
+    "sourceProofToken",
+    "survivorProofToken",
+    "idempotencyKey",
+  ];
+  const unknown = Object.keys(record).find((key) => !allowed.includes(key));
+  if (unknown) {
+    throw new ApiFailure(
+      400,
+      "invalid_account_merge_preview",
+      `Unknown account merge preview field: ${unknown}.`,
+    );
+  }
+  if (
+    typeof record.sourceUserId !== "string" ||
+    !isUuid(record.sourceUserId) ||
+    typeof record.survivorUserId !== "string" ||
+    !isUuid(record.survivorUserId) ||
+    typeof record.sourceProofToken !== "string" ||
+    !isMergeProofToken(record.sourceProofToken) ||
+    typeof record.survivorProofToken !== "string" ||
+    !isMergeProofToken(record.survivorProofToken) ||
+    typeof record.idempotencyKey !== "string" ||
+    !/^[A-Za-z0-9][A-Za-z0-9._:-]{15,127}$/.test(record.idempotencyKey)
+  ) {
+    throw new ApiFailure(
+      400,
+      "invalid_account_merge_preview",
+      "Two account IDs, two one-time proofs, and a 16–128 character idempotency key are required.",
+    );
+  }
+  return {
+    sourceUserId: record.sourceUserId,
+    survivorUserId: record.survivorUserId,
+    sourceProofToken: record.sourceProofToken,
+    survivorProofToken: record.survivorProofToken,
+    idempotencyKey: record.idempotencyKey,
+  };
+}
+
+function normalizeCompleteAccountMergeRequest(
+  value: unknown,
+): CompleteAccountMergeRequest {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new ApiFailure(
+      400,
+      "invalid_account_merge_completion",
+      "Account merge completion must be a JSON object.",
+    );
+  }
+  const record = value as Record<string, unknown>;
+  const allowed = ["confirmation", "idempotencyKey", "resolutions"];
+  const unknown = Object.keys(record).find((key) => !allowed.includes(key));
+  if (
+    unknown ||
+    typeof record.confirmation !== "string" ||
+    record.confirmation.length > 200 ||
+    typeof record.idempotencyKey !== "string" ||
+    !/^[A-Za-z0-9][A-Za-z0-9._:-]{15,127}$/.test(record.idempotencyKey) ||
+    !record.resolutions ||
+    typeof record.resolutions !== "object" ||
+    Array.isArray(record.resolutions)
+  ) {
+    throw new ApiFailure(
+      400,
+      "invalid_account_merge_completion",
+      "Exact confirmation, idempotency key, and conflict resolutions are required.",
+    );
+  }
+  const resolutions = record.resolutions as Record<string, unknown>;
+  if (
+    Object.values(resolutions).some(
+      (choice) => choice !== "source" && choice !== "survivor",
+    )
+  ) {
+    throw new ApiFailure(
+      400,
+      "invalid_merge_resolution",
+      "Every merge resolution must choose source or survivor.",
+    );
+  }
+  return {
+    confirmation: record.confirmation,
+    idempotencyKey: record.idempotencyKey,
+    resolutions: resolutions as Record<string, AccountMergeResolutionChoice>,
+  };
+}
+
+function normalizeRollbackAccountMergeRequest(
+  value: unknown,
+): RollbackAccountMergeRequest {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new ApiFailure(
+      400,
+      "invalid_account_merge_rollback",
+      "Account merge rollback must be a JSON object.",
+    );
+  }
+  const record = value as Record<string, unknown>;
+  if (
+    Object.keys(record).some(
+      (key) => !["confirmation", "reason"].includes(key),
+    ) ||
+    typeof record.confirmation !== "string" ||
+    record.confirmation.length > 200 ||
+    typeof record.reason !== "string" ||
+    record.reason.trim().length < 10 ||
+    record.reason.length > 500
+  ) {
+    throw new ApiFailure(
+      400,
+      "invalid_account_merge_rollback",
+      "Exact rollback confirmation and a 10–500 character reason are required.",
+    );
+  }
+  return {
+    confirmation: record.confirmation,
+    reason: record.reason.trim(),
+  };
+}
+
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value,
+  );
+}
+
+function isMergeProofToken(value: string): boolean {
+  return /^[0-9a-f-]{36}\.[0-9a-f-]{36}$/i.test(value);
 }
 
 function isOwner(account: Account): boolean {
@@ -3464,6 +5970,111 @@ async function handleRequest(
       return json({ deletionRequest }, 200, requestId, origin);
     }
 
+    if (
+      request.method === "POST" &&
+      url.pathname === "/v1/me/account-merge-proof"
+    ) {
+      requireApproved(account);
+      requireRecentAuthentication(identity, now);
+      const proof = await repository.createRecentAccountMergeProof({
+        account,
+        requestId,
+        now,
+      });
+      return json({ proof }, 201, requestId, origin);
+    }
+
+    if (
+      request.method === "POST" &&
+      url.pathname === "/v1/admin/account-merges/recovery-proofs"
+    ) {
+      await requireOwner(account, repository, request, requestId, now);
+      requireRecentAuthentication(identity, now);
+      const proof = await repository.createOwnerRecoveryProof({
+        actor: account,
+        request: normalizeOwnerRecoveryProofRequest(
+          await readJson<unknown>(request),
+        ),
+        requestId,
+        now,
+      });
+      return json({ proof }, 201, requestId, origin);
+    }
+    if (
+      request.method === "POST" &&
+      url.pathname === "/v1/admin/account-merges/preview"
+    ) {
+      await requireOwner(account, repository, request, requestId, now);
+      requireRecentAuthentication(identity, now);
+      const merge = await repository.createAccountMergePreview({
+        actor: account,
+        request: normalizeAccountMergePreviewRequest(
+          await readJson<unknown>(request),
+        ),
+        requestId,
+        now,
+      });
+      return json({ merge }, 201, requestId, origin);
+    }
+    const accountMergeMatch = url.pathname.match(
+      /^\/v1\/admin\/account-merges\/([^/]+)$/,
+    );
+    if (request.method === "GET" && accountMergeMatch) {
+      await requireOwner(account, repository, request, requestId, now);
+      const merge = await repository.getAccountMergePreview(
+        decodeURIComponent(accountMergeMatch[1] ?? ""),
+      );
+      return json({ merge }, 200, requestId, origin);
+    }
+    const accountMergeCompleteMatch = url.pathname.match(
+      /^\/v1\/admin\/account-merges\/([^/]+)\/complete$/,
+    );
+    if (request.method === "POST" && accountMergeCompleteMatch) {
+      await requireOwner(account, repository, request, requestId, now);
+      requireRecentAuthentication(identity, now);
+      const receipt = await repository.completeAccountMerge({
+        actor: account,
+        mergeCaseId: decodeURIComponent(
+          accountMergeCompleteMatch[1] ?? "",
+        ),
+        request: normalizeCompleteAccountMergeRequest(
+          await readJson<unknown>(request),
+        ),
+        requestId,
+        now,
+      });
+      return json({ receipt }, 200, requestId, origin);
+    }
+    const accountMergeReceiptMatch = url.pathname.match(
+      /^\/v1\/admin\/account-merges\/([^/]+)\/receipt$/,
+    );
+    if (request.method === "GET" && accountMergeReceiptMatch) {
+      await requireOwner(account, repository, request, requestId, now);
+      const receipt = await repository.getAccountMergeReceipt(
+        decodeURIComponent(accountMergeReceiptMatch[1] ?? ""),
+      );
+      return json({ receipt }, 200, requestId, origin);
+    }
+    const accountMergeRollbackMatch = url.pathname.match(
+      /^\/v1\/admin\/account-merges\/([^/]+)\/rollback$/,
+    );
+    if (request.method === "POST" && accountMergeRollbackMatch) {
+      await requireOwner(account, repository, request, requestId, now);
+      requireRecentAuthentication(identity, now);
+      const receipt = await repository.rollbackAccountMerge({
+        actor: account,
+        mergeCaseId: decodeURIComponent(
+          accountMergeRollbackMatch[1] ?? "",
+        ),
+        request: normalizeRollbackAccountMergeRequest(
+          await readJson<unknown>(request),
+        ),
+        requestId,
+        now,
+      });
+      return json({ receipt }, 200, requestId, origin);
+    }
+
     if (url.pathname === "/v1/admin/accounts" && request.method === "GET") {
       await requireOwner(account, repository, request, requestId, now);
       const stateValue = url.searchParams.get("state");
@@ -3594,8 +6205,8 @@ async function handleRequest(
         requestId,
         now,
       });
-      const { profilePhotoObjectKey, ...completion } = completionResult;
-      if (profilePhotoObjectKey) {
+      const { profilePhotoObjectKeys, ...completion } = completionResult;
+      for (const profilePhotoObjectKey of profilePhotoObjectKeys) {
         if (env.PROFILE_PHOTOS) {
           await env.PROFILE_PHOTOS.delete(profilePhotoObjectKey).catch((error) => {
             console.error(
