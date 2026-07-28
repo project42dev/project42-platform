@@ -27,7 +27,7 @@
   "identity": {
     "protocol": "oidc",
     "flow": "authorization-code-pkce",
-    "requiredClaims": ["iss", "sub", "aud", "exp", "iat", "auth_time", "email_verified"],
+    "requiredClaims": ["iss", "sub", "aud", "exp", "iat", "auth_time", "nonce", "email_verified"],
     "referenceProvider": "keycloak",
     "referenceVersion": "26.7.0",
     "provisioning": {
@@ -45,12 +45,11 @@
     }
   },
   "learn": {
-    "minimumVersion": "0.3.1",
+    "availability": "candidate",
+    "minimumVersion": "0.9.0",
+    "sessionContract": "api-owned-http-only-cookie-v1",
     "configurationContract": [
-      "NEXT_PUBLIC_PROJECT42_API_ORIGIN",
-      "NEXT_PUBLIC_PROJECT42_OIDC_AUTHORITY",
-      "NEXT_PUBLIC_PROJECT42_OIDC_CLIENT_ID",
-      "NEXT_PUBLIC_PROJECT42_OIDC_SCOPE"
+      "NEXT_PUBLIC_PROJECT42_API_ORIGIN"
     ]
   },
   "update": {

@@ -19,7 +19,36 @@
       "redirectUris": ["http://localhost:3000/*"],
       "webOrigins": ["http://localhost:3000"],
       "attributes": {
-        "pkce.code.challenge.method": "S256"
+        "pkce.code.challenge.method": "S256",
+        "client.use.lightweight.access.token.enabled": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "project42-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "project42-api",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "project42-api-browser",
+      "name": "Project 42 API-owned browser session",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "rootUrl": "https://localhost:8787",
+      "redirectUris": ["https://localhost:8787/v1/auth/callback"],
+      "webOrigins": ["https://localhost:3000"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "client.use.lightweight.access.token.enabled": "false",
+        "post.logout.redirect.uris": "https://localhost:3000/*"
       },
       "protocolMappers": [
         {

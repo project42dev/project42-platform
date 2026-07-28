@@ -4,8 +4,13 @@ import {
   D1Project42Repository,
   handleRequest,
 } from "../worker.js";
+import {
+  createSelfHostAuthAbuseLimiter,
+  createTrustedSocketClientAddressResolver,
+} from "./auth-abuse.js";
 import { readConfiguration } from "./config.js";
 import { FilesystemProfilePhotoBucket } from "./filesystem-profile-photo-bucket.js";
+import { writeWebResponseToNode } from "./http-response.js";
 import { applyPostgresMigrations } from "./migrate.js";
 import { PostgresD1CompatibilityDatabase } from "./postgres-d1.js";
 
@@ -15,6 +20,7 @@ const pool = new Pool({
   max: configuration.databasePoolSize,
   ssl: configuration.databaseTls ? { rejectUnauthorized: true } : false,
 });
+const authAbuseLimiter = createSelfHostAuthAbuseLimiter(pool);
 await applyPostgresMigrations(pool, configuration.migrationDirectory);
 const database = new PostgresD1CompatibilityDatabase(pool);
 const repository = new D1Project42Repository(
@@ -39,6 +45,22 @@ const workerEnvironment = {
   BOOTSTRAP_OWNER_ISSUER: configuration.bootstrapOwnerIssuer,
   BOOTSTRAP_OWNER_SUBJECT: configuration.bootstrapOwnerSubject,
   PROFILE_PHOTOS: profilePhotos as unknown as R2Bucket,
+  ...(configuration.browserSession.mode === "oidc"
+    ? {
+        OIDC_AUTHORIZATION_ENDPOINT:
+          configuration.browserSession.authorizationEndpoint,
+        OIDC_TOKEN_ENDPOINT: configuration.browserSession.tokenEndpoint,
+        OIDC_CLIENT_ID: configuration.browserSession.clientId,
+        ...(configuration.browserSession.clientSecret
+          ? { OIDC_CLIENT_SECRET: configuration.browserSession.clientSecret }
+          : {}),
+        OIDC_REDIRECT_URI: configuration.browserSession.redirectUri,
+        ...(configuration.browserSession.logoutEndpoint
+          ? { OIDC_LOGOUT_ENDPOINT: configuration.browserSession.logoutEndpoint }
+          : {}),
+        SESSION_ENCRYPTION_KEY: configuration.browserSession.encryptionKey,
+      }
+    : {}),
 } as unknown as Env;
 
 const server = createServer(async (incoming, outgoing) => {
@@ -51,10 +73,11 @@ const server = createServer(async (incoming, outgoing) => {
       repository,
       undefined,
       configuration.learningRecordAdapter,
+      undefined,
+      authAbuseLimiter,
+      createTrustedSocketClientAddressResolver(incoming),
     );
-    outgoing.statusCode = response.status;
-    response.headers.forEach((value, name) => outgoing.setHeader(name, value));
-    outgoing.end(Buffer.from(await response.arrayBuffer()));
+    await writeWebResponseToNode(outgoing, response);
   } catch (error) {
     console.error(
       JSON.stringify({

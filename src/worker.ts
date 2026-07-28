@@ -66,11 +66,21 @@ import {
   sealOidcTransaction,
   type BrowserOidcTransaction,
 } from "./browser-session.js";
+import {
+  AuthAbuseLimiterUnavailableError,
+  CloudflareAuthAbuseLimiter,
+  readCloudflareClientAddress,
+  type AuthAbuseLimiter,
+  type AuthAbuseRoute,
+} from "./auth-abuse-limiter.js";
 import type { LearningEventDatabase } from "./sql-learning-event-store.js";
 
 type WorkerEnvironment = Omit<
   Env,
-  "DOMAIN_APPROVAL_ENABLED" | "LEARNING_RECORD_ADAPTER"
+  | "DOMAIN_APPROVAL_ENABLED"
+  | "LEARNING_RECORD_ADAPTER"
+  | "AUTH_CLIENT_RATE_LIMITER"
+  | "AUTH_INSTALLATION_RATE_LIMITER"
 > & {
   DOMAIN_APPROVAL_ENABLED?: string;
   LEARNING_RECORD_ADAPTER?: string;
@@ -85,6 +95,8 @@ type WorkerEnvironment = Omit<
   OIDC_REDIRECT_URI?: string;
   OIDC_LOGOUT_ENDPOINT?: string;
   SESSION_ENCRYPTION_KEY?: string;
+  AUTH_CLIENT_RATE_LIMITER?: RateLimit;
+  AUTH_INSTALLATION_RATE_LIMITER?: RateLimit;
 };
 
 interface BrowserSessionRow {
@@ -102,6 +114,15 @@ interface ResolvedBrowserSession {
   identity: VerifiedIdentity;
   expiresAt: string;
   absoluteExpiresAt: string;
+}
+
+interface TransactionalPostconditionDatabase {
+  batchWithPostcondition(
+    statements: D1PreparedStatement[],
+    postcondition: (
+      results: D1Result<unknown>[],
+    ) => void | Promise<void>,
+  ): Promise<D1Result<unknown>[]>;
 }
 
 interface AccountRow {
@@ -288,6 +309,7 @@ class ApiFailure extends Error {
     readonly status: number,
     readonly code: string,
     message: string,
+    readonly retryAfterSeconds?: number,
   ) {
     super(message);
   }
@@ -932,17 +954,24 @@ class D1Project42Repository {
         id,
         input.now,
       );
-    const results = await this.db.batch([inserted, revoked, audit]);
-    if (
-      (results[0]?.meta.changes ?? 0) !== 1 ||
-      (results[1]?.meta.changes ?? 0) !== 1 ||
-      (results[2]?.meta.changes ?? 0) !== 1
-    ) {
-      throw new ApiFailure(
-        409,
-        "session_rotation_conflict",
-        "Your session changed. Sign in again.",
-      );
+    const statements = [inserted, revoked, audit];
+    const validateRotation = (results: D1Result<unknown>[]) => {
+      if (
+        (results[0]?.meta.changes ?? 0) !== 1 ||
+        (results[1]?.meta.changes ?? 0) !== 1 ||
+        (results[2]?.meta.changes ?? 0) !== 1
+      ) {
+        throw new ApiFailure(
+          409,
+          "session_rotation_conflict",
+          "Your session changed. Sign in again.",
+        );
+      }
+    };
+    if (supportsTransactionalPostcondition(this.db)) {
+      await this.db.batchWithPostcondition(statements, validateRotation);
+    } else {
+      validateRotation(await this.db.batch(statements));
     }
     return {
       id,
@@ -5377,6 +5406,15 @@ async function sha256(value: string): Promise<string> {
     .join("");
 }
 
+function supportsTransactionalPostcondition(
+  database: D1Database,
+): database is D1Database & TransactionalPostconditionDatabase {
+  return (
+    "batchWithPostcondition" in database &&
+    typeof database.batchWithPostcondition === "function"
+  );
+}
+
 function addSeconds(value: string, seconds: number): string {
   const parsed = Date.parse(value);
   if (!Number.isFinite(parsed) || !Number.isSafeInteger(seconds) || seconds < 0) {
@@ -6236,6 +6274,16 @@ async function handleRequest(
   githubLinkAdapter: GithubIdentityLinkAdapter = new GithubIdentityLinkAdapter(env),
   learningRecordConfigurationOverride?: LearningRecordAdapterConfiguration,
   browserOidcAdapter: BrowserOidcAdapter = new BrowserOidcAdapter(env),
+  authAbuseLimiter: AuthAbuseLimiter = new CloudflareAuthAbuseLimiter({
+    ...(env.AUTH_CLIENT_RATE_LIMITER
+      ? { perClient: env.AUTH_CLIENT_RATE_LIMITER }
+      : {}),
+    ...(env.AUTH_INSTALLATION_RATE_LIMITER
+      ? { perInstallation: env.AUTH_INSTALLATION_RATE_LIMITER }
+      : {}),
+  }),
+  authClientAddressResolver: (request: Request) => string =
+    readCloudflareClientAddress,
 ): Promise<Response> {
   const requestId = request.headers.get("x-request-id")?.slice(0, 100) || crypto.randomUUID();
   let origin: string | null = null;
@@ -6273,6 +6321,20 @@ async function handleRequest(
         200,
         requestId,
         origin,
+      );
+    }
+
+    if (
+      request.method === "GET" &&
+      (url.pathname === "/v1/auth/start" ||
+        url.pathname === "/v1/auth/callback")
+    ) {
+      await enforceAuthAbuseLimit(
+        request,
+        env,
+        url.pathname === "/v1/auth/start" ? "start" : "callback",
+        authAbuseLimiter,
+        authClientAddressResolver,
       );
     }
 
@@ -7214,7 +7276,51 @@ async function handleRequest(
         clearHostCookie(BROWSER_SESSION_COOKIE),
       );
     }
+    if (failure.code === "authentication_rate_limited") {
+      response.headers.set(
+        "retry-after",
+        String(failure.retryAfterSeconds ?? 60),
+      );
+    }
     return response;
+  }
+}
+
+async function enforceAuthAbuseLimit(
+  request: Request,
+  env: WorkerEnvironment,
+  route: AuthAbuseRoute,
+  limiter: AuthAbuseLimiter,
+  clientAddressResolver: (request: Request) => string,
+): Promise<void> {
+  try {
+    const decision = await limiter.check({
+      installationId: env.INSTALLATION_ID,
+      route,
+      clientAddress: clientAddressResolver(request),
+    });
+    if (!decision.allowed) {
+      throw new ApiFailure(
+        429,
+        "authentication_rate_limited",
+        "Too many sign-in attempts. Wait before trying again.",
+        decision.retryAfterSeconds,
+      );
+    }
+  } catch (error) {
+    if (error instanceof ApiFailure) throw error;
+    if (error instanceof AuthAbuseLimiterUnavailableError) {
+      throw new ApiFailure(
+        503,
+        "authentication_protection_unavailable",
+        "Secure sign-in is temporarily unavailable.",
+      );
+    }
+    throw new ApiFailure(
+      503,
+      "authentication_protection_unavailable",
+      "Secure sign-in is temporarily unavailable.",
+    );
   }
 }
 

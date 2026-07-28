@@ -54,6 +54,25 @@ exchanging the authorization code. This fail-closed ordering prevents replay;
 a provider error or transient exchange failure requires the learner to start a
 new sign-in transaction.
 
+Both unauthenticated routes are protected before transaction creation, cookie
+parsing, or provider exchange. Hosted Workers require the
+`AUTH_CLIENT_RATE_LIMITER` and `AUTH_INSTALLATION_RATE_LIMITER` bindings and a
+trusted `CF-Connecting-IP` value. The default policy admits at most ten requests
+per client and one hundred per installation for each route in a 60-second
+window. Limiter keys contain only SHA-256 digests, not raw network addresses or
+deployment identifiers. Missing client evidence, missing bindings, and limiter
+errors return a generic `503`; exhausted limits return `429` with
+`Retry-After`.
+
+Self-hosted runtimes use the provider-neutral `AuthAbuseLimiter` contract. The
+PostgreSQL implementation takes transaction-scoped advisory locks and counts
+digest-only attempt evidence in the existing audit ledger, so concurrent
+processes enforce the same client and installation caps without a process-local
+counter. Repeated denials are coalesced into at most one marker per installation,
+route, and limiter window so hostile traffic cannot cause unbounded audit-ledger
+growth. A trusted HTTP adapter must supply the peer address rather than accept an
+untrusted forwarding header.
+
 ## Security and operations
 
 Transaction cookies and session cookies use the `__Host-` prefix, `Secure`,
@@ -70,6 +89,9 @@ cleaned without retaining the raw cookie value.
 
 Before promotion, verify state and callback replay rejection, nonce, issuer,
 audience, `azp`, and `auth_time`, hostile and missing origins, rotation races,
-invalid-cookie recovery, suspension/revocation, account merges, and rollback.
+invalid-cookie recovery, abuse-limit exhaustion and recovery, limiter outages,
+suspension/revocation, account merges, and rollback. PostgreSQL rotation checks
+and audit insertion execute before commit; a failed audit or stale concurrent
+rotation rolls back the replacement row.
 Rotate `SESSION_ENCRYPTION_KEY` through a reviewed deployment because active
 authorization transactions encrypted with the old key become invalid.

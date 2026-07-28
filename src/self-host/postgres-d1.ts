@@ -66,6 +66,18 @@ export class PostgresD1CompatibilityDatabase {
   }
 
   async batch(statements: PostgresPreparedStatement[]) {
+    return this.batchWithPostcondition(statements, () => undefined);
+  }
+
+  async batchWithPostcondition(
+    statements: PostgresPreparedStatement[],
+    postcondition: (
+      results: Array<{
+        success: boolean;
+        meta: { changes: number };
+      }>,
+    ) => void | Promise<void>,
+  ) {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
@@ -73,6 +85,7 @@ export class PostgresD1CompatibilityDatabase {
       for (const statement of statements) {
         results.push(await statement.withClient(client).run());
       }
+      await postcondition(results);
       await client.query("COMMIT");
       return results;
     } catch (error) {

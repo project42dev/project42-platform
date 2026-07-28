@@ -96,16 +96,22 @@ test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", asyn
       };
     },
   };
-  const api = (request) =>
-    handleRequest(
-      request,
+  const api = (request) => {
+    const headers = new Headers(request.headers);
+    headers.set("CF-Connecting-IP", "192.0.2.42");
+    return handleRequest(
+      new Request(request, { headers }),
       env,
       verifier,
       undefined,
       undefined,
       undefined,
       browserAdapter,
+      {
+        check: async () => ({ allowed: true, retryAfterSeconds: 60 }),
+      },
     );
+  };
 
   const start = await api(
     new Request(
@@ -293,6 +299,23 @@ test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", asyn
   assert.equal(
     (await conflictedRenewal.json()).error.code,
     "session_rotation_conflict",
+  );
+  const rotationRows = await database
+    .prepare(
+      `SELECT
+         count(*) AS total,
+         sum(CASE WHEN revoked_at IS NULL THEN 1 ELSE 0 END) AS active
+       FROM browser_sessions
+       WHERE installation_id = ?`,
+    )
+    .bind(env.INSTALLATION_ID)
+    .first();
+  assert.deepEqual(
+    {
+      total: Number(rotationRows.total),
+      active: Number(rotationRows.active),
+    },
+    { total: 2, active: 1 },
   );
   assert.equal(renewal.status, 200);
   const replacementCookie = cookiePair(

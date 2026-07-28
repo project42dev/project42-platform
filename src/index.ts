@@ -111,6 +111,21 @@ export {
   sha256Base64Url,
 } from "./browser-session.js";
 export {
+  AUTH_ABUSE_ROUTES,
+  AuthAbuseLimiterUnavailableError,
+  CloudflareAuthAbuseLimiter,
+  normalizeAuthClientAddress,
+  readCloudflareClientAddress,
+} from "./auth-abuse-limiter.js";
+export type {
+  AuthAbuseLimitDecision,
+  AuthAbuseLimiter,
+  AuthAbuseLimitRequest,
+  AuthAbuseRoute,
+  CloudflareAuthAbuseBindings,
+  CloudflareRateLimitBinding,
+} from "./auth-abuse-limiter.js";
+export {
   runLearningRecordAdapterConformance,
   verifyLearningRecordAdapterParity,
 } from "./learning-record-adapter-conformance.js";
