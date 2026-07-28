@@ -7,6 +7,7 @@ import {
   measureLearningRecordRecovery,
   restoreVerifiedLearningRecordExport,
   runLearningRecordRecoveryConformance,
+  runMeasuredLearningRecordRecoveryConformance,
   SqlLearningEventStore,
 } from "../dist/index.js";
 
@@ -278,4 +279,77 @@ test("recovery measurements fail closed on chronology and objectives", () => {
       }),
     /recoveryStartedAt must not precede sourceCurrentAt/,
   );
+});
+
+test("measured recovery gate brackets the actual restore operation", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-28",
+    d1Databases: {
+      SOURCE: "project42-measured-recovery-source",
+      RESTORED: "project42-measured-recovery-restored",
+    },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+
+  const sourceDatabase = await miniflare.getD1Database("SOURCE");
+  const restoredDatabase = await miniflare.getD1Database("RESTORED");
+  for (const database of [sourceDatabase, restoredDatabase]) {
+    await applyD1Migrations(database);
+  }
+
+  const installationId = "measured-recovery-conformance";
+  const retainedLearnerId = "measured-recovery-retained";
+  const deletedLearnerId = "measured-recovery-deleted";
+  for (const database of [sourceDatabase, restoredDatabase]) {
+    await seedRecoveryPrincipals(database, installationId, [
+      retainedLearnerId,
+      deletedLearnerId,
+    ]);
+  }
+
+  const sourceStore = new SqlLearningEventStore(sourceDatabase);
+  const restoredStore = new SqlLearningEventStore(restoredDatabase);
+  const originalAppend = restoredStore.append.bind(restoredStore);
+  let appendCalls = 0;
+  restoredStore.append = async (...arguments_) => {
+    appendCalls += 1;
+    return originalAppend(...arguments_);
+  };
+
+  const clockTimes = [
+    "2026-07-28T18:03:00.000Z",
+    "2026-07-28T18:03:01.500Z",
+  ];
+  const appendCallsAtClockRead = [];
+  const report = await runMeasuredLearningRecordRecoveryConformance(
+    sourceStore,
+    restoredStore,
+    {
+      installationId,
+      retainedLearnerId,
+      deletedLearnerId,
+      keyPrefix: "measured-d1-recovery",
+    },
+    {
+      backupCapturedAt: "2026-07-28T18:00:00.000Z",
+      sourceCurrentAt: "2026-07-28T18:02:00.000Z",
+      maximumRecoveryPointSeconds: 300,
+      maximumRecoveryTimeSeconds: 10,
+      now: () => {
+        appendCallsAtClockRead.push(appendCalls);
+        const next = clockTimes.shift();
+        if (!next) throw new Error("Recovery clock was read too many times.");
+        return next;
+      },
+    },
+  );
+
+  assert.deepEqual(appendCallsAtClockRead, [0, 8]);
+  assert.equal(clockTimes.length, 0);
+  assert.equal(report.promotionStatus, "ready");
+  assert.equal(report.recoveryPointSeconds, 120);
+  assert.equal(report.recoveryTimeSeconds, 1.5);
 });

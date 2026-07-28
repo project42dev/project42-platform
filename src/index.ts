@@ -116,6 +116,7 @@ export {
   measureLearningRecordRecovery,
   restoreVerifiedLearningRecordExport,
   runLearningRecordRecoveryConformance,
+  runMeasuredLearningRecordRecoveryConformance,
 } from "./learning-record-recovery.js";
 export {
   LEARNER_ACCOUNT_STATES,
@@ -229,6 +230,7 @@ export type {
   LearningRecordRecoveryMeasurement,
   LearningRecordRecoveryReport,
   LearningRecordRecoveryScope,
+  MeasuredLearningRecordRecoveryOptions,
 } from "./learning-record-recovery.js";
 export type {
   ConsentPurpose,
