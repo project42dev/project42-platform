@@ -4,6 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { Pool } from "pg";
+import {
+  runLearningEventStoreConformance,
+  SqlLearningEventStore,
+} from "../dist/index.js";
 import { readConfiguration } from "../dist/self-host/config.js";
 import { FilesystemProfilePhotoBucket } from "../dist/self-host/filesystem-profile-photo-bucket.js";
 import { applyPostgresMigrations } from "../dist/self-host/migrate.js";
@@ -119,6 +123,7 @@ test(
         "002_learner_profiles.sql",
         "003_linked_identities.sql",
         "004_account_merges.sql",
+        "005_learning_events.sql",
       ]);
       assert.deepEqual(
         await applyPostgresMigrations(pool, "self-host/postgres"),
@@ -149,6 +154,18 @@ test(
       assert.equal(account.state, "approved");
       assert.deepEqual(account.roles, ["learner", "owner"]);
       assert.deepEqual(await repository.findAccount(identity), account);
+
+      const report = await runLearningEventStoreConformance(
+        new SqlLearningEventStore(database),
+        {
+          installationId: "postgres-integration-test",
+          learnerId: account.id,
+          keyPrefix: "postgres-contract",
+        },
+      );
+      assert.equal(report.contractVersion, "1.0");
+      assert.equal(report.eventCountBeforeDeletion, 6);
+      assert.equal(report.deletedEventCount, 6);
     } finally {
       await pool.end();
     }

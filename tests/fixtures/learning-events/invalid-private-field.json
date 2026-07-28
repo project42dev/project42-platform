@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0",
+  "type": "assessment.record",
+  "installationId": "example-installation",
+  "learnerId": "learner-42",
+  "idempotencyKey": "assessment-attempt-example-0001",
+  "contentVersion": "0.36.0",
+  "occurredAt": "2026-07-28T12:00:00.000Z",
+  "actor": {
+    "type": "learner",
+    "userId": "learner-42"
+  },
+  "payload": {
+    "attemptId": "attempt-0001",
+    "pathId": "ai-foundations",
+    "moduleId": "how-models-generate",
+    "assessmentVersion": "1.0.0",
+    "answers": {
+      "question-1": 1
+    },
+    "scorePercent": 100,
+    "passed": true,
+    "primaryEmail": "not-allowed@example.test"
+  }
+}

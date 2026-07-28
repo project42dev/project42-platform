@@ -65,6 +65,8 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
       "account_merge_receipts",
       "account_merge_recovery_receipts",
       "learning_progress",
+      "learning_event_streams",
+      "learning_events",
       "assessment_attempts",
       "transcript_entries",
       "user_badges",
@@ -77,6 +79,27 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
     ]) {
       assert.match(tables, new RegExp(`\\b${table}\\b`));
     }
+
+    runWrangler([
+      "d1",
+      "execute",
+      "PROJECT42_DB",
+      ...common,
+      "--command",
+      "INSERT INTO learning_event_streams (installation_id,user_id,revision,write_token,updated_at) VALUES ('test','u1',1,'write-1','2026-07-28T00:00:00.000Z'); INSERT INTO learning_events (id,installation_id,user_id,idempotency_key,event_type,content_version,command_digest,occurred_at,recorded_at,actor_type,actor_user_id,payload_json,append_token) VALUES ('event-1','test','u1','learning-event-migration-key-1','path.enrolled','1.0.0','aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','2026-07-28T00:00:00.000Z','2026-07-28T00:00:00.000Z','learner','u1','{}','write-1');",
+    ]);
+    const mutableLearningEvent = runWrangler(
+      [
+        "d1",
+        "execute",
+        "PROJECT42_DB",
+        ...common,
+        "--command",
+        "UPDATE learning_events SET content_version='2.0.0' WHERE id='event-1';",
+      ],
+      1,
+    );
+    assert.match(mutableLearningEvent, /learning events are immutable/);
 
     runWrangler([
       "d1",

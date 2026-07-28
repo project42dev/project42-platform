@@ -21,6 +21,9 @@ contracts—not the private PMO records or Project42dev production configuration
   content.
 - Provider-neutral curriculum with Anthropic, OpenAI, and selected-provider branches.
 - Pure assessment scoring and learner-progress functions.
+- Versioned learning commands, immutable retry-safe events, deterministic
+  progress/transcript/badge projection, and a shared D1/PostgreSQL storage
+  conformance harness.
 - Portable JSON learner-record backup/restore, CSV transcripts, capstone evidence,
   and badge derivation.
 - A versioned learner-data lifecycle policy covering consent, retention, recovery,
@@ -44,6 +47,15 @@ contracts—not the private PMO records or Project42dev production configuration
   least-privilege drift detection, overlapping rotation, recovery, disablement,
   and retirement.
 - Seed content suitable for a hosted site or self-hosted installation.
+
+Release `0.56.0` adds the authoritative learner-event contract and shared hosted
+and self-hosted storage conformance suite. Caller-generated idempotency keys
+prevent duplicate writes while distinct concurrent assessment attempts retain
+their original answers and scores. Append-only corrections preserve historical
+evidence, deterministic projections rebuild progress, transcripts, and badges,
+and D1 plus PostgreSQL migrations enforce tenant boundaries and immutable event
+rows. The public harness validates retry, authorization, export, and governed
+deletion behavior for replacement adapters.
 
 Release `0.55.0` adds the executable Keycloak reference adapter for self-hosted
 identity-client provisioning. The adapter uses a caller-supplied administration

@@ -68,6 +68,24 @@ export {
   validatePortableLearnerRecord,
 } from "./portable-record.js";
 export {
+  canonicalizeLearningCommand,
+  digestLearningCommand,
+  LEARNING_COMMAND_TYPES,
+  LEARNING_EVENT_CONTRACT_VERSION,
+  LEARNING_EVENT_TYPES,
+  validateLearningCommand,
+  validateLearningEvent,
+} from "./learning-events.js";
+export {
+  InMemoryLearningEventStore,
+  LearningEventEngine,
+  LearningEventEngineError,
+  LEARNING_EVENT_PERMISSIONS,
+  projectLearningEvents,
+} from "./learning-event-engine.js";
+export { SqlLearningEventStore } from "./sql-learning-event-store.js";
+export { runLearningEventStoreConformance } from "./learning-event-conformance.js";
+export {
   LEARNER_ACCOUNT_STATES,
   LEARNER_DATA_PERMISSIONS,
   LEARNER_DATA_ROLES,
@@ -108,6 +126,51 @@ export type {
   PortableRecordRestoreResult,
   PortableRecordValidation,
 } from "./portable-record.js";
+export type {
+  AssessmentCorrectedEvent,
+  AssessmentRecordedEvent,
+  CompleteModuleCommand,
+  CorrectAssessmentCommand,
+  EnrollPathCommand,
+  LearningActor,
+  LearningActorType,
+  LearningBadgeDefinition,
+  LearningCommand,
+  LearningCommandBase,
+  LearningCommandType,
+  LearningEvent,
+  LearningEventBase,
+  LearningEventType,
+  ModuleCompletedEvent,
+  ModuleVisitedEvent,
+  PathEnrolledEvent,
+  RecordAssessmentCommand,
+  VisitModuleCommand,
+} from "./learning-events.js";
+export type {
+  LearningAssessmentAttemptProjection,
+  LearningAssessmentCorrection,
+  LearningBadgeProjection,
+  LearningCommandResult,
+  LearningEnrollmentProjection,
+  LearningEventAccess,
+  LearningEventAppendResult,
+  LearningEventCandidate,
+  LearningEventEngineOptions,
+  LearningEventPermission,
+  LearningEventStore,
+  LearningModuleProjection,
+  LearningProjection,
+  LearningTranscriptProjection,
+} from "./learning-event-engine.js";
+export type {
+  LearningEventDatabase,
+  LearningEventPreparedStatement,
+} from "./sql-learning-event-store.js";
+export type {
+  LearningEventConformanceReport,
+  LearningEventConformanceScope,
+} from "./learning-event-conformance.js";
 export type {
   ConsentPurpose,
   LearnerAccountState,

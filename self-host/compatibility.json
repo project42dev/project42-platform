@@ -1,19 +1,19 @@
 {
   "$schema": "./compatibility.schema.json",
   "schemaVersion": 1,
-  "release": "0.55.0",
+  "release": "0.56.0",
   "supportLevel": "evaluation",
   "api": {
     "package": "@project42/platform",
-    "version": "0.55.0",
-    "image": "ghcr.io/project42dev/project42-platform-api:0.55.0",
+    "version": "0.56.0",
+    "image": "ghcr.io/project42dev/project42-platform-api:0.56.0",
     "healthPath": "/health",
     "runsAsNonRoot": true
   },
   "database": {
     "adapter": "postgresql",
     "supportedMajors": [17],
-    "migrationHead": "004_account_merges.sql"
+    "migrationHead": "005_learning_events.sql"
   },
   "identity": {
     "protocol": "oidc",
