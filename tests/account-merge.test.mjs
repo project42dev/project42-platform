@@ -105,6 +105,7 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
     BOOTSTRAP_OWNER_ISSUER: issuer,
     BOOTSTRAP_OWNER_SUBJECT: "merge-owner",
     DOMAIN_APPROVAL_ENABLED: "false",
+    LEARNING_RECORD_ADAPTER: "cloudflare-d1",
     PROFILE_PHOTOS: profilePhotos,
   };
   async function api(token, path, init = {}) {

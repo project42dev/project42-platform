@@ -87,6 +87,20 @@ export { SqlLearningEventStore } from "./sql-learning-event-store.js";
 export { runLearningEventStoreConformance } from "./learning-event-conformance.js";
 export { runLearningRecordReceiptConformance } from "./learning-record-receipt-conformance.js";
 export {
+  configureLearningRecordAdapter,
+  describeLearningRecordAdapter,
+  enforceLearningRecordTransactionLimit,
+  HOSTED_LEARNING_RECORD_OPERATING_THRESHOLDS,
+  LEARNING_RECORD_ADAPTER_CONTRACT_VERSION,
+  LEARNING_RECORD_ADAPTER_KINDS,
+  LEARNING_RECORD_SEMANTIC_FINGERPRINT,
+  readLearningRecordAdapterConfiguration,
+} from "./learning-record-adapter.js";
+export {
+  runLearningRecordAdapterConformance,
+  verifyLearningRecordAdapterParity,
+} from "./learning-record-adapter-conformance.js";
+export {
   createLearningRecordDeletionReceipt,
   createLearningRecordDeletionReplay,
   createVerifiedLearningRecordExport,
@@ -133,6 +147,16 @@ export type {
   RecentModule,
   TranscriptEntry,
 } from "./progress.js";
+export type {
+  ConfiguredLearningRecordAdapter,
+  LearningRecordAdapterConfiguration,
+  LearningRecordAdapterKind,
+  LearningRecordRuntime,
+} from "./learning-record-adapter.js";
+export type {
+  LearningRecordAdapterConformanceReport,
+  LearningRecordAdapterParityReport,
+} from "./learning-record-adapter-conformance.js";
 export type {
   PortableLearnerRecordV1,
   PortableRecordRestoreResult,

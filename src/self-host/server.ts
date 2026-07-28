@@ -34,6 +34,7 @@ const workerEnvironment = {
   OIDC_EMAIL_CLAIM: configuration.oidcEmailClaim,
   OIDC_EMAIL_VERIFIED_CLAIM: configuration.oidcEmailVerifiedClaim,
   DOMAIN_APPROVAL_ENABLED: String(configuration.domainApprovalEnabled),
+  LEARNING_RECORD_ADAPTER: configuration.learningRecordAdapter.adapter,
   ALLOWED_ORIGINS: configuration.allowedOrigins.join(","),
   BOOTSTRAP_OWNER_ISSUER: configuration.bootstrapOwnerIssuer,
   BOOTSTRAP_OWNER_SUBJECT: configuration.bootstrapOwnerSubject,
@@ -48,6 +49,8 @@ const server = createServer(async (incoming, outgoing) => {
       workerEnvironment,
       undefined,
       repository,
+      undefined,
+      configuration.learningRecordAdapter,
     );
     outgoing.statusCode = response.status;
     response.headers.forEach((value, name) => outgoing.setHeader(name, value));

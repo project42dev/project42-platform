@@ -68,6 +68,12 @@ isolated, pre-created installation and learner. The public harness proves:
 The harness removes only the learning-event stream in the supplied scope. It does
 not delete the installation or learner.
 
+Hosted and self-hosted release validation uses
+`runLearningRecordAdapterConformance` to combine this suite with receipt
+conformance, then `verifyLearningRecordAdapterParity` to reject semantic drift
+between Cloudflare D1 and PostgreSQL. See the
+[hosted adapter guide](hosted-learning-record-adapter.md).
+
 Verified export, governed deletion, and post-backup replay are defined separately
 in [learning-record receipts](learning-record-receipts.md).
 

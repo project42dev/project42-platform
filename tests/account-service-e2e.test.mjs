@@ -84,6 +84,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     BOOTSTRAP_OWNER_ISSUER: issuer,
     BOOTSTRAP_OWNER_SUBJECT: "owner-subject",
     DOMAIN_APPROVAL_ENABLED: "false",
+    LEARNING_RECORD_ADAPTER: "cloudflare-d1",
     PROFILE_PHOTOS: profilePhotos,
     GITHUB_LINK_CLIENT_ID: "Iv1.1234567890abcdef",
     GITHUB_LINK_CLIENT_SECRET: "s".repeat(40),
