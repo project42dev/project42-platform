@@ -1,12 +1,12 @@
 {
   "$schema": "./compatibility.schema.json",
   "schemaVersion": 1,
-  "release": "0.58.1",
+  "release": "0.59.0",
   "supportLevel": "evaluation",
   "api": {
     "package": "@project42/platform",
-    "version": "0.58.1",
-    "image": "ghcr.io/project42dev/project42-platform-api:0.58.1",
+    "version": "0.59.0",
+    "image": "ghcr.io/project42dev/project42-platform-api:0.59.0",
     "healthPath": "/health",
     "runsAsNonRoot": true
   },
@@ -19,6 +19,7 @@
       "contractVersion": "1.0",
       "eventContractVersion": "1.0",
       "receiptContractVersion": "1.0",
+      "recoveryContractVersion": "1.0",
       "semanticFingerprint": "learning-records/1.0;events/1.0;receipts/1.0;append-only;atomic-batch;optimistic-revision;verified-deletion-replay",
       "transactionMode": "atomic-sequential-batch"
     }

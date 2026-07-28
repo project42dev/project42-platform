@@ -112,6 +112,12 @@ export {
   verifyLearningRecordExport,
 } from "./learning-record-receipts.js";
 export {
+  LEARNING_RECORD_RECOVERY_CONTRACT_VERSION,
+  measureLearningRecordRecovery,
+  restoreVerifiedLearningRecordExport,
+  runLearningRecordRecoveryConformance,
+} from "./learning-record-recovery.js";
+export {
   LEARNER_ACCOUNT_STATES,
   LEARNER_DATA_PERMISSIONS,
   LEARNER_DATA_ROLES,
@@ -219,6 +225,11 @@ export type {
   LearningRecordReceiptStore,
   VerifiedLearningRecordExport,
 } from "./learning-record-receipts.js";
+export type {
+  LearningRecordRecoveryMeasurement,
+  LearningRecordRecoveryReport,
+  LearningRecordRecoveryScope,
+} from "./learning-record-recovery.js";
 export type {
   ConsentPurpose,
   LearnerAccountState,

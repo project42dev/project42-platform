@@ -26,6 +26,9 @@ contracts—not the private PMO records or Project42dev production configuration
   conformance harness.
 - Cryptographically verified learner-record exports, pseudonymous idempotent
   deletion receipts, and backup deletion-replay evidence.
+- A fail-closed recovery promotion gate covering verified restore, post-backup
+  deletion replay, transcript and badge rebuild, corrupt-backup rejection, and
+  measured recovery objectives.
 - Portable JSON learner-record backup/restore, CSV transcripts, capstone evidence,
   and badge derivation.
 - A versioned learner-data lifecycle policy covering consent, retention, recovery,
@@ -49,6 +52,15 @@ contracts—not the private PMO records or Project42dev production configuration
   least-privilege drift detection, overlapping rotation, recovery, disablement,
   and retirement.
 - Seed content suitable for a hosted site or self-hosted installation.
+
+Release `0.59.0` adds a fail-closed learning-record recovery promotion gate.
+Verified exports are checked before any restore write; corrupt and incomplete
+backups are rejected; restored event semantics and order are compared while
+allowing new database-assigned sequence values; transcripts and badges are
+rebuilt; post-backup deletion receipts are replayed before promotion; and
+measured recovery point and recovery time must remain within declared
+objectives. The reference gate uses local ephemeral D1 and consumes no
+Cloudflare account database quota.
 
 Release `0.58.1` adds a checksum-bound remote D1 migration runner for the
 Project 42 schema. It validates exact migration order, rejects previously
@@ -307,6 +319,9 @@ account-backed API without embedding a hosted tenant in the public source.
 The [hosted learning-record adapter guide](docs/hosted-learning-record-adapter.md)
 defines adapter selection, cross-database parity, measurement, and operating
 thresholds.
+The [learning-record recovery gate](docs/learning-record-recovery.md) defines
+restore verification, deletion replay, projection comparison, objective
+measurement, and quota-safe rehearsal boundaries.
 
 For a local PostgreSQL and reference-OIDC evaluation stack, follow the
 [Docker Compose deployment guide](docs/self-hosting/docker-compose.md). The

@@ -125,7 +125,10 @@ outside this repository.
 - Preview the checksum-bound remote migration plan, capture a recovery point,
   and require exact release verification before adopting an older ledger.
 - Revalidate Cloudflare quotas and pricing before each production release.
-- Use a separate D1 database for restoration tests.
+- Run the synthetic promotion gate with ephemeral local Miniflare D1 databases;
+  they do not consume Cloudflare account database quota.
+- Use one separate remote D1 database only for an explicitly authorized,
+  quota-checked restoration rehearsal, and delete it after evidence is captured.
 
 See [Identity providers](identity-providers.md) for the portable authentication
 contract.

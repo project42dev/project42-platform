@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-42.dev/schemas/learning-record-recovery-report-v1.json",
+  "title": "Project 42 learning-record recovery report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contractVersion",
+    "promotionStatus",
+    "checks",
+    "restoredEventCount",
+    "replayedDeletionEventCount",
+    "retainedTranscriptEntries",
+    "retainedBadges",
+    "recoveryPointSeconds",
+    "recoveryTimeSeconds",
+    "maximumRecoveryPointSeconds",
+    "maximumRecoveryTimeSeconds"
+  ],
+  "properties": {
+    "contractVersion": { "const": "1.0" },
+    "promotionStatus": { "const": "ready" },
+    "checks": {
+      "type": "array",
+      "minItems": 11,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "verified-backup-before-write",
+          "corrupt-backup-rejected",
+          "incomplete-backup-rejected",
+          "authoritative-event-order-restored",
+          "enrollment-progress-attempt-correction-projections-rebuilt",
+          "transcript-projection-rebuilt",
+          "badge-projection-rebuilt",
+          "post-backup-deletion-replayed",
+          "deleted-stream-empty-before-promotion",
+          "recovery-point-objective-met",
+          "recovery-time-objective-met"
+        ]
+      }
+    },
+    "restoredEventCount": { "type": "integer", "minimum": 1 },
+    "replayedDeletionEventCount": { "type": "integer", "minimum": 1 },
+    "retainedTranscriptEntries": { "type": "integer", "minimum": 1 },
+    "retainedBadges": { "type": "integer", "minimum": 1 },
+    "recoveryPointSeconds": { "type": "number", "minimum": 0 },
+    "recoveryTimeSeconds": { "type": "number", "minimum": 0 },
+    "maximumRecoveryPointSeconds": { "type": "number", "minimum": 0 },
+    "maximumRecoveryTimeSeconds": { "type": "number", "minimum": 0 }
+  }
+}
