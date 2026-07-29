@@ -2,72 +2,60 @@
 
 ## Active branch
 
-`chore/release-v0.65.0-ab5695-ab5697`
+`test/admin-pagination-scale-ab6358`
 
-Base: `3f7122c9716a8bfb65bcf89515dbe7114b1af79b`
+Base: `5a083de3add80ad6635c6319391cba4f7e34b265` (`origin/main`,
+platform `0.65.0`)
 
-## Release candidate
+## Scope completed
 
-The reusable platform release candidate is `0.65.0`. It packages the
-provider-neutral registration and authorization boundary delivered for AB#5695
-and AB#5697.
-
-## Prepared
-
-- `package.json` and `package-lock.json` identify `0.65.0`.
-- The self-host example selects `PROJECT42_VERSION=0.65.0`.
-- The compatibility manifest identifies release, API, and OCI image `0.65.0`.
-- The compatibility manifest preserves PostgreSQL migration head
-  `011_registration_boundary.sql`, learning-record contract `1.1`, and the
-  API-owned HttpOnly-cookie session contract v1.
-- README release notes describe digest-only registration status receipts,
-  approved-only learner sessions, receipt and stale-session invalidation,
-  explicit preapproval data-rights exceptions, atomic owner decisions, and
-  D1/PostgreSQL parity.
-- Hosted D1 migration head is `0014_registration_boundary.sql`; self-hosted
-  PostgreSQL migration head is `011_registration_boundary.sql`.
-- No feature, schema, migration, production configuration, tenant identifier,
-  owner identifier, or private operational value is introduced by this release
-  preparation.
+- Extracted the exact production account and audit SQL into an internal query
+  builder used by the D1 and PostgreSQL-compatible repositories.
+- Preserved the existing v1 opaque cursor format and response contract.
+- Replaced whole-role-table materialization with row-scoped role aggregation.
+- Changed account continuation to a row-value `(created_at, id)` keyset seek.
+- Added D1 migration `0015_admin_pagination_indexes.sql` and PostgreSQL
+  migration `012_admin_pagination_indexes.sql`.
+- Added large, two-tenant fixtures with 1,205 accounts and 1,803 audit events
+  per installation.
+- Proved complete unfiltered, state-filtered, and audit traversal without
+  duplicates, omissions, ordering drift, or tenant leakage.
+- Added exact D1 `EXPLAIN QUERY PLAN` gates for the account-state, account-sort,
+  and audit-sequence indexes and for avoiding temporary order B-trees and
+  materialized role aggregation.
+- Added equivalent PostgreSQL fixture and JSON query-plan gates when
+  `TEST_POSTGRES_URL` is available.
+- Updated self-host compatibility and migration documentation.
 
 ## Verification
 
-- `npm ci` passed with zero vulnerabilities.
-- `npm run check` passed 255 tests: 253 passed, two optional live-PostgreSQL
-  integration tests skipped in this local command, and zero failed.
-- The full check validated 12 resource packs / 94 resources, 50 hosted D1
-  measurement streams with zero errors and p95 398.11 ms against the 1,000 ms
-  threshold, 572 freshness references / 60 primary sources, and self-host
+- `npx tsc -p tsconfig.json` passed.
+- Focused pagination, scale, account-service E2E, and D1 migration tests passed:
+  seven passed, one optional PostgreSQL test skipped, zero failed.
+- `npm run api:check` generated types and completed a Wrangler dry run; it did
+  not deploy.
+- `npm run check` passed 257 tests: 254 passed, three optional PostgreSQL tests
+  skipped, zero failed.
+- The full gate validated 12 resource packs / 94 resources, 572 freshness
+  references / 60 primary sources, 50 hosted D1 measurement streams with zero
+  errors and p95 415.04 ms against the 1,000 ms threshold, and self-host
   compatibility `0.65.0`.
-- `npm run api:check` regenerated Worker types and completed a Wrangler dry run;
-  it did not deploy.
 - `npm audit --audit-level=moderate` reported zero vulnerabilities.
-- `npm pack --ignore-scripts --dry-run --json` produced
-  `@project42/platform@0.65.0` with 687 files, 1,956,110 packed bytes and
-  9,179,358 unpacked bytes. The archive contains the compatibility manifest,
-  D1 migration `0014`, PostgreSQL migration `011`, registration documentation,
-  self-host files, and compiled runtime.
-- Generator-only training artifacts and generated Worker types produced during
-  validation were restored and are intentionally excluded.
-- `git diff --check` passed. The scoped added-line review found no private ADO
-  URL, credential, personal email address, tenant GUID, secret assignment, or
-  private operational value.
+- `npm pack --ignore-scripts --dry-run --json` produced the expected
+  `@project42/platform@0.65.0` package preview without writing an archive.
+- `git diff --check` and the scoped added-line private-material scan passed.
+- Generated line-ending-only changes were restored and are excluded.
 
-## Outstanding release gates
+## Remaining gates
 
-- Protected pull-request CI must rerun the repository verification suite,
-  PostgreSQL integration, and self-host smoke gates against the versioned
-  candidate.
-- The signed `v0.65.0` tag workflow must attest and sign the package and
-  compatibility manifest, publish and sign the OCI image, and create the GitHub
-  release.
-- No push, pull request, tag, GitHub release, OCI publication, production
-  migration, Worker deployment, Cloudflare/D1 resource change, Entra change, or
-  Azure DevOps mutation belongs to this local preparation task.
+- Run the PostgreSQL migration, traversal, and JSON query-plan tests with
+  `TEST_POSTGRES_URL` in protected CI or an authorized disposable environment.
+- Review and merge through protected-main governance.
+- Apply D1 migration `0015` and deploy the matching Worker release through the
+  approved production process.
+- Validate authenticated owner pagination and audit traversal in production.
+- Move AB#6358 to Resolved only after implementation, documentation, deployment,
+  production validation, and evidence are complete. Do not close it.
 
-AB#5695 and AB#5697 remain Active pending cross-repository and production work.
-User Stories are never moved to Closed by automation.
-
-No production tenant, organization, owner, account, learner, database, bucket,
-credential, recovery, or private operational identifier belongs in this
-repository.
+No production tenant, owner, learner, database, credential, or private
+operational identifier is present in this branch.

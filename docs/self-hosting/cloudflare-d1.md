@@ -110,6 +110,10 @@ markers so concurrent stale owner decisions cannot both commit. Include
 `registration_requests`, the user state revision fields, and approval transition
 IDs in backup, restore, and audit validation.
 
+Migration `0015_admin_pagination_indexes.sql` adds the complete tenant-scoped
+account and audit keyset indexes used by bounded owner administration queries.
+Apply it before validating large account or audit traversals.
+
 Migration `0011_authoritative_progress_imports.sql` adds event schema versions and
 the immutable `progress.imported` event. The Worker then reads
 `/v1/me/progress` from the event projection, writes browser and portable imports

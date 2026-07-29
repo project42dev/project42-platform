@@ -73,6 +73,13 @@ contradictory audit evidence. D1 migration
 `011_registration_boundary.sql` provide the matching hosted and self-hosted
 contracts.
 
+Current development adds deterministic scale and query-plan gates for owner
+account and audit pagination. Two-tenant fixtures traverse more than 1,200
+accounts and 1,800 audit events per installation while the exact D1 and
+PostgreSQL-compatible statements must select the complete keyset indexes.
+Hosted D1 migration `0015_admin_pagination_indexes.sql` and self-hosted
+PostgreSQL migration `012_admin_pagination_indexes.sql` provide those indexes.
+
 Release `0.64.0` adds bounded cursor pagination to owner account and audit
 administration. Existing `accounts` and `events` arrays remain stable while
 page metadata supplies deterministic continuation; opaque cursors are bound to

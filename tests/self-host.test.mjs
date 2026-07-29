@@ -559,6 +559,7 @@ test(
         "009_account_merge_governance_constraints.sql",
         "010_profile_consent_and_deletion_receipts.sql",
         "011_registration_boundary.sql",
+        "012_admin_pagination_indexes.sql",
       ]);
       assert.deepEqual(
         await applyPostgresMigrations(pool, "self-host/postgres"),
