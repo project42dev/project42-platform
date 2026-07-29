@@ -67,6 +67,10 @@ import {
   validateAdminPageSize,
 } from "./admin-pagination.js";
 import {
+  buildAdminAccountPageQuery,
+  buildAdminAuditPageQuery,
+} from "./admin-pagination-query.js";
+import {
   readAccountMergeConsentRequirements,
   type AccountMergeConsentRequirement,
 } from "./account-merge-policy.js";
@@ -1630,50 +1634,20 @@ class D1Project42Repository {
           ...(input.state ? { state: input.state } : {}),
         })
       : null;
-    const conditions = [
-      "u.installation_id = ?",
-      `NOT EXISTS (
-        SELECT 1
-          FROM account_merge_aliases m
-         WHERE m.installation_id = u.installation_id
-           AND m.source_user_id = u.id
-      )`,
-    ];
     const bindings: Array<string | number> = [this.installationId];
     if (input.state) {
-      conditions.push("u.account_state = ?");
       bindings.push(input.state);
     }
     if (position) {
-      conditions.push(
-        "(u.created_at > ? OR (u.created_at = ? AND u.id > ?))",
-      );
-      bindings.push(
-        position.createdAt,
-        position.createdAt,
-        position.userId,
-      );
+      bindings.push(position.createdAt, position.userId);
     }
     bindings.push(input.pageSize + 1);
     const result = await this.db
       .prepare(
-        `SELECT u.id, u.installation_id, i.provider, i.issuer, i.subject,
-                u.display_name,
-                u.primary_email, u.email_verified, u.account_state, u.created_at,
-                u.updated_at, r.roles
-           FROM users u
-           JOIN user_identities i
-             ON i.installation_id = u.installation_id AND i.user_id = u.id
-            AND i.status = 'active' AND i.is_primary = 1
-           LEFT JOIN (
-             SELECT installation_id, user_id, GROUP_CONCAT(role) AS roles
-               FROM role_assignments
-              GROUP BY installation_id, user_id
-           ) r
-             ON r.installation_id = u.installation_id AND r.user_id = u.id
-          WHERE ${conditions.join(" AND ")}
-          ORDER BY u.created_at ASC, u.id ASC
-          LIMIT ?`,
+        buildAdminAccountPageQuery({
+          stateFiltered: Boolean(input.state),
+          positioned: Boolean(position),
+        }),
       )
       .bind(...bindings)
       .all<AccountRow>();
@@ -5233,13 +5207,7 @@ class D1Project42Repository {
       : null;
     const result = await this.db
       .prepare(
-        `SELECT sequence, id, actor_user_id, action, target_type, target_id,
-                request_id, outcome, reason, metadata_json, occurred_at
-           FROM audit_events
-          WHERE installation_id = ?
-            ${position ? "AND sequence < ?" : ""}
-          ORDER BY sequence DESC
-          LIMIT ?`,
+        buildAdminAuditPageQuery(Boolean(position)),
       )
       .bind(
         this.installationId,

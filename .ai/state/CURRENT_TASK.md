@@ -1,14 +1,13 @@
 # Current task
 
-Prepare the reusable Project 42 platform `0.65.0` release candidate for the
-AB#5695 and AB#5697 registration and authorization boundary already merged to
-`origin/main`.
+Complete the platform-only scalability and query-plan portion of AB#6358,
+"Add paginated account and audit administration queries."
 
-The release preparation is mechanical: align package, lockfile, self-host
-environment, compatibility, README release wording, and handoff metadata. Do
-not add features or perform a push, pull request, tag, release, deployment,
-Azure DevOps mutation, Cloudflare mutation, Entra mutation, or database
-mutation.
+The reusable platform already exposes cursor-paginated, tenant-scoped account
+and audit queries. This branch adds complete keyset indexes, keeps the existing
+opaque cursor contract unchanged, removes whole-table role materialization from
+the account query, and proves traversal and query-plan behavior with large,
+two-tenant fixtures.
 
-AB#5695 and AB#5697 remain Active until cross-repository integration,
-production deployment, and production evidence are complete.
+AB#6358 is Active. Do not move it to Resolved or Closed until the remaining
+authenticated production owner-console validation is complete.

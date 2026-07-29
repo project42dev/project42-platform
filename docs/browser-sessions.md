@@ -114,8 +114,8 @@ revoked and audited on its next use. Owner decisions use an expected state and
 revision plus a database-bound transition marker, so two concurrent stale
 decisions cannot both commit or create contradictory audit evidence.
 
-Apply D1 migrations through `0014_registration_boundary.sql` or PostgreSQL
-migrations through `011_registration_boundary.sql`. Backups include the
+Apply D1 migrations through `0015_admin_pagination_indexes.sql` or PostgreSQL
+migrations through `012_admin_pagination_indexes.sql`. Backups include the
 authorization, session, and digest-only registration-request tables, but
 restored active sessions should be revoked at the recovery boundary. Retired
 and expired session and receipt rows are retained briefly for audit correlation

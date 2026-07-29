@@ -55,6 +55,9 @@ Migration `011_registration_boundary.sql` adds digest-only registration status
 receipts and atomic expected-state owner decisions. Apply it before accepting
 new registrations so pending or rejected identities cannot receive learner
 sessions.
+Migration `012_admin_pagination_indexes.sql` adds the complete tenant-scoped
+account and audit keyset indexes used by bounded owner administration queries.
+Apply it before validating large account or audit traversals.
 
 Migration `008_authoritative_progress_imports.sql` adds schema-versioned
 `progress.imported` events. The API reads progress from the rebuilt event

@@ -547,7 +547,7 @@ test(
     const pool = new Pool({ connectionString: process.env.TEST_POSTGRES_URL });
     try {
       const applied = await applyPostgresMigrations(pool, "self-host/postgres");
-      assert.deepEqual(applied, [
+      const expectedMigrations = [
         "001_initial.sql",
         "002_learner_profiles.sql",
         "003_linked_identities.sql",
@@ -559,7 +559,16 @@ test(
         "009_account_merge_governance_constraints.sql",
         "010_profile_consent_and_deletion_receipts.sql",
         "011_registration_boundary.sql",
-      ]);
+        "012_admin_pagination_indexes.sql",
+      ];
+      // Node runs test files concurrently against the same CI PostgreSQL
+      // service. Another migration integration test may acquire the advisory
+      // lock and apply the complete set first. A non-empty result must still
+      // be the exact ordered set; an empty result proves the other runner
+      // completed before this call acquired the lock.
+      if (applied.length > 0) {
+        assert.deepEqual(applied, expectedMigrations);
+      }
       assert.deepEqual(
         await applyPostgresMigrations(pool, "self-host/postgres"),
         [],

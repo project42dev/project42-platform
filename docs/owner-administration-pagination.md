@@ -85,3 +85,25 @@ adapter.
 The administration UI should expose explicit previous/next or load-more
 controls, announce newly loaded results, retain keyboard focus, and never infer
 that the first page is the full administrative record.
+
+## Scalability and query-plan gates
+
+Hosted D1 migration `0015_admin_pagination_indexes.sql` and self-hosted
+PostgreSQL migration `012_admin_pagination_indexes.sql` add matching composite
+indexes for the complete account sort key, the optional account-state filter,
+and descending audit sequence. Account-role aggregation is correlated to each
+bounded account row so the database does not materialize every role assignment
+before applying the page limit.
+
+The automated scale fixture creates two installations with more than 1,200
+accounts and 1,800 audit events each. It traverses every target-installation
+page, including repeated account timestamps and a state-filtered traversal, and
+rejects missing rows, duplicate rows, ordering drift, or cross-installation
+leakage. D1 explains the exact production statements and must select the
+matching composite indexes without a temporary order B-tree. When
+`TEST_POSTGRES_URL` is available, the same large fixture and JSON query-plan
+checks run against PostgreSQL.
+
+These checks are deterministic regression gates, not a wall-clock latency
+service-level objective. Production promotion still requires authenticated
+owner-console validation and environment-specific capacity evidence.
