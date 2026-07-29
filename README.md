@@ -33,6 +33,9 @@ contracts—not the private PMO records or Project42dev production configuration
   measured recovery objectives.
 - Portable JSON learner-record backup/restore, CSV transcripts, capstone evidence,
   and badge derivation.
+- A recent-authentication, self-scoped authoritative account CSV transcript with
+  typed JSON-export records, audit evidence, spreadsheet-injection protection,
+  and explicit separation between learning achievements and issued credentials.
 - A versioned learner-data lifecycle policy covering consent, retention, recovery,
   export, deletion, role boundaries, and hosted/self-host adapter requirements.
 - A provider-neutral OIDC Worker API with approval states, exact-domain rules,
@@ -72,6 +75,14 @@ contradictory audit evidence. D1 migration
 `0014_registration_boundary.sql` and PostgreSQL migration
 `011_registration_boundary.sql` provide the matching hosted and self-hosted
 contracts.
+
+Release `0.67.0` adds explicit hosted export record types and a
+recent-authentication, approved-account CSV transcript generated directly from
+durable progress, assessment, and learning-achievement records. The export is
+self-scoped, audited, deterministic, spreadsheet-injection protected, and
+labels learning achievements as evidence rather than issued credentials. No
+database migration is required; the existing learning-record, session, and
+self-host compatibility contracts remain unchanged.
 
 Release `0.66.3` invokes stored provider fetch functions without an object
 receiver, preserving the Cloudflare runtime's required Web API calling

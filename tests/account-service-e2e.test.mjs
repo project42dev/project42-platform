@@ -406,6 +406,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     `/v1/me/profile?userId=${encodeURIComponent(owner.id)}`,
     `/v1/me/consents?userId=${encodeURIComponent(owner.id)}`,
     `/v1/me/export?userId=${encodeURIComponent(owner.id)}`,
+    `/v1/me/transcript.csv?userId=${encodeURIComponent(owner.id)}`,
     `/v1/me/deletion?userId=${encodeURIComponent(owner.id)}`,
   ]) {
     const crossAccount = await api("learner-token", path);
@@ -829,6 +830,44 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   assert.equal(exported.consents.length, 1);
   assert.equal(exported.linkedIdentities.length, 2);
 
+  await database
+    .prepare(
+      `UPDATE transcript_entries
+          SET path_title = ?
+        WHERE installation_id = ? AND user_id = ? AND path_id = ?`,
+    )
+    .bind(
+      '=HYPERLINK("https://example.test","unsafe")',
+      "e2e",
+      learner.id,
+      starterCatalog.paths[0].id,
+    )
+    .run();
+  const transcriptCsv = await api(
+    "learner-token",
+    "/v1/me/transcript.csv",
+  );
+  assert.equal(transcriptCsv.status, 200);
+  assert.equal(
+    transcriptCsv.headers.get("content-type"),
+    "text/csv; charset=utf-8",
+  );
+  assert.equal(transcriptCsv.headers.get("cache-control"), "private, no-store");
+  assert.match(
+    transcriptCsv.headers.get("content-disposition"),
+    /project42-account-transcript/,
+  );
+  const transcriptCsvBody = await transcriptCsv.text();
+  assert.match(transcriptCsvBody, /"durable-account-record","path_progress"/);
+  assert.match(
+    transcriptCsvBody,
+    /"'=HYPERLINK\(""https:\/\/example\.test"",""unsafe""\)"/,
+  );
+  assert.match(
+    transcriptCsvBody,
+    /"learning_achievement".*"not_issued_credential"/,
+  );
+
   const unlinkGithub = await api(
     "learner-token",
     `/v1/me/identities/${encodeURIComponent(githubIdentity.id)}`,
@@ -1134,6 +1173,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     "domain.delete",
     "deletion.request",
     "deletion.complete",
+    "data.transcript.export",
     "authorization.owner.denied",
     "authorization.self-scope.denied",
   ]) {
@@ -1153,7 +1193,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
         event.action === "authorization.self-scope.denied" &&
         event.outcome === "denied",
     ).length,
-    4,
+    5,
   );
   assert.ok(events.every((event) => event.requestId));
 

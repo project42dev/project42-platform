@@ -86,6 +86,12 @@ export {
   validatePortableLearnerRecord,
 } from "./portable-record.js";
 export {
+  AUTHORITATIVE_TRANSCRIPT_CSV_COLUMNS,
+  AUTHORITATIVE_TRANSCRIPT_CSV_SCHEMA_VERSION,
+  buildAuthoritativeTranscriptCsv,
+  escapeCsvCell,
+} from "./authoritative-transcript-csv.js";
+export {
   canonicalizeLearningCommand,
   digestLearningCommand,
   LEARNING_COMMAND_TYPES,
@@ -384,6 +390,14 @@ export type {
   DeleteDomainRuleRequest,
   DomainRule,
   LearnerProfile,
+  LearnerAchievementRecord,
+  LearnerApprovalDecisionRecord,
+  LearnerAssessmentAttemptRecord,
+  LearnerDataExport,
+  LearnerModuleProgressRecord,
+  LearnerTranscriptEntryRecord,
+  AuthoritativeTranscriptRecords,
+  ApprovalDecisionKind,
   ProgressEnvelope,
   ProgressImportRequest,
   Project42Role,

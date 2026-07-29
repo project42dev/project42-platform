@@ -236,6 +236,7 @@ test("non-approved bearer identities have an exhaustive fail-closed self-service
     },
     { method: "DELETE", path: "/v1/me/profile/photo" },
     { method: "GET", path: "/v1/me/progress" },
+    { method: "GET", path: "/v1/me/transcript.csv" },
     {
       method: "POST",
       path: "/v1/me/progress",

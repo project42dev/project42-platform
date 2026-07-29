@@ -44,6 +44,12 @@ import type {
   IdentityLinkTransaction,
   LearnerProfile,
   LearnerDataExport,
+  LearnerAchievementRecord,
+  LearnerApprovalDecisionRecord,
+  LearnerAssessmentAttemptRecord,
+  LearnerModuleProgressRecord,
+  LearnerTranscriptEntryRecord,
+  AuthoritativeTranscriptRecords,
   LinkedIdentity,
   LinkedIdentityStatus,
   OwnerRecoveryProofRequest,
@@ -121,6 +127,10 @@ import {
   SqlLearningEventStore,
   type LearningEventDatabase,
 } from "./sql-learning-event-store.js";
+import {
+  AUTHORITATIVE_TRANSCRIPT_CSV_SCHEMA_VERSION,
+  buildAuthoritativeTranscriptCsv,
+} from "./authoritative-transcript-csv.js";
 
 type WorkerEnvironment = Omit<
   Env,
@@ -285,6 +295,16 @@ interface ConsentRow {
   decision: ConsentDecision;
   decided_at: string;
   contract_status: ConsentRecord["contractStatus"];
+}
+
+interface LearnerAssessmentAttemptDatabaseRecord
+  extends Omit<LearnerAssessmentAttemptRecord, "passed"> {
+  passed: boolean | number;
+}
+
+interface LearnerAchievementDatabaseRecord
+  extends Omit<LearnerAchievementRecord, "evidenceModuleIds"> {
+  evidenceModuleIds: string | string[];
 }
 
 interface DeletionRequestRow {
@@ -4759,10 +4779,7 @@ class D1Project42Repository {
       profile,
       linkedIdentities,
       progress,
-      moduleProgress,
-      assessmentAttempts,
-      transcriptEntries,
-      badges,
+      transcriptRecords,
       consents,
       deletionRequests,
       approvalDecisions,
@@ -4770,53 +4787,7 @@ class D1Project42Repository {
       this.getProfile(input.account, input.now),
       this.listLinkedIdentities(input.account.id, true),
       this.getProgress(input.account.id),
-      this.db
-        .prepare(
-          `SELECT path_id AS pathId, module_id AS moduleId,
-                  content_version AS contentVersion, status,
-                  first_seen_at AS firstSeenAt, completed_at AS completedAt,
-                  updated_at AS updatedAt
-             FROM module_progress
-            WHERE installation_id = ? AND user_id = ?
-            ORDER BY updated_at ASC`,
-        )
-        .bind(this.installationId, input.account.id)
-        .all<Record<string, unknown>>(),
-      this.db
-        .prepare(
-          `SELECT id, path_id AS pathId, module_id AS moduleId,
-                  content_version AS contentVersion, score_percent AS scorePercent,
-                  passed, completed_at AS completedAt, recorded_at AS recordedAt
-             FROM assessment_attempts
-            WHERE installation_id = ? AND user_id = ?
-            ORDER BY completed_at ASC`,
-        )
-        .bind(this.installationId, input.account.id)
-        .all<Record<string, unknown>>(),
-      this.db
-        .prepare(
-          `SELECT path_id AS pathId, path_title AS pathTitle,
-                  completed_modules AS completedModules, total_modules AS totalModules,
-                  completion_percent AS completionPercent,
-                  best_score_percent AS bestScorePercent,
-                  content_version AS contentVersion, updated_at AS updatedAt
-             FROM transcript_entries
-            WHERE installation_id = ? AND user_id = ?
-            ORDER BY path_id ASC`,
-        )
-        .bind(this.installationId, input.account.id)
-        .all<Record<string, unknown>>(),
-      this.db
-        .prepare(
-          `SELECT badge_id AS badgeId, name, description, earned_at AS earnedAt,
-                  evidence_module_ids_json AS evidenceModuleIds,
-                  recorded_at AS recordedAt
-             FROM user_badges
-            WHERE installation_id = ? AND user_id = ?
-            ORDER BY earned_at ASC`,
-        )
-        .bind(this.installationId, input.account.id)
-        .all<Record<string, unknown>>(),
+      this.loadAuthoritativeTranscriptRecords(input.account.id),
       this.listConsents(input.account.id),
       this.listDeletionRequests(input.account.id),
       this.db
@@ -4828,7 +4799,7 @@ class D1Project42Repository {
             ORDER BY decided_at ASC`,
         )
         .bind(this.installationId, input.account.id)
-        .all<Record<string, unknown>>(),
+        .all<LearnerApprovalDecisionRecord>(),
     ]);
     await this.db.batch([
       this.auditStatement({
@@ -4852,22 +4823,113 @@ class D1Project42Repository {
       profile,
       linkedIdentities,
       progress,
-      moduleProgress: moduleProgress.results,
-      assessmentAttempts: assessmentAttempts.results.map((attempt) => ({
-        ...attempt,
-        passed: attempt.passed === 1,
-      })),
-      transcriptEntries: transcriptEntries.results,
-      badges: badges.results.map((badge) => ({
-        ...badge,
-        evidenceModuleIds:
-          typeof badge.evidenceModuleIds === "string"
-            ? JSON.parse(badge.evidenceModuleIds)
-            : badge.evidenceModuleIds,
-      })),
+      moduleProgress: transcriptRecords.moduleProgress,
+      assessmentAttempts: transcriptRecords.assessmentAttempts,
+      transcriptEntries: transcriptRecords.transcriptEntries,
+      badges: transcriptRecords.achievements,
       consents,
       deletionRequests,
       approvalDecisions: approvalDecisions.results,
+    };
+  }
+
+  async exportLearnerTranscriptCsv(input: {
+    account: Account;
+    requestId: string;
+    now: string;
+  }): Promise<string> {
+    const records = await this.loadAuthoritativeTranscriptRecords(
+      input.account.id,
+    );
+    await this.auditStatement({
+      id: crypto.randomUUID(),
+      actor: input.account.identity,
+      actorUserId: input.account.id,
+      action: "data.transcript.export",
+      targetType: "user",
+      targetId: input.account.id,
+      requestId: input.requestId,
+      outcome: "success",
+      reason: "Learner exported their authoritative account transcript as CSV.",
+      metadata: {
+        schemaVersion: AUTHORITATIVE_TRANSCRIPT_CSV_SCHEMA_VERSION,
+        pathCount: records.transcriptEntries.length,
+        moduleCount: records.moduleProgress.length,
+        assessmentCount: records.assessmentAttempts.length,
+        achievementCount: records.achievements.length,
+      },
+      now: input.now,
+    }).run();
+    return buildAuthoritativeTranscriptCsv(records);
+  }
+
+  private async loadAuthoritativeTranscriptRecords(
+    userId: string,
+  ): Promise<AuthoritativeTranscriptRecords> {
+    const [moduleProgress, assessmentAttempts, transcriptEntries, achievements] =
+      await Promise.all([
+        this.db
+          .prepare(
+            `SELECT path_id AS pathId, module_id AS moduleId,
+                    content_version AS contentVersion, status,
+                    first_seen_at AS firstSeenAt, completed_at AS completedAt,
+                    updated_at AS updatedAt
+               FROM module_progress
+              WHERE installation_id = ? AND user_id = ?
+              ORDER BY path_id ASC, module_id ASC, content_version ASC`,
+          )
+          .bind(this.installationId, userId)
+          .all<LearnerModuleProgressRecord>(),
+        this.db
+          .prepare(
+            `SELECT id, path_id AS pathId, module_id AS moduleId,
+                    content_version AS contentVersion, score_percent AS scorePercent,
+                    passed, completed_at AS completedAt, recorded_at AS recordedAt
+               FROM assessment_attempts
+              WHERE installation_id = ? AND user_id = ?
+              ORDER BY completed_at ASC, id ASC`,
+          )
+          .bind(this.installationId, userId)
+          .all<LearnerAssessmentAttemptDatabaseRecord>(),
+        this.db
+          .prepare(
+            `SELECT path_id AS pathId, path_title AS pathTitle,
+                    completed_modules AS completedModules, total_modules AS totalModules,
+                    completion_percent AS completionPercent,
+                    best_score_percent AS bestScorePercent,
+                    content_version AS contentVersion, updated_at AS updatedAt
+               FROM transcript_entries
+              WHERE installation_id = ? AND user_id = ?
+              ORDER BY path_id ASC, content_version ASC`,
+          )
+          .bind(this.installationId, userId)
+          .all<LearnerTranscriptEntryRecord>(),
+        this.db
+          .prepare(
+            `SELECT badge_id AS badgeId, name, description, earned_at AS earnedAt,
+                    evidence_module_ids_json AS evidenceModuleIds,
+                    recorded_at AS recordedAt
+               FROM user_badges
+              WHERE installation_id = ? AND user_id = ?
+              ORDER BY earned_at ASC, badge_id ASC`,
+          )
+          .bind(this.installationId, userId)
+          .all<LearnerAchievementDatabaseRecord>(),
+      ]);
+    return {
+      moduleProgress: moduleProgress.results,
+      assessmentAttempts: assessmentAttempts.results.map((attempt) => ({
+        ...attempt,
+        passed: attempt.passed === true || attempt.passed === 1,
+      })),
+      transcriptEntries: transcriptEntries.results,
+      achievements: achievements.results.map((achievement) => ({
+        ...achievement,
+        evidenceModuleIds: parseStringArray(
+          achievement.evidenceModuleIds,
+          "achievement evidence module IDs",
+        ),
+      })),
     };
   }
 
@@ -6090,6 +6152,30 @@ function parseJsonArray(value: unknown): string[] {
   return Array.isArray(parsed)
     ? parsed.filter((item): item is string => typeof item === "string")
     : [];
+}
+
+function parseStringArray(value: unknown, fieldName: string): string[] {
+  let parsed: unknown;
+  try {
+    parsed = parseJsonRecord<unknown>(value);
+  } catch {
+    throw new ApiFailure(
+      500,
+      "learner_record_invalid",
+      `The stored ${fieldName} could not be read.`,
+    );
+  }
+  if (
+    !Array.isArray(parsed) ||
+    parsed.some((item) => typeof item !== "string")
+  ) {
+    throw new ApiFailure(
+      500,
+      "learner_record_invalid",
+      `The stored ${fieldName} is invalid.`,
+    );
+  }
+  return [...parsed];
 }
 
 function mergeRowUserId(
@@ -7732,6 +7818,30 @@ function json(
   return new Response(responseBody, { status, headers });
 }
 
+function csv(
+  body: string,
+  filename: string,
+  requestId: string,
+  origin: string | null,
+): Response {
+  const headers = new Headers({
+    "content-type": "text/csv; charset=utf-8",
+    "content-disposition": `attachment; filename="${filename}"`,
+    "cache-control": "private, no-store",
+    "x-content-type-options": "nosniff",
+    "x-frame-options": "DENY",
+    "referrer-policy": "no-referrer",
+    "x-request-id": requestId,
+  });
+  if (origin) {
+    headers.set("access-control-allow-origin", origin);
+    headers.set("access-control-allow-credentials", "true");
+    headers.set("access-control-expose-headers", "content-disposition,x-request-id");
+    headers.set("vary", "Origin");
+  }
+  return new Response(body, { status: 200, headers });
+}
+
 function redirect(
   location: string,
   cookies: string[],
@@ -8591,6 +8701,23 @@ async function handleRequest(
         `attachment; filename="project42-learner-export-${now.slice(0, 10)}.json"`,
       );
       return response;
+    }
+    if (
+      request.method === "GET" &&
+      url.pathname === "/v1/me/transcript.csv"
+    ) {
+      requireApproved(account);
+      requireRecentAuthentication(identity, now);
+      return csv(
+        await repository.exportLearnerTranscriptCsv({
+          account,
+          requestId,
+          now,
+        }),
+        `project42-account-transcript-${now.slice(0, 10)}.csv`,
+        requestId,
+        origin,
+      );
     }
     if (request.method === "GET" && url.pathname === "/v1/me/deletion") {
       requireNonApprovedDataRightsAuthentication(account, identity, now);
