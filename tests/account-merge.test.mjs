@@ -20,6 +20,7 @@ function identity(subject, email) {
     emailVerified: true,
     displayName: subject,
     issuedAt: Math.floor(Date.now() / 1_000),
+    authenticatedAt: Math.floor(Date.now() / 1_000),
   };
 }
 
@@ -95,7 +96,11 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
       const token = request.headers.get("authorization")?.replace(/^Bearer /, "");
       const verified = token ? identities.get(token) : null;
       if (!verified) throw new Error("Unknown merge test identity.");
-      return { ...verified, issuedAt: Math.floor(Date.now() / 1_000) };
+      return {
+        ...verified,
+        issuedAt: Math.floor(Date.now() / 1_000),
+        authenticatedAt: Math.floor(Date.now() / 1_000),
+      };
     },
   };
   const repository = new D1Project42Repository(database, "merge-e2e");
@@ -496,6 +501,22 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
   ).progress.progress;
   assert.equal(mergedProgress.attempts.length, 2);
   assert.equal(new Set(mergedProgress.attempts.map((item) => item.id)).size, 2);
+  const mergedProgressEvent = await database
+    .prepare(
+      `SELECT event_type, actor_type, payload_json
+         FROM learning_events
+        WHERE installation_id = ? AND user_id = ?
+        ORDER BY sequence DESC
+        LIMIT 1`,
+    )
+    .bind("merge-e2e", survivor.id)
+    .first();
+  assert.equal(mergedProgressEvent.event_type, "progress.imported");
+  assert.equal(mergedProgressEvent.actor_type, "owner");
+  assert.equal(
+    JSON.parse(mergedProgressEvent.payload_json).source,
+    "account-merge-v1",
+  );
   const mergedConsents = (
     await json(await api("survivor-token", "/v1/me/consents"))
   ).consents;
@@ -557,6 +578,28 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
     ).progress.progress.attempts.length,
     1,
   );
+  assert.equal(
+    (
+      await json(await api("survivor-token", "/v1/me/progress"))
+    ).progress.progress.attempts.length,
+    1,
+  );
+  for (const userId of [source.id, survivor.id]) {
+    const rollbackProgressEvent = await database
+      .prepare(
+        `SELECT payload_json
+           FROM learning_events
+          WHERE installation_id = ? AND user_id = ?
+          ORDER BY sequence DESC
+          LIMIT 1`,
+      )
+      .bind("merge-e2e", userId)
+      .first();
+    assert.equal(
+      JSON.parse(rollbackProgressEvent.payload_json).source,
+      "account-merge-v1",
+    );
+  }
   assert.equal(
     (
       await json(await api("survivor-token", "/v1/me/profile"))

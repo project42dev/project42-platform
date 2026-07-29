@@ -1,33 +1,33 @@
 {
   "$schema": "./compatibility.schema.json",
   "schemaVersion": 1,
-  "release": "0.59.1",
+  "release": "0.61.0",
   "supportLevel": "evaluation",
   "api": {
     "package": "@project42/platform",
-    "version": "0.59.1",
-    "image": "ghcr.io/project42dev/project42-platform-api:0.59.1",
+    "version": "0.61.0",
+    "image": "ghcr.io/project42dev/project42-platform-api:0.61.0",
     "healthPath": "/health",
     "runsAsNonRoot": true
   },
   "database": {
     "adapter": "postgresql",
     "supportedMajors": [17],
-    "migrationHead": "006_learning_record_receipts.sql",
+    "migrationHead": "008_authoritative_progress_imports.sql",
     "learningRecords": {
       "selectionVariable": "LEARNING_RECORD_ADAPTER",
-      "contractVersion": "1.0",
-      "eventContractVersion": "1.0",
+      "contractVersion": "1.1",
+      "eventContractVersion": "1.1",
       "receiptContractVersion": "1.0",
       "recoveryContractVersion": "1.0",
-      "semanticFingerprint": "learning-records/1.0;events/1.0;receipts/1.0;append-only;atomic-batch;optimistic-revision;verified-deletion-replay",
+      "semanticFingerprint": "learning-records/1.1;events/1.1;receipts/1.0;append-only;atomic-batch;optimistic-revision;authoritative-progress-import;verified-deletion-replay",
       "transactionMode": "atomic-sequential-batch"
     }
   },
   "identity": {
     "protocol": "oidc",
     "flow": "authorization-code-pkce",
-    "requiredClaims": ["iss", "sub", "aud", "exp", "iat", "email_verified"],
+    "requiredClaims": ["iss", "sub", "aud", "exp", "iat", "auth_time", "nonce", "email_verified"],
     "referenceProvider": "keycloak",
     "referenceVersion": "26.7.0",
     "provisioning": {
@@ -45,12 +45,11 @@
     }
   },
   "learn": {
-    "minimumVersion": "0.3.1",
+    "availability": "candidate",
+    "minimumVersion": "0.9.0",
+    "sessionContract": "api-owned-http-only-cookie-v1",
     "configurationContract": [
-      "NEXT_PUBLIC_PROJECT42_API_ORIGIN",
-      "NEXT_PUBLIC_PROJECT42_OIDC_AUTHORITY",
-      "NEXT_PUBLIC_PROJECT42_OIDC_CLIENT_ID",
-      "NEXT_PUBLIC_PROJECT42_OIDC_SCOPE"
+      "NEXT_PUBLIC_PROJECT42_API_ORIGIN"
     ]
   },
   "update": {

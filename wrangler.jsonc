@@ -19,6 +19,24 @@
       "migrations_dir": "migrations"
     }
   ],
+  "ratelimits": [
+    {
+      "name": "AUTH_CLIENT_RATE_LIMITER",
+      "namespace_id": "4201",
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    },
+    {
+      "name": "AUTH_INSTALLATION_RATE_LIMITER",
+      "namespace_id": "4202",
+      "simple": {
+        "limit": 100,
+        "period": 60
+      }
+    }
+  ],
   "vars": {
     "INSTALLATION_ID": "local",
     "OIDC_ISSUER": "https://identity.example.invalid",
@@ -26,6 +44,11 @@
     "OIDC_JWKS_URL": "https://identity.example.invalid/.well-known/jwks.json",
     "OIDC_EMAIL_CLAIM": "email",
     "OIDC_EMAIL_VERIFIED_CLAIM": "email_verified",
+    "OIDC_AUTHORIZATION_ENDPOINT": "https://identity.example.invalid/oauth2/v2.0/authorize",
+    "OIDC_TOKEN_ENDPOINT": "https://identity.example.invalid/oauth2/v2.0/token",
+    "OIDC_CLIENT_ID": "project42-browser-local",
+    "OIDC_REDIRECT_URI": "https://api.example.invalid/v1/auth/callback",
+    "OIDC_LOGOUT_ENDPOINT": "https://identity.example.invalid/oauth2/v2.0/logout",
     "DOMAIN_APPROVAL_ENABLED": "false",
     "LEARNING_RECORD_ADAPTER": "cloudflare-d1",
     "ALLOWED_ORIGINS": "http://localhost:3000",

@@ -9,7 +9,7 @@ import {
   type LearningEventDatabase,
 } from "./sql-learning-event-store.js";
 
-export const LEARNING_RECORD_ADAPTER_CONTRACT_VERSION = "1.0" as const;
+export const LEARNING_RECORD_ADAPTER_CONTRACT_VERSION = "1.1" as const;
 export const LEARNING_RECORD_ADAPTER_KINDS = [
   "cloudflare-d1",
   "postgresql",
@@ -19,7 +19,7 @@ export type LearningRecordAdapterKind =
 export type LearningRecordRuntime = "cloudflare-worker" | "node";
 
 export const LEARNING_RECORD_SEMANTIC_FINGERPRINT =
-  "learning-records/1.0;events/1.0;receipts/1.0;append-only;atomic-batch;optimistic-revision;verified-deletion-replay" as const;
+  "learning-records/1.1;events/1.1;receipts/1.0;append-only;atomic-batch;optimistic-revision;authoritative-progress-import;verified-deletion-replay" as const;
 
 export const HOSTED_LEARNING_RECORD_OPERATING_THRESHOLDS = Object.freeze({
   providerDatabaseMaximumBytes: 10 * 1024 ** 3,
@@ -42,8 +42,8 @@ export interface LearningRecordAdapterConfiguration {
   receiptContractVersion: typeof LEARNING_RECORD_RECEIPT_VERSION;
   semanticFingerprint: typeof LEARNING_RECORD_SEMANTIC_FINGERPRINT;
   migrationHead:
-    | "0009_learning_record_receipts.sql"
-    | "006_learning_record_receipts.sql";
+    | "0011_authoritative_progress_imports.sql"
+    | "008_authoritative_progress_imports.sql";
   transactionMode: "atomic-sequential-batch";
 }
 
@@ -138,8 +138,8 @@ export function describeLearningRecordAdapter(
     semanticFingerprint: LEARNING_RECORD_SEMANTIC_FINGERPRINT,
     migrationHead:
       adapter === "cloudflare-d1"
-        ? "0009_learning_record_receipts.sql"
-        : "006_learning_record_receipts.sql",
+        ? "0011_authoritative_progress_imports.sql"
+        : "008_authoritative_progress_imports.sql",
     transactionMode: "atomic-sequential-batch",
   };
 }

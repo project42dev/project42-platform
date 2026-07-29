@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://project-42.dev/schemas/learning/learning-event-contract-1.0.json",
+  "$id": "https://project-42.dev/schemas/learning/learning-event-contract-1.1.json",
   "title": "Project 42 authoritative learning command and event contract",
   "oneOf": [
     { "$ref": "#/$defs/enrollPathCommand" },
@@ -8,11 +8,13 @@
     { "$ref": "#/$defs/recordAssessmentCommand" },
     { "$ref": "#/$defs/completeModuleCommand" },
     { "$ref": "#/$defs/correctAssessmentCommand" },
+    { "$ref": "#/$defs/importProgressCommand" },
     { "$ref": "#/$defs/pathEnrolledEvent" },
     { "$ref": "#/$defs/moduleVisitedEvent" },
     { "$ref": "#/$defs/assessmentRecordedEvent" },
     { "$ref": "#/$defs/moduleCompletedEvent" },
-    { "$ref": "#/$defs/assessmentCorrectedEvent" }
+    { "$ref": "#/$defs/assessmentCorrectedEvent" },
+    { "$ref": "#/$defs/progressImportedEvent" }
   ],
   "$defs": {
     "stableId": {
@@ -196,6 +198,224 @@
         }
       }
     },
+    "progressString": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2048,
+      "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+    },
+    "progressId": {
+      "allOf": [
+        { "$ref": "#/$defs/progressString" },
+        { "type": "string", "maxLength": 128 }
+      ]
+    },
+    "progressScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "progressAttempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "pathId",
+        "moduleId",
+        "contentVersion",
+        "scorePercent",
+        "passed",
+        "completedAt"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/progressId" },
+        "pathId": { "$ref": "#/$defs/progressId" },
+        "moduleId": { "$ref": "#/$defs/progressId" },
+        "contentVersion": { "$ref": "#/$defs/progressId" },
+        "scorePercent": { "$ref": "#/$defs/progressScore" },
+        "passed": { "type": "boolean" },
+        "completedAt": { "$ref": "#/$defs/timestamp" }
+      }
+    },
+    "progressCriterionScore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["criterionId", "pointsAwarded"],
+      "properties": {
+        "criterionId": { "$ref": "#/$defs/progressId" },
+        "pointsAwarded": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "maxItems": 1000,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/progressString" }
+        }
+      }
+    },
+    "progressCapstone": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "pathId",
+        "moduleId",
+        "contentVersion",
+        "submittedAt",
+        "artifactRefs",
+        "criterionScores",
+        "scorePercent",
+        "passed",
+        "reflection"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/progressId" },
+        "pathId": { "$ref": "#/$defs/progressId" },
+        "moduleId": { "$ref": "#/$defs/progressId" },
+        "contentVersion": { "$ref": "#/$defs/progressId" },
+        "submittedAt": { "$ref": "#/$defs/timestamp" },
+        "artifactRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1000,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/progressString" }
+        },
+        "criterionScores": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/progressCriterionScore" }
+        },
+        "scorePercent": { "$ref": "#/$defs/progressScore" },
+        "passed": { "type": "boolean" },
+        "reflection": {
+          "allOf": [
+            { "$ref": "#/$defs/progressString" },
+            { "type": "string", "maxLength": 10000 }
+          ]
+        }
+      }
+    },
+    "progressBadge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "description",
+        "earnedAt",
+        "evidenceModuleIds"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/progressId" },
+        "name": {
+          "allOf": [
+            { "$ref": "#/$defs/progressString" },
+            { "type": "string", "maxLength": 120 }
+          ]
+        },
+        "description": {
+          "allOf": [
+            { "$ref": "#/$defs/progressString" },
+            { "type": "string", "maxLength": 500 }
+          ]
+        },
+        "earnedAt": { "$ref": "#/$defs/timestamp" },
+        "evidenceModuleIds": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/progressString" }
+        }
+      }
+    },
+    "progressRecentModule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pathId", "moduleId", "visitedAt"],
+      "properties": {
+        "pathId": { "$ref": "#/$defs/progressId" },
+        "moduleId": { "$ref": "#/$defs/progressId" },
+        "visitedAt": { "$ref": "#/$defs/timestamp" }
+      }
+    },
+    "learnerProgress": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "displayName",
+        "startedPathIds",
+        "completedModuleIds",
+        "attempts",
+        "badges",
+        "updatedAt"
+      ],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "displayName": {
+          "allOf": [
+            { "$ref": "#/$defs/progressString" },
+            { "type": "string", "maxLength": 80 }
+          ]
+        },
+        "startedPathIds": {
+          "type": "array",
+          "maxItems": 1000,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/progressString" }
+        },
+        "completedModuleIds": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/progressString" }
+        },
+        "attempts": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": { "$ref": "#/$defs/progressAttempt" }
+        },
+        "capstoneSubmissions": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": { "$ref": "#/$defs/progressCapstone" }
+        },
+        "badges": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/progressBadge" }
+        },
+        "recentModule": { "$ref": "#/$defs/progressRecentModule" },
+        "updatedAt": { "$ref": "#/$defs/timestamp" }
+      }
+    },
+    "progressImportPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "sourceChecksum",
+        "synchronizedAt",
+        "progress"
+      ],
+      "properties": {
+        "source": {
+          "enum": [
+            "browser-local-v1",
+            "project42-portable-json",
+            "legacy-hosted-v1",
+            "account-merge-v1"
+          ]
+        },
+        "sourceChecksum": { "$ref": "#/$defs/digest" },
+        "synchronizedAt": { "$ref": "#/$defs/timestamp" },
+        "progress": { "$ref": "#/$defs/learnerProgress" }
+      }
+    },
     "commandBase": {
       "type": "object",
       "additionalProperties": false,
@@ -211,14 +431,15 @@
         "payload"
       ],
       "properties": {
-        "schemaVersion": { "const": "1.0" },
+        "schemaVersion": { "enum": ["1.0", "1.1"] },
         "type": {
           "enum": [
             "path.enroll",
             "module.visit",
             "assessment.record",
             "module.complete",
-            "assessment.correct"
+            "assessment.correct",
+            "progress.import"
           ]
         },
         "installationId": { "$ref": "#/$defs/stableId" },
@@ -249,7 +470,7 @@
         "payload"
       ],
       "properties": {
-        "schemaVersion": { "const": "1.0" },
+        "schemaVersion": { "enum": ["1.0", "1.1"] },
         "id": { "$ref": "#/$defs/stableId" },
         "sequence": {
           "type": "integer",
@@ -261,7 +482,8 @@
             "module.visited",
             "assessment.recorded",
             "module.completed",
-            "assessment.corrected"
+            "assessment.corrected",
+            "progress.imported"
           ]
         },
         "installationId": { "$ref": "#/$defs/stableId" },
@@ -335,6 +557,19 @@
         }
       ]
     },
+    "importProgressCommand": {
+      "allOf": [
+        { "$ref": "#/$defs/commandBase" },
+        {
+          "type": "object",
+          "properties": {
+            "schemaVersion": { "const": "1.1" },
+            "type": { "const": "progress.import" },
+            "payload": { "$ref": "#/$defs/progressImportPayload" }
+          }
+        }
+      ]
+    },
     "pathEnrolledEvent": {
       "allOf": [
         { "$ref": "#/$defs/eventBase" },
@@ -391,6 +626,19 @@
           "properties": {
             "type": { "const": "assessment.corrected" },
             "payload": { "$ref": "#/$defs/correctionPayload" }
+          }
+        }
+      ]
+    },
+    "progressImportedEvent": {
+      "allOf": [
+        { "$ref": "#/$defs/eventBase" },
+        {
+          "type": "object",
+          "properties": {
+            "schemaVersion": { "const": "1.1" },
+            "type": { "const": "progress.imported" },
+            "payload": { "$ref": "#/$defs/progressImportPayload" }
           }
         }
       ]

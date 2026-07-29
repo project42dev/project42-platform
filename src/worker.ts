@@ -52,11 +52,50 @@ import {
   readLearningRecordAdapterConfiguration,
   type LearningRecordAdapterConfiguration,
 } from "./learning-record-adapter.js";
-import type { LearningEventDatabase } from "./sql-learning-event-store.js";
+import {
+  BROWSER_SESSION_COOKIE,
+  clearHostCookie,
+  createHostCookie,
+  createPkceChallenge,
+  normalizeReturnTarget,
+  OIDC_TRANSACTION_COOKIE,
+  openOidcTransaction,
+  randomBase64Url,
+  readBrowserOidcConfiguration,
+  readCookie,
+  sealOidcTransaction,
+  type BrowserOidcTransaction,
+} from "./browser-session.js";
+import {
+  AuthAbuseLimiterUnavailableError,
+  CloudflareAuthAbuseLimiter,
+  readCloudflareClientAddress,
+  type AuthAbuseLimiter,
+  type AuthAbuseRoute,
+} from "./auth-abuse-limiter.js";
+import {
+  LearningEventEngine,
+  LearningEventEngineError,
+  projectLearningEvents,
+  type LearningEventAccess,
+  type LearningProjection,
+} from "./learning-event-engine.js";
+import {
+  LEARNING_EVENT_CONTRACT_VERSION,
+  type LearningEvent,
+  type LearningProgressImportSource,
+} from "./learning-events.js";
+import {
+  SqlLearningEventStore,
+  type LearningEventDatabase,
+} from "./sql-learning-event-store.js";
 
 type WorkerEnvironment = Omit<
   Env,
-  "DOMAIN_APPROVAL_ENABLED" | "LEARNING_RECORD_ADAPTER"
+  | "DOMAIN_APPROVAL_ENABLED"
+  | "LEARNING_RECORD_ADAPTER"
+  | "AUTH_CLIENT_RATE_LIMITER"
+  | "AUTH_INSTALLATION_RATE_LIMITER"
 > & {
   DOMAIN_APPROVAL_ENABLED?: string;
   LEARNING_RECORD_ADAPTER?: string;
@@ -64,7 +103,42 @@ type WorkerEnvironment = Omit<
   GITHUB_LINK_CLIENT_ID?: string;
   GITHUB_LINK_CLIENT_SECRET?: string;
   GITHUB_LINK_REDIRECT_URI?: string;
+  OIDC_AUTHORIZATION_ENDPOINT?: string;
+  OIDC_TOKEN_ENDPOINT?: string;
+  OIDC_CLIENT_ID?: string;
+  OIDC_CLIENT_SECRET?: string;
+  OIDC_REDIRECT_URI?: string;
+  OIDC_LOGOUT_ENDPOINT?: string;
+  SESSION_ENCRYPTION_KEY?: string;
+  AUTH_CLIENT_RATE_LIMITER?: RateLimit;
+  AUTH_INSTALLATION_RATE_LIMITER?: RateLimit;
 };
+
+interface BrowserSessionRow {
+  id: string;
+  user_id: string;
+  identity_issuer: string;
+  identity_subject: string;
+  authenticated_at: number;
+  expires_at: string;
+  absolute_expires_at: string;
+}
+
+interface ResolvedBrowserSession {
+  id: string;
+  identity: VerifiedIdentity;
+  expiresAt: string;
+  absoluteExpiresAt: string;
+}
+
+interface TransactionalPostconditionDatabase {
+  batchWithPostcondition(
+    statements: D1PreparedStatement[],
+    postcondition: (
+      results: D1Result<unknown>[],
+    ) => void | Promise<void>,
+  ): Promise<D1Result<unknown>[]>;
+}
 
 interface AccountRow {
   id: string;
@@ -250,6 +324,7 @@ class ApiFailure extends Error {
     readonly status: number,
     readonly code: string,
     message: string,
+    readonly retryAfterSeconds?: number,
   ) {
     super(message);
   }
@@ -272,14 +347,60 @@ class OidcJwtVerifier implements IdentityVerifier {
       throw new ApiFailure(401, "missing_access_token", "A Bearer access token is required.");
     }
 
+    return this.verifyToken(token);
+  }
+
+  async verifyToken(
+    token: string,
+    options: {
+      audience?: string;
+      nonce?: string;
+      requireAuthenticationTime?: boolean;
+    } = {},
+  ): Promise<VerifiedIdentity> {
     try {
+      const requiredClaims = ["iss", "sub", "aud", "exp", "iat"];
+      if (options.requireAuthenticationTime) requiredClaims.push("auth_time");
       const { payload } = await jwtVerify(token, this.keySet, {
         issuer: this.env.OIDC_ISSUER,
-        audience: this.env.OIDC_AUDIENCE,
-        requiredClaims: ["iss", "sub", "aud", "exp", "iat"],
+        audience: options.audience ?? this.env.OIDC_AUDIENCE,
+        requiredClaims,
       });
       if (!payload.iss || !payload.sub) {
         throw new ApiFailure(401, "invalid_access_token", "Token identity is incomplete.");
+      }
+      if (options.nonce && payload.nonce !== options.nonce) {
+        throw new ApiFailure(
+          401,
+          "invalid_identity_token",
+          "The identity response could not be verified.",
+        );
+      }
+      const expectedAudience = options.audience ?? this.env.OIDC_AUDIENCE;
+      if (
+        (payload.azp !== undefined && payload.azp !== expectedAudience) ||
+        (Array.isArray(payload.aud) &&
+          payload.aud.length > 1 &&
+          payload.azp !== expectedAudience)
+      ) {
+        throw new ApiFailure(
+          401,
+          options.nonce ? "invalid_identity_token" : "invalid_access_token",
+          "The token authorized party could not be verified.",
+        );
+      }
+      if (
+        options.requireAuthenticationTime &&
+        (typeof payload.auth_time !== "number" ||
+          !Number.isFinite(payload.auth_time) ||
+          payload.auth_time > Math.floor(Date.now() / 1_000) + 60 ||
+          Math.floor(Date.now() / 1_000) - payload.auth_time > 5 * 60)
+      ) {
+        throw new ApiFailure(
+          401,
+          "invalid_identity_token",
+          "The identity provider did not supply fresh-authentication evidence.",
+        );
       }
       const emailValue = payload[this.env.OIDC_EMAIL_CLAIM];
       const verifiedValue = payload[this.env.OIDC_EMAIL_VERIFIED_CLAIM];
@@ -295,14 +416,138 @@ class OidcJwtVerifier implements IdentityVerifier {
             ? displayNameValue.trim()
             : null,
         ...(typeof payload.iat === "number" ? { issuedAt: payload.iat } : {}),
+        ...(typeof payload.auth_time === "number"
+          ? { authenticatedAt: payload.auth_time }
+          : {}),
       };
     } catch (error) {
       if (error instanceof ApiFailure) throw error;
       if (error instanceof joseErrors.JOSEError) {
-        throw new ApiFailure(401, "invalid_access_token", "The access token is not valid.");
+        throw new ApiFailure(
+          401,
+          options.nonce ? "invalid_identity_token" : "invalid_access_token",
+          options.nonce
+            ? "The identity response could not be verified."
+            : "The access token is not valid.",
+        );
       }
       throw error;
     }
+  }
+}
+
+class BrowserOidcAdapter {
+  constructor(
+    private readonly env: WorkerEnvironment,
+    private readonly fetcher: typeof fetch = fetch,
+  ) {}
+
+  async createAuthorization(
+    transaction: BrowserOidcTransaction,
+  ): Promise<{ location: string; cookie: string }> {
+    const configuration = await readBrowserOidcConfiguration(this.env);
+    const authorization = new URL(configuration.authorizationEndpoint);
+    authorization.searchParams.set("client_id", configuration.clientId);
+    authorization.searchParams.set("response_type", "code");
+    authorization.searchParams.set("redirect_uri", configuration.redirectUri);
+    authorization.searchParams.set("response_mode", "query");
+    authorization.searchParams.set("scope", "openid profile email");
+    authorization.searchParams.set("prompt", "login");
+    authorization.searchParams.set("max_age", "0");
+    authorization.searchParams.set("state", transaction.state);
+    authorization.searchParams.set("nonce", transaction.nonce);
+    authorization.searchParams.set(
+      "code_challenge",
+      await createPkceChallenge(transaction.codeVerifier),
+    );
+    authorization.searchParams.set("code_challenge_method", "S256");
+    return {
+      location: authorization.toString(),
+      cookie: createHostCookie(
+        OIDC_TRANSACTION_COOKIE,
+        await sealOidcTransaction(
+          transaction,
+          configuration.encryptionKey,
+        ),
+        10 * 60,
+      ),
+    };
+  }
+
+  async readTransaction(request: Request): Promise<BrowserOidcTransaction> {
+    const cookie = readCookie(request, OIDC_TRANSACTION_COOKIE);
+    if (!cookie) {
+      throw new ApiFailure(
+        400,
+        "authorization_transaction_missing",
+        "The sign-in response is missing its secure transaction. Start sign-in again.",
+      );
+    }
+    try {
+      const configuration = await readBrowserOidcConfiguration(this.env);
+      return await openOidcTransaction(cookie, configuration.encryptionKey);
+    } catch {
+      throw new ApiFailure(
+        400,
+        "authorization_transaction_invalid",
+        "The sign-in response is invalid or expired. Start sign-in again.",
+      );
+    }
+  }
+
+  async exchange(
+    code: string,
+    transaction: BrowserOidcTransaction,
+  ): Promise<{ idToken: string; clientId: string }> {
+    const configuration = await readBrowserOidcConfiguration(this.env);
+    const body = new URLSearchParams({
+      grant_type: "authorization_code",
+      client_id: configuration.clientId,
+      code,
+      redirect_uri: configuration.redirectUri,
+      code_verifier: transaction.codeVerifier,
+    });
+    if (configuration.clientSecret) {
+      body.set("client_secret", configuration.clientSecret);
+    }
+    let response: Response;
+    try {
+      response = await this.fetcher(configuration.tokenEndpoint, {
+        method: "POST",
+        redirect: "error",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/x-www-form-urlencoded",
+        },
+        body,
+      });
+    } catch {
+      throw new ApiFailure(
+        502,
+        "identity_provider_unavailable",
+        "Sign-in could not be completed. Try again.",
+      );
+    }
+    const tokenBody = await readProviderJson(response);
+    const idToken =
+      typeof tokenBody.id_token === "string" ? tokenBody.id_token : null;
+    if (!response.ok || !idToken) {
+      throw new ApiFailure(
+        400,
+        "authorization_code_rejected",
+        "Sign-in could not be completed. Start sign-in again.",
+      );
+    }
+    return { idToken, clientId: configuration.clientId };
+  }
+
+  async createLogoutUrl(returnTo: string): Promise<string | null> {
+    const configuration = await readBrowserOidcConfiguration(this.env);
+    if (!configuration.logoutEndpoint) return null;
+    const logout = new URL(configuration.logoutEndpoint);
+    logout.searchParams.set("post_logout_redirect_uri", returnTo);
+    logout.searchParams.set("client_id", configuration.clientId);
+    return logout.toString();
   }
 }
 
@@ -419,10 +664,19 @@ class GithubIdentityLinkAdapter {
 }
 
 class D1Project42Repository {
+  private readonly learningEvents: SqlLearningEventStore;
+
   constructor(
     private readonly db: D1Database,
     private readonly installationId: string,
-  ) {}
+    learningEvents?: SqlLearningEventStore,
+  ) {
+    this.learningEvents =
+      learningEvents ??
+      new SqlLearningEventStore(
+        db as unknown as LearningEventDatabase,
+      );
+  }
 
   async ensureInstallation(now: string): Promise<void> {
     await this.db
@@ -433,6 +687,351 @@ class D1Project42Repository {
       )
       .bind(this.installationId, "Project 42", now, now)
       .run();
+  }
+
+  async createOidcAuthorizationTransaction(input: {
+    transaction: BrowserOidcTransaction;
+    stateDigest: string;
+    nonceDigest: string;
+    requestId: string;
+    now: string;
+  }): Promise<void> {
+    await this.db.batch([
+      this.db
+        .prepare(
+          `DELETE FROM oidc_authorization_transactions
+            WHERE installation_id = ?
+              AND (expires_at <= ? OR consumed_at IS NOT NULL)`,
+        )
+        .bind(this.installationId, input.now),
+      this.db
+        .prepare(
+          `DELETE FROM browser_sessions
+            WHERE installation_id = ?
+              AND (
+                absolute_expires_at <= ?
+                OR (revoked_at IS NOT NULL AND revoked_at <= ?)
+              )`,
+        )
+        .bind(
+          this.installationId,
+          subtractSeconds(input.now, 30 * 24 * 60 * 60),
+          subtractSeconds(input.now, 30 * 24 * 60 * 60),
+        ),
+      this.db
+        .prepare(
+          `INSERT INTO oidc_authorization_transactions (
+             id, installation_id, state_digest, nonce_digest, request_id,
+             created_at, expires_at, consumed_at
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, NULL)`,
+        )
+        .bind(
+          input.transaction.id,
+          this.installationId,
+          input.stateDigest,
+          input.nonceDigest,
+          input.requestId,
+          input.now,
+          input.transaction.expiresAt,
+        ),
+    ]);
+  }
+
+  async consumeOidcAuthorizationTransaction(input: {
+    transactionId: string;
+    stateDigest: string;
+    nonceDigest: string;
+    now: string;
+  }): Promise<void> {
+    const result = await this.db
+      .prepare(
+        `UPDATE oidc_authorization_transactions
+            SET consumed_at = ?
+          WHERE id = ? AND installation_id = ?
+            AND state_digest = ? AND nonce_digest = ?
+            AND consumed_at IS NULL AND expires_at > ?`,
+      )
+      .bind(
+        input.now,
+        input.transactionId,
+        this.installationId,
+        input.stateDigest,
+        input.nonceDigest,
+        input.now,
+      )
+      .run();
+    if ((result.meta.changes ?? 0) !== 1) {
+      throw new ApiFailure(
+        400,
+        "invalid_authorization_transaction",
+        "The sign-in response is invalid or expired. Start sign-in again.",
+      );
+    }
+  }
+
+  async createBrowserSession(input: {
+    account: Account;
+    identity: VerifiedIdentity;
+    tokenDigest: string;
+    requestId: string;
+    now: string;
+    priorSession?: ResolvedBrowserSession | null;
+  }): Promise<{ id: string; expiresAt: string; absoluteExpiresAt: string }> {
+    const id = crypto.randomUUID();
+    const expiresAt = addSeconds(input.now, 8 * 60 * 60);
+    const absoluteExpiresAt = addSeconds(input.now, 24 * 60 * 60);
+    const authenticatedAt = input.identity.authenticatedAt;
+    if (
+      typeof authenticatedAt !== "number" ||
+      !Number.isFinite(authenticatedAt)
+    ) {
+      throw new ApiFailure(
+        401,
+        "recent_authentication_required",
+        "Complete a fresh sign-in before creating a browser session.",
+      );
+    }
+    const statements: D1PreparedStatement[] = [
+      this.db
+        .prepare(
+          `INSERT INTO browser_sessions (
+             id, installation_id, user_id, token_digest, identity_issuer,
+             identity_subject, authenticated_at, created_at, last_seen_at,
+             expires_at, absolute_expires_at, revoked_at, replaced_by_session_id
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL)`,
+        )
+        .bind(
+          id,
+          this.installationId,
+          input.account.id,
+          input.tokenDigest,
+          input.identity.issuer,
+          input.identity.subject,
+          authenticatedAt,
+          input.now,
+          input.now,
+          expiresAt,
+          absoluteExpiresAt,
+        ),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.identity,
+        actorUserId: input.account.id,
+        action: "session.create",
+        targetType: "browser-session",
+        targetId: id,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: "OIDC authorization code and nonce validation completed.",
+        metadata: {
+          expiresAt,
+          absoluteExpiresAt,
+        },
+        now: input.now,
+      }),
+    ];
+    if (input.priorSession) {
+      statements.splice(
+        1,
+        0,
+        this.db
+          .prepare(
+            `UPDATE browser_sessions
+                SET revoked_at = ?, replaced_by_session_id = ?
+              WHERE id = ? AND installation_id = ? AND revoked_at IS NULL`,
+          )
+          .bind(
+            input.now,
+            id,
+            input.priorSession.id,
+            this.installationId,
+          ),
+      );
+    }
+    await this.db.batch(statements);
+    return { id, expiresAt, absoluteExpiresAt };
+  }
+
+  async resolveBrowserSession(
+    tokenDigest: string,
+    now: string,
+  ): Promise<ResolvedBrowserSession | null> {
+    const row = await this.db
+      .prepare(
+        `SELECT id, user_id, identity_issuer, identity_subject,
+                authenticated_at, expires_at, absolute_expires_at
+           FROM browser_sessions
+          WHERE installation_id = ? AND token_digest = ?
+            AND revoked_at IS NULL AND expires_at > ? AND absolute_expires_at > ?
+          LIMIT 1`,
+      )
+      .bind(this.installationId, tokenDigest, now, now)
+      .first<BrowserSessionRow>();
+    if (!row) return null;
+    await this.db
+      .prepare(
+        `UPDATE browser_sessions
+            SET last_seen_at = ?
+          WHERE id = ? AND installation_id = ? AND revoked_at IS NULL
+            AND last_seen_at < ?`,
+      )
+      .bind(now, row.id, this.installationId, subtractSeconds(now, 5 * 60))
+      .run();
+    return {
+      id: row.id,
+      identity: {
+        provider: "oidc",
+        issuer: row.identity_issuer,
+        subject: row.identity_subject,
+        email: null,
+        emailVerified: false,
+        displayName: null,
+        authenticatedAt: row.authenticated_at,
+      },
+      expiresAt: row.expires_at,
+      absoluteExpiresAt: row.absolute_expires_at,
+    };
+  }
+
+  async rotateBrowserSession(input: {
+    session: ResolvedBrowserSession;
+    account: Account;
+    tokenDigest: string;
+    requestId: string;
+    now: string;
+  }): Promise<{ id: string; expiresAt: string; absoluteExpiresAt: string }> {
+    if (Date.parse(input.session.absoluteExpiresAt) <= Date.parse(input.now)) {
+      throw new ApiFailure(
+        401,
+        "session_expired",
+        "Your session has expired. Sign in again.",
+      );
+    }
+    const id = crypto.randomUUID();
+    const expiresAt = new Date(
+      Math.min(
+        Date.parse(input.session.absoluteExpiresAt),
+        Date.parse(input.now) + 8 * 60 * 60 * 1000,
+      ),
+    ).toISOString();
+    const inserted = this.db
+      .prepare(
+        `INSERT INTO browser_sessions (
+           id, installation_id, user_id, token_digest, identity_issuer,
+           identity_subject, authenticated_at, created_at, last_seen_at,
+           expires_at, absolute_expires_at, revoked_at, replaced_by_session_id
+         )
+         SELECT ?, installation_id, user_id, ?, identity_issuer,
+                identity_subject, authenticated_at, ?, ?, ?, absolute_expires_at,
+                NULL, NULL
+           FROM browser_sessions
+          WHERE id = ? AND installation_id = ? AND revoked_at IS NULL`,
+      )
+      .bind(
+        id,
+        input.tokenDigest,
+        input.now,
+        input.now,
+        expiresAt,
+        input.session.id,
+        this.installationId,
+      );
+    const revoked = this.db
+      .prepare(
+        `UPDATE browser_sessions
+            SET revoked_at = ?, replaced_by_session_id = ?
+          WHERE id = ? AND installation_id = ? AND revoked_at IS NULL`,
+      )
+      .bind(input.now, id, input.session.id, this.installationId);
+    const audit = this.db
+      .prepare(
+        `INSERT INTO audit_events (
+           id, installation_id, actor_user_id, actor_issuer, actor_subject,
+           action, target_type, target_id, request_id, outcome, reason,
+           metadata_json, occurred_at
+         )
+         SELECT ?, ?, ?, ?, ?, 'session.rotate', 'browser-session', ?, ?,
+                'success', ?, ?, ?
+          WHERE EXISTS (
+            SELECT 1
+              FROM browser_sessions
+             WHERE id = ? AND installation_id = ?
+               AND replaced_by_session_id = ? AND revoked_at = ?
+          )`,
+      )
+      .bind(
+        crypto.randomUUID(),
+        this.installationId,
+        input.account.id,
+        input.session.identity.issuer,
+        input.session.identity.subject,
+        id,
+        input.requestId,
+        "The browser session identifier was rotated.",
+        JSON.stringify({
+          priorSessionId: input.session.id,
+          expiresAt,
+        }),
+        input.now,
+        input.session.id,
+        this.installationId,
+        id,
+        input.now,
+      );
+    const statements = [inserted, revoked, audit];
+    const validateRotation = (results: D1Result<unknown>[]) => {
+      if (
+        (results[0]?.meta.changes ?? 0) !== 1 ||
+        (results[1]?.meta.changes ?? 0) !== 1 ||
+        (results[2]?.meta.changes ?? 0) !== 1
+      ) {
+        throw new ApiFailure(
+          409,
+          "session_rotation_conflict",
+          "Your session changed. Sign in again.",
+        );
+      }
+    };
+    if (supportsTransactionalPostcondition(this.db)) {
+      await this.db.batchWithPostcondition(statements, validateRotation);
+    } else {
+      validateRotation(await this.db.batch(statements));
+    }
+    return {
+      id,
+      expiresAt,
+      absoluteExpiresAt: input.session.absoluteExpiresAt,
+    };
+  }
+
+  async revokeBrowserSession(input: {
+    session: ResolvedBrowserSession;
+    account: Account;
+    requestId: string;
+    now: string;
+  }): Promise<void> {
+    await this.db.batch([
+      this.db
+        .prepare(
+          `UPDATE browser_sessions
+              SET revoked_at = ?
+            WHERE id = ? AND installation_id = ? AND revoked_at IS NULL`,
+        )
+        .bind(input.now, input.session.id, this.installationId),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.session.identity,
+        actorUserId: input.account.id,
+        action: "session.revoke",
+        targetType: "browser-session",
+        targetId: input.session.id,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: "The learner signed out.",
+        metadata: {},
+        now: input.now,
+      }),
+    ]);
   }
 
   async findAccount(identity: VerifiedIdentity): Promise<Account | null> {
@@ -1034,6 +1633,14 @@ class D1Project42Repository {
       );
     }
     if (mergeCase.status === "completed") {
+      if (mergeCase.survivor_user_id) {
+        await this.promoteCurrentLegacyProgress({
+          userId: mergeCase.survivor_user_id,
+          importId: `account-merge-${mergeCase.id}`,
+          actorUserId: input.actor.id,
+          now: input.now,
+        });
+      }
       return this.getAccountMergeReceipt(mergeCase.id);
     }
     if (mergeCase.status !== "preview") {
@@ -1414,6 +2021,19 @@ class D1Project42Repository {
     statements.push(
       this.db
         .prepare(
+          `UPDATE browser_sessions
+              SET revoked_at = ?
+            WHERE installation_id = ? AND user_id IN (?, ?)
+              AND revoked_at IS NULL`,
+        )
+        .bind(
+          input.now,
+          this.installationId,
+          mergeCase.source_user_id,
+          mergeCase.survivor_user_id,
+        ),
+      this.db
+        .prepare(
           `INSERT INTO account_merge_aliases (
              installation_id, source_user_id, survivor_user_id, merge_case_id,
              created_at
@@ -1492,10 +2112,22 @@ class D1Project42Repository {
     } catch (error) {
       const completed = await this.getAccountMergeCase(mergeCase.id);
       if (completed?.status === "completed") {
+        await this.promoteCurrentLegacyProgress({
+          userId: mergeCase.survivor_user_id,
+          importId: `account-merge-${mergeCase.id}`,
+          actorUserId: input.actor.id,
+          now: input.now,
+        });
         return this.getAccountMergeReceipt(mergeCase.id);
       }
       throw error;
     }
+    await this.promoteCurrentLegacyProgress({
+      userId: mergeCase.survivor_user_id,
+      importId: `account-merge-${mergeCase.id}`,
+      actorUserId: input.actor.id,
+      now: input.now,
+    });
     return {
       id: receiptId,
       mergeCaseId: mergeCase.id,
@@ -1568,6 +2200,19 @@ class D1Project42Repository {
       );
     }
     if (mergeCase.status === "rolled-back") {
+      for (const userId of [
+        mergeCase.source_user_id,
+        mergeCase.survivor_user_id,
+      ]) {
+        if (userId) {
+          await this.promoteCurrentLegacyProgress({
+            userId,
+            importId: `account-merge-rollback-${mergeCase.id}-${userId}`,
+            actorUserId: input.actor.id,
+            now: input.now,
+          });
+        }
+      }
       return this.getAccountMergeReceipt(mergeCase.id);
     }
     if (
@@ -1609,6 +2254,19 @@ class D1Project42Repository {
             WHERE installation_id = ? AND merge_case_id = ?`,
         )
         .bind(this.installationId, mergeCase.id),
+      this.db
+        .prepare(
+          `UPDATE browser_sessions
+              SET revoked_at = ?
+            WHERE installation_id = ? AND user_id IN (?, ?)
+              AND revoked_at IS NULL`,
+        )
+        .bind(
+          input.now,
+          this.installationId,
+          mergeCase.source_user_id,
+          mergeCase.survivor_user_id,
+        ),
     ];
     const restoreTables = ACCOUNT_MERGE_SNAPSHOT_TABLES.filter(
       (tableName) => !["users", "user_identities"].includes(tableName),
@@ -1713,6 +2371,17 @@ class D1Project42Repository {
       }),
     );
     await this.db.batch(statements);
+    for (const userId of [
+      mergeCase.source_user_id,
+      mergeCase.survivor_user_id,
+    ]) {
+      await this.promoteCurrentLegacyProgress({
+        userId,
+        importId: `account-merge-rollback-${mergeCase.id}-${userId}`,
+        actorUserId: input.actor.id,
+        now: input.now,
+      });
+    }
     const receipt = await this.getAccountMergeReceipt(mergeCase.id);
     return { ...receipt, status: "rolled-back" };
   }
@@ -2274,6 +2943,18 @@ class D1Project42Repository {
         metadata: { from: current.account_state, to: input.to },
         now: input.now,
       }),
+      ...(input.to === "suspended" || input.to === "revoked"
+        ? [
+            this.db
+              .prepare(
+                `UPDATE browser_sessions
+                    SET revoked_at = ?
+                  WHERE installation_id = ? AND user_id = ?
+                    AND revoked_at IS NULL`,
+              )
+              .bind(input.now, this.installationId, input.targetId),
+          ]
+        : []),
     ]);
     const accounts = await this.listAccounts();
     const updated = accounts.find((account) => account.id === input.targetId);
@@ -2676,7 +3357,7 @@ class D1Project42Repository {
   }
 
   async getProgress(userId: string): Promise<ProgressEnvelope> {
-    const row = await this.db
+    const legacy = await this.db
       .prepare(
         `SELECT revision, progress_json, updated_at
            FROM learning_progress
@@ -2684,14 +3365,75 @@ class D1Project42Repository {
       )
       .bind(this.installationId, userId)
       .first<{ revision: number; progress_json: string; updated_at: string }>();
-    if (!row) {
-      return { revision: 0, progress: createEmptyProgress(), synchronizedAt: new Date(0).toISOString() };
+    let events = await this.learningEvents.list(this.installationId, userId);
+    let projection = await new LearningEventEngine(
+      this.learningEvents,
+    ).rebuild(
+      this.installationId,
+      userId,
+      {
+        installationId: this.installationId,
+        actorType: "learner",
+        actorUserId: userId,
+        permissions: ["learning:read:self"],
+      },
+    );
+    if (legacy) {
+      const legacyProgress = JSON.parse(
+        legacy.progress_json,
+      ) as LearnerProgress;
+      validateProgress(legacyProgress);
+      const checksum = await sha256(canonicalJson(legacyProgress));
+      const lastImport = events
+        .filter(
+          (
+            event,
+          ): event is Extract<LearningEvent, { type: "progress.imported" }> =>
+            event.type === "progress.imported",
+        )
+        .at(-1);
+      const shouldMigrate =
+        events.length === 0 ||
+        Boolean(
+          lastImport &&
+            lastImport.payload.sourceChecksum !== checksum &&
+            Date.parse(legacy.updated_at) >=
+              Date.parse(lastImport.payload.synchronizedAt),
+        );
+      if (shouldMigrate) {
+        const recordedAt = new Date().toISOString();
+        const synchronizedAt =
+          validUtcTimestamp(legacy.updated_at) &&
+          Date.parse(legacy.updated_at) <= Date.parse(recordedAt)
+            ? legacy.updated_at
+            : recordedAt;
+        projection = (
+          await this.executeProgressImport({
+            userId,
+            importId: `legacy-${legacy.revision}-${checksum}`,
+            source: "legacy-hosted-v1",
+            progress: legacyProgress,
+            checksum,
+            synchronizedAt,
+            recordedAt,
+            actorType: "system",
+          })
+        ).projection;
+        events = await this.learningEvents.list(this.installationId, userId);
+      }
     }
-    return {
-      revision: row.revision,
-      progress: JSON.parse(row.progress_json) as LearnerProgress,
-      synchronizedAt: row.updated_at,
-    };
+    const displayName = await this.db
+      .prepare(
+        `SELECT display_name FROM users
+          WHERE installation_id = ? AND id = ?`,
+      )
+      .bind(this.installationId, userId)
+      .first<{ display_name: string | null }>();
+    return progressEnvelopeFromProjection(
+      projection,
+      events,
+      displayName?.display_name ?? "Explorer",
+    );
   }
 
   async importProgress(input: {
@@ -2700,20 +3442,45 @@ class D1Project42Repository {
     requestId: string;
     now: string;
   }): Promise<ProgressEnvelope> {
-    const duplicate = await this.db
-      .prepare(
-        `SELECT imported_revision FROM progress_imports
-          WHERE installation_id = ? AND user_id = ? AND id = ?`,
-      )
-      .bind(this.installationId, input.account.id, input.request.importId)
-      .first<{ imported_revision: number }>();
-    if (duplicate) return this.getProgress(input.account.id);
-
     validateProgress(input.request.progress);
-    const current = await this.getProgress(input.account.id);
-    const revision = current.revision + 1;
     const progressJson = JSON.stringify(input.request.progress);
-    const checksum = await sha256(progressJson);
+    const checksum = await sha256(canonicalJson(input.request.progress));
+    let commandResult;
+    try {
+      commandResult = await this.executeProgressImport({
+        userId: input.account.id,
+        importId: input.request.importId,
+        source: input.request.source,
+        progress: input.request.progress,
+        checksum,
+        synchronizedAt: input.now,
+        recordedAt: input.now,
+        actorType: "learner",
+      });
+    } catch (error) {
+      if (
+        error instanceof LearningEventEngineError &&
+        error.code === "idempotency-conflict"
+      ) {
+        throw new ApiFailure(
+          409,
+          "progress_import_conflict",
+          "The import ID is already bound to different progress.",
+        );
+      }
+      if (
+        error instanceof LearningEventEngineError &&
+        error.code === "concurrency-conflict"
+      ) {
+        throw new ApiFailure(
+          409,
+          "progress_revision_conflict",
+          "Progress changed concurrently; retry the import.",
+        );
+      }
+      throw error;
+    }
+    const revision = commandResult.projection.revision;
     const transcript = buildTranscript(starterCatalog, input.request.progress);
     const statements: D1PreparedStatement[] = [
       this.db
@@ -2733,7 +3500,12 @@ class D1Project42Repository {
           `INSERT INTO progress_imports (
              id, installation_id, user_id, source, source_checksum,
              imported_revision, imported_at
-           ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+           ) VALUES (?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT (installation_id, user_id, id) DO UPDATE SET
+             source = excluded.source,
+             source_checksum = excluded.source_checksum,
+             imported_revision = excluded.imported_revision,
+             imported_at = excluded.imported_at`,
         )
         .bind(
           input.request.importId,
@@ -2885,27 +3657,174 @@ class D1Project42Repository {
           ),
       );
     }
-    statements.push(
-      this.auditStatement({
-        id: crypto.randomUUID(),
-        actor: input.account.identity,
-        actorUserId: input.account.id,
-        action: "progress.import",
-        targetType: "learning_progress",
-        targetId: input.account.id,
-        requestId: input.requestId,
-        outcome: "success",
-        reason: input.request.source,
-        metadata: { revision, checksum },
-        now: input.now,
-      }),
-    );
+    if (!commandResult.replayed) {
+      statements.push(
+        this.auditStatement({
+          id: crypto.randomUUID(),
+          actor: input.account.identity,
+          actorUserId: input.account.id,
+          action: "progress.import",
+          targetType: "learning_event_stream",
+          targetId: input.account.id,
+          requestId: input.requestId,
+          outcome: "success",
+          reason: input.request.source,
+          metadata: {
+            revision,
+            checksum,
+            learningEventId: commandResult.event.id,
+          },
+          now: input.now,
+        }),
+      );
+    }
     await this.db.batch(statements);
-    return {
-      revision,
-      progress: input.request.progress,
-      synchronizedAt: input.now,
+    const events = await this.learningEvents.list(
+      this.installationId,
+      input.account.id,
+    );
+    return progressEnvelopeFromProjection(
+      commandResult.projection,
+      events,
+      input.request.progress.displayName,
+    );
+  }
+
+  private async executeProgressImport(input: {
+    userId: string;
+    importId: string;
+    source: LearningProgressImportSource;
+    progress: LearnerProgress;
+    checksum: string;
+    synchronizedAt: string;
+    recordedAt: string;
+    actorType: "learner" | "owner" | "system";
+    actorUserId?: string;
+  }) {
+    const actor =
+      input.actorType === "system"
+        ? ({ type: "system", userId: null } as const)
+        : ({
+            type: input.actorType,
+            userId: input.actorUserId ?? input.userId,
+          } as const);
+    const access: LearningEventAccess = {
+      installationId: this.installationId,
+      actorType: actor.type,
+      actorUserId: actor.userId,
+      permissions:
+        input.actorType === "system" || input.actorType === "owner"
+          ? ["learning:write:any", "learning:read:any"]
+          : ["learning:write:self", "learning:read:self"],
     };
+    const idempotencyDigest = await sha256(
+      `${this.installationId}\u0000${input.userId}\u0000${input.importId}`,
+    );
+    const idempotencyKey = `progress-import-${idempotencyDigest.slice(0, 48)}`;
+    const currentEvents = await this.learningEvents.list(
+      this.installationId,
+      input.userId,
+    );
+    if (input.source === "legacy-hosted-v1") {
+      const latestImport = currentEvents
+        .filter(
+          (
+            event,
+          ): event is Extract<LearningEvent, { type: "progress.imported" }> =>
+            event.type === "progress.imported",
+        )
+        .at(-1);
+      if (
+        latestImport &&
+        Date.parse(latestImport.payload.synchronizedAt) >=
+          Date.parse(input.synchronizedAt)
+      ) {
+        return {
+          event: latestImport,
+          replayed: true,
+          projection: projectLearningEvents(
+            currentEvents,
+            this.installationId,
+            input.userId,
+          ),
+        };
+      }
+    }
+    const existing = currentEvents.find(
+      (event) => event.idempotencyKey === idempotencyKey,
+    );
+    if (existing) {
+      if (
+        existing.type !== "progress.imported" ||
+        existing.payload.source !== input.source ||
+        existing.payload.sourceChecksum !== input.checksum
+      ) {
+        throw new LearningEventEngineError(
+          "idempotency-conflict",
+          "The progress import ID is already bound to another snapshot.",
+        );
+      }
+      return {
+        event: existing,
+        replayed: true,
+        projection: projectLearningEvents(
+          currentEvents,
+          this.installationId,
+          input.userId,
+        ),
+      };
+    }
+    return new LearningEventEngine(this.learningEvents, {
+      now: () => input.recordedAt,
+    }).execute(
+      {
+        schemaVersion: LEARNING_EVENT_CONTRACT_VERSION,
+        type: "progress.import",
+        installationId: this.installationId,
+        learnerId: input.userId,
+        idempotencyKey,
+        contentVersion: starterCatalog.contentVersion,
+        occurredAt: input.synchronizedAt,
+        actor,
+        payload: {
+          source: input.source,
+          sourceChecksum: input.checksum,
+          synchronizedAt: input.synchronizedAt,
+          progress: structuredClone(input.progress),
+        },
+      },
+      access,
+    );
+  }
+
+  private async promoteCurrentLegacyProgress(input: {
+    userId: string;
+    importId: string;
+    actorUserId: string;
+    now: string;
+  }): Promise<void> {
+    const row = await this.db
+      .prepare(
+        `SELECT progress_json
+           FROM learning_progress
+          WHERE installation_id = ? AND user_id = ?`,
+      )
+      .bind(this.installationId, input.userId)
+      .first<{ progress_json: string }>();
+    if (!row) return;
+    const progress = JSON.parse(row.progress_json) as LearnerProgress;
+    validateProgress(progress);
+    await this.executeProgressImport({
+      userId: input.userId,
+      importId: input.importId,
+      source: "account-merge-v1",
+      progress,
+      checksum: await sha256(canonicalJson(progress)),
+      synchronizedAt: input.now,
+      recordedAt: input.now,
+      actorType: "owner",
+      actorUserId: input.actorUserId,
+    });
   }
 
   async listConsents(userId: string): Promise<ConsentRecord[]> {
@@ -4765,6 +5684,102 @@ function mapDeletionRequest(row: DeletionRequestRow): DeletionRequest {
   };
 }
 
+function progressEnvelopeFromProjection(
+  projection: LearningProjection,
+  events: LearningEvent[],
+  displayName: string,
+): ProgressEnvelope {
+  const progress = projection.progressSnapshot
+    ? structuredClone(projection.progressSnapshot)
+    : createEmptyProgress(displayName);
+  const afterSnapshot = events.filter(
+    (event) => event.sequence > projection.progressSnapshotSequence,
+  );
+  progress.startedPathIds = [
+    ...new Set([
+      ...progress.startedPathIds,
+      ...projection.enrollments.map((enrollment) => enrollment.pathId),
+    ]),
+  ];
+  progress.completedModuleIds = [
+    ...new Set([
+      ...progress.completedModuleIds,
+      ...projection.modules
+        .filter((module) => module.status === "completed")
+        .map((module) => module.moduleId),
+    ]),
+  ];
+  const attempts = new Map(
+    progress.attempts.map((attempt) => [attempt.id, attempt]),
+  );
+  for (const attempt of projection.attempts) {
+    attempts.set(attempt.attemptId, {
+      id: attempt.attemptId,
+      pathId: attempt.pathId,
+      moduleId: attempt.moduleId,
+      contentVersion: attempt.contentVersion,
+      scorePercent: attempt.effectiveScorePercent,
+      passed: attempt.effectivePassed,
+      completedAt: attempt.completedAt,
+    });
+  }
+  progress.attempts = [...attempts.values()].sort((left, right) =>
+    left.completedAt.localeCompare(right.completedAt),
+  );
+  const badges = new Map(
+    progress.badges.map((badge) => [badge.id, badge]),
+  );
+  for (const badge of projection.badges) {
+    badges.set(badge.id, {
+      id: badge.id,
+      name: badge.name,
+      description: badge.description,
+      earnedAt: badge.earnedAt,
+      evidenceModuleIds: [...badge.evidenceModuleIds],
+    });
+  }
+  progress.badges = [...badges.values()].sort((left, right) =>
+    left.earnedAt.localeCompare(right.earnedAt),
+  );
+  const latestVisit = afterSnapshot
+    .filter(
+      (
+        event,
+      ): event is Extract<LearningEvent, { type: "module.visited" }> =>
+        event.type === "module.visited",
+    )
+    .sort((left, right) => right.occurredAt.localeCompare(left.occurredAt))[0];
+  if (latestVisit) {
+    progress.recentModule = {
+      pathId: latestVisit.payload.pathId,
+      moduleId: latestVisit.payload.moduleId,
+      visitedAt: latestVisit.occurredAt,
+    };
+  }
+  const latestChange = afterSnapshot
+    .map((event) => event.occurredAt)
+    .sort()
+    .at(-1);
+  if (latestChange && latestChange.localeCompare(progress.updatedAt) > 0) {
+    progress.updatedAt = latestChange;
+  }
+  return {
+    revision: projection.revision,
+    progress,
+    synchronizedAt:
+      projection.progressSynchronizedAt ??
+      events.at(-1)?.recordedAt ??
+      new Date(0).toISOString(),
+  };
+}
+
+function validUtcTimestamp(value: string): boolean {
+  return (
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value) &&
+    Number.isFinite(Date.parse(value))
+  );
+}
+
 function validateProgress(value: LearnerProgress): void {
   if (
     value.schemaVersion !== 1 ||
@@ -4791,6 +5806,43 @@ async function sha256(value: string): Promise<string> {
   return [...new Uint8Array(digest)]
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
+}
+
+function supportsTransactionalPostcondition(
+  database: D1Database,
+): database is D1Database & TransactionalPostconditionDatabase {
+  return (
+    "batchWithPostcondition" in database &&
+    typeof database.batchWithPostcondition === "function"
+  );
+}
+
+function addSeconds(value: string, seconds: number): string {
+  const parsed = Date.parse(value);
+  if (!Number.isFinite(parsed) || !Number.isSafeInteger(seconds) || seconds < 0) {
+    throw new Error("Session timestamp or lifetime is invalid.");
+  }
+  return new Date(parsed + seconds * 1000).toISOString();
+}
+
+function subtractSeconds(value: string, seconds: number): string {
+  const parsed = Date.parse(value);
+  if (!Number.isFinite(parsed) || !Number.isSafeInteger(seconds) || seconds < 0) {
+    throw new Error("Session timestamp or lifetime is invalid.");
+  }
+  return new Date(parsed - seconds * 1000).toISOString();
+}
+
+function secondsUntil(now: string, future: string): number {
+  const seconds = Math.floor((Date.parse(future) - Date.parse(now)) / 1000);
+  if (!Number.isSafeInteger(seconds) || seconds < 1) {
+    throw new ApiFailure(
+      401,
+      "session_expired",
+      "Your session has expired. Sign in again.",
+    );
+  }
+  return seconds;
 }
 
 async function sha256Base64Url(value: string): Promise<string> {
@@ -5293,18 +6345,28 @@ async function requireOwner(
 }
 
 function requireRecentAuthentication(identity: VerifiedIdentity, now: string): void {
-  const issuedAt = identity.issuedAt;
+  const authenticatedAt = identity.authenticatedAt;
   const nowSeconds = Math.floor(Date.parse(now) / 1_000);
   if (
-    typeof issuedAt !== "number" ||
-    !Number.isFinite(issuedAt) ||
-    issuedAt > nowSeconds + 60 ||
-    nowSeconds - issuedAt > 15 * 60
+    typeof authenticatedAt !== "number" ||
+    !Number.isFinite(authenticatedAt) ||
+    authenticatedAt > nowSeconds + 60 ||
+    nowSeconds - authenticatedAt > 15 * 60
   ) {
     throw new ApiFailure(
       401,
       "recent_authentication_required",
       "Sign in again before exporting or deleting account data.",
+    );
+  }
+}
+
+function requireCookieMutationOrigin(origin: string | null): void {
+  if (!origin) {
+    throw new ApiFailure(
+      403,
+      "origin_required",
+      "Browser session changes require an approved Origin header.",
     );
   }
 }
@@ -5540,11 +6602,33 @@ function json(
   });
   if (origin) {
     headers.set("access-control-allow-origin", origin);
-    headers.set("access-control-allow-credentials", "false");
+    headers.set("access-control-allow-credentials", "true");
     headers.set("vary", "Origin");
   }
   const responseBody = status === 204 || status === 304 ? null : JSON.stringify(body);
   return new Response(responseBody, { status, headers });
+}
+
+function redirect(
+  location: string,
+  cookies: string[],
+  requestId: string,
+  origin: string | null,
+): Response {
+  const headers = new Headers({
+    location,
+    "cache-control": "no-store",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "no-referrer",
+    "x-request-id": requestId,
+  });
+  for (const cookie of cookies) headers.append("set-cookie", cookie);
+  if (origin) {
+    headers.set("access-control-allow-origin", origin);
+    headers.set("access-control-allow-credentials", "true");
+    headers.set("vary", "Origin");
+  }
+  return new Response(null, { status: 302, headers });
 }
 
 function profilePhotoResponse(
@@ -5566,7 +6650,7 @@ function profilePhotoResponse(
   });
   if (origin) {
     headers.set("access-control-allow-origin", origin);
-    headers.set("access-control-allow-credentials", "false");
+    headers.set("access-control-allow-credentials", "true");
     headers.set("vary", "Origin");
   }
   return new Response(object.body, { status: 200, headers });
@@ -5591,6 +6675,17 @@ async function handleRequest(
   repositoryOverride?: D1Project42Repository,
   githubLinkAdapter: GithubIdentityLinkAdapter = new GithubIdentityLinkAdapter(env),
   learningRecordConfigurationOverride?: LearningRecordAdapterConfiguration,
+  browserOidcAdapter: BrowserOidcAdapter = new BrowserOidcAdapter(env),
+  authAbuseLimiter: AuthAbuseLimiter = new CloudflareAuthAbuseLimiter({
+    ...(env.AUTH_CLIENT_RATE_LIMITER
+      ? { perClient: env.AUTH_CLIENT_RATE_LIMITER }
+      : {}),
+    ...(env.AUTH_INSTALLATION_RATE_LIMITER
+      ? { perInstallation: env.AUTH_INSTALLATION_RATE_LIMITER }
+      : {}),
+  }),
+  authClientAddressResolver: (request: Request) => string =
+    readCloudflareClientAddress,
 ): Promise<Response> {
   const requestId = request.headers.get("x-request-id")?.slice(0, 100) || crypto.randomUUID();
   let origin: string | null = null;
@@ -5631,24 +6726,220 @@ async function handleRequest(
       );
     }
 
-    const identity = await verifier.verify(request);
-    const now = new Date().toISOString();
-    if (!repositoryOverride) {
-      configureLearningRecordAdapter(
-        env.PROJECT42_DB as unknown as LearningEventDatabase,
-        learningRecordConfiguration,
+    if (
+      request.method === "GET" &&
+      (url.pathname === "/v1/auth/start" ||
+        url.pathname === "/v1/auth/callback")
+    ) {
+      await enforceAuthAbuseLimit(
+        request,
+        env,
+        url.pathname === "/v1/auth/start" ? "start" : "callback",
+        authAbuseLimiter,
+        authClientAddressResolver,
       );
     }
+
+    const now = new Date().toISOString();
+    const configuredLearningRecords = !repositoryOverride
+      ? configureLearningRecordAdapter(
+        env.PROJECT42_DB as unknown as LearningEventDatabase,
+        learningRecordConfiguration,
+      )
+      : null;
     const repository =
       repositoryOverride ??
-      new D1Project42Repository(env.PROJECT42_DB, env.INSTALLATION_ID);
+      new D1Project42Repository(
+        env.PROJECT42_DB,
+        env.INSTALLATION_ID,
+        configuredLearningRecords!.store,
+      );
     await repository.ensureInstallation(now);
+    if (request.method === "GET" && url.pathname === "/v1/auth/start") {
+      const transaction: BrowserOidcTransaction = {
+        id: crypto.randomUUID(),
+        state: randomBase64Url(),
+        nonce: randomBase64Url(),
+        codeVerifier: randomBase64Url(48),
+        returnTo: normalizeReturnTarget(
+          url.searchParams.get("return_to"),
+          env.ALLOWED_ORIGINS,
+        ),
+        expiresAt: addSeconds(now, 10 * 60),
+      };
+      await repository.createOidcAuthorizationTransaction({
+        transaction,
+        stateDigest: await sha256(transaction.state),
+        nonceDigest: await sha256(transaction.nonce),
+        requestId,
+        now,
+      });
+      const authorization =
+        await browserOidcAdapter.createAuthorization(transaction);
+      return redirect(
+        authorization.location,
+        [authorization.cookie],
+        requestId,
+        origin,
+      );
+    }
+
+    if (request.method === "GET" && url.pathname === "/v1/auth/callback") {
+      const transaction = await browserOidcAdapter.readTransaction(request);
+      const state = url.searchParams.get("state");
+      if (!state || state !== transaction.state) {
+        throw new ApiFailure(
+          400,
+          "authorization_state_mismatch",
+          "The sign-in response could not be verified. Start sign-in again.",
+        );
+      }
+      await repository.consumeOidcAuthorizationTransaction({
+        transactionId: transaction.id,
+        stateDigest: await sha256(state),
+        nonceDigest: await sha256(transaction.nonce),
+        now,
+      });
+      const returnTarget = new URL(transaction.returnTo);
+      const providerError = url.searchParams.get("error");
+      if (providerError) {
+        returnTarget.searchParams.set("auth", "error");
+        return redirect(
+          returnTarget.toString(),
+          [clearHostCookie(OIDC_TRANSACTION_COOKIE)],
+          requestId,
+          origin,
+        );
+      }
+      const code = url.searchParams.get("code");
+      if (!code || code.length > 4096) {
+        throw new ApiFailure(
+          400,
+          "authorization_code_missing",
+          "The sign-in response is incomplete. Start sign-in again.",
+        );
+      }
+      const exchanged = await browserOidcAdapter.exchange(code, transaction);
+      const tokenVerifier = verifier as IdentityVerifier & {
+        verifyToken?: (
+          token: string,
+          options?: {
+            audience?: string;
+            nonce?: string;
+            requireAuthenticationTime?: boolean;
+          },
+        ) => Promise<VerifiedIdentity>;
+      };
+      if (!tokenVerifier.verifyToken) {
+        throw new ApiFailure(
+          503,
+          "identity_token_verifier_unavailable",
+          "Secure sign-in is temporarily unavailable.",
+        );
+      }
+      const identity = await tokenVerifier.verifyToken(exchanged.idToken, {
+        audience: exchanged.clientId,
+        nonce: transaction.nonce,
+        requireAuthenticationTime: true,
+      });
+      const ownerBootstrap =
+        Boolean(env.BOOTSTRAP_OWNER_ISSUER && env.BOOTSTRAP_OWNER_SUBJECT) &&
+        identity.issuer === env.BOOTSTRAP_OWNER_ISSUER &&
+        identity.subject === env.BOOTSTRAP_OWNER_SUBJECT;
+      const account = await repository.createOrRefreshAccount(
+        identity,
+        ownerBootstrap,
+        requestId,
+        now,
+      );
+      const sessionToken = randomBase64Url(48);
+      const priorSessionToken = readCookie(request, BROWSER_SESSION_COOKIE);
+      const priorSession = priorSessionToken
+        ? await repository.resolveBrowserSession(
+            await sha256(priorSessionToken),
+            now,
+          )
+        : null;
+      const session = await repository.createBrowserSession({
+        account,
+        identity,
+        tokenDigest: await sha256(sessionToken),
+        requestId,
+        now,
+        priorSession,
+      });
+      returnTarget.searchParams.set("auth", "success");
+      return redirect(
+        returnTarget.toString(),
+        [
+          createHostCookie(
+            BROWSER_SESSION_COOKIE,
+            sessionToken,
+            secondsUntil(now, session.expiresAt),
+          ),
+          clearHostCookie(OIDC_TRANSACTION_COOKIE),
+        ],
+        requestId,
+        origin,
+      );
+    }
+
+    let browserSession: ResolvedBrowserSession | null = null;
+    let identity: VerifiedIdentity;
+    const sessionToken = readCookie(request, BROWSER_SESSION_COOKIE);
+    if (sessionToken) {
+      browserSession = await repository.resolveBrowserSession(
+        await sha256(sessionToken),
+        now,
+      );
+      if (!browserSession) {
+        if (request.method === "POST" && url.pathname === "/v1/auth/signout") {
+          requireCookieMutationOrigin(origin);
+          const returnTo = normalizeReturnTarget(
+            url.searchParams.get("return_to"),
+            env.ALLOWED_ORIGINS,
+          );
+          const response = json(
+            {
+              signedOut: true,
+              logoutUrl: await browserOidcAdapter.createLogoutUrl(returnTo),
+            },
+            200,
+            requestId,
+            origin,
+          );
+          response.headers.append(
+            "set-cookie",
+            clearHostCookie(BROWSER_SESSION_COOKIE),
+          );
+          return response;
+        }
+        throw new ApiFailure(
+          401,
+          "session_expired",
+          "Your session has expired. Sign in again.",
+        );
+      }
+      if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
+        requireCookieMutationOrigin(origin);
+      }
+      identity = browserSession.identity;
+    } else {
+      identity = await verifier.verify(request);
+    }
     const ownerBootstrap =
       Boolean(env.BOOTSTRAP_OWNER_ISSUER && env.BOOTSTRAP_OWNER_SUBJECT) &&
       identity.issuer === env.BOOTSTRAP_OWNER_ISSUER &&
       identity.subject === env.BOOTSTRAP_OWNER_SUBJECT;
 
     if (request.method === "POST" && url.pathname === "/v1/session") {
+      if (browserSession) {
+        throw new ApiFailure(
+          400,
+          "bearer_session_endpoint_required",
+          "Use the browser session endpoints for an HttpOnly browser session.",
+        );
+      }
       const account = await repository.createOrRefreshAccount(
         identity,
         ownerBootstrap,
@@ -5661,6 +6952,88 @@ async function handleRequest(
     const account = await repository.findAccount(identity);
     if (!account) {
       throw new ApiFailure(401, "account_not_registered", "Register this identity first.");
+    }
+    if (request.method === "GET" && url.pathname === "/v1/auth/session") {
+      return json(
+        {
+          account,
+          session: browserSession
+            ? {
+                expiresAt: browserSession.expiresAt,
+                absoluteExpiresAt: browserSession.absoluteExpiresAt,
+              }
+            : null,
+        },
+        200,
+        requestId,
+        origin,
+      );
+    }
+    if (request.method === "POST" && url.pathname === "/v1/auth/renew") {
+      if (!browserSession) {
+        throw new ApiFailure(
+          400,
+          "browser_session_required",
+          "Sign in with a browser session before renewing.",
+        );
+      }
+      requireApproved(account);
+      const replacementToken = randomBase64Url(48);
+      const replacement = await repository.rotateBrowserSession({
+        session: browserSession,
+        account,
+        tokenDigest: await sha256(replacementToken),
+        requestId,
+        now,
+      });
+      const response = json(
+        {
+          session: {
+            expiresAt: replacement.expiresAt,
+            absoluteExpiresAt: replacement.absoluteExpiresAt,
+          },
+        },
+        200,
+        requestId,
+        origin,
+      );
+      response.headers.append(
+        "set-cookie",
+        createHostCookie(
+          BROWSER_SESSION_COOKIE,
+          replacementToken,
+          secondsUntil(now, replacement.expiresAt),
+        ),
+      );
+      return response;
+    }
+    if (request.method === "POST" && url.pathname === "/v1/auth/signout") {
+      if (browserSession) {
+        await repository.revokeBrowserSession({
+          session: browserSession,
+          account,
+          requestId,
+          now,
+        });
+      }
+      const returnTo = normalizeReturnTarget(
+        url.searchParams.get("return_to"),
+        env.ALLOWED_ORIGINS,
+      );
+      const response = json(
+        {
+          signedOut: true,
+          logoutUrl: await browserOidcAdapter.createLogoutUrl(returnTo),
+        },
+        200,
+        requestId,
+        origin,
+      );
+      response.headers.append(
+        "set-cookie",
+        clearHostCookie(BROWSER_SESSION_COOKIE),
+      );
+      return response;
     }
     if (request.method === "GET" && url.pathname === "/v1/me") {
       return json({ account }, 200, requestId, origin);
@@ -6294,16 +7667,71 @@ async function handleRequest(
         code: failure.code,
       }),
     );
-    return json(
+    const response = json(
       { error: { code: failure.code, message: failure.message, requestId } },
       failure.status,
       requestId,
       origin,
     );
+    if (
+      failure.code === "session_expired" &&
+      readCookie(request, BROWSER_SESSION_COOKIE)
+    ) {
+      response.headers.append(
+        "set-cookie",
+        clearHostCookie(BROWSER_SESSION_COOKIE),
+      );
+    }
+    if (failure.code === "authentication_rate_limited") {
+      response.headers.set(
+        "retry-after",
+        String(failure.retryAfterSeconds ?? 60),
+      );
+    }
+    return response;
+  }
+}
+
+async function enforceAuthAbuseLimit(
+  request: Request,
+  env: WorkerEnvironment,
+  route: AuthAbuseRoute,
+  limiter: AuthAbuseLimiter,
+  clientAddressResolver: (request: Request) => string,
+): Promise<void> {
+  try {
+    const decision = await limiter.check({
+      installationId: env.INSTALLATION_ID,
+      route,
+      clientAddress: clientAddressResolver(request),
+    });
+    if (!decision.allowed) {
+      throw new ApiFailure(
+        429,
+        "authentication_rate_limited",
+        "Too many sign-in attempts. Wait before trying again.",
+        decision.retryAfterSeconds,
+      );
+    }
+  } catch (error) {
+    if (error instanceof ApiFailure) throw error;
+    if (error instanceof AuthAbuseLimiterUnavailableError) {
+      throw new ApiFailure(
+        503,
+        "authentication_protection_unavailable",
+        "Secure sign-in is temporarily unavailable.",
+      );
+    }
+    throw new ApiFailure(
+      503,
+      "authentication_protection_unavailable",
+      "Secure sign-in is temporarily unavailable.",
+    );
   }
 }
 
 export {
+  BrowserOidcAdapter,
   D1Project42Repository,
   GithubIdentityLinkAdapter,
   OidcJwtVerifier,

@@ -63,12 +63,12 @@
           ],
           "properties": {
             "selectionVariable": { "const": "LEARNING_RECORD_ADAPTER" },
-            "contractVersion": { "const": "1.0" },
-            "eventContractVersion": { "const": "1.0" },
+            "contractVersion": { "const": "1.1" },
+            "eventContractVersion": { "const": "1.1" },
             "receiptContractVersion": { "const": "1.0" },
             "recoveryContractVersion": { "const": "1.0" },
             "semanticFingerprint": {
-              "const": "learning-records/1.0;events/1.0;receipts/1.0;append-only;atomic-batch;optimistic-revision;verified-deletion-replay"
+              "const": "learning-records/1.1;events/1.1;receipts/1.0;append-only;atomic-batch;optimistic-revision;authoritative-progress-import;verified-deletion-replay"
             },
             "transactionMode": { "const": "atomic-sequential-batch" }
           }
@@ -91,9 +91,19 @@
         "flow": { "const": "authorization-code-pkce" },
         "requiredClaims": {
           "type": "array",
-          "minItems": 6,
+          "minItems": 8,
           "uniqueItems": true,
-          "items": { "type": "string" }
+          "items": { "type": "string" },
+          "allOf": [
+            { "contains": { "const": "iss" } },
+            { "contains": { "const": "sub" } },
+            { "contains": { "const": "aud" } },
+            { "contains": { "const": "exp" } },
+            { "contains": { "const": "iat" } },
+            { "contains": { "const": "auth_time" } },
+            { "contains": { "const": "nonce" } },
+            { "contains": { "const": "email_verified" } }
+          ]
         },
         "referenceProvider": { "const": "keycloak" },
         "referenceVersion": { "type": "string" },
@@ -151,16 +161,41 @@
     "learn": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["minimumVersion", "configurationContract"],
+      "required": [
+        "availability",
+        "minimumVersion",
+        "sessionContract",
+        "configurationContract"
+      ],
       "properties": {
-        "minimumVersion": { "type": "string" },
+        "availability": { "enum": ["released", "candidate", "unreleased"] },
+        "minimumVersion": {
+          "type": ["string", "null"],
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "sessionContract": {
+          "const": "api-owned-http-only-cookie-v1"
+        },
         "configurationContract": {
           "type": "array",
-          "minItems": 4,
+          "minItems": 1,
           "uniqueItems": true,
           "items": { "type": "string", "pattern": "^NEXT_PUBLIC_PROJECT42_" }
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "availability": { "enum": ["released", "candidate"] } }
+          },
+          "then": {
+            "properties": { "minimumVersion": { "type": "string" } }
+          },
+          "else": {
+            "properties": { "minimumVersion": { "type": "null" } }
+          }
+        }
+      ]
     },
     "update": {
       "type": "object",

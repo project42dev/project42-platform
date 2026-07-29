@@ -57,7 +57,7 @@ if (
 }
 if (
   manifest.database.learningRecords.semanticFingerprint !==
-  "learning-records/1.0;events/1.0;receipts/1.0;append-only;atomic-batch;optimistic-revision;verified-deletion-replay"
+  "learning-records/1.1;events/1.1;receipts/1.0;append-only;atomic-batch;optimistic-revision;authoritative-progress-import;verified-deletion-replay"
 ) {
   throw new Error("Compatibility manifest learning-record semantics have drifted");
 }

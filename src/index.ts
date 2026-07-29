@@ -73,6 +73,7 @@ export {
   LEARNING_COMMAND_TYPES,
   LEARNING_EVENT_CONTRACT_VERSION,
   LEARNING_EVENT_TYPES,
+  SUPPORTED_LEARNING_EVENT_CONTRACT_VERSIONS,
   validateLearningCommand,
   validateLearningEvent,
 } from "./learning-events.js";
@@ -96,6 +97,35 @@ export {
   LEARNING_RECORD_SEMANTIC_FINGERPRINT,
   readLearningRecordAdapterConfiguration,
 } from "./learning-record-adapter.js";
+export {
+  BROWSER_SESSION_COOKIE,
+  clearHostCookie,
+  createHostCookie,
+  createPkceChallenge,
+  normalizeReturnTarget,
+  OIDC_TRANSACTION_COOKIE,
+  openOidcTransaction,
+  randomBase64Url,
+  readBrowserOidcConfiguration,
+  readCookie,
+  sealOidcTransaction,
+  sha256Base64Url,
+} from "./browser-session.js";
+export {
+  AUTH_ABUSE_ROUTES,
+  AuthAbuseLimiterUnavailableError,
+  CloudflareAuthAbuseLimiter,
+  normalizeAuthClientAddress,
+  readCloudflareClientAddress,
+} from "./auth-abuse-limiter.js";
+export type {
+  AuthAbuseLimitDecision,
+  AuthAbuseLimiter,
+  AuthAbuseLimitRequest,
+  AuthAbuseRoute,
+  CloudflareAuthAbuseBindings,
+  CloudflareRateLimitBinding,
+} from "./auth-abuse-limiter.js";
 export {
   runLearningRecordAdapterConformance,
   verifyLearningRecordAdapterParity,
@@ -180,6 +210,7 @@ export type {
   CompleteModuleCommand,
   CorrectAssessmentCommand,
   EnrollPathCommand,
+  ImportProgressCommand,
   LearningActor,
   LearningActorType,
   LearningBadgeDefinition,
@@ -188,10 +219,13 @@ export type {
   LearningCommandType,
   LearningEvent,
   LearningEventBase,
+  LearningEventContractVersion,
   LearningEventType,
+  LearningProgressImportSource,
   ModuleCompletedEvent,
   ModuleVisitedEvent,
   PathEnrolledEvent,
+  ProgressImportedEvent,
   RecordAssessmentCommand,
   VisitModuleCommand,
 } from "./learning-events.js";
@@ -215,6 +249,11 @@ export type {
   LearningEventDatabase,
   LearningEventPreparedStatement,
 } from "./sql-learning-event-store.js";
+export type {
+  BrowserOidcConfiguration,
+  BrowserOidcTransaction,
+  BrowserSessionEnvironment,
+} from "./browser-session.js";
 export type {
   LearningEventConformanceReport,
   LearningEventConformanceScope,

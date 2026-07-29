@@ -139,3 +139,55 @@ test("corrections require an accountable reason and preserve their own version",
   assert.equal(rejected.valid, false);
   assert.match(rejected.errors.join("\n"), /correction reason/);
 });
+
+test("progress imports reject private and unknown immutable fields", () => {
+  const progressImport = {
+    schemaVersion: "1.1",
+    type: "progress.import",
+    installationId: "installation-42",
+    learnerId: "learner-42",
+    idempotencyKey: "progress-import-example-0001",
+    contentVersion: "1.0.0",
+    occurredAt: "2026-07-28T12:00:00.000Z",
+    actor: {
+      type: "learner",
+      userId: "learner-42",
+    },
+    payload: {
+      source: "browser-local-v1",
+      sourceChecksum:
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      synchronizedAt: "2026-07-28T12:00:00.000Z",
+      progress: {
+        schemaVersion: 1,
+        displayName: "Privacy-safe learner",
+        startedPathIds: ["ai-foundations"],
+        completedModuleIds: [],
+        attempts: [],
+        capstoneSubmissions: [],
+        badges: [],
+        updatedAt: "2026-07-28T12:00:00.000Z",
+      },
+    },
+  };
+  const ajv = new Ajv2020({ allErrors: true, strict: true });
+  const validate = ajv.compile(schema);
+  assert.equal(validate(progressImport), true, ajv.errorsText(validate.errors));
+  assert.deepEqual(validateLearningCommand(progressImport), {
+    valid: true,
+    errors: [],
+  });
+
+  progressImport.payload.progress.primaryEmail = "private@example.test";
+  assert.equal(validate(progressImport), false);
+  assert.ok(
+    validate.errors?.some(
+      (error) =>
+        error.keyword === "additionalProperties" &&
+        error.params.additionalProperty === "primaryEmail",
+    ),
+  );
+  const rejected = validateLearningCommand(progressImport);
+  assert.equal(rejected.valid, false);
+  assert.match(rejected.errors.join("\n"), /primaryEmail/);
+});
