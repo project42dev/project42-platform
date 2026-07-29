@@ -552,6 +552,7 @@ class BrowserOidcAdapter {
   async exchange(
     code: string,
     transaction: BrowserOidcTransaction,
+    requestId: string,
   ): Promise<{ idToken: string; clientId: string }> {
     const configuration = await readBrowserOidcConfiguration(this.env);
     const body = new URLSearchParams({
@@ -568,14 +569,50 @@ class BrowserOidcAdapter {
     try {
       response = await this.fetcher(configuration.tokenEndpoint, {
         method: "POST",
-        redirect: "error",
+        // Never forward the authorization code or client secret to a
+        // redirected host. Workers can throw for redirect: "error", so
+        // inspect redirect responses explicitly instead.
+        redirect: "manual",
+        signal: AbortSignal.timeout(10_000),
         headers: {
           accept: "application/json",
           "content-type": "application/x-www-form-urlencoded",
         },
         body,
       });
-    } catch {
+    } catch (error) {
+      const reason =
+        error instanceof DOMException &&
+        (error.name === "TimeoutError" || error.name === "AbortError")
+          ? "timeout"
+          : error instanceof TypeError
+            ? "network"
+            : "unknown";
+      console.error(
+        JSON.stringify({
+          level: "error",
+          requestId,
+          action: "oidc.token.exchange",
+          code: "identity_provider_transport_failed",
+          reason,
+        }),
+      );
+      throw new ApiFailure(
+        502,
+        "identity_provider_unavailable",
+        "Sign-in could not be completed. Try again.",
+      );
+    }
+    if (response.status >= 300 && response.status < 400) {
+      console.error(
+        JSON.stringify({
+          level: "error",
+          requestId,
+          action: "oidc.token.exchange",
+          code: "identity_provider_transport_failed",
+          reason: "redirect",
+        }),
+      );
       throw new ApiFailure(
         502,
         "identity_provider_unavailable",
@@ -7944,7 +7981,11 @@ async function handleRequest(
           "The sign-in response is incomplete. Start sign-in again.",
         );
       }
-      const exchanged = await browserOidcAdapter.exchange(code, transaction);
+      const exchanged = await browserOidcAdapter.exchange(
+        code,
+        transaction,
+        requestId,
+      );
       const tokenVerifier = verifier as IdentityVerifier & {
         verifyToken?: (
           token: string,

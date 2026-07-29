@@ -73,8 +73,11 @@ contradictory audit evidence. D1 migration
 `011_registration_boundary.sql` provide the matching hosted and self-hosted
 contracts.
 
-Release `0.66.0` adds deterministic scale and query-plan gates for owner account
-and audit pagination. Large multi-tenant fixtures traverse more than 1,200
+Release `0.66.1` fixes hosted and self-hosted browser OIDC token exchange by
+using bounded, non-forwarding redirect handling with privacy-safe transport
+diagnostics. Release `0.66.0` added deterministic scale and query-plan gates
+for owner account and audit pagination. Large multi-tenant fixtures traverse
+more than 1,200
 accounts and 1,800 audit events for the target installation while the exact D1
 and PostgreSQL-compatible statements must select complete keyset indexes. The
 account query avoids whole-role-table materialization without changing the
