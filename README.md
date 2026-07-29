@@ -33,6 +33,9 @@ contracts—not the private PMO records or Project42dev production configuration
   measured recovery objectives.
 - Portable JSON learner-record backup/restore, CSV transcripts, capstone evidence,
   and badge derivation.
+- A recent-authentication, self-scoped authoritative account CSV transcript with
+  typed JSON-export records, audit evidence, spreadsheet-injection protection,
+  and explicit separation between learning achievements and issued credentials.
 - A versioned learner-data lifecycle policy covering consent, retention, recovery,
   export, deletion, role boundaries, and hosted/self-host adapter requirements.
 - A provider-neutral OIDC Worker API with approval states, exact-domain rules,

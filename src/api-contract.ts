@@ -330,6 +330,68 @@ export interface AdminAuditEventPage {
   page: AdminPageInfo;
 }
 
+export interface LearnerModuleProgressRecord {
+  pathId: string;
+  moduleId: string;
+  contentVersion: string;
+  status: "visited" | "completed";
+  firstSeenAt: string;
+  completedAt: string | null;
+  updatedAt: string;
+}
+
+export interface LearnerAssessmentAttemptRecord {
+  id: string;
+  pathId: string;
+  moduleId: string;
+  contentVersion: string;
+  scorePercent: number;
+  passed: boolean;
+  completedAt: string;
+  recordedAt: string;
+}
+
+export interface LearnerTranscriptEntryRecord {
+  pathId: string;
+  pathTitle: string;
+  completedModules: number;
+  totalModules: number;
+  completionPercent: number;
+  bestScorePercent: number | null;
+  contentVersion: string;
+  updatedAt: string;
+}
+
+export interface LearnerAchievementRecord {
+  badgeId: string;
+  name: string;
+  description: string;
+  earnedAt: string;
+  evidenceModuleIds: string[];
+  recordedAt: string;
+}
+
+export type ApprovalDecisionKind =
+  | "registration"
+  | "domain-auto-approval"
+  | "owner-decision";
+
+export interface LearnerApprovalDecisionRecord {
+  id: string;
+  fromState: AccountState | null;
+  toState: AccountState;
+  decisionKind: ApprovalDecisionKind;
+  reason: string;
+  decidedAt: string;
+}
+
+export interface AuthoritativeTranscriptRecords {
+  moduleProgress: LearnerModuleProgressRecord[];
+  assessmentAttempts: LearnerAssessmentAttemptRecord[];
+  transcriptEntries: LearnerTranscriptEntryRecord[];
+  achievements: LearnerAchievementRecord[];
+}
+
 export interface LearnerDataExport {
   schemaVersion: 1;
   exportedAt: string;
@@ -337,13 +399,13 @@ export interface LearnerDataExport {
   profile: LearnerProfile;
   linkedIdentities: LinkedIdentity[];
   progress: ProgressEnvelope;
-  moduleProgress: unknown[];
-  assessmentAttempts: unknown[];
-  transcriptEntries: unknown[];
-  badges: unknown[];
+  moduleProgress: LearnerModuleProgressRecord[];
+  assessmentAttempts: LearnerAssessmentAttemptRecord[];
+  transcriptEntries: LearnerTranscriptEntryRecord[];
+  badges: LearnerAchievementRecord[];
   consents: ConsentRecord[];
   deletionRequests: DeletionRequest[];
-  approvalDecisions: unknown[];
+  approvalDecisions: LearnerApprovalDecisionRecord[];
 }
 
 export interface ApiErrorBody {

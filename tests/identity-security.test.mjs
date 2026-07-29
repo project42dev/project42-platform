@@ -475,6 +475,10 @@ test("data-rights routes require recent authentication and explicit deletion con
       calls.push(["export", input]);
       return { schemaVersion: 1, exportedAt: input.now };
     },
+    exportLearnerTranscriptCsv: async (input) => {
+      calls.push(["transcript", input]);
+      return '"schema_version","record_authority"\r\n"1.0","durable-account-record"\r\n';
+    },
     listDeletionRequests: async () => [],
     requestDeletion: async (input) => {
       calls.push(["request-deletion", input]);
@@ -528,6 +532,22 @@ test("data-rights routes require recent authentication and explicit deletion con
   assert.equal(learnerExport.status, 200);
   assert.match(learnerExport.headers.get("content-disposition"), /project42-learner-export/);
 
+  const transcript = await handleRequest(
+    new Request("https://api.example.test/v1/me/transcript.csv"),
+    env,
+    verifier,
+    repository,
+  );
+  assert.equal(transcript.status, 200);
+  assert.equal(transcript.headers.get("content-type"), "text/csv; charset=utf-8");
+  assert.equal(transcript.headers.get("cache-control"), "private, no-store");
+  assert.equal(transcript.headers.get("x-content-type-options"), "nosniff");
+  assert.match(
+    transcript.headers.get("content-disposition"),
+    /project42-account-transcript/,
+  );
+  assert.match(await transcript.text(), /durable-account-record/);
+
   const missingConfirmation = await handleRequest(
     new Request("https://api.example.test/v1/me/deletion", {
       method: "POST",
@@ -555,7 +575,7 @@ test("data-rights routes require recent authentication and explicit deletion con
   assert.equal(deletion.status, 202);
   assert.deepEqual(
     calls.map(([name]) => name),
-    ["consent", "export", "request-deletion"],
+    ["consent", "export", "transcript", "request-deletion"],
   );
 
   const staleVerifier = {
@@ -573,6 +593,17 @@ test("data-rights routes require recent authentication and explicit deletion con
   assert.equal(staleExport.status, 401);
   assert.equal(
     (await staleExport.json()).error.code,
+    "recent_authentication_required",
+  );
+  const staleTranscript = await handleRequest(
+    new Request("https://api.example.test/v1/me/transcript.csv"),
+    env,
+    staleVerifier,
+    repository,
+  );
+  assert.equal(staleTranscript.status, 401);
+  assert.equal(
+    (await staleTranscript.json()).error.code,
     "recent_authentication_required",
   );
 });
