@@ -1419,6 +1419,13 @@ class D1Project42Repository {
         "Revoked accounts cannot be merged or restored.",
       );
     }
+    if (source.state === "suspended" || survivor.state === "suspended") {
+      throw new ApiFailure(
+        409,
+        "suspended_account_cannot_merge",
+        "Suspended accounts require an explicit state resolution before merge.",
+      );
+    }
     if (
       (source.roles.includes("owner") || survivor.roles.includes("owner")) &&
       input.actor.id !== source.id &&
@@ -1667,6 +1674,37 @@ class D1Project42Repository {
         409,
         "account_merge_expired",
         "Create a new merge preview with fresh account proofs.",
+      );
+    }
+    const [sourceAccount, survivorAccount] = await Promise.all([
+      this.getAccountById(mergeCase.source_user_id),
+      this.getAccountById(mergeCase.survivor_user_id),
+    ]);
+    if (!sourceAccount || !survivorAccount) {
+      throw new ApiFailure(
+        409,
+        "account_merge_preview_stale",
+        "Both accounts must still exist at completion time.",
+      );
+    }
+    if (
+      sourceAccount.state === "revoked" ||
+      survivorAccount.state === "revoked"
+    ) {
+      throw new ApiFailure(
+        409,
+        "revoked_account_cannot_merge",
+        "Revoked accounts cannot be merged or restored.",
+      );
+    }
+    if (
+      sourceAccount.state === "suspended" ||
+      survivorAccount.state === "suspended"
+    ) {
+      throw new ApiFailure(
+        409,
+        "suspended_account_cannot_merge",
+        "Suspended accounts require an explicit state resolution before merge.",
       );
     }
     const requiredConfirmation =

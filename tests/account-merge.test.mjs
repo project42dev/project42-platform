@@ -228,6 +228,140 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
   );
   assert.equal(photoObjectKeys.length, 2);
 
+  const sourceProofBeforeSuspension = (
+    await json(
+      await api("source-token", "/v1/me/account-merge-proof", {
+        method: "POST",
+      }),
+    )
+  ).proof;
+  const survivorProofBeforeSuspension = (
+    await json(
+      await api("survivor-token", "/v1/me/account-merge-proof", {
+        method: "POST",
+      }),
+    )
+  ).proof;
+  assert.equal(
+    (
+      await api(
+        "owner-token",
+        `/v1/admin/accounts/${source.id}/state`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            state: "suspended",
+            reason: "Exercise the suspended-account merge boundary.",
+          }),
+        },
+      )
+    ).status,
+    200,
+  );
+  const suspendedPreview = await api(
+    "owner-token",
+    "/v1/admin/account-merges/preview",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        sourceUserId: source.id,
+        survivorUserId: survivor.id,
+        sourceProofToken: sourceProofBeforeSuspension.token,
+        survivorProofToken: survivorProofBeforeSuspension.token,
+        idempotencyKey: "merge-suspended-preview-0001",
+      }),
+    },
+  );
+  assert.equal(suspendedPreview.status, 409);
+  assert.equal(
+    (await json(suspendedPreview)).error.code,
+    "suspended_account_cannot_merge",
+  );
+  assert.equal(
+    (
+      await api(
+        "owner-token",
+        `/v1/admin/accounts/${source.id}/state`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            state: "approved",
+            reason: "Resolve suspension before merge preview.",
+          }),
+        },
+      )
+    ).status,
+    200,
+  );
+  const previewBeforeSuspension = (
+    await json(
+      await api("owner-token", "/v1/admin/account-merges/preview", {
+        method: "POST",
+        body: JSON.stringify({
+          sourceUserId: source.id,
+          survivorUserId: survivor.id,
+          sourceProofToken: sourceProofBeforeSuspension.token,
+          survivorProofToken: survivorProofBeforeSuspension.token,
+          idempotencyKey: "merge-suspended-completion-0001",
+        }),
+      }),
+    )
+  ).merge;
+  assert.equal(
+    (
+      await api(
+        "owner-token",
+        `/v1/admin/accounts/${survivor.id}/state`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            state: "suspended",
+            reason: "Exercise the suspended-account completion boundary.",
+          }),
+        },
+      )
+    ).status,
+    200,
+  );
+  const suspendedCompletion = await api(
+    "owner-token",
+    `/v1/admin/account-merges/${previewBeforeSuspension.id}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        confirmation: `MERGE ${source.id} INTO ${survivor.id}`,
+        idempotencyKey: "merge-suspended-completion-0001",
+        resolutions: Object.fromEntries(
+          previewBeforeSuspension.conflicts.map((conflict) => [
+            conflict.key,
+            "survivor",
+          ]),
+        ),
+      }),
+    },
+  );
+  assert.equal(suspendedCompletion.status, 409);
+  assert.equal(
+    (await json(suspendedCompletion)).error.code,
+    "suspended_account_cannot_merge",
+  );
+  assert.equal(
+    (
+      await api(
+        "owner-token",
+        `/v1/admin/accounts/${survivor.id}/state`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            state: "approved",
+            reason: "Resolve suspension before further merge tests.",
+          }),
+        },
+      )
+    ).status,
+    200,
+  );
+
   const deletion = await api("source-token", "/v1/me/deletion", {
     method: "POST",
     body: JSON.stringify({ confirmation: "DELETE MY PROJECT 42 ACCOUNT" }),

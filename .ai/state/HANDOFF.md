@@ -2,51 +2,40 @@
 
 ## Active branch
 
-`feat/authoritative-progress-adapter`
+`fix/account-merge-suspended-state-ab6231`
 
 ## Current work
 
-AB#6355 replaces the hosted progress API's legacy snapshot authority with the
-shared append-only learning-event adapter while preserving existing browser
-imports, exports, account merges, and API response compatibility.
+The current platform baseline and acceptance criteria were audited for the
+durable-record, session, identity-link, account-merge, persistence, and
+administration commitments. The highest-priority bounded implementation gap was
+that duplicate-account reconciliation rejected revoked accounts but did not
+reject suspended accounts.
 
 ## Implemented
 
-- Learning-event contract `1.1` with immutable, checksum-bound
-  `progress.imported` events.
-- Event-backed reads for `/v1/me/progress` with lazy migration of legacy hosted
-  snapshots.
-- Retry-safe browser imports and explicit conflicts for reused import IDs or
-  concurrent stream revisions.
-- Event-backed account merge and rollback projections.
-- D1 migration `0011_authoritative_progress_imports.sql` and PostgreSQL migration
-  `008_authoritative_progress_imports.sql`.
-- Adapter contract `1.1`, conformance coverage, public documentation, and
-  self-host compatibility metadata for candidate release `0.61.0`.
+- Account-merge previews now fail closed when either source or survivor is
+  suspended.
+- Account-merge completion re-reads both accounts and fails closed when either
+  account was removed, revoked, or suspended after the preview.
+- The D1 end-to-end merge fixture covers both a suspended preview and a
+  suspension introduced between preview and completion.
 
 ## Verification
 
-- Rebased onto platform `v0.60.0`; the D1 chain contains secure-session
-  migration `0010` before authoritative-progress migration `0011`, and the
-  PostgreSQL chain contains `007` before `008`.
-- Complete local gate: 166 tests, 165 passed, one optional PostgreSQL integration
-  test skipped because no test database was supplied.
-- D1 migration replay, immutable-event enforcement, account merge/rollback,
-  package build, Worker dry run, resource validation, freshness, recovery
-  measurement, and self-host validation pass.
-- Production dependency audit reports zero vulnerabilities.
-- Package dry run contains 354 files and passes.
-- Docker, PostgreSQL, and `psql` are unavailable on this workstation, so the
-  Docker Compose model and live PostgreSQL 17 integration must run in CI.
+- Focused TypeScript build and `tests/account-merge.test.mjs` pass.
+- Complete `npm test` gate passes: 243 tests, 242 passed, one optional
+  integration test skipped, zero failures; all 12 resource packs containing 94
+  resources validate.
+- No external service, production deployment, work item, or public repository
+  was changed.
 
 ## Next steps
 
-1. Open the public pull request
-   without private work-tracking links.
-2. Require green PostgreSQL 17 conformance, Compose smoke, and full CI before
-   merge.
-3. Record evidence and close only Task AB#6355 after delivery; do not close its
-   parent User Story.
+1. Commit the bounded account-merge security fix locally with its work-item
+   reference.
+2. Forward the evidence-backed gap matrix and local commit to the coordinating
+   agent. Do not push or change work-item state from this audit branch.
 
 No production tenant, organization, owner, account, learner, database, bucket,
 credential, recovery, or private operational identifier belongs in this repository.
