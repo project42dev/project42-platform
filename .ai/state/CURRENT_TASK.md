@@ -1,13 +1,13 @@
 # Current task
 
-Complete the platform-only scalability and query-plan portion of AB#6358,
-"Add paginated account and audit administration queries."
+Prepare the reusable Project 42 platform `0.66.0` release candidate for the
+AB#6358 owner-administration pagination scalability work merged to
+`origin/main`.
 
-The reusable platform already exposes cursor-paginated, tenant-scoped account
-and audit queries. This branch adds complete keyset indexes, keeps the existing
-opaque cursor contract unchanged, removes whole-table role materialization from
-the account query, and proves traversal and query-plan behavior with large,
-two-tenant fixtures.
+The release preparation is mechanical: align package, lockfile, self-host
+environment, compatibility manifest, README release wording, migration heads,
+and handoff metadata. Do not add features or perform a tag, release, deployment,
+Azure DevOps state change, Cloudflare mutation, or database mutation.
 
-AB#6358 is Active. Do not move it to Resolved or Closed until the remaining
-authenticated production owner-console validation is complete.
+AB#6358 remains Active until the matching release, D1 migration, Worker
+deployment, and authenticated production owner-console validation are complete.
