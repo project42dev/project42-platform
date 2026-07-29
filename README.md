@@ -375,6 +375,9 @@ content evidence and render consented public attribution.
 See [Identity providers](docs/self-hosting/identity-providers.md) and
 [Cloudflare D1 deployment](docs/self-hosting/cloudflare-d1.md) to run the
 account-backed API without embedding a hosted tenant in the public source.
+The [owner administration pagination contract](docs/owner-administration-pagination.md)
+defines bounded account and audit queries, stable continuation, client migration,
+and the owner/installation security boundary.
 The [hosted learning-record adapter guide](docs/hosted-learning-record-adapter.md)
 defines adapter selection, cross-database parity, measurement, and operating
 thresholds.

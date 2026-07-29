@@ -473,6 +473,60 @@ test(
       assert.deepEqual(account.roles, ["learner", "owner"]);
       assert.deepEqual(await repository.findAccount(identity), account);
 
+      for (const suffix of ["a", "b"]) {
+        await repository.createOrRefreshAccount(
+          {
+            ...identity,
+            subject: `learner-subject-${suffix}`,
+            email: `learner-${suffix}@example.test`,
+            displayName: `Learner ${suffix.toUpperCase()}`,
+          },
+          false,
+          `postgres-pagination-${suffix}`,
+          now,
+        );
+      }
+      const postgresAccountIds = [];
+      let postgresAccountCursor;
+      do {
+        const page = await repository.listAccountPage({
+          pageSize: 1,
+          ...(postgresAccountCursor
+            ? { cursor: postgresAccountCursor }
+            : {}),
+        });
+        assert.equal(page.accounts.length, 1);
+        assert.equal(page.accounts[0].installationId, installationId);
+        postgresAccountIds.push(page.accounts[0].id);
+        postgresAccountCursor = page.page.nextCursor ?? undefined;
+      } while (postgresAccountCursor);
+      assert.equal(postgresAccountIds.length, 3);
+      assert.equal(new Set(postgresAccountIds).size, 3);
+      const pendingAccounts = await repository.listAccountPage({
+        state: "pending",
+        pageSize: 100,
+      });
+      assert.equal(pendingAccounts.accounts.length, 2);
+      assert.ok(
+        pendingAccounts.accounts.every(
+          (candidate) => candidate.state === "pending",
+        ),
+      );
+
+      const postgresAuditIds = [];
+      let postgresAuditCursor;
+      do {
+        const page = await repository.listAuditEventPage({
+          pageSize: 1,
+          ...(postgresAuditCursor ? { cursor: postgresAuditCursor } : {}),
+        });
+        assert.equal(page.events.length, 1);
+        postgresAuditIds.push(page.events[0].id);
+        postgresAuditCursor = page.page.nextCursor ?? undefined;
+      } while (postgresAuditCursor);
+      assert.ok(postgresAuditIds.length >= 3);
+      assert.equal(new Set(postgresAuditIds).size, postgresAuditIds.length);
+
       const postgresReport = await runLearningRecordAdapterConformance(
         new SqlLearningEventStore(database),
         {

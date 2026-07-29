@@ -17,6 +17,18 @@ export interface Account {
   updatedAt: string;
 }
 
+export interface AdminPageInfo {
+  pageSize: number;
+  returnedCount: number;
+  hasMore: boolean;
+  nextCursor: string | null;
+}
+
+export interface AdminAccountPage {
+  accounts: Account[];
+  page: AdminPageInfo;
+}
+
 export type LinkedIdentityStatus = "active" | "unlinked";
 
 export interface LinkedIdentity {
@@ -303,6 +315,11 @@ export interface AuditEvent {
   reason: string;
   metadata: Record<string, unknown>;
   occurredAt: string;
+}
+
+export interface AdminAuditEventPage {
+  events: AuditEvent[];
+  page: AdminPageInfo;
 }
 
 export interface LearnerDataExport {

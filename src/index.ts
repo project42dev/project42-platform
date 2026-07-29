@@ -304,6 +304,9 @@ export type {
 } from "./identity.js";
 export type {
   Account,
+  AdminAccountPage,
+  AdminAuditEventPage,
+  AdminPageInfo,
   AccountMergeConflict,
   AccountMergePolicyBlock,
   AccountMergePolicyBlockKind,
@@ -322,6 +325,7 @@ export type {
   IdentityLinkTransaction,
   LinkedIdentity,
   LinkedIdentityStatus,
+  AuditEvent,
   ApiErrorBody,
   CreateDomainRuleRequest,
   DeletionStatus,
@@ -337,6 +341,10 @@ export type {
   RollbackAccountMergeRequest,
   UpdateLearnerProfileRequest,
 } from "./api-contract.js";
+export {
+  ADMIN_PAGE_DEFAULT_SIZE,
+  ADMIN_PAGE_MAX_SIZE,
+} from "./admin-pagination.js";
 export type {
   Catalog,
   CatalogMetadata,
