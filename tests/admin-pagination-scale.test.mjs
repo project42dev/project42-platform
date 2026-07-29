@@ -13,7 +13,7 @@ import { D1Project42Repository } from "../dist/worker.js";
 
 const ACCOUNT_COUNT = 1_205;
 const AUDIT_COUNT = 1_803;
-const POSTGRES_DECOY_AUDIT_COUNT = AUDIT_COUNT * 10;
+const POSTGRES_DECOY_AUDIT_COUNT = AUDIT_COUNT * 100;
 const TARGET_INSTALLATION = "pagination-scale-target";
 const OTHER_INSTALLATION = "pagination-scale-other";
 
