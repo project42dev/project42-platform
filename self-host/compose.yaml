@@ -76,6 +76,19 @@ services:
         condition: service_healthy
       identity:
         condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - >-
+          require('node:http').get('http://127.0.0.1:8787/health',
+          (response) => process.exit(response.statusCode === 200 ? 0 : 1))
+          .on('error', () => process.exit(1))
+      interval: 10s
+      timeout: 3s
+      start_period: 20s
+      retries: 6
     ports:
       - "8787:8787"
     volumes:

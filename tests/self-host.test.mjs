@@ -44,6 +44,16 @@ const evaluationEnvironment = {
   LEARNING_RECORD_ADAPTER: "postgresql",
 };
 
+function composeServiceBlock(compose, name) {
+  const normalizedCompose = compose.replace(/\r\n/g, "\n");
+  const marker = `  ${name}:\n`;
+  const start = normalizedCompose.indexOf(marker);
+  assert.notEqual(start, -1, `Compose service ${name} must exist`);
+  const remainder = normalizedCompose.slice(start + marker.length);
+  const nextService = remainder.search(/^  [a-z0-9][a-z0-9-]*:$/m);
+  return nextService === -1 ? remainder : remainder.slice(0, nextService);
+}
+
 async function applyD1Migrations(database) {
   const migrations = (await readdir(new URL("../migrations/", import.meta.url)))
     .filter((name) => name.endsWith(".sql"))
@@ -88,6 +98,25 @@ async function seedRecoveryPrincipals(database, installationId, learnerIds) {
       .run();
   }
 }
+
+test("reference Compose gates API readiness on the public health contract", async () => {
+  const compose = await readFile(
+    new URL("../self-host/compose.yaml", import.meta.url),
+    "utf8",
+  );
+  const apiService = composeServiceBlock(compose, "api");
+
+  assert.match(apiService, /\n    healthcheck:\r?\n/);
+  assert.match(
+    apiService,
+    /require\('node:http'\)\.get\('http:\/\/127\.0\.0\.1:8787\/health'/,
+  );
+  assert.match(apiService, /response\.statusCode === 200/);
+  assert.match(apiService, /\n      interval: 10s\r?\n/);
+  assert.match(apiService, /\n      timeout: 3s\r?\n/);
+  assert.match(apiService, /\n      start_period: 20s\r?\n/);
+  assert.match(apiService, /\n      retries: 6\r?\n/);
+});
 
 test("local evaluation profile permits only its explicit HTTP service hosts", () => {
   const configuration = readConfiguration(evaluationEnvironment);

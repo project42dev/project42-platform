@@ -14,6 +14,18 @@ const migrations = (await readdir("self-host/postgres"))
   .filter((name) => /^\d+_[a-z0-9_-]+\.sql$/i.test(name))
   .sort();
 
+function composeServiceBlock(name) {
+  const normalizedCompose = compose.replace(/\r\n/g, "\n");
+  const marker = `  ${name}:\n`;
+  const start = normalizedCompose.indexOf(marker);
+  if (start === -1) {
+    throw new Error(`Compose service ${name} is missing`);
+  }
+  const remainder = normalizedCompose.slice(start + marker.length);
+  const nextService = remainder.search(/^  [a-z0-9][a-z0-9-]*:$/m);
+  return nextService === -1 ? remainder : remainder.slice(0, nextService);
+}
+
 const ajv = new Ajv2020({ allErrors: true, strict: true });
 const validate = ajv.compile(schema);
 if (!validate(manifest)) {
@@ -54,6 +66,23 @@ if (
   throw new Error(
     "Compose must select the PostgreSQL learning-record adapter explicitly",
   );
+}
+const apiService = composeServiceBlock("api");
+const apiHealthProbeFragments = [
+  "healthcheck:",
+  "require('node:http').get('http://127.0.0.1:8787/health'",
+  "response.statusCode === 200",
+  "interval: 10s",
+  "timeout: 3s",
+  "start_period: 20s",
+  "retries: 6",
+];
+for (const fragment of apiHealthProbeFragments) {
+  if (!apiService.includes(fragment)) {
+    throw new Error(
+      `Compose API readiness probe is missing required fragment: ${fragment}`,
+    );
+  }
 }
 if (
   manifest.database.learningRecords.semanticFingerprint !==
