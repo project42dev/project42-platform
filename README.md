@@ -59,6 +59,18 @@ contracts—not the private PMO records or Project42dev production configuration
   and retirement.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.64.0` adds bounded cursor pagination to owner account and audit
+administration. Existing `accounts` and `events` arrays remain stable while
+page metadata supplies deterministic continuation; opaque cursors are bound to
+the installation, query, and account-state filter, and owner authorization runs
+before cursor parsing. Cloudflare D1 and PostgreSQL use equivalent ordering and
+continuation contracts. The release also promotes the reference Keycloak profile
+to an executable browser-session gate covering authorization code, S256 PKCE,
+nonce and state binding, callback exchange, Secure HttpOnly host cookies,
+issuer-and-subject account continuity, session rotation, sign-out, and
+revocation. No database migration is required: hosted D1 remains at `0013` and
+self-hosted PostgreSQL remains at `010`.
+
 Release `0.63.0` adds learner profile and account-control contracts. Profiles
 now persist validated locale, time-zone, reduced-motion,
 and high-contrast preferences across hosted storage, exports, and
