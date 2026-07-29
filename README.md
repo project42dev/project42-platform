@@ -76,6 +76,14 @@ contradictory audit evidence. D1 migration
 `011_registration_boundary.sql` provide the matching hosted and self-hosted
 contracts.
 
+Release `0.67.0` adds explicit hosted export record types and a
+recent-authentication, approved-account CSV transcript generated directly from
+durable progress, assessment, and learning-achievement records. The export is
+self-scoped, audited, deterministic, spreadsheet-injection protected, and
+labels learning achievements as evidence rather than issued credentials. No
+database migration is required; the existing learning-record, session, and
+self-host compatibility contracts remain unchanged.
+
 Release `0.66.3` invokes stored provider fetch functions without an object
 receiver, preserving the Cloudflare runtime's required Web API calling
 convention for OIDC sign-in and GitHub identity linking. Release `0.66.2`
