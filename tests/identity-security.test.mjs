@@ -119,7 +119,9 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
       nonce: "wrong-nonce",
       requireAuthenticationTime: true,
     }),
-    (error) => error.code === "invalid_identity_token",
+    (error) =>
+      error.code === "invalid_identity_token" &&
+      error.diagnostic?.category === "nonce_mismatch",
   );
 
   const missingAuthenticationTime = await new SignJWT({
@@ -138,7 +140,11 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
       nonce: "expected-nonce",
       requireAuthenticationTime: true,
     }),
-    (error) => error.code === "invalid_identity_token",
+    (error) =>
+      error.code === "invalid_identity_token" &&
+      error.diagnostic?.category === "jose_validation" &&
+      error.diagnostic?.joseCode === "ERR_JWT_CLAIM_VALIDATION_FAILED" &&
+      error.diagnostic?.claim === "auth_time",
   );
 
   const wrongAuthorizedParty = await new SignJWT({
@@ -159,7 +165,9 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
       nonce: "expected-nonce",
       requireAuthenticationTime: true,
     }),
-    (error) => error.code === "invalid_identity_token",
+    (error) =>
+      error.code === "invalid_identity_token" &&
+      error.diagnostic?.category === "authorized_party_mismatch",
   );
 
   for (const invalidAuthenticationTime of [now - 3_600, now + 3_600]) {
@@ -180,7 +188,9 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
         nonce: "expected-nonce",
         requireAuthenticationTime: true,
       }),
-      (error) => error.code === "invalid_identity_token",
+      (error) =>
+        error.code === "invalid_identity_token" &&
+        error.diagnostic?.category === "authentication_time_invalid",
     );
   }
 

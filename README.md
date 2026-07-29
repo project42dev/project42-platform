@@ -76,6 +76,12 @@ contradictory audit evidence. D1 migration
 `011_registration_boundary.sql` provide the matching hosted and self-hosted
 contracts.
 
+Release `0.67.1` adds privacy-safe server diagnostics for failed browser
+ID-token validation. Production logs distinguish nonce, authorized-party,
+authentication-time, and signed-JWT claim failures without recording token or
+claim values; the browser continues to receive the same sanitized error. No
+database migration or identity-validation requirement changes.
+
 Release `0.67.0` adds explicit hosted export record types and a
 recent-authentication, approved-account CSV transcript generated directly from
 durable progress, assessment, and learning-achievement records. The export is
