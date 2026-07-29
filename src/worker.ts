@@ -555,6 +555,7 @@ class BrowserOidcAdapter {
     requestId: string,
   ): Promise<{ idToken: string; clientId: string }> {
     const configuration = await readBrowserOidcConfiguration(this.env);
+    const fetcher = this.fetcher;
     const body = new URLSearchParams({
       grant_type: "authorization_code",
       client_id: configuration.clientId,
@@ -573,7 +574,7 @@ class BrowserOidcAdapter {
     }, 10_000);
     let response: Response;
     try {
-      response = await this.fetcher(configuration.tokenEndpoint, {
+      response = await fetcher(configuration.tokenEndpoint, {
         method: "POST",
         // Never forward the authorization code or client secret to a
         // redirected host. Workers can throw for redirect: "error", so
@@ -677,7 +678,8 @@ class GithubIdentityLinkAdapter {
   }): Promise<ExternalProviderIdentity> {
     try {
       const configuration = requireGithubLinkConfiguration(this.env);
-      const tokenResponse = await this.fetcher(
+      const fetcher = this.fetcher;
+      const tokenResponse = await fetcher(
         "https://github.com/login/oauth/access_token",
         {
         method: "POST",
@@ -713,7 +715,7 @@ class GithubIdentityLinkAdapter {
           "GitHub did not confirm this identity-link request.",
         );
       }
-      const userResponse = await this.fetcher("https://api.github.com/user", {
+      const userResponse = await fetcher("https://api.github.com/user", {
         method: "GET",
         redirect: "error",
         headers: {

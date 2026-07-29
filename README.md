@@ -73,11 +73,14 @@ contradictory audit evidence. D1 migration
 `011_registration_boundary.sql` provide the matching hosted and self-hosted
 contracts.
 
-Release `0.66.2` keeps hosted and self-hosted browser OIDC token exchange
-bounded without depending on a runtime-specific static timeout signal. It
-retains non-forwarding manual redirect handling and privacy-safe transport
-diagnostics. Release `0.66.1` introduced those redirect and diagnostic
-boundaries. Release `0.66.0` added deterministic scale and query-plan gates
+Release `0.66.3` invokes stored provider fetch functions without an object
+receiver, preserving the Cloudflare runtime's required Web API calling
+convention for OIDC sign-in and GitHub identity linking. Release `0.66.2`
+keeps browser OIDC token exchange bounded without depending on a
+runtime-specific static timeout signal. It retains non-forwarding manual
+redirect handling and privacy-safe transport diagnostics. Release `0.66.1`
+introduced those redirect and diagnostic boundaries. Release `0.66.0` added
+deterministic scale and query-plan gates
 for owner account and audit pagination. Large multi-tenant fixtures traverse
 more than 1,200
 accounts and 1,800 audit events for the target installation while the exact D1

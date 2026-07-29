@@ -81,6 +81,41 @@ test("GitHub provider failures are bounded and never return token details", asyn
   );
 });
 
+test("GitHub provider fetches use the runtime function without a receiver", async () => {
+  let calls = 0;
+  const adapter = new GithubIdentityLinkAdapter(
+    environment,
+    async function (url, init) {
+      assert.equal(this, undefined);
+      calls += 1;
+      if (calls === 1) {
+        assert.equal(url, "https://github.com/login/oauth/access_token");
+        assert.equal(init.redirect, "error");
+        return Response.json({
+          access_token: "provider-token",
+          token_type: "bearer",
+        });
+      }
+      assert.equal(url, "https://api.github.com/user");
+      assert.equal(init.headers.authorization, "Bearer provider-token");
+      return Response.json({
+        id: 42,
+        login: "contributor",
+        name: "Project Contributor",
+      });
+    },
+  );
+
+  const identity = await adapter.verify({
+    code: "temporary-code",
+    codeVerifier: "v".repeat(43),
+  });
+
+  assert.equal(calls, 2);
+  assert.equal(identity.subject, "42");
+  assert.equal(identity.providerLogin, "contributor");
+});
+
 test("GitHub linkage fails closed on missing or cross-origin configuration", () => {
   assert.throws(
     () => new GithubIdentityLinkAdapter({ ALLOWED_ORIGINS: "" }).createAuthorizationUrl(link),
