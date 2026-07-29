@@ -1,0 +1,102 @@
+[
+  {
+    "schemaVersion": "1.0",
+    "eventId": "badge-event-issued-0001",
+    "sequence": 1,
+    "type": "badge.issued",
+    "credentialId": "credential-reliable-agent-0001",
+    "occurredAt": "2026-07-29T12:00:00.000Z",
+    "actor": {
+      "type": "system",
+      "id": "actor-credential-engine"
+    },
+    "badgeDefinitionId": "badge-reliable-agent-mastery",
+    "badgeDefinitionVersion": "1.0.0",
+    "subjectId": "learner-opaque-0001",
+    "issuerId": "issuer-learning-example",
+    "evidence": [
+      {
+        "id": "evidence-assessment-0001",
+        "kind": "assessment.passed",
+        "subjectId": "assessment-reliable-agent",
+        "subjectVersion": "3.0.0",
+        "contentVersion": "2026.7.0",
+        "result": "passed",
+        "scorePercent": 90,
+        "occurredAt": "2026-07-29T11:30:00.000Z",
+        "evidenceRefs": [
+          "attempt-reliable-agent-0001"
+        ]
+      },
+      {
+        "id": "evidence-capstone-0001",
+        "kind": "capstone.passed",
+        "subjectId": "capstone-reliable-agent",
+        "subjectVersion": "2.0.0",
+        "contentVersion": "2026.7.0",
+        "result": "passed",
+        "scorePercent": 85,
+        "occurredAt": "2026-07-29T11:45:00.000Z",
+        "evidenceRefs": [
+          "submission-reliable-agent-0001"
+        ]
+      }
+    ]
+  },
+  {
+    "schemaVersion": "1.0",
+    "eventId": "badge-event-corrected-0002",
+    "sequence": 2,
+    "type": "badge.corrected",
+    "credentialId": "credential-reliable-agent-0001",
+    "occurredAt": "2026-07-29T13:00:00.000Z",
+    "actor": {
+      "type": "owner",
+      "id": "actor-owner-review"
+    },
+    "supersedesEventId": "badge-event-issued-0001",
+    "reason": "Replace the assessment evidence with the verified scoring record while retaining the issuance event.",
+    "replacementEvidence": [
+      {
+        "id": "evidence-assessment-verified-0002",
+        "kind": "assessment.passed",
+        "subjectId": "assessment-reliable-agent",
+        "subjectVersion": "3.0.0",
+        "contentVersion": "2026.7.0",
+        "result": "passed",
+        "scorePercent": 92,
+        "occurredAt": "2026-07-29T11:30:00.000Z",
+        "evidenceRefs": [
+          "attempt-reliable-agent-verified-0002"
+        ]
+      },
+      {
+        "id": "evidence-capstone-0001",
+        "kind": "capstone.passed",
+        "subjectId": "capstone-reliable-agent",
+        "subjectVersion": "2.0.0",
+        "contentVersion": "2026.7.0",
+        "result": "passed",
+        "scorePercent": 85,
+        "occurredAt": "2026-07-29T11:45:00.000Z",
+        "evidenceRefs": [
+          "submission-reliable-agent-0001"
+        ]
+      }
+    ]
+  },
+  {
+    "schemaVersion": "1.0",
+    "eventId": "badge-event-revoked-0003",
+    "sequence": 3,
+    "type": "badge.revoked",
+    "credentialId": "credential-reliable-agent-0001",
+    "occurredAt": "2026-07-29T14:00:00.000Z",
+    "actor": {
+      "type": "owner",
+      "id": "actor-owner-review"
+    },
+    "supersedesEventId": "badge-event-corrected-0002",
+    "reason": "The submitted capstone was invalidated after an evidence-integrity review."
+  }
+]

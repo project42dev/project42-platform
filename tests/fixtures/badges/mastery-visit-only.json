@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0",
+  "eventId": "badge-event-visit-only-0001",
+  "sequence": 1,
+  "type": "badge.issued",
+  "credentialId": "credential-visit-only-0001",
+  "occurredAt": "2026-07-29T12:00:00.000Z",
+  "actor": {
+    "type": "system",
+    "id": "actor-credential-engine"
+  },
+  "badgeDefinitionId": "badge-reliable-agent-mastery",
+  "badgeDefinitionVersion": "1.0.0",
+  "subjectId": "learner-opaque-0002",
+  "issuerId": "issuer-learning-example",
+  "evidence": [
+    {
+      "id": "evidence-module-visit-0001",
+      "kind": "module.visited",
+      "subjectId": "module-reliable-agent-introduction",
+      "subjectVersion": "1.0.0",
+      "contentVersion": "2026.7.0",
+      "result": "visited",
+      "scorePercent": null,
+      "occurredAt": "2026-07-29T11:30:00.000Z",
+      "evidenceRefs": [
+        "visit-reliable-agent-0001"
+      ]
+    }
+  ]
+}

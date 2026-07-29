@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0",
+  "eventId": "badge-event-unversioned-0001",
+  "sequence": 1,
+  "type": "badge.issued",
+  "credentialId": "credential-unversioned-0001",
+  "occurredAt": "2026-07-29T12:00:00.000Z",
+  "actor": {
+    "type": "system",
+    "id": "actor-credential-engine"
+  },
+  "badgeDefinitionId": "badge-reliable-agent-mastery",
+  "badgeDefinitionVersion": "1.0.0",
+  "subjectId": "learner-opaque-0003",
+  "issuerId": "issuer-learning-example",
+  "evidence": [
+    {
+      "id": "evidence-unversioned-assessment-0001",
+      "kind": "assessment.passed",
+      "subjectId": "assessment-reliable-agent",
+      "contentVersion": "2026.7.0",
+      "result": "passed",
+      "scorePercent": 95,
+      "occurredAt": "2026-07-29T11:30:00.000Z",
+      "evidenceRefs": [
+        "attempt-unversioned-0001"
+      ]
+    }
+  ]
+}

@@ -6,6 +6,24 @@ export {
   getLearningPath,
   getResource,
 } from "./catalog.js";
+export {
+  BADGE_CLASSES,
+  BADGE_CREDENTIAL_STATUSES,
+  BADGE_DEFINITION_CONTRACT_VERSION,
+  BADGE_EVIDENCE_KINDS,
+  BADGE_EVIDENCE_RESULTS,
+  BADGE_LIFECYCLE_ACTOR_TYPES,
+  BADGE_LIFECYCLE_EVENT_CONTRACT_VERSION,
+  BADGE_LIFECYCLE_EVENT_TYPES,
+  BadgeCredentialError,
+  OPEN_BADGES_3_MAPPING_BOUNDARY,
+  projectBadgeLifecycle,
+  SUPPORTED_BADGE_DEFINITION_CONTRACT_VERSIONS,
+  SUPPORTED_BADGE_LIFECYCLE_EVENT_CONTRACT_VERSIONS,
+  validateBadgeDefinition,
+  validateBadgeIssuanceEvidence,
+  validateBadgeLifecycleEvent,
+} from "./badge-credentials.js";
 export { scoreKnowledgeCheck } from "./assessment.js";
 export {
   buildAssessmentHistory,
@@ -191,6 +209,31 @@ export {
 } from "./training-catalog.js";
 
 export type { AssessmentResult, QuestionFeedback } from "./assessment.js";
+export type {
+  BadgeClass,
+  BadgeCorrectedEventV1,
+  BadgeCredentialErrorCode,
+  BadgeCredentialProjectionV1,
+  BadgeCredentialStatus,
+  BadgeCriteriaV1,
+  BadgeDefinitionV1,
+  BadgeDisplayTextV1,
+  BadgeEvidenceKind,
+  BadgeEvidenceRequirementV1,
+  BadgeEvidenceResult,
+  BadgeEvidenceV1,
+  BadgeExpirationPolicyV1,
+  BadgeExpiredEventV1,
+  BadgeIssuedEventV1,
+  BadgeIssuerPolicyV1,
+  BadgeLifecycleActorType,
+  BadgeLifecycleActorV1,
+  BadgeLifecycleEventBaseV1,
+  BadgeLifecycleEventType,
+  BadgeLifecycleEventV1,
+  BadgeRevokedEventV1,
+  OpenBadges3MappingBoundaryV1,
+} from "./badge-credentials.js";
 export type {
   AssessmentHistoryEntry,
   AssessmentAttempt,

@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1.0",
+  "id": "badge-reliable-agent-mastery",
+  "version": "1.0.0",
+  "badgeClass": "mastery",
+  "defaultLanguage": "en",
+  "display": [
+    {
+      "language": "en",
+      "name": "Reliable Agent Mastery",
+      "description": "Recognizes version-bound assessment and capstone evidence for a reliable agent workflow.",
+      "criteriaSummary": "Pass the declared assessment and capstone at or above their versioned thresholds."
+    },
+    {
+      "language": "es",
+      "name": "Dominio de agentes confiables",
+      "description": "Reconoce evidencia versionada de evaluación y proyecto para un flujo de agente confiable.",
+      "criteriaSummary": "Aprobar la evaluación y el proyecto declarados con sus umbrales versionados."
+    }
+  ],
+  "issuerPolicy": {
+    "id": "policy-durable-learning-credential",
+    "version": "1.0.0",
+    "issuerId": "issuer-learning-example",
+    "issuanceMode": "durable-record-only",
+    "correctionMode": "append-only",
+    "revocationMode": "append-only",
+    "requiresApprovedIdentity": true
+  },
+  "criteria": {
+    "id": "criteria-reliable-agent-mastery",
+    "version": "2.1.0",
+    "statement": "The learner must pass the declared knowledge assessment and capstone using evidence from the matching content versions.",
+    "allRequired": true,
+    "evidence": [
+      {
+        "id": "requirement-knowledge-assessment",
+        "kind": "assessment.passed",
+        "subjectId": "assessment-reliable-agent",
+        "subjectVersion": "3.0.0",
+        "contentVersion": "2026.7.0",
+        "requiredResult": "passed",
+        "minimumScorePercent": 80
+      },
+      {
+        "id": "requirement-reliable-agent-capstone",
+        "kind": "capstone.passed",
+        "subjectId": "capstone-reliable-agent",
+        "subjectVersion": "2.0.0",
+        "contentVersion": "2026.7.0",
+        "requiredResult": "passed",
+        "minimumScorePercent": 80
+      }
+    ]
+  },
+  "expirationPolicy": {
+    "kind": "never"
+  },
+  "openBadges3": {
+    "targetVersion": "3.0",
+    "status": "future-mapping-not-conformant",
+    "conformanceClaim": false
+  }
+}
