@@ -399,6 +399,15 @@ class ApiFailure extends Error {
     readonly code: string,
     message: string,
     readonly retryAfterSeconds?: number,
+    readonly diagnostic?: {
+      category:
+        | "nonce_mismatch"
+        | "authorized_party_mismatch"
+        | "authentication_time_invalid"
+        | "jose_validation";
+      joseCode?: string;
+      claim?: string;
+    },
   ) {
     super(message);
   }
@@ -448,6 +457,8 @@ class OidcJwtVerifier implements IdentityVerifier {
           401,
           "invalid_identity_token",
           "The identity response could not be verified.",
+          undefined,
+          { category: "nonce_mismatch" },
         );
       }
       const expectedAudience = options.audience ?? this.env.OIDC_AUDIENCE;
@@ -461,6 +472,8 @@ class OidcJwtVerifier implements IdentityVerifier {
           401,
           options.nonce ? "invalid_identity_token" : "invalid_access_token",
           "The token authorized party could not be verified.",
+          undefined,
+          options.nonce ? { category: "authorized_party_mismatch" } : undefined,
         );
       }
       if (
@@ -474,6 +487,8 @@ class OidcJwtVerifier implements IdentityVerifier {
           401,
           "invalid_identity_token",
           "The identity provider did not supply fresh-authentication evidence.",
+          undefined,
+          { category: "authentication_time_invalid" },
         );
       }
       const emailValue = payload[this.env.OIDC_EMAIL_CLAIM];
@@ -497,12 +512,30 @@ class OidcJwtVerifier implements IdentityVerifier {
     } catch (error) {
       if (error instanceof ApiFailure) throw error;
       if (error instanceof joseErrors.JOSEError) {
+        const joseError = error as joseErrors.JOSEError & {
+          claim?: unknown;
+        };
+        const safeClaim =
+          typeof joseError.claim === "string" &&
+          ["iss", "sub", "aud", "exp", "iat", "nbf", "auth_time"].includes(
+            joseError.claim,
+          )
+            ? joseError.claim
+            : undefined;
         throw new ApiFailure(
           401,
           options.nonce ? "invalid_identity_token" : "invalid_access_token",
           options.nonce
             ? "The identity response could not be verified."
             : "The access token is not valid.",
+          undefined,
+          options.nonce
+            ? {
+                category: "jose_validation",
+                joseCode: joseError.code,
+                ...(safeClaim ? { claim: safeClaim } : {}),
+              }
+            : undefined,
         );
       }
       throw error;
@@ -9072,6 +9105,9 @@ async function handleRequest(
         path: new URL(request.url).pathname,
         status: failure.status,
         code: failure.code,
+        ...(failure.diagnostic
+          ? { identityTokenDiagnostic: failure.diagnostic }
+          : {}),
       }),
     );
     const response = json(
