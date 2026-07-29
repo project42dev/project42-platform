@@ -2,50 +2,53 @@
 
 ## Active branch
 
-`feat/profile-consent-controls-ab5419`
+`chore/platform-v0.63.0-ab5419`
 
-The branch is based on `origin/main` commit `2064a59` and implements the
-reusable-platform portion of AB#5419.
+## Release candidate
 
-## Implemented
+The platform release candidate is `0.63.0`, based on `origin/main` commit
+`f117a54b031ffa4a6429d0082d031feffd651a79`.
 
-- Learner profiles now include validated locale, time-zone, reduced-motion,
-  and high-contrast preferences in public contracts, D1/PostgreSQL schemas,
-  hosted runtime behavior, exports, and account-merge recovery.
-- Consent writes use the canonical purpose vocabulary and current policy
-  version. Pre-contract records remain explicitly marked `legacy` and remain
-  compatible with migrations, export, merge, and rollback.
-- Account deletion issues a private capability receipt, stores only its
-  SHA-256 digest, and exposes privacy-safe pending and completed status after
-  identity and account data are erased.
-- Self-scope endpoints fail closed when callers attempt to select another
-  account, user, installation, or tenant. Tests cover multi-account and
-  multi-install isolation and denial auditing.
-- D1 migration head is `0013_profile_consent_and_deletion_receipts.sql`;
-  PostgreSQL migration head is
+This is a minor release because main adds public learner-profile preferences,
+canonical consent contracts, a deletion-status receipt, and matching hosted and
+self-hosted schema changes.
+
+## Prepared
+
+- `package.json` and `package-lock.json` identify `0.63.0`.
+- The self-host example selects `PROJECT42_VERSION=0.63.0`.
+- The compatibility manifest identifies release/API/image `0.63.0`.
+- The compatibility manifest retains PostgreSQL migration head
+  `010_profile_consent_and_deletion_receipts.sql`.
+- README release notes describe the profile preferences, consent compatibility,
+  deletion receipt, self-scope authorization boundary, D1 migration
+  `0013_profile_consent_and_deletion_receipts.sql`, and PostgreSQL migration
   `010_profile_consent_and_deletion_receipts.sql`.
 
 ## Verification
 
-- `npm run build`: passed.
-- `npm test`: 246 tests, 245 passed, one optional PostgreSQL integration
-  skipped, zero failures.
-- `npm run training:check`: 40 class-ready, 29 outline-only.
-- `npm run learning-records:measure`: passed; 50 streams, zero errors,
-  p95 448.34 ms against a 1,000 ms threshold.
-- `npm run content:freshness`: passed; 572 references and 60 primary sources.
-- `npm run self-host:validate`: passed.
+- `npm ci`: passed; package preparation and TypeScript build passed.
+- `npm run check`: passed; 246 tests, 245 passed, one optional PostgreSQL
+  integration skipped, zero failures. Resource, recovery-measurement,
+  freshness, and self-host validation passed.
+- Hosted learner-record measurement passed with 50 streams, zero errors, and
+  p95 latency of 430.19 ms against the 1,000 ms release threshold.
 - `npm run api:check`: passed Worker type generation and Cloudflare dry run.
-- `npm audit --audit-level=high`: zero vulnerabilities.
+- `npm audit --audit-level=moderate`: zero vulnerabilities.
+- `npm pack --ignore-scripts --dry-run --json`: package
+  `@project42/platform@0.63.0`, 662 files, both new migration files, the
+  compatibility manifest, and release notes are present.
+- Candidate tag expectation is `v0.63.0`.
 
-## Remaining external gates
+## Outstanding release gates
 
-- The optional live PostgreSQL integration did not run because no
-  `TEST_POSTGRES_URL` was supplied.
-- No production migration, deployment, browser integration, or representative
-  learner validation was performed in this branch.
-- No branch was pushed, pull request created, deployment changed, or work item
-  state changed.
+- Docker is not installed in this local environment. The protected pull-request
+  CI must run the live PostgreSQL integration and self-hosted Compose/Keycloak
+  smoke before merge.
+- The signed tag workflow must attest and sign the archive and compatibility
+  manifest, publish and sign the OCI image, and create the GitHub release.
+- No production migration, Worker deployment, hosted application deployment, or
+  representative learner validation is part of this release-preparation branch.
 
 No production tenant, organization, owner, account, learner, database, bucket,
 credential, recovery, or private operational identifier belongs in this repository.
