@@ -26,6 +26,8 @@ const database = new PostgresD1CompatibilityDatabase(pool);
 const repository = new D1Project42Repository(
   database as unknown as D1Database,
   configuration.installationId,
+  undefined,
+  configuration.accountMergeRequiredConsents,
 );
 const profilePhotos = new FilesystemProfilePhotoBucket(
   configuration.profilePhotoDirectory,
@@ -44,6 +46,9 @@ const workerEnvironment = {
   ALLOWED_ORIGINS: configuration.allowedOrigins.join(","),
   BOOTSTRAP_OWNER_ISSUER: configuration.bootstrapOwnerIssuer,
   BOOTSTRAP_OWNER_SUBJECT: configuration.bootstrapOwnerSubject,
+  ACCOUNT_MERGE_REQUIRED_CONSENTS: JSON.stringify(
+    configuration.accountMergeRequiredConsents,
+  ),
   PROFILE_PHOTOS: profilePhotos as unknown as R2Bucket,
   ...(configuration.browserSession.mode === "oidc"
     ? {

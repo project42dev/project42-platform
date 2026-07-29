@@ -13,7 +13,7 @@
   "database": {
     "adapter": "postgresql",
     "supportedMajors": [17],
-    "migrationHead": "008_authoritative_progress_imports.sql",
+    "migrationHead": "009_account_merge_governance_constraints.sql",
     "learningRecords": {
       "selectionVariable": "LEARNING_RECORD_ADAPTER",
       "contractVersion": "1.1",

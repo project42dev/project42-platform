@@ -206,6 +206,19 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
       ).status,
       201,
     );
+    assert.equal(
+      (
+        await api(token, "/v1/me/consents", {
+          method: "POST",
+          body: JSON.stringify({
+            purpose: "learning-record",
+            policyVersion: "2026-07-27",
+            decision: "granted",
+          }),
+        })
+      ).status,
+      201,
+    );
   }
   const pngPhoto = Buffer.from(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
@@ -361,6 +374,339 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
     ).status,
     200,
   );
+
+  const missingConsentAccountProof = (
+    await json(
+      await api("attacker-token", "/v1/me/account-merge-proof", {
+        method: "POST",
+      }),
+    )
+  ).proof;
+  const missingConsentPreview = (
+    await json(
+      await api("owner-token", "/v1/admin/account-merges/preview", {
+        method: "POST",
+        body: JSON.stringify({
+          sourceUserId: attacker.id,
+          survivorUserId: survivor.id,
+          sourceProofToken: missingConsentAccountProof.token,
+          survivorProofToken: survivorProofBeforeSuspension.token,
+          idempotencyKey: "merge-required-consent-missing-0001",
+        }),
+      }),
+    )
+  ).merge;
+  assert.deepEqual(missingConsentPreview.policyBlocks, [
+    {
+      kind: "required-consent",
+      account: "source",
+      policyKey: "learning-record",
+      policyVersion: "2026-07-27",
+      reasonCode: "required-consent-missing",
+    },
+  ]);
+
+  assert.equal(
+    (
+      await api("source-token", "/v1/me/consents", {
+        method: "POST",
+        body: JSON.stringify({
+          purpose: "learning-record",
+          policyVersion: "2026-06-01",
+          decision: "granted",
+        }),
+      })
+    ).status,
+    201,
+  );
+  const versionMismatchPreview = (
+    await json(
+      await api("owner-token", "/v1/admin/account-merges/preview", {
+        method: "POST",
+        body: JSON.stringify({
+          sourceUserId: source.id,
+          survivorUserId: survivor.id,
+          sourceProofToken: sourceProofBeforeSuspension.token,
+          survivorProofToken: survivorProofBeforeSuspension.token,
+          idempotencyKey: "merge-required-consent-version-0001",
+        }),
+      }),
+    )
+  ).merge;
+  assert.deepEqual(versionMismatchPreview.policyBlocks, [
+    {
+      kind: "required-consent",
+      account: "source",
+      policyKey: "learning-record",
+      policyVersion: "2026-07-27",
+      reasonCode: "required-consent-version-mismatch",
+    },
+  ]);
+  assert.equal(
+    (
+      await api("source-token", "/v1/me/consents", {
+        method: "POST",
+        body: JSON.stringify({
+          purpose: "learning-record",
+          policyVersion: "2026-07-27",
+          decision: "granted",
+        }),
+      })
+    ).status,
+    201,
+  );
+
+  assert.equal(
+    (
+      await api("survivor-token", "/v1/me/consents", {
+        method: "POST",
+        body: JSON.stringify({
+          purpose: "learning-record",
+          policyVersion: "2026-07-27",
+          decision: "withdrawn",
+        }),
+      })
+    ).status,
+    201,
+  );
+  const requiredConsentPreview = (
+    await json(
+      await api("owner-token", "/v1/admin/account-merges/preview", {
+        method: "POST",
+        body: JSON.stringify({
+          sourceUserId: source.id,
+          survivorUserId: survivor.id,
+          sourceProofToken: sourceProofBeforeSuspension.token,
+          survivorProofToken: survivorProofBeforeSuspension.token,
+          idempotencyKey: "merge-required-consent-0001",
+        }),
+      }),
+    )
+  ).merge;
+  assert.deepEqual(requiredConsentPreview.policyBlocks, [
+    {
+      kind: "required-consent",
+      account: "survivor",
+      policyKey: "learning-record",
+      policyVersion: "2026-07-27",
+      reasonCode: "required-consent-withdrawn",
+    },
+  ]);
+  const requiredConsentCompletion = await api(
+    "owner-token",
+    `/v1/admin/account-merges/${requiredConsentPreview.id}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        confirmation: `MERGE ${source.id} INTO ${survivor.id}`,
+        idempotencyKey: "merge-required-consent-0001",
+        resolutions: Object.fromEntries(
+          requiredConsentPreview.conflicts.map((conflict) => [
+            conflict.key,
+            "survivor",
+          ]),
+        ),
+      }),
+    },
+  );
+  assert.equal(requiredConsentCompletion.status, 409);
+  assert.equal(
+    (await json(requiredConsentCompletion)).error.code,
+    "account_merge_policy_blocked",
+  );
+  assert.equal(
+    (
+      await api("survivor-token", "/v1/me/consents", {
+        method: "POST",
+        body: JSON.stringify({
+          purpose: "learning-record",
+          policyVersion: "2026-07-27",
+          decision: "granted",
+        }),
+      })
+    ).status,
+    201,
+  );
+
+  await database
+    .prepare(
+      `INSERT INTO account_merge_governance_constraints (
+         id, installation_id, user_id, constraint_kind, policy_key,
+         policy_version, reference_digest, state, created_by_user_id,
+         created_at, updated_at, released_by_user_id, released_at
+       ) VALUES (?, ?, ?, 'retention-policy', ?, ?, ?, 'active', ?, ?, ?,
+                 NULL, NULL)`,
+    )
+    .bind(
+      "retention-merge-fixture",
+      "merge-e2e",
+      source.id,
+      "learning-record-retention",
+      "2026-07-27",
+      "a".repeat(64),
+      owner.id,
+      "2026-07-28T12:00:00.000Z",
+      "2026-07-28T12:00:00.000Z",
+    )
+    .run();
+  const retentionPreview = (
+    await json(
+      await api("owner-token", "/v1/admin/account-merges/preview", {
+        method: "POST",
+        body: JSON.stringify({
+          sourceUserId: source.id,
+          survivorUserId: survivor.id,
+          sourceProofToken: sourceProofBeforeSuspension.token,
+          survivorProofToken: survivorProofBeforeSuspension.token,
+          idempotencyKey: "merge-retention-policy-0001",
+        }),
+      }),
+    )
+  ).merge;
+  assert.deepEqual(retentionPreview.policyBlocks, [
+    {
+      kind: "retention-policy",
+      account: "source",
+      policyKey: "learning-record-retention",
+      policyVersion: "2026-07-27",
+      reasonCode: "retention-policy-active",
+    },
+  ]);
+  assert.equal(
+    JSON.stringify(retentionPreview).includes("a".repeat(64)),
+    false,
+  );
+  const retentionCompletion = await api(
+    "owner-token",
+    `/v1/admin/account-merges/${retentionPreview.id}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        confirmation: `MERGE ${source.id} INTO ${survivor.id}`,
+        idempotencyKey: "merge-retention-policy-0001",
+        resolutions: Object.fromEntries(
+          retentionPreview.conflicts.map((conflict) => [
+            conflict.key,
+            "survivor",
+          ]),
+        ),
+      }),
+    },
+  );
+  assert.equal(retentionCompletion.status, 409);
+  assert.equal(
+    (await json(retentionCompletion)).error.code,
+    "account_merge_policy_blocked",
+  );
+  await database
+    .prepare(
+      `UPDATE account_merge_governance_constraints
+          SET state = 'released', released_by_user_id = ?,
+              released_at = ?, updated_at = ?
+        WHERE id = ?`,
+    )
+    .bind(
+      owner.id,
+      "2026-07-28T12:05:00.000Z",
+      "2026-07-28T12:05:00.000Z",
+      "retention-merge-fixture",
+    )
+    .run();
+
+  const cleanPolicyPreview = (
+    await json(
+      await api("owner-token", "/v1/admin/account-merges/preview", {
+        method: "POST",
+        body: JSON.stringify({
+          sourceUserId: source.id,
+          survivorUserId: survivor.id,
+          sourceProofToken: sourceProofBeforeSuspension.token,
+          survivorProofToken: survivorProofBeforeSuspension.token,
+          idempotencyKey: "merge-legal-hold-race-0001",
+        }),
+      }),
+    )
+  ).merge;
+  assert.deepEqual(cleanPolicyPreview.policyBlocks, []);
+  await database
+    .prepare(
+      `INSERT INTO account_merge_governance_constraints (
+         id, installation_id, user_id, constraint_kind, policy_key,
+         policy_version, reference_digest, state, created_by_user_id,
+         created_at, updated_at, released_by_user_id, released_at
+       ) VALUES (?, ?, ?, 'legal-hold', ?, ?, ?, 'active', ?, ?, ?, NULL, NULL)`,
+    )
+    .bind(
+      "legal-hold-merge-fixture",
+      "merge-e2e",
+      survivor.id,
+      "legal-preservation",
+      "1",
+      "b".repeat(64),
+      owner.id,
+      "2026-07-28T12:10:00.000Z",
+      "2026-07-28T12:10:00.000Z",
+    )
+    .run();
+  const legalHoldCompletion = await api(
+    "owner-token",
+    `/v1/admin/account-merges/${cleanPolicyPreview.id}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        confirmation: `MERGE ${source.id} INTO ${survivor.id}`,
+        idempotencyKey: "merge-legal-hold-race-0001",
+        resolutions: Object.fromEntries(
+          cleanPolicyPreview.conflicts.map((conflict) => [
+            conflict.key,
+            "survivor",
+          ]),
+        ),
+      }),
+    },
+  );
+  assert.equal(legalHoldCompletion.status, 409);
+  assert.equal(
+    (await json(legalHoldCompletion)).error.code,
+    "account_merge_policy_blocked",
+  );
+  const legalHoldPreview = (
+    await json(
+      await api("owner-token", "/v1/admin/account-merges/preview", {
+        method: "POST",
+        body: JSON.stringify({
+          sourceUserId: source.id,
+          survivorUserId: survivor.id,
+          sourceProofToken: sourceProofBeforeSuspension.token,
+          survivorProofToken: survivorProofBeforeSuspension.token,
+          idempotencyKey: "merge-legal-hold-preview-0001",
+        }),
+      }),
+    )
+  ).merge;
+  assert.deepEqual(legalHoldPreview.policyBlocks, [
+    {
+      kind: "legal-hold",
+      account: "survivor",
+      policyKey: "legal-preservation",
+      policyVersion: "1",
+      reasonCode: "legal-hold-active",
+    },
+  ]);
+  await database
+    .prepare(
+      `UPDATE account_merge_governance_constraints
+          SET state = 'released', released_by_user_id = ?,
+              released_at = ?, updated_at = ?
+        WHERE id = ?`,
+    )
+    .bind(
+      owner.id,
+      "2026-07-28T12:15:00.000Z",
+      "2026-07-28T12:15:00.000Z",
+      "legal-hold-merge-fixture",
+    )
+    .run();
 
   const deletion = await api("source-token", "/v1/me/deletion", {
     method: "POST",
@@ -557,6 +903,7 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
   const preview = (await json(previewResponse)).merge;
   assert.equal(preview.sourceUserId, source.id);
   assert.equal(preview.survivorUserId, survivor.id);
+  assert.deepEqual(preview.policyBlocks, []);
   assert.ok(preview.conflicts.some((conflict) => conflict.key === "profile.bio"));
   const biographyConflict = preview.conflicts.find(
     (conflict) => conflict.key === "profile.bio",
@@ -654,7 +1001,7 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
   const mergedConsents = (
     await json(await api("survivor-token", "/v1/me/consents"))
   ).consents;
-  assert.equal(mergedConsents.length, 2);
+  assert.equal(mergedConsents.length, 8);
   const mergedIdentities = (
     await json(await api("survivor-token", "/v1/me/identities"))
   ).identities;
@@ -673,6 +1020,22 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
         .first()
     ).count,
     2,
+  );
+  const mergedPolicyConstraints = await database
+    .prepare(
+      `SELECT id, user_id, state
+         FROM account_merge_governance_constraints
+        WHERE installation_id = ?
+        ORDER BY id`,
+    )
+    .bind("merge-e2e")
+    .all();
+  assert.equal(mergedPolicyConstraints.results.length, 2);
+  assert.ok(
+    mergedPolicyConstraints.results.every(
+      (constraint) =>
+        constraint.user_id === survivor.id && constraint.state === "released",
+    ),
   );
 
   await assert.rejects(
@@ -750,6 +1113,26 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
         .first()
     ).count,
     0,
+  );
+  const restoredPolicyConstraints = await database
+    .prepare(
+      `SELECT id, user_id, state
+         FROM account_merge_governance_constraints
+        WHERE installation_id = ?
+        ORDER BY id`,
+    )
+    .bind("merge-e2e")
+    .all();
+  assert.deepEqual(
+    restoredPolicyConstraints.results.map((constraint) => [
+      constraint.id,
+      constraint.user_id,
+      constraint.state,
+    ]),
+    [
+      ["legal-hold-merge-fixture", survivor.id, "released"],
+      ["retention-merge-fixture", source.id, "released"],
+    ],
   );
 
   const replayedProofs = await api(
@@ -922,6 +1305,26 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
   );
   assert.ok(
     audit.events.some((event) => event.action === "account.merge.rollback"),
+  );
+  assert.ok(
+    audit.events.some(
+      (event) =>
+        event.action === "account.merge.complete" &&
+        event.outcome === "denied" &&
+        event.metadata.policyBlocks.some(
+          (block) => block.reasonCode === "required-consent-withdrawn",
+        ),
+    ),
+  );
+  assert.ok(
+    audit.events.some(
+      (event) =>
+        event.action === "account.merge.complete" &&
+        event.outcome === "denied" &&
+        event.metadata.policyBlocks.some(
+          (block) => block.reasonCode === "legal-hold-active",
+        ),
+    ),
   );
   assert.equal(owner.roles.includes("owner"), true);
 });

@@ -121,6 +121,24 @@ export interface AccountMergeConflict {
   description: string;
 }
 
+export type AccountMergePolicyBlockKind =
+  | "required-consent"
+  | "retention-policy"
+  | "legal-hold";
+
+export interface AccountMergePolicyBlock {
+  kind: AccountMergePolicyBlockKind;
+  account: "source" | "survivor";
+  policyKey: string;
+  policyVersion: string;
+  reasonCode:
+    | "required-consent-missing"
+    | "required-consent-withdrawn"
+    | "required-consent-version-mismatch"
+    | "retention-policy-active"
+    | "legal-hold-active";
+}
+
 export interface AccountMergePreview {
   id: string;
   status: "preview" | "completed" | "rolled-back";
@@ -135,6 +153,7 @@ export interface AccountMergePreview {
     survivor: AccountMergeProofMethod;
   };
   conflicts: AccountMergeConflict[];
+  policyBlocks: AccountMergePolicyBlock[];
   recordCounts: Record<string, { source: number; survivor: number }>;
   expiresAt: string;
 }

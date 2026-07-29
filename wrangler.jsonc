@@ -50,6 +50,7 @@
     "OIDC_REDIRECT_URI": "https://api.example.invalid/v1/auth/callback",
     "OIDC_LOGOUT_ENDPOINT": "https://identity.example.invalid/oauth2/v2.0/logout",
     "DOMAIN_APPROVAL_ENABLED": "false",
+    "ACCOUNT_MERGE_REQUIRED_CONSENTS": "[{\"purpose\":\"learning-record\",\"policyVersion\":\"2026-07-27\"}]",
     "LEARNING_RECORD_ADAPTER": "cloudflare-d1",
     "ALLOWED_ORIGINS": "http://localhost:3000",
     "BOOTSTRAP_OWNER_ISSUER": "",

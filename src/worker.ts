@@ -18,6 +18,7 @@ import {
 import type {
   Account,
   AccountMergeConflict,
+  AccountMergePolicyBlock,
   AccountMergePreview,
   AccountMergePreviewRequest,
   AccountMergeProof,
@@ -47,6 +48,10 @@ import type {
   RollbackAccountMergeRequest,
   UpdateLearnerProfileRequest,
 } from "./api-contract.js";
+import {
+  readAccountMergeConsentRequirements,
+  type AccountMergeConsentRequirement,
+} from "./account-merge-policy.js";
 import {
   configureLearningRecordAdapter,
   readLearningRecordAdapterConfiguration,
@@ -112,6 +117,7 @@ type WorkerEnvironment = Omit<
   SESSION_ENCRYPTION_KEY?: string;
   AUTH_CLIENT_RATE_LIMITER?: RateLimit;
   AUTH_INSTALLATION_RATE_LIMITER?: RateLimit;
+  ACCOUNT_MERGE_REQUIRED_CONSENTS?: string;
 };
 
 interface BrowserSessionRow {
@@ -268,6 +274,7 @@ interface AccountMergeCaseRow {
   status: "preview" | "completed" | "rolled-back" | "cancelled" | "failed";
   preview_json: string | {
     conflicts: AccountMergeConflict[];
+    policyBlocks?: AccountMergePolicyBlock[];
     recordCounts: Record<string, { source: number; survivor: number }>;
     proofMethods: {
       source: AccountMergeProofMethod;
@@ -317,6 +324,7 @@ const ACCOUNT_MERGE_SNAPSHOT_TABLES = [
   "progress_imports",
   "consent_records",
   "deletion_requests",
+  "account_merge_governance_constraints",
 ] as const;
 
 class ApiFailure extends Error {
@@ -670,6 +678,8 @@ class D1Project42Repository {
     private readonly db: D1Database,
     private readonly installationId: string,
     learningEvents?: SqlLearningEventStore,
+    private readonly requiredMergeConsents: AccountMergeConsentRequirement[] =
+      readAccountMergeConsentRequirements(),
   ) {
     this.learningEvents =
       learningEvents ??
@@ -1520,12 +1530,19 @@ class D1Project42Repository {
       source.id,
       survivor.id,
     );
+    const policyBlocks = buildAccountMergePolicyBlocks(
+      snapshot,
+      source.id,
+      survivor.id,
+      this.requiredMergeConsents,
+    );
     const id = crypto.randomUUID();
     const expiresAt = new Date(
       Date.parse(input.now) + 30 * 60 * 1_000,
     ).toISOString();
     const previewRecord = {
       conflicts,
+      policyBlocks,
       recordCounts: snapshot.recordCounts,
       proofMethods: {
         source: sourceProof.proof_method,
@@ -1581,6 +1598,10 @@ class D1Project42Repository {
           sourceProofMethod: sourceProof.proof_method,
           survivorProofMethod: survivorProof.proof_method,
           conflictCount: conflicts.length,
+          policyBlockCount: policyBlocks.length,
+          policyBlockKinds: [
+            ...new Set(policyBlocks.map((block) => block.kind)),
+          ],
           snapshotDigest: snapshot.digest,
         },
         now: input.now,
@@ -1755,6 +1776,43 @@ class D1Project42Repository {
       mergeCase.source_user_id,
       mergeCase.survivor_user_id,
     );
+    const policyBlocks = buildAccountMergePolicyBlocks(
+      snapshot,
+      mergeCase.source_user_id,
+      mergeCase.survivor_user_id,
+      this.requiredMergeConsents,
+    );
+    if (policyBlocks.length > 0) {
+      await this.db.batch([
+        this.auditStatement({
+          id: crypto.randomUUID(),
+          actor: input.actor.identity,
+          actorUserId: input.actor.id,
+          action: "account.merge.complete",
+          targetType: "account_merge_case",
+          targetId: mergeCase.id,
+          requestId: input.requestId,
+          outcome: "denied",
+          reason:
+            "Account merge completion was blocked by unresolved data-governance policy.",
+          metadata: {
+            policyBlocks: policyBlocks.map((block) => ({
+              kind: block.kind,
+              account: block.account,
+              policyKey: block.policyKey,
+              policyVersion: block.policyVersion,
+              reasonCode: block.reasonCode,
+            })),
+          },
+          now: input.now,
+        }),
+      ]);
+      throw new ApiFailure(
+        409,
+        "account_merge_policy_blocked",
+        "Resolve all required-consent, retention-policy, and legal-hold blocks before completing this merge.",
+      );
+    }
     if (snapshot.digest !== mergeCase.preview_digest) {
       throw new ApiFailure(
         409,
@@ -4724,6 +4782,7 @@ class D1Project42Repository {
       survivorPrimaryEmail: survivor.primaryEmail,
       proofMethods: preview.proofMethods,
       conflicts: preview.conflicts,
+      policyBlocks: preview.policyBlocks,
       recordCounts: preview.recordCounts,
       expiresAt: mergeCase.expires_at,
     };
@@ -5076,6 +5135,17 @@ class D1Project42Repository {
           this.installationId,
           input.sourceUserId,
         ),
+      this.db
+        .prepare(
+          `UPDATE account_merge_governance_constraints
+              SET user_id = ?
+            WHERE installation_id = ? AND user_id = ?`,
+        )
+        .bind(
+          input.survivorUserId,
+          this.installationId,
+          input.sourceUserId,
+        ),
     );
     return statements;
   }
@@ -5096,6 +5166,7 @@ class D1Project42Repository {
       ["progress_imports", "imported_at"],
       ["consent_records", "decided_at"],
       ["deletion_requests", "requested_at"],
+      ["account_merge_governance_constraints", "updated_at"],
       ["user_identities", "linked_at"],
     ] as const;
     for (const [tableName, timestampColumn] of checks) {
@@ -5350,6 +5421,7 @@ function mergeSnapshotRowKey(
     case "user_identities":
     case "consent_records":
     case "deletion_requests":
+    case "account_merge_governance_constraints":
       return String(row.id);
     case "module_progress":
       return `${row.user_id}:${row.path_id}:${row.module_id}:${row.content_version}`;
@@ -5503,10 +5575,107 @@ async function buildAccountMergeConflicts(
   return conflicts.sort((left, right) => left.key.localeCompare(right.key));
 }
 
+function buildAccountMergePolicyBlocks(
+  snapshot: MergeSnapshot,
+  sourceUserId: string,
+  survivorUserId: string,
+  requiredConsents: AccountMergeConsentRequirement[],
+): AccountMergePolicyBlock[] {
+  const blocks: AccountMergePolicyBlock[] = [];
+  const accounts = [
+    ["source", sourceUserId],
+    ["survivor", survivorUserId],
+  ] as const;
+  const rows = (tableName: string, userId: string) =>
+    snapshot.entries
+      .filter(
+        (entry) =>
+          entry.tableName === tableName &&
+          mergeRowUserId(entry.tableName, entry.row) === userId,
+      )
+      .map((entry) => entry.row);
+  for (const [account, userId] of accounts) {
+    const consents = rows("consent_records", userId);
+    for (const requirement of requiredConsents) {
+      const purposeConsents = consents.filter(
+        (consent) => consent.purpose === requirement.purpose,
+      );
+      const latestDecisionAt = purposeConsents.reduce(
+        (latest, consent) =>
+          String(consent.decided_at).localeCompare(latest) > 0
+            ? String(consent.decided_at)
+            : latest,
+        "",
+      );
+      const current = purposeConsents.filter(
+        (consent) => String(consent.decided_at) === latestDecisionAt,
+      );
+      let reasonCode: AccountMergePolicyBlock["reasonCode"] | null = null;
+      if (current.length === 0) {
+        reasonCode = "required-consent-missing";
+      } else if (
+        current.some(
+          (consent) =>
+            consent.policy_version === requirement.policyVersion &&
+            consent.decision === "withdrawn",
+        )
+      ) {
+        reasonCode = "required-consent-withdrawn";
+      } else if (
+        current.some(
+          (consent) =>
+            consent.policy_version !== requirement.policyVersion,
+        )
+      ) {
+        reasonCode = "required-consent-version-mismatch";
+      } else if (
+        !current.every((consent) => consent.decision === "granted")
+      ) {
+        reasonCode = "required-consent-withdrawn";
+      }
+      if (reasonCode) {
+        blocks.push({
+          kind: "required-consent",
+          account,
+          policyKey: requirement.purpose,
+          policyVersion: requirement.policyVersion,
+          reasonCode,
+        });
+      }
+    }
+    for (const constraint of rows(
+      "account_merge_governance_constraints",
+      userId,
+    )) {
+      if (constraint.state !== "active") continue;
+      const kind =
+        constraint.constraint_kind === "legal-hold"
+          ? "legal-hold"
+          : "retention-policy";
+      blocks.push({
+        kind,
+        account,
+        policyKey: String(constraint.policy_key),
+        policyVersion: String(constraint.policy_version),
+        reasonCode:
+          kind === "legal-hold"
+            ? "legal-hold-active"
+            : "retention-policy-active",
+      });
+    }
+  }
+  return blocks.sort((left, right) =>
+    `${left.kind}\u0000${left.account}\u0000${left.policyKey}\u0000${left.policyVersion}`.localeCompare(
+      `${right.kind}\u0000${right.account}\u0000${right.policyKey}\u0000${right.policyVersion}`,
+    ),
+  );
+}
+
 function parseMergePreviewRecord(
   value: AccountMergeCaseRow["preview_json"],
 ): {
   conflicts: AccountMergeConflict[];
+  policyBlocks: AccountMergePolicyBlock[];
   recordCounts: Record<string, { source: number; survivor: number }>;
   proofMethods: {
     source: AccountMergeProofMethod;
@@ -5526,8 +5695,16 @@ function parseMergePreviewRecord(
   ) {
     throw new Error("Stored account merge preview is invalid.");
   }
-  return parsed as {
+  const policyBlocks = parsed.policyBlocks ?? [];
+  if (!Array.isArray(policyBlocks)) {
+    throw new Error("Stored account merge policy blocks are invalid.");
+  }
+  return {
+    ...parsed,
+    policyBlocks,
+  } as {
     conflicts: AccountMergeConflict[];
+    policyBlocks: AccountMergePolicyBlock[];
     recordCounts: Record<string, { source: number; survivor: number }>;
     proofMethods: {
       source: AccountMergeProofMethod;
@@ -6791,6 +6968,9 @@ async function handleRequest(
         env.PROJECT42_DB,
         env.INSTALLATION_ID,
         configuredLearningRecords!.store,
+        readAccountMergeConsentRequirements(
+          env.ACCOUNT_MERGE_REQUIRED_CONSENTS,
+        ),
       );
     await repository.ensureInstallation(now);
     if (request.method === "GET" && url.pathname === "/v1/auth/start") {

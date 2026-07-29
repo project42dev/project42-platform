@@ -99,6 +99,14 @@ to the event stream first, and keeps the older progress tables only as rebuildab
 compatibility projections. Existing hosted snapshots are promoted lazily and
 idempotently on an authorized learner read.
 
+Migration `0012_account_merge_governance_constraints.sql` adds retention-policy
+and legal-hold blockers for duplicate-account reconciliation. Configure
+`ACCOUNT_MERGE_REQUIRED_CONSENTS` as a JSON array of `purpose` and
+`policyVersion` pairs. Both accounts must have a current grant for every pair.
+Active constraint rows and missing, withdrawn, or wrong-version consent appear
+as non-overridable preview blocks and are checked again immediately before
+completion.
+
 Run migrations against a separately provisioned remote D1 database only after
 placing its ID in private deployment configuration. The packaged runner verifies
 the ordered Wrangler ledger, binds every applied file to a SHA-256 checksum, and

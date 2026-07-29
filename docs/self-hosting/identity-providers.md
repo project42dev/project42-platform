@@ -135,8 +135,28 @@ counts, and every profile or owner-role conflict. Completion requires:
 - the exact source-to-survivor confirmation;
 - the preview's idempotency key;
 - an explicit `source` or `survivor` choice for every conflict;
+- current grants for every consent configured in
+  `ACCOUNT_MERGE_REQUIRED_CONSENTS`;
+- no active retention-policy or legal-hold merge constraint;
 - unchanged account data since preview; and
 - both one-time proofs to remain unused and unexpired.
+
+The preview returns `policyBlocks` separately from source-versus-survivor
+conflicts. A policy block cannot be overridden by choosing an account. Missing,
+withdrawn, or wrong-version required consent and active retention or legal-hold
+constraints deny completion. The service checks live data again at completion,
+records a denied audit event, and therefore also stops a constraint introduced
+after preview.
+
+Migration `0012_account_merge_governance_constraints.sql` for D1 and
+`009_account_merge_governance_constraints.sql` for PostgreSQL add the
+provider-neutral constraint ledger. `policy_key` and `policy_version` are
+non-sensitive policy identifiers. `reference_digest` is a SHA-256 digest of the
+external authority reference; never store a case narrative, personal data, or a
+raw legal reference in this table. Constraint evidence cannot be rebound, and a
+release is terminal. Creation and release belong to the deployment's separately
+approved compliance workflow; the account API does not grant that authority to
+routine account administrators.
 
 Completion writes the recovery snapshot, reconciliation changes, source identity
 alias, consumed-proof state, immutable receipt, and audit event in one database

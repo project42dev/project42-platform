@@ -2,6 +2,10 @@ import {
   readLearningRecordAdapterConfiguration,
   type LearningRecordAdapterConfiguration,
 } from "../learning-record-adapter.js";
+import {
+  readAccountMergeConsentRequirements,
+  type AccountMergeConsentRequirement,
+} from "../account-merge-policy.js";
 
 export type SelfHostBrowserSessionConfiguration =
   | {
@@ -37,6 +41,7 @@ export interface SelfHostConfiguration {
   profilePhotoDirectory: string;
   migrationDirectory: string;
   learningRecordAdapter: LearningRecordAdapterConfiguration;
+  accountMergeRequiredConsents: AccountMergeConsentRequirement[];
   browserSession: SelfHostBrowserSessionConfiguration;
 }
 
@@ -193,6 +198,9 @@ export function readConfiguration(
     learningRecordAdapter: readLearningRecordAdapterConfiguration(
       environment,
       "node",
+    ),
+    accountMergeRequiredConsents: readAccountMergeConsentRequirements(
+      environment.ACCOUNT_MERGE_REQUIRED_CONSENTS,
     ),
     browserSession,
   };
