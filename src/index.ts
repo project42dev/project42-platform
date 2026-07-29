@@ -143,6 +143,7 @@ export {
 } from "./learning-record-receipts.js";
 export {
   createLearningRecordRecoveryBackup,
+  digestLearningRecordRecoveryArtifact,
   LEARNING_RECORD_RECOVERY_BACKUP_VERSION,
   verifyLearningRecordRecoveryBackup,
 } from "./learning-record-recovery-backup.js";

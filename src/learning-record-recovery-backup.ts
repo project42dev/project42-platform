@@ -14,6 +14,7 @@ export interface LearningRecordRecoveryBackupPayload {
 export interface LearningRecordRecoveryBackupManifest {
   schemaVersion: typeof LEARNING_RECORD_RECOVERY_BACKUP_VERSION;
   backupId: string;
+  artifactSha256: string;
   adapter: LearningRecordAdapterKind;
   migrationHead: string;
   capturedAt: string;
@@ -33,6 +34,15 @@ export interface LearningRecordRecoveryBackupArtifact {
 export interface LearningRecordRecoveryBackupExpectation {
   adapter: LearningRecordAdapterKind;
   migrationHead: string;
+}
+
+export async function digestLearningRecordRecoveryArtifact(
+  value: Pick<LearningRecordRecoveryBackupArtifact, "manifest" | "payload">,
+): Promise<string> {
+  return digestArtifactEvidence(
+    artifactEvidence(value.manifest),
+    value.payload,
+  );
 }
 
 export async function createLearningRecordRecoveryBackup(
@@ -65,19 +75,24 @@ export async function createLearningRecordRecoveryBackup(
     (total, stream) => total + stream.events.length,
     0,
   );
+  const evidence = {
+    schemaVersion: LEARNING_RECORD_RECOVERY_BACKUP_VERSION,
+    adapter: input.adapter,
+    migrationHead: input.migrationHead,
+    capturedAt: input.capturedAt,
+    sourceCurrentAt: input.sourceCurrentAt,
+    streamCount: streams.length,
+    eventCount,
+    payloadBytes,
+    payloadSha256,
+  };
+  const artifactSha256 = await digestArtifactEvidence(evidence, payload);
   return {
     schemaVersion: LEARNING_RECORD_RECOVERY_BACKUP_VERSION,
     manifest: {
-      schemaVersion: LEARNING_RECORD_RECOVERY_BACKUP_VERSION,
-      backupId: `learning-recovery-${payloadSha256.slice(0, 32)}`,
-      adapter: input.adapter,
-      migrationHead: input.migrationHead,
-      capturedAt: input.capturedAt,
-      sourceCurrentAt: input.sourceCurrentAt,
-      streamCount: streams.length,
-      eventCount,
-      payloadBytes,
-      payloadSha256,
+      ...evidence,
+      backupId: `learning-recovery-${artifactSha256.slice(0, 32)}`,
+      artifactSha256,
     },
     payload,
   };
@@ -116,11 +131,18 @@ export async function verifyLearningRecordRecoveryBackup(
       "Recovery backup payload checksum does not match its manifest.",
     );
   }
+  const artifactSha256 =
+    await digestLearningRecordRecoveryArtifact(artifact);
+  if (artifactSha256 !== manifest.artifactSha256) {
+    throw new Error(
+      "Recovery backup artifact checksum does not bind its manifest and payload.",
+    );
+  }
   if (
     manifest.backupId !==
-    `learning-recovery-${manifest.payloadSha256.slice(0, 32)}`
+    `learning-recovery-${manifest.artifactSha256.slice(0, 32)}`
   ) {
-    throw new Error("Recovery backup id does not match its payload checksum.");
+    throw new Error("Recovery backup id does not match its artifact checksum.");
   }
 
   let parsed: unknown;
@@ -155,6 +177,11 @@ function readArtifact(value: unknown): LearningRecordRecoveryBackupArtifact {
   if (!isObject(value)) {
     throw new Error("Recovery backup artifact must be an object.");
   }
+  assertExactKeys(
+    value,
+    ["schemaVersion", "manifest", "payload"],
+    "Recovery backup artifact",
+  );
   if (
     value.schemaVersion !== LEARNING_RECORD_RECOVERY_BACKUP_VERSION ||
     !isObject(value.manifest) ||
@@ -163,9 +190,27 @@ function readArtifact(value: unknown): LearningRecordRecoveryBackupArtifact {
     throw new Error("Recovery backup artifact has an unsupported shape.");
   }
   const manifest = value.manifest;
+  assertExactKeys(
+    manifest,
+    [
+      "schemaVersion",
+      "backupId",
+      "artifactSha256",
+      "adapter",
+      "migrationHead",
+      "capturedAt",
+      "sourceCurrentAt",
+      "streamCount",
+      "eventCount",
+      "payloadBytes",
+      "payloadSha256",
+    ],
+    "Recovery backup manifest",
+  );
   if (
     manifest.schemaVersion !== LEARNING_RECORD_RECOVERY_BACKUP_VERSION ||
     typeof manifest.backupId !== "string" ||
+    typeof manifest.artifactSha256 !== "string" ||
     typeof manifest.adapter !== "string" ||
     typeof manifest.migrationHead !== "string" ||
     typeof manifest.capturedAt !== "string" ||
@@ -202,6 +247,9 @@ function readArtifact(value: unknown): LearningRecordRecoveryBackupArtifact {
   if (!/^[a-f0-9]{64}$/.test(manifest.payloadSha256)) {
     throw new Error("Recovery backup payload checksum is invalid.");
   }
+  if (!/^[a-f0-9]{64}$/.test(manifest.artifactSha256)) {
+    throw new Error("Recovery backup artifact checksum is invalid.");
+  }
   return {
     schemaVersion: LEARNING_RECORD_RECOVERY_BACKUP_VERSION,
     manifest: manifest as unknown as LearningRecordRecoveryBackupManifest,
@@ -217,6 +265,11 @@ function readPayload(value: unknown): LearningRecordRecoveryBackupPayload {
   ) {
     throw new Error("Recovery backup payload has an unsupported shape.");
   }
+  assertExactKeys(
+    value,
+    ["schemaVersion", "streams"],
+    "Recovery backup payload",
+  );
   return {
     schemaVersion: LEARNING_RECORD_RECOVERY_BACKUP_VERSION,
     streams: value.streams as VerifiedLearningRecordExport[],
@@ -281,6 +334,64 @@ async function sha256(value: string): Promise<string> {
   return Array.from(new Uint8Array(digest), (byte) =>
     byte.toString(16).padStart(2, "0"),
   ).join("");
+}
+
+function artifactEvidence(
+  manifest: LearningRecordRecoveryBackupManifest,
+): Omit<
+  LearningRecordRecoveryBackupManifest,
+  "backupId" | "artifactSha256"
+> {
+  const {
+    backupId: _backupId,
+    artifactSha256: _artifactSha256,
+    ...evidence
+  } = manifest;
+  return evidence;
+}
+
+async function digestArtifactEvidence(
+  manifest: Omit<
+    LearningRecordRecoveryBackupManifest,
+    "backupId" | "artifactSha256"
+  >,
+  payload: string,
+): Promise<string> {
+  return sha256(
+    JSON.stringify(
+      sortJsonValue({
+        manifest,
+        payload,
+      }),
+    ),
+  );
+}
+
+function sortJsonValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(sortJsonValue);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, child]) => [key, sortJsonValue(child)]),
+    );
+  }
+  return value;
+}
+
+function assertExactKeys(
+  value: Record<string, unknown>,
+  expected: string[],
+  label: string,
+): void {
+  const actual = Object.keys(value).sort();
+  const required = [...expected].sort();
+  if (
+    actual.length !== required.length ||
+    actual.some((key, index) => key !== required[index])
+  ) {
+    throw new Error(`${label} contains missing or unsupported properties.`);
+  }
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {

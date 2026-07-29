@@ -6,6 +6,7 @@ import Ajv2020 from "ajv/dist/2020.js";
 import {
   createLearningRecordRecoveryBackup,
   DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES,
+  digestLearningRecordRecoveryArtifact,
   measureLearningRecordRecovery,
   restoreVerifiedLearningRecordExport,
   runLearningRecordRecoveryConformance,
@@ -13,6 +14,23 @@ import {
   SqlLearningEventStore,
   verifyLearningRecordRecoveryBackup,
 } from "../dist/index.js";
+
+async function resignRecoveryArtifact(artifact) {
+  artifact.manifest.payloadBytes = new TextEncoder().encode(
+    artifact.payload,
+  ).byteLength;
+  artifact.manifest.payloadSha256 = Buffer.from(
+    await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(artifact.payload),
+    ),
+  ).toString("hex");
+  artifact.manifest.artifactSha256 =
+    await digestLearningRecordRecoveryArtifact(artifact);
+  artifact.manifest.backupId =
+    `learning-recovery-${artifact.manifest.artifactSha256.slice(0, 32)}`;
+  return artifact;
+}
 
 async function applyD1Migrations(database) {
   const migrations = (await readdir(new URL("../migrations/", import.meta.url)))
@@ -244,15 +262,7 @@ test("recovery gate restores projections and replays post-backup deletion", asyn
   truncated.manifest.payloadBytes = new TextEncoder().encode(
     truncated.payload,
   ).byteLength;
-  const truncatedDigest = Buffer.from(
-    await crypto.subtle.digest(
-      "SHA-256",
-      new TextEncoder().encode(truncated.payload),
-    ),
-  ).toString("hex");
-  truncated.manifest.payloadSha256 = truncatedDigest;
-  truncated.manifest.backupId =
-    `learning-recovery-${truncatedDigest.slice(0, 32)}`;
+  await resignRecoveryArtifact(truncated);
   await assert.rejects(
     () =>
       verifyLearningRecordRecoveryBackup(truncated, {
@@ -261,13 +271,114 @@ test("recovery gate restores projections and replays post-backup deletion", asyn
       }),
     /truncated or invalid JSON/,
   );
+  const manifestTamperCases = [
+    {
+      name: "capturedAt",
+      mutate: (artifact) => {
+        artifact.manifest.capturedAt = "2026-07-28T18:04:59.500Z";
+      },
+      expected: {
+        adapter: "cloudflare-d1",
+        migrationHead: "0011_authoritative_progress_imports.sql",
+      },
+    },
+    {
+      name: "sourceCurrentAt",
+      mutate: (artifact) => {
+        artifact.manifest.sourceCurrentAt = "2026-07-28T18:05:00.500Z";
+      },
+      expected: {
+        adapter: "cloudflare-d1",
+        migrationHead: "0011_authoritative_progress_imports.sql",
+      },
+    },
+    {
+      name: "streamCount",
+      mutate: (artifact) => {
+        artifact.manifest.streamCount += 1;
+      },
+      expected: {
+        adapter: "cloudflare-d1",
+        migrationHead: "0011_authoritative_progress_imports.sql",
+      },
+    },
+    {
+      name: "eventCount",
+      mutate: (artifact) => {
+        artifact.manifest.eventCount += 1;
+      },
+      expected: {
+        adapter: "cloudflare-d1",
+        migrationHead: "0011_authoritative_progress_imports.sql",
+      },
+    },
+    {
+      name: "adapter",
+      mutate: (artifact) => {
+        artifact.manifest.adapter = "postgresql";
+      },
+      expected: {
+        adapter: "postgresql",
+        migrationHead: "0011_authoritative_progress_imports.sql",
+      },
+    },
+    {
+      name: "migrationHead",
+      mutate: (artifact) => {
+        artifact.manifest.migrationHead =
+          "008_authoritative_progress_imports.sql";
+      },
+      expected: {
+        adapter: "cloudflare-d1",
+        migrationHead: "008_authoritative_progress_imports.sql",
+      },
+    },
+  ];
+  for (const manifestTamper of manifestTamperCases) {
+    const tampered = structuredClone(packagedBackup);
+    manifestTamper.mutate(tampered);
+    await assert.rejects(
+      () =>
+        verifyLearningRecordRecoveryBackup(
+          tampered,
+          manifestTamper.expected,
+        ),
+      /artifact checksum/,
+      `${manifestTamper.name} must be bound by the artifact checksum`,
+    );
+  }
+  const artifactWithExtra = structuredClone(packagedBackup);
+  artifactWithExtra.unexpected = true;
   await assert.rejects(
     () =>
-      verifyLearningRecordRecoveryBackup(packagedBackup, {
+      verifyLearningRecordRecoveryBackup(artifactWithExtra, {
         adapter: "cloudflare-d1",
-        migrationHead: "0010_wrong_head.sql",
+        migrationHead: "0011_authoritative_progress_imports.sql",
       }),
-    /migration head/,
+    /unsupported properties/,
+  );
+  const manifestWithExtra = structuredClone(packagedBackup);
+  manifestWithExtra.manifest.unexpected = true;
+  await assert.rejects(
+    () =>
+      verifyLearningRecordRecoveryBackup(manifestWithExtra, {
+        adapter: "cloudflare-d1",
+        migrationHead: "0011_authoritative_progress_imports.sql",
+      }),
+    /unsupported properties/,
+  );
+  const payloadWithExtra = structuredClone(packagedBackup);
+  const payloadObject = JSON.parse(payloadWithExtra.payload);
+  payloadObject.unexpected = true;
+  payloadWithExtra.payload = JSON.stringify(payloadObject);
+  await resignRecoveryArtifact(payloadWithExtra);
+  await assert.rejects(
+    () =>
+      verifyLearningRecordRecoveryBackup(payloadWithExtra, {
+        adapter: "cloudflare-d1",
+        migrationHead: "0011_authoritative_progress_imports.sql",
+      }),
+    /unsupported properties/,
   );
   assert.equal(
     (await new SqlLearningEventStore(invalidDatabase).list(

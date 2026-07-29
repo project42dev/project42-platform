@@ -9,6 +9,7 @@ import type { LearningCommand } from "./learning-events.js";
 import type { LearningRecordAdapterKind } from "./learning-record-adapter.js";
 import {
   createLearningRecordRecoveryBackup,
+  digestLearningRecordRecoveryArtifact,
   type LearningRecordRecoveryBackupArtifact,
   verifyLearningRecordRecoveryBackup,
 } from "./learning-record-recovery-backup.js";
@@ -414,7 +415,7 @@ async function runLearningRecordRecoveryConformanceInternal(
     adapter,
     migrationHead,
     backupId: verifiedRecoveryBackup.manifest.backupId,
-    backupSha256: verifiedRecoveryBackup.manifest.payloadSha256,
+    backupSha256: verifiedRecoveryBackup.manifest.artifactSha256,
     backupBytes: verifiedRecoveryBackup.manifest.payloadBytes,
     restoredEventCount,
     replayedDeletionEventCount: replay.deletedEventCount,
@@ -521,8 +522,10 @@ async function assertInvalidRecoveryBackupsFail(
     truncated.payload,
   ).byteLength;
   truncated.manifest.payloadSha256 = await digestText(truncated.payload);
+  truncated.manifest.artifactSha256 =
+    await digestLearningRecordRecoveryArtifact(truncated);
   truncated.manifest.backupId =
-    `learning-recovery-${truncated.manifest.payloadSha256.slice(0, 32)}`;
+    `learning-recovery-${truncated.manifest.artifactSha256.slice(0, 32)}`;
   await assertRejectedBackup(truncated, expected, "truncated");
 
   const corruptPayload = JSON.parse(backup.payload) as {
@@ -629,8 +632,10 @@ async function resignBackupPayload(
     changed.payload,
   ).byteLength;
   changed.manifest.payloadSha256 = await digestText(changed.payload);
+  changed.manifest.artifactSha256 =
+    await digestLearningRecordRecoveryArtifact(changed);
   changed.manifest.backupId =
-    `learning-recovery-${changed.manifest.payloadSha256.slice(0, 32)}`;
+    `learning-recovery-${changed.manifest.artifactSha256.slice(0, 32)}`;
   return changed;
 }
 

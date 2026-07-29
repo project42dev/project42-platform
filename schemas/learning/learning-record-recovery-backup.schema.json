@@ -13,6 +13,7 @@
       "required": [
         "schemaVersion",
         "backupId",
+        "artifactSha256",
         "adapter",
         "migrationHead",
         "capturedAt",
@@ -27,6 +28,10 @@
         "backupId": {
           "type": "string",
           "pattern": "^learning-recovery-[a-f0-9]{32}$"
+        },
+        "artifactSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
         },
         "adapter": {
           "enum": ["cloudflare-d1", "postgresql"]

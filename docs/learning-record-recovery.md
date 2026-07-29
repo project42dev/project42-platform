@@ -15,12 +15,14 @@ learners in isolated databases and never requires production learner data.
 3. Capture verified exports before the deletion request and package them in a
    recovery artifact whose manifest records the adapter, migration head,
    capture timestamps, stream and event counts, payload byte count, and
-   SHA-256 checksum.
+   payload SHA-256 checksum. A second canonical artifact SHA-256 binds every
+   one of those manifest values together with the exact serialized payload;
+   the backup ID derives from that artifact digest.
 4. Retain the deletion receipt outside the older backup.
 5. Verify the serialized artifact and every embedded export before the first
    restored event is written. Reject malformed, truncated, byte-count or
-   checksum-mismatched, duplicate-scope, incomplete, cross-adapter, or
-   wrong-migration-head artifacts.
+   checksum-mismatched, manifest-tampered, duplicate-scope, incomplete,
+   cross-adapter, wrong-migration-head, or schema-extension artifacts.
 6. Restore events in their exact authoritative order. A clean database may
    assign new monotonically increasing physical sequence numbers; every event's
    stable identity, content, actor, timestamps, command digest, and relative
@@ -98,9 +100,12 @@ returning the original error.
 `createLearningRecordRecoveryBackup` creates the serialized backup artifact.
 `verifyLearningRecordRecoveryBackup` must run before restore and requires the
 operator to supply the expected adapter and migration head. Recomputing an
-artifact checksum does not make a stale or wrong-head backup eligible for
-promotion: its manifest must still match the target runtime and every embedded
-export receipt must validate.
+individual payload checksum does not make a stale or wrong-head backup eligible
+for promotion: the canonical artifact checksum also binds adapter, migration
+head, timestamps, counts, byte length, and payload checksum. Its manifest must
+still match the target runtime and every embedded export receipt must validate.
+Runtime verification rejects properties not declared by the machine-readable
+artifact, manifest, or payload schema.
 
 `measureLearningRecordRecovery` validates UTC chronology and calculates:
 
