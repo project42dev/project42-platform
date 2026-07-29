@@ -59,6 +59,20 @@ contracts—not the private PMO records or Project42dev production configuration
   and retirement.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.63.0` adds learner profile and account-control contracts. Profiles
+now persist validated locale, time-zone, reduced-motion,
+and high-contrast preferences across hosted storage, exports, and
+account-merge recovery. New consent decisions use a canonical purpose and
+policy-version vocabulary while explicitly marked legacy records remain
+compatible with migration, export, merge, and rollback. Account deletion now
+returns a private capability receipt whose digest-only status check remains
+available after identity and account erasure without retaining learner PII.
+Self-service endpoints also fail closed and audit attempts to select another
+account, installation, user, or tenant. D1 migration
+`0013_profile_consent_and_deletion_receipts.sql` and PostgreSQL migration
+`010_profile_consent_and_deletion_receipts.sql` provide the matching hosted and
+self-hosted schema changes.
+
 Release `0.62.0` makes duplicate-account reconciliation fail closed for
 suspended accounts and for non-overridable required-consent, retention-policy,
 and legal-hold blocks. Preview identifies the affected account and policy
