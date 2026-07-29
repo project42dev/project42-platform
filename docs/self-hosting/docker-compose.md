@@ -51,6 +51,10 @@ Migration `007_secure_browser_sessions.sql` adds the portable session schema and
 its tenant, chronology, lifecycle, and immutability guards. A production
 self-hosted deployment must configure HTTPS OIDC browser endpoints and its own
 persistent session-encryption secret before enabling API-owned browser sessions.
+Migration `011_registration_boundary.sql` adds digest-only registration status
+receipts and atomic expected-state owner decisions. Apply it before accepting
+new registrations so pending or rejected identities cannot receive learner
+sessions.
 
 Migration `008_authoritative_progress_imports.sql` adds schema-versioned
 `progress.imported` events. The API reads progress from the rebuilt event

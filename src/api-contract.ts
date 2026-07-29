@@ -241,6 +241,14 @@ export interface AccountStateChangeRequest {
   reason: string;
 }
 
+export interface RegistrationStatus {
+  state: AccountState;
+  requestedAt: string;
+  updatedAt: string;
+  canSignIn: boolean;
+  nextAction: "await-review" | "sign-in" | "contact-owner";
+}
+
 export interface DomainRule {
   id: string;
   domain: string;

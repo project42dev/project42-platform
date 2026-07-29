@@ -239,7 +239,9 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     method: "POST",
   });
   assert.equal(learnerSession.status, 202);
-  const learner = (await readBody(learnerSession)).account;
+  assert.deepEqual((await readBody(learnerSession)).account, { state: "pending" });
+  const learner = await repository.findAccount(identities.get("learner-token"));
+  assert.ok(learner);
   assert.equal(learner.state, "pending");
 
   const pendingProgress = await api("learner-token", "/v1/me/progress");
@@ -441,13 +443,17 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
       await otherApi("owner-token", "/v1/session", { method: "POST" }),
     )
   ).account;
-  const otherLearner = (
+  const otherLearnerDisclosure = (
     await readBody(
       await otherApi("learner-token", "/v1/session", { method: "POST" }),
     )
   ).account;
   assert.equal(otherOwner.installationId, "e2e-other");
-  assert.equal(otherLearner.state, "pending");
+  assert.deepEqual(otherLearnerDisclosure, { state: "pending" });
+  const otherLearner = await otherRepository.findAccount(
+    identities.get("learner-token"),
+  );
+  assert.ok(otherLearner);
   const otherFirstAccountPage = await readBody(
     await otherApi("owner-token", "/v1/admin/accounts?pageSize=1"),
   );
@@ -741,7 +747,9 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     method: "POST",
   });
   assert.equal(otherSession.status, 202);
-  const otherAccount = (await readBody(otherSession)).account;
+  assert.deepEqual((await readBody(otherSession)).account, { state: "pending" });
+  const otherAccount = await repository.findAccount(identities.get("other-token"));
+  assert.ok(otherAccount);
   const approveOther = await api(
     "owner-token",
     `/v1/admin/accounts/${encodeURIComponent(otherAccount.id)}/state`,
