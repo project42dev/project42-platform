@@ -250,9 +250,97 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   assert.equal(pendingAdmin.status, 403);
   assert.equal((await readBody(pendingAdmin)).error.code, "owner_required");
 
+  await database
+    .prepare(
+      "UPDATE users SET created_at = ? WHERE installation_id = ?",
+    )
+    .bind("2026-07-29T06:00:00.000Z", "e2e")
+    .run();
   const accountList = await api("owner-token", "/v1/admin/accounts");
   assert.equal(accountList.status, 200);
-  assert.equal((await readBody(accountList)).accounts.length, 2);
+  const accountListBody = await readBody(accountList);
+  assert.equal(accountListBody.accounts.length, 2);
+  assert.deepEqual(
+    accountListBody.accounts.map((account) => account.id),
+    accountListBody.accounts.map((account) => account.id).sort(),
+  );
+  assert.deepEqual(accountListBody.page, {
+    pageSize: 50,
+    returnedCount: 2,
+    hasMore: false,
+    nextCursor: null,
+  });
+
+  const firstAccountPage = await readBody(
+    await api("owner-token", "/v1/admin/accounts?pageSize=1"),
+  );
+  assert.equal(firstAccountPage.accounts.length, 1);
+  assert.equal(firstAccountPage.page.hasMore, true);
+  assert.equal(typeof firstAccountPage.page.nextCursor, "string");
+  const secondAccountPage = await readBody(
+    await api(
+      "owner-token",
+      `/v1/admin/accounts?pageSize=1&cursor=${encodeURIComponent(
+        firstAccountPage.page.nextCursor,
+      )}`,
+    ),
+  );
+  assert.equal(secondAccountPage.accounts.length, 1);
+  assert.equal(secondAccountPage.page.hasMore, false);
+  assert.equal(secondAccountPage.page.nextCursor, null);
+  assert.equal(
+    new Set([
+      firstAccountPage.accounts[0].id,
+      secondAccountPage.accounts[0].id,
+    ]).size,
+    2,
+  );
+
+  const tamperedAccountCursor =
+    (firstAccountPage.page.nextCursor[0] === "A" ? "B" : "A") +
+    firstAccountPage.page.nextCursor.slice(1);
+  const tamperedAccountPage = await api(
+    "owner-token",
+    `/v1/admin/accounts?pageSize=1&cursor=${encodeURIComponent(
+      tamperedAccountCursor,
+    )}`,
+  );
+  assert.equal(tamperedAccountPage.status, 400);
+  assert.equal(
+    (await readBody(tamperedAccountPage)).error.code,
+    "invalid_admin_cursor",
+  );
+  const filterMismatchedCursor = await api(
+    "owner-token",
+    `/v1/admin/accounts?pageSize=1&state=pending&cursor=${encodeURIComponent(
+      firstAccountPage.page.nextCursor,
+    )}`,
+  );
+  assert.equal(filterMismatchedCursor.status, 400);
+  assert.equal(
+    (await readBody(filterMismatchedCursor)).error.code,
+    "invalid_admin_cursor",
+  );
+  for (const pageSize of ["0", "101", "1.5"]) {
+    const invalidPageSize = await api(
+      "owner-token",
+      `/v1/admin/accounts?pageSize=${pageSize}`,
+    );
+    assert.equal(invalidPageSize.status, 400);
+    assert.equal(
+      (await readBody(invalidPageSize)).error.code,
+      "invalid_admin_page_size",
+    );
+  }
+  const unauthorizedMalformedCursor = await api(
+    "learner-token",
+    "/v1/admin/accounts?cursor=altered",
+  );
+  assert.equal(unauthorizedMalformedCursor.status, 403);
+  assert.equal(
+    (await readBody(unauthorizedMalformedCursor)).error.code,
+    "owner_required",
+  );
 
   const approved = await api(
     "owner-token",
@@ -360,6 +448,34 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   ).account;
   assert.equal(otherOwner.installationId, "e2e-other");
   assert.equal(otherLearner.state, "pending");
+  const otherFirstAccountPage = await readBody(
+    await otherApi("owner-token", "/v1/admin/accounts?pageSize=1"),
+  );
+  assert.equal(otherFirstAccountPage.page.hasMore, true);
+  assert.ok(
+    otherFirstAccountPage.accounts.every(
+      (account) => account.installationId === "e2e-other",
+    ),
+  );
+  const crossInstallationCursor = await api(
+    "owner-token",
+    `/v1/admin/accounts?pageSize=1&cursor=${encodeURIComponent(
+      otherFirstAccountPage.page.nextCursor,
+    )}`,
+  );
+  assert.equal(crossInstallationCursor.status, 400);
+  assert.equal(
+    (await readBody(crossInstallationCursor)).error.code,
+    "invalid_admin_cursor",
+  );
+  const mainInstallationAccounts = await readBody(
+    await api("owner-token", "/v1/admin/accounts?pageSize=100"),
+  );
+  assert.ok(
+    mainInstallationAccounts.accounts.every(
+      (account) => account.installationId === "e2e",
+    ),
+  );
   assert.equal(
     (
       await otherApi(
@@ -991,7 +1107,10 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
 
   const audit = await api("owner-token", "/v1/admin/audit");
   assert.equal(audit.status, 200);
-  const events = (await readBody(audit)).events;
+  const auditBody = await readBody(audit);
+  const events = auditBody.events;
+  assert.equal(auditBody.page.pageSize, 50);
+  assert.equal(auditBody.page.returnedCount, events.length);
   for (const action of [
     "account.register",
     "account.state.change",
@@ -1029,4 +1148,49 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     4,
   );
   assert.ok(events.every((event) => event.requestId));
+
+  const pagedAuditIds = [];
+  let auditCursor = null;
+  do {
+    const page = await readBody(
+      await api(
+        "owner-token",
+        `/v1/admin/audit?pageSize=7${
+          auditCursor
+            ? `&cursor=${encodeURIComponent(auditCursor)}`
+            : ""
+        }`,
+      ),
+    );
+    assert.ok(page.events.length >= 1 && page.events.length <= 7);
+    assert.equal(page.page.returnedCount, page.events.length);
+    assert.equal(page.page.hasMore, page.page.nextCursor !== null);
+    pagedAuditIds.push(...page.events.map((event) => event.id));
+    auditCursor = page.page.nextCursor;
+  } while (auditCursor);
+  assert.equal(new Set(pagedAuditIds).size, pagedAuditIds.length);
+  assert.ok(pagedAuditIds.length >= events.length);
+  assert.deepEqual(
+    pagedAuditIds.slice(0, events.length),
+    events.map((event) => event.id),
+  );
+
+  const firstAuditPage = await readBody(
+    await api("owner-token", "/v1/admin/audit?pageSize=1"),
+  );
+  assert.equal(firstAuditPage.page.hasMore, true);
+  const tamperedAuditCursor =
+    (firstAuditPage.page.nextCursor[0] === "A" ? "B" : "A") +
+    firstAuditPage.page.nextCursor.slice(1);
+  const tamperedAuditPage = await api(
+    "owner-token",
+    `/v1/admin/audit?pageSize=1&cursor=${encodeURIComponent(
+      tamperedAuditCursor,
+    )}`,
+  );
+  assert.equal(tamperedAuditPage.status, 400);
+  assert.equal(
+    (await readBody(tamperedAuditPage)).error.code,
+    "invalid_admin_cursor",
+  );
 });

@@ -17,6 +17,8 @@ import {
 } from "./identity.js";
 import type {
   Account,
+  AdminAccountPage,
+  AdminAuditEventPage,
   AccountMergeConflict,
   AccountMergePolicyBlock,
   AccountMergePreview,
@@ -51,6 +53,18 @@ import type {
   RollbackAccountMergeRequest,
   UpdateLearnerProfileRequest,
 } from "./api-contract.js";
+import {
+  ADMIN_CURSOR_MAX_LENGTH,
+  ADMIN_PAGE_DEFAULT_SIZE,
+  ADMIN_PAGE_MAX_SIZE,
+  InvalidAdminCursorError,
+  InvalidAdminPageSizeError,
+  decodeAccountAdminCursor,
+  decodeAuditAdminCursor,
+  encodeAccountAdminCursor,
+  encodeAuditAdminCursor,
+  validateAdminPageSize,
+} from "./admin-pagination.js";
 import {
   readAccountMergeConsentRequirements,
   type AccountMergeConsentRequirement,
@@ -1314,6 +1328,90 @@ class D1Project42Repository {
       ? await statement.bind(this.installationId, state).all<AccountRow>()
       : await statement.bind(this.installationId).all<AccountRow>();
     return result.results.map(mapAccount);
+  }
+
+  async listAccountPage(input: {
+    state?: AccountState;
+    pageSize: number;
+    cursor?: string;
+  }): Promise<AdminAccountPage> {
+    validateAdminPageSize(input.pageSize);
+    const position = input.cursor
+      ? await decodeAccountAdminCursor(input.cursor, {
+          installationId: this.installationId,
+          ...(input.state ? { state: input.state } : {}),
+        })
+      : null;
+    const conditions = [
+      "u.installation_id = ?",
+      `NOT EXISTS (
+        SELECT 1
+          FROM account_merge_aliases m
+         WHERE m.installation_id = u.installation_id
+           AND m.source_user_id = u.id
+      )`,
+    ];
+    const bindings: Array<string | number> = [this.installationId];
+    if (input.state) {
+      conditions.push("u.account_state = ?");
+      bindings.push(input.state);
+    }
+    if (position) {
+      conditions.push(
+        "(u.created_at > ? OR (u.created_at = ? AND u.id > ?))",
+      );
+      bindings.push(
+        position.createdAt,
+        position.createdAt,
+        position.userId,
+      );
+    }
+    bindings.push(input.pageSize + 1);
+    const result = await this.db
+      .prepare(
+        `SELECT u.id, u.installation_id, i.provider, i.issuer, i.subject,
+                u.display_name,
+                u.primary_email, u.email_verified, u.account_state, u.created_at,
+                u.updated_at, r.roles
+           FROM users u
+           JOIN user_identities i
+             ON i.installation_id = u.installation_id AND i.user_id = u.id
+            AND i.status = 'active' AND i.is_primary = 1
+           LEFT JOIN (
+             SELECT installation_id, user_id, GROUP_CONCAT(role) AS roles
+               FROM role_assignments
+              GROUP BY installation_id, user_id
+           ) r
+             ON r.installation_id = u.installation_id AND r.user_id = u.id
+          WHERE ${conditions.join(" AND ")}
+          ORDER BY u.created_at ASC, u.id ASC
+          LIMIT ?`,
+      )
+      .bind(...bindings)
+      .all<AccountRow>();
+    const hasMore = result.results.length > input.pageSize;
+    const rows = result.results.slice(0, input.pageSize);
+    const last = rows.at(-1);
+    const nextCursor =
+      hasMore && last
+        ? await encodeAccountAdminCursor({
+            installationId: this.installationId,
+            ...(input.state ? { state: input.state } : {}),
+            position: {
+              createdAt: last.created_at,
+              userId: last.id,
+            },
+          })
+        : null;
+    return {
+      accounts: rows.map(mapAccount),
+      page: {
+        pageSize: input.pageSize,
+        returnedCount: rows.length,
+        hasMore,
+        nextCursor,
+      },
+    };
   }
 
   async getAccountById(userId: string): Promise<Account | null> {
@@ -4765,22 +4863,58 @@ class D1Project42Repository {
       )
       .bind(this.installationId)
       .all<Record<string, unknown>>();
-    return result.results.map((event) => ({
-      id: String(event.id),
-      actorUserId:
-        typeof event.actor_user_id === "string" ? event.actor_user_id : null,
-      action: String(event.action),
-      targetType: String(event.target_type),
-      targetId: typeof event.target_id === "string" ? event.target_id : null,
-      requestId: String(event.request_id),
-      outcome: event.outcome as AuditEvent["outcome"],
-      reason: String(event.reason),
-      metadata:
-        typeof event.metadata_json === "string"
-          ? (JSON.parse(event.metadata_json) as Record<string, unknown>)
-          : (event.metadata_json as Record<string, unknown>),
-      occurredAt: String(event.occurred_at),
-    }));
+    return result.results.map(mapAuditEvent);
+  }
+
+  async listAuditEventPage(input: {
+    pageSize: number;
+    cursor?: string;
+  }): Promise<AdminAuditEventPage> {
+    validateAdminPageSize(input.pageSize);
+    const position = input.cursor
+      ? await decodeAuditAdminCursor(input.cursor, {
+          installationId: this.installationId,
+        })
+      : null;
+    const result = await this.db
+      .prepare(
+        `SELECT sequence, id, actor_user_id, action, target_type, target_id,
+                request_id, outcome, reason, metadata_json, occurred_at
+           FROM audit_events
+          WHERE installation_id = ?
+            ${position ? "AND sequence < ?" : ""}
+          ORDER BY sequence DESC
+          LIMIT ?`,
+      )
+      .bind(
+        this.installationId,
+        ...(position ? [position.sequence] : []),
+        input.pageSize + 1,
+      )
+      .all<Record<string, unknown>>();
+    const hasMore = result.results.length > input.pageSize;
+    const rows = result.results.slice(0, input.pageSize);
+    const last = rows.at(-1);
+    const sequence = last ? String(last.sequence) : null;
+    if (sequence && !/^[1-9]\d{0,18}$/.test(sequence)) {
+      throw new Error("Audit event sequence cannot be represented by the cursor contract.");
+    }
+    const nextCursor =
+      hasMore && sequence
+        ? await encodeAuditAdminCursor({
+            installationId: this.installationId,
+            position: { sequence },
+          })
+        : null;
+    return {
+      events: rows.map(mapAuditEvent),
+      page: {
+        pageSize: input.pageSize,
+        returnedCount: rows.length,
+        hasMore,
+        nextCursor,
+      },
+    };
   }
 
   private async createAccountMergeProof(input: {
@@ -6044,6 +6178,25 @@ function mapAccount(row: AccountRow): Account {
   };
 }
 
+function mapAuditEvent(event: Record<string, unknown>): AuditEvent {
+  return {
+    id: String(event.id),
+    actorUserId:
+      typeof event.actor_user_id === "string" ? event.actor_user_id : null,
+    action: String(event.action),
+    targetType: String(event.target_type),
+    targetId: typeof event.target_id === "string" ? event.target_id : null,
+    requestId: String(event.request_id),
+    outcome: event.outcome as AuditEvent["outcome"],
+    reason: String(event.reason),
+    metadata:
+      typeof event.metadata_json === "string"
+        ? (JSON.parse(event.metadata_json) as Record<string, unknown>)
+        : (event.metadata_json as Record<string, unknown>),
+    occurredAt: String(event.occurred_at),
+  };
+}
+
 function mapLinkedIdentity(
   row: LinkedIdentityRow,
   activeCount: number,
@@ -6757,6 +6910,54 @@ function requireProfileAccess(account: Account): void {
       `This account is ${account.state} and cannot change its profile.`,
     );
   }
+}
+
+function normalizeAdminPageQuery(url: URL): {
+  pageSize: number;
+  cursor?: string;
+} {
+  const pageSizeValues = url.searchParams.getAll("pageSize");
+  const cursorValues = url.searchParams.getAll("cursor");
+  if (pageSizeValues.length > 1 || cursorValues.length > 1) {
+    throw new ApiFailure(
+      400,
+      "invalid_admin_pagination",
+      "Administration pagination parameters may be supplied only once.",
+    );
+  }
+  const rawPageSize = pageSizeValues[0];
+  const pageSize =
+    rawPageSize === undefined
+      ? ADMIN_PAGE_DEFAULT_SIZE
+      : /^[1-9]\d*$/.test(rawPageSize)
+        ? Number(rawPageSize)
+        : Number.NaN;
+  if (
+    !Number.isSafeInteger(pageSize) ||
+    pageSize < 1 ||
+    pageSize > ADMIN_PAGE_MAX_SIZE
+  ) {
+    throw new ApiFailure(
+      400,
+      "invalid_admin_page_size",
+      `pageSize must be an integer between 1 and ${ADMIN_PAGE_MAX_SIZE}.`,
+    );
+  }
+  const cursor = cursorValues[0];
+  if (
+    cursor !== undefined &&
+    (cursor.length === 0 || cursor.length > ADMIN_CURSOR_MAX_LENGTH)
+  ) {
+    throw new ApiFailure(
+      400,
+      "invalid_admin_cursor",
+      "The administration cursor is invalid or does not match this query.",
+    );
+  }
+  return {
+    pageSize,
+    ...(cursor === undefined ? {} : { cursor }),
+  };
 }
 
 async function requireOwner(
@@ -8043,7 +8244,15 @@ async function handleRequest(
 
     if (url.pathname === "/v1/admin/accounts" && request.method === "GET") {
       await requireOwner(account, repository, request, requestId, now);
-      const stateValue = url.searchParams.get("state");
+      const stateValues = url.searchParams.getAll("state");
+      if (stateValues.length > 1) {
+        throw new ApiFailure(
+          400,
+          "invalid_account_state",
+          "The account state filter may be supplied only once.",
+        );
+      }
+      const stateValue = stateValues[0] ?? null;
       const state =
         stateValue && ACCOUNT_STATES.includes(stateValue as AccountState)
           ? (stateValue as AccountState)
@@ -8051,7 +8260,16 @@ async function handleRequest(
       if (stateValue && !state) {
         throw new ApiFailure(400, "invalid_account_state", "Unknown account state filter.");
       }
-      return json({ accounts: await repository.listAccounts(state) }, 200, requestId, origin);
+      const pagination = normalizeAdminPageQuery(url);
+      return json(
+        await repository.listAccountPage({
+          ...pagination,
+          ...(state ? { state } : {}),
+        }),
+        200,
+        requestId,
+        origin,
+      );
     }
     const accountMatch = url.pathname.match(/^\/v1\/admin\/accounts\/([^/]+)\/state$/);
     if (accountMatch && request.method === "PATCH") {
@@ -8139,7 +8357,12 @@ async function handleRequest(
     }
     if (url.pathname === "/v1/admin/audit" && request.method === "GET") {
       await requireOwner(account, repository, request, requestId, now);
-      return json({ events: await repository.listAuditEvents() }, 200, requestId, origin);
+      return json(
+        await repository.listAuditEventPage(normalizeAdminPageQuery(url)),
+        200,
+        requestId,
+        origin,
+      );
     }
     if (url.pathname === "/v1/admin/deletions" && request.method === "GET") {
       await requireOwner(account, repository, request, requestId, now);
@@ -8201,10 +8424,28 @@ async function handleRequest(
 
     throw new ApiFailure(404, "route_not_found", "API route was not found.");
   } catch (error) {
-    const failure =
-      error instanceof ApiFailure
-        ? error
-        : new ApiFailure(500, "internal_error", "The request could not be completed.");
+    let failure: ApiFailure;
+    if (error instanceof ApiFailure) {
+      failure = error;
+    } else if (error instanceof InvalidAdminCursorError) {
+      failure = new ApiFailure(
+        400,
+        "invalid_admin_cursor",
+        "The administration cursor is invalid or does not match this query.",
+      );
+    } else if (error instanceof InvalidAdminPageSizeError) {
+      failure = new ApiFailure(
+        400,
+        "invalid_admin_page_size",
+        `pageSize must be an integer between 1 and ${ADMIN_PAGE_MAX_SIZE}.`,
+      );
+    } else {
+      failure = new ApiFailure(
+        500,
+        "internal_error",
+        "The request could not be completed.",
+      );
+    }
     console.error(
       JSON.stringify({
         level: failure.status >= 500 ? "error" : "warn",
