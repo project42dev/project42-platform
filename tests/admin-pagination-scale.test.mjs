@@ -13,6 +13,7 @@ import { D1Project42Repository } from "../dist/worker.js";
 
 const ACCOUNT_COUNT = 1_205;
 const AUDIT_COUNT = 1_803;
+const POSTGRES_DECOY_AUDIT_COUNT = AUDIT_COUNT * 10;
 const TARGET_INSTALLATION = "pagination-scale-target";
 const OTHER_INSTALLATION = "pagination-scale-other";
 
@@ -495,9 +496,13 @@ test(
            FROM (
              SELECT $1::text AS installation_id, generate_series(0, 1802) AS number
              UNION ALL
-             SELECT $2::text AS installation_id, generate_series(0, 1802) AS number
+             SELECT $2::text AS installation_id, generate_series(0, $3::integer) AS number
            ) fixture`,
-        [targetInstallation, otherInstallation],
+        [
+          targetInstallation,
+          otherInstallation,
+          POSTGRES_DECOY_AUDIT_COUNT - 1,
+        ],
       );
       await client.query(
         "ANALYZE users; ANALYZE user_identities; ANALYZE role_assignments; ANALYZE audit_events;",
@@ -558,10 +563,13 @@ test(
         `EXPLAIN (FORMAT JSON, COSTS FALSE) ${auditSql}`,
         [targetInstallation, "9000000000000000000", 51],
       );
+      const auditPlan = auditExplain.rows[0]["QUERY PLAN"][0].Plan;
+      const auditPlanIndexes = postgresPlanIndexes(auditPlan);
       assert.ok(
-        postgresPlanIndexes(auditExplain.rows[0]["QUERY PLAN"][0].Plan).has(
-          "audits_by_installation_sequence",
-        ),
+        auditPlanIndexes.has("audits_by_installation_sequence"),
+        `expected audits_by_installation_sequence in PostgreSQL plan; indexes=${[
+          ...auditPlanIndexes,
+        ].join(",")}; plan=${JSON.stringify(auditPlan)}`,
       );
     } finally {
       if (transactionOpen) {
