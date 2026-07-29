@@ -1,12 +1,14 @@
 # Current task
 
-Implement the backend registration and authorization boundary for AB#5695 and
-AB#5697: provider-neutral account requests with a limited status receipt,
-approved-only learner browser sessions, stale-session revocation, and atomic
-owner account-state decisions across Cloudflare D1 and PostgreSQL. Close the
-follow-up security review by enforcing an explicit non-approved bearer
-allowlist and single-use registration-receipt lifecycle across every account
-state and protected learner route.
+Prepare the reusable Project 42 platform `0.65.0` release candidate for the
+AB#5695 and AB#5697 registration and authorization boundary already merged to
+`origin/main`.
 
-AB#5695 and AB#5697 remain Active until the Learn UI, cross-repository
-integration, production deployment, and production evidence are complete.
+The release preparation is mechanical: align package, lockfile, self-host
+environment, compatibility, README release wording, and handoff metadata. Do
+not add features or perform a push, pull request, tag, release, deployment,
+Azure DevOps mutation, Cloudflare mutation, Entra mutation, or database
+mutation.
+
+AB#5695 and AB#5697 remain Active until cross-repository integration,
+production deployment, and production evidence are complete.
