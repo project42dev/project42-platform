@@ -150,7 +150,9 @@ export {
 } from "./learning-record-recovery.js";
 export {
   LEARNER_ACCOUNT_STATES,
+  LEARNER_CONSENT_PURPOSES,
   LEARNER_DATA_PERMISSIONS,
+  LEARNER_DATA_POLICY_VERSION,
   LEARNER_DATA_ROLES,
   canTransitionLearnerAccount,
   defaultLearnerDataPolicy,
@@ -282,6 +284,7 @@ export type {
 } from "./learning-record-recovery.js";
 export type {
   ConsentPurpose,
+  LearnerConsentPurpose,
   LearnerAccountState,
   LearnerDataPermission,
   LearnerDataPolicyV1,
@@ -321,6 +324,9 @@ export type {
   LinkedIdentityStatus,
   ApiErrorBody,
   CreateDomainRuleRequest,
+  DeletionStatus,
+  DeletionStatusReceipt,
+  DeletionStatusRequest,
   DeleteDomainRuleRequest,
   DomainRule,
   LearnerProfile,

@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
+import { readFile, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import test from "node:test";
+import { Miniflare } from "miniflare";
 
 const wrangler = resolve("node_modules/wrangler/bin/wrangler.js");
 
@@ -395,5 +397,72 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
     assert.doesNotMatch(retainedDomain, /u1/);
   } finally {
     rmSync(persistence, { recursive: true, force: true });
+  }
+});
+
+test("profile and consent migration preserves legacy history and constrains new decisions", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-26",
+    d1Databases: { PROJECT42_DB: "project42-profile-consent-migration" },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  const migrations = (await readdir(new URL("../migrations/", import.meta.url)))
+    .filter((name) => name.endsWith(".sql"))
+    .sort();
+  for (const migration of migrations.filter((name) => name < "0013_")) {
+    const sql = await readFile(
+      new URL(`../migrations/${migration}`, import.meta.url),
+      "utf8",
+    );
+    await database.exec(sql.replace(/\r?\n/g, " "));
+  }
+  await database.exec(
+    [
+      "INSERT INTO installations VALUES ('legacy','Legacy','2026-07-26','2026-07-26');",
+      "INSERT INTO users VALUES ('u1','legacy','Learner',NULL,0,'approved','2026-07-26','2026-07-26');",
+      "INSERT INTO consent_records (id,installation_id,user_id,purpose,policy_version,decision,decided_at) VALUES ('legacy-consent','legacy','u1','legacy-purpose','2026-06-01','granted','2026-07-26');",
+    ].join(" "),
+  );
+  const migration = await readFile(
+    new URL("../migrations/0013_profile_consent_and_deletion_receipts.sql", import.meta.url),
+    "utf8",
+  );
+  await database.exec(migration.replace(/\r?\n/g, " "));
+  const legacy = await database
+    .prepare(
+      "SELECT purpose, policy_version, contract_status FROM consent_records WHERE id = 'legacy-consent'",
+    )
+    .first();
+  assert.deepEqual(legacy, {
+    purpose: "legacy-purpose",
+    policy_version: "2026-06-01",
+    contract_status: "legacy",
+  });
+  await database.exec(
+    "INSERT INTO consent_records (id,installation_id,user_id,purpose,policy_version,decision,decided_at,contract_status) VALUES ('current-consent','legacy','u1','learning-record','2026-07-27','granted','2026-07-27','current');",
+  );
+  await assert.rejects(
+    database.exec(
+      "INSERT INTO consent_records (id,installation_id,user_id,purpose,policy_version,decision,decided_at,contract_status) VALUES ('invalid-consent','legacy','u1','arbitrary','2026-07-27','granted','2026-07-27','current');",
+    ),
+    /current accepted purpose and policy version/,
+  );
+  const profileColumns = await database
+    .prepare("PRAGMA table_info(user_profiles)")
+    .all();
+  for (const column of [
+    "locale",
+    "time_zone",
+    "reduced_motion",
+    "high_contrast",
+  ]) {
+    assert.ok(
+      profileColumns.results.some((entry) => entry.name === column),
+      `missing ${column}`,
+    );
   }
 });

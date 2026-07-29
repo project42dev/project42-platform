@@ -110,6 +110,10 @@ export interface AccountMergeConflict {
     | "organization"
     | "location"
     | "websiteUrl"
+    | "locale"
+    | "timeZone"
+    | "reducedMotion"
+    | "highContrast"
     | "photo"
     | "ownerRole"
     | "assessmentAttempt";
@@ -186,6 +190,10 @@ export interface LearnerProfile {
   organization: string | null;
   location: string | null;
   websiteUrl: string | null;
+  locale: string | null;
+  timeZone: string | null;
+  reducedMotion: boolean;
+  highContrast: boolean;
   photoAvailable: boolean;
   photoUpdatedAt: string | null;
   createdAt: string;
@@ -198,6 +206,10 @@ export interface UpdateLearnerProfileRequest {
   organization?: string | null;
   location?: string | null;
   websiteUrl?: string | null;
+  locale?: string | null;
+  timeZone?: string | null;
+  reducedMotion?: boolean;
+  highContrast?: boolean;
 }
 
 export interface ProgressEnvelope {
@@ -244,6 +256,7 @@ export interface ConsentRecord {
   policyVersion: string;
   decision: ConsentDecision;
   decidedAt: string;
+  contractStatus: "current" | "legacy";
 }
 
 export type DeletionRequestState =
@@ -258,6 +271,25 @@ export interface DeletionRequest {
   requestedAt: string;
   cancellationDeadline: string;
   completedAt: string | null;
+}
+
+export interface DeletionStatusReceipt {
+  requestId: string;
+  statusToken: string;
+  issuedAt: string;
+}
+
+export interface DeletionStatus {
+  requestId: string;
+  state: DeletionRequestState;
+  requestedAt: string;
+  cancellationDeadline: string;
+  completedAt: string | null;
+}
+
+export interface DeletionStatusRequest {
+  requestId: string;
+  statusToken: string;
 }
 
 export interface AuditEvent {

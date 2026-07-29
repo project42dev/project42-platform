@@ -154,6 +154,10 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   const initialProfile = (await readBody(initialProfileResponse)).profile;
   assert.equal(initialProfile.displayName, "owner-subject");
   assert.equal(initialProfile.bio, null);
+  assert.equal(initialProfile.locale, null);
+  assert.equal(initialProfile.timeZone, null);
+  assert.equal(initialProfile.reducedMotion, false);
+  assert.equal(initialProfile.highContrast, false);
 
   const updatedProfileResponse = await api("owner-token", "/v1/me/profile", {
     method: "PATCH",
@@ -163,12 +167,20 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
       organization: "Example learning team",
       location: "Remote",
       websiteUrl: "https://example.test/about",
+      locale: "en-us",
+      timeZone: "America/New_York",
+      reducedMotion: true,
+      highContrast: true,
     }),
   });
   assert.equal(updatedProfileResponse.status, 200);
   const updatedProfile = (await readBody(updatedProfileResponse)).profile;
   assert.equal(updatedProfile.displayName, "Owner Example");
   assert.equal(updatedProfile.websiteUrl, "https://example.test/about");
+  assert.equal(updatedProfile.locale, "en-US");
+  assert.equal(updatedProfile.timeZone, "America/New_York");
+  assert.equal(updatedProfile.reducedMotion, true);
+  assert.equal(updatedProfile.highContrast, true);
 
   const refreshedOwnerResponse = await api("owner-token", "/v1/me");
   assert.equal(refreshedOwnerResponse.status, 200);
@@ -274,12 +286,173 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   const consent = await api("learner-token", "/v1/me/consents", {
     method: "POST",
     body: JSON.stringify({
-      purpose: "learner-records",
+      purpose: "learning-record",
       policyVersion: "2026-07-27",
       decision: "granted",
     }),
   });
   assert.equal(consent.status, 201);
+  assert.equal((await readBody(consent)).consent.contractStatus, "current");
+  for (const body of [
+    {
+      purpose: "unapproved-purpose",
+      policyVersion: "2026-07-27",
+      decision: "granted",
+    },
+    {
+      purpose: "learning-record",
+      policyVersion: "2026-07-26",
+      decision: "granted",
+    },
+  ]) {
+    const rejectedConsent = await api("learner-token", "/v1/me/consents", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    assert.equal(rejectedConsent.status, 400);
+  }
+
+  for (const path of [
+    `/v1/me/profile?userId=${encodeURIComponent(owner.id)}`,
+    `/v1/me/consents?userId=${encodeURIComponent(owner.id)}`,
+    `/v1/me/export?userId=${encodeURIComponent(owner.id)}`,
+    `/v1/me/deletion?userId=${encodeURIComponent(owner.id)}`,
+  ]) {
+    const crossAccount = await api("learner-token", path);
+    assert.equal(crossAccount.status, 403);
+    assert.equal(
+      (await readBody(crossAccount)).error.code,
+      "self_scope_selector_forbidden",
+    );
+  }
+  assert.equal(
+    (await readBody(await api("owner-token", "/v1/me/profile"))).profile
+      .displayName,
+    "Owner Example",
+  );
+
+  const otherRepository = new D1Project42Repository(database, "e2e-other");
+  const otherEnv = { ...env, INSTALLATION_ID: "e2e-other" };
+  async function otherApi(token, path, init = {}) {
+    const headers = new Headers(init.headers);
+    headers.set("authorization", `Bearer ${token}`);
+    headers.set("origin", allowedOrigin);
+    if (init.body && !headers.has("content-type")) {
+      headers.set("content-type", "application/json");
+    }
+    return handleRequest(
+      new Request(`https://api.example.test${path}`, { ...init, headers }),
+      otherEnv,
+      verifier,
+      otherRepository,
+      githubLinkAdapter,
+    );
+  }
+  const otherOwner = (
+    await readBody(
+      await otherApi("owner-token", "/v1/session", { method: "POST" }),
+    )
+  ).account;
+  const otherLearner = (
+    await readBody(
+      await otherApi("learner-token", "/v1/session", { method: "POST" }),
+    )
+  ).account;
+  assert.equal(otherOwner.installationId, "e2e-other");
+  assert.equal(otherLearner.state, "pending");
+  assert.equal(
+    (
+      await otherApi(
+        "owner-token",
+        `/v1/admin/accounts/${encodeURIComponent(otherLearner.id)}/state`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            state: "approved",
+            reason: "Approve the isolated-installation fixture.",
+          }),
+        },
+      )
+    ).status,
+    200,
+  );
+  const otherProfileUpdate = await otherApi(
+    "learner-token",
+    "/v1/me/profile",
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        displayName: "Other installation learner",
+        locale: "fr-CA",
+        timeZone: "America/Toronto",
+        reducedMotion: true,
+        highContrast: false,
+      }),
+    },
+  );
+  assert.equal(otherProfileUpdate.status, 200);
+  assert.equal(
+    (
+      await otherApi("learner-token", "/v1/me/consents", {
+        method: "POST",
+        body: JSON.stringify({
+          purpose: "learning-record",
+          policyVersion: "2026-07-27",
+          decision: "granted",
+        }),
+      })
+    ).status,
+    201,
+  );
+  const otherExport = await otherApi("learner-token", "/v1/me/export");
+  assert.equal(otherExport.status, 200);
+  const otherExportBody = (await readBody(otherExport)).export;
+  assert.equal(otherExportBody.account.installationId, "e2e-other");
+  assert.equal(otherExportBody.profile.displayName, "Other installation learner");
+  assert.equal(otherExportBody.consents.length, 1);
+  assert.equal(
+    (await readBody(await api("learner-token", "/v1/me/profile"))).profile
+      .displayName,
+    "learner-subject",
+  );
+  assert.equal(
+    (await readBody(await api("learner-token", "/v1/me/consents"))).consents
+      .length,
+    1,
+  );
+  const otherDeletionBody = await readBody(
+    await otherApi("learner-token", "/v1/me/deletion", {
+      method: "POST",
+      body: JSON.stringify({ confirmation: "DELETE MY PROJECT 42 ACCOUNT" }),
+    }),
+  );
+  assert.equal(
+    (await readBody(await api("learner-token", "/v1/me/deletion"))).requests
+      .length,
+    0,
+  );
+  const wrongInstallationReceipt = await handleRequest(
+    new Request("https://api.example.test/v1/deletion-status", {
+      method: "POST",
+      headers: { "content-type": "application/json", origin: allowedOrigin },
+      body: JSON.stringify({
+        requestId: otherDeletionBody.receipt.requestId,
+        statusToken: otherDeletionBody.receipt.statusToken,
+      }),
+    }),
+    env,
+    verifier,
+    repository,
+  );
+  assert.equal(wrongInstallationReceipt.status, 404);
+  assert.equal(
+    (
+      await otherApi("learner-token", "/v1/me/deletion", {
+        method: "DELETE",
+      })
+    ).status,
+    200,
+  );
 
   const path = starterCatalog.paths[0];
   const moduleId = path.moduleIds[0];
@@ -691,7 +864,40 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     body: JSON.stringify({ confirmation: "DELETE MY PROJECT 42 ACCOUNT" }),
   });
   assert.equal(deletion.status, 202);
-  const deletionRequest = (await readBody(deletion)).deletionRequest;
+  const deletionBody = await readBody(deletion);
+  const deletionRequest = deletionBody.deletionRequest;
+  const deletionReceipt = deletionBody.receipt;
+  assert.equal(deletionReceipt.requestId, deletionRequest.id);
+  assert.match(deletionReceipt.statusToken, /^[A-Za-z0-9_-]{64}$/);
+  const storedDeletionReceipt = await database
+    .prepare(
+      "SELECT status_token_digest FROM deletion_requests WHERE installation_id = ? AND id = ?",
+    )
+    .bind("e2e", deletionRequest.id)
+    .first();
+  assert.match(storedDeletionReceipt.status_token_digest, /^[0-9a-f]{64}$/);
+  assert.notEqual(
+    storedDeletionReceipt.status_token_digest,
+    deletionReceipt.statusToken,
+  );
+  const pendingDeletionStatus = await handleRequest(
+    new Request("https://api.example.test/v1/deletion-status", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        origin: allowedOrigin,
+      },
+      body: JSON.stringify({
+        requestId: deletionReceipt.requestId,
+        statusToken: deletionReceipt.statusToken,
+      }),
+    }),
+    env,
+    verifier,
+    repository,
+  );
+  assert.equal(pendingDeletionStatus.status, 200);
+  assert.equal((await readBody(pendingDeletionStatus)).status.state, "requested");
   await database
     .prepare(
       "UPDATE deletion_requests SET cancellation_deadline = ? WHERE id = ?",
@@ -710,6 +916,24 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     },
   );
   assert.equal(completedDeletion.status, 200);
+  const completedDeletionStatus = await handleRequest(
+    new Request("https://api.example.test/v1/deletion-status", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        origin: allowedOrigin,
+      },
+      body: JSON.stringify({
+        requestId: deletionReceipt.requestId,
+        statusToken: deletionReceipt.statusToken,
+      }),
+    }),
+    env,
+    verifier,
+    repository,
+  );
+  assert.equal(completedDeletionStatus.status, 200);
+  assert.equal((await readBody(completedDeletionStatus)).status.state, "completed");
   assert.equal(
     (
       await database
@@ -784,6 +1008,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     "deletion.request",
     "deletion.complete",
     "authorization.owner.denied",
+    "authorization.self-scope.denied",
   ]) {
     assert.ok(events.some((event) => event.action === action), `missing ${action}`);
   }
@@ -794,6 +1019,14 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
         event.outcome === "denied" &&
         event.targetType === "admin_route",
     ),
+  );
+  assert.equal(
+    events.filter(
+      (event) =>
+        event.action === "authorization.self-scope.denied" &&
+        event.outcome === "denied",
+    ).length,
+    4,
   );
   assert.ok(events.every((event) => event.requestId));
 });

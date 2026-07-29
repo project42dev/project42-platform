@@ -417,6 +417,7 @@ test(
         "007_secure_browser_sessions.sql",
         "008_authoritative_progress_imports.sql",
         "009_account_merge_governance_constraints.sql",
+        "010_profile_consent_and_deletion_receipts.sql",
       ]);
       assert.deepEqual(
         await applyPostgresMigrations(pool, "self-host/postgres"),

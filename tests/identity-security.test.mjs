@@ -468,6 +468,7 @@ test("data-rights routes require recent authentication and explicit deletion con
         policyVersion: input.policyVersion,
         decision: input.decision,
         decidedAt: input.now,
+        contractStatus: "current",
       };
     },
     exportLearnerData: async (input) => {
@@ -478,11 +479,20 @@ test("data-rights routes require recent authentication and explicit deletion con
     requestDeletion: async (input) => {
       calls.push(["request-deletion", input]);
       return {
-        id: "deletion-1",
-        state: "requested",
-        requestedAt: input.now,
-        cancellationDeadline: new Date(Date.parse(input.now) + 86_400_000).toISOString(),
-        completedAt: null,
+        deletionRequest: {
+          id: "deletion-1",
+          state: "requested",
+          requestedAt: input.now,
+          cancellationDeadline: new Date(
+            Date.parse(input.now) + 86_400_000,
+          ).toISOString(),
+          completedAt: null,
+        },
+        receipt: {
+          requestId: "deletion-1",
+          statusToken: "a".repeat(64),
+          issuedAt: input.now,
+        },
       };
     },
   };
@@ -498,8 +508,8 @@ test("data-rights routes require recent authentication and explicit deletion con
     new Request("https://api.example.test/v1/me/consents", {
       method: "POST",
       body: JSON.stringify({
-        purpose: "learner-records",
-        policyVersion: "2026-07-26",
+        purpose: "learning-record",
+        policyVersion: "2026-07-27",
         decision: "granted",
       }),
     }),
