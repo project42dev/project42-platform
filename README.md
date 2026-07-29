@@ -62,6 +62,20 @@ contracts—not the private PMO records or Project42dev production configuration
   and retirement.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.68.0` adds a durable, provider-neutral account notification outbox.
+Registration receipts, durable paged approved-owner alert intents, and learner
+lifecycle decisions are enqueued atomically with their authoritative account
+changes. Explicit
+pending, delivering, delivered, retryable, and dead-letter states provide
+leased concurrency, bounded retry, crash recovery, stable idempotency, and
+privacy-safe audit evidence. Accessible text and HTML templates contain minimum
+data and no sign-in links or tracking. Hosted and reference self-host delivery
+remain disabled until a deployment explicitly supplies the public adapter
+contract; no notification vendor, service, secret, or DNS dependency is chosen.
+D1 migration `0016_account_notification_outbox.sql` and PostgreSQL migration
+`013_account_notification_outbox.sql` provide matching persistence and guards.
+See [Account notification outbox](docs/account-notifications.md).
+
 Release `0.65.0` separates account requests from learner authorization. Pending
 and rejected OIDC callbacks receive only a digest-backed, installation-scoped
 status receipt; approved accounts alone can create or renew learner sessions.

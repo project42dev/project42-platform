@@ -202,6 +202,26 @@ export {
   normalizeExactDomain,
 } from "./identity.js";
 export {
+  ACCOUNT_NOTIFICATION_CONTRACT_VERSION,
+  ACCOUNT_NOTIFICATION_KINDS,
+  ACCOUNT_NOTIFICATION_STATES,
+  ACCOUNT_NOTIFICATION_TEMPLATE_VERSION,
+  AccountNotificationDeliveryError,
+  DeterministicAccountNotificationAdapter,
+  DisabledAccountNotificationAdapter,
+  accountNotificationRetryDelaySeconds,
+  normalizeAccountNotificationDeliveryError,
+  renderAccountNotification,
+} from "./account-notifications.js";
+export type {
+  AccountNotificationAdapter,
+  AccountNotificationDeliveryResult,
+  AccountNotificationKind,
+  AccountNotificationMessage,
+  AccountNotificationState,
+  RenderedAccountNotification,
+} from "./account-notifications.js";
+export {
   CLASS_SCRIPT_SCHEMA_VERSION,
   CLASS_SEGMENT_KINDS,
   VIRTUAL_INSTRUCTOR_MEDIA_SCHEMA_VERSION,
@@ -362,6 +382,8 @@ export type {
   Account,
   AdminAccountPage,
   AdminAuditEventPage,
+  AccountNotificationDispatchRequest,
+  AccountNotificationDispatchSummary,
   AdminPageInfo,
   AccountMergeConflict,
   AccountMergePolicyBlock,

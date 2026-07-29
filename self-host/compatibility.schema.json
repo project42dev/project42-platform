@@ -38,7 +38,8 @@
         "adapter",
         "supportedMajors",
         "migrationHead",
-        "learningRecords"
+        "learningRecords",
+        "accountNotifications"
       ],
       "properties": {
         "adapter": { "const": "postgresql" },
@@ -71,6 +72,36 @@
               "const": "learning-records/1.1;events/1.1;receipts/1.0;append-only;atomic-batch;optimistic-revision;authoritative-progress-import;verified-deletion-replay"
             },
             "transactionMode": { "const": "atomic-sequential-batch" }
+          }
+        },
+        "accountNotifications": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contractVersion",
+            "adapterContract",
+            "deliveryDefault",
+            "states",
+            "maxAttempts"
+          ],
+          "properties": {
+            "contractVersion": { "const": "1.0" },
+            "adapterContract": { "const": "AccountNotificationAdapter" },
+            "deliveryDefault": { "const": "disabled" },
+            "states": {
+              "type": "array",
+              "minItems": 5,
+              "maxItems": 5,
+              "prefixItems": [
+                { "const": "pending" },
+                { "const": "delivering" },
+                { "const": "delivered" },
+                { "const": "retryable" },
+                { "const": "dead-letter" }
+              ],
+              "items": false
+            },
+            "maxAttempts": { "const": 5 }
           }
         }
       }

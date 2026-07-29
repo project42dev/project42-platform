@@ -84,9 +84,85 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
       "oidc_authorization_transactions",
       "browser_sessions",
       "registration_requests",
+      "account_notifications",
+      "account_notification_fanouts",
     ]) {
       assert.match(tables, new RegExp(`\\b${table}\\b`));
     }
+
+    runWrangler([
+      "d1",
+      "execute",
+      "PROJECT42_DB",
+      ...common,
+      "--command",
+      "INSERT INTO account_notifications (id,installation_id,recipient_user_id,subject_user_id,kind,state,template_version,idempotency_key,attempt_count,max_attempts,available_at,created_at,updated_at) VALUES ('notification-1','test','u1','u1','registration-receipt','pending','1.0','aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',0,5,'2026-07-26','2026-07-26','2026-07-26');",
+    ]);
+    const duplicateNotification = runWrangler(
+      [
+        "d1",
+        "execute",
+        "PROJECT42_DB",
+        ...common,
+        "--command",
+        "INSERT INTO account_notifications (id,installation_id,recipient_user_id,subject_user_id,kind,state,template_version,idempotency_key,attempt_count,max_attempts,available_at,created_at,updated_at) VALUES ('notification-2','test','u1','u1','registration-receipt','pending','1.0','aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',0,5,'2026-07-26','2026-07-26','2026-07-26');",
+      ],
+      1,
+    );
+    assert.match(duplicateNotification, /UNIQUE constraint failed/);
+    const invalidNotificationTransition = runWrangler(
+      [
+        "d1",
+        "execute",
+        "PROJECT42_DB",
+        ...common,
+        "--command",
+        "UPDATE account_notifications SET state='delivered',delivered_at='2026-07-26' WHERE id='notification-1';",
+      ],
+      1,
+    );
+    assert.match(
+      invalidNotificationTransition,
+      /invalid account notification state transition/,
+    );
+    const mutableNotificationIdentity = runWrangler(
+      [
+        "d1",
+        "execute",
+        "PROJECT42_DB",
+        ...common,
+        "--command",
+        "UPDATE account_notifications SET subject_user_id='different' WHERE id='notification-1';",
+      ],
+      1,
+    );
+    assert.match(
+      mutableNotificationIdentity,
+      /account notification identity is immutable/,
+    );
+    runWrangler([
+      "d1",
+      "execute",
+      "PROJECT42_DB",
+      ...common,
+      "--command",
+      "UPDATE account_notifications SET state='delivering',attempt_count=1,lease_token='lease-1',lease_expires_at='2026-07-26T00:05:00.000Z',updated_at='2026-07-26T00:00:00.000Z' WHERE id='notification-1'; UPDATE account_notifications SET state='delivered',lease_token=NULL,lease_expires_at=NULL,delivered_at='2026-07-26T00:01:00.000Z',updated_at='2026-07-26T00:01:00.000Z' WHERE id='notification-1';",
+    ]);
+    const mutableTerminalNotification = runWrangler(
+      [
+        "d1",
+        "execute",
+        "PROJECT42_DB",
+        ...common,
+        "--command",
+        "UPDATE account_notifications SET available_at='2026-07-27' WHERE id='notification-1';",
+      ],
+      1,
+    );
+    assert.match(
+      mutableTerminalNotification,
+      /account notification is terminal/,
+    );
 
     runWrangler([
       "d1",
@@ -222,6 +298,21 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
     assert.match(
       crossInstallationSession,
       /browser session user belongs to another installation/,
+    );
+    const crossInstallationNotification = runWrangler(
+      [
+        "d1",
+        "execute",
+        "PROJECT42_DB",
+        ...common,
+        "--command",
+        "INSERT INTO account_notifications (id,installation_id,recipient_user_id,subject_user_id,kind,state,template_version,idempotency_key,attempt_count,max_attempts,available_at,created_at,updated_at) VALUES ('notification-cross','test','u2','u1','registration-receipt','pending','1.0','bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',0,5,'2026-07-26','2026-07-26','2026-07-26');",
+      ],
+      1,
+    );
+    assert.match(
+      crossInstallationNotification,
+      /account notification user belongs to another installation/,
     );
     const crossInstallationConstraint = runWrangler(
       [

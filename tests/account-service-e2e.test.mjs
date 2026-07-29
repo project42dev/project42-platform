@@ -149,6 +149,20 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   assert.equal(owner.state, "approved");
   assert.deepEqual(new Set(owner.roles), new Set(["learner", "owner"]));
 
+  const unavailableNotificationDispatch = await api(
+    "owner-token",
+    "/v1/admin/notifications/dispatch",
+    {
+      method: "POST",
+      body: JSON.stringify({}),
+    },
+  );
+  assert.equal(unavailableNotificationDispatch.status, 503);
+  assert.equal(
+    (await readBody(unavailableNotificationDispatch)).error.code,
+    "account_notification_delivery_unavailable",
+  );
+
   const initialProfileResponse = await api("owner-token", "/v1/me/profile");
   assert.equal(initialProfileResponse.status, 200);
   const initialProfile = (await readBody(initialProfileResponse)).profile;

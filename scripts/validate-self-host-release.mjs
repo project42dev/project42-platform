@@ -90,6 +90,15 @@ if (
 ) {
   throw new Error("Compatibility manifest learning-record semantics have drifted");
 }
+if (
+  manifest.database.accountNotifications.deliveryDefault !== "disabled" ||
+  manifest.database.accountNotifications.adapterContract !==
+    "AccountNotificationAdapter"
+) {
+  throw new Error(
+    "Reference self-host account notification delivery must fail closed",
+  );
+}
 if (manifest.supportLevel === "production" && compose.includes("start-dev")) {
   throw new Error("A production manifest cannot point to a development identity profile");
 }

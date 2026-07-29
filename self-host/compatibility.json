@@ -1,19 +1,19 @@
 {
   "$schema": "./compatibility.schema.json",
   "schemaVersion": 1,
-  "release": "0.67.1",
+  "release": "0.68.0",
   "supportLevel": "evaluation",
   "api": {
     "package": "@project42/platform",
-    "version": "0.67.1",
-    "image": "ghcr.io/project42dev/project42-platform-api:0.67.1",
+    "version": "0.68.0",
+    "image": "ghcr.io/project42dev/project42-platform-api:0.68.0",
     "healthPath": "/health",
     "runsAsNonRoot": true
   },
   "database": {
     "adapter": "postgresql",
     "supportedMajors": [17],
-    "migrationHead": "012_admin_pagination_indexes.sql",
+    "migrationHead": "013_account_notification_outbox.sql",
     "learningRecords": {
       "selectionVariable": "LEARNING_RECORD_ADAPTER",
       "contractVersion": "1.1",
@@ -22,6 +22,19 @@
       "recoveryContractVersion": "1.1",
       "semanticFingerprint": "learning-records/1.1;events/1.1;receipts/1.0;append-only;atomic-batch;optimistic-revision;authoritative-progress-import;verified-deletion-replay",
       "transactionMode": "atomic-sequential-batch"
+    },
+    "accountNotifications": {
+      "contractVersion": "1.0",
+      "adapterContract": "AccountNotificationAdapter",
+      "deliveryDefault": "disabled",
+      "states": [
+        "pending",
+        "delivering",
+        "delivered",
+        "retryable",
+        "dead-letter"
+      ],
+      "maxAttempts": 5
     }
   },
   "identity": {

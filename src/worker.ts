@@ -19,6 +19,8 @@ import type {
   Account,
   AdminAccountPage,
   AdminAuditEventPage,
+  AccountNotificationDispatchRequest,
+  AccountNotificationDispatchSummary,
   AccountMergeConflict,
   AccountMergePolicyBlock,
   AccountMergePreview,
@@ -131,6 +133,17 @@ import {
   AUTHORITATIVE_TRANSCRIPT_CSV_SCHEMA_VERSION,
   buildAuthoritativeTranscriptCsv,
 } from "./authoritative-transcript-csv.js";
+import {
+  ACCOUNT_NOTIFICATION_CONTRACT_VERSION,
+  ACCOUNT_NOTIFICATION_TEMPLATE_VERSION,
+  DisabledAccountNotificationAdapter,
+  accountNotificationRetryDelaySeconds,
+  normalizeAccountNotificationDeliveryError,
+  renderAccountNotification,
+  type AccountNotificationAdapter,
+  type AccountNotificationKind,
+  type AccountNotificationState,
+} from "./account-notifications.js";
 
 type WorkerEnvironment = Omit<
   Env,
@@ -182,6 +195,28 @@ interface RegistrationRequestRow {
   expires_at: string;
   account_state: AccountState;
   updated_at: string;
+}
+
+interface AccountNotificationRow {
+  id: string;
+  recipient_user_id: string;
+  kind: AccountNotificationKind;
+  state: AccountNotificationState;
+  attempt_count: number;
+  max_attempts: number;
+  lease_token: string | null;
+  primary_email: string | null;
+  email_verified: number;
+}
+
+interface AccountNotificationFanoutRow {
+  id: string;
+  subject_user_id: string;
+  kind: "owner-registration-alert";
+  state: "pending" | "complete";
+  cursor_owner_user_id: string | null;
+  revision: number;
+  created_at: string;
 }
 
 interface TransactionalPostconditionDatabase {
@@ -846,6 +881,519 @@ class D1Project42Repository {
       .run();
   }
 
+  private accountNotificationStatement(input: {
+    id: string;
+    recipientUserId: string;
+    subjectUserId: string;
+    kind: AccountNotificationKind;
+    idempotencyKey: string;
+    now: string;
+    requiresApprovedOwner?: boolean;
+  }): D1PreparedStatement {
+    return this.db
+      .prepare(
+        `INSERT INTO account_notifications (
+           id, installation_id, recipient_user_id, subject_user_id, kind,
+           state, template_version, idempotency_key, attempt_count,
+           max_attempts, available_at, lease_token, lease_expires_at,
+           last_error_code, delivered_at, created_at, updated_at
+         )
+         SELECT ?, ?, ?, ?, ?, 'pending', ?, ?, 0, 5, ?, NULL, NULL,
+                NULL, NULL, ?, ?
+          WHERE ? = 0 OR EXISTS (
+            SELECT 1
+              FROM users u
+              JOIN role_assignments r
+                ON r.installation_id = u.installation_id
+               AND r.user_id = u.id AND r.role = 'owner'
+             WHERE u.installation_id = ?
+               AND u.id = ?
+               AND u.account_state = 'approved'
+          )`,
+      )
+      .bind(
+        input.id,
+        this.installationId,
+        input.recipientUserId,
+        input.subjectUserId,
+        input.kind,
+        ACCOUNT_NOTIFICATION_TEMPLATE_VERSION,
+        input.idempotencyKey,
+        input.now,
+        input.now,
+        input.now,
+        input.requiresApprovedOwner ? 1 : 0,
+        this.installationId,
+        input.recipientUserId,
+      );
+  }
+
+  private accountNotificationFanoutStatement(input: {
+    id: string;
+    subjectUserId: string;
+    idempotencyKey: string;
+    now: string;
+  }): D1PreparedStatement {
+    return this.db
+      .prepare(
+        `INSERT INTO account_notification_fanouts (
+           id, installation_id, subject_user_id, kind, state,
+           cursor_owner_user_id, idempotency_key, revision, created_at,
+           updated_at
+         ) VALUES (?, ?, ?, 'owner-registration-alert', 'pending',
+                   NULL, ?, 1, ?, ?)`,
+      )
+      .bind(
+        input.id,
+        this.installationId,
+        input.subjectUserId,
+        input.idempotencyKey,
+        input.now,
+        input.now,
+      );
+  }
+
+  private async expandAccountNotificationFanouts(input: {
+    now: string;
+    limit: number;
+  }): Promise<void> {
+    const fanouts = await this.db
+      .prepare(
+        `SELECT id, subject_user_id, kind, state, cursor_owner_user_id,
+                revision, created_at
+           FROM account_notification_fanouts
+          WHERE installation_id = ? AND state = 'pending'
+          ORDER BY created_at, id
+          LIMIT ?`,
+      )
+      .bind(this.installationId, Math.min(input.limit, 4))
+      .all<AccountNotificationFanoutRow>();
+    const ownerPageSize = 20;
+    for (const fanout of fanouts.results) {
+      const owners = await this.db
+        .prepare(
+          `SELECT u.id
+             FROM users u
+             JOIN role_assignments r
+               ON r.installation_id = u.installation_id
+              AND r.user_id = u.id AND r.role = 'owner'
+            WHERE u.installation_id = ?
+              AND u.account_state = 'approved'
+              AND (? IS NULL OR u.id > ?)
+              AND r.assigned_at <= ?
+              AND EXISTS (
+                SELECT 1
+                  FROM approval_decisions d
+                 WHERE d.installation_id = u.installation_id
+                   AND d.user_id = u.id
+                   AND d.to_state = 'approved'
+                   AND d.decided_at <= ?
+              )
+            ORDER BY u.id
+            LIMIT ?`,
+        )
+        .bind(
+          this.installationId,
+          fanout.cursor_owner_user_id,
+          fanout.cursor_owner_user_id,
+          fanout.created_at,
+          fanout.created_at,
+          ownerPageSize + 1,
+        )
+        .all<{ id: string }>();
+      const selectedOwners = owners.results.slice(0, ownerPageSize);
+      const complete = owners.results.length <= ownerPageSize;
+      const notifications = await Promise.all(
+        selectedOwners.map(async (owner) => ({
+          id: crypto.randomUUID(),
+          recipientUserId: owner.id,
+          subjectUserId: fanout.subject_user_id,
+          kind: fanout.kind,
+          idempotencyKey: await sha256(
+            [
+              "account-notification",
+              ACCOUNT_NOTIFICATION_CONTRACT_VERSION,
+              this.installationId,
+              fanout.id,
+              fanout.kind,
+              owner.id,
+            ].join(":"),
+          ),
+          now: input.now,
+          requiresApprovedOwner: true,
+        })),
+      );
+      const lastOwnerId = selectedOwners.at(-1)?.id ?? null;
+      const advance = lastOwnerId
+        ? this.db
+            .prepare(
+              `UPDATE account_notification_fanouts
+                  SET state = ?,
+                      cursor_owner_user_id = ?,
+                      revision = revision + 1,
+                      updated_at = ?
+                WHERE installation_id = ? AND id = ?
+                  AND state = 'pending' AND revision = ?`,
+            )
+            .bind(
+              complete ? "complete" : "pending",
+              lastOwnerId,
+              input.now,
+              this.installationId,
+              fanout.id,
+              fanout.revision,
+            )
+        : this.db
+            .prepare(
+              `UPDATE account_notification_fanouts
+                  SET state = 'complete',
+                      revision = revision + 1,
+                      updated_at = ?
+                WHERE installation_id = ? AND id = ?
+                  AND state = 'pending' AND revision = ?`,
+            )
+            .bind(
+              input.now,
+              this.installationId,
+              fanout.id,
+              fanout.revision,
+            );
+      const statements = [
+        ...notifications.map((notification) =>
+          this.accountNotificationStatement(notification),
+        ),
+        advance,
+      ];
+      const validateAdvance = (results: D1Result<unknown>[]) => {
+        if (
+          (results[statements.length - 1]?.meta.changes ?? 0) !== 1
+        ) {
+          throw new ApiFailure(
+            409,
+            "account_notification_fanout_conflict",
+            "The notification fanout was advanced by another dispatcher.",
+          );
+        }
+      };
+      try {
+        if (supportsTransactionalPostcondition(this.db)) {
+          await this.db.batchWithPostcondition(statements, validateAdvance);
+        } else {
+          validateAdvance(await this.db.batch(statements));
+        }
+      } catch (error) {
+        if (
+          (error instanceof ApiFailure &&
+            error.code === "account_notification_fanout_conflict") ||
+          (error instanceof Error &&
+            /unique constraint.*account_notifications/i.test(error.message))
+        ) {
+          continue;
+        }
+        throw error;
+      }
+    }
+  }
+
+  async dispatchAccountNotifications(input: {
+    adapter: AccountNotificationAdapter;
+    requestId: string;
+    now: string;
+    limit?: number;
+  }): Promise<AccountNotificationDispatchSummary> {
+    if (input.adapter instanceof DisabledAccountNotificationAdapter) {
+      throw new ApiFailure(
+        503,
+        "account_notification_delivery_unavailable",
+        "Account notification delivery is not configured for this deployment.",
+      );
+    }
+    const limit = Math.max(1, Math.min(100, Math.trunc(input.limit ?? 25)));
+    await this.expandAccountNotificationFanouts({
+      now: input.now,
+      limit,
+    });
+    const expiredLeases = await this.db
+      .prepare(
+        `SELECT id, kind, attempt_count, max_attempts
+           FROM account_notifications
+          WHERE installation_id = ? AND state = 'delivering'
+            AND lease_expires_at <= ?
+          ORDER BY lease_expires_at, created_at, id
+          LIMIT ?`,
+      )
+      .bind(this.installationId, input.now, limit)
+      .all<{
+        id: string;
+        kind: AccountNotificationKind;
+        attempt_count: number;
+        max_attempts: number;
+      }>();
+    let recovered = 0;
+    let recoveredDeadLetter = 0;
+    for (const expired of expiredLeases.results) {
+      const recoveryState: AccountNotificationState =
+        expired.attempt_count >= expired.max_attempts
+          ? "dead-letter"
+          : "retryable";
+      const results = await this.db.batch([
+        this.db
+          .prepare(
+            `UPDATE account_notifications
+                SET state = ?,
+                    available_at = ?,
+                    lease_token = NULL,
+                    lease_expires_at = NULL,
+                    last_error_code = 'delivery-lease-expired',
+                    updated_at = ?
+              WHERE installation_id = ? AND id = ?
+                AND state = 'delivering' AND lease_expires_at <= ?`,
+          )
+          .bind(
+            recoveryState,
+            input.now,
+            input.now,
+            this.installationId,
+            expired.id,
+            input.now,
+          ),
+        this.accountNotificationAuditStatement({
+          notificationId: expired.id,
+          kind: expired.kind,
+          action:
+            recoveryState === "retryable"
+              ? "account-notification.lease-recovered"
+              : "account-notification.dead-lettered",
+          state: recoveryState,
+          attemptCount: expired.attempt_count,
+          errorCode: "delivery-lease-expired",
+          requestId: input.requestId,
+          now: input.now,
+        }),
+      ]);
+      if ((results[0]?.meta.changes ?? 0) === 1) {
+        recovered += 1;
+        if (recoveryState === "dead-letter") recoveredDeadLetter += 1;
+      }
+    }
+    const candidates = await this.db
+      .prepare(
+        `SELECT id
+           FROM account_notifications
+          WHERE installation_id = ?
+            AND state IN ('pending', 'retryable')
+            AND available_at <= ?
+          ORDER BY available_at, created_at, id
+          LIMIT ?`,
+      )
+      .bind(this.installationId, input.now, limit)
+      .all<{ id: string }>();
+    const summary: AccountNotificationDispatchSummary = {
+      recovered,
+      claimed: 0,
+      delivered: 0,
+      retryable: 0,
+      deadLetter: recoveredDeadLetter,
+    };
+    for (const candidate of candidates.results) {
+      const leaseToken = crypto.randomUUID();
+      const leaseExpiresAt = addSeconds(input.now, 5 * 60);
+      const claim = await this.db
+        .prepare(
+          `UPDATE account_notifications
+              SET state = 'delivering',
+                  attempt_count = attempt_count + 1,
+                  lease_token = ?,
+                  lease_expires_at = ?,
+                  last_error_code = NULL,
+                  updated_at = ?
+            WHERE installation_id = ? AND id = ?
+              AND state IN ('pending', 'retryable')
+              AND available_at <= ?
+              AND attempt_count < max_attempts`,
+        )
+        .bind(
+          leaseToken,
+          leaseExpiresAt,
+          input.now,
+          this.installationId,
+          candidate.id,
+          input.now,
+        )
+        .run();
+      if ((claim.meta.changes ?? 0) !== 1) continue;
+      summary.claimed += 1;
+      const notification = await this.db
+        .prepare(
+          `SELECT n.id, n.recipient_user_id, n.kind, n.state,
+                  n.attempt_count, n.max_attempts, n.lease_token,
+                  u.primary_email, u.email_verified
+             FROM account_notifications n
+             JOIN users u
+               ON u.id = n.recipient_user_id
+              AND u.installation_id = n.installation_id
+            WHERE n.installation_id = ? AND n.id = ?
+            LIMIT 1`,
+        )
+        .bind(this.installationId, candidate.id)
+        .first<AccountNotificationRow>();
+      if (!notification || notification.lease_token !== leaseToken) continue;
+      try {
+        if (
+          notification.email_verified !== 1 ||
+          !notification.primary_email
+        ) {
+          throw new Error("recipient unavailable");
+        }
+        const rendered = renderAccountNotification(notification.kind);
+        await input.adapter.deliver({
+          contractVersion: ACCOUNT_NOTIFICATION_CONTRACT_VERSION,
+          notificationId: notification.id,
+          kind: notification.kind,
+          recipient: notification.primary_email,
+          ...rendered,
+        });
+        const delivered = await this.db.batch([
+          this.db
+            .prepare(
+              `UPDATE account_notifications
+                  SET state = 'delivered',
+                      lease_token = NULL,
+                      lease_expires_at = NULL,
+                      delivered_at = ?,
+                      updated_at = ?
+                WHERE installation_id = ? AND id = ?
+                  AND state = 'delivering' AND lease_token = ?`,
+            )
+            .bind(
+              input.now,
+              input.now,
+              this.installationId,
+              notification.id,
+              leaseToken,
+            ),
+          this.accountNotificationAuditStatement({
+            notificationId: notification.id,
+            kind: notification.kind,
+            action: "account-notification.delivered",
+            state: "delivered",
+            attemptCount: notification.attempt_count,
+            requestId: input.requestId,
+            now: input.now,
+          }),
+        ]);
+        if ((delivered[0]?.meta.changes ?? 0) === 1) summary.delivered += 1;
+      } catch (error) {
+        const failure =
+          notification.email_verified !== 1 || !notification.primary_email
+            ? {
+                code: "recipient-unavailable" as const,
+                retryable: true,
+              }
+            : normalizeAccountNotificationDeliveryError(error);
+        const nextState: AccountNotificationState =
+          failure.retryable &&
+          notification.attempt_count < notification.max_attempts
+            ? "retryable"
+            : "dead-letter";
+        const availableAt =
+          nextState === "retryable"
+            ? addSeconds(
+                input.now,
+                accountNotificationRetryDelaySeconds(
+                  notification.attempt_count,
+                ),
+              )
+            : input.now;
+        const failed = await this.db.batch([
+          this.db
+            .prepare(
+              `UPDATE account_notifications
+                  SET state = ?,
+                      available_at = ?,
+                      lease_token = NULL,
+                      lease_expires_at = NULL,
+                      last_error_code = ?,
+                      updated_at = ?
+                WHERE installation_id = ? AND id = ?
+                  AND state = 'delivering' AND lease_token = ?`,
+            )
+            .bind(
+              nextState,
+              availableAt,
+              failure.code,
+              input.now,
+              this.installationId,
+              notification.id,
+              leaseToken,
+            ),
+          this.accountNotificationAuditStatement({
+            notificationId: notification.id,
+            kind: notification.kind,
+            action:
+              nextState === "retryable"
+                ? "account-notification.retry-scheduled"
+                : "account-notification.dead-lettered",
+            state: nextState,
+            attemptCount: notification.attempt_count,
+            errorCode: failure.code,
+            requestId: input.requestId,
+            now: input.now,
+          }),
+        ]);
+        if ((failed[0]?.meta.changes ?? 0) === 1) {
+          if (nextState === "retryable") summary.retryable += 1;
+          else summary.deadLetter += 1;
+        }
+      }
+    }
+    return summary;
+  }
+
+  private accountNotificationAuditStatement(input: {
+    notificationId: string;
+    kind: AccountNotificationKind;
+    action: string;
+    state: AccountNotificationState;
+    attemptCount: number;
+    errorCode?: string;
+    requestId: string;
+    now: string;
+  }): D1PreparedStatement {
+    return this.db
+      .prepare(
+        `INSERT INTO audit_events (
+           id, installation_id, actor_user_id, actor_issuer, actor_subject,
+           action, target_type, target_id, request_id, outcome, reason,
+           metadata_json, occurred_at
+         )
+         SELECT ?, ?, NULL, NULL, NULL, ?, 'account-notification', ?, ?,
+                ?, NULL, ?, ?
+          WHERE EXISTS (
+            SELECT 1 FROM account_notifications
+             WHERE installation_id = ? AND id = ? AND state = ?
+          )`,
+      )
+      .bind(
+        crypto.randomUUID(),
+        this.installationId,
+        input.action,
+        input.notificationId,
+        input.requestId,
+        input.state === "delivered" ? "success" : "failed",
+        JSON.stringify({
+          kind: input.kind,
+          state: input.state,
+          attemptCount: input.attemptCount,
+          ...(input.errorCode ? { errorCode: input.errorCode } : {}),
+        }),
+        input.now,
+        this.installationId,
+        input.notificationId,
+        input.state,
+      );
+  }
+
   async createOidcAuthorizationTransaction(input: {
     transaction: BrowserOidcTransaction;
     stateDigest: string;
@@ -1144,6 +1692,37 @@ class D1Project42Repository {
     }
     const id = crypto.randomUUID();
     const expiresAt = addSeconds(input.now, 30 * 24 * 60 * 60);
+    const learnerNotification = {
+      id: crypto.randomUUID(),
+      recipientUserId: input.account.id,
+      subjectUserId: input.account.id,
+      kind: "registration-receipt" as const,
+      idempotencyKey: await sha256(
+        [
+          "account-notification",
+          ACCOUNT_NOTIFICATION_CONTRACT_VERSION,
+          this.installationId,
+          id,
+          "registration-receipt",
+          input.account.id,
+        ].join(":"),
+      ),
+      now: input.now,
+    };
+    const ownerFanout = {
+      id: crypto.randomUUID(),
+      subjectUserId: input.account.id,
+      idempotencyKey: await sha256(
+        [
+          "account-notification-fanout",
+          ACCOUNT_NOTIFICATION_CONTRACT_VERSION,
+          this.installationId,
+          id,
+          "owner-registration-alert",
+        ].join(":"),
+      ),
+      now: input.now,
+    };
     const statements = [
       this.db
         .prepare(
@@ -1187,20 +1766,16 @@ class D1Project42Repository {
              id, installation_id, user_id, receipt_token_digest, requested_at,
              last_seen_at, expires_at, revoked_at, replaced_by_request_id
            )
-           SELECT ?, ?, id, ?, ?, ?, ?, NULL, NULL
-             FROM users
-            WHERE id = ? AND installation_id = ?
-              AND account_state IN ('pending', 'rejected')`,
+           VALUES (?, ?, ?, ?, ?, ?, ?, NULL, NULL)`,
         )
         .bind(
           id,
           this.installationId,
+          input.account.id,
           input.receiptTokenDigest,
           input.now,
           input.now,
           expiresAt,
-          input.account.id,
-          this.installationId,
         ),
       this.db
         .prepare(
@@ -1245,18 +1820,28 @@ class D1Project42Repository {
           id,
           this.installationId,
         ),
+      this.accountNotificationStatement(learnerNotification),
+      this.accountNotificationFanoutStatement(ownerFanout),
     ];
-    const results = await this.db.batch(statements);
-    if (
-      (results[1]?.meta.changes ?? 0) !== 1 ||
-      (results[3]?.meta.changes ?? 0) !== 1 ||
-      (results[5]?.meta.changes ?? 0) !== 1
-    ) {
-      throw new ApiFailure(
-        409,
-        "account_state_conflict",
-        "The account approval state changed. Sign in again.",
-      );
+    const validateRegistration = (results: D1Result<unknown>[]) => {
+      if (
+        (results[1]?.meta.changes ?? 0) !== 1 ||
+        (results[3]?.meta.changes ?? 0) !== 1 ||
+        (results[5]?.meta.changes ?? 0) !== 1 ||
+        (results[6]?.meta.changes ?? 0) !== 1 ||
+        (results[7]?.meta.changes ?? 0) !== 1
+      ) {
+        throw new ApiFailure(
+          409,
+          "account_state_conflict",
+          "The account approval state changed. Sign in again.",
+        );
+      }
+    };
+    if (supportsTransactionalPostcondition(this.db)) {
+      await this.db.batchWithPostcondition(statements, validateRegistration);
+    } else {
+      validateRegistration(await this.db.batch(statements));
     }
     return { expiresAt };
   }
@@ -3495,7 +4080,36 @@ class D1Project42Repository {
     }
     const transitionId = crypto.randomUUID();
     const decisionId = crypto.randomUUID();
-    const statements = [
+    const notificationKind: AccountNotificationKind | null =
+      input.to === "approved"
+        ? "learner-approved"
+        : input.to === "rejected"
+          ? "learner-rejected"
+          : input.to === "suspended"
+            ? "learner-suspended"
+            : input.to === "revoked"
+              ? "learner-revoked"
+              : null;
+    const notification = notificationKind
+      ? {
+          id: crypto.randomUUID(),
+          recipientUserId: input.targetId,
+          subjectUserId: input.targetId,
+          kind: notificationKind,
+          idempotencyKey: await sha256(
+            [
+              "account-notification",
+              ACCOUNT_NOTIFICATION_CONTRACT_VERSION,
+              this.installationId,
+              transitionId,
+              notificationKind,
+              input.targetId,
+            ].join(":"),
+          ),
+          now: input.now,
+        }
+      : null;
+    const statements: D1PreparedStatement[] = [
       this.db
         .prepare(
           `UPDATE users
@@ -3568,12 +4182,18 @@ class D1Project42Repository {
               .bind(input.now, this.installationId, input.targetId),
           ]
         : []),
+      ...(notification
+        ? [this.accountNotificationStatement(notification)]
+        : []),
     ];
+    const notificationIndex = notification ? statements.length - 1 : -1;
     const validateTransition = (results: D1Result<unknown>[]) => {
       if (
         (results[0]?.meta.changes ?? 0) !== 1 ||
         (results[1]?.meta.changes ?? 0) !== 1 ||
-        (results[2]?.meta.changes ?? 0) !== 1
+        (results[2]?.meta.changes ?? 0) !== 1 ||
+        (notificationIndex >= 0 &&
+          (results[notificationIndex]?.meta.changes ?? 0) !== 1)
       ) {
         throw new ApiFailure(
           409,
@@ -7952,6 +8572,8 @@ async function handleRequest(
   }),
   authClientAddressResolver: (request: Request) => string =
     readCloudflareClientAddress,
+  accountNotificationAdapter: AccountNotificationAdapter =
+    new DisabledAccountNotificationAdapter(),
 ): Promise<Response> {
   const requestId = request.headers.get("x-request-id")?.slice(0, 100) || crypto.randomUUID();
   let origin: string | null = null;
@@ -8917,6 +9539,38 @@ async function handleRequest(
           ...pagination,
           ...(state ? { state } : {}),
         }),
+        200,
+        requestId,
+        origin,
+      );
+    }
+    if (
+      url.pathname === "/v1/admin/notifications/dispatch" &&
+      request.method === "POST"
+    ) {
+      await requireOwner(account, repository, request, requestId, now);
+      requireRecentAuthentication(identity, now);
+      const body =
+        await readJson<AccountNotificationDispatchRequest>(request);
+      if (
+        body.limit !== undefined &&
+        (!Number.isInteger(body.limit) || body.limit < 1 || body.limit > 100)
+      ) {
+        throw new ApiFailure(
+          400,
+          "invalid_notification_dispatch_limit",
+          "Notification dispatch limit must be an integer between 1 and 100.",
+        );
+      }
+      return json(
+        {
+          summary: await repository.dispatchAccountNotifications({
+            adapter: accountNotificationAdapter,
+            requestId,
+            now,
+            ...(body.limit ? { limit: body.limit } : {}),
+          }),
+        },
         200,
         requestId,
         origin,

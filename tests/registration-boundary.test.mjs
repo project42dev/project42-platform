@@ -159,6 +159,23 @@ test("concurrent stale owner decisions commit exactly one state transition and a
     audits.results[0].metadata_json,
     new RegExp(`"to":"${finalUser.account_state}"`),
   );
+  const notifications = await database
+    .prepare(
+      `SELECT kind, state
+         FROM account_notifications
+        WHERE installation_id = ? AND subject_user_id = ?
+          AND kind IN ('learner-approved', 'learner-rejected')`,
+    )
+    .bind(installationId, learner.id)
+    .all();
+  assert.equal(notifications.results.length, 1);
+  assert.equal(
+    notifications.results[0].kind,
+    finalUser.account_state === "approved"
+      ? "learner-approved"
+      : "learner-rejected",
+  );
+  assert.equal(notifications.results[0].state, "pending");
 
   await database.exec(
     `INSERT INTO installations VALUES (

@@ -29,6 +29,18 @@ export interface AdminAccountPage {
   page: AdminPageInfo;
 }
 
+export interface AccountNotificationDispatchRequest {
+  limit?: number;
+}
+
+export interface AccountNotificationDispatchSummary {
+  recovered: number;
+  claimed: number;
+  delivered: number;
+  retryable: number;
+  deadLetter: number;
+}
+
 export type LinkedIdentityStatus = "active" | "unlinked";
 
 export interface LinkedIdentity {
