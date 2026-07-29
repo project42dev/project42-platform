@@ -700,14 +700,28 @@ test(
         now: "2026-07-27T12:01:00.000Z",
       });
       assert.equal(approvedPendingAccount.state, "approved");
+      await assert.rejects(
+        repository.getRegistrationStatus({
+          receiptTokenDigest: "e".repeat(64),
+          now: "2026-07-27T12:01:00.000Z",
+        }),
+        (error) => error.code === "registration_receipt_invalid",
+      );
+      const revokedRegistrationReceipt = await pool.query(
+        `SELECT r.revoked_at, u.active_registration_request_id
+           FROM registration_requests r
+           JOIN users u
+             ON u.installation_id = r.installation_id AND u.id = r.user_id
+          WHERE r.installation_id = $1 AND r.receipt_token_digest = $2`,
+        [installationId, "e".repeat(64)],
+      );
       assert.equal(
-        (
-          await repository.getRegistrationStatus({
-            receiptTokenDigest: "e".repeat(64),
-            now: "2026-07-27T12:01:00.000Z",
-          })
-        ).canSignIn,
-        true,
+        revokedRegistrationReceipt.rows[0].revoked_at,
+        "2026-07-27T12:01:00.000Z",
+      );
+      assert.equal(
+        revokedRegistrationReceipt.rows[0].active_registration_request_id,
+        null,
       );
 
       const postgresAuditIds = [];

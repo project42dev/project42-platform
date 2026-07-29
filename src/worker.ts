@@ -1042,10 +1042,40 @@ class D1Project42Repository {
     const statements = [
       this.db
         .prepare(
-          `DELETE FROM registration_requests
-            WHERE installation_id = ? AND expires_at <= ?`,
+          `UPDATE registration_requests
+              SET revoked_at = ?
+            WHERE installation_id = ? AND user_id = ? AND expires_at <= ?
+              AND revoked_at IS NULL`,
         )
-        .bind(this.installationId, input.now),
+        .bind(input.now, this.installationId, input.account.id, input.now),
+      this.db
+        .prepare(
+          `UPDATE users
+              SET registration_receipt_revision =
+                    registration_receipt_revision + 1,
+                  active_registration_request_id = ?,
+                  updated_at = ?
+            WHERE id = ? AND installation_id = ?
+              AND account_state IN ('pending', 'rejected')`,
+        )
+        .bind(
+          id,
+          input.now,
+          input.account.id,
+          this.installationId,
+        ),
+      this.db
+        .prepare(
+          `UPDATE registration_requests
+              SET revoked_at = ?, replaced_by_request_id = NULL
+            WHERE installation_id = ? AND user_id = ?
+              AND revoked_at IS NULL`,
+        )
+        .bind(
+          input.now,
+          this.installationId,
+          input.account.id,
+        ),
       this.db
         .prepare(
           `INSERT INTO registration_requests (
@@ -1066,6 +1096,21 @@ class D1Project42Repository {
           expiresAt,
           input.account.id,
           this.installationId,
+        ),
+      this.db
+        .prepare(
+          `UPDATE registration_requests
+              SET replaced_by_request_id = ?
+            WHERE installation_id = ? AND user_id = ?
+              AND id <> ? AND revoked_at = ?
+              AND replaced_by_request_id IS NULL`,
+        )
+        .bind(
+          id,
+          this.installationId,
+          input.account.id,
+          id,
+          input.now,
         ),
       this.db
         .prepare(
@@ -1099,7 +1144,8 @@ class D1Project42Repository {
     const results = await this.db.batch(statements);
     if (
       (results[1]?.meta.changes ?? 0) !== 1 ||
-      (results[2]?.meta.changes ?? 0) !== 1
+      (results[3]?.meta.changes ?? 0) !== 1 ||
+      (results[5]?.meta.changes ?? 0) !== 1
     ) {
       throw new ApiFailure(
         409,
@@ -1123,6 +1169,7 @@ class D1Project42Repository {
              ON u.id = r.user_id AND u.installation_id = r.installation_id
           WHERE r.installation_id = ? AND r.receipt_token_digest = ?
             AND r.revoked_at IS NULL AND r.expires_at > ?
+            AND u.active_registration_request_id = r.id
           LIMIT 1`,
       )
       .bind(this.installationId, input.receiptTokenDigest, input.now)
@@ -3379,7 +3426,10 @@ class D1Project42Repository {
           `UPDATE users
               SET account_state = ?, updated_at = ?,
                   state_revision = state_revision + 1,
-                  state_transition_id = ?
+                  state_transition_id = ?,
+                  registration_receipt_revision =
+                    registration_receipt_revision + 1,
+                  active_registration_request_id = NULL
             WHERE installation_id = ? AND id = ?
               AND account_state = ? AND state_revision = ?`,
         )
@@ -3423,6 +3473,14 @@ class D1Project42Repository {
         metadata: { from: current.account_state, to: input.to },
         now: input.now,
       }),
+      this.db
+        .prepare(
+          `UPDATE registration_requests
+              SET revoked_at = ?, replaced_by_request_id = NULL
+            WHERE installation_id = ? AND user_id = ?
+              AND revoked_at IS NULL`,
+        )
+        .bind(input.now, this.installationId, input.targetId),
       ...(input.to !== "approved"
         ? [
             this.db
@@ -7199,13 +7257,49 @@ function requireApproved(account: Account): void {
   }
 }
 
-function requireProfileAccess(account: Account): void {
-  if (account.state === "suspended" || account.state === "revoked") {
-    throw new ApiFailure(
-      403,
-      `account_${account.state}`,
-      `This account is ${account.state} and cannot change its profile.`,
-    );
+type SelfServiceAuthorization =
+  | "approved"
+  | "account-state"
+  | "consent-rights"
+  | "export-rights"
+  | "deletion-rights";
+
+const NON_APPROVED_SELF_SERVICE_ALLOWLIST = new Map<
+  string,
+  SelfServiceAuthorization
+>([
+  ["GET /v1/me", "account-state"],
+  ["GET /v1/me/consents", "consent-rights"],
+  ["POST /v1/me/consents", "consent-rights"],
+  ["GET /v1/me/export", "export-rights"],
+  ["GET /v1/me/deletion", "deletion-rights"],
+  ["POST /v1/me/deletion", "deletion-rights"],
+  ["DELETE /v1/me/deletion", "deletion-rights"],
+]);
+
+function authorizeSelfServiceRoute(
+  account: Account,
+  request: Request,
+): SelfServiceAuthorization {
+  if (account.state === "approved") return "approved";
+  const route = `${request.method.toUpperCase()} ${new URL(request.url).pathname}`;
+  const authorization = NON_APPROVED_SELF_SERVICE_ALLOWLIST.get(route);
+  if (authorization) return authorization;
+  requireApproved(account);
+  throw new Error("Unreachable self-service authorization state.");
+}
+
+function accountStateDisclosure(account: Account): Account | { state: AccountState } {
+  return account.state === "approved" ? account : { state: account.state };
+}
+
+function requireNonApprovedDataRightsAuthentication(
+  account: Account,
+  identity: VerifiedIdentity,
+  now: string,
+): void {
+  if (account.state !== "approved") {
+    requireRecentAuthentication(identity, now);
   }
 }
 
@@ -8050,7 +8144,12 @@ async function handleRequest(
         requestId,
         now,
       );
-      return json({ account }, account.state === "pending" ? 202 : 200, requestId, origin);
+      return json(
+        { account: accountStateDisclosure(account) },
+        account.state === "approved" ? 200 : 202,
+        requestId,
+        origin,
+      );
     }
 
     const account = await repository.findAccount(identity);
@@ -8060,7 +8159,7 @@ async function handleRequest(
     if (request.method === "GET" && url.pathname === "/v1/auth/session") {
       return json(
         {
-          account,
+          account: accountStateDisclosure(account),
           session: browserSession
             ? {
                 expiresAt: browserSession.expiresAt,
@@ -8141,11 +8240,18 @@ async function handleRequest(
     }
     if (url.pathname === "/v1/me" || url.pathname.startsWith("/v1/me/")) {
       await requireSelfScope(account, repository, request, requestId, now);
+      authorizeSelfServiceRoute(account, request);
     }
     if (request.method === "GET" && url.pathname === "/v1/me") {
-      return json({ account }, 200, requestId, origin);
+      return json(
+        { account: accountStateDisclosure(account) },
+        200,
+        requestId,
+        origin,
+      );
     }
     if (request.method === "GET" && url.pathname === "/v1/me/profile") {
+      requireApproved(account);
       return json(
         { profile: await repository.getProfile(account, now) },
         200,
@@ -8276,7 +8382,7 @@ async function handleRequest(
       return json({}, 204, requestId, origin);
     }
     if (request.method === "PATCH" && url.pathname === "/v1/me/profile") {
-      requireProfileAccess(account);
+      requireApproved(account);
       const normalized = normalizeProfileRequest(await readJson<unknown>(request));
       const profile = await repository.updateProfile({
         account,
@@ -8287,7 +8393,7 @@ async function handleRequest(
       return json({ profile }, 200, requestId, origin);
     }
     if (request.method === "GET" && url.pathname === "/v1/me/profile/photo") {
-      requireProfileAccess(account);
+      requireApproved(account);
       const metadata = await repository.getProfilePhotoMetadata(account.id);
       if (!metadata) {
         throw new ApiFailure(404, "profile_photo_not_found", "No profile photo is set.");
@@ -8303,7 +8409,7 @@ async function handleRequest(
       return profilePhotoResponse(object, metadata, requestId, origin);
     }
     if (request.method === "PUT" && url.pathname === "/v1/me/profile/photo") {
-      requireProfileAccess(account);
+      requireApproved(account);
       const storage = requireProfilePhotoStorage(env);
       const photo = await readProfilePhoto(request);
       const previous = await repository.getProfilePhotoMetadata(account.id);
@@ -8362,7 +8468,7 @@ async function handleRequest(
       );
     }
     if (request.method === "DELETE" && url.pathname === "/v1/me/profile/photo") {
-      requireProfileAccess(account);
+      requireApproved(account);
       const metadata = await repository.getProfilePhotoMetadata(account.id);
       if (!metadata) return json({}, 204, requestId, origin);
       const storage = requireProfilePhotoStorage(env);
@@ -8395,6 +8501,7 @@ async function handleRequest(
       return json({ progress }, 200, requestId, origin);
     }
     if (request.method === "GET" && url.pathname === "/v1/me/consents") {
+      requireNonApprovedDataRightsAuthentication(account, identity, now);
       return json(
         { consents: await repository.listConsents(account.id) },
         200,
@@ -8403,6 +8510,7 @@ async function handleRequest(
       );
     }
     if (request.method === "POST" && url.pathname === "/v1/me/consents") {
+      requireNonApprovedDataRightsAuthentication(account, identity, now);
       const body = await readJson<{
         purpose: string;
         policyVersion: string;
@@ -8437,6 +8545,9 @@ async function handleRequest(
           "Consent decision must be granted or withdrawn.",
         );
       }
+      if (body.decision === "granted") {
+        requireApproved(account);
+      }
       const consent = await repository.recordConsent({
         account,
         purpose: body.purpose,
@@ -8462,6 +8573,7 @@ async function handleRequest(
       return response;
     }
     if (request.method === "GET" && url.pathname === "/v1/me/deletion") {
+      requireNonApprovedDataRightsAuthentication(account, identity, now);
       return json(
         { requests: await repository.listDeletionRequests(account.id) },
         200,
@@ -8828,6 +8940,15 @@ async function handleRequest(
       response.headers.append(
         "set-cookie",
         clearHostCookie(BROWSER_SESSION_COOKIE),
+      );
+    }
+    if (
+      failure.code === "registration_receipt_invalid" &&
+      readCookie(request, REGISTRATION_RECEIPT_COOKIE)
+    ) {
+      response.headers.append(
+        "set-cookie",
+        clearHostCookie(REGISTRATION_RECEIPT_COOKIE),
       );
     }
     if (failure.code === "authentication_rate_limited") {

@@ -41,8 +41,10 @@ configuration or a browser bundle.
   creates the account when needed, and issues a learner browser cookie only
   when the account is approved.
 - `GET /v1/registration/status` accepts only the opaque registration-receipt
-  cookie and returns a PII-free pending, approved, or owner-contact status.
-- `GET /v1/auth/session` returns the current account and bounded session expiry.
+  cookie and returns a PII-free pending or owner-contact status.
+- `GET /v1/auth/session` returns the current account and bounded session expiry
+  for approved accounts. Non-approved bearer clients receive only the account
+  state, without an account ID or identity fields.
 - `POST /v1/auth/renew` rotates the opaque identifier atomically.
 - `POST /v1/auth/signout` revokes the session and clears even an expired or
   unknown cookie.
@@ -57,9 +59,23 @@ Pending and rejected accounts receive a separate
 384-bit receipt is valid for at most 30 days, only its SHA-256 digest is stored,
 and it is scoped to the installation that created it. It cannot authorize
 profile, progress, transcript, export, deletion, or owner routes. After an
-owner approves the account, the status response tells the learner to sign in
-again; the next verified callback creates the learner session and clears the
-receipt. Suspended and revoked accounts receive neither capability.
+owner decision, every outstanding receipt is revoked. The learner starts a new
+sign-in transaction; an approved callback creates the learner session, while a
+rejected callback may issue a new PII-free status receipt. Repeating sign-in
+while pending or rejected atomically replaces the prior receipt, and a replaced,
+expired, replayed-after-invalidation, or cross-installation receipt fails closed
+and is cleared. A copied active receipt can disclose only the same PII-free
+status and cannot authorize account or learner data. Suspended and revoked
+accounts receive neither capability.
+
+Direct bearer clients also recheck the live database state before every
+`/v1/me` request. Pending, rejected, suspended, and revoked accounts may read
+only their opaque account state. The explicit exceptions are recently
+authenticated access to consent history and withdrawal, private learner-data
+export, and account-deletion review, request, or cancellation. These narrow
+data-rights routes do not grant learner-record access; consent grants, profiles,
+photos, linked identities, progress, merge proofs, and every unknown future
+`/v1/me` route require an approved account.
 
 The callback consumes its transaction before handling a provider denial or
 exchanging the authorization code. This fail-closed ordering prevents replay;
@@ -113,7 +129,9 @@ and audit insertion execute before commit; a failed audit or stale concurrent
 rotation rolls back the replacement row.
 Also verify pending and rejected callbacks never create learner sessions,
 registration receipts cannot cross installations or disclose identity fields,
-pre-boundary stale sessions are revoked, and concurrent owner decisions produce
-exactly one transition and one audit event.
+receipt replacement and every account-state transition invalidate prior
+capabilities, every protected bearer route fails closed without side effects
+for all non-approved states, pre-boundary stale sessions are revoked, and
+concurrent owner decisions produce exactly one transition and one audit event.
 Rotate `SESSION_ENCRYPTION_KEY` through a reviewed deployment because active
 authorization transactions encrypted with the old key become invalid.

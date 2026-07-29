@@ -62,10 +62,14 @@ contracts—not the private PMO records or Project42dev production configuration
 Current unreleased registration-boundary work separates account requests from
 learner authorization. Pending and rejected OIDC callbacks receive only a
 digest-backed, installation-scoped status receipt; approved accounts alone can
-create or renew learner sessions. Live account-state checks revoke stale
-pre-boundary sessions, and database-enforced compare-and-set transitions reject
-concurrent stale owner decisions without contradictory audit evidence. D1
-migration `0014_registration_boundary.sql` and PostgreSQL migration
+create or renew learner sessions. Each repeated request replaces the prior
+receipt, every account-state transition invalidates outstanding receipts, and
+live account-state checks revoke stale pre-boundary sessions. Direct bearer
+access also fails closed across every protected learner route; only
+recently-authenticated consent withdrawal, private export, and deletion rights
+remain available before approval. Database-enforced compare-and-set transitions
+reject concurrent stale owner decisions without contradictory audit evidence.
+D1 migration `0014_registration_boundary.sql` and PostgreSQL migration
 `011_registration_boundary.sql` provide the matching hosted and self-hosted
 contracts.
 

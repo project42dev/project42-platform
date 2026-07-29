@@ -3,7 +3,10 @@ BEGIN;
 ALTER TABLE users
   ADD COLUMN state_revision integer NOT NULL DEFAULT 1
     CHECK (state_revision > 0),
-  ADD COLUMN state_transition_id text;
+  ADD COLUMN state_transition_id text,
+  ADD COLUMN registration_receipt_revision integer NOT NULL DEFAULT 0
+    CHECK (registration_receipt_revision >= 0),
+  ADD COLUMN active_registration_request_id text;
 
 ALTER TABLE approval_decisions
   ADD COLUMN transition_id text;
@@ -63,6 +66,10 @@ CREATE INDEX registration_requests_by_user
     expires_at
   );
 
+CREATE UNIQUE INDEX one_active_registration_request_per_user
+  ON registration_requests (installation_id, user_id)
+  WHERE revoked_at IS NULL;
+
 CREATE FUNCTION block_registration_receipt_rebinding() RETURNS trigger AS $$
 BEGIN
   IF (
@@ -98,5 +105,24 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER enforce_registration_request_installation
 BEFORE INSERT ON registration_requests
 FOR EACH ROW EXECUTE FUNCTION enforce_registration_request_installation();
+
+CREATE FUNCTION require_active_registration_request_marker() RETURNS trigger AS $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+      FROM users
+     WHERE id = NEW.user_id
+       AND installation_id = NEW.installation_id
+       AND active_registration_request_id = NEW.id
+  ) THEN
+    RAISE EXCEPTION 'stale registration request receipt';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER require_active_registration_request_marker
+BEFORE INSERT ON registration_requests
+FOR EACH ROW EXECUTE FUNCTION require_active_registration_request_marker();
 
 COMMIT;

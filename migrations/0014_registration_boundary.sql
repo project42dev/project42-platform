@@ -5,6 +5,13 @@ ALTER TABLE users
 ALTER TABLE users
   ADD COLUMN state_transition_id TEXT;
 
+ALTER TABLE users
+  ADD COLUMN registration_receipt_revision INTEGER NOT NULL DEFAULT 0
+  CHECK (registration_receipt_revision >= 0);
+
+ALTER TABLE users
+  ADD COLUMN active_registration_request_id TEXT;
+
 ALTER TABLE approval_decisions
   ADD COLUMN transition_id TEXT;
 
@@ -59,6 +66,10 @@ CREATE INDEX registration_requests_by_user
     expires_at
   );
 
+CREATE UNIQUE INDEX one_active_registration_request_per_user
+  ON registration_requests (installation_id, user_id)
+  WHERE revoked_at IS NULL;
+
 CREATE TRIGGER block_registration_receipt_rebinding
 BEFORE UPDATE OF installation_id, user_id, receipt_token_digest
 ON registration_requests
@@ -80,4 +91,17 @@ WHEN NOT EXISTS (
 )
 BEGIN
   SELECT RAISE(ABORT, 'registration request user belongs to another installation');
+END;
+
+CREATE TRIGGER require_active_registration_request_marker
+BEFORE INSERT ON registration_requests
+WHEN NOT EXISTS (
+  SELECT 1
+    FROM users
+   WHERE id = NEW.user_id
+     AND installation_id = NEW.installation_id
+     AND active_registration_request_id = NEW.id
+)
+BEGIN
+  SELECT RAISE(ABORT, 'stale registration request receipt');
 END;

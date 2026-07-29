@@ -22,6 +22,13 @@ AB#5695 and AB#5697 implement the backend registration boundary:
 - suspended and revoked callbacks receive no session or receipt;
 - owner decisions use expected state/revision and a database-bound transition
   marker so concurrent stale decisions cannot both commit; and
+- repeated pending or rejected callbacks atomically revoke and replace the
+  prior registration receipt, while every owner state transition revokes all
+  outstanding receipts;
+- direct bearer requests for pending, rejected, suspended, and revoked accounts
+  disclose only the account state and fail closed on every protected
+  `/v1/me` route; recently authenticated consent withdrawal, private export,
+  and deletion rights are the only explicit pre-approval exceptions; and
 - D1 migration `0014_registration_boundary.sql` and PostgreSQL migration
   `011_registration_boundary.sql` provide equivalent storage and guard
   contracts.
@@ -32,25 +39,32 @@ branch.
 
 ## Verification state
 
-- Full `npm run check` passes: 254 tests total, 252 passed, two optional
+- Full `npm run check` passes: 255 tests total, 253 passed, two optional
   PostgreSQL runtime tests skipped in that command, zero failed.
 - The check also validates 12 resource packs / 94 resources, 50 hosted D1
-  measurement streams with p95 421.58 ms, 572 freshness references / 60 primary
+  measurement streams with p95 399.17 ms, 572 freshness references / 60 primary
   sources, and the self-host compatibility manifest.
 - Focused browser tests prove pending, rejected, and approved callbacks; no
-  learner session for non-approved accounts; PII-free receipt status;
-  protected-route bypass rejection; receipt tamper and cross-installation
-  rejection; stale-session revocation/audit; and approved re-sign-in.
+  learner session for non-approved accounts; PII-free receipt status; atomic
+  receipt replacement; tamper, replay, expiry, and cross-installation
+  rejection; invalidation on rejection, approval, suspension, and revocation;
+  stale-session revocation/audit; and approved re-sign-in.
+- The exhaustive D1 bearer matrix covers pending, rejected, suspended, and
+  revoked accounts across all profile, photo, identity-link, progress, consent
+  grant, merge-proof, and unknown future `/v1/me` routes. It proves the exact
+  state-specific denial, no database or object-storage side effects, minimal
+  state disclosure, and recent-authentication enforcement on every narrow
+  data-rights exception.
 - A forced two-reader D1 race proves exactly one concurrent owner decision,
   state revision, transition marker, approval decision, and audit event commit.
 - D1 migration replay and authorization/audit guards pass.
 - Existing account lifecycle and identity-security suites pass.
-- PostgreSQL 17.10 was installed temporarily in WSL and the two optional
-  runtime suites plus focused registration/CAS/browser tests passed 14/14 with
-  no skips. This verifies recovery, all migrations through `011`, receipt
-  status, pending-session denial, approval transition, session rotation
-  rollback, and D1-focused boundary cases. The isolated test database, cluster,
-  packages, and temporary package source were removed afterward.
+- PostgreSQL 17.10 was installed temporarily in WSL and all five PostgreSQL
+  runtime tests passed with no skips. This verifies recovery, all migrations
+  through `011`, receipt status and transition invalidation, pending-session
+  denial, account repository behavior, auth limiting, and transaction rollback.
+  The isolated test database, cluster, packages, package key, and temporary
+  package source were removed afterward.
 - Generator-only training artifacts produced by `npm run build` were restored
   and are intentionally excluded.
 

@@ -5,6 +5,7 @@ import test from "node:test";
 import { Miniflare } from "miniflare";
 import {
   BrowserOidcAdapter,
+  D1Project42Repository,
   handleRequest,
 } from "../dist/worker.js";
 
@@ -688,6 +689,82 @@ test("pending and rejected OIDC callbacks receive only an installation-scoped st
     (await invalidReceipt.json()).error.code,
     "registration_receipt_invalid",
   );
+  assert.ok(
+    setCookies(invalidReceipt).some((value) =>
+      value.startsWith("__Host-project42_registration=;"),
+    ),
+  );
+
+  const repeatedPendingCallback = await signIn();
+  const rotatedReceiptCookie = cookiePair(
+    setCookies(repeatedPendingCallback),
+    "__Host-project42_registration",
+  );
+  const rotatedReceiptValue = rotatedReceiptCookie.split("=")[1];
+  assert.notEqual(rotatedReceiptValue, receiptValue);
+  const replacedReceipt = await api(
+    new Request("https://api.example.test/v1/registration/status", {
+      headers: { cookie: receiptCookie },
+    }),
+  );
+  assert.equal(replacedReceipt.status, 401);
+  assert.ok(
+    setCookies(replacedReceipt).some((value) =>
+      value.startsWith("__Host-project42_registration=;"),
+    ),
+  );
+  const receiptRows = await database
+    .prepare(
+      `SELECT id, receipt_token_digest, revoked_at, replaced_by_request_id
+         FROM registration_requests
+        WHERE installation_id = ?
+        ORDER BY requested_at, id`,
+    )
+    .bind(env.INSTALLATION_ID)
+    .all();
+  assert.equal(receiptRows.results.length, 2);
+  const activeReceiptRow = receiptRows.results.find(
+    (row) => row.revoked_at === null,
+  );
+  const replacedReceiptRow = receiptRows.results.find(
+    (row) => row.revoked_at !== null,
+  );
+  assert.ok(activeReceiptRow);
+  assert.ok(replacedReceiptRow);
+  assert.equal(replacedReceiptRow.replaced_by_request_id, activeReceiptRow.id);
+  assert.equal(activeReceiptRow.receipt_token_digest, sha256(rotatedReceiptValue));
+
+  await database
+    .prepare(
+      `UPDATE registration_requests
+          SET requested_at = ?, expires_at = ?
+        WHERE installation_id = ? AND receipt_token_digest = ?`,
+    )
+    .bind(
+      "2026-07-27T00:00:00.000Z",
+      "2026-07-28T00:00:00.000Z",
+      env.INSTALLATION_ID,
+      sha256(rotatedReceiptValue),
+    )
+    .run();
+  const expiredReceipt = await api(
+    new Request("https://api.example.test/v1/registration/status", {
+      headers: { cookie: rotatedReceiptCookie },
+    }),
+  );
+  assert.equal(expiredReceipt.status, 401);
+  assert.ok(
+    setCookies(expiredReceipt).some((value) =>
+      value.startsWith("__Host-project42_registration=;"),
+    ),
+  );
+
+  const currentPendingCallback = await signIn();
+  const currentReceiptCookie = cookiePair(
+    setCookies(currentPendingCallback),
+    "__Host-project42_registration",
+  );
+  const currentReceiptValue = currentReceiptCookie.split("=")[1];
 
   const user = await database
     .prepare(
@@ -696,6 +773,18 @@ test("pending and rejected OIDC callbacks receive only an installation-scoped st
     .bind(env.INSTALLATION_ID)
     .first();
   assert.ok(user?.id);
+  const otherInstallation = {
+    ...env,
+    INSTALLATION_ID: "other-registration-installation",
+  };
+  const crossInstallation = await api(
+    new Request("https://api.example.test/v1/registration/status", {
+      headers: { cookie: currentReceiptCookie },
+    }),
+    otherInstallation,
+  );
+  assert.equal(crossInstallation.status, 401);
+
   const staleToken = "stale-browser-session-token-with-enough-entropy-123456789";
   const now = new Date();
   const nowIso = now.toISOString();
@@ -741,21 +830,48 @@ test("pending and rejected OIDC callbacks receive only an installation-scoped st
     ).revoked_at,
   );
 
-  await database
-    .prepare(
-      "UPDATE users SET account_state = 'rejected', updated_at = ? WHERE id = ?",
-    )
-    .bind(new Date(now.getTime() + 1000).toISOString(), user.id)
-    .run();
+  const repository = new D1Project42Repository(
+    database,
+    env.INSTALLATION_ID,
+  );
+  const ownerIdentity = {
+    provider: "oidc",
+    issuer: env.OIDC_ISSUER,
+    subject: "registration-owner",
+    email: "owner@example.test",
+    emailVerified: true,
+    displayName: "Registration Owner",
+    authenticatedAt: Math.floor(now.getTime() / 1000),
+  };
+  const owner = await repository.createOrRefreshAccount(
+    ownerIdentity,
+    true,
+    "registration-owner-bootstrap",
+    nowIso,
+  );
+  await repository.changeAccountState({
+    actor: owner,
+    targetId: user.id,
+    to: "rejected",
+    reason: "Reject the registration lifecycle fixture.",
+    requestId: "registration-reject",
+    now: new Date(now.getTime() + 1000).toISOString(),
+  });
+  const receiptAfterRejection = await api(
+    new Request("https://api.example.test/v1/registration/status", {
+      headers: { cookie: currentReceiptCookie },
+    }),
+  );
+  assert.equal(receiptAfterRejection.status, 401);
+
   const rejectedCallback = await signIn();
   assert.equal(
     new URL(rejectedCallback.headers.get("location")).searchParams.get("auth"),
     "rejected",
   );
-  assert.ok(
-    setCookies(rejectedCallback).some((value) =>
-      value.startsWith("__Host-project42_registration="),
-    ),
+  const rejectedReceiptCookie = cookiePair(
+    setCookies(rejectedCallback),
+    "__Host-project42_registration",
   );
   assert.equal(
     (
@@ -768,22 +884,29 @@ test("pending and rejected OIDC callbacks receive only an installation-scoped st
     0,
   );
 
-  await database
-    .prepare(
-      "UPDATE users SET account_state = 'approved', updated_at = ? WHERE id = ?",
-    )
-    .bind(new Date(now.getTime() + 2000).toISOString(), user.id)
-    .run();
-  const approvedStatus = await api(
+  await repository.changeAccountState({
+    actor: owner,
+    targetId: user.id,
+    to: "approved",
+    reason: "Approve the registration lifecycle fixture.",
+    requestId: "registration-approve",
+    now: new Date(now.getTime() + 2000).toISOString(),
+  });
+  const receiptAfterApproval = await api(
     new Request("https://api.example.test/v1/registration/status", {
-      headers: { cookie: receiptCookie },
+      headers: { cookie: rejectedReceiptCookie },
     }),
   );
-  assert.equal((await approvedStatus.json()).registration.canSignIn, true);
+  assert.equal(receiptAfterApproval.status, 401);
+
   const approvedCallback = await signIn();
   assert.equal(
     new URL(approvedCallback.headers.get("location")).searchParams.get("auth"),
     "success",
+  );
+  const approvedSessionCookie = cookiePair(
+    setCookies(approvedCallback),
+    "__Host-project42_session",
   );
   assert.ok(
     setCookies(approvedCallback).some(
@@ -793,17 +916,74 @@ test("pending and rejected OIDC callbacks receive only an installation-scoped st
     ),
   );
 
-  const otherInstallation = {
-    ...env,
-    INSTALLATION_ID: "other-registration-installation",
-  };
-  const crossInstallation = await api(
-    new Request("https://api.example.test/v1/registration/status", {
-      headers: { cookie: receiptCookie },
+  await repository.changeAccountState({
+    actor: owner,
+    targetId: user.id,
+    to: "suspended",
+    reason: "Suspend the registration lifecycle fixture.",
+    requestId: "registration-suspend",
+    now: new Date(now.getTime() + 3000).toISOString(),
+  });
+  const suspendedSession = await api(
+    new Request("https://api.example.test/v1/auth/session", {
+      headers: {
+        cookie: approvedSessionCookie,
+        origin: "https://learn.example.test",
+      },
     }),
-    otherInstallation,
   );
-  assert.equal(crossInstallation.status, 401);
+  assert.equal(suspendedSession.status, 401);
+  const suspendedCallback = await signIn();
+  assert.equal(
+    new URL(suspendedCallback.headers.get("location")).searchParams.get("auth"),
+    "unavailable",
+  );
+  assert.ok(
+    setCookies(suspendedCallback).some((value) =>
+      value.startsWith("__Host-project42_registration=;"),
+    ),
+  );
+
+  await repository.changeAccountState({
+    actor: owner,
+    targetId: user.id,
+    to: "approved",
+    reason: "Restore the registration lifecycle fixture.",
+    requestId: "registration-restore",
+    now: new Date(now.getTime() + 4000).toISOString(),
+  });
+  const restoredCallback = await signIn();
+  const restoredSessionCookie = cookiePair(
+    setCookies(restoredCallback),
+    "__Host-project42_session",
+  );
+  await repository.changeAccountState({
+    actor: owner,
+    targetId: user.id,
+    to: "revoked",
+    reason: "Revoke the registration lifecycle fixture.",
+    requestId: "registration-revoke",
+    now: new Date(now.getTime() + 5000).toISOString(),
+  });
+  const revokedSession = await api(
+    new Request("https://api.example.test/v1/auth/session", {
+      headers: {
+        cookie: restoredSessionCookie,
+        origin: "https://learn.example.test",
+      },
+    }),
+  );
+  assert.equal(revokedSession.status, 401);
+  const revokedCallback = await signIn();
+  assert.equal(
+    new URL(revokedCallback.headers.get("location")).searchParams.get("auth"),
+    "unavailable",
+  );
+  assert.ok(
+    setCookies(revokedCallback).some((value) =>
+      value.startsWith("__Host-project42_registration=;"),
+    ),
+  );
 
   const audit = await database
     .prepare(
@@ -826,5 +1006,9 @@ test("pending and rejected OIDC callbacks receive only an installation-scoped st
   assert.doesNotMatch(
     JSON.stringify(audit.results),
     new RegExp(receiptValue.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+  );
+  assert.doesNotMatch(
+    JSON.stringify(audit.results),
+    new RegExp(currentReceiptValue.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
   );
 });

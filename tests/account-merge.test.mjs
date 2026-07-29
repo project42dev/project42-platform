@@ -137,15 +137,17 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
   const owner = (await json(
     await api("owner-token", "/v1/session", { method: "POST" }),
   )).account;
-  const source = (await json(
-    await api("source-token", "/v1/session", { method: "POST" }),
-  )).account;
-  const survivor = (await json(
-    await api("survivor-token", "/v1/session", { method: "POST" }),
-  )).account;
-  const attacker = (await json(
-    await api("attacker-token", "/v1/session", { method: "POST" }),
-  )).account;
+  for (const token of ["source-token", "survivor-token", "attacker-token"]) {
+    const response = await api(token, "/v1/session", { method: "POST" });
+    assert.equal(response.status, 202);
+    assert.deepEqual((await json(response)).account, { state: "pending" });
+  }
+  const source = await repository.findAccount(identities.get("source-token"));
+  const survivor = await repository.findAccount(identities.get("survivor-token"));
+  const attacker = await repository.findAccount(identities.get("attacker-token"));
+  assert.ok(source);
+  assert.ok(survivor);
+  assert.ok(attacker);
   for (const account of [source, survivor, attacker]) {
     const approval = await api(
       "owner-token",
