@@ -565,6 +565,12 @@ class BrowserOidcAdapter {
     if (configuration.clientSecret) {
       body.set("client_secret", configuration.clientSecret);
     }
+    const controller = new AbortController();
+    let timedOut = false;
+    const timeout = setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, 10_000);
     let response: Response;
     try {
       response = await this.fetcher(configuration.tokenEndpoint, {
@@ -573,7 +579,7 @@ class BrowserOidcAdapter {
         // redirected host. Workers can throw for redirect: "error", so
         // inspect redirect responses explicitly instead.
         redirect: "manual",
-        signal: AbortSignal.timeout(10_000),
+        signal: controller.signal,
         headers: {
           accept: "application/json",
           "content-type": "application/x-www-form-urlencoded",
@@ -582,8 +588,9 @@ class BrowserOidcAdapter {
       });
     } catch (error) {
       const reason =
-        error instanceof DOMException &&
-        (error.name === "TimeoutError" || error.name === "AbortError")
+        timedOut ||
+        (error instanceof DOMException &&
+          (error.name === "TimeoutError" || error.name === "AbortError"))
           ? "timeout"
           : error instanceof TypeError
             ? "network"
@@ -602,6 +609,8 @@ class BrowserOidcAdapter {
         "identity_provider_unavailable",
         "Sign-in could not be completed. Try again.",
       );
+    } finally {
+      clearTimeout(timeout);
     }
     if (response.status >= 300 && response.status < 400) {
       console.error(

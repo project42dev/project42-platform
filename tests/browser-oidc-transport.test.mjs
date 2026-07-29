@@ -63,7 +63,10 @@ function assertPrivacySafe(output, expectedReason) {
   }
 }
 
-test("OIDC token exchange uses bounded manual redirect handling", async () => {
+test("OIDC token exchange uses a runtime-compatible bounded manual request", async (context) => {
+  context.mock.method(AbortSignal, "timeout", () => {
+    throw new TypeError("AbortSignal.timeout is unavailable");
+  });
   let observed;
   const adapter = new BrowserOidcAdapter(environment, async (url, init) => {
     observed = { url, init };
