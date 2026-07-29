@@ -1,0 +1,365 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-42.dev/schemas/training/learning-path-contract.schema.json",
+  "title": "Project 42 learning path delivery contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "version",
+    "pathId",
+    "audience",
+    "outcome",
+    "moduleSequence",
+    "systemBoundaries",
+    "comparison",
+    "lab",
+    "mastery",
+    "accessibility",
+    "sourcePolicy",
+    "portability",
+    "publication"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "id": { "$ref": "#/$defs/id" },
+    "version": { "$ref": "#/$defs/semver" },
+    "pathId": { "$ref": "#/$defs/id" },
+    "audience": { "$ref": "#/$defs/nonempty" },
+    "outcome": { "$ref": "#/$defs/nonempty" },
+    "moduleSequence": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "moduleId",
+          "phase",
+          "dependsOn",
+          "competencies",
+          "requiredEvidence"
+        ],
+        "properties": {
+          "moduleId": { "$ref": "#/$defs/id" },
+          "phase": {
+            "enum": ["foundations", "systems", "operations", "capstone"]
+          },
+          "dependsOn": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/id" }
+          },
+          "competencies": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/nonempty" }
+          },
+          "requiredEvidence": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/nonempty" }
+          }
+        }
+      }
+    },
+    "systemBoundaries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "tools",
+        "state",
+        "memory",
+        "orchestration",
+        "evaluation",
+        "observability",
+        "recovery",
+        "humanAuthority"
+      ],
+      "properties": {
+        "identity": { "$ref": "#/$defs/boundary" },
+        "tools": { "$ref": "#/$defs/boundary" },
+        "state": { "$ref": "#/$defs/boundary" },
+        "memory": { "$ref": "#/$defs/boundary" },
+        "orchestration": { "$ref": "#/$defs/boundary" },
+        "evaluation": { "$ref": "#/$defs/boundary" },
+        "observability": { "$ref": "#/$defs/boundary" },
+        "recovery": { "$ref": "#/$defs/boundary" },
+        "humanAuthority": { "$ref": "#/$defs/boundary" }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["designs", "sameCasesRequired", "measures", "releaseRule"],
+      "properties": {
+        "designs": {
+          "type": "array",
+          "minItems": 3,
+          "uniqueItems": true,
+          "contains": { "const": "single-agent" },
+          "items": {
+            "enum": [
+              "deterministic-workflow",
+              "single-agent",
+              "multi-agent"
+            ]
+          }
+        },
+        "sameCasesRequired": { "const": true },
+        "measures": {
+          "type": "array",
+          "minItems": 6,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "outcome-quality",
+              "critical-safety",
+              "latency",
+              "cost",
+              "coordination-overhead",
+              "recovery",
+              "tool-trajectory",
+              "human-review-load"
+            ]
+          }
+        },
+        "releaseRule": { "$ref": "#/$defs/nonempty" }
+      }
+    },
+    "lab": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractSchema",
+        "terminalOutcomes",
+        "adversarialCases",
+        "evidenceKinds"
+      ],
+      "properties": {
+        "contractSchema": { "$ref": "#/$defs/publicPath" },
+        "terminalOutcomes": {
+          "type": "array",
+          "uniqueItems": true,
+          "allOf": [
+            { "contains": { "const": "succeeded" } },
+            { "contains": { "const": "failed" } },
+            { "contains": { "const": "unknown" } }
+          ],
+          "items": {
+            "enum": [
+              "succeeded",
+              "failed",
+              "unknown",
+              "needs-approval",
+              "cancelled",
+              "budget-exceeded",
+              "refused"
+            ]
+          }
+        },
+        "adversarialCases": {
+          "type": "array",
+          "minItems": 6,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "evidenceKinds": {
+          "type": "array",
+          "minItems": 7,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "input-output",
+              "identity",
+              "tools",
+              "state",
+              "telemetry",
+              "evaluation",
+              "recovery",
+              "comparison"
+            ]
+          }
+        }
+      }
+    },
+    "mastery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requiredArtifacts",
+        "knowledgeScoreMinimum",
+        "criticalCriteriaMustPass",
+        "humanReviewRequired"
+      ],
+      "properties": {
+        "requiredArtifacts": {
+          "type": "array",
+          "minItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonempty" }
+        },
+        "knowledgeScoreMinimum": {
+          "type": "number",
+          "minimum": 0.8,
+          "maximum": 1
+        },
+        "criticalCriteriaMustPass": { "const": true },
+        "humanReviewRequired": { "const": true }
+      }
+    },
+    "accessibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "narrationRequired",
+        "captionsRequired",
+        "transcriptRequired",
+        "textOnlyRequired",
+        "reducedMotionRequired",
+        "assessmentHandoffRequired"
+      ],
+      "properties": {
+        "narrationRequired": { "const": true },
+        "captionsRequired": { "const": true },
+        "transcriptRequired": { "const": true },
+        "textOnlyRequired": { "const": true },
+        "reducedMotionRequired": { "const": true },
+        "assessmentHandoffRequired": { "const": true }
+      }
+    },
+    "sourcePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primarySourcesRequired",
+        "asOfDate",
+        "reviewCadenceDays",
+        "claimClasses"
+      ],
+      "properties": {
+        "primarySourcesRequired": { "const": true },
+        "asOfDate": { "$ref": "#/$defs/date" },
+        "reviewCadenceDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 365
+        },
+        "claimClasses": {
+          "type": "array",
+          "minItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "provider-capability",
+              "protocol",
+              "security",
+              "pricing",
+              "lifecycle",
+              "runtime",
+              "evaluation"
+            ]
+          }
+        }
+      }
+    },
+    "portability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "providerNeutral",
+        "runtimeNeutral",
+        "adapterSpecificStepsSeparated",
+        "requiredPortableContracts"
+      ],
+      "properties": {
+        "providerNeutral": { "const": true },
+        "runtimeNeutral": { "const": true },
+        "adapterSpecificStepsSeparated": { "const": true },
+        "requiredPortableContracts": {
+          "type": "array",
+          "minItems": 7,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "inputs",
+              "outputs",
+              "identity",
+              "tools",
+              "state",
+              "telemetry",
+              "evaluation",
+              "recovery"
+            ]
+          }
+        }
+      }
+    },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "releaseStatus",
+        "automaticPublication",
+        "requiredApprovals"
+      ],
+      "properties": {
+        "releaseStatus": { "enum": ["draft", "approved"] },
+        "automaticPublication": { "const": false },
+        "requiredApprovals": {
+          "type": "array",
+          "minItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "editorial",
+              "subject-matter",
+              "accessibility",
+              "safety",
+              "publication"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "nonempty": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "publicPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/|.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    },
+    "boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner", "learnerMustDemonstrate", "failureEvidence"],
+      "properties": {
+        "owner": { "$ref": "#/$defs/nonempty" },
+        "learnerMustDemonstrate": { "$ref": "#/$defs/nonempty" },
+        "failureEvidence": { "$ref": "#/$defs/nonempty" }
+      }
+    }
+  }
+}

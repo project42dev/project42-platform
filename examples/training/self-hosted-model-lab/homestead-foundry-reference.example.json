@@ -1,0 +1,177 @@
+{
+  "schemaVersion": "1.0",
+  "id": "portable-model-service-reference-lab",
+  "version": "0.1.0",
+  "title": "Portable model service through the Homestead Foundry published interface",
+  "learningPathId": "self-hosted-model-operations",
+  "implementation": {
+    "kind": "homestead-foundry-reference",
+    "adapter": "homestead-foundry-openai-v1",
+    "specificStepsSeparated": true
+  },
+  "environment": {
+    "shape": "cloud-managed-compute",
+    "configurationPath": "lab/portable/model-service.example.yaml",
+    "hardwareProfilePath": "lab/evidence/deployment-profile.json"
+  },
+  "modelArtifact": {
+    "identity": "registry-selected-reasoning-model",
+    "revision": "registry-recorded-model-version",
+    "publisher": "Selected model publisher",
+    "sourceUrl": "https://hybrid-solutions-cloud.github.io/homestead-foundry/guide/model-registry/",
+    "licenseId": "LicenseRef-Review-Required",
+    "licenseReviewPath": "lab/evidence/license-review.md",
+    "provenancePath": "lab/evidence/provenance.json",
+    "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "signatureStatus": "unavailable-documented",
+    "dependencyManifestPath": "lab/evidence/dependencies.cdx.json",
+    "scanEvidencePath": "lab/evidence/artifact-scan.json"
+  },
+  "endpoint": {
+    "protocol": "https",
+    "compatibilityProfile": "openai-v1-chat-completions-subset",
+    "baseUrlTemplate": "{{HOMESTEAD_FOUNDRY_BASE_URL}}",
+    "healthPath": "/health",
+    "readinessPath": "/ready",
+    "modelIdentityPath": "/models"
+  },
+  "identityAndAccess": {
+    "principalType": "entra-workload-or-user-principal",
+    "authorizationPolicyPath": "lab/portable/authorization-policy.md",
+    "secretSource": "environment-or-workload-identity",
+    "networkExposure": "controlled-public",
+    "auditEvidencePath": "lab/evidence/access-audit.jsonl"
+  },
+  "evaluation": {
+    "caseSetPath": "lab/portable/evaluation-cases.jsonl",
+    "configurationPath": "lab/portable/evaluation-config.json",
+    "metrics": [
+      "schema-valid-response-rate",
+      "task-pass-rate",
+      "unsupported-claim-rate",
+      "prohibited-content-rate"
+    ],
+    "passCriteria": [
+      "Every required routine case returns the declared response contract.",
+      "No prohibited content or external effect occurs in any lab case.",
+      "Important-slice and boundary results meet the predeclared thresholds.",
+      "The exact deployment identity is recorded with every result set."
+    ],
+    "resultsPath": "lab/evidence/evaluation-results.json"
+  },
+  "load": {
+    "profilePath": "lab/portable/load-profile.json",
+    "resultsPath": "lab/evidence/load-results.json",
+    "capacityDecisionPath": "lab/evidence/capacity-decision.md",
+    "stopConditions": [
+      "Stop when throttling, error rate, queue time, or latency crosses the declared lab limit.",
+      "Stop when the request or cost ceiling is reached, even if the service remains available."
+    ]
+  },
+  "telemetry": {
+    "logsEvidencePath": "lab/evidence/log-sample.jsonl",
+    "metricsEvidencePath": "lab/evidence/metrics.json",
+    "tracesEvidencePath": "lab/evidence/traces.json",
+    "alertEvidencePath": "lab/evidence/alert.json",
+    "dataHandlingPath": "lab/portable/telemetry-data-handling.md"
+  },
+  "lifecycle": {
+    "currentVersion": "registry-recorded-model-version",
+    "targetVersion": "qualified-candidate-version",
+    "compatibilityManifestPath": "lab/portable/compatibility.json",
+    "backupEvidencePath": "lab/evidence/baseline-manifest.json",
+    "updatePlanPath": "lab/portable/update-plan.md",
+    "updateEvidencePath": "lab/evidence/update-result.json",
+    "rollbackPlanPath": "lab/portable/rollback-plan.md",
+    "rollbackEvidencePath": "lab/evidence/rollback-result.json"
+  },
+  "recovery": {
+    "incidentScenario": "The candidate deployment fails a critical evaluation or capacity gate after bounded exposure.",
+    "runbookPath": "lab/portable/model-service-recovery.md",
+    "recoveryObjective": "Restore the last verified deployment and confirm identity, access, evaluation, and capacity postconditions.",
+    "recoveryEvidencePath": "lab/evidence/recovery-result.json",
+    "postIncidentPath": "lab/evidence/post-incident-review.md"
+  },
+  "portability": {
+    "portableConcepts": [
+      "artifact-identity",
+      "endpoint-contract",
+      "scoped-access",
+      "representative-evaluation",
+      "load-and-capacity",
+      "privacy-aware-telemetry",
+      "update-and-rollback",
+      "incident-recovery"
+    ],
+    "adapterSpecificStepsPath": "lab/adapters/homestead-foundry-model-service.md",
+    "alternatives": [
+      {
+        "adapter": "generic-openai-compatible-runtime",
+        "mappingPath": "lab/adapters/alternative-model-service.md"
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "kind": "artifact",
+      "path": "lab/evidence/artifact.json",
+      "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "kind": "license-provenance",
+      "path": "lab/evidence/license-review.md",
+      "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "kind": "endpoint",
+      "path": "lab/evidence/endpoint.json",
+      "digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    {
+      "kind": "evaluation",
+      "path": "lab/evidence/evaluation-results.json",
+      "digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    {
+      "kind": "load-capacity",
+      "path": "lab/evidence/load-results.json",
+      "digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    {
+      "kind": "telemetry",
+      "path": "lab/evidence/metrics.json",
+      "digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+    },
+    {
+      "kind": "update",
+      "path": "lab/evidence/update-result.json",
+      "digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+    },
+    {
+      "kind": "rollback",
+      "path": "lab/evidence/rollback-result.json",
+      "digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888"
+    },
+    {
+      "kind": "recovery",
+      "path": "lab/evidence/recovery-result.json",
+      "digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999"
+    }
+  ],
+  "safety": {
+    "prohibitedData": [
+      "No personal, regulated, confidential, secret, or production learner data.",
+      "No private environment identifiers, credentials, or resource inventory."
+    ],
+    "stopConditions": [
+      "Stop before execution when deployment identity, model authority, target, or data boundary is unresolved.",
+      "Stop on a critical evaluation, access, capacity, telemetry, cost, or recovery failure."
+    ],
+    "humanApprovalBoundaries": [
+      "A human reviewer approves the selected model, license, endpoint, cases, limits, and data policy before execution.",
+      "A human reviewer approves measured execution and rollback evidence before publication."
+    ]
+  },
+  "approvals": [],
+  "releaseStatus": "draft"
+}

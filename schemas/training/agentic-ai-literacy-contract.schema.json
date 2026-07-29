@@ -1,0 +1,410 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-42.dev/schemas/training/agentic-ai-literacy-contract.schema.json",
+  "title": "Project 42 agentic-AI literacy delivery contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "version",
+    "title",
+    "audiences",
+    "evidenceMatrix",
+    "taxonomyClassIds",
+    "providerCaseFamilies",
+    "learnSequence",
+    "fieldGuideAssets",
+    "crossSurfaceRules",
+    "assessment",
+    "mastery",
+    "accessibility",
+    "freshness",
+    "publication"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "id": { "$ref": "#/$defs/id" },
+    "version": { "$ref": "#/$defs/semver" },
+    "title": { "$ref": "#/$defs/nonempty" },
+    "audiences": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["beginner", "practitioner", "advanced"]
+      },
+      "allOf": [
+        { "contains": { "const": "beginner" } },
+        { "contains": { "const": "practitioner" } },
+        { "contains": { "const": "advanced" } }
+      ]
+    },
+    "evidenceMatrix": { "$ref": "#/$defs/publicPath" },
+    "taxonomyClassIds": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/taxonomyId" },
+      "allOf": [
+        { "contains": { "const": "model" } },
+        { "contains": { "const": "chatbot" } },
+        { "contains": { "const": "assistant" } },
+        { "contains": { "const": "copilot" } },
+        { "contains": { "const": "deterministic-workflow" } },
+        { "contains": { "const": "agent" } },
+        { "contains": { "const": "agentic-system" } },
+        { "contains": { "const": "multi-agent-system" } }
+      ]
+    },
+    "providerCaseFamilies": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/providerFamily" },
+      "allOf": [
+        { "contains": { "const": "anthropic" } },
+        { "contains": { "const": "openai" } },
+        { "contains": { "const": "microsoft" } },
+        { "contains": { "const": "google" } },
+        { "contains": { "const": "xai" } },
+        { "contains": { "const": "moonshot-kimi" } },
+        { "contains": { "const": "deepseek" } },
+        { "contains": { "const": "open-weight" } }
+      ]
+    },
+    "learnSequence": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": { "$ref": "#/$defs/learnStage" }
+    },
+    "fieldGuideAssets": {
+      "type": "array",
+      "minItems": 5,
+      "items": { "$ref": "#/$defs/fieldGuideAsset" }
+    },
+    "crossSurfaceRules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "singleEvidenceSource",
+        "deepLinksRequired",
+        "noProviderWideClassification",
+        "unknownIsValid",
+        "modelAndHarnessSeparated",
+        "learnerLevelLabelsRequired"
+      ],
+      "properties": {
+        "singleEvidenceSource": { "const": true },
+        "deepLinksRequired": { "const": true },
+        "noProviderWideClassification": { "const": true },
+        "unknownIsValid": { "const": true },
+        "modelAndHarnessSeparated": { "const": true },
+        "learnerLevelLabelsRequired": { "const": true }
+      }
+    },
+    "assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minimumFormativeChecks",
+        "minimumProductCases",
+        "sameBehaviorComparisonRequired",
+        "evidenceLabelsRequired",
+        "correctiveFeedbackRequired",
+        "reattemptSupported",
+        "attemptHistoryRetained"
+      ],
+      "properties": {
+        "minimumFormativeChecks": {
+          "type": "integer",
+          "minimum": 5
+        },
+        "minimumProductCases": {
+          "type": "integer",
+          "minimum": 8
+        },
+        "sameBehaviorComparisonRequired": { "const": true },
+        "evidenceLabelsRequired": { "const": true },
+        "correctiveFeedbackRequired": { "const": true },
+        "reattemptSupported": { "const": true },
+        "attemptHistoryRetained": { "const": true }
+      }
+    },
+    "mastery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "knowledgeScoreMinimum",
+        "requiredCompetencies",
+        "requiredArtifacts",
+        "criticalErrors",
+        "criticalErrorsMustPass",
+        "humanReviewRequired"
+      ],
+      "properties": {
+        "knowledgeScoreMinimum": {
+          "type": "number",
+          "minimum": 0.8,
+          "maximum": 1
+        },
+        "requiredCompetencies": {
+          "type": "array",
+          "minItems": 6,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonempty" }
+        },
+        "requiredArtifacts": {
+          "type": "array",
+          "minItems": 4,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonempty" }
+        },
+        "criticalErrors": {
+          "type": "array",
+          "minItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "provider-generalization",
+              "marketing-label-as-proof",
+              "tool-call-equals-agent",
+              "model-harness-collapse",
+              "unmarked-unknown",
+              "missing-human-authority",
+              "unsupported-autonomy-claim"
+            ]
+          }
+        },
+        "criticalErrorsMustPass": { "const": true },
+        "humanReviewRequired": { "const": true }
+      }
+    },
+    "accessibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "narrationScript",
+        "captions",
+        "transcript",
+        "textOnlyAlternative",
+        "reducedMotionAlternative",
+        "nonColorClassificationCues",
+        "assessmentHandoff"
+      ],
+      "properties": {
+        "narrationScript": { "const": true },
+        "captions": { "const": true },
+        "transcript": { "const": true },
+        "textOnlyAlternative": { "const": true },
+        "reducedMotionAlternative": { "const": true },
+        "nonColorClassificationCues": { "const": true },
+        "assessmentHandoff": { "const": true }
+      }
+    },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primarySourcesRequired",
+        "maximumReviewDays",
+        "evidenceKinds",
+        "exactExperienceRequired",
+        "testedEvidenceSeparate",
+        "staleCasesBlockPublication"
+      ],
+      "properties": {
+        "primarySourcesRequired": { "const": true },
+        "maximumReviewDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 90
+        },
+        "evidenceKinds": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["documented", "tested", "inference", "unknown"]
+          },
+          "allOf": [
+            { "contains": { "const": "documented" } },
+            { "contains": { "const": "tested" } },
+            { "contains": { "const": "inference" } },
+            { "contains": { "const": "unknown" } }
+          ]
+        },
+        "exactExperienceRequired": { "const": true },
+        "testedEvidenceSeparate": { "const": true },
+        "staleCasesBlockPublication": { "const": true }
+      }
+    },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "releaseStatus",
+        "automaticPublication",
+        "requiredApprovals"
+      ],
+      "properties": {
+        "releaseStatus": { "enum": ["draft", "approved"] },
+        "automaticPublication": { "const": false },
+        "requiredApprovals": {
+          "type": "array",
+          "minItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "editorial",
+              "subject-matter",
+              "accessibility",
+              "safety",
+              "publication"
+            ]
+          },
+          "allOf": [
+            { "contains": { "const": "editorial" } },
+            { "contains": { "const": "subject-matter" } },
+            { "contains": { "const": "accessibility" } },
+            { "contains": { "const": "safety" } },
+            { "contains": { "const": "publication" } }
+          ]
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "nonempty": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "publicPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/|.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    },
+    "taxonomyId": {
+      "enum": [
+        "model",
+        "chatbot",
+        "assistant",
+        "copilot",
+        "deterministic-workflow",
+        "agent",
+        "agentic-system",
+        "multi-agent-system"
+      ]
+    },
+    "providerFamily": {
+      "enum": [
+        "anthropic",
+        "openai",
+        "microsoft",
+        "google",
+        "xai",
+        "moonshot-kimi",
+        "deepseek",
+        "open-weight"
+      ]
+    },
+    "learnStage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "moduleId",
+        "order",
+        "audienceFloor",
+        "title",
+        "outcome",
+        "requiredClassIds",
+        "activities",
+        "masteryEvidence"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "moduleId": { "$ref": "#/$defs/id" },
+        "order": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "audienceFloor": {
+          "enum": ["beginner", "practitioner", "advanced"]
+        },
+        "title": { "$ref": "#/$defs/nonempty" },
+        "outcome": { "$ref": "#/$defs/nonempty" },
+        "requiredClassIds": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/taxonomyId" }
+        },
+        "activities": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonempty" }
+        },
+        "masteryEvidence": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonempty" }
+        }
+      }
+    },
+    "fieldGuideAsset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "purpose",
+        "requiredData",
+        "learnStageIds"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": {
+          "enum": [
+            "decision-card",
+            "comparison-table",
+            "case-study",
+            "classification-checklist",
+            "glossary",
+            "troubleshooting-guide"
+          ]
+        },
+        "purpose": { "$ref": "#/$defs/nonempty" },
+        "requiredData": {
+          "type": "array",
+          "minItems": 3,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonempty" }
+        },
+        "learnStageIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    }
+  }
+}

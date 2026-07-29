@@ -24,6 +24,12 @@ export interface ClassScriptVisual {
   reducedMotionDescription: string;
 }
 
+export interface ClassScriptLearningHandoff {
+  command: "open-activity" | "open-knowledge-check";
+  activityId?: string;
+  questionIds?: string[];
+}
+
 export interface ClassScriptSegment {
   id: string;
   kind: ClassSegmentKind;
@@ -35,6 +41,7 @@ export interface ClassScriptSegment {
   sourceUrls: string[];
   visual?: ClassScriptVisual;
   expectedLearnerAction?: string;
+  learningHandoff?: ClassScriptLearningHandoff;
   feedback?: {
     correct: string;
     retry: string;
@@ -50,7 +57,9 @@ export interface ClassScriptContribution {
     | "accessibility-review";
   roleProfileRef: string;
   providerFamily: string;
-  completedAt: string;
+  status: "planned" | "completed";
+  completedAt?: string;
+  evidenceRef?: string;
 }
 
 export interface ClassScriptApproval {
@@ -85,6 +94,26 @@ export interface ClassScriptPackage {
     approvals: ClassScriptApproval[];
   };
   releaseStatus: "draft" | "approved";
+}
+
+export interface TrainingPackageCoverageEntry {
+  moduleId: string;
+  pathIds: string[];
+  status: "class-ready-draft" | "outline-only";
+  instructorSchemaVersion: string;
+  classScriptId?: string;
+  classScriptVersion?: string;
+  classScriptPath?: string;
+}
+
+export interface TrainingPackageCoverage {
+  schemaVersion: "1.0";
+  canonicalContentVersion: string;
+  substantiveModuleCount: number;
+  classReadyModuleCount: number;
+  outlineOnlyModuleCount: number;
+  coverageStatus: "migration-active" | "complete";
+  modules: TrainingPackageCoverageEntry[];
 }
 
 export interface VirtualInstructorArtifact {
@@ -152,6 +181,12 @@ export function validateClassScriptPackage(
   if (!semverPattern.test(script.version)) {
     errors.push("Class script version must be semantic version x.y.z");
   }
+  if (
+    !Number.isInteger(script.spokenWordCount) ||
+    script.spokenWordCount < 900
+  ) {
+    errors.push("Class-ready script needs at least 900 spoken words");
+  }
   if (!script.locale.trim() || !script.title.trim() || !script.audience.trim()) {
     errors.push("Class script locale, title, and audience are required");
   }
@@ -166,6 +201,9 @@ export function validateClassScriptPackage(
   const kinds = new Set<ClassSegmentKind>();
   const moduleSectionIds = new Set(module?.sections.map((section) => section.id) ?? []);
   const moduleSourceUrls = new Set(module?.sources.map((source) => source.url) ?? []);
+  const moduleQuestionIds = new Set(
+    module?.knowledgeCheck.questions.map((question) => question.id) ?? [],
+  );
   let calculatedWords = 0;
   let calculatedSeconds = 0;
 
@@ -232,6 +270,36 @@ export function validateClassScriptPackage(
       !segment.expectedLearnerAction?.trim()
     ) {
       errors.push(`Interactive segment ${segment.id} needs an expected learner action`);
+    }
+    if (segment.learningHandoff) {
+      if (
+        segment.learningHandoff.activityId &&
+        segment.learningHandoff.activityId !== module?.activity?.id
+      ) {
+        errors.push(
+          `Segment ${segment.id} references missing activity ${segment.learningHandoff.activityId}`,
+        );
+      }
+      for (const questionId of segment.learningHandoff.questionIds ?? []) {
+        if (!moduleQuestionIds.has(questionId)) {
+          errors.push(`Segment ${segment.id} references missing question ${questionId}`);
+        }
+      }
+    }
+    if (segment.kind === "assessment-handoff") {
+      const expectedQuestionIds = [...moduleQuestionIds].sort();
+      const referencedQuestionIds = [
+        ...(segment.learningHandoff?.questionIds ?? []),
+      ].sort();
+      if (
+        segment.learningHandoff?.command !== "open-knowledge-check" ||
+        JSON.stringify(referencedQuestionIds) !==
+          JSON.stringify(expectedQuestionIds)
+      ) {
+        errors.push(
+          `Assessment handoff ${segment.id} must map every module question to open-knowledge-check`,
+        );
+      }
     }
     if (
       segment.kind === "feedback" &&
@@ -409,6 +477,16 @@ function validateContributionIndependence(
   ] as const) {
     if (!roles.has(requiredRole)) {
       errors.push(`Class script provenance needs ${requiredRole}`);
+    }
+  }
+  for (const contribution of script.provenance.contributions) {
+    if (contribution.status === "completed" && !contribution.completedAt?.trim()) {
+      errors.push(
+        `Completed ${contribution.role} contribution needs a completion time`,
+      );
+    }
+    if (script.releaseStatus === "approved" && contribution.status !== "completed") {
+      errors.push(`Approved class script needs completed ${contribution.role}`);
     }
   }
   const writer = roles.get("curriculum-writing");

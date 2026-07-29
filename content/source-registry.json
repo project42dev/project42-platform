@@ -82,6 +82,14 @@
       "owner": "provider-openai"
     },
     {
+      "id": "openai-business-guides",
+      "urlPrefix": "https://openai.com/business/guides-and-resources/",
+      "publisher": "OpenAI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "provider-openai"
+    },
+    {
       "id": "google-responsible-ai",
       "urlPrefix": "https://ai.google.dev/responsible",
       "publisher": "Google",
@@ -95,6 +103,14 @@
       "publisher": "Google",
       "trustTier": "primary",
       "reviewCadenceDays": 30,
+      "owner": "provider-google"
+    },
+    {
+      "id": "google-machine-learning-docs",
+      "urlPrefix": "https://developers.google.com/machine-learning/",
+      "publisher": "Google",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
       "owner": "provider-google"
     },
     {
@@ -130,6 +146,14 @@
       "owner": "provider-google"
     },
     {
+      "id": "google-adk-current-docs",
+      "urlPrefix": "https://adk.dev/",
+      "publisher": "Google",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-google"
+    },
+    {
       "id": "opentelemetry-docs",
       "urlPrefix": "https://opentelemetry.io/",
       "publisher": "OpenTelemetry",
@@ -140,6 +164,14 @@
     {
       "id": "nist-incident-response",
       "urlPrefix": "https://www.nist.gov/publications/incident-response-recommendations-and-considerations-cybersecurity-risk-management-csf",
+      "publisher": "NIST",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "nist-cybersecurity-framework",
+      "urlPrefix": "https://www.nist.gov/cyberframework",
       "publisher": "NIST",
       "trustTier": "primary",
       "reviewCadenceDays": 180,
@@ -320,6 +352,134 @@
       "trustTier": "primary",
       "reviewCadenceDays": 45,
       "owner": "curriculum"
+    },
+    {
+      "id": "osi-open-source-ai",
+      "urlPrefix": "https://opensource.org/ai/",
+      "publisher": "Open Source Initiative",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "spdx-specification",
+      "urlPrefix": "https://spdx.github.io/spdx-spec/",
+      "publisher": "SPDX",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "slsa-specification",
+      "urlPrefix": "https://slsa.dev/spec/",
+      "publisher": "SLSA",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "pytorch-documentation",
+      "urlPrefix": "https://docs.pytorch.org/docs/",
+      "publisher": "PyTorch",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "curriculum"
+    },
+    {
+      "id": "docker-documentation",
+      "urlPrefix": "https://docs.docker.com/",
+      "publisher": "Docker",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "curriculum"
+    },
+    {
+      "id": "kubernetes-documentation",
+      "urlPrefix": "https://kubernetes.io/docs/",
+      "publisher": "Kubernetes",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "curriculum"
+    },
+    {
+      "id": "vllm-documentation",
+      "urlPrefix": "https://docs.vllm.ai/",
+      "publisher": "vLLM",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "kserve-documentation",
+      "urlPrefix": "https://kserve.github.io/website/docs/",
+      "publisher": "KServe",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "curriculum"
+    },
+    {
+      "id": "onnx-runtime-documentation",
+      "urlPrefix": "https://onnxruntime.ai/docs/",
+      "publisher": "ONNX Runtime",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "curriculum"
+    },
+    {
+      "id": "mlcommons-benchmarks",
+      "urlPrefix": "https://mlcommons.org/benchmarks/",
+      "publisher": "MLCommons",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "owasp-api-security",
+      "urlPrefix": "https://owasp.org/API-Security/",
+      "publisher": "OWASP",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "prometheus-documentation",
+      "urlPrefix": "https://prometheus.io/docs/",
+      "publisher": "Prometheus",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "openai-product",
+      "urlPrefix": "https://openai.com/",
+      "publisher": "OpenAI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-openai"
+    },
+    {
+      "id": "xai-docs",
+      "urlPrefix": "https://docs.x.ai/",
+      "publisher": "xAI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-xai"
+    },
+    {
+      "id": "kimi-platform-docs",
+      "urlPrefix": "https://platform.kimi.ai/docs/",
+      "publisher": "Moonshot AI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-kimi"
+    },
+    {
+      "id": "deepseek-api-docs",
+      "urlPrefix": "https://api-docs.deepseek.com/",
+      "publisher": "DeepSeek",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-deepseek"
     }
   ]
 }

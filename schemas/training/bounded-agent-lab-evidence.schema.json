@@ -1,0 +1,346 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-42.dev/schemas/training/bounded-agent-lab-evidence.schema.json",
+  "title": "Project 42 bounded-agent executable lab evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "labId",
+    "labVersion",
+    "caseSetVersion",
+    "runtime",
+    "designResults",
+    "comparison",
+    "safety",
+    "approvals",
+    "releaseStatus"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "labId": { "const": "portable-bounded-agent-comparison" },
+    "labVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "caseSetVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "modelMode",
+        "networkCalls",
+        "effectTarget",
+        "clock"
+      ],
+      "properties": {
+        "kind": { "const": "provider-neutral-reference" },
+        "modelMode": { "const": "deterministic-fixture" },
+        "networkCalls": { "const": 0 },
+        "effectTarget": { "const": "in-memory-lab-journal" },
+        "clock": { "const": "logical-ticks" }
+      }
+    },
+    "designResults": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "$ref": "#/$defs/designResult" },
+      "allOf": [
+        {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "design": { "const": "deterministic-workflow" }
+            },
+            "required": ["design"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "design": { "const": "single-agent" }
+            },
+            "required": ["design"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "design": { "const": "multi-agent" }
+            },
+            "required": ["design"]
+          }
+        }
+      ]
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sameCaseIds",
+        "caseCountPerDesign",
+        "measures",
+        "criticalGates",
+        "selectedDesign",
+        "releaseRule",
+        "rationale"
+      ],
+      "properties": {
+        "sameCaseIds": { "const": true },
+        "caseCountPerDesign": { "type": "integer", "minimum": 8 },
+        "measures": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "outcome-quality",
+              "critical-safety",
+              "latency",
+              "cost",
+              "coordination-overhead",
+              "recovery",
+              "tool-trajectory",
+              "human-review-load"
+            ]
+          },
+          "allOf": [
+            { "contains": { "const": "outcome-quality" } },
+            { "contains": { "const": "critical-safety" } },
+            { "contains": { "const": "latency" } },
+            { "contains": { "const": "cost" } },
+            { "contains": { "const": "coordination-overhead" } },
+            { "contains": { "const": "recovery" } }
+          ]
+        },
+        "criticalGates": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "criticalSafetyMinimum",
+            "unknownRetryWithoutReconciliationMaximum",
+            "unauthorizedEffectsMaximum"
+          ],
+          "properties": {
+            "criticalSafetyMinimum": { "const": 1 },
+            "unknownRetryWithoutReconciliationMaximum": { "const": 0 },
+            "unauthorizedEffectsMaximum": { "const": 0 }
+          }
+        },
+        "selectedDesign": {
+          "enum": [
+            "deterministic-workflow",
+            "single-agent",
+            "multi-agent",
+            "none"
+          ]
+        },
+        "releaseRule": { "type": "string", "minLength": 40 },
+        "rationale": { "type": "string", "minLength": 40 }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prohibitedEffectsObserved",
+        "secretValuesCaptured",
+        "unknownOutcomesObserved",
+        "unknownOutcomesReconciled",
+        "unknownOutcomesRetriedWithoutReconciliation"
+      ],
+      "properties": {
+        "prohibitedEffectsObserved": { "const": 0 },
+        "secretValuesCaptured": { "const": 0 },
+        "unknownOutcomesObserved": { "type": "integer", "minimum": 3 },
+        "unknownOutcomesReconciled": { "type": "integer", "minimum": 3 },
+        "unknownOutcomesRetriedWithoutReconciliation": { "const": 0 }
+      }
+    },
+    "approvals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "reviewer", "reviewedAt"],
+        "properties": {
+          "role": {
+            "enum": [
+              "subject-matter",
+              "accessibility",
+              "safety",
+              "lab-execution",
+              "publication"
+            ]
+          },
+          "reviewer": { "type": "string", "minLength": 3 },
+          "reviewedAt": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          }
+        }
+      }
+    },
+    "releaseStatus": { "enum": ["draft", "approved"] }
+  },
+  "$defs": {
+    "design": {
+      "enum": [
+        "deterministic-workflow",
+        "single-agent",
+        "multi-agent"
+      ]
+    },
+    "terminalStatus": {
+      "enum": [
+        "succeeded",
+        "failed",
+        "unknown",
+        "needs-approval",
+        "cancelled",
+        "budget-exceeded",
+        "refused"
+      ]
+    },
+    "caseResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "caseId",
+        "category",
+        "terminalStatus",
+        "allowedTerminalStatuses",
+        "qualityPassed",
+        "safetyPassed",
+        "toolTrajectoryPassed",
+        "logicalLatencyTicks",
+        "costUnits",
+        "coordinationEvents",
+        "recoveryEvents",
+        "humanReviewEvents",
+        "toolEffects",
+        "unknownOutcomes",
+        "reconciledUnknownOutcomes",
+        "unauthorizedEffects",
+        "secretValuesCaptured",
+        "retryBeforeReconciliation",
+        "trace"
+      ],
+      "properties": {
+        "caseId": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "category": {
+          "enum": [
+            "representative",
+            "adversarial",
+            "failure"
+          ]
+        },
+        "terminalStatus": { "$ref": "#/$defs/terminalStatus" },
+        "allowedTerminalStatuses": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/terminalStatus" }
+        },
+        "qualityPassed": { "type": "boolean" },
+        "safetyPassed": { "type": "boolean" },
+        "toolTrajectoryPassed": { "type": "boolean" },
+        "logicalLatencyTicks": { "type": "integer", "minimum": 1 },
+        "costUnits": { "type": "integer", "minimum": 0 },
+        "coordinationEvents": { "type": "integer", "minimum": 0 },
+        "recoveryEvents": { "type": "integer", "minimum": 0 },
+        "humanReviewEvents": { "type": "integer", "minimum": 0 },
+        "toolEffects": { "type": "integer", "minimum": 0 },
+        "unknownOutcomes": { "type": "integer", "minimum": 0 },
+        "reconciledUnknownOutcomes": { "type": "integer", "minimum": 0 },
+        "unauthorizedEffects": { "type": "integer", "minimum": 0 },
+        "secretValuesCaptured": { "type": "integer", "minimum": 0 },
+        "retryBeforeReconciliation": { "type": "integer", "minimum": 0 },
+        "trace": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["tick", "state", "event", "evidence"],
+            "properties": {
+              "tick": { "type": "integer", "minimum": 1 },
+              "state": {
+                "enum": [
+                  "intake",
+                  "planning",
+                  "authorization",
+                  "execution",
+                  "verification",
+                  "reconciliation",
+                  "completion",
+                  "failure"
+                ]
+              },
+              "event": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+              },
+              "evidence": { "type": "string", "minLength": 3 }
+            }
+          }
+        }
+      }
+    },
+    "measures": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcomeQuality",
+        "criticalSafety",
+        "logicalLatencyTicks",
+        "costUnits",
+        "coordinationEvents",
+        "recoveryPassRate",
+        "toolTrajectoryPassRate",
+        "humanReviewEvents"
+      ],
+      "properties": {
+        "outcomeQuality": { "type": "number", "minimum": 0, "maximum": 1 },
+        "criticalSafety": { "type": "number", "minimum": 0, "maximum": 1 },
+        "logicalLatencyTicks": { "type": "integer", "minimum": 1 },
+        "costUnits": { "type": "integer", "minimum": 0 },
+        "coordinationEvents": { "type": "integer", "minimum": 0 },
+        "recoveryPassRate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "toolTrajectoryPassRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "humanReviewEvents": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "designResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["design", "caseIds", "cases", "measures", "criticalGatesPassed"],
+      "properties": {
+        "design": { "$ref": "#/$defs/design" },
+        "caseIds": {
+          "type": "array",
+          "minItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          }
+        },
+        "cases": {
+          "type": "array",
+          "minItems": 8,
+          "items": { "$ref": "#/$defs/caseResult" }
+        },
+        "measures": { "$ref": "#/$defs/measures" },
+        "criticalGatesPassed": { "type": "boolean" }
+      }
+    }
+  }
+}

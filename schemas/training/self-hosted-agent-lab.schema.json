@@ -1,0 +1,433 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-42.dev/schemas/training/self-hosted-agent-lab.schema.json",
+  "title": "Project 42 portable self-hosted agent runtime lab package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "version",
+    "title",
+    "learningPathId",
+    "implementation",
+    "environment",
+    "inputs",
+    "outputs",
+    "endpoint",
+    "identityAndAccess",
+    "tools",
+    "state",
+    "telemetry",
+    "evaluation",
+    "recovery",
+    "portability",
+    "evidence",
+    "safety",
+    "approvals",
+    "releaseStatus"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "title": { "type": "string", "minLength": 8 },
+    "learningPathId": { "const": "self-hosted-model-operations" },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "adapter", "specificStepsSeparated"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "portable",
+            "homestead-foundry-reference",
+            "alternative-reference"
+          ]
+        },
+        "adapter": { "type": "string", "minLength": 3 },
+        "specificStepsSeparated": { "const": true }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shape", "configurationPath", "runtimeManifestPath"],
+      "properties": {
+        "shape": {
+          "enum": [
+            "workstation",
+            "container-on-premises",
+            "edge",
+            "cloud-managed-compute"
+          ]
+        },
+        "configurationPath": { "$ref": "#/$defs/safePath" },
+        "runtimeManifestPath": { "$ref": "#/$defs/safePath" }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["caseSetPath", "schemaPath", "prohibitedData"],
+      "properties": {
+        "caseSetPath": { "$ref": "#/$defs/safePath" },
+        "schemaPath": { "$ref": "#/$defs/safePath" },
+        "prohibitedData": { "$ref": "#/$defs/nonEmptyStrings" }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaPath", "terminalStatuses", "evidencePath"],
+      "properties": {
+        "schemaPath": { "$ref": "#/$defs/safePath" },
+        "terminalStatuses": {
+          "type": "array",
+          "minItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["succeeded", "failed", "unknown"]
+          },
+          "allOf": [
+            { "contains": { "const": "succeeded" } },
+            { "contains": { "const": "failed" } },
+            { "contains": { "const": "unknown" } }
+          ]
+        },
+        "evidencePath": { "$ref": "#/$defs/safePath" }
+      }
+    },
+    "endpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol",
+        "baseUrlTemplate",
+        "invokePath",
+        "statusPath",
+        "runtimeIdentityPath"
+      ],
+      "properties": {
+        "protocol": { "enum": ["http", "https", "grpc"] },
+        "baseUrlTemplate": {
+          "type": "string",
+          "pattern": "^(https?://(localhost|127\\.0\\.0\\.1)|\\{\\{[A-Z0-9_]+\\}\\})"
+        },
+        "invokePath": { "type": "string", "pattern": "^/" },
+        "statusPath": { "type": "string", "pattern": "^/" },
+        "runtimeIdentityPath": { "type": "string", "pattern": "^/" }
+      }
+    },
+    "identityAndAccess": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "callerPrincipal",
+        "operatorPrincipal",
+        "workloadPrincipal",
+        "authorizationPolicyPath",
+        "secretSource",
+        "networkExposure",
+        "auditEvidencePath"
+      ],
+      "properties": {
+        "callerPrincipal": { "type": "string", "minLength": 3 },
+        "operatorPrincipal": { "type": "string", "minLength": 3 },
+        "workloadPrincipal": { "type": "string", "minLength": 3 },
+        "authorizationPolicyPath": { "$ref": "#/$defs/safePath" },
+        "secretSource": { "type": "string", "minLength": 3 },
+        "networkExposure": {
+          "enum": ["loopback", "private-network", "controlled-public"]
+        },
+        "auditEvidencePath": { "$ref": "#/$defs/safePath" }
+      }
+    },
+    "tools": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifestPath",
+        "authorizationPolicyPath",
+        "sideEffectJournalPath",
+        "resultStates",
+        "limits"
+      ],
+      "properties": {
+        "manifestPath": { "$ref": "#/$defs/safePath" },
+        "authorizationPolicyPath": { "$ref": "#/$defs/safePath" },
+        "sideEffectJournalPath": { "$ref": "#/$defs/safePath" },
+        "resultStates": {
+          "type": "array",
+          "minItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["success", "failure", "unknown"]
+          },
+          "allOf": [
+            { "contains": { "const": "success" } },
+            { "contains": { "const": "failure" } },
+            { "contains": { "const": "unknown" } }
+          ]
+        },
+        "limits": { "$ref": "#/$defs/nonEmptyStrings" }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaPath",
+        "storagePolicyPath",
+        "checkpointPath",
+        "idempotencyPolicyPath",
+        "reconciliationPolicyPath",
+        "memoryPolicyPath"
+      ],
+      "properties": {
+        "schemaPath": { "$ref": "#/$defs/safePath" },
+        "storagePolicyPath": { "$ref": "#/$defs/safePath" },
+        "checkpointPath": { "$ref": "#/$defs/safePath" },
+        "idempotencyPolicyPath": { "$ref": "#/$defs/safePath" },
+        "reconciliationPolicyPath": { "$ref": "#/$defs/safePath" },
+        "memoryPolicyPath": { "$ref": "#/$defs/safePath" }
+      }
+    },
+    "telemetry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "logsEvidencePath",
+        "metricsEvidencePath",
+        "tracesEvidencePath",
+        "outcomeEvidencePath",
+        "alertEvidencePath",
+        "dataHandlingPath"
+      ],
+      "properties": {
+        "logsEvidencePath": { "$ref": "#/$defs/safePath" },
+        "metricsEvidencePath": { "$ref": "#/$defs/safePath" },
+        "tracesEvidencePath": { "$ref": "#/$defs/safePath" },
+        "outcomeEvidencePath": { "$ref": "#/$defs/safePath" },
+        "alertEvidencePath": { "$ref": "#/$defs/safePath" },
+        "dataHandlingPath": { "$ref": "#/$defs/safePath" }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "caseSetPath",
+        "configurationPath",
+        "metrics",
+        "passCriteria",
+        "resultsPath"
+      ],
+      "properties": {
+        "caseSetPath": { "$ref": "#/$defs/safePath" },
+        "configurationPath": { "$ref": "#/$defs/safePath" },
+        "metrics": {
+          "type": "array",
+          "minItems": 3,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 2 }
+        },
+        "passCriteria": {
+          "type": "array",
+          "minItems": 3,
+          "items": { "type": "string", "minLength": 8 }
+        },
+        "resultsPath": { "$ref": "#/$defs/safePath" }
+      }
+    },
+    "recovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "incidentScenario",
+        "runbookPath",
+        "recoveryObjective",
+        "recoveryEvidencePath",
+        "postIncidentPath"
+      ],
+      "properties": {
+        "incidentScenario": { "type": "string", "minLength": 12 },
+        "runbookPath": { "$ref": "#/$defs/safePath" },
+        "recoveryObjective": { "type": "string", "minLength": 8 },
+        "recoveryEvidencePath": { "$ref": "#/$defs/safePath" },
+        "postIncidentPath": { "$ref": "#/$defs/safePath" }
+      }
+    },
+    "portability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "portableConcepts",
+        "adapterSpecificStepsPath",
+        "alternatives"
+      ],
+      "properties": {
+        "portableConcepts": {
+          "type": "array",
+          "minItems": 8,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 3 }
+        },
+        "adapterSpecificStepsPath": { "$ref": "#/$defs/safePath" },
+        "alternatives": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["adapter", "mappingPath"],
+            "properties": {
+              "adapter": { "type": "string", "minLength": 3 },
+              "mappingPath": { "$ref": "#/$defs/safePath" }
+            }
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "path", "digest"],
+        "properties": {
+          "kind": {
+            "enum": [
+              "input-output",
+              "identity",
+              "tools",
+              "state",
+              "telemetry",
+              "evaluation",
+              "recovery",
+              "comparison"
+            ]
+          },
+          "path": { "$ref": "#/$defs/safePath" },
+          "digest": { "$ref": "#/$defs/sha256" }
+        }
+      },
+      "allOf": [
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "const": "input-output" } },
+            "required": ["kind"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "const": "identity" } },
+            "required": ["kind"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "const": "tools" } },
+            "required": ["kind"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "const": "state" } },
+            "required": ["kind"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "const": "telemetry" } },
+            "required": ["kind"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "const": "evaluation" } },
+            "required": ["kind"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "const": "recovery" } },
+            "required": ["kind"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "kind": { "const": "comparison" } },
+            "required": ["kind"]
+          }
+        }
+      ]
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prohibitedData",
+        "prohibitedEffects",
+        "stopConditions",
+        "humanApprovalBoundaries"
+      ],
+      "properties": {
+        "prohibitedData": { "$ref": "#/$defs/nonEmptyStrings" },
+        "prohibitedEffects": { "$ref": "#/$defs/nonEmptyStrings" },
+        "stopConditions": { "$ref": "#/$defs/nonEmptyStrings" },
+        "humanApprovalBoundaries": { "$ref": "#/$defs/nonEmptyStrings" }
+      }
+    },
+    "approvals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "reviewer", "reviewedAt"],
+        "properties": {
+          "role": {
+            "enum": [
+              "editorial",
+              "subject-matter",
+              "accessibility",
+              "safety",
+              "lab-execution"
+            ]
+          },
+          "reviewer": { "type": "string", "minLength": 3 },
+          "reviewedAt": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          }
+        }
+      }
+    },
+    "releaseStatus": { "enum": ["draft", "approved"] }
+  },
+  "$defs": {
+    "safePath": {
+      "type": "string",
+      "minLength": 3,
+      "pattern": "^(?!/)(?!.*\\.\\.)(?!.*\\\\)[a-zA-Z0-9._/-]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "nonEmptyStrings": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 8 }
+    }
+  }
+}

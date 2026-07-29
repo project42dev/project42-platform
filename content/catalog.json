@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "0.36.0",
+  "contentVersion": "0.42.0",
   "title": "Project 42 Learning Catalog",
   "description": "Provider-neutral AI learning paths, provider practice, and evidence-based field guidance.",
   "providers": [
@@ -164,209 +164,54 @@
         "name": "Reliable Agent Operator",
         "description": "Completed a safe, evidence-driven agent workflow from task definition through review."
       }
+    },
+    {
+      "id": "agentic-ai-literacy",
+      "title": "What Is Agentic AI?",
+      "summary": "Classify models, assistants, workflows, agents, agentic systems, and multi-agent systems from observable evidence instead of product labels.",
+      "audience": "Learners from beginner through advanced who need a precise, provider-neutral way to explain and evaluate agentic AI.",
+      "level": "beginner",
+      "moduleIds": [
+        "agentic-ai-layers",
+        "agentic-control-flow",
+        "agentic-tools-state-authority",
+        "agentic-product-comparison",
+        "agentic-classification-capstone"
+      ],
+      "badge": {
+        "id": "badge-agentic-ai-literacy",
+        "name": "Agentic AI Classifier",
+        "description": "Demonstrated evidence-based classification of models, workflows, agents, and agentic systems."
+      }
+    },
+    {
+      "id": "self-hosted-model-operations",
+      "title": "Self-Hosted Model Operations",
+      "summary": "Select, verify, deploy, evaluate, observe, update, roll back, and recover a self-hosted model endpoint.",
+      "audience": "Practitioners and operators responsible for open-weight or otherwise self-managed model services across workstations, edge, on-premises, and cloud environments.",
+      "level": "advanced",
+      "moduleIds": [
+        "deployment-shape-and-operating-model",
+        "model-identity-license-and-provenance",
+        "model-artifact-integrity",
+        "hardware-runtime-and-capacity-planning",
+        "serving-api-and-compatibility-contracts",
+        "endpoint-identity-network-and-secrets",
+        "evaluate-the-exact-serving-build",
+        "observability-cost-and-performance",
+        "scaling-failure-and-capacity-controls",
+        "model-update-and-rollback-lifecycle",
+        "model-incident-response-and-recovery",
+        "self-hosted-model-operations-capstone"
+      ],
+      "badge": {
+        "id": "badge-self-hosted-model-operator",
+        "name": "Self-Hosted Model Operator",
+        "description": "Demonstrated evidence-based operation of a self-hosted model endpoint from artifact decision through recovery."
+      }
     }
   ],
   "modules": [
-    {
-      "id": "what-ai-does",
-      "title": "What AI Does—and Does Not Do",
-      "summary": "Understand models as pattern-driven systems, not databases or people.",
-      "level": "beginner",
-      "providers": ["provider-neutral"],
-      "estimatedMinutes": 12,
-      "objectives": [
-        "Explain the difference between a model and a search database.",
-        "Recognize why confident output can still be wrong.",
-        "Choose when verification is required."
-      ],
-      "prerequisites": [],
-      "sections": [
-        {
-          "id": "models-predict",
-          "title": "Models produce likely continuations",
-          "paragraphs": [
-            "A language model learns patterns from large collections of examples. Given instructions and context, it generates a useful continuation one piece at a time.",
-            "That makes models excellent at explaining, transforming, drafting, classifying, and reasoning over supplied material. It does not make every output a stored fact."
-          ],
-          "callout": "Treat fluent language as a delivery style, not proof of correctness."
-        },
-        {
-          "id": "verify-by-risk",
-          "title": "Verification should match the stakes",
-          "paragraphs": [
-            "Brainstorming can tolerate uncertainty. Medical, legal, financial, security, and production decisions require current authoritative evidence.",
-            "Good AI use combines a clear task, relevant context, constraints, and a way to verify the result."
-          ]
-        }
-      ],
-      "knowledgeCheck": {
-        "passPercent": 80,
-        "questions": [
-          {
-            "id": "q-ai-foundation-1",
-            "prompt": "Which statement best describes a language model?",
-            "choices": [
-              "A guaranteed database of current facts",
-              "A system that generates outputs from learned patterns and supplied context",
-              "A human expert stored inside software"
-            ],
-            "answerIndex": 1,
-            "explanation": "Models generate from patterns and context; fluent output is not a guarantee of factual accuracy."
-          },
-          {
-            "id": "q-ai-foundation-2",
-            "prompt": "When should verification be strongest?",
-            "choices": [
-              "When the decision has high consequences",
-              "Only when the answer is short",
-              "Only when a model admits uncertainty"
-            ],
-            "answerIndex": 0,
-            "explanation": "Verification effort should increase with consequence, volatility, and uncertainty."
-          }
-        ]
-      },
-      "sources": [
-        {
-          "title": "Artificial Intelligence Risk Management Framework",
-          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
-          "publisher": "NIST",
-          "lastVerified": "2026-07-23"
-        }
-      ]
-    },
-    {
-      "id": "prompt-with-purpose",
-      "title": "Prompt with Purpose",
-      "summary": "Turn a vague request into a task an AI system can execute and you can evaluate.",
-      "level": "beginner",
-      "providers": ["provider-neutral"],
-      "estimatedMinutes": 15,
-      "objectives": [
-        "Write prompts with a goal, context, constraints, and output contract.",
-        "Separate trusted instructions from untrusted input.",
-        "Define a useful stopping condition."
-      ],
-      "prerequisites": ["privacy-safety-and-responsibility"],
-      "sections": [
-        {
-          "id": "prompt-contract",
-          "title": "A prompt is a working contract",
-          "paragraphs": [
-            "Strong prompts say what outcome is needed, why it matters, what information is trustworthy, what boundaries apply, and what a successful response looks like.",
-            "The model should not have to guess the audience, format, source of truth, or definition of done."
-          ],
-          "code": {
-            "language": "text",
-            "label": "Reusable prompt shape",
-            "code": "Goal: [OUTCOME]\nContext: [TRUSTED FACTS]\nConstraints: [BOUNDARIES]\nDeliverable: [FORMAT]\nVerify: [CHECKS]"
-          }
-        },
-        {
-          "id": "iterate",
-          "title": "Inspect, correct, and reuse",
-          "paragraphs": [
-            "Prompting is iterative. Inspect the result, identify the missing constraint or context, and improve the reusable instruction instead of repeatedly requesting a vague improvement."
-          ]
-        }
-      ],
-      "knowledgeCheck": {
-        "passPercent": 80,
-        "questions": [
-          {
-            "id": "q-prompt-1",
-            "prompt": "Which addition most improves an ambiguous request?",
-            "choices": ["More adjectives", "A concrete outcome and acceptance criteria", "A request to be creative"],
-            "answerIndex": 1,
-            "explanation": "A testable outcome and acceptance criteria reduce guesswork and make evaluation possible."
-          },
-          {
-            "id": "q-prompt-2",
-            "prompt": "Why separate trusted context from untrusted content?",
-            "choices": [
-              "To make the prompt longer",
-              "To reduce instruction confusion and prompt-injection risk",
-              "To force a specific provider"
-            ],
-            "answerIndex": 1,
-            "explanation": "Clear trust boundaries help the system treat data as data rather than new instructions."
-          }
-        ]
-      },
-      "sources": [
-        {
-          "title": "Prompt engineering guide",
-          "url": "https://platform.openai.com/docs/guides/prompt-engineering",
-          "publisher": "OpenAI",
-          "lastVerified": "2026-07-23"
-        },
-        {
-          "title": "Prompt engineering overview",
-          "url": "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview",
-          "publisher": "Anthropic",
-          "lastVerified": "2026-07-23"
-        }
-      ]
-    },
-    {
-      "id": "agents-and-guardrails",
-      "title": "Agents, Tools, and Guardrails",
-      "summary": "Understand what changes when a model can take actions.",
-      "level": "beginner",
-      "providers": ["provider-neutral"],
-      "estimatedMinutes": 18,
-      "objectives": [
-        "Distinguish a chat response from an agentic loop.",
-        "Identify tool, permission, and verification boundaries.",
-        "Recognize when human approval is required."
-      ],
-      "prerequisites": ["safe-tool-use-workflow"],
-      "sections": [
-        {
-          "id": "agent-loop",
-          "title": "An agent observes, decides, acts, and checks",
-          "paragraphs": [
-            "An agent combines a model with tools and a loop. It can inspect state, choose an action, use a tool, evaluate the result, and continue toward a goal.",
-            "Capability increases risk. Read access, file edits, messages, deployments, and destructive operations should have different permission and approval policies."
-          ]
-        },
-        {
-          "id": "guardrails",
-          "title": "Guardrails belong around the model",
-          "paragraphs": [
-            "Reliable agent systems constrain tools, scope credentials, validate inputs and outputs, record actions, and stop for human decisions when consequences are difficult to reverse."
-          ],
-          "callout": "The model can recommend a safeguard; the surrounding system must enforce it."
-        }
-      ],
-      "knowledgeCheck": {
-        "passPercent": 80,
-        "questions": [
-          {
-            "id": "q-agent-1",
-            "prompt": "What makes an AI workflow agentic?",
-            "choices": ["It uses a large model", "It can choose and execute actions in a loop", "It returns formatted text"],
-            "answerIndex": 1,
-            "explanation": "Agentic systems combine model decisions, tools, state, and repeated action toward a goal."
-          },
-          {
-            "id": "q-agent-2",
-            "prompt": "Where should irreversible-action approval be enforced?",
-            "choices": ["Only in the prompt", "In the surrounding tool and permission system", "In the model name"],
-            "answerIndex": 1,
-            "explanation": "Prompts guide behavior, but external controls enforce permissions and approval."
-          }
-        ]
-      },
-      "sources": [
-        {
-          "title": "Building effective agents",
-          "url": "https://www.anthropic.com/research/building-effective-agents",
-          "publisher": "Anthropic",
-          "lastVerified": "2026-07-23"
-        }
-      ]
-    },
     {
       "id": "anthropic-in-practice",
       "title": "Anthropic in Practice",

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "1.0",
+  "labVersion": "1.0.0",
+  "caseSetVersion": "1.0.0",
+  "modelMode": "deterministic-fixture",
+  "networkCalls": 0,
+  "caseIds": [
+    "routine-semantic-classification",
+    "routine-read-and-write",
+    "prompt-injected-observation",
+    "unauthorized-resource",
+    "duplicate-side-effect",
+    "timeout-after-possible-write",
+    "poisoned-tool-output",
+    "budget-exhaustion",
+    "stale-state-version",
+    "lost-multi-agent-handoff"
+  ],
+  "designMeasures": [
+    {
+      "design": "deterministic-workflow",
+      "outcomeQuality": 0.9,
+      "criticalSafety": 1,
+      "logicalLatencyTicks": 58,
+      "costUnits": 0,
+      "coordinationEvents": 0,
+      "recoveryPassRate": 1,
+      "toolTrajectoryPassRate": 1,
+      "humanReviewEvents": 1,
+      "criticalGatesPassed": true
+    },
+    {
+      "design": "single-agent",
+      "outcomeQuality": 1,
+      "criticalSafety": 1,
+      "logicalLatencyTicks": 60,
+      "costUnits": 23,
+      "coordinationEvents": 0,
+      "recoveryPassRate": 1,
+      "toolTrajectoryPassRate": 1,
+      "humanReviewEvents": 0,
+      "criticalGatesPassed": true
+    },
+    {
+      "design": "multi-agent",
+      "outcomeQuality": 1,
+      "criticalSafety": 1,
+      "logicalLatencyTicks": 82,
+      "costUnits": 33,
+      "coordinationEvents": 22,
+      "recoveryPassRate": 1,
+      "toolTrajectoryPassRate": 1,
+      "humanReviewEvents": 0,
+      "criticalGatesPassed": true
+    }
+  ],
+  "selectedDesign": "single-agent",
+  "safety": {
+    "prohibitedEffectsObserved": 0,
+    "secretValuesCaptured": 0,
+    "unknownOutcomesObserved": 3,
+    "unknownOutcomesReconciled": 3,
+    "unknownOutcomesRetriedWithoutReconciliation": 0
+  },
+  "evidenceStatus": "deterministic-reference-run"
+}

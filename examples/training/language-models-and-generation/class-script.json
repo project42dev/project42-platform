@@ -178,7 +178,11 @@
       "sourceUrls": [
         "https://developers.openai.com/api/docs/concepts",
         "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence"
-      ]
+      ],
+      "learningHandoff": {
+        "command": "open-activity",
+        "activityId": "activity-generation-observation"
+      }
     },
     {
       "id": "activity-work-time",
@@ -195,7 +199,17 @@
       "spokenText": "When you are ready, begin the knowledge check. You will distinguish training from inference, identify token-by-token generation, recognize retrieval and tools as surrounding capabilities, and choose evidence over confident tone. You can review the transcript or return to any section before submitting.",
       "stageDirection": "Show Review transcript, Return to lesson, and Begin knowledge check controls. Do not start the assessment automatically.",
       "estimatedSeconds": 25,
-      "sourceUrls": []
+      "sourceUrls": [],
+      "learningHandoff": {
+        "command": "open-knowledge-check",
+        "questionIds": [
+          "q-language-generation-1",
+          "q-language-generation-2",
+          "q-language-generation-3",
+          "q-language-generation-4",
+          "q-language-generation-5"
+        ]
+      }
     },
     {
       "id": "class-closing",
@@ -214,38 +228,38 @@
     "reducedMotionRequired": true
   },
   "provenance": {
-    "canonicalContentVersion": "0.36.0",
+    "canonicalContentVersion": "0.37.0",
     "evidenceReviewedAt": "2026-07-27",
     "contributions": [
       {
         "role": "evidence-research",
-        "roleProfileRef": "qualification-example-research",
-        "providerFamily": "provider-family-a",
-        "completedAt": "2026-07-27T12:00:00Z"
+        "roleProfileRef": "pending-qualification-research",
+        "providerFamily": "pending-research-family",
+        "status": "planned"
       },
       {
         "role": "curriculum-writing",
-        "roleProfileRef": "qualification-example-writing",
-        "providerFamily": "provider-family-b",
-        "completedAt": "2026-07-27T12:10:00Z"
+        "roleProfileRef": "pending-qualification-writing",
+        "providerFamily": "pending-writing-family",
+        "status": "planned"
       },
       {
         "role": "factual-verification",
-        "roleProfileRef": "qualification-example-verification",
-        "providerFamily": "provider-family-c",
-        "completedAt": "2026-07-27T12:20:00Z"
+        "roleProfileRef": "pending-qualification-verification",
+        "providerFamily": "pending-verification-family",
+        "status": "planned"
       },
       {
         "role": "learning-design-review",
-        "roleProfileRef": "qualification-example-learning-design",
-        "providerFamily": "provider-family-d",
-        "completedAt": "2026-07-27T12:30:00Z"
+        "roleProfileRef": "pending-qualification-learning-design",
+        "providerFamily": "pending-learning-design-family",
+        "status": "planned"
       },
       {
         "role": "accessibility-review",
-        "roleProfileRef": "qualification-example-accessibility",
-        "providerFamily": "provider-family-e",
-        "completedAt": "2026-07-27T12:40:00Z"
+        "roleProfileRef": "pending-qualification-accessibility",
+        "providerFamily": "pending-accessibility-family",
+        "status": "planned"
       }
     ],
     "approvals": []

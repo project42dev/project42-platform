@@ -43,7 +43,7 @@ test("starter catalog is valid", () => {
   assert.equal(learningCatalog.paths.length, starterCatalog.paths.length);
   assert.equal(learningCatalog.modules.length, starterCatalog.modules.length);
   assert.equal(fieldGuideCatalog.resources.length, starterCatalog.resources.length);
-  assert.equal(starterCatalog.contentVersion, "0.36.0");
+  assert.equal(starterCatalog.contentVersion, "0.42.0");
   assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
@@ -862,6 +862,79 @@ test("evaluation safety and operations pack has exact ten-resource acceptance co
       assert.ok(artifact.includes(field), `${resource.id} ${field}`);
     }
   }
+});
+
+test("self-hosted model operations pack has exact deployment and recovery coverage", () => {
+  const ids = new Set([
+    "self-hosted-deployment-shape-decision",
+    "workstation-model-service-runbook",
+    "container-on-prem-model-service-runbook",
+    "edge-model-service-runbook",
+    "cloud-managed-model-compute-runbook",
+    "self-hosted-model-security-boundary",
+    "self-hosted-model-evaluation-capacity-observability",
+    "self-hosted-model-update-rollback-incident",
+  ]);
+  const resources = starterCatalog.resources.filter((resource) =>
+    ids.has(resource.id),
+  );
+
+  assert.equal(resources.length, 8);
+  assert.deepEqual(new Set(resources.map((resource) => resource.id)), ids);
+  assert.ok(new Set(resources.map((resource) => resource.format)).size >= 5);
+
+  for (const resource of resources) {
+    assert.equal(resource.category, "Self-hosted model operations");
+    assert.deepEqual(resource.providers, ["provider-neutral"]);
+    assert.ok(resource.sources.length >= 3, `${resource.id} sources`);
+    assert.ok(hasVerificationGuidance(resource), `${resource.id} verification`);
+    assert.ok(hasRecoveryGuidance(resource), `${resource.id} recovery`);
+    assert.deepEqual(findUnsafeArtifactCommands(resource), []);
+    const artifact = resource.sections
+      .map((section) => section.code?.code ?? "")
+      .join("\n");
+    for (const field of [
+      "Task:",
+      "Scope:",
+      "Permissions:",
+      "Exact build:",
+      "Verification:",
+      "Stop conditions:",
+      "Recovery:",
+    ]) {
+      assert.ok(artifact.includes(field), `${resource.id} ${field}`);
+    }
+  }
+
+  const serialized = new Map(
+    resources.map((resource) => [resource.id, JSON.stringify(resource)]),
+  );
+  assert.match(
+    serialized.get("self-hosted-deployment-shape-decision"),
+    /WORKSTATION.*CONTAINER\/ON-PREMISES.*EDGE.*CLOUD-MANAGED/,
+  );
+  assert.match(serialized.get("workstation-model-service-runbook"), /thermal/i);
+  assert.match(
+    serialized.get("container-on-prem-model-service-runbook"),
+    /management path/i,
+  );
+  assert.match(serialized.get("edge-model-service-runbook"), /safe mode/i);
+  assert.match(
+    serialized.get("cloud-managed-model-compute-runbook"),
+    /provider exit/i,
+  );
+  assert.match(
+    serialized.get("self-hosted-model-security-boundary"),
+    /Prompt text.*never proof of authority/i,
+  );
+  assert.match(
+    serialized.get("self-hosted-model-evaluation-capacity-observability"),
+    /separately configured model-assisted reviewer/i,
+  );
+  assert.match(
+    serialized.get("self-hosted-model-update-rollback-incident"),
+    /unknown.*reconcil/i,
+  );
 });
 
 test("resource-pack artifact-field rules reject malformed and incomplete contracts", () => {
@@ -1957,13 +2030,19 @@ test("rejects incomplete or unsourced provider comparison cells", () => {
 
 test("catalog validation catches broken references and unsafe source metadata", () => {
   const broken = structuredClone(starterCatalog);
+  const whatAiDoes = broken.modules.find((module) => module.id === "what-ai-does");
+  const promptWithPurpose = broken.modules.find(
+    (module) => module.id === "prompt-with-purpose",
+  );
+  assert.ok(whatAiDoes);
+  assert.ok(promptWithPurpose);
   broken.paths[0].moduleIds.push("missing-module");
-  broken.modules[0].providers = [];
-  broken.modules[0].sources[0].url = "http://example.com/source";
-  broken.modules[0].sections.push(structuredClone(broken.modules[0].sections[0]));
-  broken.modules[0].prerequisites = ["prompt-with-purpose"];
+  whatAiDoes.providers = [];
+  whatAiDoes.sources[0].url = "http://example.com/source";
+  whatAiDoes.sections.push(structuredClone(whatAiDoes.sections[0]));
+  whatAiDoes.prerequisites = ["prompt-with-purpose"];
   broken.resources[0].lastVerified = "next Thursday";
-  broken.modules[1].prerequisites = ["what-ai-does"];
+  promptWithPurpose.prerequisites = ["what-ai-does"];
 
   const validation = validateCatalog(broken);
   assert.equal(validation.valid, false);
@@ -1985,12 +2064,12 @@ test("catalog validation catches broken references and unsafe source metadata", 
   );
   assert.ok(
     validation.errors.includes(
-      "Module what-ai-does has duplicate section id models-predict",
+      "Module what-ai-does has duplicate section id ai-mental-model",
     ),
   );
   assert.ok(
     validation.errors.includes(
-      "Prerequisite cycle includes module what-ai-does",
+      "Prerequisite cycle includes module prompt-with-purpose",
     ),
   );
 });

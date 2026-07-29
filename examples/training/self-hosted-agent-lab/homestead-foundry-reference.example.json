@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "1.0",
+  "id": "portable-agent-runtime-reference-lab",
+  "version": "0.1.0",
+  "title": "Portable self-hosted agent runtime reference lab",
+  "learningPathId": "self-hosted-model-operations",
+  "implementation": {
+    "kind": "homestead-foundry-reference",
+    "adapter": "homestead-foundry-published-interface",
+    "specificStepsSeparated": true
+  },
+  "environment": {
+    "shape": "container-on-premises",
+    "configurationPath": "lab/portable/environment.example.yaml",
+    "runtimeManifestPath": "lab/evidence/runtime-manifest.json"
+  },
+  "inputs": {
+    "caseSetPath": "lab/portable/input-cases.jsonl",
+    "schemaPath": "lab/portable/input.schema.json",
+    "prohibitedData": [
+      "No personal, regulated, confidential, secret, or production learner data.",
+      "No private environment identifiers, credentials, or resource inventory."
+    ]
+  },
+  "outputs": {
+    "schemaPath": "lab/portable/output.schema.json",
+    "terminalStatuses": ["succeeded", "failed", "unknown"],
+    "evidencePath": "lab/evidence/terminal-outcomes.jsonl"
+  },
+  "endpoint": {
+    "protocol": "http",
+    "baseUrlTemplate": "http://localhost:8090",
+    "invokePath": "/v1/agent-runs",
+    "statusPath": "/v1/agent-runs/{{RUN_ID}}",
+    "runtimeIdentityPath": "/v1/runtime"
+  },
+  "identityAndAccess": {
+    "callerPrincipal": "local-lab-caller",
+    "operatorPrincipal": "local-lab-operator",
+    "workloadPrincipal": "reference-agent-workload",
+    "authorizationPolicyPath": "lab/portable/authorization-policy.md",
+    "secretSource": "local-environment-placeholder",
+    "networkExposure": "loopback",
+    "auditEvidencePath": "lab/evidence/access-audit.jsonl"
+  },
+  "tools": {
+    "manifestPath": "lab/portable/tool-manifest.json",
+    "authorizationPolicyPath": "lab/portable/tool-authorization.md",
+    "sideEffectJournalPath": "lab/evidence/side-effect-journal.jsonl",
+    "resultStates": ["success", "failure", "unknown"],
+    "limits": [
+      "Every tool call has a bounded deadline and a declared retry policy.",
+      "Unknown outcomes are reconciled against the target before any retry.",
+      "Consequential or irreversible actions require explicit human approval."
+    ]
+  },
+  "state": {
+    "schemaPath": "lab/portable/state.schema.json",
+    "storagePolicyPath": "lab/portable/state-storage-policy.md",
+    "checkpointPath": "lab/evidence/checkpoint.json",
+    "idempotencyPolicyPath": "lab/portable/idempotency-policy.md",
+    "reconciliationPolicyPath": "lab/portable/reconciliation-policy.md",
+    "memoryPolicyPath": "lab/portable/memory-policy.md"
+  },
+  "telemetry": {
+    "logsEvidencePath": "lab/evidence/log-sample.jsonl",
+    "metricsEvidencePath": "lab/evidence/metrics.json",
+    "tracesEvidencePath": "lab/evidence/traces.json",
+    "outcomeEvidencePath": "lab/evidence/outcomes.json",
+    "alertEvidencePath": "lab/evidence/alert.json",
+    "dataHandlingPath": "lab/portable/telemetry-data-handling.md"
+  },
+  "evaluation": {
+    "caseSetPath": "lab/portable/evaluation-cases.jsonl",
+    "configurationPath": "lab/portable/evaluation-config.json",
+    "metrics": [
+      "task-terminal-state-rate",
+      "unauthorized-tool-effect-rate",
+      "unknown-outcome-reconciliation-rate",
+      "recovery-objective-pass-rate"
+    ],
+    "passCriteria": [
+      "Every required routine case reaches a schema-valid terminal state.",
+      "No unauthorized or prohibited tool effect occurs in any case.",
+      "Every unknown tool outcome is reconciled before a retry is attempted.",
+      "The failed-path exercise restores the declared recovery postconditions."
+    ],
+    "resultsPath": "lab/evidence/evaluation-results.json"
+  },
+  "recovery": {
+    "incidentScenario": "A tool times out after a possible side effect and the runtime restarts before recording a terminal outcome.",
+    "runbookPath": "lab/portable/agent-recovery-runbook.md",
+    "recoveryObjective": "Reconcile the side effect and resume or close from a verified checkpoint without duplication.",
+    "recoveryEvidencePath": "lab/evidence/recovery-result.json",
+    "postIncidentPath": "lab/evidence/post-incident-review.md"
+  },
+  "portability": {
+    "portableConcepts": [
+      "input-contract",
+      "output-contract",
+      "runtime-identity",
+      "scoped-authority",
+      "bounded-tools",
+      "durable-state",
+      "memory-policy",
+      "privacy-aware-telemetry",
+      "representative-evaluation",
+      "incident-recovery"
+    ],
+    "adapterSpecificStepsPath": "lab/adapters/homestead-foundry-agent-runtime.md",
+    "alternatives": [
+      {
+        "adapter": "alternative-agent-runtime",
+        "mappingPath": "lab/adapters/alternative-agent-runtime.md"
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "kind": "input-output",
+      "path": "lab/evidence/terminal-outcomes.jsonl",
+      "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "kind": "identity",
+      "path": "lab/evidence/runtime-identity.json",
+      "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "kind": "tools",
+      "path": "lab/evidence/side-effect-journal.jsonl",
+      "digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    {
+      "kind": "state",
+      "path": "lab/evidence/checkpoint.json",
+      "digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    {
+      "kind": "telemetry",
+      "path": "lab/evidence/traces.json",
+      "digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    {
+      "kind": "evaluation",
+      "path": "lab/evidence/evaluation-results.json",
+      "digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+    },
+    {
+      "kind": "recovery",
+      "path": "lab/evidence/recovery-result.json",
+      "digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+    },
+    {
+      "kind": "comparison",
+      "path": "lab/evidence/design-comparison.json",
+      "digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888"
+    }
+  ],
+  "safety": {
+    "prohibitedData": [
+      "No personal, regulated, confidential, secret, or production learner data.",
+      "No private environment identifiers, credentials, or resource inventory."
+    ],
+    "prohibitedEffects": [
+      "No irreversible external action is available to the reference tool set.",
+      "No tool may exceed its declared scope, target, arguments, or deadline."
+    ],
+    "stopConditions": [
+      "Stop before execution when runtime identity, caller authority, tool target, or state ownership is unresolved.",
+      "Stop on an unauthorized effect, unreconciled unknown outcome, state corruption, telemetry disclosure, or failed recovery gate."
+    ],
+    "humanApprovalBoundaries": [
+      "A human reviewer approves the tool manifest, authority, state, memory, and data policies before execution.",
+      "A human reviewer approves live lab execution evidence and recovery results before publication."
+    ]
+  },
+  "approvals": [],
+  "releaseStatus": "draft"
+}

@@ -16,7 +16,9 @@ contracts—not the private PMO records or Project42dev production configuration
   scene, checkpoint, assessment, caption, transcript, and reduced-motion packages.
 - Provider-neutral class-script and immutable virtual-instructor media contracts
   with multi-model provenance, independent verification, accessibility, and human
-  release gates ([production guide](docs/virtual-instructor-production.md)).
+  release gates, plus a deterministic class-readiness registry that distinguishes
+  complete teaching packages from production outlines
+  ([production guide](docs/virtual-instructor-production.md)).
 - A primary-source registry and freshness gate for volatile
   content.
 - Provider-neutral curriculum with Anthropic, OpenAI, and selected-provider branches.
@@ -145,6 +147,15 @@ survives username changes, discloses accountable AI assistance, removes private
 identity from public exports, and gives Learn and Field Guide an equivalent
 accessible rendering contract. Consent revocation and account deletion preserve
 change integrity while suppressing public identity.
+
+Release `0.50.0` adds the first six class-ready AI Foundations teaching
+packages. Each provides substantial read-aloud instruction, complete section
+coverage, demonstrations, prompts, checkpoints, corrective feedback, exact
+activity and assessment handoffs, accessible visual direction, deterministic
+WebVTT captions, transcripts, text-only and reduced-motion alternatives, and
+integrity evidence. A generated coverage registry distinguishes complete
+classes from production outlines; publication remains gated on independent
+model-role work and accountable human approvals.
 
 Release `0.49.0` adds the first independently deployable self-host
 infrastructure profile: a non-root OCI account API, PostgreSQL adapter and
