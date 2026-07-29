@@ -71,7 +71,18 @@ test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", asyn
   };
   const tokenRequests = [];
   const browserAdapter = new BrowserOidcAdapter(env, async (url, init) => {
-    tokenRequests.push({ url, body: new URLSearchParams(init.body) });
+    const body = new URLSearchParams(init.body);
+    tokenRequests.push({ url, body });
+    if (body.get("code") === "provider-rejected-code") {
+      return Response.json(
+        {
+          error: "invalid_grant",
+          error_description:
+            "No account exists for sensitive-identity@example.test.",
+        },
+        { status: 400 },
+      );
+    }
     return Response.json({ id_token: "verified-id-token" });
   });
   let expectedNonce = "";
@@ -396,32 +407,94 @@ test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", asyn
     ),
   );
 
-  const cancelledStart = await api(
+  const rejectedStart = await api(
     new Request("https://api.example.test/v1/auth/start"),
   );
-  const cancelledAuthorization = new URL(
-    cancelledStart.headers.get("location"),
+  const rejectedAuthorization = new URL(
+    rejectedStart.headers.get("location"),
   );
-  const cancelledState = cancelledAuthorization.searchParams.get("state");
-  const cancelledTransactionCookie = cookiePair(
-    setCookies(cancelledStart),
+  const rejectedState = rejectedAuthorization.searchParams.get("state");
+  const rejectedTransactionCookie = cookiePair(
+    setCookies(rejectedStart),
     "__Host-project42_oidc",
   );
-  const cancelledCallback = await api(
+  const rejectedCallback = await api(
     new Request(
-      `https://api.example.test/v1/auth/callback?error=access_denied&state=${encodeURIComponent(cancelledState)}`,
-      { headers: { cookie: cancelledTransactionCookie } },
+      `https://api.example.test/v1/auth/callback?code=provider-rejected-code&state=${encodeURIComponent(rejectedState)}`,
+      { headers: { cookie: rejectedTransactionCookie } },
     ),
   );
-  assert.equal(cancelledCallback.status, 302);
-  assert.equal(
-    new URL(cancelledCallback.headers.get("location")).searchParams.get("auth"),
-    "error",
+  assert.equal(rejectedCallback.status, 400);
+  const rejectedBody = await rejectedCallback.json();
+  assert.deepEqual(
+    {
+      code: rejectedBody.error.code,
+      message: rejectedBody.error.message,
+    },
+    {
+      code: "authorization_code_rejected",
+      message: "Sign-in could not be completed. Start sign-in again.",
+    },
   );
+  assert.doesNotMatch(
+    JSON.stringify(rejectedBody),
+    /sensitive-identity|invalid_grant|no account exists/i,
+  );
+
+  const providerFailures = [
+    {
+      error: "access_denied",
+      description: "No account exists for first-sensitive@example.test.",
+    },
+    {
+      error: "login_required",
+      description: "Account second-sensitive@example.test was disabled.",
+    },
+  ];
+  const failedTransactions = [];
+  for (const failure of providerFailures) {
+    const failedStart = await api(
+      new Request("https://api.example.test/v1/auth/start"),
+    );
+    const failedAuthorization = new URL(failedStart.headers.get("location"));
+    const failedState = failedAuthorization.searchParams.get("state");
+    const failedTransactionCookie = cookiePair(
+      setCookies(failedStart),
+      "__Host-project42_oidc",
+    );
+    const failedCallbackTarget = new URL(
+      "https://api.example.test/v1/auth/callback",
+    );
+    failedCallbackTarget.searchParams.set("error", failure.error);
+    failedCallbackTarget.searchParams.set(
+      "error_description",
+      failure.description,
+    );
+    failedCallbackTarget.searchParams.set("state", failedState);
+    const failedCallback = await api(
+      new Request(failedCallbackTarget, {
+        headers: { cookie: failedTransactionCookie },
+      }),
+    );
+    assert.equal(failedCallback.status, 302);
+    assert.equal(
+      failedCallback.headers.get("location"),
+      "https://learn.example.test/account/?auth=error",
+    );
+    assert.doesNotMatch(
+      failedCallback.headers.get("location"),
+      /sensitive|access_denied|login_required/i,
+    );
+    failedTransactions.push({
+      state: failedState,
+      cookie: failedTransactionCookie,
+    });
+  }
+
   const cancelledReplay = await api(
     new Request(
-      `https://api.example.test/v1/auth/callback?code=retry-after-cancel&state=${encodeURIComponent(cancelledState)}`,
-      { headers: { cookie: cancelledTransactionCookie } },
+      `https://api.example.test/v1/auth/callback?code=retry-after-cancel&state=${encodeURIComponent(failedTransactions[0].state)}`,
+      { headers: { cookie: failedTransactions[0].cookie } },
     ),
   );
   assert.equal(cancelledReplay.status, 400);
@@ -429,5 +502,5 @@ test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", asyn
     (await cancelledReplay.json()).error.code,
     "invalid_authorization_transaction",
   );
-  assert.equal(tokenRequests.length, 1);
+  assert.equal(tokenRequests.length, 2);
 });

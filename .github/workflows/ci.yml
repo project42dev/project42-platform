@@ -72,6 +72,13 @@ jobs:
         env:
           PROJECT42_IDENTITY_ADMIN_PASSWORD: replace-with-a-different-long-random-password
         run: node scripts/smoke-keycloak-provisioning.mjs
+      - name: Verify Keycloak browser-session lifecycle
+        run: >-
+          docker compose
+          --env-file self-host/.env.example
+          -f self-host/compose.yaml
+          --profile test
+          run --rm --build browser-session-smoke
       - name: Capture diagnostics
         if: failure()
         run: docker compose --env-file self-host/.env.example -f self-host/compose.yaml logs --no-color
