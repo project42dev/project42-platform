@@ -68,7 +68,8 @@ test("OIDC token exchange uses a runtime-compatible bounded manual request", asy
     throw new TypeError("AbortSignal.timeout is unavailable");
   });
   let observed;
-  const adapter = new BrowserOidcAdapter(environment, async (url, init) => {
+  const adapter = new BrowserOidcAdapter(environment, async function (url, init) {
+    assert.equal(this, undefined);
     observed = { url, init };
     return Response.json({ id_token: "verified-id-token" });
   });
