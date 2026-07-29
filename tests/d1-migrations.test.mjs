@@ -64,6 +64,7 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
       "account_merge_aliases",
       "account_merge_receipts",
       "account_merge_recovery_receipts",
+      "account_merge_governance_constraints",
       "learning_progress",
       "learning_event_streams",
       "learning_events",
@@ -219,6 +220,36 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
       crossInstallationSession,
       /browser session user belongs to another installation/,
     );
+    const crossInstallationConstraint = runWrangler(
+      [
+        "d1",
+        "execute",
+        "PROJECT42_DB",
+        ...common,
+        "--command",
+        "INSERT INTO account_merge_governance_constraints (id,installation_id,user_id,constraint_kind,policy_key,policy_version,reference_digest,state,created_at,updated_at) VALUES ('constraint-cross','test','u2','retention-policy','retention','1','cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc','active','2026-07-28','2026-07-28');",
+      ],
+      1,
+    );
+    assert.match(
+      crossInstallationConstraint,
+      /account merge constraint user belongs to another installation/,
+    );
+    const crossInstallationConstraintAuthority = runWrangler(
+      [
+        "d1",
+        "execute",
+        "PROJECT42_DB",
+        ...common,
+        "--command",
+        "INSERT INTO account_merge_governance_constraints (id,installation_id,user_id,constraint_kind,policy_key,policy_version,reference_digest,state,created_by_user_id,created_at,updated_at) VALUES ('constraint-authority-cross','test','u1','retention-policy','retention','1','dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd','active','u2','2026-07-28','2026-07-28');",
+      ],
+      1,
+    );
+    assert.match(
+      crossInstallationConstraintAuthority,
+      /account merge constraint authority belongs to another installation/,
+    );
 
     const recovered = runWrangler([
       "d1",
@@ -230,6 +261,53 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
     ]);
     assert.match(recovered, /u1/);
     assert.match(recovered, /approved/);
+
+    runWrangler([
+      "d1",
+      "execute",
+      "PROJECT42_DB",
+      ...common,
+      "--command",
+      "INSERT INTO account_merge_governance_constraints (id,installation_id,user_id,constraint_kind,policy_key,policy_version,reference_digest,state,created_by_user_id,created_at,updated_at,released_by_user_id,released_at) VALUES ('constraint-1','test','u1','legal-hold','legal-preservation','1','aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','active','u1','2026-07-28','2026-07-28',NULL,NULL);",
+    ]);
+    const mutableConstraint = runWrangler(
+      [
+        "d1",
+        "execute",
+        "PROJECT42_DB",
+        ...common,
+        "--command",
+        "UPDATE account_merge_governance_constraints SET reference_digest='bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' WHERE id='constraint-1';",
+      ],
+      1,
+    );
+    assert.match(
+      mutableConstraint,
+      /account merge constraint evidence is immutable/,
+    );
+    runWrangler([
+      "d1",
+      "execute",
+      "PROJECT42_DB",
+      ...common,
+      "--command",
+      "UPDATE account_merge_governance_constraints SET state='released',released_by_user_id='u1',released_at='2026-07-28',updated_at='2026-07-28' WHERE id='constraint-1';",
+    ]);
+    const reactivatedConstraint = runWrangler(
+      [
+        "d1",
+        "execute",
+        "PROJECT42_DB",
+        ...common,
+        "--command",
+        "UPDATE account_merge_governance_constraints SET state='active',released_by_user_id=NULL,released_at=NULL WHERE id='constraint-1';",
+      ],
+      1,
+    );
+    assert.match(
+      reactivatedConstraint,
+      /account merge constraint release is terminal/,
+    );
 
     runWrangler([
       "d1",

@@ -60,6 +60,9 @@ test("local evaluation profile permits only its explicit HTTP service hosts", ()
   assert.equal(configuration.publicUrl.href, "http://localhost:8787/");
   assert.equal(configuration.oidcJwksUrl.startsWith("http://identity:"), true);
   assert.deepEqual(configuration.browserSession, { mode: "disabled" });
+  assert.deepEqual(configuration.accountMergeRequiredConsents, [
+    { purpose: "learning-record", policyVersion: "2026-07-27" },
+  ]);
 
   assert.throws(
     () =>
@@ -413,6 +416,7 @@ test(
         "006_learning_record_receipts.sql",
         "007_secure_browser_sessions.sql",
         "008_authoritative_progress_imports.sql",
+        "009_account_merge_governance_constraints.sql",
       ]);
       assert.deepEqual(
         await applyPostgresMigrations(pool, "self-host/postgres"),

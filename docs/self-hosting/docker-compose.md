@@ -188,6 +188,13 @@ backup and restore, monitoring, and an approved first-owner process. The API
 rejects insecure HTTP URLs in `NODE_ENV=production`; setting the evaluation
 flag cannot override that rule.
 
+Set `PROJECT42_ACCOUNT_MERGE_REQUIRED_CONSENTS` to the JSON consent requirements
+approved for the installation. The supplied evaluation value requires the
+default `learning-record` policy version. Retention and legal-hold constraint
+creation or release must remain in a separately authorized compliance workflow;
+the account service enforces those constraints but does not assign that
+authority to its normal administrator role.
+
 ## Verify a release
 
 Download the release archive, compatibility manifest, and their

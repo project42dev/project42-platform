@@ -52,3 +52,10 @@ requirements. They must not:
 
 Run `validateLearnerDataPolicy(customPolicy)` during startup and deployment. Treat a
 failed result as a release-blocking configuration error.
+
+The account service separately reads `ACCOUNT_MERGE_REQUIRED_CONSENTS` during
+startup. This JSON array must contain at least one `purpose` and
+`policyVersion` pair. Keep it aligned with the deployment's validated learner
+data policy. Duplicate-account completion fails closed unless both accounts'
+latest decision for every configured purpose is a grant for the exact configured
+version.

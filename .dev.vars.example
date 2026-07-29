@@ -16,6 +16,8 @@ SESSION_ENCRYPTION_KEY=
 INSTALLATION_ID=local
 ALLOWED_ORIGINS=http://localhost:3000
 LEARNING_RECORD_ADAPTER=cloudflare-d1
+# JSON array of explicit consents required on both accounts before merge.
+ACCOUNT_MERGE_REQUIRED_CONSENTS=[{"purpose":"learning-record","policyVersion":"2026-07-27"}]
 BOOTSTRAP_OWNER_ISSUER=
 BOOTSTRAP_OWNER_SUBJECT=
 # Optional GitHub App or OAuth App user-authorization linkage.

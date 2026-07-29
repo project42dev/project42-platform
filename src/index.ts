@@ -158,6 +158,10 @@ export {
   validateLearnerDataPolicy,
 } from "./learner-data-policy.js";
 export {
+  DEFAULT_ACCOUNT_MERGE_CONSENT_REQUIREMENTS,
+  readAccountMergeConsentRequirements,
+} from "./account-merge-policy.js";
+export {
   ACCOUNT_STATES,
   canTransitionAccount,
   exactDomainMatches,
@@ -288,6 +292,9 @@ export type {
   RetentionClass,
 } from "./learner-data-policy.js";
 export type {
+  AccountMergeConsentRequirement,
+} from "./account-merge-policy.js";
+export type {
   AccountState,
   IdentityVerifier,
   VerifiedIdentity,
@@ -295,6 +302,8 @@ export type {
 export type {
   Account,
   AccountMergeConflict,
+  AccountMergePolicyBlock,
+  AccountMergePolicyBlockKind,
   AccountMergePreview,
   AccountMergePreviewRequest,
   AccountMergeProof,
