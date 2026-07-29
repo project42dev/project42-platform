@@ -3,6 +3,8 @@ const decoder = new TextDecoder();
 
 export const OIDC_TRANSACTION_COOKIE = "__Host-project42_oidc" as const;
 export const BROWSER_SESSION_COOKIE = "__Host-project42_session" as const;
+export const REGISTRATION_RECEIPT_COOKIE =
+  "__Host-project42_registration" as const;
 
 export interface BrowserOidcConfiguration {
   authorizationEndpoint: string;

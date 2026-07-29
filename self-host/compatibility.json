@@ -13,7 +13,7 @@
   "database": {
     "adapter": "postgresql",
     "supportedMajors": [17],
-    "migrationHead": "010_profile_consent_and_deletion_receipts.sql",
+    "migrationHead": "011_registration_boundary.sql",
     "learningRecords": {
       "selectionVariable": "LEARNING_RECORD_ADAPTER",
       "contractVersion": "1.1",

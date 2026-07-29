@@ -50,6 +50,7 @@ import type {
   ProgressEnvelope,
   ProgressImportRequest,
   Project42Role,
+  RegistrationStatus,
   RollbackAccountMergeRequest,
   UpdateLearnerProfileRequest,
 } from "./api-contract.js";
@@ -89,6 +90,7 @@ import {
   randomBase64Url,
   readBrowserOidcConfiguration,
   readCookie,
+  REGISTRATION_RECEIPT_COOKIE,
   sealOidcTransaction,
   type BrowserOidcTransaction,
 } from "./browser-session.js";
@@ -149,6 +151,7 @@ interface BrowserSessionRow {
   authenticated_at: number;
   expires_at: string;
   absolute_expires_at: string;
+  account_state: AccountState;
 }
 
 interface ResolvedBrowserSession {
@@ -156,6 +159,15 @@ interface ResolvedBrowserSession {
   identity: VerifiedIdentity;
   expiresAt: string;
   absoluteExpiresAt: string;
+}
+
+interface RegistrationRequestRow {
+  id: string;
+  user_id: string;
+  requested_at: string;
+  expires_at: string;
+  account_state: AccountState;
+  updated_at: string;
 }
 
 interface TransactionalPostconditionDatabase {
@@ -817,6 +829,13 @@ class D1Project42Repository {
     now: string;
     priorSession?: ResolvedBrowserSession | null;
   }): Promise<{ id: string; expiresAt: string; absoluteExpiresAt: string }> {
+    if (input.account.state !== "approved") {
+      throw new ApiFailure(
+        403,
+        `account_${input.account.state}`,
+        "Only an approved account can receive a learner browser session.",
+      );
+    }
     const id = crypto.randomUUID();
     const expiresAt = addSeconds(input.now, 8 * 60 * 60);
     const absoluteExpiresAt = addSeconds(input.now, 24 * 60 * 60);
@@ -838,12 +857,14 @@ class D1Project42Repository {
              id, installation_id, user_id, token_digest, identity_issuer,
              identity_subject, authenticated_at, created_at, last_seen_at,
              expires_at, absolute_expires_at, revoked_at, replaced_by_session_id
-           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL)`,
+           )
+           SELECT ?, ?, id, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL
+             FROM users
+            WHERE id = ? AND installation_id = ? AND account_state = 'approved'`,
         )
         .bind(
           id,
           this.installationId,
-          input.account.id,
           input.tokenDigest,
           input.identity.issuer,
           input.identity.subject,
@@ -852,23 +873,37 @@ class D1Project42Repository {
           input.now,
           expiresAt,
           absoluteExpiresAt,
+          input.account.id,
+          this.installationId,
         ),
-      this.auditStatement({
-        id: crypto.randomUUID(),
-        actor: input.identity,
-        actorUserId: input.account.id,
-        action: "session.create",
-        targetType: "browser-session",
-        targetId: id,
-        requestId: input.requestId,
-        outcome: "success",
-        reason: "OIDC authorization code and nonce validation completed.",
-        metadata: {
-          expiresAt,
-          absoluteExpiresAt,
-        },
-        now: input.now,
-      }),
+      this.db
+        .prepare(
+          `INSERT INTO audit_events (
+             id, installation_id, actor_user_id, actor_issuer, actor_subject,
+             action, target_type, target_id, request_id, outcome, reason,
+             metadata_json, occurred_at
+           )
+           SELECT ?, ?, ?, ?, ?, 'session.create', 'browser-session', ?, ?,
+                  'success', ?, ?, ?
+            WHERE EXISTS (
+              SELECT 1 FROM browser_sessions
+               WHERE id = ? AND installation_id = ?
+            )`,
+        )
+        .bind(
+          crypto.randomUUID(),
+          this.installationId,
+          input.account.id,
+          input.identity.issuer,
+          input.identity.subject,
+          id,
+          input.requestId,
+          "OIDC authorization code and nonce validation completed.",
+          JSON.stringify({ expiresAt, absoluteExpiresAt }),
+          input.now,
+          id,
+          this.installationId,
+        ),
     ];
     if (input.priorSession) {
       statements.splice(
@@ -878,36 +913,91 @@ class D1Project42Repository {
           .prepare(
             `UPDATE browser_sessions
                 SET revoked_at = ?, replaced_by_session_id = ?
-              WHERE id = ? AND installation_id = ? AND revoked_at IS NULL`,
+              WHERE id = ? AND installation_id = ? AND revoked_at IS NULL
+                AND EXISTS (
+                  SELECT 1 FROM browser_sessions
+                   WHERE id = ? AND installation_id = ?
+                )`,
           )
           .bind(
             input.now,
             id,
             input.priorSession.id,
             this.installationId,
+            id,
+            this.installationId,
           ),
       );
     }
-    await this.db.batch(statements);
+    const results = await this.db.batch(statements);
+    const auditIndex = input.priorSession ? 2 : 1;
+    if (
+      (results[0]?.meta.changes ?? 0) !== 1 ||
+      (results[auditIndex]?.meta.changes ?? 0) !== 1
+    ) {
+      throw new ApiFailure(
+        409,
+        "account_state_conflict",
+        "The account approval state changed. Sign in again.",
+      );
+    }
     return { id, expiresAt, absoluteExpiresAt };
   }
 
   async resolveBrowserSession(
     tokenDigest: string,
     now: string,
+    requestId: string,
   ): Promise<ResolvedBrowserSession | null> {
     const row = await this.db
       .prepare(
-        `SELECT id, user_id, identity_issuer, identity_subject,
-                authenticated_at, expires_at, absolute_expires_at
-           FROM browser_sessions
-          WHERE installation_id = ? AND token_digest = ?
-            AND revoked_at IS NULL AND expires_at > ? AND absolute_expires_at > ?
+        `SELECT s.id, s.user_id, s.identity_issuer, s.identity_subject,
+                s.authenticated_at, s.expires_at, s.absolute_expires_at,
+                u.account_state
+           FROM browser_sessions s
+           JOIN users u
+             ON u.id = s.user_id AND u.installation_id = s.installation_id
+          WHERE s.installation_id = ? AND s.token_digest = ?
+            AND s.revoked_at IS NULL AND s.expires_at > ?
+            AND s.absolute_expires_at > ?
           LIMIT 1`,
       )
       .bind(this.installationId, tokenDigest, now, now)
       .first<BrowserSessionRow>();
     if (!row) return null;
+    if (row.account_state !== "approved") {
+      await this.db.batch([
+        this.db
+          .prepare(
+            `UPDATE browser_sessions
+                SET revoked_at = ?
+              WHERE id = ? AND installation_id = ? AND revoked_at IS NULL`,
+          )
+          .bind(now, row.id, this.installationId),
+        this.db
+          .prepare(
+            `INSERT INTO audit_events (
+               id, installation_id, actor_user_id, actor_issuer, actor_subject,
+               action, target_type, target_id, request_id, outcome, reason,
+               metadata_json, occurred_at
+             ) VALUES (?, ?, ?, ?, ?, 'session.revoke.account-state',
+                       'browser-session', ?, ?, 'success', ?, ?, ?)`,
+          )
+          .bind(
+            crypto.randomUUID(),
+            this.installationId,
+            row.user_id,
+            row.identity_issuer,
+            row.identity_subject,
+            row.id,
+            requestId,
+            "The browser session account is no longer approved.",
+            JSON.stringify({ state: row.account_state }),
+            now,
+          ),
+      ]);
+      return null;
+    }
     await this.db
       .prepare(
         `UPDATE browser_sessions
@@ -933,6 +1023,144 @@ class D1Project42Repository {
     };
   }
 
+  async createRegistrationRequest(input: {
+    account: Account;
+    identity: VerifiedIdentity;
+    receiptTokenDigest: string;
+    requestId: string;
+    now: string;
+  }): Promise<{ expiresAt: string }> {
+    if (input.account.state !== "pending" && input.account.state !== "rejected") {
+      throw new ApiFailure(
+        409,
+        "registration_request_unavailable",
+        "A registration receipt is available only for an account awaiting or denied review.",
+      );
+    }
+    const id = crypto.randomUUID();
+    const expiresAt = addSeconds(input.now, 30 * 24 * 60 * 60);
+    const statements = [
+      this.db
+        .prepare(
+          `DELETE FROM registration_requests
+            WHERE installation_id = ? AND expires_at <= ?`,
+        )
+        .bind(this.installationId, input.now),
+      this.db
+        .prepare(
+          `INSERT INTO registration_requests (
+             id, installation_id, user_id, receipt_token_digest, requested_at,
+             last_seen_at, expires_at, revoked_at, replaced_by_request_id
+           )
+           SELECT ?, ?, id, ?, ?, ?, ?, NULL, NULL
+             FROM users
+            WHERE id = ? AND installation_id = ?
+              AND account_state IN ('pending', 'rejected')`,
+        )
+        .bind(
+          id,
+          this.installationId,
+          input.receiptTokenDigest,
+          input.now,
+          input.now,
+          expiresAt,
+          input.account.id,
+          this.installationId,
+        ),
+      this.db
+        .prepare(
+          `INSERT INTO audit_events (
+             id, installation_id, actor_user_id, actor_issuer, actor_subject,
+             action, target_type, target_id, request_id, outcome, reason,
+             metadata_json, occurred_at
+           )
+           SELECT ?, ?, ?, ?, ?, 'registration.request', 'registration-request',
+                  ?, ?, 'success', ?, ?, ?
+            WHERE EXISTS (
+              SELECT 1 FROM registration_requests
+               WHERE id = ? AND installation_id = ?
+            )`,
+        )
+        .bind(
+          crypto.randomUUID(),
+          this.installationId,
+          input.account.id,
+          input.identity.issuer,
+          input.identity.subject,
+          id,
+          input.requestId,
+          "The verified identity requires account approval.",
+          JSON.stringify({ state: input.account.state, expiresAt }),
+          input.now,
+          id,
+          this.installationId,
+        ),
+    ];
+    const results = await this.db.batch(statements);
+    if (
+      (results[1]?.meta.changes ?? 0) !== 1 ||
+      (results[2]?.meta.changes ?? 0) !== 1
+    ) {
+      throw new ApiFailure(
+        409,
+        "account_state_conflict",
+        "The account approval state changed. Sign in again.",
+      );
+    }
+    return { expiresAt };
+  }
+
+  async getRegistrationStatus(input: {
+    receiptTokenDigest: string;
+    now: string;
+  }): Promise<RegistrationStatus> {
+    const row = await this.db
+      .prepare(
+        `SELECT r.id, r.user_id, r.requested_at, r.expires_at,
+                u.account_state, u.updated_at
+           FROM registration_requests r
+           JOIN users u
+             ON u.id = r.user_id AND u.installation_id = r.installation_id
+          WHERE r.installation_id = ? AND r.receipt_token_digest = ?
+            AND r.revoked_at IS NULL AND r.expires_at > ?
+          LIMIT 1`,
+      )
+      .bind(this.installationId, input.receiptTokenDigest, input.now)
+      .first<RegistrationRequestRow>();
+    if (!row) {
+      throw new ApiFailure(
+        401,
+        "registration_receipt_invalid",
+        "The registration status receipt is invalid or expired.",
+      );
+    }
+    await this.db
+      .prepare(
+        `UPDATE registration_requests
+            SET last_seen_at = ?
+          WHERE id = ? AND installation_id = ? AND last_seen_at < ?`,
+      )
+      .bind(
+        input.now,
+        row.id,
+        this.installationId,
+        subtractSeconds(input.now, 5 * 60),
+      )
+      .run();
+    return {
+      state: row.account_state,
+      requestedAt: row.requested_at,
+      updatedAt: row.updated_at,
+      canSignIn: row.account_state === "approved",
+      nextAction:
+        row.account_state === "pending"
+          ? "await-review"
+          : row.account_state === "approved"
+            ? "sign-in"
+            : "contact-owner",
+    };
+  }
+
   async rotateBrowserSession(input: {
     session: ResolvedBrowserSession;
     account: Account;
@@ -940,6 +1168,13 @@ class D1Project42Repository {
     requestId: string;
     now: string;
   }): Promise<{ id: string; expiresAt: string; absoluteExpiresAt: string }> {
+    if (input.account.state !== "approved") {
+      throw new ApiFailure(
+        403,
+        `account_${input.account.state}`,
+        "Only an approved account can renew a learner browser session.",
+      );
+    }
     if (Date.parse(input.session.absoluteExpiresAt) <= Date.parse(input.now)) {
       throw new ApiFailure(
         401,
@@ -961,11 +1196,17 @@ class D1Project42Repository {
            identity_subject, authenticated_at, created_at, last_seen_at,
            expires_at, absolute_expires_at, revoked_at, replaced_by_session_id
          )
-         SELECT ?, installation_id, user_id, ?, identity_issuer,
-                identity_subject, authenticated_at, ?, ?, ?, absolute_expires_at,
+         SELECT ?, s.installation_id, s.user_id, ?, s.identity_issuer,
+                s.identity_subject, s.authenticated_at, ?, ?, ?, s.absolute_expires_at,
                 NULL, NULL
-           FROM browser_sessions
-          WHERE id = ? AND installation_id = ? AND revoked_at IS NULL`,
+           FROM browser_sessions s
+          WHERE s.id = ? AND s.installation_id = ? AND s.revoked_at IS NULL
+            AND EXISTS (
+              SELECT 1 FROM users u
+               WHERE u.id = s.user_id
+                 AND u.installation_id = s.installation_id
+                 AND u.account_state = 'approved'
+            )`,
       )
       .bind(
         id,
@@ -3117,10 +3358,11 @@ class D1Project42Repository {
   }): Promise<Account> {
     const current = await this.db
       .prepare(
-        `SELECT account_state FROM users WHERE installation_id = ? AND id = ?`,
+        `SELECT account_state, state_revision
+           FROM users WHERE installation_id = ? AND id = ?`,
       )
       .bind(this.installationId, input.targetId)
-      .first<{ account_state: AccountState }>();
+      .first<{ account_state: AccountState; state_revision: number }>();
     if (!current) throw new ApiFailure(404, "account_not_found", "Account was not found.");
     if (!canTransitionAccount(current.account_state, input.to)) {
       throw new ApiFailure(
@@ -3129,22 +3371,36 @@ class D1Project42Repository {
         `Cannot transition ${current.account_state} to ${input.to}.`,
       );
     }
-    await this.db.batch([
+    const transitionId = crypto.randomUUID();
+    const decisionId = crypto.randomUUID();
+    const statements = [
       this.db
         .prepare(
-          `UPDATE users SET account_state = ?, updated_at = ?
-            WHERE installation_id = ? AND id = ?`,
+          `UPDATE users
+              SET account_state = ?, updated_at = ?,
+                  state_revision = state_revision + 1,
+                  state_transition_id = ?
+            WHERE installation_id = ? AND id = ?
+              AND account_state = ? AND state_revision = ?`,
         )
-        .bind(input.to, input.now, this.installationId, input.targetId),
+        .bind(
+          input.to,
+          input.now,
+          transitionId,
+          this.installationId,
+          input.targetId,
+          current.account_state,
+          current.state_revision,
+        ),
       this.db
         .prepare(
           `INSERT INTO approval_decisions (
              id, installation_id, user_id, from_state, to_state, decision_kind,
-             reason, actor_user_id, domain_rule_id, decided_at
-           ) VALUES (?, ?, ?, ?, ?, 'owner-decision', ?, ?, NULL, ?)`,
+             reason, actor_user_id, domain_rule_id, decided_at, transition_id
+           ) VALUES (?, ?, ?, ?, ?, 'owner-decision', ?, ?, NULL, ?, ?)`,
         )
         .bind(
-          crypto.randomUUID(),
+          decisionId,
           this.installationId,
           input.targetId,
           current.account_state,
@@ -3152,6 +3408,7 @@ class D1Project42Repository {
           input.reason,
           input.actor.id,
           input.now,
+          transitionId,
         ),
       this.auditStatement({
         id: crypto.randomUUID(),
@@ -3166,7 +3423,7 @@ class D1Project42Repository {
         metadata: { from: current.account_state, to: input.to },
         now: input.now,
       }),
-      ...(input.to === "suspended" || input.to === "revoked"
+      ...(input.to !== "approved"
         ? [
             this.db
               .prepare(
@@ -3178,7 +3435,47 @@ class D1Project42Repository {
               .bind(input.now, this.installationId, input.targetId),
           ]
         : []),
-    ]);
+    ];
+    const validateTransition = (results: D1Result<unknown>[]) => {
+      if (
+        (results[0]?.meta.changes ?? 0) !== 1 ||
+        (results[1]?.meta.changes ?? 0) !== 1 ||
+        (results[2]?.meta.changes ?? 0) !== 1
+      ) {
+        throw new ApiFailure(
+          409,
+          "account_state_conflict",
+          "The account state changed while this decision was being applied. Review the account and try again.",
+        );
+      }
+    };
+    try {
+      if (supportsTransactionalPostcondition(this.db)) {
+        await this.db.batchWithPostcondition(statements, validateTransition);
+      } else {
+        validateTransition(await this.db.batch(statements));
+      }
+    } catch (error) {
+      if (
+        error instanceof ApiFailure &&
+        error.code === "account_state_conflict"
+      ) {
+        throw error;
+      }
+      if (
+        error instanceof Error &&
+        /stale owner account state transition|unique constraint/i.test(
+          error.message,
+        )
+      ) {
+        throw new ApiFailure(
+          409,
+          "account_state_conflict",
+          "The account state changed while this decision was being applied. Review the account and try again.",
+        );
+      }
+      throw error;
+    }
     const accounts = await this.listAccounts();
     const updated = accounts.find((account) => account.id === input.targetId);
     if (!updated) throw new Error("Updated account could not be loaded.");
@@ -7500,6 +7797,27 @@ async function handleRequest(
         origin,
       );
     }
+    if (request.method === "GET" && url.pathname === "/v1/registration/status") {
+      const receiptToken = readCookie(request, REGISTRATION_RECEIPT_COOKIE);
+      if (!receiptToken || !/^[A-Za-z0-9_-]{64}$/.test(receiptToken)) {
+        throw new ApiFailure(
+          401,
+          "registration_receipt_invalid",
+          "The registration status receipt is invalid or expired.",
+        );
+      }
+      return json(
+        {
+          registration: await repository.getRegistrationStatus({
+            receiptTokenDigest: await sha256(receiptToken),
+            now,
+          }),
+        },
+        200,
+        requestId,
+        origin,
+      );
+    }
     if (request.method === "GET" && url.pathname === "/v1/auth/start") {
       const transaction: BrowserOidcTransaction = {
         id: crypto.randomUUID(),
@@ -7597,31 +7915,71 @@ async function handleRequest(
         requestId,
         now,
       );
-      const sessionToken = randomBase64Url(48);
       const priorSessionToken = readCookie(request, BROWSER_SESSION_COOKIE);
       const priorSession = priorSessionToken
         ? await repository.resolveBrowserSession(
             await sha256(priorSessionToken),
             now,
+            requestId,
           )
         : null;
-      const session = await repository.createBrowserSession({
-        account,
-        identity,
-        tokenDigest: await sha256(sessionToken),
-        requestId,
-        now,
-        priorSession,
-      });
-      returnTarget.searchParams.set("auth", "success");
+      if (account.state === "approved") {
+        const sessionToken = randomBase64Url(48);
+        const session = await repository.createBrowserSession({
+          account,
+          identity,
+          tokenDigest: await sha256(sessionToken),
+          requestId,
+          now,
+          priorSession,
+        });
+        returnTarget.searchParams.set("auth", "success");
+        return redirect(
+          returnTarget.toString(),
+          [
+            createHostCookie(
+              BROWSER_SESSION_COOKIE,
+              sessionToken,
+              secondsUntil(now, session.expiresAt),
+            ),
+            clearHostCookie(OIDC_TRANSACTION_COOKIE),
+            clearHostCookie(REGISTRATION_RECEIPT_COOKIE),
+          ],
+          requestId,
+          origin,
+        );
+      }
+      if (account.state === "pending" || account.state === "rejected") {
+        const receiptToken = randomBase64Url(48);
+        const registration = await repository.createRegistrationRequest({
+          account,
+          identity,
+          receiptTokenDigest: await sha256(receiptToken),
+          requestId,
+          now,
+        });
+        returnTarget.searchParams.set("auth", account.state);
+        return redirect(
+          returnTarget.toString(),
+          [
+            createHostCookie(
+              REGISTRATION_RECEIPT_COOKIE,
+              receiptToken,
+              secondsUntil(now, registration.expiresAt),
+            ),
+            clearHostCookie(BROWSER_SESSION_COOKIE),
+            clearHostCookie(OIDC_TRANSACTION_COOKIE),
+          ],
+          requestId,
+          origin,
+        );
+      }
+      returnTarget.searchParams.set("auth", "unavailable");
       return redirect(
         returnTarget.toString(),
         [
-          createHostCookie(
-            BROWSER_SESSION_COOKIE,
-            sessionToken,
-            secondsUntil(now, session.expiresAt),
-          ),
+          clearHostCookie(BROWSER_SESSION_COOKIE),
+          clearHostCookie(REGISTRATION_RECEIPT_COOKIE),
           clearHostCookie(OIDC_TRANSACTION_COOKIE),
         ],
         requestId,
@@ -7636,6 +7994,7 @@ async function handleRequest(
       browserSession = await repository.resolveBrowserSession(
         await sha256(sessionToken),
         now,
+        requestId,
       );
       if (!browserSession) {
         if (request.method === "POST" && url.pathname === "/v1/auth/signout") {

@@ -39,6 +39,8 @@ The migrations create tenant-scoped tables for:
   immutable merge and rollback receipts;
 - one-time OIDC authorization transactions and rotating browser sessions stored
   only as token digests;
+- digest-only, installation-scoped registration status receipts that never
+  authorize learner data;
 - pseudonymous deletion tombstones; and
 - append-only administrative audit events with narrowly controlled privacy
   redaction during verified deletion.
@@ -99,6 +101,14 @@ transactions and rotating browser sessions. Apply it before enabling the
 API-owned browser sign-in endpoints. See the
 [browser-session guide](../browser-sessions.md) for identity-provider,
 cookie, secret, CORS, and rollback requirements.
+
+Migration `0014_registration_boundary.sql` separates registration status from
+learner authorization. Pending and rejected callbacks receive an opaque
+digest-only status receipt, while session creation and renewal require a live
+approved account. The migration also adds database-enforced expected-state
+markers so concurrent stale owner decisions cannot both commit. Include
+`registration_requests`, the user state revision fields, and approval transition
+IDs in backup, restore, and audit validation.
 
 Migration `0011_authoritative_progress_imports.sql` adds event schema versions and
 the immutable `progress.imported` event. The Worker then reads

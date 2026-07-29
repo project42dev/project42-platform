@@ -344,6 +344,7 @@ export type {
   ProgressEnvelope,
   ProgressImportRequest,
   Project42Role,
+  RegistrationStatus,
   OwnerRecoveryProofRequest,
   RollbackAccountMergeRequest,
   UpdateLearnerProfileRequest,

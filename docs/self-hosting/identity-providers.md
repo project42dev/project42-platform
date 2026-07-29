@@ -224,6 +224,15 @@ Use `rejected` for a registration decision that an owner may reconsider. Use
 `revoked` for a terminal security or policy decision. Every state and
 domain-policy change is audited.
 
+OIDC callback success is not itself learner authorization. Pending and rejected
+accounts receive only a 30-day opaque registration-status receipt; approved
+accounts receive the API-owned learner session. The status receipt is
+installation-scoped, contains no identity data, and cannot call learner or
+owner routes. Approval requires a new sign-in before a learner session is
+issued. Live account state is rechecked on session creation, renewal, and use.
+Concurrent owner decisions use compare-and-set semantics and the losing stale
+decision returns a conflict without a second decision or audit record.
+
 ## Validation checklist
 
 Before production:
@@ -251,3 +260,9 @@ Before production:
 15. Confirm retry returns the original receipt, receipt rows are immutable,
     rollback refuses post-merge activity, and merged-account deletion removes all
     source identities and recovery snapshots.
+16. Confirm pending and rejected callbacks create no learner session and expose
+    only a PII-free registration status.
+17. Confirm a registration receipt cannot cross installations or authorize any
+    `/v1/me` or `/v1/admin` route.
+18. Confirm pre-boundary sessions for non-approved accounts are revoked on use
+    and simultaneous owner decisions commit exactly one transition.

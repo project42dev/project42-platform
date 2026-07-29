@@ -2,57 +2,57 @@
 
 ## Active branch
 
-`feat/recovery-production-like-ab5425`
+`feat/registration-boundary-ab5695-ab5697`
+
+Base: `f6a5815617c8dfb4290f7edeba444c9eccb75174`
 
 ## Scope
 
-AB#5425 adds the production-like, provider-neutral recovery evidence needed to
-promote restored durable learner records:
+AB#5695 and AB#5697 implement the backend registration boundary:
 
-- a serialized backup artifact with adapter, migration-head, timestamp, stream,
-  event, byte-count, payload SHA-256, and a canonical artifact SHA-256 binding
-  every manifest value together with the exact payload;
-- verification of the artifact and every embedded export before the first
-  restore write;
-- fail-closed rejection of corrupt, incomplete, truncated, checksum-mismatched,
-  manifest-tampered, duplicate-scope, cross-adapter, wrong-migration-head, and
-  schema-extension artifacts;
-- exact canonical digest comparison of restored enrollments, progress,
-  attempts, corrections, transcripts, badges, and mastery evidence;
-- verified post-backup deletion receipt replay and empty deleted-stream proof;
-- default 24-hour RPO and 8-hour RTO objectives measured with the system clock;
-  and
-- full recovery rehearsals against local Miniflare D1 and isolated PostgreSQL
-  schemas in CI.
+- pending and rejected OIDC callbacks receive a 384-bit, host-only registration
+  status receipt rather than a learner browser session;
+- only the SHA-256 receipt digest is stored, scoped to one installation, for at
+  most 30 days;
+- `GET /v1/registration/status` returns only state, timestamps, sign-in
+  readiness, and a bounded next action—never profile, email, subject, or user ID;
+- approved accounts alone can create or renew browser sessions;
+- sessions created before this boundary for non-approved accounts are revoked
+  and audited on their next use;
+- suspended and revoked callbacks receive no session or receipt;
+- owner decisions use expected state/revision and a database-bound transition
+  marker so concurrent stale decisions cannot both commit; and
+- D1 migration `0014_registration_boundary.sql` and PostgreSQL migration
+  `011_registration_boundary.sql` provide equivalent storage and guard
+  contracts.
 
-No production database, Cloudflare, Entra, tenant, or hosted resource is
-created or mutated by this work.
+No Learn UI, notification delivery, push, pull request, merge, deployment,
+Cloudflare mutation, Entra mutation, or production database mutation is in this
+branch.
 
 ## Verification state
 
-- `npm run check` passes 252 tests: 250 passed, two optional PostgreSQL tests
-  skipped locally, zero failed. It also validates 12 resource packs / 94
-  resources, 50 D1 measurement streams with p95 420.92 ms, 572 freshness
-  references / 60 primary sources, and the self-host compatibility manifest.
-- Focused Miniflare D1 recovery tests pass, including the default system-clock
-  exercise.
-- `npm run api:check` passes Worker type generation and the Wrangler dry run; it
-  does not deploy.
-- `npm audit --audit-level=moderate` reports zero vulnerabilities.
-- The dry-run package contains 685 files, including the new recovery artifact
-  schema and compiled runtime, at 1,949,783 packed bytes / 9,143,041 unpacked.
-- HCS app-profile validation was invoked; its review-directed type, test, and
-  dependency gates are satisfied by the checks above.
-- The PostgreSQL recovery test is present and runs when `TEST_POSTGRES_URL` is
-  available; protected CI supplies PostgreSQL 17.
-- Protected PR CI, merge, and main CI remain to be completed.
+- Full `npm run check` passes: 254 tests total, 252 passed, two optional
+  PostgreSQL runtime tests skipped in that command, zero failed.
+- The check also validates 12 resource packs / 94 resources, 50 hosted D1
+  measurement streams with p95 421.58 ms, 572 freshness references / 60 primary
+  sources, and the self-host compatibility manifest.
+- Focused browser tests prove pending, rejected, and approved callbacks; no
+  learner session for non-approved accounts; PII-free receipt status;
+  protected-route bypass rejection; receipt tamper and cross-installation
+  rejection; stale-session revocation/audit; and approved re-sign-in.
+- A forced two-reader D1 race proves exactly one concurrent owner decision,
+  state revision, transition marker, approval decision, and audit event commit.
+- D1 migration replay and authorization/audit guards pass.
+- Existing account lifecycle and identity-security suites pass.
+- PostgreSQL 17.10 was installed temporarily in WSL and the two optional
+  runtime suites plus focused registration/CAS/browser tests passed 14/14 with
+  no skips. This verifies recovery, all migrations through `011`, receipt
+  status, pending-session denial, approval transition, session rotation
+  rollback, and D1-focused boundary cases. The isolated test database, cluster,
+  packages, and temporary package source were removed afterward.
+- Generator-only training artifacts produced by `npm run build` were restored
+  and are intentionally excluded.
 
-An independent pre-push review found and blocked a first implementation whose
-digest covered only the payload. The corrected follow-up binds adapter,
-migration head, capture and source timestamps, stream/event/byte counts, payload
-digest, and exact payload into the canonical artifact digest and backup ID.
-Focused tests tamper each security-relevant manifest class while keeping caller
-expectations aligned and prove verification still fails before restore.
-
-AB#5425 remains Active until those gates and evidence are complete. User
-Stories are never moved to Closed by automation.
+AB#5695 and AB#5697 remain Active pending cross-repository and production work.
+User Stories are never moved to Closed by automation.

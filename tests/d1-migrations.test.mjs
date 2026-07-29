@@ -39,7 +39,7 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
 
     const seed = [
       "INSERT INTO installations VALUES ('test','Test','2026-07-26','2026-07-26');",
-      "INSERT INTO users VALUES ('u1','test','Learner','learner@example.com',1,'pending','2026-07-26','2026-07-26');",
+      "INSERT INTO users (id,installation_id,display_name,primary_email,email_verified,account_state,created_at,updated_at) VALUES ('u1','test','Learner','learner@example.com',1,'pending','2026-07-26','2026-07-26');",
       "INSERT INTO user_identities (id,installation_id,provider,issuer,subject,user_id,provider_login,display_name,status,is_primary,link_method,linked_at,last_verified_at,last_seen_at,unlinked_at) VALUES ('i1','test','oidc','https://issuer.example','sub-1','u1',NULL,'Learner','active',1,'registration','2026-07-26','2026-07-26','2026-07-26',NULL);",
       "INSERT INTO role_assignments VALUES ('test','u1','learner',NULL,'2026-07-26');",
       "INSERT INTO approved_email_domains (id,installation_id,domain,enabled,created_by_user_id,created_at,updated_at,policy_version) VALUES ('d1','test','example.com',1,'u1','2026-07-26','2026-07-26',1);",
@@ -83,6 +83,7 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
       "deletion_tombstones",
       "oidc_authorization_transactions",
       "browser_sessions",
+      "registration_requests",
     ]) {
       assert.match(tables, new RegExp(`\\b${table}\\b`));
     }
@@ -205,7 +206,7 @@ test("D1 migrations are replayable and enforce authorization/audit guards", () =
       "PROJECT42_DB",
       ...common,
       "--command",
-      "INSERT INTO installations VALUES ('other','Other','2026-07-26','2026-07-26'); INSERT INTO users VALUES ('u2','other','Other learner','other@example.com',1,'approved','2026-07-26','2026-07-26');",
+      "INSERT INTO installations VALUES ('other','Other','2026-07-26','2026-07-26'); INSERT INTO users (id,installation_id,display_name,primary_email,email_verified,account_state,created_at,updated_at) VALUES ('u2','other','Other learner','other@example.com',1,'approved','2026-07-26','2026-07-26');",
     ]);
     const crossInstallationSession = runWrangler(
       [
@@ -423,7 +424,7 @@ test("profile and consent migration preserves legacy history and constrains new 
   await database.exec(
     [
       "INSERT INTO installations VALUES ('legacy','Legacy','2026-07-26','2026-07-26');",
-      "INSERT INTO users VALUES ('u1','legacy','Learner',NULL,0,'approved','2026-07-26','2026-07-26');",
+      "INSERT INTO users (id,installation_id,display_name,primary_email,email_verified,account_state,created_at,updated_at) VALUES ('u1','legacy','Learner',NULL,0,'approved','2026-07-26','2026-07-26');",
       "INSERT INTO consent_records (id,installation_id,user_id,purpose,policy_version,decision,decided_at) VALUES ('legacy-consent','legacy','u1','legacy-purpose','2026-06-01','granted','2026-07-26');",
     ].join(" "),
   );

@@ -1,8 +1,9 @@
 # Current task
 
-Complete the provider-neutral learning-record recovery promotion gate with
-serialized backup integrity, post-backup deletion replay, exact transcript and
-mastery projection evidence, default-clock RPO/RTO measurement, and real
-PostgreSQL plus local D1 verification.
+Implement the backend registration and authorization boundary for AB#5695 and
+AB#5697: provider-neutral account requests with a limited status receipt,
+approved-only learner browser sessions, stale-session revocation, and atomic
+owner account-state decisions across Cloudflare D1 and PostgreSQL.
 
-Primary work item: AB#5425.
+AB#5695 and AB#5697 remain Active until the Learn UI, cross-repository
+integration, production deployment, and production evidence are complete.

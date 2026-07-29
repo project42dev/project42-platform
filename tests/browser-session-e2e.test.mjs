@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 import { Miniflare } from "miniflare";
@@ -32,6 +33,10 @@ function cookiePair(cookies, name) {
   const cookie = cookies.find((value) => value.startsWith(`${name}=`));
   assert.ok(cookie, `Missing ${name} cookie`);
   return cookie.split(";", 1)[0];
+}
+
+function sha256(value) {
+  return createHash("sha256").update(value).digest("hex");
 }
 
 test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", async (t) => {
@@ -503,4 +508,323 @@ test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", asyn
     "invalid_authorization_transaction",
   );
   assert.equal(tokenRequests.length, 2);
+});
+
+test("pending and rejected OIDC callbacks receive only an installation-scoped status receipt", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-28",
+    d1Databases: { PROJECT42_DB: "project42-registration-boundary-e2e" },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  await applyD1Migrations(database);
+
+  const env = {
+    PROJECT42_DB: database,
+    INSTALLATION_ID: "registration-boundary-e2e",
+    OIDC_ISSUER: "https://identity.example.test",
+    OIDC_AUDIENCE: "project42-api",
+    OIDC_JWKS_URL: "https://identity.example.test/jwks",
+    OIDC_EMAIL_CLAIM: "email",
+    OIDC_EMAIL_VERIFIED_CLAIM: "email_verified",
+    DOMAIN_APPROVAL_ENABLED: "false",
+    LEARNING_RECORD_ADAPTER: "cloudflare-d1",
+    ALLOWED_ORIGINS: "https://learn.example.test",
+    BOOTSTRAP_OWNER_ISSUER: "https://identity.example.test",
+    BOOTSTRAP_OWNER_SUBJECT: "different-owner",
+    OIDC_AUTHORIZATION_ENDPOINT:
+      "https://identity.example.test/oauth2/v2.0/authorize",
+    OIDC_TOKEN_ENDPOINT: "https://identity.example.test/oauth2/v2.0/token",
+    OIDC_CLIENT_ID: "project42-browser",
+    OIDC_REDIRECT_URI: "https://api.example.test/v1/auth/callback",
+    SESSION_ENCRYPTION_KEY:
+      "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE",
+  };
+  let expectedNonce = "";
+  const verifier = {
+    verify: async () => ({
+      provider: "oidc",
+      issuer: env.OIDC_ISSUER,
+      subject: "unregistered-bearer",
+      email: null,
+      emailVerified: false,
+      displayName: null,
+      authenticatedAt: Math.floor(Date.now() / 1000),
+    }),
+    verifyToken: async (_token, options) => {
+      assert.equal(options.nonce, expectedNonce);
+      return {
+        provider: "oidc",
+        issuer: env.OIDC_ISSUER,
+        subject: "pending-learner",
+        email: "pending@example.test",
+        emailVerified: true,
+        displayName: "Pending Learner",
+        authenticatedAt: Math.floor(Date.now() / 1000),
+      };
+    },
+  };
+  const api = (request, environment = env) => {
+    const headers = new Headers(request.headers);
+    headers.set("CF-Connecting-IP", "192.0.2.43");
+    return handleRequest(
+      new Request(request, { headers }),
+      environment,
+      verifier,
+      undefined,
+      undefined,
+      undefined,
+      new BrowserOidcAdapter(environment, async () =>
+        Response.json({ id_token: "verified-id-token" }),
+      ),
+      {
+        check: async () => ({ allowed: true, retryAfterSeconds: 60 }),
+      },
+    );
+  };
+  const signIn = async () => {
+    const start = await api(
+      new Request(
+        "https://api.example.test/v1/auth/start?return_to=" +
+          encodeURIComponent("https://learn.example.test/account/"),
+      ),
+    );
+    const authorization = new URL(start.headers.get("location"));
+    expectedNonce = authorization.searchParams.get("nonce");
+    const state = authorization.searchParams.get("state");
+    const transactionCookie = cookiePair(
+      setCookies(start),
+      "__Host-project42_oidc",
+    );
+    return api(
+      new Request(
+        `https://api.example.test/v1/auth/callback?code=test-code&state=${encodeURIComponent(state)}`,
+        { headers: { cookie: transactionCookie } },
+      ),
+    );
+  };
+
+  const pendingCallback = await signIn();
+  assert.equal(pendingCallback.status, 302);
+  assert.equal(
+    new URL(pendingCallback.headers.get("location")).searchParams.get("auth"),
+    "pending",
+  );
+  const pendingCookies = setCookies(pendingCallback);
+  const receiptCookie = cookiePair(
+    pendingCookies,
+    "__Host-project42_registration",
+  );
+  assert.ok(
+    pendingCookies.some(
+      (value) =>
+        value.startsWith("__Host-project42_registration=") &&
+        value.includes("Secure") &&
+        value.includes("HttpOnly") &&
+        value.includes("SameSite=Lax") &&
+        !value.includes("Domain="),
+    ),
+  );
+  assert.ok(
+    !pendingCookies.some(
+      (value) =>
+        value.startsWith("__Host-project42_session=") &&
+        !value.startsWith("__Host-project42_session=;"),
+    ),
+  );
+  assert.equal(
+    (
+      await database
+        .prepare("SELECT COUNT(*) AS count FROM browser_sessions")
+        .first()
+    ).count,
+    0,
+  );
+
+  const pendingStatus = await api(
+    new Request("https://api.example.test/v1/registration/status", {
+      headers: { cookie: receiptCookie },
+    }),
+  );
+  assert.equal(pendingStatus.status, 200);
+  const pendingBody = await pendingStatus.json();
+  assert.deepEqual(
+    {
+      state: pendingBody.registration.state,
+      canSignIn: pendingBody.registration.canSignIn,
+      nextAction: pendingBody.registration.nextAction,
+    },
+    { state: "pending", canSignIn: false, nextAction: "await-review" },
+  );
+  const serializedStatus = JSON.stringify(pendingBody);
+  assert.doesNotMatch(serializedStatus, /pending@example\.test/);
+  assert.doesNotMatch(serializedStatus, /pending-learner/);
+  for (const protectedPath of ["/v1/me/progress", "/v1/admin/accounts"]) {
+    const bypass = await api(
+      new Request(`https://api.example.test${protectedPath}`, {
+        headers: { cookie: receiptCookie },
+      }),
+    );
+    assert.equal(bypass.status, 401);
+    assert.equal((await bypass.json()).error.code, "account_not_registered");
+  }
+
+  const receiptValue = receiptCookie.split("=")[1];
+  const invalidReceiptValue = `${receiptValue.slice(0, -1)}${
+    receiptValue.endsWith("A") ? "B" : "A"
+  }`;
+  const invalidReceipt = await api(
+    new Request("https://api.example.test/v1/registration/status", {
+      headers: {
+        cookie: `__Host-project42_registration=${invalidReceiptValue}`,
+      },
+    }),
+  );
+  assert.equal(invalidReceipt.status, 401);
+  assert.equal(
+    (await invalidReceipt.json()).error.code,
+    "registration_receipt_invalid",
+  );
+
+  const user = await database
+    .prepare(
+      "SELECT id FROM users WHERE installation_id = ? AND account_state = 'pending'",
+    )
+    .bind(env.INSTALLATION_ID)
+    .first();
+  assert.ok(user?.id);
+  const staleToken = "stale-browser-session-token-with-enough-entropy-123456789";
+  const now = new Date();
+  const nowIso = now.toISOString();
+  const expiresAt = new Date(now.getTime() + 60 * 60 * 1000).toISOString();
+  await database
+    .prepare(
+      `INSERT INTO browser_sessions (
+         id, installation_id, user_id, token_digest, identity_issuer,
+         identity_subject, authenticated_at, created_at, last_seen_at,
+         expires_at, absolute_expires_at, revoked_at, replaced_by_session_id
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL)`,
+    )
+    .bind(
+      "stale-session",
+      env.INSTALLATION_ID,
+      user.id,
+      sha256(staleToken),
+      env.OIDC_ISSUER,
+      "pending-learner",
+      Math.floor(now.getTime() / 1000),
+      nowIso,
+      nowIso,
+      expiresAt,
+      expiresAt,
+    )
+    .run();
+  const staleSession = await api(
+    new Request("https://api.example.test/v1/auth/session", {
+      headers: {
+        cookie: `__Host-project42_session=${staleToken}`,
+        origin: "https://learn.example.test",
+      },
+    }),
+  );
+  assert.equal(staleSession.status, 401);
+  assert.equal((await staleSession.json()).error.code, "session_expired");
+  assert.ok(
+    (
+      await database
+        .prepare("SELECT revoked_at FROM browser_sessions WHERE id = ?")
+        .bind("stale-session")
+        .first()
+    ).revoked_at,
+  );
+
+  await database
+    .prepare(
+      "UPDATE users SET account_state = 'rejected', updated_at = ? WHERE id = ?",
+    )
+    .bind(new Date(now.getTime() + 1000).toISOString(), user.id)
+    .run();
+  const rejectedCallback = await signIn();
+  assert.equal(
+    new URL(rejectedCallback.headers.get("location")).searchParams.get("auth"),
+    "rejected",
+  );
+  assert.ok(
+    setCookies(rejectedCallback).some((value) =>
+      value.startsWith("__Host-project42_registration="),
+    ),
+  );
+  assert.equal(
+    (
+      await database
+        .prepare(
+          "SELECT COUNT(*) AS count FROM browser_sessions WHERE revoked_at IS NULL",
+        )
+        .first()
+    ).count,
+    0,
+  );
+
+  await database
+    .prepare(
+      "UPDATE users SET account_state = 'approved', updated_at = ? WHERE id = ?",
+    )
+    .bind(new Date(now.getTime() + 2000).toISOString(), user.id)
+    .run();
+  const approvedStatus = await api(
+    new Request("https://api.example.test/v1/registration/status", {
+      headers: { cookie: receiptCookie },
+    }),
+  );
+  assert.equal((await approvedStatus.json()).registration.canSignIn, true);
+  const approvedCallback = await signIn();
+  assert.equal(
+    new URL(approvedCallback.headers.get("location")).searchParams.get("auth"),
+    "success",
+  );
+  assert.ok(
+    setCookies(approvedCallback).some(
+      (value) =>
+        value.startsWith("__Host-project42_session=") &&
+        !value.startsWith("__Host-project42_session=;"),
+    ),
+  );
+
+  const otherInstallation = {
+    ...env,
+    INSTALLATION_ID: "other-registration-installation",
+  };
+  const crossInstallation = await api(
+    new Request("https://api.example.test/v1/registration/status", {
+      headers: { cookie: receiptCookie },
+    }),
+    otherInstallation,
+  );
+  assert.equal(crossInstallation.status, 401);
+
+  const audit = await database
+    .prepare(
+      `SELECT action, metadata_json
+         FROM audit_events
+        WHERE installation_id = ?
+          AND action IN ('registration.request', 'session.revoke.account-state')
+        ORDER BY occurred_at`,
+    )
+    .bind(env.INSTALLATION_ID)
+    .all();
+  assert.ok(
+    audit.results.some((event) => event.action === "registration.request"),
+  );
+  assert.ok(
+    audit.results.some(
+      (event) => event.action === "session.revoke.account-state",
+    ),
+  );
+  assert.doesNotMatch(
+    JSON.stringify(audit.results),
+    new RegExp(receiptValue.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+  );
 });

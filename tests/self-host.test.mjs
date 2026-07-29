@@ -558,6 +558,7 @@ test(
         "008_authoritative_progress_imports.sql",
         "009_account_merge_governance_constraints.sql",
         "010_profile_consent_and_deletion_receipts.sql",
+        "011_registration_boundary.sql",
       ]);
       assert.deepEqual(
         await applyPostgresMigrations(pool, "self-host/postgres"),
@@ -652,6 +653,62 @@ test(
           (candidate) => candidate.state === "pending",
         ),
       );
+      const pendingAccount = pendingAccounts.accounts[0];
+      const pendingIdentity = {
+        ...pendingAccount.identity,
+        email: pendingAccount.primaryEmail,
+        emailVerified: pendingAccount.emailVerified,
+        displayName: pendingAccount.displayName,
+        authenticatedAt: 1_785_153_600,
+      };
+      await repository.createRegistrationRequest({
+        account: pendingAccount,
+        identity: pendingIdentity,
+        receiptTokenDigest: "e".repeat(64),
+        requestId: "postgres-registration-receipt",
+        now,
+      });
+      assert.deepEqual(
+        await repository.getRegistrationStatus({
+          receiptTokenDigest: "e".repeat(64),
+          now,
+        }),
+        {
+          state: "pending",
+          requestedAt: now,
+          updatedAt: now,
+          canSignIn: false,
+          nextAction: "await-review",
+        },
+      );
+      await assert.rejects(
+        repository.createBrowserSession({
+          account: pendingAccount,
+          identity: pendingIdentity,
+          tokenDigest: "f".repeat(64),
+          requestId: "postgres-pending-session-denied",
+          now,
+        }),
+        (error) => error.code === "account_pending",
+      );
+      const approvedPendingAccount = await repository.changeAccountState({
+        actor: account,
+        targetId: pendingAccount.id,
+        to: "approved",
+        reason: "Approved by PostgreSQL integration test.",
+        requestId: "postgres-account-approval",
+        now: "2026-07-27T12:01:00.000Z",
+      });
+      assert.equal(approvedPendingAccount.state, "approved");
+      assert.equal(
+        (
+          await repository.getRegistrationStatus({
+            receiptTokenDigest: "e".repeat(64),
+            now: "2026-07-27T12:01:00.000Z",
+          })
+        ).canSignIn,
+        true,
+      );
 
       const postgresAuditIds = [];
       let postgresAuditCursor;
@@ -696,6 +753,7 @@ test(
       const resolvedSession = await repository.resolveBrowserSession(
         "a".repeat(64),
         now,
+        "postgres-session-resolve",
       );
       assert.ok(resolvedSession);
 
