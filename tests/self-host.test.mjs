@@ -7,7 +7,9 @@ import { test } from "node:test";
 import { Pool } from "pg";
 import { Miniflare } from "miniflare";
 import {
+  DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES,
   runLearningRecordAdapterConformance,
+  runMeasuredLearningRecordRecoveryConformance,
   SqlLearningEventStore,
   verifyLearningRecordAdapterParity,
 } from "../dist/index.js";
@@ -52,6 +54,38 @@ async function applyD1Migrations(database) {
       "utf8",
     );
     await database.exec(sql.replace(/\r?\n/g, " "));
+  }
+}
+
+async function seedRecoveryPrincipals(database, installationId, learnerIds) {
+  await database
+    .prepare("INSERT INTO installations VALUES (?, ?, ?, ?)")
+    .bind(
+      installationId,
+      "Recovery conformance",
+      "2026-07-28T00:00:00.000Z",
+      "2026-07-28T00:00:00.000Z",
+    )
+    .run();
+  for (const learnerId of learnerIds) {
+    await database
+      .prepare(
+        `INSERT INTO users (
+           id, installation_id, display_name, primary_email,
+           email_verified, account_state, created_at, updated_at
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .bind(
+        learnerId,
+        installationId,
+        "Synthetic recovery learner",
+        null,
+        0,
+        "approved",
+        "2026-07-28T00:00:00.000Z",
+        "2026-07-28T00:00:00.000Z",
+      )
+      .run();
   }
 }
 
@@ -399,6 +433,112 @@ test("filesystem profile-photo adapter is private, durable, and traversal-safe",
     /supported storage contract/,
   );
 });
+
+test(
+  "PostgreSQL recovery rehearsal restores exact projections and replays deletion before promotion",
+  { skip: !process.env.TEST_POSTGRES_URL },
+  async () => {
+    const administrationPool = new Pool({
+      connectionString: process.env.TEST_POSTGRES_URL,
+    });
+    const suffix = crypto.randomUUID().replaceAll("-", "");
+    const sourceSchema = `recovery_source_${suffix}`;
+    const restoredSchema = `recovery_restored_${suffix}`;
+    let sourcePool;
+    let restoredPool;
+    try {
+      await administrationPool.query(`CREATE SCHEMA "${sourceSchema}"`);
+      await administrationPool.query(`CREATE SCHEMA "${restoredSchema}"`);
+      sourcePool = new Pool({
+        connectionString: process.env.TEST_POSTGRES_URL,
+        options: `-c search_path=${sourceSchema}`,
+      });
+      restoredPool = new Pool({
+        connectionString: process.env.TEST_POSTGRES_URL,
+        options: `-c search_path=${restoredSchema}`,
+      });
+      await applyPostgresMigrations(sourcePool, "self-host/postgres");
+      await applyPostgresMigrations(restoredPool, "self-host/postgres");
+
+      const sourceDatabase = new PostgresD1CompatibilityDatabase(sourcePool);
+      const restoredDatabase = new PostgresD1CompatibilityDatabase(
+        restoredPool,
+      );
+      const installationId = "postgres-recovery-conformance";
+      const retainedLearnerId = "postgres-recovery-retained";
+      const deletedLearnerId = "postgres-recovery-deleted";
+      for (const database of [sourceDatabase, restoredDatabase]) {
+        await seedRecoveryPrincipals(database, installationId, [
+          retainedLearnerId,
+          deletedLearnerId,
+        ]);
+      }
+
+      const sourceCurrentAt = new Date().toISOString();
+      const backupCapturedAt = new Date(
+        Date.parse(sourceCurrentAt) - 90_000,
+      ).toISOString();
+      const report = await runMeasuredLearningRecordRecoveryConformance(
+        new SqlLearningEventStore(sourceDatabase),
+        new SqlLearningEventStore(restoredDatabase),
+        {
+          installationId,
+          retainedLearnerId,
+          deletedLearnerId,
+          keyPrefix: "postgres-recovery",
+          adapter: "postgresql",
+          migrationHead: "008_authoritative_progress_imports.sql",
+        },
+        { backupCapturedAt, sourceCurrentAt },
+      );
+
+      assert.equal(report.contractVersion, "1.1");
+      assert.equal(report.adapter, "postgresql");
+      assert.equal(report.migrationHead, "008_authoritative_progress_imports.sql");
+      assert.equal(report.recoveryPointSeconds, 90);
+      assert.ok(
+        report.recoveryTimeSeconds <=
+          DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES.maximumRecoveryTimeSeconds,
+      );
+      assert.equal(
+        report.maximumRecoveryPointSeconds,
+        DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES.maximumRecoveryPointSeconds,
+      );
+      assert.equal(
+        report.maximumRecoveryTimeSeconds,
+        DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES.maximumRecoveryTimeSeconds,
+      );
+      assert.equal(report.preBackupProjectionSha256, report.rebuiltProjectionSha256);
+      assert.equal(report.deletionReceiptStatus, "verified");
+      assert.equal(report.deletionReplayStatus, "verified");
+      assert.equal(report.promotionStatus, "ready");
+
+      const sourceReceiptCount = await sourcePool.query(
+        "SELECT count(*)::integer AS count FROM learning_record_deletion_receipts",
+      );
+      const restoredReplayCount = await restoredPool.query(
+        "SELECT count(*)::integer AS count FROM learning_record_deletion_replays",
+      );
+      const deletedEventCount = await restoredPool.query(
+        "SELECT count(*)::integer AS count FROM learning_events WHERE installation_id = $1 AND learner_id = $2",
+        [installationId, deletedLearnerId],
+      );
+      assert.equal(sourceReceiptCount.rows[0].count, 1);
+      assert.equal(restoredReplayCount.rows[0].count, 1);
+      assert.equal(deletedEventCount.rows[0].count, 0);
+    } finally {
+      await sourcePool?.end();
+      await restoredPool?.end();
+      await administrationPool
+        .query(`DROP SCHEMA IF EXISTS "${sourceSchema}" CASCADE`)
+        .catch(() => undefined);
+      await administrationPool
+        .query(`DROP SCHEMA IF EXISTS "${restoredSchema}" CASCADE`)
+        .catch(() => undefined);
+      await administrationPool.end();
+    }
+  },
+);
 
 test(
   "PostgreSQL migrations and account repository operate together",

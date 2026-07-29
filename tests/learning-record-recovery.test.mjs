@@ -4,11 +4,14 @@ import test from "node:test";
 import { Miniflare } from "miniflare";
 import Ajv2020 from "ajv/dist/2020.js";
 import {
+  createLearningRecordRecoveryBackup,
+  DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES,
   measureLearningRecordRecovery,
   restoreVerifiedLearningRecordExport,
   runLearningRecordRecoveryConformance,
   runMeasuredLearningRecordRecoveryConformance,
   SqlLearningEventStore,
+  verifyLearningRecordRecoveryBackup,
 } from "../dist/index.js";
 
 async function applyD1Migrations(database) {
@@ -128,18 +131,35 @@ test("recovery gate restores projections and replays post-backup deletion", asyn
   const validateReport = new Ajv2020({ strict: true }).compile(reportSchema);
 
   assert.equal(validateReport(report), true);
-  assert.equal(report.contractVersion, "1.0");
+  assert.equal(report.contractVersion, "1.1");
   assert.equal(report.promotionStatus, "ready");
+  assert.equal(report.adapter, "cloudflare-d1");
+  assert.equal(report.migrationHead, "0011_authoritative_progress_imports.sql");
+  assert.match(report.backupId, /^learning-recovery-[a-f0-9]{32}$/);
+  assert.match(report.backupSha256, /^[a-f0-9]{64}$/);
+  assert.ok(report.backupBytes > 0);
   assert.equal(report.restoredEventCount, 8);
   assert.equal(report.replayedDeletionEventCount, 4);
+  assert.equal(report.deletionReceiptStatus, "verified");
+  assert.equal(report.deletionReplayStatus, "verified");
   assert.equal(report.retainedTranscriptEntries, 1);
   assert.equal(report.retainedBadges, 1);
+  assert.equal(report.retainedAttempts, 1);
+  assert.equal(report.retainedCorrections, 1);
+  assert.equal(
+    report.preBackupProjectionSha256,
+    report.rebuiltProjectionSha256,
+  );
   assert.equal(report.recoveryPointSeconds, 120);
   assert.equal(report.recoveryTimeSeconds, 1.5);
   assert.deepEqual(report.checks, [
     "verified-backup-before-write",
+    "backup-manifest-checksum-verified",
     "corrupt-backup-rejected",
     "incomplete-backup-rejected",
+    "truncated-backup-rejected",
+    "checksum-mismatched-backup-rejected",
+    "wrong-migration-head-rejected",
     "authoritative-event-order-restored",
     "enrollment-progress-attempt-correction-projections-rebuilt",
     "transcript-projection-rebuilt",
@@ -176,6 +196,87 @@ test("recovery gate restores projections and replays post-backup deletion", asyn
     retainedLearnerId,
     "2026-07-28T18:05:00.000Z",
   );
+  const packagedBackup = await createLearningRecordRecoveryBackup(
+    [retainedBackup],
+    {
+      adapter: "cloudflare-d1",
+      migrationHead: "0011_authoritative_progress_imports.sql",
+      capturedAt: "2026-07-28T18:05:00.000Z",
+      sourceCurrentAt: "2026-07-28T18:05:01.000Z",
+    },
+  );
+  const backupSchema = JSON.parse(
+    await readFile(
+      new URL(
+        "../schemas/learning/learning-record-recovery-backup.schema.json",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  );
+  const validateBackup = new Ajv2020({
+    strict: true,
+    validateFormats: false,
+  }).compile(backupSchema);
+  assert.equal(validateBackup(packagedBackup), true);
+  assert.equal(
+    (
+      await verifyLearningRecordRecoveryBackup(packagedBackup, {
+        adapter: "cloudflare-d1",
+        migrationHead: "0011_authoritative_progress_imports.sql",
+      })
+    ).streams.length,
+    1,
+  );
+
+  const checksumMismatch = structuredClone(packagedBackup);
+  checksumMismatch.payload += " ";
+  await assert.rejects(
+    () =>
+      verifyLearningRecordRecoveryBackup(checksumMismatch, {
+        adapter: "cloudflare-d1",
+        migrationHead: "0011_authoritative_progress_imports.sql",
+      }),
+    /byte count|checksum/,
+  );
+  const truncated = structuredClone(packagedBackup);
+  truncated.payload = truncated.payload.slice(0, -15);
+  truncated.manifest.payloadBytes = new TextEncoder().encode(
+    truncated.payload,
+  ).byteLength;
+  const truncatedDigest = Buffer.from(
+    await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(truncated.payload),
+    ),
+  ).toString("hex");
+  truncated.manifest.payloadSha256 = truncatedDigest;
+  truncated.manifest.backupId =
+    `learning-recovery-${truncatedDigest.slice(0, 32)}`;
+  await assert.rejects(
+    () =>
+      verifyLearningRecordRecoveryBackup(truncated, {
+        adapter: "cloudflare-d1",
+        migrationHead: "0011_authoritative_progress_imports.sql",
+      }),
+    /truncated or invalid JSON/,
+  );
+  await assert.rejects(
+    () =>
+      verifyLearningRecordRecoveryBackup(packagedBackup, {
+        adapter: "cloudflare-d1",
+        migrationHead: "0010_wrong_head.sql",
+      }),
+    /migration head/,
+  );
+  assert.equal(
+    (await new SqlLearningEventStore(invalidDatabase).list(
+      installationId,
+      retainedLearnerId,
+    )).length,
+    0,
+  );
+
   const corrupt = structuredClone(retainedBackup);
   corrupt.events[0].payload.pathTitle = "Tampered backup";
   const invalidStore = new SqlLearningEventStore(invalidDatabase);
@@ -352,4 +453,65 @@ test("measured recovery gate brackets the actual restore operation", async (t) =
   assert.equal(report.promotionStatus, "ready");
   assert.equal(report.recoveryPointSeconds, 120);
   assert.equal(report.recoveryTimeSeconds, 1.5);
+});
+
+test("default recovery clock measures the 24-hour RPO and 8-hour RTO objectives", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-28",
+    d1Databases: {
+      SOURCE: "project42-default-clock-recovery-source",
+      RESTORED: "project42-default-clock-recovery-restored",
+    },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+
+  const sourceDatabase = await miniflare.getD1Database("SOURCE");
+  const restoredDatabase = await miniflare.getD1Database("RESTORED");
+  for (const database of [sourceDatabase, restoredDatabase]) {
+    await applyD1Migrations(database);
+  }
+  const installationId = "default-clock-recovery";
+  const retainedLearnerId = "default-clock-retained";
+  const deletedLearnerId = "default-clock-deleted";
+  for (const database of [sourceDatabase, restoredDatabase]) {
+    await seedRecoveryPrincipals(database, installationId, [
+      retainedLearnerId,
+      deletedLearnerId,
+    ]);
+  }
+
+  const sourceCurrentAt = new Date().toISOString();
+  const backupCapturedAt = new Date(
+    Date.parse(sourceCurrentAt) - 60_000,
+  ).toISOString();
+  const report = await runMeasuredLearningRecordRecoveryConformance(
+    new SqlLearningEventStore(sourceDatabase),
+    new SqlLearningEventStore(restoredDatabase),
+    {
+      installationId,
+      retainedLearnerId,
+      deletedLearnerId,
+      keyPrefix: "default-clock-d1-recovery",
+    },
+    { backupCapturedAt, sourceCurrentAt },
+  );
+
+  assert.equal(report.recoveryPointSeconds, 60);
+  assert.ok(report.recoveryTimeSeconds >= 0);
+  assert.ok(
+    report.recoveryTimeSeconds <=
+      DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES.maximumRecoveryTimeSeconds,
+  );
+  assert.equal(
+    report.maximumRecoveryPointSeconds,
+    DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES.maximumRecoveryPointSeconds,
+  );
+  assert.equal(
+    report.maximumRecoveryTimeSeconds,
+    DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES.maximumRecoveryTimeSeconds,
+  );
+  assert.equal(report.promotionStatus, "ready");
 });

@@ -19,7 +19,7 @@
       "contractVersion": "1.1",
       "eventContractVersion": "1.1",
       "receiptContractVersion": "1.0",
-      "recoveryContractVersion": "1.0",
+      "recoveryContractVersion": "1.1",
       "semanticFingerprint": "learning-records/1.1;events/1.1;receipts/1.0;append-only;atomic-batch;optimistic-revision;authoritative-progress-import;verified-deletion-replay",
       "transactionMode": "atomic-sequential-batch"
     }

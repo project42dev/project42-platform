@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://project-42.dev/schemas/learning-record-recovery-report-v1.json",
+  "$id": "https://project-42.dev/schemas/learning-record-recovery-report-v1.1.json",
   "title": "Project 42 learning-record recovery report",
   "type": "object",
   "additionalProperties": false,
@@ -8,27 +8,42 @@
     "contractVersion",
     "promotionStatus",
     "checks",
+    "adapter",
+    "migrationHead",
+    "backupId",
+    "backupSha256",
+    "backupBytes",
     "restoredEventCount",
     "replayedDeletionEventCount",
+    "deletionReceiptStatus",
+    "deletionReplayStatus",
     "retainedTranscriptEntries",
     "retainedBadges",
+    "retainedAttempts",
+    "retainedCorrections",
+    "preBackupProjectionSha256",
+    "rebuiltProjectionSha256",
     "recoveryPointSeconds",
     "recoveryTimeSeconds",
     "maximumRecoveryPointSeconds",
     "maximumRecoveryTimeSeconds"
   ],
   "properties": {
-    "contractVersion": { "const": "1.0" },
+    "contractVersion": { "const": "1.1" },
     "promotionStatus": { "const": "ready" },
     "checks": {
       "type": "array",
-      "minItems": 11,
+      "minItems": 15,
       "uniqueItems": true,
       "items": {
         "enum": [
           "verified-backup-before-write",
+          "backup-manifest-checksum-verified",
           "corrupt-backup-rejected",
           "incomplete-backup-rejected",
+          "truncated-backup-rejected",
+          "checksum-mismatched-backup-rejected",
+          "wrong-migration-head-rejected",
           "authoritative-event-order-restored",
           "enrollment-progress-attempt-correction-projections-rebuilt",
           "transcript-projection-rebuilt",
@@ -40,10 +55,38 @@
         ]
       }
     },
+    "adapter": {
+      "enum": ["cloudflare-d1", "postgresql"]
+    },
+    "migrationHead": {
+      "type": "string",
+      "pattern": "^\\d{3,4}_[a-z0-9_-]+\\.sql$"
+    },
+    "backupId": {
+      "type": "string",
+      "pattern": "^learning-recovery-[a-f0-9]{32}$"
+    },
+    "backupSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "backupBytes": { "type": "integer", "minimum": 1 },
     "restoredEventCount": { "type": "integer", "minimum": 1 },
     "replayedDeletionEventCount": { "type": "integer", "minimum": 1 },
+    "deletionReceiptStatus": { "const": "verified" },
+    "deletionReplayStatus": { "const": "verified" },
     "retainedTranscriptEntries": { "type": "integer", "minimum": 1 },
     "retainedBadges": { "type": "integer", "minimum": 1 },
+    "retainedAttempts": { "type": "integer", "minimum": 1 },
+    "retainedCorrections": { "type": "integer", "minimum": 1 },
+    "preBackupProjectionSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "rebuiltProjectionSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
     "recoveryPointSeconds": { "type": "number", "minimum": 0 },
     "recoveryTimeSeconds": { "type": "number", "minimum": 0 },
     "maximumRecoveryPointSeconds": { "type": "number", "minimum": 0 },
