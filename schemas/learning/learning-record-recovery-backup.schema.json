@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-42.dev/schemas/learning-record-recovery-backup-v1.json",
+  "title": "Project 42 learning-record recovery backup artifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "manifest", "payload"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "backupId",
+        "artifactSha256",
+        "adapter",
+        "migrationHead",
+        "capturedAt",
+        "sourceCurrentAt",
+        "streamCount",
+        "eventCount",
+        "payloadBytes",
+        "payloadSha256"
+      ],
+      "properties": {
+        "schemaVersion": { "const": "1.0" },
+        "backupId": {
+          "type": "string",
+          "pattern": "^learning-recovery-[a-f0-9]{32}$"
+        },
+        "artifactSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "adapter": {
+          "enum": ["cloudflare-d1", "postgresql"]
+        },
+        "migrationHead": {
+          "type": "string",
+          "pattern": "^\\d{3,4}_[a-z0-9_-]+\\.sql$"
+        },
+        "capturedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sourceCurrentAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "streamCount": { "type": "integer", "minimum": 1 },
+        "eventCount": { "type": "integer", "minimum": 1 },
+        "payloadBytes": { "type": "integer", "minimum": 1 },
+        "payloadSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "payload": {
+      "type": "string",
+      "minLength": 1,
+      "contentMediaType": "application/json"
+    }
+  }
+}

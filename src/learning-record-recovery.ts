@@ -6,6 +6,13 @@ import {
   type LearningProjection,
 } from "./learning-event-engine.js";
 import type { LearningCommand } from "./learning-events.js";
+import type { LearningRecordAdapterKind } from "./learning-record-adapter.js";
+import {
+  createLearningRecordRecoveryBackup,
+  digestLearningRecordRecoveryArtifact,
+  type LearningRecordRecoveryBackupArtifact,
+  verifyLearningRecordRecoveryBackup,
+} from "./learning-record-recovery-backup.js";
 import {
   type LearningRecordDeletionReceipt,
   type LearningRecordReceiptStore,
@@ -14,13 +21,19 @@ import {
   verifyLearningRecordExport,
 } from "./learning-record-receipts.js";
 
-export const LEARNING_RECORD_RECOVERY_CONTRACT_VERSION = "1.0" as const;
+export const LEARNING_RECORD_RECOVERY_CONTRACT_VERSION = "1.1" as const;
+export const DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES = Object.freeze({
+  maximumRecoveryPointSeconds: 24 * 60 * 60,
+  maximumRecoveryTimeSeconds: 8 * 60 * 60,
+});
 
 export interface LearningRecordRecoveryScope {
   installationId: string;
   retainedLearnerId: string;
   deletedLearnerId: string;
   keyPrefix?: string;
+  adapter?: LearningRecordAdapterKind;
+  migrationHead?: string;
 }
 
 export interface LearningRecordRecoveryMeasurement {
@@ -35,8 +48,8 @@ export interface LearningRecordRecoveryMeasurement {
 export interface MeasuredLearningRecordRecoveryOptions {
   backupCapturedAt: string;
   sourceCurrentAt: string;
-  maximumRecoveryPointSeconds: number;
-  maximumRecoveryTimeSeconds: number;
+  maximumRecoveryPointSeconds?: number;
+  maximumRecoveryTimeSeconds?: number;
   now?: () => string;
 }
 
@@ -44,10 +57,21 @@ export interface LearningRecordRecoveryReport {
   contractVersion: typeof LEARNING_RECORD_RECOVERY_CONTRACT_VERSION;
   promotionStatus: "ready";
   checks: string[];
+  adapter: LearningRecordAdapterKind;
+  migrationHead: string;
+  backupId: string;
+  backupSha256: string;
+  backupBytes: number;
   restoredEventCount: number;
   replayedDeletionEventCount: number;
+  deletionReceiptStatus: "verified";
+  deletionReplayStatus: "verified";
   retainedTranscriptEntries: number;
   retainedBadges: number;
+  retainedAttempts: number;
+  retainedCorrections: number;
+  preBackupProjectionSha256: string;
+  rebuiltProjectionSha256: string;
   recoveryPointSeconds: number;
   recoveryTimeSeconds: number;
   maximumRecoveryPointSeconds: number;
@@ -191,6 +215,12 @@ export async function runMeasuredLearningRecordRecoveryConformance(
   options: MeasuredLearningRecordRecoveryOptions,
 ): Promise<LearningRecordRecoveryReport> {
   const now = options.now ?? (() => new Date().toISOString());
+  const maximumRecoveryPointSeconds =
+    options.maximumRecoveryPointSeconds ??
+    DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES.maximumRecoveryPointSeconds;
+  const maximumRecoveryTimeSeconds =
+    options.maximumRecoveryTimeSeconds ??
+    DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES.maximumRecoveryTimeSeconds;
   return runLearningRecordRecoveryConformanceInternal(
     sourceStore,
     restoredStore,
@@ -200,8 +230,8 @@ export async function runMeasuredLearningRecordRecoveryConformance(
       sourceCurrentAt: options.sourceCurrentAt,
       recoveryStartedAt: options.sourceCurrentAt,
       recoveryCompletedAt: options.sourceCurrentAt,
-      maximumRecoveryPointSeconds: options.maximumRecoveryPointSeconds,
-      maximumRecoveryTimeSeconds: options.maximumRecoveryTimeSeconds,
+      maximumRecoveryPointSeconds,
+      maximumRecoveryTimeSeconds,
     },
     now,
   );
@@ -224,6 +254,12 @@ async function runLearningRecordRecoveryConformanceInternal(
       : measurement.recoveryCompletedAt,
   });
   const prefix = scope.keyPrefix ?? "recovery-conformance";
+  const adapter = scope.adapter ?? "cloudflare-d1";
+  const migrationHead =
+    scope.migrationHead ??
+    (adapter === "cloudflare-d1"
+      ? "0011_authoritative_progress_imports.sql"
+      : "008_authoritative_progress_imports.sql");
   await assertEmptyScope(sourceStore, scope);
   await assertEmptyScope(restoredStore, scope);
 
@@ -274,7 +310,24 @@ async function runLearningRecordRecoveryConformanceInternal(
   );
   await assertValidBackup(retainedBackup);
   await assertValidBackup(deletedBackup);
-  await assertCorruptBackupsFail(retainedBackup);
+  const recoveryBackup = await createLearningRecordRecoveryBackup(
+    [retainedBackup, deletedBackup],
+    {
+      adapter,
+      migrationHead,
+      capturedAt: measurement.backupCapturedAt,
+      sourceCurrentAt: measurement.sourceCurrentAt,
+    },
+  );
+  const verifiedRecoveryBackup =
+    await verifyLearningRecordRecoveryBackup(recoveryBackup, {
+      adapter,
+      migrationHead,
+    });
+  await assertInvalidRecoveryBackupsFail(recoveryBackup, {
+    adapter,
+    migrationHead,
+  });
 
   const deletionReceipt = await sourceEngine.deleteVerified(
     scope.installationId,
@@ -284,9 +337,23 @@ async function runLearningRecordRecoveryConformanceInternal(
     measurement.sourceCurrentAt,
   );
 
+  const verifiedRetainedBackup = requiredBackupStream(
+    verifiedRecoveryBackup.streams,
+    scope.retainedLearnerId,
+  );
+  const verifiedDeletedBackup = requiredBackupStream(
+    verifiedRecoveryBackup.streams,
+    scope.deletedLearnerId,
+  );
   const restoredEventCount =
-    (await restoreVerifiedLearningRecordExport(restoredStore, retainedBackup)) +
-    (await restoreVerifiedLearningRecordExport(restoredStore, deletedBackup));
+    (await restoreVerifiedLearningRecordExport(
+      restoredStore,
+      verifiedRetainedBackup,
+    )) +
+    (await restoreVerifiedLearningRecordExport(
+      restoredStore,
+      verifiedDeletedBackup,
+    ));
   const retainedProjectionAfterRestore = await restoredEngine.rebuild(
     scope.installationId,
     scope.retainedLearnerId,
@@ -296,6 +363,17 @@ async function runLearningRecordRecoveryConformanceInternal(
     retainedProjectionBeforeBackup,
     retainedProjectionAfterRestore,
   );
+  const preBackupProjectionSha256 = await digestProjection(
+    retainedProjectionBeforeBackup,
+  );
+  const rebuiltProjectionSha256 = await digestProjection(
+    retainedProjectionAfterRestore,
+  );
+  if (preBackupProjectionSha256 !== rebuiltProjectionSha256) {
+    throw new Error(
+      "Rebuilt learning projection digest does not match pre-backup evidence.",
+    );
+  }
 
   const replay = await replayPostBackupDeletion(
     restoredEngine,
@@ -319,8 +397,12 @@ async function runLearningRecordRecoveryConformanceInternal(
     promotionStatus: "ready",
     checks: [
       "verified-backup-before-write",
+      "backup-manifest-checksum-verified",
       "corrupt-backup-rejected",
       "incomplete-backup-rejected",
+      "truncated-backup-rejected",
+      "checksum-mismatched-backup-rejected",
+      "wrong-migration-head-rejected",
       "authoritative-event-order-restored",
       "enrollment-progress-attempt-correction-projections-rebuilt",
       "transcript-projection-rebuilt",
@@ -330,11 +412,25 @@ async function runLearningRecordRecoveryConformanceInternal(
       "recovery-point-objective-met",
       "recovery-time-objective-met",
     ],
+    adapter,
+    migrationHead,
+    backupId: verifiedRecoveryBackup.manifest.backupId,
+    backupSha256: verifiedRecoveryBackup.manifest.artifactSha256,
+    backupBytes: verifiedRecoveryBackup.manifest.payloadBytes,
     restoredEventCount,
     replayedDeletionEventCount: replay.deletedEventCount,
+    deletionReceiptStatus: "verified",
+    deletionReplayStatus: "verified",
     retainedTranscriptEntries:
       retainedProjectionAfterRestore.transcript.length,
     retainedBadges: retainedProjectionAfterRestore.badges.length,
+    retainedAttempts: retainedProjectionAfterRestore.attempts.length,
+    retainedCorrections: retainedProjectionAfterRestore.attempts.reduce(
+      (total, attempt) => total + attempt.corrections.length,
+      0,
+    ),
+    preBackupProjectionSha256,
+    rebuiltProjectionSha256,
     recoveryPointSeconds: recovery.recoveryPointSeconds,
     recoveryTimeSeconds: recovery.recoveryTimeSeconds,
     maximumRecoveryPointSeconds:
@@ -406,24 +502,55 @@ async function assertValidBackup(
   }
 }
 
-async function assertCorruptBackupsFail(
-  backup: VerifiedLearningRecordExport,
+async function assertInvalidRecoveryBackupsFail(
+  backup: LearningRecordRecoveryBackupArtifact,
+  expected: {
+    adapter: LearningRecordAdapterKind;
+    migrationHead: string;
+  },
 ): Promise<void> {
-  const corrupt = structuredClone(backup);
-  const firstEvent = corrupt.events[0];
+  const checksumMismatch = structuredClone(backup);
+  checksumMismatch.payload = `${checksumMismatch.payload} `;
+  await assertRejectedBackup(checksumMismatch, expected, "checksum-mismatched");
+
+  const truncated = structuredClone(backup);
+  truncated.payload = truncated.payload.slice(
+    0,
+    Math.max(1, truncated.payload.length - 17),
+  );
+  truncated.manifest.payloadBytes = new TextEncoder().encode(
+    truncated.payload,
+  ).byteLength;
+  truncated.manifest.payloadSha256 = await digestText(truncated.payload);
+  truncated.manifest.artifactSha256 =
+    await digestLearningRecordRecoveryArtifact(truncated);
+  truncated.manifest.backupId =
+    `learning-recovery-${truncated.manifest.artifactSha256.slice(0, 32)}`;
+  await assertRejectedBackup(truncated, expected, "truncated");
+
+  const corruptPayload = JSON.parse(backup.payload) as {
+    streams: VerifiedLearningRecordExport[];
+  };
+  const firstEvent = corruptPayload.streams[0]?.events[0];
   if (!firstEvent || firstEvent.type !== "path.enrolled") {
     throw new Error("Recovery fixture is missing its enrollment event.");
   }
   firstEvent.payload.pathTitle = "Corrupted after backup";
-  if ((await verifyLearningRecordExport(corrupt)).valid) {
-    throw new Error("A corrupt learning-record backup passed verification.");
-  }
+  const corrupt = await resignBackupPayload(backup, corruptPayload);
+  await assertRejectedBackup(corrupt, expected, "corrupt");
 
-  const incomplete = structuredClone(backup);
-  incomplete.events.pop();
-  if ((await verifyLearningRecordExport(incomplete)).valid) {
-    throw new Error("An incomplete learning-record backup passed verification.");
-  }
+  const incompletePayload = JSON.parse(backup.payload) as {
+    streams: VerifiedLearningRecordExport[];
+  };
+  incompletePayload.streams[0]?.events.pop();
+  const incomplete = await resignBackupPayload(backup, incompletePayload);
+  await assertRejectedBackup(incomplete, expected, "incomplete");
+
+  const wrongHead = structuredClone(backup);
+  wrongHead.manifest.migrationHead = expected.adapter === "cloudflare-d1"
+    ? "0010_wrong_head.sql"
+    : "007_wrong_head.sql";
+  await assertRejectedBackup(wrongHead, expected, "wrong migration head");
 }
 
 function assertProjectionMatch(
@@ -473,6 +600,59 @@ function assertRestoredEventSemantics(
       );
     }
   }
+}
+
+function requiredBackupStream(
+  streams: VerifiedLearningRecordExport[],
+  learnerId: string,
+): VerifiedLearningRecordExport {
+  const matching = streams.filter((stream) => stream.learnerId === learnerId);
+  if (matching.length !== 1) {
+    throw new Error(
+      "Verified recovery backup must contain exactly one required learner stream.",
+    );
+  }
+  return matching[0] as VerifiedLearningRecordExport;
+}
+
+async function digestProjection(
+  projection: LearningProjection,
+): Promise<string> {
+  const { lastSequence: _lastSequence, ...semantics } = projection;
+  return digestText(JSON.stringify(sortJsonValue(semantics)));
+}
+
+async function resignBackupPayload(
+  original: LearningRecordRecoveryBackupArtifact,
+  payloadValue: unknown,
+): Promise<LearningRecordRecoveryBackupArtifact> {
+  const changed = structuredClone(original);
+  changed.payload = JSON.stringify(payloadValue);
+  changed.manifest.payloadBytes = new TextEncoder().encode(
+    changed.payload,
+  ).byteLength;
+  changed.manifest.payloadSha256 = await digestText(changed.payload);
+  changed.manifest.artifactSha256 =
+    await digestLearningRecordRecoveryArtifact(changed);
+  changed.manifest.backupId =
+    `learning-recovery-${changed.manifest.artifactSha256.slice(0, 32)}`;
+  return changed;
+}
+
+async function assertRejectedBackup(
+  backup: LearningRecordRecoveryBackupArtifact,
+  expected: {
+    adapter: LearningRecordAdapterKind;
+    migrationHead: string;
+  },
+  label: string,
+): Promise<void> {
+  try {
+    await verifyLearningRecordRecoveryBackup(backup, expected);
+  } catch {
+    return;
+  }
+  throw new Error(`A ${label} learning-record backup passed verification.`);
 }
 
 function learnerAccess(
@@ -610,4 +790,26 @@ function assertObjective(value: number, name: string): void {
   if (!Number.isFinite(value) || value < 0) {
     throw new Error(`${name} must be a non-negative finite number.`);
   }
+}
+
+async function digestText(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value),
+  );
+  return Array.from(new Uint8Array(digest), (byte) =>
+    byte.toString(16).padStart(2, "0"),
+  ).join("");
+}
+
+function sortJsonValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(sortJsonValue);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, child]) => [key, sortJsonValue(child)]),
+    );
+  }
+  return value;
 }

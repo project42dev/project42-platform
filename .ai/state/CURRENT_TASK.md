@@ -1,6 +1,8 @@
 # Current task
 
-Release the hosted account lifecycle and learner-data controls needed by the
-Project 42 production Worker and D1 deployment.
+Complete the provider-neutral learning-record recovery promotion gate with
+serialized backup integrity, post-backup deletion replay, exact transcript and
+mastery projection evidence, default-clock RPO/RTO measurement, and real
+PostgreSQL plus local D1 verification.
 
-Primary work items: AB#5778, AB#5780, AB#5781, AB#5783, and AB#5130.
+Primary work item: AB#5425.

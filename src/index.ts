@@ -142,6 +142,13 @@ export {
   verifyLearningRecordExport,
 } from "./learning-record-receipts.js";
 export {
+  createLearningRecordRecoveryBackup,
+  digestLearningRecordRecoveryArtifact,
+  LEARNING_RECORD_RECOVERY_BACKUP_VERSION,
+  verifyLearningRecordRecoveryBackup,
+} from "./learning-record-recovery-backup.js";
+export {
+  DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES,
   LEARNING_RECORD_RECOVERY_CONTRACT_VERSION,
   measureLearningRecordRecovery,
   restoreVerifiedLearningRecordExport,

@@ -394,8 +394,9 @@ The [hosted learning-record adapter guide](docs/hosted-learning-record-adapter.m
 defines adapter selection, cross-database parity, measurement, and operating
 thresholds.
 The [learning-record recovery gate](docs/learning-record-recovery.md) defines
-restore verification, deletion replay, projection comparison, objective
-measurement, and quota-safe rehearsal boundaries.
+serialized backup manifest and checksum verification, migration-head matching,
+deletion replay, exact projection comparison, 24-hour/8-hour objective
+measurement, PostgreSQL/D1 rehearsal parity, and quota-safe boundaries.
 
 For a local PostgreSQL and reference-OIDC evaluation stack, follow the
 [Docker Compose deployment guide](docs/self-hosting/docker-compose.md). The
