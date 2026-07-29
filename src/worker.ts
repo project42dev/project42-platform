@@ -33,6 +33,9 @@ import type {
   CreateIdentityLinkTransactionRequest,
   DeleteDomainRuleRequest,
   DeletionRequest,
+  DeletionStatus,
+  DeletionStatusReceipt,
+  DeletionStatusRequest,
   DomainRule,
   GithubIdentityLinkCompletionRequest,
   GithubIdentityLinkStartRequest,
@@ -52,6 +55,10 @@ import {
   readAccountMergeConsentRequirements,
   type AccountMergeConsentRequirement,
 } from "./account-merge-policy.js";
+import {
+  LEARNER_CONSENT_PURPOSES,
+  LEARNER_DATA_POLICY_VERSION,
+} from "./learner-data-policy.js";
 import {
   configureLearningRecordAdapter,
   readLearningRecordAdapterConfiguration,
@@ -220,6 +227,10 @@ interface ProfileRow {
   organization: string | null;
   location: string | null;
   website_url: string | null;
+  locale: string | null;
+  time_zone: string | null;
+  reduced_motion: number;
+  high_contrast: number;
   photo_object_key: string | null;
   photo_content_type: string | null;
   photo_byte_length: number | null;
@@ -243,6 +254,7 @@ interface ConsentRow {
   policy_version: string;
   decision: ConsentDecision;
   decided_at: string;
+  contract_status: ConsentRecord["contractStatus"];
 }
 
 interface DeletionRequestRow {
@@ -251,6 +263,10 @@ interface DeletionRequestRow {
   requested_at: string;
   cancellation_deadline: string;
   completed_at: string | null;
+}
+
+interface DeletionStatusRow extends DeletionRequestRow {
+  status_token_digest: string | null;
 }
 
 interface AccountMergeProofRow {
@@ -1866,6 +1882,10 @@ class D1Project42Repository {
       ["profile.organization", "organization"],
       ["profile.location", "location"],
       ["profile.websiteUrl", "website_url"],
+      ["profile.locale", "locale"],
+      ["profile.timeZone", "time_zone"],
+      ["profile.reducedMotion", "reduced_motion"],
+      ["profile.highContrast", "high_contrast"],
     ] as const;
     const selectedProfile: Record<string, unknown> = {};
     for (const [conflictKey, column] of profileFields) {
@@ -1992,14 +2012,19 @@ class D1Project42Repository {
         .prepare(
           `INSERT INTO user_profiles (
              installation_id, user_id, bio, organization, location, website_url,
+             locale, time_zone, reduced_motion, high_contrast,
              photo_object_key, photo_content_type, photo_byte_length, photo_etag,
              photo_updated_at, created_at, updated_at
-           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
            ON CONFLICT (installation_id, user_id) DO UPDATE SET
              bio = excluded.bio,
              organization = excluded.organization,
              location = excluded.location,
              website_url = excluded.website_url,
+             locale = excluded.locale,
+             time_zone = excluded.time_zone,
+             reduced_motion = excluded.reduced_motion,
+             high_contrast = excluded.high_contrast,
              photo_object_key = excluded.photo_object_key,
              photo_content_type = excluded.photo_content_type,
              photo_byte_length = excluded.photo_byte_length,
@@ -2014,6 +2039,10 @@ class D1Project42Repository {
           selectedProfile.organization,
           selectedProfile.location,
           selectedProfile.website_url,
+          selectedProfile.locale,
+          selectedProfile.time_zone,
+          selectedProfile.reduced_motion,
+          selectedProfile.high_contrast,
           selectedProfile.photo_object_key,
           selectedProfile.photo_content_type,
           selectedProfile.photo_byte_length,
@@ -3188,7 +3217,10 @@ class D1Project42Repository {
     const row = await this.db
       .prepare(
         `SELECT u.id AS user_id, u.display_name, p.bio, p.organization,
-                p.location, p.website_url, p.photo_object_key,
+                p.location, p.website_url, p.locale, p.time_zone,
+                COALESCE(p.reduced_motion, 0) AS reduced_motion,
+                COALESCE(p.high_contrast, 0) AS high_contrast,
+                p.photo_object_key,
                 p.photo_content_type, p.photo_byte_length, p.photo_etag,
                 p.photo_updated_at,
                 COALESCE(p.created_at, u.created_at) AS created_at,
@@ -3232,6 +3264,20 @@ class D1Project42Repository {
         input.request.websiteUrl === undefined
           ? current.websiteUrl
           : input.request.websiteUrl,
+      locale:
+        input.request.locale === undefined ? current.locale : input.request.locale,
+      timeZone:
+        input.request.timeZone === undefined
+          ? current.timeZone
+          : input.request.timeZone,
+      reducedMotion:
+        input.request.reducedMotion === undefined
+          ? current.reducedMotion
+          : input.request.reducedMotion,
+      highContrast:
+        input.request.highContrast === undefined
+          ? current.highContrast
+          : input.request.highContrast,
     };
     await this.db.batch([
       this.db
@@ -3244,13 +3290,18 @@ class D1Project42Repository {
         .prepare(
           `INSERT INTO user_profiles (
              installation_id, user_id, bio, organization, location, website_url,
+             locale, time_zone, reduced_motion, high_contrast,
              created_at, updated_at
-           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
            ON CONFLICT (installation_id, user_id) DO UPDATE SET
              bio = excluded.bio,
              organization = excluded.organization,
              location = excluded.location,
              website_url = excluded.website_url,
+             locale = excluded.locale,
+             time_zone = excluded.time_zone,
+             reduced_motion = excluded.reduced_motion,
+             high_contrast = excluded.high_contrast,
              updated_at = excluded.updated_at`,
         )
         .bind(
@@ -3260,6 +3311,10 @@ class D1Project42Repository {
           next.organization,
           next.location,
           next.websiteUrl,
+          next.locale,
+          next.timeZone,
+          next.reducedMotion ? 1 : 0,
+          next.highContrast ? 1 : 0,
           input.now,
           input.now,
         ),
@@ -3926,7 +3981,8 @@ class D1Project42Repository {
   async listConsents(userId: string): Promise<ConsentRecord[]> {
     const result = await this.db
       .prepare(
-        `SELECT id, purpose, policy_version, decision, decided_at
+        `SELECT id, purpose, policy_version, decision, decided_at,
+                contract_status
            FROM consent_records
           WHERE installation_id = ? AND user_id = ?
           ORDER BY decided_at ASC`,
@@ -3950,13 +4006,15 @@ class D1Project42Repository {
       policyVersion: input.policyVersion,
       decision: input.decision,
       decidedAt: input.now,
+      contractStatus: "current",
     };
     await this.db.batch([
       this.db
         .prepare(
           `INSERT INTO consent_records (
-             id, installation_id, user_id, purpose, policy_version, decision, decided_at
-           ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+             id, installation_id, user_id, purpose, policy_version, decision,
+             decided_at, contract_status
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, 'current')`,
         )
         .bind(
           consent.id,
@@ -4005,7 +4063,12 @@ class D1Project42Repository {
     account: Account;
     requestId: string;
     now: string;
-  }): Promise<DeletionRequest> {
+  }): Promise<{
+    deletionRequest: DeletionRequest;
+    receipt: DeletionStatusReceipt;
+  }> {
+    const statusToken = randomBase64Url(48);
+    const statusTokenDigest = await sha256(statusToken);
     const existing = await this.db
       .prepare(
         `SELECT id, state, requested_at, cancellation_deadline, completed_at
@@ -4017,7 +4080,38 @@ class D1Project42Repository {
       )
       .bind(this.installationId, input.account.id)
       .first<DeletionRequestRow>();
-    if (existing) return mapDeletionRequest(existing);
+    if (existing) {
+      await this.db.batch([
+        this.db
+          .prepare(
+            `UPDATE deletion_requests
+                SET status_token_digest = ?
+              WHERE installation_id = ? AND id = ?`,
+          )
+          .bind(statusTokenDigest, this.installationId, existing.id),
+        this.auditStatement({
+          id: crypto.randomUUID(),
+          actor: input.account.identity,
+          actorUserId: input.account.id,
+          action: "deletion.receipt.rotate",
+          targetType: "deletion_request",
+          targetId: existing.id,
+          requestId: input.requestId,
+          outcome: "success",
+          reason: "Learner reissued the private deletion-status receipt.",
+          metadata: { deletionRequestId: existing.id },
+          now: input.now,
+        }),
+      ]);
+      return {
+        deletionRequest: mapDeletionRequest(existing),
+        receipt: {
+          requestId: existing.id,
+          statusToken,
+          issuedAt: input.now,
+        },
+      };
+    }
 
     const deletionRequest: DeletionRequest = {
       id: crypto.randomUUID(),
@@ -4033,8 +4127,8 @@ class D1Project42Repository {
         .prepare(
           `INSERT INTO deletion_requests (
              id, installation_id, user_id, state, requested_at,
-             cancellation_deadline, completed_at
-           ) VALUES (?, ?, ?, 'requested', ?, ?, NULL)`,
+             cancellation_deadline, completed_at, status_token_digest
+           ) VALUES (?, ?, ?, 'requested', ?, ?, NULL, ?)`,
         )
         .bind(
           deletionRequest.id,
@@ -4042,6 +4136,7 @@ class D1Project42Repository {
           input.account.id,
           deletionRequest.requestedAt,
           deletionRequest.cancellationDeadline,
+          statusTokenDigest,
         ),
       this.auditStatement({
         id: crypto.randomUUID(),
@@ -4060,7 +4155,68 @@ class D1Project42Repository {
         now: input.now,
       }),
     ]);
-    return deletionRequest;
+    return {
+      deletionRequest,
+      receipt: {
+        requestId: deletionRequest.id,
+        statusToken,
+        issuedAt: input.now,
+      },
+    };
+  }
+
+  async getDeletionStatus(input: DeletionStatusRequest): Promise<DeletionStatus> {
+    const statusTokenDigest = await sha256(input.statusToken);
+    const active = await this.db
+      .prepare(
+        `SELECT id, state, requested_at, cancellation_deadline, completed_at,
+                status_token_digest
+           FROM deletion_requests
+          WHERE installation_id = ? AND id = ? AND status_token_digest = ?`,
+      )
+      .bind(
+        this.installationId,
+        input.requestId,
+        statusTokenDigest,
+      )
+      .first<DeletionStatusRow>();
+    if (active) {
+      return {
+        requestId: active.id,
+        state: active.state,
+        requestedAt: active.requested_at,
+        cancellationDeadline: active.cancellation_deadline,
+        completedAt: active.completed_at,
+      };
+    }
+    const completed = await this.db
+      .prepare(
+        `SELECT deletion_request_id AS id, 'completed' AS state, requested_at,
+                cancellation_deadline, completed_at, status_token_digest
+           FROM deletion_tombstones
+          WHERE installation_id = ? AND deletion_request_id = ?
+            AND status_token_digest = ?`,
+      )
+      .bind(
+        this.installationId,
+        input.requestId,
+        statusTokenDigest,
+      )
+      .first<DeletionStatusRow>();
+    if (!completed?.cancellation_deadline) {
+      throw new ApiFailure(
+        404,
+        "deletion_receipt_not_found",
+        "The deletion-status receipt could not be verified.",
+      );
+    }
+    return {
+      requestId: completed.id,
+      state: "completed",
+      requestedAt: completed.requested_at,
+      cancellationDeadline: completed.cancellation_deadline,
+      completedAt: completed.completed_at,
+    };
   }
 
   async cancelDeletion(input: {
@@ -4283,6 +4439,32 @@ class D1Project42Repository {
     }).run();
   }
 
+  async recordSelfScopeAuthorizationDenied(input: {
+    account: Account;
+    method: string;
+    path: string;
+    selectors: string[];
+    requestId: string;
+    now: string;
+  }): Promise<void> {
+    await this.auditStatement({
+      id: crypto.randomUUID(),
+      actor: input.account.identity,
+      actorUserId: input.account.id,
+      action: "authorization.self-scope.denied",
+      targetType: "self_service_route",
+      targetId: input.path,
+      requestId: input.requestId,
+      outcome: "denied",
+      reason: "Self-service routes do not accept account or installation selectors.",
+      metadata: {
+        method: input.method,
+        selectors: input.selectors,
+      },
+      now: input.now,
+    }).run();
+  }
+
   async completeDeletion(input: {
     actor: Account;
     deletionRequestId: string;
@@ -4298,6 +4480,7 @@ class D1Project42Repository {
     const deletion = await this.db
       .prepare(
         `SELECT d.id, d.user_id, d.state, d.requested_at, d.cancellation_deadline,
+                d.status_token_digest,
                 i.issuer, i.subject, p.photo_object_key,
                 EXISTS (
                   SELECT 1 FROM role_assignments r
@@ -4320,6 +4503,7 @@ class D1Project42Repository {
         state: DeletionRequest["state"];
         requested_at: string;
         cancellation_deadline: string;
+        status_token_digest: string | null;
         issuer: string;
         subject: string;
         photo_object_key: string | null;
@@ -4465,8 +4649,9 @@ class D1Project42Repository {
         .prepare(
           `INSERT INTO deletion_tombstones (
              id, installation_id, subject_digest, deletion_request_id,
-             requested_at, completed_at, completed_by_user_id
-           ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+             requested_at, completed_at, completed_by_user_id,
+             status_token_digest, cancellation_deadline
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
         .bind(
           crypto.randomUUID(),
@@ -4476,6 +4661,8 @@ class D1Project42Repository {
           deletion.requested_at,
           input.now,
           input.actor.id,
+          deletion.status_token_digest,
+          deletion.cancellation_deadline,
         ),
       this.auditStatement({
         id: crypto.randomUUID(),
@@ -5462,6 +5649,9 @@ async function buildAccountMergeConflicts(
   ): string | boolean | null => {
     if (value === null || value === undefined || value === "") return null;
     if (field === "photo") return true;
+    if (field === "reducedMotion" || field === "highContrast") {
+      return value === true || value === 1 || value === "1";
+    }
     if (typeof value === "boolean") return value;
     return String(value);
   };
@@ -5535,6 +5725,30 @@ async function buildAccountMergeConflicts(
       "websiteUrl",
       "website_url",
       "Choose the profile website retained after merge.",
+    ],
+    [
+      "profile.locale",
+      "locale",
+      "locale",
+      "Choose the locale retained after merge.",
+    ],
+    [
+      "profile.timeZone",
+      "timeZone",
+      "time_zone",
+      "Choose the time zone retained after merge.",
+    ],
+    [
+      "profile.reducedMotion",
+      "reducedMotion",
+      "reduced_motion",
+      "Choose the reduced-motion preference retained after merge.",
+    ],
+    [
+      "profile.highContrast",
+      "highContrast",
+      "high_contrast",
+      "Choose the high-contrast preference retained after merge.",
     ],
   ] as const) {
     addValueConflict(
@@ -5872,6 +6086,10 @@ function mapProfile(row: ProfileRow, fallbackTimestamp: string): LearnerProfile 
     organization: row.organization,
     location: row.location,
     websiteUrl: row.website_url,
+    locale: row.locale,
+    timeZone: row.time_zone,
+    reducedMotion: row.reduced_motion === 1,
+    highContrast: row.high_contrast === 1,
     photoAvailable: Boolean(row.photo_object_key),
     photoUpdatedAt: row.photo_updated_at,
     createdAt: row.created_at || fallbackTimestamp,
@@ -5886,6 +6104,7 @@ function mapConsent(row: ConsentRow): ConsentRecord {
     policyVersion: row.policy_version,
     decision: row.decision,
     decidedAt: row.decided_at,
+    contractStatus: row.contract_status,
   };
 }
 
@@ -6612,6 +6831,10 @@ function normalizeProfileRequest(
     "organization",
     "location",
     "websiteUrl",
+    "locale",
+    "timeZone",
+    "reducedMotion",
+    "highContrast",
   ] as const;
   const unknown = Object.keys(record).filter(
     (key) => !allowed.includes(key as (typeof allowed)[number]),
@@ -6627,16 +6850,38 @@ function normalizeProfileRequest(
   if (fields.length === 0) {
     throw new ApiFailure(400, "empty_profile_update", "At least one profile field is required.");
   }
-  const limits: Record<(typeof allowed)[number], number> = {
+  const stringFields = [
+    "displayName",
+    "bio",
+    "organization",
+    "location",
+    "websiteUrl",
+    "locale",
+    "timeZone",
+  ] as const;
+  const limits: Record<(typeof stringFields)[number], number> = {
     displayName: 80,
     bio: 500,
     organization: 120,
     location: 120,
     websiteUrl: 2_048,
+    locale: 35,
+    timeZone: 100,
   };
   const request: UpdateLearnerProfileRequest = {};
   for (const field of fields) {
     const raw = record[field];
+    if (field === "reducedMotion" || field === "highContrast") {
+      if (typeof raw !== "boolean") {
+        throw new ApiFailure(
+          400,
+          "invalid_profile_field",
+          `${field} must be true or false.`,
+        );
+      }
+      request[field] = raw;
+      continue;
+    }
     if (raw !== null && typeof raw !== "string") {
       throw new ApiFailure(
         400,
@@ -6645,11 +6890,12 @@ function normalizeProfileRequest(
       );
     }
     const normalized = typeof raw === "string" ? raw.trim() || null : null;
-    if (normalized && normalized.length > limits[field]) {
+    const stringField = field as (typeof stringFields)[number];
+    if (normalized && normalized.length > limits[stringField]) {
       throw new ApiFailure(
         400,
         "profile_field_too_long",
-        `${field} exceeds its ${limits[field]} character limit.`,
+        `${field} exceeds its ${limits[stringField]} character limit.`,
       );
     }
     if (
@@ -6663,7 +6909,7 @@ function normalizeProfileRequest(
         `${field} contains unsupported control characters.`,
       );
     }
-    request[field] = normalized;
+    request[stringField] = normalized;
   }
   if (request.websiteUrl) {
     let website: URL;
@@ -6685,7 +6931,61 @@ function normalizeProfileRequest(
     }
     request.websiteUrl = website.toString();
   }
+  if (request.locale) {
+    try {
+      request.locale = new Intl.Locale(request.locale).toString();
+    } catch {
+      throw new ApiFailure(
+        400,
+        "invalid_locale",
+        "Locale must be a valid BCP 47 language tag.",
+      );
+    }
+  }
+  if (request.timeZone) {
+    try {
+      request.timeZone = new Intl.DateTimeFormat("en", {
+        timeZone: request.timeZone,
+      }).resolvedOptions().timeZone;
+    } catch {
+      throw new ApiFailure(
+        400,
+        "invalid_time_zone",
+        "Time zone must be a valid IANA time-zone identifier.",
+      );
+    }
+  }
   return { request, fields: [...fields] };
+}
+
+async function requireSelfScope(
+  account: Account,
+  repository: D1Project42Repository,
+  request: Request,
+  requestId: string,
+  now: string,
+): Promise<void> {
+  const url = new URL(request.url);
+  const forbiddenSelectors = [
+    "userId",
+    "accountId",
+    "installationId",
+    "tenantId",
+  ].filter((key) => url.searchParams.has(key));
+  if (forbiddenSelectors.length === 0) return;
+  await repository.recordSelfScopeAuthorizationDenied({
+    account,
+    method: request.method,
+    path: url.pathname,
+    selectors: forbiddenSelectors,
+    requestId,
+    now,
+  });
+  throw new ApiFailure(
+    403,
+    "self_scope_selector_forbidden",
+    "Self-service requests are always scoped to the authenticated account and installation.",
+  );
 }
 
 async function readProfilePhoto(request: Request): Promise<{
@@ -6973,6 +7273,32 @@ async function handleRequest(
         ),
       );
     await repository.ensureInstallation(now);
+    if (request.method === "POST" && url.pathname === "/v1/deletion-status") {
+      const body = await readJson<Partial<DeletionStatusRequest>>(request);
+      if (
+        typeof body.requestId !== "string" ||
+        !isUuid(body.requestId) ||
+        typeof body.statusToken !== "string" ||
+        !/^[A-Za-z0-9_-]{64}$/.test(body.statusToken)
+      ) {
+        throw new ApiFailure(
+          400,
+          "invalid_deletion_receipt",
+          "A valid deletion request ID and private status token are required.",
+        );
+      }
+      return json(
+        {
+          status: await repository.getDeletionStatus({
+            requestId: body.requestId,
+            statusToken: body.statusToken,
+          }),
+        },
+        200,
+        requestId,
+        origin,
+      );
+    }
     if (request.method === "GET" && url.pathname === "/v1/auth/start") {
       const transaction: BrowserOidcTransaction = {
         id: crypto.randomUUID(),
@@ -7253,6 +7579,9 @@ async function handleRequest(
       );
       return response;
     }
+    if (url.pathname === "/v1/me" || url.pathname.startsWith("/v1/me/")) {
+      await requireSelfScope(account, repository, request, requestId, now);
+    }
     if (request.method === "GET" && url.pathname === "/v1/me") {
       return json({ account }, 200, requestId, origin);
     }
@@ -7521,23 +7850,24 @@ async function handleRequest(
       }>(request);
       if (
         typeof body.purpose !== "string" ||
-        !/^[a-z][a-z0-9-]{2,63}$/.test(body.purpose)
+        !LEARNER_CONSENT_PURPOSES.includes(
+          body.purpose as (typeof LEARNER_CONSENT_PURPOSES)[number],
+        )
       ) {
         throw new ApiFailure(
           400,
           "invalid_consent_purpose",
-          "Consent purpose must be a stable lowercase identifier.",
+          "Consent purpose is not part of the accepted learner-data policy.",
         );
       }
       if (
         typeof body.policyVersion !== "string" ||
-        body.policyVersion.trim().length < 1 ||
-        body.policyVersion.length > 64
+        body.policyVersion !== LEARNER_DATA_POLICY_VERSION
       ) {
         throw new ApiFailure(
           400,
           "invalid_policy_version",
-          "A policy version of at most 64 characters is required.",
+          "Consent decisions must reference the current accepted learner-data policy.",
         );
       }
       if (!["granted", "withdrawn"].includes(body.decision)) {
@@ -7550,7 +7880,7 @@ async function handleRequest(
       const consent = await repository.recordConsent({
         account,
         purpose: body.purpose,
-        policyVersion: body.policyVersion.trim(),
+        policyVersion: body.policyVersion,
         decision: body.decision,
         requestId,
         now,
@@ -7589,12 +7919,12 @@ async function handleRequest(
           "Enter the required deletion confirmation exactly.",
         );
       }
-      const deletionRequest = await repository.requestDeletion({
+      const deletion = await repository.requestDeletion({
         account,
         requestId,
         now,
       });
-      return json({ deletionRequest }, 202, requestId, origin);
+      return json(deletion, 202, requestId, origin);
     }
     if (request.method === "DELETE" && url.pathname === "/v1/me/deletion") {
       requireRecentAuthentication(identity, now);

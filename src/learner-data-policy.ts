@@ -138,6 +138,14 @@ export interface LearnerDataPolicyValidation {
   errors: string[];
 }
 
+export const LEARNER_DATA_POLICY_VERSION = "2026-07-27";
+export const LEARNER_CONSENT_PURPOSES = [
+  "learning-record",
+  "product-improvement",
+  "learning-reminders",
+] as const;
+export type LearnerConsentPurpose = (typeof LEARNER_CONSENT_PURPOSES)[number];
+
 const transitions: LifecycleTransition[] = [
   {
     from: "created",
@@ -222,7 +230,7 @@ const transitions: LifecycleTransition[] = [
 export const defaultLearnerDataPolicy: LearnerDataPolicyV1 = {
   schemaVersion: 1,
   policyId: "project42-learner-data",
-  policyVersion: "2026-07-27",
+  policyVersion: LEARNER_DATA_POLICY_VERSION,
   effectiveDate: "2026-07-27",
   accountBackedRecords: "planned",
   currentStorageNotice:

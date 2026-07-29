@@ -175,7 +175,15 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
       (
         await api(token, "/v1/me/profile", {
           method: "PATCH",
-          body: JSON.stringify({ bio, organization }),
+          body: JSON.stringify({
+            bio,
+            organization,
+            locale: token === "source-token" ? "en-US" : "fr-CA",
+            timeZone:
+              token === "source-token" ? "America/New_York" : "America/Toronto",
+            reducedMotion: token === "source-token",
+            highContrast: token !== "source-token",
+          }),
         })
       ).status,
       200,
@@ -198,8 +206,8 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
         await api(token, "/v1/me/consents", {
           method: "POST",
           body: JSON.stringify({
-            purpose: `merge-consent-${score}`,
-            policyVersion: "2026-07",
+            purpose: "product-improvement",
+            policyVersion: "2026-07-27",
             decision: "granted",
           }),
         })
@@ -406,19 +414,24 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
     },
   ]);
 
-  assert.equal(
-    (
-      await api("source-token", "/v1/me/consents", {
-        method: "POST",
-        body: JSON.stringify({
-          purpose: "learning-record",
-          policyVersion: "2026-06-01",
-          decision: "granted",
-        }),
-      })
-    ).status,
-    201,
-  );
+  const legacyConsentWrite = await api("source-token", "/v1/me/consents", {
+    method: "POST",
+    body: JSON.stringify({
+      purpose: "learning-record",
+      policyVersion: "2026-06-01",
+      decision: "granted",
+    }),
+  });
+  assert.equal(legacyConsentWrite.status, 400);
+  assert.equal((await json(legacyConsentWrite)).error.code, "invalid_policy_version");
+  await database
+    .prepare(
+      `UPDATE consent_records
+          SET policy_version = '2026-06-01', contract_status = 'legacy'
+        WHERE installation_id = ? AND user_id = ? AND purpose = 'learning-record'`,
+    )
+    .bind("merge-e2e", source.id)
+    .run();
   const versionMismatchPreview = (
     await json(
       await api("owner-token", "/v1/admin/account-merges/preview", {
@@ -977,6 +990,10 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
   ).profile;
   assert.equal(mergedProfile.bio, "Source biography");
   assert.equal(mergedProfile.organization, "Survivor organization");
+  assert.equal(mergedProfile.locale, "fr-CA");
+  assert.equal(mergedProfile.timeZone, "America/Toronto");
+  assert.equal(mergedProfile.reducedMotion, false);
+  assert.equal(mergedProfile.highContrast, true);
   const mergedProgress = (
     await json(await api("survivor-token", "/v1/me/progress"))
   ).progress.progress;
@@ -1001,7 +1018,12 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
   const mergedConsents = (
     await json(await api("survivor-token", "/v1/me/consents"))
   ).consents;
-  assert.equal(mergedConsents.length, 8);
+  assert.equal(mergedConsents.length, 7);
+  assert.equal(
+    mergedConsents.filter((consent) => consent.contractStatus === "legacy")
+      .length,
+    1,
+  );
   const mergedIdentities = (
     await json(await api("survivor-token", "/v1/me/identities"))
   ).identities;

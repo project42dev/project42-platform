@@ -25,6 +25,18 @@ Every hosted or self-hosted policy must preserve these controls:
 
 `validateLearnerDataPolicy` rejects policies that weaken these invariants.
 
+The accepted minimal profile includes optional `displayName`, `locale`, and
+`timeZone` values plus explicit `reducedMotion` and `highContrast`
+accessibility preferences. Locale values use BCP 47 language tags and time
+zones use IANA identifiers. Deployments must not add sensitive demographic or
+advertising fields to the reusable profile contract.
+
+New consent decisions are restricted to the purposes declared by
+`defaultLearnerDataPolicy` and its current `policyVersion`. Older installations
+may retain historical consent rows with `contractStatus: "legacy"` so exports
+and reviews remain complete, but the API and database reject new legacy-purpose
+or legacy-version decisions.
+
 ## Default deployment profiles
 
 The hosted Project 42 profile uses Cloudflare D1 for structured learner records
@@ -41,7 +53,8 @@ only an email address, account-backed records must remain disabled.
 
 Self-hosters may change policy IDs, dates, display wording, optional consent purposes,
 retention windows, and recovery objectives to match documented legal and operational
-requirements. They must not:
+requirements. A changed consent vocabulary must be versioned in the runtime contract
+and migrations before it is accepted by the API. Self-hosters must not:
 
 - key or merge accounts by email;
 - remove tenant isolation or deny-by-default authorization;
@@ -59,3 +72,10 @@ startup. This JSON array must contain at least one `purpose` and
 data policy. Duplicate-account completion fails closed unless both accounts'
 latest decision for every configured purpose is a grant for the exact configured
 version.
+
+Account deletion returns a private status receipt whose raw token is returned
+only when the receipt is issued. Only a SHA-256 digest of its high-entropy token
+is stored. `POST /v1/deletion-status` accepts the request ID and private token
+and returns only request state and timestamps, including after active account
+data and identity bindings have been erased. The completion tombstone retains
+no name, email, issuer, subject, or raw token.

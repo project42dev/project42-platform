@@ -55,6 +55,14 @@ photos. The API validates declared type and file signature, limits uploads to
 headers, and removes the active object during photo or account deletion. Do not
 expose the bucket through a public custom domain.
 
+Migration `0013_profile_consent_and_deletion_receipts.sql` adds the accepted
+locale, time-zone, reduced-motion, and high-contrast profile preferences. It
+also classifies pre-existing non-current consent history as `legacy`, rejects
+new consent decisions outside the accepted purpose/version vocabulary, and
+adds a digest-only deletion-status receipt. The unauthenticated
+`POST /v1/deletion-status` capability requires both the deletion request ID and
+the 384-bit private receipt token and returns no profile or identity data.
+
 Owners may create disabled exact-domain rules while automatic approval is
 globally locked. Enabling a rule still fails closed until
 `DOMAIN_APPROVAL_ENABLED=true` is set after real signed-token verification.
