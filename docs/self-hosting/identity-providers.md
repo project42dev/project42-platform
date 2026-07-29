@@ -69,6 +69,13 @@ Create a realm, a public client for Learn, and a separate API audience/client.
 Disable direct-access grants, require PKCE, and verify that the access token includes
 the intended audience and a stable subject.
 
+The reference Compose `test` profile runs a real Keycloak authorization-code
+journey through the Project 42 callback. It creates an ephemeral verified test
+identity, proves S256 PKCE and nonce validation, resolves the server-side session,
+rotates it, signs out, and removes the provider identity. The test container uses
+only the private Compose network. It does not relax the product requirement that
+browser-session authorization, token, callback, and logout endpoints use HTTPS.
+
 ### Authentik
 
 Create an OAuth2/OpenID provider and public application, require PKCE, and configure
