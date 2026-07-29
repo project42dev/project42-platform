@@ -520,7 +520,7 @@ test(
         "SELECT count(*)::integer AS count FROM learning_record_deletion_replays",
       );
       const deletedEventCount = await restoredPool.query(
-        "SELECT count(*)::integer AS count FROM learning_events WHERE installation_id = $1 AND learner_id = $2",
+        "SELECT count(*)::integer AS count FROM learning_events WHERE installation_id = $1 AND user_id = $2",
         [installationId, deletedLearnerId],
       );
       assert.equal(sourceReceiptCount.rows[0].count, 1);
