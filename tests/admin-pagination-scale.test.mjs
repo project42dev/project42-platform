@@ -476,7 +476,7 @@ test(
            action, target_type, target_id, request_id, outcome, reason,
            metadata_json, occurred_at
          )
-         SELECT installation_id || '-audit-' || lpad(number::text, 5, '0'),
+         SELECT installation_id || '-audit-' || lpad(number::text, 6, '0'),
                 installation_id,
                 NULL,
                 NULL,
