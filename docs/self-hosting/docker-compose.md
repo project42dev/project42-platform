@@ -29,6 +29,11 @@ docker compose --env-file self-host/.env -f self-host/compose.yaml up --build --
 curl --fail http://localhost:8787/health
 ```
 
+`--wait` gates on the API's explicit `GET /health` probe as well as the
+PostgreSQL and Keycloak readiness checks. The API cannot report healthy until
+its checksum-locked migrations and profile-photo storage initialization have
+completed and the HTTP listener is serving the public health contract.
+
 The services are:
 
 | Service | Local address | Purpose |
