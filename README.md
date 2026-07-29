@@ -59,6 +59,18 @@ contracts—not the private PMO records or Project42dev production configuration
   and retirement.
 - Seed content suitable for a hosted site or self-hosted installation.
 
+Release `0.62.0` makes duplicate-account reconciliation fail closed for
+suspended accounts and for non-overridable required-consent, retention-policy,
+and legal-hold blocks. Preview identifies the affected account and policy
+without exposing raw authority references; completion rechecks live policy,
+records denied audit evidence, and preserves progress, attempts, transcripts,
+badges, mastery records, and rollback recovery. D1 migration
+`0012_account_merge_governance_constraints.sql` and PostgreSQL migration
+`009_account_merge_governance_constraints.sql` add the provider-neutral,
+immutable governance-constraint ledger. This release also packages the merged
+instructor, self-hosted model operations, reliable-agent, and agentic-AI
+curriculum candidates while retaining their human publication gates.
+
 Release `0.61.0` makes the hosted progress API use the append-only learning-event
 stream as its read and write authority. Browser-local and portable imports become
 idempotent `progress.imported` events, existing hosted snapshots are promoted
