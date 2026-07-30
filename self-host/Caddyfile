@@ -12,7 +12,7 @@ https://api.project42.localhost {
 	reverse_proxy api:8787
 }
 
-https://identity.project42.localhost {
+https://identity.project42.localhost, https://identity.project42.internal {
 	tls internal
 	reverse_proxy identity:8080
 }

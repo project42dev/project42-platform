@@ -164,9 +164,11 @@ The three browser origins are:
 The `.localhost` names resolve to loopback and share the same registrable site,
 which permits the API's `Secure`, `HttpOnly`, `SameSite=Lax` session cookie
 without weakening its production policy. Inside the Compose network, the API
-and verifier map those public names to Docker's supported `host-gateway` so
-their HTTPS requests still traverse the published gateway with the exact SNI
-and certificate names. Docker Engine 27 and Docker Desktop provide that mapping.
+uses the private TLS name `identity.project42.internal` for token and signing-key
+traffic while retaining the public issuer and browser authorization URL. The
+verifier explicitly connects each public TLS name to the `gateway` service, so
+SNI and certificate validation remain exact without depending on container
+`.localhost` resolution.
 
 ### Trust the local certificate authority
 

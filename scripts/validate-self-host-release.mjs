@@ -135,9 +135,10 @@ const secureTopologyFragments = [
   "KC_HTTP_ENABLED: \"true\"",
   "KC_PROXY_HEADERS: xforwarded",
   "NEXT_PUBLIC_PROJECT42_API_ORIGIN: https://api.project42.localhost",
-  "\"identity.project42.localhost:host-gateway\"",
-  "\"api.project42.localhost:host-gateway\"",
-  "\"learn.project42.localhost:host-gateway\"",
+  "identity.project42.internal",
+  "--connect-to api.project42.localhost:443:gateway:443",
+  "--connect-to identity.project42.localhost:443:gateway:443",
+  "--connect-to learn.project42.localhost:443:gateway:443",
   "secure-topology-smoke:",
 ];
 for (const fragment of secureTopologyFragments) {

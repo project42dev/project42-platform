@@ -151,7 +151,11 @@ test("secure reference Compose exposes only the HTTPS gateway", async () => {
   );
   assert.match(
     api,
-    /"identity\.project42\.localhost:host-gateway"/,
+    /OIDC_TOKEN_ENDPOINT: https:\/\/identity\.project42\.internal\//,
+  );
+  assert.match(
+    api,
+    /OIDC_JWKS_URL: https:\/\/identity\.project42\.internal\//,
   );
   assert.match(identity, /KC_HOSTNAME: https:\/\/identity\.project42\.localhost/);
   assert.match(identity, /KC_PROXY_HEADERS: xforwarded/);
@@ -163,7 +167,10 @@ test("secure reference Compose exposes only the HTTPS gateway", async () => {
     "api.project42.localhost",
     "identity.project42.localhost",
   ]) {
-    assert.match(smoke, new RegExp(`"${host.replaceAll(".", "\\.")}:host-gateway"`));
+    assert.match(
+      smoke,
+      new RegExp(`--connect-to ${host.replaceAll(".", "\\.")}:443:gateway:443`),
+    );
   }
 });
 
@@ -186,6 +193,7 @@ test("secure local gateway and realm use exact same-site HTTPS origins", async (
     assert.match(caddyfile, new RegExp(`https://${host.replaceAll(".", "\\.")}`));
   }
   assert.equal((caddyfile.match(/tls internal/g) ?? []).length, 3);
+  assert.match(caddyfile, /https:\/\/identity\.project42\.internal/);
 
   const realm = JSON.parse(realmText);
   const client = realm.clients.find(

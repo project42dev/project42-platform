@@ -75,6 +75,7 @@ services:
           - learn.project42.localhost
           - api.project42.localhost
           - identity.project42.localhost
+          - identity.project42.internal
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:2019/config/"]
       interval: 3s
@@ -98,12 +99,12 @@ services:
       ACCOUNT_MERGE_REQUIRED_CONSENTS: ${PROJECT42_ACCOUNT_MERGE_REQUIRED_CONSENTS:?set PROJECT42_ACCOUNT_MERGE_REQUIRED_CONSENTS}
       OIDC_ISSUER: https://identity.project42.localhost/realms/project42
       OIDC_AUDIENCE: project42-api
-      OIDC_JWKS_URL: https://identity.project42.localhost/realms/project42/protocol/openid-connect/certs
+      OIDC_JWKS_URL: https://identity.project42.internal/realms/project42/protocol/openid-connect/certs
       OIDC_EMAIL_CLAIM: email
       OIDC_EMAIL_VERIFIED_CLAIM: email_verified
       BROWSER_SESSION_MODE: oidc
       OIDC_AUTHORIZATION_ENDPOINT: https://identity.project42.localhost/realms/project42/protocol/openid-connect/auth
-      OIDC_TOKEN_ENDPOINT: https://identity.project42.localhost/realms/project42/protocol/openid-connect/token
+      OIDC_TOKEN_ENDPOINT: https://identity.project42.internal/realms/project42/protocol/openid-connect/token
       OIDC_CLIENT_ID: project42-api-browser
       OIDC_REDIRECT_URI: https://api.project42.localhost/v1/auth/callback
       OIDC_LOGOUT_ENDPOINT: https://identity.project42.localhost/realms/project42/protocol/openid-connect/logout
@@ -136,8 +137,6 @@ services:
     volumes:
       - project42_profile_photos:/var/lib/project42/profile-photos
       - project42_caddy_data:/caddy-data:ro
-    extra_hosts:
-      - "identity.project42.localhost:host-gateway"
     read_only: true
     tmpfs:
       - /tmp:size=16m,mode=1777
@@ -155,17 +154,13 @@ services:
       CURL_CA_BUNDLE: /caddy-data/caddy/pki/authorities/local/root.crt
     volumes:
       - project42_caddy_data:/caddy-data:ro
-    extra_hosts:
-      - "learn.project42.localhost:host-gateway"
-      - "api.project42.localhost:host-gateway"
-      - "identity.project42.localhost:host-gateway"
     command:
       - /bin/sh
       - -ec
       - |
-        curl --fail --show-error --silent https://api.project42.localhost/health
-        curl --fail --show-error --silent https://identity.project42.localhost/realms/project42/.well-known/openid-configuration
-        curl --fail --show-error --silent https://learn.project42.localhost/account/ | grep -qi "Project 42"
+        curl --connect-to api.project42.localhost:443:gateway:443 --fail --show-error --silent https://api.project42.localhost/health
+        curl --connect-to identity.project42.localhost:443:gateway:443 --fail --show-error --silent https://identity.project42.localhost/realms/project42/.well-known/openid-configuration
+        curl --connect-to learn.project42.localhost:443:gateway:443 --fail --show-error --silent https://learn.project42.localhost/account/ | grep -qi "Project 42"
     depends_on:
       api:
         condition: service_healthy
