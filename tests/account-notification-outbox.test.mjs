@@ -1222,6 +1222,13 @@ test(
             now,
           ),
       ]);
+      const sourceAuditMaximum = Number(
+        (
+          await sourcePool.query(
+            "SELECT MAX(sequence)::text AS maximum FROM audit_events",
+          )
+        ).rows[0].maximum,
+      );
 
       const restoreClient = await restoredPool.connect();
       try {
@@ -1238,11 +1245,26 @@ test(
             "account_notification_fanouts",
             "audit_events",
           ]) {
+            const identityOverride =
+              table === "audit_events"
+                ? " OVERRIDING SYSTEM VALUE"
+                : "";
             await restoreClient.query(
-              `INSERT INTO "${restoredSchema}"."${table}"
+              `INSERT INTO "${restoredSchema}"."${table}"${identityOverride}
                SELECT * FROM "${sourceSchema}"."${table}"`,
             );
           }
+          await restoreClient.query(
+            `SELECT setval(
+               pg_get_serial_sequence(
+                 '"${restoredSchema}"."audit_events"',
+                 'sequence'
+               ),
+               COALESCE(MAX(sequence), 1),
+               MAX(sequence) IS NOT NULL
+             )
+               FROM "${restoredSchema}"."audit_events"`,
+          );
           await restoreClient.query("COMMIT");
         } catch (error) {
           await restoreClient.query("ROLLBACK");
@@ -1316,6 +1338,17 @@ test(
           replayed: 1,
           alreadyReplayed: 0,
         },
+      );
+      const restoredAuditMaximum = Number(
+        (
+          await restoredPool.query(
+            "SELECT MAX(sequence)::text AS maximum FROM audit_events",
+          )
+        ).rows[0].maximum,
+      );
+      assert.ok(
+        restoredAuditMaximum > sourceAuditMaximum,
+        "restored notification audits must continue after the restored identity sequence",
       );
     } finally {
       await sourcePool?.end();
