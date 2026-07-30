@@ -19,6 +19,25 @@ const secureExampleEnvironment = await readFile(
   "self-host/env.https.example",
   "utf8",
 );
+const secureBrowserDockerfile = await readFile(
+  "self-host/browser-smoke/Dockerfile",
+  "utf8",
+);
+const secureBrowserSeccomp = JSON.parse(
+  await readFile("self-host/browser-smoke/seccomp_profile.json", "utf8"),
+);
+const secureBrowserSmoke = await readFile(
+  "scripts/smoke-secure-browser-session.mjs",
+  "utf8",
+);
+const secureBackupRestoreSmoke = await readFile(
+  "self-host/smoke-secure-backup-restore.sh",
+  "utf8",
+);
+const continuousIntegration = await readFile(
+  ".github/workflows/ci.yml",
+  "utf8",
+);
 const migrations = (await readdir("self-host/postgres"))
   .filter((name) => /^\d+_[a-z0-9_-]+\.sql$/i.test(name))
   .sort();
@@ -143,6 +162,13 @@ const secureTopologyFragments = [
   "--connect-to identity.project42.localhost:443:gateway:443",
   "--connect-to learn.project42.localhost:443:gateway:443",
   "secure-topology-smoke:",
+  "secure-browser-session-smoke:",
+  "secure-backup-restore-smoke:",
+  "BOOTSTRAP_OWNER_ISSUER: ${PROJECT42_BOOTSTRAP_OWNER_ISSUER:-}",
+  "BOOTSTRAP_OWNER_SUBJECT: ${PROJECT42_BOOTSTRAP_OWNER_SUBJECT:-}",
+  "PROJECT42_BROWSER_SMOKE_SUBJECT: ${PROJECT42_BROWSER_SMOKE_SUBJECT:-}",
+  "cap_add:",
+  "- SYS_CHROOT",
 ];
 for (const fragment of secureTopologyFragments) {
   if (!secureCompose.includes(fragment)) {
@@ -198,6 +224,85 @@ if (
   !secureExampleEnvironment.includes("PROJECT42_SESSION_ENCRYPTION_KEY=replace-")
 ) {
   throw new Error("Secure example environment is incomplete or unsafe");
+}
+for (const fragment of [
+  "mcr.microsoft.com/playwright:v1.55.1-noble",
+  "libnss3-tools",
+  'test "$(id -u pwuser)" = "1001"',
+  'test "$(id -g pwuser)" = "1001"',
+  "USER pwuser",
+]) {
+  if (!secureBrowserDockerfile.includes(fragment)) {
+    throw new Error(`Secure browser image is missing: ${fragment}`);
+  }
+}
+if (
+  secureBrowserSeccomp.defaultAction !== "SCMP_ACT_ERRNO" ||
+  !secureBrowserSeccomp.syscalls?.some(
+    (rule) =>
+      rule.action === "SCMP_ACT_ALLOW" &&
+      ["clone", "setns", "unshare"].every((name) =>
+        rule.names?.includes(name),
+      ),
+  )
+) {
+  throw new Error(
+    "Secure browser must use the Playwright sandbox seccomp allowlist.",
+  );
+}
+for (const fragment of [
+  "chromium.launch",
+  "chromiumSandbox: true",
+  "--host-resolver-rules=",
+  "__Host-project42_session",
+  "sessionCookie.secure",
+  "sessionCookie.httpOnly",
+  'sessionCookie.sameSite, "Lax"',
+  "/v1/auth/session",
+]) {
+  if (!secureBrowserSmoke.includes(fragment)) {
+    throw new Error(`Secure browser acceptance is missing: ${fragment}`);
+  }
+}
+for (const forbidden of [
+  "ignoreHTTPSErrors",
+  "--ignore-certificate-errors",
+  "--no-sandbox",
+]) {
+  if (secureBrowserSmoke.includes(forbidden)) {
+    throw new Error(`Secure browser acceptance weakens security: ${forbidden}`);
+  }
+}
+for (const fragment of [
+  "pg_dump",
+  "pg_restore",
+  "sha256sum --check",
+  "project42_schema_migrations",
+  "directory_manifest",
+  "source-identity",
+  "source-caddy-data",
+  "source-caddy-config",
+  "restored-identity",
+  "restored-caddy-data",
+  "restored-caddy-config",
+]) {
+  if (!secureBackupRestoreSmoke.includes(fragment)) {
+    throw new Error(`Secure backup/restore acceptance is missing: ${fragment}`);
+  }
+}
+for (const fragment of [
+  "scan-self-host-release.mjs",
+  "aquasec/trivy:0.66.0",
+  "fs --scanners secret --exit-code 1",
+  "config --images",
+  "sort --unique",
+  "image --exit-code 1 --severity CRITICAL",
+  "secure-browser-session-smoke",
+  "secure-backup-restore-smoke",
+]) {
+  if (!continuousIntegration.includes(fragment)) {
+    throw new Error(`Secure release CI is missing: ${fragment}`);
+  }
 }
 
 console.log(

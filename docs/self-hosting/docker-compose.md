@@ -90,10 +90,11 @@ The identity readiness probe follows the
 [official Keycloak health-check guidance](https://www.keycloak.org/observability/health)
 for its internal management port (verified 2026-07-27).
 
-This repository does not assign a default owner. After a user signs in, use a
-reviewed bootstrap-owner issuer and subject for the first owner or approve the
-account through an existing owner. Never use an email address as the immutable
-owner key.
+This repository does not assign a default owner. Provision the first identity
+before starting the API, retrieve the subject that the identity provider
+actually issued, and set that reviewed issuer/subject pair as the bootstrap
+owner. Do not invent a subject or use an email address as the immutable owner
+key. The secure release test below demonstrates that ordering with Keycloak.
 
 The reference API stores profile photos in the named
 `project42_profile_photos` volume. Files use random internal keys, are never
@@ -152,6 +153,62 @@ docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml u
 docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
   --profile test run --rm secure-topology-smoke
 ```
+
+Release acceptance goes beyond endpoint reachability. On a fresh disposable
+test installation, start the identity prerequisites, create a verified Keycloak
+identity, capture Keycloak's issued subject, and only then start the API with
+that subject as the bootstrap owner. A real headless Chromium browser
+then drives Learn through Keycloak, the API callback, and the authenticated
+account surface. Chromium trusts the generated public Caddy root through its
+private NSS trust database; TLS verification is never disabled. The verifier
+runs as the unprivileged `pwuser` with the
+[Playwright 1.55.1 sandbox seccomp profile](https://github.com/microsoft/playwright/blob/v1.55.1/utils/docker/seccomp_profile.json),
+which retains a deny-by-default syscall allowlist while permitting Chromium's
+user namespace. The container drops every capability, then restores only
+`SYS_CHROOT`, which Chromium's sandbox requires when it creates its isolated
+root. It never receives `SYS_ADMIN`, uses `--no-sandbox`, or uses an unconfined
+seccomp profile.
+
+Set disposable test-only values in the command environment, then run:
+
+```bash
+export PROJECT42_BOOTSTRAP_OWNER_ISSUER=https://identity.project42.localhost/realms/project42
+export PROJECT42_BROWSER_SMOKE_EMAIL=secure-compose-owner@example.test
+export PROJECT42_BROWSER_SMOKE_PASSWORD="$(openssl rand -base64 36)"
+
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  up --detach --wait database identity gateway
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  run --rm --no-deps trust-export
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  exec -T identity /opt/keycloak/bin/kcadm.sh config credentials \
+  --server http://127.0.0.1:8080 --realm master --user bootstrap-admin \
+  --password "$PROJECT42_IDENTITY_ADMIN_PASSWORD"
+export PROJECT42_BOOTSTRAP_OWNER_SUBJECT="$(
+  docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+    exec -T identity /opt/keycloak/bin/kcadm.sh create users -r project42 -i \
+    -s "username=$PROJECT42_BROWSER_SMOKE_EMAIL" \
+    -s "email=$PROJECT42_BROWSER_SMOKE_EMAIL" \
+    -s 'firstName=Secure' -s 'lastName=Compose Owner' \
+    -s 'enabled=true' -s 'emailVerified=true'
+)"
+test -n "$PROJECT42_BOOTSTRAP_OWNER_SUBJECT"
+export PROJECT42_BROWSER_SMOKE_SUBJECT="$PROJECT42_BOOTSTRAP_OWNER_SUBJECT"
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  exec -T identity /opt/keycloak/bin/kcadm.sh set-password -r project42 \
+  --userid "$PROJECT42_BROWSER_SMOKE_SUBJECT" \
+  --new-password "$PROJECT42_BROWSER_SMOKE_PASSWORD"
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  up --build --detach --wait
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  --profile test run --rm --build secure-browser-session-smoke
+```
+
+The verifier requires the real API callback, an authenticated `/v1/auth/session`
+response, the exact provider-issued subject, and a browser-stored `Secure`,
+`HttpOnly`, `SameSite=Lax`,
+host-only cookie. It also signs out and confirms cookie removal. Do not reuse
+these test values as an installation owner or identity-provider credential.
 
 The three browser origins are:
 
@@ -231,40 +288,125 @@ promotion.
 
 ## Back up and restore
 
-Create an encrypted or access-controlled backup outside the repository:
+The HTTPS profile has four stateful assets that must be captured together:
+PostgreSQL learner/account data, profile-photo bytes, the reference Keycloak
+identity volume, and Caddy's local-CA state. The Caddy private key is a secret.
+The Keycloak volume contains identity records. Store every archive encrypted or
+in an access-controlled backup service; never commit it.
+
+For a coherent HTTPS-profile backup, create a private directory, quiesce the
+writers, and capture all four assets. The Compose project name is fixed as
+`project42-https`, so the named-volume references below are exact:
 
 ```bash
-docker compose --env-file self-host/.env -f self-host/compose.yaml exec -T database \
+backup_directory="$(pwd)/project42-secure-backup-$(date -u +%Y%m%dT%H%M%SZ)"
+mkdir -m 0700 "$backup_directory"
+
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  stop api identity gateway
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  exec -T database \
   pg_dump --format=custom --no-owner --username=project42 project42 \
-  > project42.backup
+  > "$backup_directory/project42.pgdump"
+
+for asset in project42_profile_photos project42_identity project42_caddy_data project42_caddy_config; do
+  docker run --rm \
+    --volume "project42-https_${asset}:/source:ro" \
+    --volume "$backup_directory:/backup" \
+    alpine:3.23 \
+    tar -C /source -czf "/backup/${asset}.tgz" .
+done
+
+(cd "$backup_directory" && sha256sum * > SHA256SUMS)
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  up --detach --wait
 ```
 
-Test restoration in an isolated empty database:
+Always rehearse the database restore into an isolated empty database before
+approving the backup:
 
 ```bash
-docker compose --env-file self-host/.env -f self-host/compose.yaml exec -T database \
-  createdb --username=project42 project42_restore_test
-docker compose --env-file self-host/.env -f self-host/compose.yaml exec -T database \
+cd "$backup_directory"
+sha256sum --check SHA256SUMS
+cd -
+
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  exec -T database \
+  createdb --username=project42 --template=template0 project42_restore_test
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  exec -T database \
   pg_restore --exit-on-error --no-owner --username=project42 \
-  --dbname=project42_restore_test < project42.backup
+  --dbname=project42_restore_test < "$backup_directory/project42.pgdump"
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  exec -T database \
+  psql --username=project42 --dbname=project42_restore_test \
+  --command="SELECT name, checksum FROM project42_schema_migrations ORDER BY name"
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  exec -T database \
+  dropdb --username=project42 project42_restore_test
+
+for asset in project42_profile_photos project42_identity project42_caddy_data project42_caddy_config; do
+  tar -tzf "$backup_directory/${asset}.tgz" >/dev/null
+done
 ```
 
-Delete the restore-test database after validation:
+The release gate also performs an executable, isolated database, profile-photo,
+Keycloak, and Caddy restore against the running test topology. Every source
+volume is mounted read-only. Restores go to disposable volumes, and deterministic
+path/checksum manifests must match:
 
 ```bash
-docker compose --env-file self-host/.env -f self-host/compose.yaml exec -T database \
-  dropdb --username=project42 project42_restore_test
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  --profile test run --rm secure-backup-restore-smoke
 ```
 
-Backups contain learner and identity-adjacent records. Encrypt them, restrict
-access, document retention, and replay completed deletion tombstones after any
-production restore.
+For an authorized full restore, set `backup_directory` to the reviewed absolute
+backup path and run the exact replacement sequence below. These commands
+overwrite the current secure-profile database and four named volumes:
 
-The database backup contains profile-photo metadata but not the photo bytes.
-Back up and restore the `project42_profile_photos` volume as a coordinated,
-encrypted artifact, and validate both together in the isolated restoration
-test. A database-only restore may contain photo metadata whose object no longer
-exists; the API fails closed rather than substituting another object.
+```bash
+backup_directory=/absolute/path/to/reviewed-project42-secure-backup
+(cd "$backup_directory" && sha256sum --check SHA256SUMS)
+
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  stop api identity gateway
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  exec -T database \
+  dropdb --if-exists --force --username=project42 project42
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  exec -T database \
+  createdb --username=project42 --template=template0 project42
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  exec -T database \
+  pg_restore --exit-on-error --no-owner --username=project42 \
+  --dbname=project42 < "$backup_directory/project42.pgdump"
+
+for asset in project42_profile_photos project42_identity project42_caddy_data project42_caddy_config; do
+  docker run --rm \
+    --env "PROJECT42_RESTORE_ASSET=${asset}" \
+    --volume "project42-https_${asset}:/target" \
+    --volume "$backup_directory:/backup:ro" \
+    alpine:3.23 \
+    sh -ec '
+      find /target -mindepth 1 -delete
+      tar -C /target -xzf "/backup/${PROJECT42_RESTORE_ASSET}.tgz"
+    '
+done
+
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  up --detach --wait
+```
+
+Do not mix artifacts from different backup sets. Re-import or replay completed
+deletion receipts created after the backup before promotion. Validate the
+authenticated browser journey and a profile-photo read before reopening
+access. A database-only restore can leave photo metadata without its object;
+the API fails closed rather than substituting another object.
+
+The HTTP evaluation profile can still be backed up with the same PostgreSQL
+`pg_dump` and `pg_restore` commands by substituting `self-host/.env`,
+`self-host/compose.yaml`, and its Compose volume names. It is not evidence for
+the HTTPS browser-session release gate.
 
 ## Stop or reset
 

@@ -186,6 +186,139 @@ test("secure reference Compose exposes only the HTTPS gateway", async () => {
   }
 });
 
+test("secure release gate drives a real browser session and isolated restore", async () => {
+  const [
+    compose,
+    browserSmoke,
+    backupSmoke,
+    browserDockerfile,
+    browserSeccompText,
+    workflow,
+  ] =
+    await Promise.all([
+      readFile(
+        new URL("../self-host/compose.https.yaml", import.meta.url),
+        "utf8",
+      ),
+      readFile(
+        new URL(
+          "../scripts/smoke-secure-browser-session.mjs",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+      readFile(
+        new URL(
+          "../self-host/smoke-secure-backup-restore.sh",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+      readFile(
+        new URL(
+          "../self-host/browser-smoke/Dockerfile",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+      readFile(
+        new URL(
+          "../self-host/browser-smoke/seccomp_profile.json",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+      readFile(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8"),
+    ]);
+
+  const browserService = composeServiceBlock(
+    compose,
+    "secure-browser-session-smoke",
+  );
+  assert.match(browserService, /profiles: \["test"\]/);
+  assert.match(browserService, /project42_trust:\/trust:ro/);
+  assert.match(browserService, /no-new-privileges:true/);
+  assert.match(browserService, /cap_drop:\s*\n\s+- ALL/);
+  assert.match(browserService, /cap_add:\s*\n\s+- SYS_CHROOT/);
+  assert.doesNotMatch(browserService, /SYS_ADMIN/);
+  assert.match(
+    browserService,
+    /seccomp=\.\/browser-smoke\/seccomp_profile\.json/,
+  );
+  assert.doesNotMatch(browserService, /\n    ports:/);
+  assert.match(browserDockerfile, /playwright:v1\.55\.1-noble/);
+  assert.match(
+    browserService,
+    /\/home\/pwuser:size=64m,mode=0700,uid=1001,gid=1001/,
+  );
+  assert.match(browserDockerfile, /test "\$\(id -u pwuser\)" = "1001"/);
+  assert.match(browserDockerfile, /test "\$\(id -g pwuser\)" = "1001"/);
+  assert.match(browserDockerfile, /USER pwuser/);
+  assert.match(browserSmoke, /chromium\.launch/);
+  assert.match(browserSmoke, /chromiumSandbox: true/);
+  assert.match(browserSmoke, /verifyProvisionedUser/);
+  assert.doesNotMatch(browserSmoke, /Keycloak did not preserve/);
+  assert.doesNotMatch(browserSmoke, /waitUntil: "networkidle"/);
+  assert.match(browserSmoke, /__Host-project42_session/);
+  assert.match(browserSmoke, /sessionCookie\.secure, true/);
+  assert.match(browserSmoke, /sessionCookie\.httpOnly, true/);
+  assert.match(browserSmoke, /sessionCookie\.sameSite, "Lax"/);
+  assert.doesNotMatch(browserSmoke, /ignoreHTTPSErrors/);
+  assert.doesNotMatch(browserSmoke, /--ignore-certificate-errors/);
+  assert.doesNotMatch(browserSmoke, /--no-sandbox/);
+  const browserSeccomp = JSON.parse(browserSeccompText);
+  assert.equal(browserSeccomp.defaultAction, "SCMP_ACT_ERRNO");
+  assert.ok(
+    browserSeccomp.syscalls.some(
+      (rule) =>
+        rule.action === "SCMP_ACT_ALLOW" &&
+        ["clone", "setns", "unshare"].every((name) =>
+          rule.names?.includes(name),
+        ),
+    ),
+  );
+
+  const backupService = composeServiceBlock(
+    compose,
+    "secure-backup-restore-smoke",
+  );
+  assert.match(backupService, /project42_profile_photos:\/source-photos:ro/);
+  assert.match(backupService, /project42_identity:\/source-identity:ro/);
+  assert.match(backupService, /project42_caddy_data:\/source-caddy-data:ro/);
+  assert.match(backupService, /project42_caddy_config:\/source-caddy-config:ro/);
+  assert.match(backupService, /project42_restore_photos:\/restored-photos/);
+  assert.match(
+    backupService,
+    /project42_restore_identity:\/restored-identity/,
+  );
+  assert.match(
+    backupService,
+    /project42_restore_caddy_data:\/restored-caddy-data/,
+  );
+  assert.match(
+    backupService,
+    /project42_restore_caddy_config:\/restored-caddy-config/,
+  );
+  assert.match(backupSmoke, /pg_dump/);
+  assert.match(backupSmoke, /pg_restore/);
+  assert.match(backupSmoke, /sha256sum --check/);
+  assert.match(backupSmoke, /project42_schema_migrations/);
+  assert.match(backupSmoke, /directory_manifest/);
+  assert.match(backupSmoke, /source-identity/);
+  assert.match(backupSmoke, /source-caddy-data/);
+  assert.match(backupSmoke, /source-caddy-config/);
+
+  assert.match(workflow, /scan-self-host-release\.mjs/);
+  assert.match(workflow, /aquasec\/trivy:0\.66\.0/);
+  assert.match(workflow, /fs --scanners secret --exit-code 1/);
+  assert.match(workflow, /config --images/);
+  assert.match(workflow, /sort --unique/);
+  assert.match(workflow, /image --exit-code 1 --severity CRITICAL/);
+  assert.doesNotMatch(workflow, /--ignore-unfixed/);
+  assert.match(workflow, /secure-browser-session-smoke/);
+  assert.match(workflow, /secure-backup-restore-smoke/);
+});
+
 test("secure local gateway and realm use exact same-site HTTPS origins", async () => {
   const [caddyfile, realmText] = await Promise.all([
     readFile(new URL("../self-host/Caddyfile", import.meta.url), "utf8"),
