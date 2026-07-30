@@ -22,7 +22,7 @@ function cookiePair(cookies, name) {
   return cookie.split(";", 1)[0];
 }
 
-test("expired browser identity tokens fail closed and return the learner to a restartable flow", async (t) => {
+test("browser identity tokens tolerate only bounded clock skew and establish an approved session", async (t) => {
   const { publicKey, privateKey } = await generateKeyPair("RS256");
   const jwk = await exportJWK(publicKey);
   const server = createServer((request, response) => {
@@ -64,6 +64,7 @@ test("expired browser identity tokens fail closed and return the learner to a re
   };
 
   let currentTransaction = null;
+  let createdSession = null;
   const repository = {
     ensureInstallation: async () => undefined,
     createOidcAuthorizationTransaction: async (input) => {
@@ -75,12 +76,47 @@ test("expired browser identity tokens fail closed and return the learner to a re
       assert.equal(currentTransaction.consumed, false);
       currentTransaction.consumed = true;
     },
+    createOrRefreshAccount: async (identity, ownerBootstrap, requestId, now) => {
+      assert.equal(ownerBootstrap, false);
+      assert.ok(requestId);
+      return {
+        id: "approved-boundary-learner",
+        installationId: env.INSTALLATION_ID,
+        identity: {
+          provider: identity.provider,
+          issuer: identity.issuer,
+          subject: identity.subject,
+        },
+        displayName: identity.displayName,
+        primaryEmail: identity.email,
+        emailVerified: identity.emailVerified,
+        state: "approved",
+        roles: ["learner"],
+        createdAt: now,
+        updatedAt: now,
+      };
+    },
+    createBrowserSession: async (input) => {
+      assert.equal(input.account.id, "approved-boundary-learner");
+      assert.equal(input.identity.subject, "boundary-browser-subject");
+      assert.equal(input.priorSession, null);
+      createdSession = {
+        id: "boundary-browser-session",
+        expiresAt: new Date(
+          Date.parse(input.now) + 8 * 60 * 60 * 1_000,
+        ).toISOString(),
+        absoluteExpiresAt: new Date(
+          Date.parse(input.now) + 24 * 60 * 60 * 1_000,
+        ).toISOString(),
+      };
+      return createdSession;
+    },
   };
 
   let expectedNonce = "";
-  let expiredToken = "";
+  let currentIdentityToken = "";
   const browserAdapter = new BrowserOidcAdapter(env, async () =>
-    Response.json({ id_token: expiredToken }),
+    Response.json({ id_token: currentIdentityToken }),
   );
   const verifier = new OidcJwtVerifier(env);
   const logged = [];
@@ -124,7 +160,7 @@ test("expired browser identity tokens fail closed and return the learner to a re
   );
 
   const now = Math.floor(Date.now() / 1_000);
-  expiredToken = await new SignJWT({
+  const expiredToken = await new SignJWT({
     nonce: expectedNonce,
     auth_time: now - 120,
     email: "must-not-appear@example.test",
@@ -134,9 +170,10 @@ test("expired browser identity tokens fail closed and return the learner to a re
     .setIssuer(issuer)
     .setSubject("must-not-appear")
     .setAudience(env.OIDC_CLIENT_ID)
-    .setIssuedAt(now - 120)
-    .setExpirationTime(now - 60)
+    .setIssuedAt(now - 361)
+    .setExpirationTime(now - 61)
     .sign(privateKey);
+  currentIdentityToken = expiredToken;
 
   const callback = await api(
     new Request(
@@ -219,6 +256,61 @@ test("expired browser identity tokens fail closed and return the learner to a re
   assert.ok(
     setCookies(restart).some((value) =>
       value.startsWith("__Host-project42_oidc="),
+    ),
+  );
+
+  const restartAuthorization = new URL(restart.headers.get("location"));
+  const restartState = restartAuthorization.searchParams.get("state");
+  expectedNonce = restartAuthorization.searchParams.get("nonce");
+  assert.ok(restartState);
+  assert.ok(expectedNonce);
+  const restartTransactionCookie = cookiePair(
+    setCookies(restart),
+    "__Host-project42_oidc",
+  );
+  const boundaryNow = Math.floor(Date.now() / 1_000);
+  currentIdentityToken = await new SignJWT({
+    nonce: expectedNonce,
+    auth_time: boundaryNow,
+    email: "boundary@example.test",
+    email_verified: true,
+    name: "Boundary Browser Learner",
+  })
+    .setProtectedHeader({ alg: "RS256", kid: "expiry-test-key" })
+    .setIssuer(issuer)
+    .setSubject("boundary-browser-subject")
+    .setAudience(env.OIDC_CLIENT_ID)
+    .setIssuedAt(boundaryNow - 300)
+    .setExpirationTime(boundaryNow)
+    .sign(privateKey);
+
+  const boundaryCallback = await api(
+    new Request(
+      `https://api.example.test/v1/auth/callback?code=boundary-code&state=${encodeURIComponent(restartState)}`,
+      { headers: { cookie: restartTransactionCookie } },
+    ),
+  );
+  assert.equal(boundaryCallback.status, 302);
+  assert.equal(
+    boundaryCallback.headers.get("location"),
+    "https://learn.example.test/account/?auth=success",
+  );
+  assert.ok(createdSession);
+  const boundaryCookies = setCookies(boundaryCallback);
+  assert.ok(
+    boundaryCookies.some(
+      (value) =>
+        value.startsWith("__Host-project42_session=") &&
+        value.includes("Secure") &&
+        value.includes("HttpOnly") &&
+        value.includes("SameSite=Lax"),
+    ),
+  );
+  assert.ok(
+    boundaryCookies.some(
+      (value) =>
+        value.startsWith("__Host-project42_oidc=") &&
+        value.includes("Max-Age=0"),
     ),
   );
 });

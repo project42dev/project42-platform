@@ -131,8 +131,64 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
       emailVerificationClaim: "verified",
     },
   ]);
+
+  const boundaryBrowserIdentityToken = await new SignJWT({
+    nonce: "expected-nonce",
+    auth_time: now,
+    azp: "project42-browser",
+  })
+    .setProtectedHeader({ alg: "RS256", kid: "test-key" })
+    .setIssuer(issuer)
+    .setSubject("boundary-browser-subject")
+    .setAudience("project42-browser")
+    .setIssuedAt(now - 300)
+    .setExpirationTime(now)
+    .sign(privateKey);
+  const boundaryBrowserIdentity = await verifier.verifyToken(
+    boundaryBrowserIdentityToken,
+    {
+      audience: "project42-browser",
+      nonce: "expected-nonce",
+      requireAuthenticationTime: true,
+    },
+  );
+  assert.equal(boundaryBrowserIdentity.subject, "boundary-browser-subject");
+
   await assert.rejects(
-    verifier.verifyToken(browserIdentityToken, {
+    verifier.verifyToken(boundaryBrowserIdentityToken, {
+      audience: "project42-browser",
+    }),
+    (error) =>
+      error.code === "invalid_access_token" &&
+      error.diagnostic === undefined,
+  );
+
+  const materiallyExpiredBrowserIdentityToken = await new SignJWT({
+    nonce: "expected-nonce",
+    auth_time: now,
+  })
+    .setProtectedHeader({ alg: "RS256", kid: "test-key" })
+    .setIssuer(issuer)
+    .setSubject("materially-expired-browser-subject")
+    .setAudience("project42-browser")
+    .setIssuedAt(now - 361)
+    .setExpirationTime(now - 61)
+    .sign(privateKey);
+  await assert.rejects(
+    verifier.verifyToken(materiallyExpiredBrowserIdentityToken, {
+      audience: "project42-browser",
+      nonce: "expected-nonce",
+      requireAuthenticationTime: true,
+    }),
+    (error) =>
+      error.code === "invalid_identity_token" &&
+      error.diagnostic?.category === "jose_validation" &&
+      error.diagnostic?.joseCode === "ERR_JWT_EXPIRED" &&
+      error.diagnostic?.claim === "exp",
+  );
+
+  await assert.rejects(
+    verifier.verifyToken(boundaryBrowserIdentityToken, {
       audience: "project42-browser",
       nonce: "wrong-nonce",
       requireAuthenticationTime: true,
@@ -140,6 +196,52 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
     (error) =>
       error.code === "invalid_identity_token" &&
       error.diagnostic?.category === "nonce_mismatch",
+  );
+
+  const wrongIssuerBoundaryToken = await new SignJWT({
+    nonce: "expected-nonce",
+    auth_time: now,
+  })
+    .setProtectedHeader({ alg: "RS256", kid: "test-key" })
+    .setIssuer("https://wrong-issuer.example.test")
+    .setSubject("wrong-issuer-browser-subject")
+    .setAudience("project42-browser")
+    .setIssuedAt(now - 300)
+    .setExpirationTime(now)
+    .sign(privateKey);
+  await assert.rejects(
+    verifier.verifyToken(wrongIssuerBoundaryToken, {
+      audience: "project42-browser",
+      nonce: "expected-nonce",
+      requireAuthenticationTime: true,
+    }),
+    (error) =>
+      error.code === "invalid_identity_token" &&
+      error.diagnostic?.category === "jose_validation" &&
+      error.diagnostic?.claim === "iss",
+  );
+
+  const wrongAudienceBoundaryToken = await new SignJWT({
+    nonce: "expected-nonce",
+    auth_time: now,
+  })
+    .setProtectedHeader({ alg: "RS256", kid: "test-key" })
+    .setIssuer(issuer)
+    .setSubject("wrong-audience-browser-subject")
+    .setAudience("different-browser")
+    .setIssuedAt(now - 300)
+    .setExpirationTime(now)
+    .sign(privateKey);
+  await assert.rejects(
+    verifier.verifyToken(wrongAudienceBoundaryToken, {
+      audience: "project42-browser",
+      nonce: "expected-nonce",
+      requireAuthenticationTime: true,
+    }),
+    (error) =>
+      error.code === "invalid_identity_token" &&
+      error.diagnostic?.category === "jose_validation" &&
+      error.diagnostic?.claim === "aud",
   );
 
   const missingAuthenticationTime = await new SignJWT({

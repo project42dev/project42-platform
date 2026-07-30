@@ -4,6 +4,16 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.70.2] - 2026-07-30
+
+### Fixed
+
+- Browser OIDC ID-token validation now allows a bounded 60-second clock-skew
+  tolerance when both nonce validation and fresh-authentication evidence are
+  required. Bearer access-token validation remains strict.
+- Tokens outside that bound, or with an invalid signature, issuer, audience,
+  authorized party, nonce, or authentication time, continue to fail closed.
+
 ## [0.70.1] - 2026-07-30
 
 ### Fixed
@@ -81,6 +91,7 @@ semantic versioning.
 - Identity-provider configuration and real user journeys remain deployment-owner
   responsibilities.
 
+[0.70.2]: https://github.com/project42dev/project42-platform/releases/tag/v0.70.2
 [0.70.1]: https://github.com/project42dev/project42-platform/releases/tag/v0.70.1
 [0.70.0]: https://github.com/project42dev/project42-platform/releases/tag/v0.70.0
 [0.69.0]: https://github.com/project42dev/project42-platform/releases/tag/v0.69.0

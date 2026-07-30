@@ -87,7 +87,12 @@ photos, linked identities, progress, merge proofs, and every unknown future
 The callback consumes its transaction before handling a provider denial or
 exchanging the authorization code. This fail-closed ordering prevents replay;
 a provider error or transient exchange failure requires the learner to start a
-new sign-in transaction. An expired provider ID token also remains rejected.
+new sign-in transaction. A provider ID token expired beyond the bounded
+tolerance also remains rejected. Browser ID-token verification permits only
+60 seconds of clock skew, and only
+when both nonce validation and fresh `auth_time` evidence are required. Tokens
+outside that bound remain rejected. Direct bearer-token validation receives no
+clock-skew tolerance.
 The callback clears its transaction cookie and redirects to the normalized
 learner return target with the generic `auth=error` state so the learner can
 start a fresh transaction instead of remaining on an API error response.

@@ -475,6 +475,8 @@ class ApiFailure extends Error {
   }
 }
 
+const BROWSER_IDENTITY_TOKEN_CLOCK_TOLERANCE_SECONDS = 60;
+
 class OidcJwtVerifier implements IdentityVerifier {
   private readonly keySet: ReturnType<typeof createRemoteJWKSet>;
 
@@ -511,6 +513,12 @@ class OidcJwtVerifier implements IdentityVerifier {
         issuer: this.env.OIDC_ISSUER,
         audience: options.audience ?? this.env.OIDC_AUDIENCE,
         requiredClaims,
+        ...(options.nonce && options.requireAuthenticationTime
+          ? {
+              clockTolerance:
+                BROWSER_IDENTITY_TOKEN_CLOCK_TOLERANCE_SECONDS,
+            }
+          : {}),
       });
       if (!payload.iss || !payload.sub) {
         throw new ApiFailure(401, "invalid_access_token", "Token identity is incomplete.");
