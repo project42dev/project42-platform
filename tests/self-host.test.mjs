@@ -301,7 +301,7 @@ test("secure release gate drives a real browser session and isolated restore", a
   );
   assert.match(backupSmoke, /pg_dump/);
   assert.match(backupSmoke, /pg_restore/);
-  assert.match(backupSmoke, /sha256sum --check/);
+  assert.match(backupSmoke, /sha256sum -c/);
   assert.match(backupSmoke, /project42_schema_migrations/);
   assert.match(backupSmoke, /directory_manifest/);
   assert.match(backupSmoke, /source-identity/);

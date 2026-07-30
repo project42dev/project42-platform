@@ -327,7 +327,7 @@ approving the backup:
 
 ```bash
 cd "$backup_directory"
-sha256sum --check SHA256SUMS
+sha256sum -c SHA256SUMS
 cd -
 
 docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
@@ -366,7 +366,7 @@ overwrite the current secure-profile database and four named volumes:
 
 ```bash
 backup_directory=/absolute/path/to/reviewed-project42-secure-backup
-(cd "$backup_directory" && sha256sum --check SHA256SUMS)
+(cd "$backup_directory" && sha256sum -c SHA256SUMS)
 
 docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
   stop api identity gateway

@@ -276,7 +276,7 @@ for (const forbidden of [
 for (const fragment of [
   "pg_dump",
   "pg_restore",
-  "sha256sum --check",
+  "sha256sum -c",
   "project42_schema_migrations",
   "directory_manifest",
   "source-identity",

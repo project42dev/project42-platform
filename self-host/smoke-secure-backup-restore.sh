@@ -90,7 +90,7 @@ find "${backup_directory}" -type f ! -name SHA256SUMS \
   -exec sha256sum {} + |
   sed "s#${backup_directory}/##" |
   sort > "${backup_directory}/SHA256SUMS"
-(cd "${backup_directory}" && sha256sum --check SHA256SUMS)
+(cd "${backup_directory}" && sha256sum -c SHA256SUMS)
 
 PGPASSWORD="${PROJECT42_DATABASE_PASSWORD}" createdb \
   --host=database \
