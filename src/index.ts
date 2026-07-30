@@ -79,6 +79,12 @@ export {
   InMemoryIdentityProvisioningRecordStore,
 } from "./identity-provisioning-engine.js";
 export {
+  authorizeProject42Operation,
+  PROJECT42_AUTHORIZATION_DENIAL_CODES,
+  PROJECT42_AUTHORIZATION_PERMISSIONS,
+  PROJECT42_AUTHORIZATION_ROLES,
+} from "./authorization.js";
+export {
   buildPortableLearnerRecord,
   buildTranscriptCsv,
   restorePortableLearnerRecord,

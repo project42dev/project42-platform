@@ -456,6 +456,9 @@ account-backed API without embedding a hosted tenant in the public source.
 The [owner administration pagination contract](docs/owner-administration-pagination.md)
 defines bounded account and audit queries, stable continuation, client migration,
 and the owner/installation security boundary.
+The [role and tenant authorization contract](docs/authorization-boundaries.md)
+defines the learner/owner permission matrix, fail-closed role and installation
+checks, privacy-safe audit boundary, and future-role extension gate.
 The [hosted learning-record adapter guide](docs/hosted-learning-record-adapter.md)
 defines adapter selection, cross-database parity, measurement, and operating
 thresholds.
