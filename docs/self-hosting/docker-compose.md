@@ -163,7 +163,10 @@ The three browser origins are:
 
 The `.localhost` names resolve to loopback and share the same registrable site,
 which permits the API's `Secure`, `HttpOnly`, `SameSite=Lax` session cookie
-without weakening its production policy.
+without weakening its production policy. Inside the Compose network, the API
+and verifier map those public names to Docker's supported `host-gateway` so
+their HTTPS requests still traverse the published gateway with the exact SNI
+and certificate names. Docker Engine 27 and Docker Desktop provide that mapping.
 
 ### Trust the local certificate authority
 

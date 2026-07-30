@@ -149,9 +149,22 @@ test("secure reference Compose exposes only the HTTPS gateway", async () => {
     api,
     /NODE_EXTRA_CA_CERTS: \/caddy-data\/caddy\/pki\/authorities\/local\/root\.crt/,
   );
+  assert.match(
+    api,
+    /"identity\.project42\.localhost:host-gateway"/,
+  );
   assert.match(identity, /KC_HOSTNAME: https:\/\/identity\.project42\.localhost/);
   assert.match(identity, /KC_PROXY_HEADERS: xforwarded/);
   assert.match(identity, /KC_HTTP_ENABLED: "true"/);
+
+  const smoke = composeServiceBlock(compose, "secure-topology-smoke");
+  for (const host of [
+    "learn.project42.localhost",
+    "api.project42.localhost",
+    "identity.project42.localhost",
+  ]) {
+    assert.match(smoke, new RegExp(`"${host.replaceAll(".", "\\.")}:host-gateway"`));
+  }
 });
 
 test("secure local gateway and realm use exact same-site HTTPS origins", async () => {

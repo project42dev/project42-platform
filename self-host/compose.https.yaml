@@ -136,6 +136,8 @@ services:
     volumes:
       - project42_profile_photos:/var/lib/project42/profile-photos
       - project42_caddy_data:/caddy-data:ro
+    extra_hosts:
+      - "identity.project42.localhost:host-gateway"
     read_only: true
     tmpfs:
       - /tmp:size=16m,mode=1777
@@ -153,6 +155,10 @@ services:
       CURL_CA_BUNDLE: /caddy-data/caddy/pki/authorities/local/root.crt
     volumes:
       - project42_caddy_data:/caddy-data:ro
+    extra_hosts:
+      - "learn.project42.localhost:host-gateway"
+      - "api.project42.localhost:host-gateway"
+      - "identity.project42.localhost:host-gateway"
     command:
       - /bin/sh
       - -ec
