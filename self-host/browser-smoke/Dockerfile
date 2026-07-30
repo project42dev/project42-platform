@@ -7,7 +7,16 @@ RUN apt-get update \
 
 WORKDIR /smoke
 COPY self-host/browser-smoke/package.json self-host/browser-smoke/package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts
+RUN npm ci --omit=dev --ignore-scripts \
+  && npm cache clean --force \
+  && rm -rf \
+    /opt/yarn-* \
+    /usr/local/lib/node_modules \
+    /usr/local/bin/corepack \
+    /usr/local/bin/npm \
+    /usr/local/bin/npx \
+    /usr/local/bin/yarn \
+    /usr/local/bin/yarnpkg
 COPY self-host/browser-smoke/trust-and-run.sh ./trust-and-run.sh
 COPY scripts/smoke-secure-browser-session.mjs ./smoke-secure-browser-session.mjs
 RUN chmod 0555 ./trust-and-run.sh ./smoke-secure-browser-session.mjs \

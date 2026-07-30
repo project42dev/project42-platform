@@ -268,6 +268,8 @@ test("secure release gate drives a real browser session and isolated restore", a
   );
   assert.doesNotMatch(browserService, /\n    ports:/);
   assert.match(browserDockerfile, /playwright:v1\.55\.1-noble/);
+  assert.match(browserDockerfile, /\/usr\/local\/lib\/node_modules/);
+  assert.match(browserDockerfile, /\/usr\/local\/bin\/npm/);
   assert.match(
     browserService,
     /\/home\/pwuser:size=64m,mode=0700,uid=1001,gid=1001/,
