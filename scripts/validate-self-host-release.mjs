@@ -9,7 +9,16 @@ const schema = JSON.parse(
   await readFile("self-host/compatibility.schema.json", "utf8"),
 );
 const compose = await readFile("self-host/compose.yaml", "utf8");
+const secureCompose = await readFile("self-host/compose.https.yaml", "utf8");
+const secureCaddyfile = await readFile("self-host/Caddyfile", "utf8");
+const secureRealm = JSON.parse(
+  await readFile("self-host/keycloak/project42-https-realm.json", "utf8"),
+);
 const exampleEnvironment = await readFile("self-host/.env.example", "utf8");
+const secureExampleEnvironment = await readFile(
+  "self-host/env.https.example",
+  "utf8",
+);
 const migrations = (await readdir("self-host/postgres"))
   .filter((name) => /^\d+_[a-z0-9_-]+\.sql$/i.test(name))
   .sort();
@@ -113,6 +122,69 @@ if (
 }
 if (manifest.supportLevel === "production" && compose.includes("start-dev")) {
   throw new Error("A production manifest cannot point to a development identity profile");
+}
+
+const secureTopologyFragments = [
+  "NODE_ENV: production",
+  "PUBLIC_URL: https://api.project42.localhost",
+  "BROWSER_SESSION_MODE: oidc",
+  "OIDC_REDIRECT_URI: https://api.project42.localhost/v1/auth/callback",
+  "ALLOWED_ORIGINS: https://learn.project42.localhost",
+  "NODE_EXTRA_CA_CERTS: /caddy-data/caddy/pki/authorities/local/root.crt",
+  "KC_HOSTNAME: https://identity.project42.localhost",
+  "KC_HTTP_ENABLED: \"true\"",
+  "KC_PROXY_HEADERS: xforwarded",
+  "NEXT_PUBLIC_PROJECT42_API_ORIGIN: https://api.project42.localhost",
+  "secure-topology-smoke:",
+];
+for (const fragment of secureTopologyFragments) {
+  if (!secureCompose.includes(fragment)) {
+    throw new Error(`Secure Compose topology is missing: ${fragment}`);
+  }
+}
+for (const forbidden of [
+  "\"8080:8080\"",
+  "\"8787:8787\"",
+  "PROJECT42_EVALUATION_MODE",
+  "BROWSER_SESSION_MODE: disabled",
+]) {
+  if (secureCompose.includes(forbidden)) {
+    throw new Error(`Secure Compose topology contains forbidden value: ${forbidden}`);
+  }
+}
+for (const host of [
+  "learn.project42.localhost",
+  "api.project42.localhost",
+  "identity.project42.localhost",
+]) {
+  if (!secureCaddyfile.includes(`https://${host}`)) {
+    throw new Error(`Caddy is missing the HTTPS host ${host}`);
+  }
+}
+if ((secureCaddyfile.match(/tls internal/g) ?? []).length !== 3) {
+  throw new Error("Every browser-facing local host must use Caddy internal TLS");
+}
+const secureClient = secureRealm.clients.find(
+  (client) => client.clientId === "project42-api-browser",
+);
+if (
+  !secureClient?.redirectUris?.includes(
+    "https://api.project42.localhost/v1/auth/callback",
+  ) ||
+  !secureClient?.webOrigins?.includes("https://learn.project42.localhost") ||
+  secureClient.publicClient !== true ||
+  secureClient.attributes?.["pkce.code.challenge.method"] !== "S256"
+) {
+  throw new Error("Secure reference OIDC client contract has drifted");
+}
+if (
+  !secureExampleEnvironment.includes(
+    `PROJECT42_VERSION=${packageDocument.version}`,
+  ) ||
+  !secureExampleEnvironment.includes("PROJECT42_LEARN_SOURCE_REF=") ||
+  !secureExampleEnvironment.includes("PROJECT42_SESSION_ENCRYPTION_KEY=replace-")
+) {
+  throw new Error("Secure example environment is incomplete or unsafe");
 }
 
 console.log(

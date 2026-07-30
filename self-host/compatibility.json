@@ -66,8 +66,8 @@
     }
   },
   "learn": {
-    "availability": "candidate",
-    "minimumVersion": "0.9.0",
+    "availability": "released",
+    "minimumVersion": "0.11.0",
     "sessionContract": "api-owned-http-only-cookie-v1",
     "configurationContract": [
       "NEXT_PUBLIC_PROJECT42_API_ORIGIN"

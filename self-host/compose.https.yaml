@@ -1,0 +1,181 @@
+name: project42-https
+
+services:
+  database:
+    image: postgres:17.10-alpine3.23
+    environment:
+      POSTGRES_DB: project42
+      POSTGRES_USER: project42
+      POSTGRES_PASSWORD: ${PROJECT42_DATABASE_PASSWORD:?set PROJECT42_DATABASE_PASSWORD}
+    volumes:
+      - project42_database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U project42 -d project42"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  identity:
+    image: quay.io/keycloak/keycloak:26.7.0
+    command: ["start-dev", "--import-realm", "--health-enabled=true"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: bootstrap-admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${PROJECT42_IDENTITY_ADMIN_PASSWORD:?set PROJECT42_IDENTITY_ADMIN_PASSWORD}
+      KC_HOSTNAME: https://identity.project42.localhost
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+    volumes:
+      - project42_identity:/opt/keycloak/data
+      - ./keycloak/project42-https-realm.json:/opt/keycloak/data/import/project42-realm.json:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          bash -c "{ printf 'HEAD /health/ready HTTP/1.0\r\n\r\n' >&0;
+          grep 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000"
+      interval: 5s
+      timeout: 3s
+      start_period: 30s
+      retries: 20
+    restart: unless-stopped
+
+  learn:
+    build:
+      context: https://github.com/project42dev/learn.project-42.dev.git#${PROJECT42_LEARN_SOURCE_REF:?set PROJECT42_LEARN_SOURCE_REF}
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_PROJECT42_API_ORIGIN: https://api.project42.localhost
+    image: project42/learn:${PROJECT42_VERSION:-local}
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+      - /var/cache/nginx:size=16m,mode=0755
+      - /var/run:size=1m,mode=0755
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: unless-stopped
+
+  gateway:
+    image: caddy:2.10.2-alpine
+    environment:
+      XDG_DATA_HOME: /data
+      XDG_CONFIG_HOME: /config
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - project42_caddy_data:/data
+      - project42_caddy_config:/config
+    ports:
+      - "443:443"
+    networks:
+      default:
+        aliases:
+          - learn.project42.localhost
+          - api.project42.localhost
+          - identity.project42.localhost
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:2019/config/"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ..
+      dockerfile: self-host/Dockerfile
+    image: project42/platform-api:${PROJECT42_VERSION:-local}
+    environment:
+      NODE_ENV: production
+      PORT: "8787"
+      PUBLIC_URL: https://api.project42.localhost
+      INSTALLATION_ID: ${PROJECT42_INSTALLATION_ID:?set PROJECT42_INSTALLATION_ID}
+      DATABASE_URL: postgresql://project42:${PROJECT42_DATABASE_PASSWORD}@database:5432/project42
+      DATABASE_TLS: "false"
+      LEARNING_RECORD_ADAPTER: postgresql
+      ACCOUNT_MERGE_REQUIRED_CONSENTS: ${PROJECT42_ACCOUNT_MERGE_REQUIRED_CONSENTS:?set PROJECT42_ACCOUNT_MERGE_REQUIRED_CONSENTS}
+      OIDC_ISSUER: https://identity.project42.localhost/realms/project42
+      OIDC_AUDIENCE: project42-api
+      OIDC_JWKS_URL: https://identity.project42.localhost/realms/project42/protocol/openid-connect/certs
+      OIDC_EMAIL_CLAIM: email
+      OIDC_EMAIL_VERIFIED_CLAIM: email_verified
+      BROWSER_SESSION_MODE: oidc
+      OIDC_AUTHORIZATION_ENDPOINT: https://identity.project42.localhost/realms/project42/protocol/openid-connect/auth
+      OIDC_TOKEN_ENDPOINT: https://identity.project42.localhost/realms/project42/protocol/openid-connect/token
+      OIDC_CLIENT_ID: project42-api-browser
+      OIDC_REDIRECT_URI: https://api.project42.localhost/v1/auth/callback
+      OIDC_LOGOUT_ENDPOINT: https://identity.project42.localhost/realms/project42/protocol/openid-connect/logout
+      SESSION_ENCRYPTION_KEY: ${PROJECT42_SESSION_ENCRYPTION_KEY:?set PROJECT42_SESSION_ENCRYPTION_KEY}
+      ALLOWED_ORIGINS: https://learn.project42.localhost
+      DOMAIN_APPROVAL_ENABLED: "false"
+      PROFILE_PHOTO_DIRECTORY: /var/lib/project42/profile-photos
+      MIGRATION_DIRECTORY: self-host/postgres
+      NODE_EXTRA_CA_CERTS: /caddy-data/caddy/pki/authorities/local/root.crt
+    depends_on:
+      database:
+        condition: service_healthy
+      identity:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - >-
+          require('node:http').get('http://127.0.0.1:8787/health',
+          (response) => process.exit(response.statusCode === 200 ? 0 : 1))
+          .on('error', () => process.exit(1))
+      interval: 10s
+      timeout: 3s
+      start_period: 20s
+      retries: 6
+    volumes:
+      - project42_profile_photos:/var/lib/project42/profile-photos
+      - project42_caddy_data:/caddy-data:ro
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    stop_grace_period: 30s
+    restart: unless-stopped
+
+  secure-topology-smoke:
+    profiles: ["test"]
+    image: curlimages/curl:8.16.0
+    environment:
+      CURL_CA_BUNDLE: /caddy-data/caddy/pki/authorities/local/root.crt
+    volumes:
+      - project42_caddy_data:/caddy-data:ro
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        curl --fail --show-error --silent https://api.project42.localhost/health
+        curl --fail --show-error --silent https://identity.project42.localhost/realms/project42/.well-known/openid-configuration
+        curl --fail --show-error --silent https://learn.project42.localhost/account/ | grep -qi "Project 42"
+    depends_on:
+      api:
+        condition: service_healthy
+      learn:
+        condition: service_started
+      gateway:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: "no"
+
+volumes:
+  project42_database:
+  project42_identity:
+  project42_profile_photos:
+  project42_caddy_data:
+  project42_caddy_config:
