@@ -69,9 +69,13 @@ changes. Explicit
 pending, delivering, delivered, retryable, and dead-letter states provide
 leased concurrency, bounded retry, crash recovery, stable idempotency, and
 privacy-safe audit evidence. Accessible text and HTML templates contain minimum
-data and no sign-in links or tracking. Hosted and reference self-host delivery
-remain disabled until a deployment explicitly supplies the public adapter
-contract; no notification vendor, service, secret, or DNS dependency is chosen.
+data and no sign-in links or tracking. Runtime-enforced delivery deadlines
+retain unknown outcomes under lease, pre-bootstrap fan-outs wait for the first
+approved owner, and owner-authorized recovery creates an immutable linked
+replacement for a dead letter. Hosted service bindings and the packed
+self-host module loader expose explicit adapter injection points while delivery
+remains disabled by default; no notification vendor, service, secret, or DNS
+dependency is chosen.
 D1 migration `0016_account_notification_outbox.sql` and PostgreSQL migration
 `013_account_notification_outbox.sql` provide matching persistence and guards.
 See [Account notification outbox](docs/account-notifications.md).

@@ -2,12 +2,17 @@ import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 import { Miniflare } from "miniflare";
+import { Pool } from "pg";
 import {
   AccountNotificationDeliveryError,
   DeterministicAccountNotificationAdapter,
   DisabledAccountNotificationAdapter,
 } from "../dist/index.js";
 import { D1Project42Repository } from "../dist/worker.js";
+import { applyPostgresMigrations } from "../dist/self-host/migrate.js";
+import { PostgresD1CompatibilityDatabase } from "../dist/self-host/postgres-d1.js";
+
+const systemActor = { kind: "system" };
 
 async function applyD1Migrations(database) {
   const migrations = (await readdir(new URL("../migrations/", import.meta.url)))
@@ -88,6 +93,7 @@ test("registration and lifecycle hooks enqueue atomically and dispatch exactly o
 
   await assert.rejects(
     repository.dispatchAccountNotifications({
+      actor: systemActor,
       adapter: new DisabledAccountNotificationAdapter(),
       requestId: "disabled-dispatch",
       now,
@@ -105,11 +111,13 @@ test("registration and lifecycle hooks enqueue atomically and dispatch exactly o
   const second = new DeterministicAccountNotificationAdapter(now);
   const summaries = await Promise.all([
     repository.dispatchAccountNotifications({
+      actor: systemActor,
       adapter: first,
       requestId: "concurrent-dispatch-1",
       now,
     }),
     repository.dispatchAccountNotifications({
+      actor: systemActor,
       adapter: second,
       requestId: "concurrent-dispatch-2",
       now,
@@ -157,6 +165,7 @@ test("registration and lifecycle hooks enqueue atomically and dispatch exactly o
     ),
   );
   const failed = await repository.dispatchAccountNotifications({
+    actor: systemActor,
     adapter: temporaryFailure,
     requestId: "temporary-failure",
     now: "2026-07-29T12:01:00.000Z",
@@ -180,6 +189,7 @@ test("registration and lifecycle hooks enqueue atomically and dispatch exactly o
     "2026-07-29T12:02:00.000Z",
   );
   const recovered = await repository.dispatchAccountNotifications({
+    actor: systemActor,
     adapter: recoveredAdapter,
     requestId: "retry-success",
     now: "2026-07-29T12:02:00.000Z",
@@ -377,13 +387,17 @@ test("owner alerts expand through durable bounded pages without truncation", asy
     "2026-07-29T12:00:00.000Z",
     "2026-07-29T12:01:00.000Z",
     "2026-07-29T12:02:00.000Z",
+    "2026-07-29T12:03:00.000Z",
+    "2026-07-29T12:04:00.000Z",
+    "2026-07-29T12:05:00.000Z",
   ]) {
     const adapter = new DeterministicAccountNotificationAdapter(dispatchAt);
     await repository.dispatchAccountNotifications({
+      actor: systemActor,
       adapter,
       requestId: `fanout-${dispatchAt}`,
       now: dispatchAt,
-      limit: 100,
+      limit: 10,
     });
     delivered.push(...adapter.deliveries);
   }
@@ -547,6 +561,7 @@ test("expired leases recover and bounded retries reach dead letter", async (t) =
     "2026-07-29T12:15:00.000Z",
   ]) {
     await repository.dispatchAccountNotifications({
+      actor: systemActor,
       adapter: alwaysFails,
       requestId: `bounded-failure-${attemptAt}`,
       now: attemptAt,
@@ -564,6 +579,88 @@ test("expired leases recover and bounded retries reach dead letter", async (t) =
     attempt_count: 5,
     last_error_code: "delivery-temporary-failure",
   });
+  await assert.rejects(
+    repository.replayDeadLetterAccountNotifications({
+      notificationIds: [row.id, "missing-dead-letter"],
+      actor: systemActor,
+      requestId: "dead-letter-replay-invalid-batch",
+      now: "2026-07-29T12:15:00.500Z",
+    }),
+    (error) => error.code === "account_notification_not_replayable",
+  );
+  assert.equal(
+    (
+      await database
+        .prepare(
+          `SELECT COUNT(*) AS count
+             FROM account_notifications
+            WHERE replay_of_notification_id = ?`,
+        )
+        .bind(row.id)
+        .first()
+    ).count,
+    0,
+  );
+  const replayed = await repository.replayDeadLetterAccountNotifications({
+    notificationIds: [row.id],
+    actor: systemActor,
+    requestId: "dead-letter-replay",
+    now: "2026-07-29T12:15:01.000Z",
+  });
+  assert.deepEqual(replayed, {
+    requested: 1,
+    replayed: 1,
+    alreadyReplayed: 0,
+  });
+  const repeatedReplay =
+    await repository.replayDeadLetterAccountNotifications({
+      notificationIds: [row.id],
+      actor: systemActor,
+      requestId: "dead-letter-replay-repeated",
+      now: "2026-07-29T12:15:02.000Z",
+    });
+  assert.deepEqual(repeatedReplay, {
+    requested: 1,
+    replayed: 0,
+    alreadyReplayed: 1,
+  });
+  const replayRows = await database
+    .prepare(
+      `SELECT id, state, attempt_count, replay_of_notification_id
+         FROM account_notifications
+        WHERE id = ? OR replay_of_notification_id = ?
+        ORDER BY replay_of_notification_id`,
+    )
+    .bind(row.id, row.id)
+    .all();
+  assert.equal(replayRows.results.length, 2);
+  assert.ok(
+    replayRows.results.some(
+      (entry) =>
+        entry.id === row.id &&
+        entry.state === "dead-letter" &&
+        entry.attempt_count === 5,
+    ),
+  );
+  assert.ok(
+    replayRows.results.some(
+      (entry) =>
+        entry.replay_of_notification_id === row.id &&
+        entry.state === "pending" &&
+        entry.attempt_count === 0,
+    ),
+  );
+  const replayDelivery = new DeterministicAccountNotificationAdapter(
+    "2026-07-29T12:15:03.000Z",
+  );
+  const replayDispatch = await repository.dispatchAccountNotifications({
+    actor: systemActor,
+    adapter: replayDelivery,
+    requestId: "dead-letter-replay-delivery",
+    now: "2026-07-29T12:15:03.000Z",
+  });
+  assert.equal(replayDispatch.delivered, 1);
+  assert.notEqual(replayDelivery.deliveries[0].notificationId, row.id);
 
   const recoveryIdentity = verifiedIdentity(
     "recovery-learner",
@@ -604,6 +701,7 @@ test("expired leases recover and bounded retries reach dead letter", async (t) =
     )
     .run();
   const summary = await repository.dispatchAccountNotifications({
+    actor: systemActor,
     adapter: new DeterministicAccountNotificationAdapter(
       "2026-07-29T12:16:00.000Z",
     ),
@@ -624,3 +722,480 @@ test("expired leases recover and bounded retries reach dead letter", async (t) =
     lease_token: null,
   });
 });
+
+test("delivery deadlines abort adapters and retain a lease before safe recovery", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-29",
+    d1Databases: { PROJECT42_DB: "project42-account-notification-deadline" },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  await applyD1Migrations(database);
+  const repository = new D1Project42Repository(
+    database,
+    "notification-deadline",
+  );
+  const now = "2026-07-29T12:00:00.000Z";
+  await repository.ensureInstallation(now);
+  const learnerIdentity = verifiedIdentity(
+    "deadline-learner",
+    "deadline@example.test",
+  );
+  const learner = await repository.createOrRefreshAccount(
+    learnerIdentity,
+    false,
+    "deadline-signup",
+    now,
+  );
+  await repository.createRegistrationRequest({
+    account: learner,
+    identity: learnerIdentity,
+    receiptTokenDigest: "f".repeat(64),
+    requestId: "deadline-registration",
+    now,
+  });
+
+  let observedAbort = false;
+  let attemptedNotificationId;
+  const hangingAdapter = {
+    kind: "hanging-test",
+    deliver(message, context) {
+      attemptedNotificationId = message.notificationId;
+      return new Promise((_resolve, reject) => {
+        context.signal.addEventListener(
+          "abort",
+          () => {
+            observedAbort = true;
+            reject(new Error("private adapter detail"));
+          },
+          { once: true },
+        );
+      });
+    },
+  };
+  const timedOut = await repository.dispatchAccountNotifications({
+    actor: systemActor,
+    adapter: hangingAdapter,
+    requestId: "deadline-dispatch",
+    now,
+    deliveryDeadlineMs: 100,
+  });
+  assert.equal(timedOut.outcomeUnknown, 1);
+  assert.equal(observedAbort, true);
+  const leased = await database
+    .prepare(
+      `SELECT state, attempt_count, lease_token, lease_expires_at,
+              last_error_code
+         FROM account_notifications WHERE id = ?`,
+    )
+    .bind(attemptedNotificationId)
+    .first();
+  assert.equal(leased.state, "delivering");
+  assert.equal(leased.attempt_count, 1);
+  assert.ok(leased.lease_token);
+  assert.equal(leased.lease_expires_at, "2026-07-29T12:05:00.000Z");
+  assert.equal(leased.last_error_code, null);
+
+  const beforeLeaseExpiry = new DeterministicAccountNotificationAdapter(now);
+  const unchanged = await repository.dispatchAccountNotifications({
+    actor: systemActor,
+    adapter: beforeLeaseExpiry,
+    requestId: "deadline-no-immediate-retry",
+    now: "2026-07-29T12:04:59.000Z",
+  });
+  assert.equal(unchanged.claimed, 0);
+  assert.equal(beforeLeaseExpiry.deliveries.length, 0);
+
+  const recoveredAdapter = new DeterministicAccountNotificationAdapter(
+    "2026-07-29T12:05:00.000Z",
+  );
+  const recovered = await repository.dispatchAccountNotifications({
+    actor: systemActor,
+    adapter: recoveredAdapter,
+    requestId: "deadline-safe-recovery",
+    now: "2026-07-29T12:05:00.000Z",
+  });
+  assert.equal(recovered.recovered, 1);
+  assert.equal(recovered.delivered, 1);
+  assert.equal(recoveredAdapter.deliveries[0].notificationId, attemptedNotificationId);
+  const audits = await database
+    .prepare(
+      `SELECT action, actor_user_id, metadata_json
+         FROM audit_events
+        WHERE target_id = ?
+        ORDER BY sequence`,
+    )
+    .bind(attemptedNotificationId)
+    .all();
+  assert.deepEqual(
+    audits.results.map((entry) => entry.action),
+    [
+      "account-notification.delivery-outcome-unknown",
+      "account-notification.lease-recovered",
+      "account-notification.delivered",
+    ],
+  );
+  assert.ok(audits.results.every((entry) => entry.actor_user_id === null));
+  assert.ok(
+    audits.results.every(
+      (entry) => !/@|example\.test|private adapter/i.test(entry.metadata_json),
+    ),
+  );
+});
+
+test("a pre-bootstrap registration waits and alerts the first approved owner", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-29",
+    d1Databases: { PROJECT42_DB: "project42-account-notification-bootstrap" },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  await applyD1Migrations(database);
+  const installationId = "notification-bootstrap";
+  const repository = new D1Project42Repository(database, installationId);
+  const registrationAt = "2026-07-29T12:00:00.000Z";
+  await repository.ensureInstallation(registrationAt);
+  const learnerIdentity = verifiedIdentity(
+    "bootstrap-learner",
+    "bootstrap-learner@example.test",
+  );
+  const learner = await repository.createOrRefreshAccount(
+    learnerIdentity,
+    false,
+    "bootstrap-learner-signup",
+    registrationAt,
+  );
+  await repository.createRegistrationRequest({
+    account: learner,
+    identity: learnerIdentity,
+    receiptTokenDigest: "1".repeat(64),
+    requestId: "bootstrap-registration",
+    now: registrationAt,
+  });
+  const beforeOwnerAdapter = new DeterministicAccountNotificationAdapter(
+    registrationAt,
+  );
+  await repository.dispatchAccountNotifications({
+    actor: systemActor,
+    adapter: beforeOwnerAdapter,
+    requestId: "bootstrap-before-owner",
+    now: registrationAt,
+  });
+  assert.deepEqual(
+    beforeOwnerAdapter.deliveries.map((item) => item.kind),
+    ["registration-receipt"],
+  );
+  assert.deepEqual(
+    await database
+      .prepare(
+        `SELECT state, cursor_owner_user_id, recipient_cutoff_at, revision
+           FROM account_notification_fanouts`,
+      )
+      .first(),
+    {
+      state: "pending",
+      cursor_owner_user_id: null,
+      recipient_cutoff_at: null,
+      revision: 1,
+    },
+  );
+
+  const ownerAt = "2026-07-29T12:05:00.000Z";
+  await repository.createOrRefreshAccount(
+    verifiedIdentity("first-owner", "first-owner@example.test"),
+    true,
+    "first-owner-bootstrap",
+    ownerAt,
+  );
+  const afterOwnerAdapter = new DeterministicAccountNotificationAdapter(
+    ownerAt,
+  );
+  await repository.dispatchAccountNotifications({
+    actor: systemActor,
+    adapter: afterOwnerAdapter,
+    requestId: "bootstrap-after-owner",
+    now: ownerAt,
+  });
+  assert.deepEqual(
+    afterOwnerAdapter.deliveries.map((item) => item.kind),
+    ["owner-registration-alert"],
+  );
+  assert.deepEqual(
+    await database
+      .prepare(
+        `SELECT state, cursor_owner_user_id, recipient_cutoff_at, revision
+           FROM account_notification_fanouts`,
+      )
+      .first(),
+    {
+      state: "complete",
+      cursor_owner_user_id: (await database
+        .prepare(
+          `SELECT id FROM users
+            WHERE installation_id = ? AND primary_email = ?`,
+        )
+        .bind(installationId, "first-owner@example.test")
+        .first()).id,
+      recipient_cutoff_at: ownerAt,
+      revision: 2,
+    },
+  );
+});
+
+test(
+  "PostgreSQL expands the NULL-cursor first page and preserves outbox recovery across restore",
+  { skip: !process.env.TEST_POSTGRES_URL },
+  async () => {
+    const administrationPool = new Pool({
+      connectionString: process.env.TEST_POSTGRES_URL,
+    });
+    const suffix = crypto.randomUUID().replaceAll("-", "");
+    const sourceSchema = `notification_source_${suffix}`;
+    const restoredSchema = `notification_restored_${suffix}`;
+    let sourcePool;
+    let restoredPool;
+    try {
+      await administrationPool.query(`CREATE SCHEMA "${sourceSchema}"`);
+      await administrationPool.query(`CREATE SCHEMA "${restoredSchema}"`);
+      sourcePool = new Pool({
+        connectionString: process.env.TEST_POSTGRES_URL,
+        options: `-c search_path=${sourceSchema}`,
+      });
+      restoredPool = new Pool({
+        connectionString: process.env.TEST_POSTGRES_URL,
+        options: `-c search_path=${restoredSchema}`,
+      });
+      await applyPostgresMigrations(sourcePool, "self-host/postgres");
+      await applyPostgresMigrations(restoredPool, "self-host/postgres");
+      const sourceDatabase = new PostgresD1CompatibilityDatabase(sourcePool);
+      const sourceRepository = new D1Project42Repository(
+        sourceDatabase,
+        "postgres-notification",
+      );
+      const now = "2026-07-29T12:00:00.000Z";
+      await sourceRepository.ensureInstallation(now);
+      const owner = await sourceRepository.createOrRefreshAccount(
+        verifiedIdentity("postgres-owner", "postgres-owner@example.test"),
+        true,
+        "postgres-owner-bootstrap",
+        now,
+      );
+      const learnerIdentity = verifiedIdentity(
+        "postgres-learner",
+        "postgres-learner@example.test",
+      );
+      const learner = await sourceRepository.createOrRefreshAccount(
+        learnerIdentity,
+        false,
+        "postgres-learner-signup",
+        now,
+      );
+      await sourceRepository.createRegistrationRequest({
+        account: learner,
+        identity: learnerIdentity,
+        receiptTokenDigest: "2".repeat(64),
+        requestId: "postgres-registration",
+        now,
+      });
+      const firstPageAdapter =
+        new DeterministicAccountNotificationAdapter(now);
+      const firstPage = await sourceRepository.dispatchAccountNotifications({
+        actor: {
+          kind: "owner",
+          userId: owner.id,
+          issuer: owner.identity.issuer,
+          subject: owner.identity.subject,
+        },
+        adapter: firstPageAdapter,
+        requestId: "postgres-first-page",
+        now,
+      });
+      assert.equal(firstPage.delivered, 2);
+      assert.deepEqual(
+        new Set(firstPageAdapter.deliveries.map((item) => item.kind)),
+        new Set(["registration-receipt", "owner-registration-alert"]),
+      );
+
+      const recoveryIds = {
+        delivered: "postgres-restored-delivered",
+        deadLetter: "postgres-restored-dead-letter",
+        delivering: "postgres-restored-delivering",
+      };
+      await sourceDatabase.batch([
+        sourceDatabase
+          .prepare(
+            `INSERT INTO account_notifications (
+               id, installation_id, recipient_user_id, subject_user_id, kind,
+               state, template_version, idempotency_key, attempt_count,
+               max_attempts, available_at, delivered_at, created_at, updated_at
+             ) VALUES (
+               ?, ?, ?, ?, 'registration-receipt', 'delivered', '1.0', ?,
+               1, 5, ?, ?, ?, ?
+             )`,
+          )
+          .bind(
+            recoveryIds.delivered,
+            "postgres-notification",
+            learner.id,
+            learner.id,
+            "3".repeat(64),
+            now,
+            now,
+            now,
+            now,
+          ),
+        sourceDatabase
+          .prepare(
+            `INSERT INTO account_notifications (
+               id, installation_id, recipient_user_id, subject_user_id, kind,
+               state, template_version, idempotency_key, attempt_count,
+               max_attempts, available_at, last_error_code, created_at,
+               updated_at
+             ) VALUES (
+               ?, ?, ?, ?, 'registration-receipt', 'dead-letter', '1.0', ?,
+               5, 5, ?, 'delivery-temporary-failure', ?, ?
+             )`,
+          )
+          .bind(
+            recoveryIds.deadLetter,
+            "postgres-notification",
+            learner.id,
+            learner.id,
+            "4".repeat(64),
+            now,
+            now,
+            now,
+          ),
+        sourceDatabase
+          .prepare(
+            `INSERT INTO account_notifications (
+               id, installation_id, recipient_user_id, subject_user_id, kind,
+               state, template_version, idempotency_key, attempt_count,
+               max_attempts, available_at, lease_token, lease_expires_at,
+               created_at, updated_at
+             ) VALUES (
+               ?, ?, ?, ?, 'registration-receipt', 'delivering', '1.0', ?,
+               1, 5, ?, 'restored-expired-lease', ?, ?, ?
+             )`,
+          )
+          .bind(
+            recoveryIds.delivering,
+            "postgres-notification",
+            learner.id,
+            learner.id,
+            "5".repeat(64),
+            now,
+            "2026-07-29T12:05:00.000Z",
+            now,
+            now,
+          ),
+      ]);
+
+      await administrationPool.query("BEGIN");
+      try {
+        for (const table of [
+          "installations",
+          "users",
+          "identities",
+          "role_assignments",
+          "approval_decisions",
+          "registration_requests",
+          "account_notifications",
+          "account_notification_fanouts",
+          "audit_events",
+        ]) {
+          await administrationPool.query(
+            `INSERT INTO "${restoredSchema}"."${table}"
+             SELECT * FROM "${sourceSchema}"."${table}"`,
+          );
+        }
+        await administrationPool.query("COMMIT");
+      } catch (error) {
+        await administrationPool.query("ROLLBACK");
+        throw error;
+      }
+
+      const restoredDatabase =
+        new PostgresD1CompatibilityDatabase(restoredPool);
+      const restoredRepository = new D1Project42Repository(
+        restoredDatabase,
+        "postgres-notification",
+      );
+      const restoredAdapter =
+        new DeterministicAccountNotificationAdapter(
+          "2026-07-29T12:10:00.000Z",
+        );
+      const restoreRecovery =
+        await restoredRepository.dispatchAccountNotifications({
+          actor: systemActor,
+          adapter: restoredAdapter,
+          requestId: "postgres-restore-recovery",
+          now: "2026-07-29T12:10:00.000Z",
+        });
+      assert.equal(restoreRecovery.recovered, 1);
+      assert.equal(restoreRecovery.delivered, 1);
+      assert.equal(
+        restoredAdapter.deliveries[0].notificationId,
+        recoveryIds.delivering,
+      );
+      const restoredStates = await restoredPool.query(
+        `SELECT id, state, attempt_count
+           FROM account_notifications
+          WHERE id = ANY($1::text[])
+          ORDER BY id`,
+        [Object.values(recoveryIds)],
+      );
+      assert.deepEqual(
+        Object.fromEntries(
+          restoredStates.rows.map((row) => [
+            row.id,
+            { state: row.state, attemptCount: row.attempt_count },
+          ]),
+        ),
+        {
+          [recoveryIds.deadLetter]: {
+            state: "dead-letter",
+            attemptCount: 5,
+          },
+          [recoveryIds.delivered]: {
+            state: "delivered",
+            attemptCount: 1,
+          },
+          [recoveryIds.delivering]: {
+            state: "delivered",
+            attemptCount: 2,
+          },
+        },
+      );
+      assert.deepEqual(
+        await restoredRepository.replayDeadLetterAccountNotifications({
+          notificationIds: [recoveryIds.deadLetter],
+          actor: systemActor,
+          requestId: "postgres-restored-dead-letter-replay",
+          now: "2026-07-29T12:10:01.000Z",
+        }),
+        {
+          requested: 1,
+          replayed: 1,
+          alreadyReplayed: 0,
+        },
+      );
+    } finally {
+      await sourcePool?.end();
+      await restoredPool?.end();
+      await administrationPool
+        .query(`DROP SCHEMA IF EXISTS "${sourceSchema}" CASCADE`)
+        .catch(() => undefined);
+      await administrationPool
+        .query(`DROP SCHEMA IF EXISTS "${restoredSchema}" CASCADE`)
+        .catch(() => undefined);
+      await administrationPool.end();
+    }
+  },
+);

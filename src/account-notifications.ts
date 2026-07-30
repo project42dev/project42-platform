@@ -1,5 +1,8 @@
 export const ACCOUNT_NOTIFICATION_CONTRACT_VERSION = "1.0" as const;
 export const ACCOUNT_NOTIFICATION_TEMPLATE_VERSION = "1.0" as const;
+export const ACCOUNT_NOTIFICATION_DELIVERY_DEADLINE_MS = 5_000 as const;
+export const ACCOUNT_NOTIFICATION_DELIVERY_MIN_DEADLINE_MS = 100 as const;
+export const ACCOUNT_NOTIFICATION_DISPATCH_MAX_ITEMS = 10 as const;
 
 export const ACCOUNT_NOTIFICATION_KINDS = [
   "registration-receipt",
@@ -37,11 +40,40 @@ export interface AccountNotificationDeliveryResult {
   acceptedAt: string;
 }
 
+export interface AccountNotificationDeliveryContext {
+  /**
+   * Aborts when the runtime delivery deadline is reached. Adapters must pass
+   * this signal to every cancellable provider operation.
+   */
+  signal: AbortSignal;
+  /**
+   * Absolute deadline for adapters that need to bound work that does not
+   * directly accept an AbortSignal.
+   */
+  deadlineAt: string;
+}
+
+export type AccountNotificationAuditActor =
+  | {
+      kind: "system";
+    }
+  | {
+      kind: "owner";
+      userId: string;
+      issuer: string;
+      subject: string;
+    };
+
 export interface AccountNotificationAdapter {
   readonly kind: string;
   deliver(
     message: AccountNotificationMessage,
+    context: AccountNotificationDeliveryContext,
   ): Promise<AccountNotificationDeliveryResult>;
+}
+
+export interface AccountNotificationDeliveryService {
+  fetch(request: Request): Promise<Response>;
 }
 
 export interface RenderedAccountNotification {
@@ -69,7 +101,10 @@ export class DisabledAccountNotificationAdapter
 {
   readonly kind = "disabled";
 
-  async deliver(): Promise<AccountNotificationDeliveryResult> {
+  async deliver(
+    _message: AccountNotificationMessage,
+    _context: AccountNotificationDeliveryContext,
+  ): Promise<AccountNotificationDeliveryResult> {
     throw new AccountNotificationDeliveryError(
       "delivery-not-configured",
       "Account notification delivery is not configured.",
@@ -91,10 +126,73 @@ export class DeterministicAccountNotificationAdapter
 
   async deliver(
     message: AccountNotificationMessage,
+    context: AccountNotificationDeliveryContext,
   ): Promise<AccountNotificationDeliveryResult> {
+    if (context.signal.aborted) {
+      throw new AccountNotificationDeliveryError(
+        "delivery-temporary-failure",
+        "The account notification delivery deadline expired.",
+        true,
+      );
+    }
     if (this.failure) throw this.failure;
     this.deliveries.push(structuredClone(message));
     return { acceptedAt: this.acceptedAt };
+  }
+}
+
+export class ServiceBindingAccountNotificationAdapter
+  implements AccountNotificationAdapter
+{
+  readonly kind = "service-binding";
+
+  constructor(
+    private readonly service: AccountNotificationDeliveryService,
+  ) {}
+
+  async deliver(
+    message: AccountNotificationMessage,
+    context: AccountNotificationDeliveryContext,
+  ): Promise<AccountNotificationDeliveryResult> {
+    let response: Response;
+    try {
+      response = await this.service.fetch(
+        new Request(
+          "https://account-notification-adapter.invalid/v1/deliver",
+          {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+              "x-project42-notification-contract":
+                ACCOUNT_NOTIFICATION_CONTRACT_VERSION,
+              "x-project42-notification-id": message.notificationId,
+            },
+            body: JSON.stringify(message),
+            signal: context.signal,
+          },
+        ),
+      );
+    } catch {
+      throw new AccountNotificationDeliveryError(
+        "delivery-temporary-failure",
+        "The account notification delivery service is unavailable.",
+        true,
+      );
+    }
+    if (response.status !== 200 && response.status !== 202) {
+      throw new AccountNotificationDeliveryError(
+        response.status >= 500 || response.status === 429
+          ? "delivery-temporary-failure"
+          : "delivery-rejected",
+        "The account notification delivery service rejected the message.",
+        response.status >= 500 || response.status === 429,
+      );
+    }
+    return {
+      acceptedAt:
+        response.headers.get("x-project42-accepted-at") ??
+        new Date().toISOString(),
+    };
   }
 }
 
@@ -185,6 +283,19 @@ export function accountNotificationRetryDelaySeconds(
     throw new TypeError("attemptCount must be a positive integer.");
   }
   return Math.min(60 * 2 ** (attemptCount - 1), 60 * 60);
+}
+
+export function normalizeAccountNotificationDeliveryDeadlineMs(
+  requested: number | undefined,
+): number {
+  const numeric =
+    requested === undefined || !Number.isFinite(requested)
+      ? ACCOUNT_NOTIFICATION_DELIVERY_DEADLINE_MS
+      : Math.trunc(requested);
+  return Math.max(
+    ACCOUNT_NOTIFICATION_DELIVERY_MIN_DEADLINE_MS,
+    Math.min(ACCOUNT_NOTIFICATION_DELIVERY_DEADLINE_MS, numeric),
+  );
 }
 
 export function normalizeAccountNotificationDeliveryError(

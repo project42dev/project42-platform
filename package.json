@@ -9,6 +9,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./self-host/account-notification-adapter": {
+      "types": "./dist/self-host/account-notification-adapter.d.ts",
+      "import": "./dist/self-host/account-notification-adapter.js"
     }
   },
   "files": [

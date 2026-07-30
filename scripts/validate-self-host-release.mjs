@@ -93,10 +93,18 @@ if (
 if (
   manifest.database.accountNotifications.deliveryDefault !== "disabled" ||
   manifest.database.accountNotifications.adapterContract !==
-    "AccountNotificationAdapter"
+    "AccountNotificationAdapter" ||
+  manifest.database.accountNotifications.adapterModuleVariable !==
+    "ACCOUNT_NOTIFICATION_ADAPTER_MODULE" ||
+  !compose.includes(
+    "ACCOUNT_NOTIFICATION_ADAPTER_MODULE: ${PROJECT42_ACCOUNT_NOTIFICATION_ADAPTER_MODULE:-}",
+  ) ||
+  !exampleEnvironment.includes(
+    "PROJECT42_ACCOUNT_NOTIFICATION_ADAPTER_MODULE=",
+  )
 ) {
   throw new Error(
-    "Reference self-host account notification delivery must fail closed",
+    "Reference self-host account notification delivery contract has drifted",
   );
 }
 if (manifest.supportLevel === "production" && compose.includes("start-dev")) {

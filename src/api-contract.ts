@@ -39,6 +39,17 @@ export interface AccountNotificationDispatchSummary {
   delivered: number;
   retryable: number;
   deadLetter: number;
+  outcomeUnknown: number;
+}
+
+export interface AccountNotificationReplayRequest {
+  notificationIds: string[];
+}
+
+export interface AccountNotificationReplaySummary {
+  requested: number;
+  replayed: number;
+  alreadyReplayed: number;
 }
 
 export type LinkedIdentityStatus = "active" | "unlinked";

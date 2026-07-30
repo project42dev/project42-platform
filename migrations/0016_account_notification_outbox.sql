@@ -27,6 +27,7 @@ CREATE TABLE account_notifications (
   lease_expires_at TEXT,
   last_error_code TEXT,
   delivered_at TEXT,
+  replay_of_notification_id TEXT REFERENCES account_notifications(id) ON DELETE CASCADE,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   CHECK (
@@ -39,7 +40,8 @@ CREATE TABLE account_notifications (
     OR
     (state <> 'delivered' AND delivered_at IS NULL)
   ),
-  UNIQUE (installation_id, idempotency_key)
+  UNIQUE (installation_id, idempotency_key),
+  UNIQUE (installation_id, replay_of_notification_id)
 ) STRICT;
 
 CREATE INDEX account_notifications_delivery_queue
@@ -77,6 +79,13 @@ WHEN NOT EXISTS (
   SELECT 1 FROM users
    WHERE id = NEW.subject_user_id
      AND installation_id = NEW.installation_id
+) OR (
+  NEW.replay_of_notification_id IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM account_notifications
+     WHERE id = NEW.replay_of_notification_id
+       AND installation_id = NEW.installation_id
+       AND state = 'dead-letter'
+  )
 )
 BEGIN
   SELECT RAISE(ABORT, 'account notification user belongs to another installation');
@@ -90,6 +99,7 @@ BEFORE UPDATE OF
   kind,
   template_version,
   idempotency_key,
+  replay_of_notification_id,
   created_at
 ON account_notifications
 BEGIN
@@ -132,6 +142,7 @@ CREATE TABLE account_notification_fanouts (
   state TEXT NOT NULL DEFAULT 'pending'
     CHECK (state IN ('pending', 'complete')),
   cursor_owner_user_id TEXT,
+  recipient_cutoff_at TEXT,
   idempotency_key TEXT NOT NULL CHECK (length(idempotency_key) = 64),
   revision INTEGER NOT NULL DEFAULT 1 CHECK (revision > 0),
   created_at TEXT NOT NULL,
@@ -178,6 +189,16 @@ WHEN OLD.cursor_owner_user_id IS NOT NULL AND (
 )
 BEGIN
   SELECT RAISE(ABORT, 'account notification fanout cursor must advance');
+END;
+
+CREATE TRIGGER account_notification_fanout_cutoff_guard
+BEFORE UPDATE OF recipient_cutoff_at ON account_notification_fanouts
+WHEN OLD.recipient_cutoff_at IS NOT NULL AND (
+  NEW.recipient_cutoff_at IS NULL OR
+  NEW.recipient_cutoff_at <> OLD.recipient_cutoff_at
+)
+BEGIN
+  SELECT RAISE(ABORT, 'account notification fanout recipient cutoff is immutable');
 END;
 
 CREATE TRIGGER account_notification_fanout_revision_guard

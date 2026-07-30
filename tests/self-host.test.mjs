@@ -1,5 +1,11 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import {
+  mkdtemp,
+  readFile,
+  readdir,
+  rm,
+  writeFile,
+} from "node:fs/promises";
 import { createServer, get } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -19,6 +25,9 @@ import {
   createTrustedSocketClientAddressResolver,
 } from "../dist/self-host/auth-abuse.js";
 import { readConfiguration } from "../dist/self-host/config.js";
+import {
+  loadAccountNotificationAdapter,
+} from "../dist/self-host/account-notification-adapter.js";
 import { FilesystemProfilePhotoBucket } from "../dist/self-host/filesystem-profile-photo-bucket.js";
 import { writeWebResponseToNode } from "../dist/self-host/http-response.js";
 import { applyPostgresMigrations } from "../dist/self-host/migrate.js";
@@ -126,6 +135,7 @@ test("local evaluation profile permits only its explicit HTTP service hosts", ()
   assert.deepEqual(configuration.accountMergeRequiredConsents, [
     { purpose: "learning-record", policyVersion: "2026-07-27" },
   ]);
+  assert.equal(configuration.accountNotificationAdapterModule, null);
 
   assert.throws(
     () =>
@@ -134,6 +144,65 @@ test("local evaluation profile permits only its explicit HTTP service hosts", ()
         OIDC_JWKS_URL: "http://untrusted:8080/keys",
       }),
     /must use HTTPS/,
+  );
+});
+
+test("self-host notification adapters load from an explicit local module", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "project42-notification-adapter-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const adapterPath = join(directory, "adapter.mjs");
+  await writeFile(
+    adapterPath,
+    `export function createAccountNotificationAdapter() {
+      return {
+        kind: "local-fixture",
+        async deliver(message, context) {
+          if (context.signal.aborted) throw new Error("aborted");
+          return { acceptedAt: context.deadlineAt, id: message.notificationId };
+        }
+      };
+    }`,
+    "utf8",
+  );
+  const adapter = await loadAccountNotificationAdapter(adapterPath);
+  assert.equal(adapter.kind, "local-fixture");
+  const context = {
+    signal: new AbortController().signal,
+    deadlineAt: "2026-07-29T12:00:05.000Z",
+  };
+  assert.deepEqual(
+    await adapter.deliver(
+      {
+        contractVersion: "1.0",
+        notificationId: "module-notification",
+        kind: "registration-receipt",
+        recipient: "learner@example.test",
+        subject: "Subject",
+        text: "Text",
+        html: "<p>Text</p>",
+      },
+      context,
+    ),
+    {
+      acceptedAt: context.deadlineAt,
+      id: "module-notification",
+    },
+  );
+  assert.equal(
+    (await loadAccountNotificationAdapter(null)).kind,
+    "disabled",
+  );
+  await assert.rejects(
+    loadAccountNotificationAdapter("data:text/javascript,export default {}"),
+  );
+  assert.throws(
+    () =>
+      readConfiguration({
+        ...evaluationEnvironment,
+        ACCOUNT_NOTIFICATION_ADAPTER_MODULE:
+          "https://adapter.example.test/module.mjs",
+      }),
+    /local file or installed package/,
   );
 });
 

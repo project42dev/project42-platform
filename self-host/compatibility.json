@@ -26,7 +26,13 @@
     "accountNotifications": {
       "contractVersion": "1.0",
       "adapterContract": "AccountNotificationAdapter",
+      "adapterModuleVariable": "ACCOUNT_NOTIFICATION_ADAPTER_MODULE",
+      "hostedServiceBinding": "ACCOUNT_NOTIFICATION_DELIVERY",
       "deliveryDefault": "disabled",
+      "deliveryDeadlineMs": 5000,
+      "minimumDeliveryDeadlineMs": 100,
+      "maxDispatchItems": 10,
+      "deadLetterRecovery": "linked-replacement",
       "states": [
         "pending",
         "delivering",
@@ -34,7 +40,8 @@
         "retryable",
         "dead-letter"
       ],
-      "maxAttempts": 5
+      "maxAttempts": 5,
+      "auditProvenance": ["owner", "system"]
     }
   },
   "identity": {

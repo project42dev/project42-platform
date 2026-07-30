@@ -29,6 +29,7 @@ CREATE TABLE account_notifications (
   lease_expires_at text,
   last_error_code text,
   delivered_at text,
+  replay_of_notification_id text REFERENCES account_notifications(id) ON DELETE CASCADE,
   created_at text NOT NULL,
   updated_at text NOT NULL,
   CHECK (
@@ -41,7 +42,8 @@ CREATE TABLE account_notifications (
     OR
     (state <> 'delivered' AND delivered_at IS NULL)
   ),
-  UNIQUE (installation_id, idempotency_key)
+  UNIQUE (installation_id, idempotency_key),
+  UNIQUE (installation_id, replay_of_notification_id)
 );
 
 CREATE INDEX account_notifications_delivery_queue
@@ -79,6 +81,13 @@ BEGIN
     SELECT 1 FROM users
      WHERE id = NEW.subject_user_id
        AND installation_id = NEW.installation_id
+  ) OR (
+    NEW.replay_of_notification_id IS NOT NULL AND NOT EXISTS (
+      SELECT 1 FROM account_notifications
+       WHERE id = NEW.replay_of_notification_id
+         AND installation_id = NEW.installation_id
+         AND state = 'dead-letter'
+    )
   ) THEN
     RAISE EXCEPTION 'account notification user belongs to another installation';
   END IF;
@@ -99,6 +108,7 @@ BEGIN
     OLD.kind <> NEW.kind OR
     OLD.template_version <> NEW.template_version OR
     OLD.idempotency_key <> NEW.idempotency_key OR
+    OLD.replay_of_notification_id IS DISTINCT FROM NEW.replay_of_notification_id OR
     OLD.created_at <> NEW.created_at
   ) THEN
     RAISE EXCEPTION 'account notification identity is immutable';
@@ -135,6 +145,7 @@ CREATE TABLE account_notification_fanouts (
   state text NOT NULL DEFAULT 'pending'
     CHECK (state IN ('pending', 'complete')),
   cursor_owner_user_id text,
+  recipient_cutoff_at text,
   idempotency_key text NOT NULL CHECK (length(idempotency_key) = 64),
   revision integer NOT NULL DEFAULT 1 CHECK (revision > 0),
   created_at text NOT NULL,
@@ -181,6 +192,12 @@ BEGIN
     )
   ) THEN
     RAISE EXCEPTION 'account notification fanout cursor must advance';
+  END IF;
+  IF (
+    OLD.recipient_cutoff_at IS NOT NULL AND
+    OLD.recipient_cutoff_at IS DISTINCT FROM NEW.recipient_cutoff_at
+  ) THEN
+    RAISE EXCEPTION 'account notification fanout recipient cutoff is immutable';
   END IF;
   IF NEW.revision <> OLD.revision + 1 THEN
     RAISE EXCEPTION 'account notification fanout revision must advance once';

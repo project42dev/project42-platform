@@ -80,14 +80,31 @@
           "required": [
             "contractVersion",
             "adapterContract",
+            "adapterModuleVariable",
+            "hostedServiceBinding",
             "deliveryDefault",
+            "deliveryDeadlineMs",
+            "minimumDeliveryDeadlineMs",
+            "maxDispatchItems",
+            "deadLetterRecovery",
             "states",
-            "maxAttempts"
+            "maxAttempts",
+            "auditProvenance"
           ],
           "properties": {
             "contractVersion": { "const": "1.0" },
             "adapterContract": { "const": "AccountNotificationAdapter" },
+            "adapterModuleVariable": {
+              "const": "ACCOUNT_NOTIFICATION_ADAPTER_MODULE"
+            },
+            "hostedServiceBinding": {
+              "const": "ACCOUNT_NOTIFICATION_DELIVERY"
+            },
             "deliveryDefault": { "const": "disabled" },
+            "deliveryDeadlineMs": { "const": 5000 },
+            "minimumDeliveryDeadlineMs": { "const": 100 },
+            "maxDispatchItems": { "const": 10 },
+            "deadLetterRecovery": { "const": "linked-replacement" },
             "states": {
               "type": "array",
               "minItems": 5,
@@ -101,7 +118,17 @@
               ],
               "items": false
             },
-            "maxAttempts": { "const": 5 }
+            "maxAttempts": { "const": 5 },
+            "auditProvenance": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "prefixItems": [
+                { "const": "owner" },
+                { "const": "system" }
+              ],
+              "items": false
+            }
           }
         }
       }
