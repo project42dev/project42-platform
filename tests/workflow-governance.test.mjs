@@ -181,8 +181,14 @@ test("manual candidates round-trip through temporary attested artifact storage",
   );
 
   assert.match(validateBlock, /actions\/attest@[0-9a-f]{40}/);
-  assert.match(validateBlock, /actions\/upload-artifact@[0-9a-f]{40}/);
-  assert.match(validateBlock, /actions\/download-artifact@[0-9a-f]{40}/);
+  assert.match(
+    validateBlock,
+    /actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a/,
+  );
+  assert.match(
+    validateBlock,
+    /actions\/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c/,
+  );
   assert.match(
     validateBlock,
     /name: project42-platform-candidate-\$\{\{ github\.sha \}\}-\$\{\{ github\.run_id \}\}-\$\{\{ github\.run_attempt \}\}/,
