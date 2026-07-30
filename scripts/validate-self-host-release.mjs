@@ -168,6 +168,12 @@ for (const host of [
 if ((secureCaddyfile.match(/tls internal/g) ?? []).length !== 3) {
   throw new Error("Every browser-facing local host must use Caddy internal TLS");
 }
+if (
+  !secureCaddyfile.includes("admin 127.0.0.1:2019") ||
+  secureCaddyfile.includes("admin 0.0.0.0")
+) {
+  throw new Error("Caddy administration must remain loopback-only");
+}
 const secureClient = secureRealm.clients.find(
   (client) => client.clientId === "project42-api-browser",
 );

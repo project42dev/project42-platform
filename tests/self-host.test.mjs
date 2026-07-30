@@ -193,6 +193,8 @@ test("secure local gateway and realm use exact same-site HTTPS origins", async (
     assert.match(caddyfile, new RegExp(`https://${host.replaceAll(".", "\\.")}`));
   }
   assert.equal((caddyfile.match(/tls internal/g) ?? []).length, 3);
+  assert.match(caddyfile, /admin 127\.0\.0\.1:2019/);
+  assert.doesNotMatch(caddyfile, /admin 0\.0\.0\.0/);
   assert.match(caddyfile, /https:\/\/identity\.project42\.internal/);
 
   const realm = JSON.parse(realmText);
