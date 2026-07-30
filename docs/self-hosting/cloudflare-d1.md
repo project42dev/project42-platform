@@ -139,7 +139,13 @@ completion.
 Run migrations against a separately provisioned remote D1 database only after
 placing its ID in private deployment configuration. The packaged runner verifies
 the ordered Wrangler ledger, binds every applied file to a SHA-256 checksum, and
-applies each pending migration with its ledger records as one remote import:
+applies each pending migration with its ledger records as one remote import.
+Checksums use the `sha256-normalized-lf-v1` contract: line endings are normalized
+to LF before hashing, while all other bytes remain unchanged. For ledgers created
+by older releases, validation also accepts the equivalent legacy raw CRLF digest
+without rewriting the stored record. This makes verification portable across
+Windows and Unix checkouts while continuing to reject substantive migration
+changes:
 
 ```powershell
 npm run db:migrate:remote -- -ConfigurationPath ./wrangler.private.jsonc

@@ -29,6 +29,66 @@ $ErrorActionPreference = 'Stop'
 
 $migrationNamePattern = '^\d{4}_[a-z0-9_-]+\.sql$'
 $checksumPattern = '^[a-f0-9]{64}$'
+$checksumContract = 'sha256-normalized-lf-v1'
+
+function Get-Sha256Hex {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [byte[]] $Bytes
+    )
+
+    return [Convert]::ToHexString(
+        [System.Security.Cryptography.SHA256]::HashData($Bytes)
+    ).ToLowerInvariant()
+}
+
+function Get-MigrationChecksumSet {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string] $Path
+    )
+
+    $source = [System.IO.File]::ReadAllBytes($Path)
+    $normalized = [System.Collections.Generic.List[byte]]::new($source.Length)
+    for ($index = 0; $index -lt $source.Length; $index += 1) {
+        if ($source[$index] -eq 13) {
+            if (
+                $index + 1 -lt $source.Length -and
+                $source[$index + 1] -eq 10
+            ) {
+                $index += 1
+            }
+            $normalized.Add(10)
+            continue
+        }
+        $normalized.Add($source[$index])
+    }
+
+    $canonicalBytes = $normalized.ToArray()
+    $legacyCrLf = [System.Collections.Generic.List[byte]]::new(
+        $canonicalBytes.Length
+    )
+    foreach ($value in $canonicalBytes) {
+        if ($value -eq 10) {
+            $legacyCrLf.Add(13)
+        }
+        $legacyCrLf.Add($value)
+    }
+
+    $accepted = [System.Collections.Generic.HashSet[string]]::new(
+        [StringComparer]::Ordinal
+    )
+    $canonical = Get-Sha256Hex -Bytes $canonicalBytes
+    [void] $accepted.Add($canonical)
+    [void] $accepted.Add((Get-Sha256Hex -Bytes $legacyCrLf.ToArray()))
+
+    return [pscustomobject]@{
+        canonical = $canonical
+        accepted = $accepted
+    }
+}
 
 function ConvertTo-SqlLiteral {
     [CmdletBinding()]
@@ -214,14 +274,15 @@ if ($ConfigurationPath) {
 }
 
 $digests = [ordered]@{}
+$acceptedDigests = @{}
 foreach ($migration in $migrationFiles) {
-    $digest = (
-        Get-FileHash -LiteralPath $migration.FullName -Algorithm SHA256
-    ).Hash.ToLowerInvariant()
+    $checksumSet = Get-MigrationChecksumSet -Path $migration.FullName
+    $digest = $checksumSet.canonical
     if ($digest -notmatch $checksumPattern) {
         throw "Could not calculate a valid checksum for $($migration.Name)."
     }
     $digests[$migration.Name] = $digest
+    $acceptedDigests[$migration.Name] = $checksumSet.accepted
 }
 
 $ledgerExists = @(
@@ -277,7 +338,10 @@ foreach ($row in $checksumRows) {
     if (-not $digests.Contains($name) -or $name -notin $ledgerNames) {
         throw 'The checksum ledger contains an unknown or unapplied migration.'
     }
-    if ($sha256 -ne $digests[$name]) {
+    if (
+        $sha256 -notmatch $checksumPattern -or
+        -not $acceptedDigests[$name].Contains($sha256)
+    ) {
         throw "Applied migration checksum drift detected for $name."
     }
     $checksumByName[$name] = $sha256
@@ -296,6 +360,7 @@ if ($unboundNames.Count -gt 0 -and -not $AdoptExistingLedger) {
 $pending = @($migrationFiles | Select-Object -Skip $ledgerNames.Count)
 $planResult = [ordered]@{
     schemaVersion = '1.0'
+    checksumContract = $checksumContract
     applied       = $ledgerNames
     pending       = @($pending | ForEach-Object { $_.Name })
     adopt         = $unboundNames
@@ -393,9 +458,11 @@ for ($index = 0; $index -lt $migrationFiles.Count; $index += 1) {
     $name = $migrationFiles[$index].Name
     if (
         [string] $finalLedger[$index].name -ne $name -or
-        [string] (
-            $finalChecksums | Where-Object name -eq $name
-        ).sha256 -ne $digests[$name]
+        -not $acceptedDigests[$name].Contains(
+            [string] (
+                $finalChecksums | Where-Object name -eq $name
+            ).sha256
+        )
     ) {
         throw "Remote D1 migration validation failed for $name."
     }
@@ -403,6 +470,7 @@ for ($index = 0; $index -lt $migrationFiles.Count; $index += 1) {
 
 [ordered]@{
     schemaVersion = '1.0'
+    checksumContract = $checksumContract
     migrationCount = $finalLedger.Count
     migrationHead = $finalLedger[-1].name
     checksumsVerified = $finalChecksums.Count
