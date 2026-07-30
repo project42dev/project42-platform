@@ -9339,11 +9339,44 @@ async function handleRequest(
           "Secure sign-in is temporarily unavailable.",
         );
       }
-      const identity = await tokenVerifier.verifyToken(exchanged.idToken, {
-        audience: exchanged.clientId,
-        nonce: transaction.nonce,
-        requireAuthenticationTime: true,
-      });
+      let identity: VerifiedIdentity;
+      try {
+        identity = await tokenVerifier.verifyToken(exchanged.idToken, {
+          audience: exchanged.clientId,
+          nonce: transaction.nonce,
+          requireAuthenticationTime: true,
+        });
+      } catch (error) {
+        if (
+          error instanceof ApiFailure &&
+          error.code === "invalid_identity_token" &&
+          error.diagnostic?.category === "jose_validation" &&
+          error.diagnostic.joseCode === "ERR_JWT_EXPIRED" &&
+          error.diagnostic.claim === "exp"
+        ) {
+          console.error(
+            JSON.stringify({
+              level: "warn",
+              requestId,
+              method: request.method,
+              path: url.pathname,
+              status: 302,
+              code: error.code,
+              action: "oidc.callback.restart",
+              recovery: "restart_sign_in",
+              identityTokenDiagnostic: error.diagnostic,
+            }),
+          );
+          returnTarget.searchParams.set("auth", "error");
+          return redirect(
+            returnTarget.toString(),
+            [clearHostCookie(OIDC_TRANSACTION_COOKIE)],
+            requestId,
+            origin,
+          );
+        }
+        throw error;
+      }
       const ownerBootstrap =
         Boolean(env.BOOTSTRAP_OWNER_ISSUER && env.BOOTSTRAP_OWNER_SUBJECT) &&
         identity.issuer === env.BOOTSTRAP_OWNER_ISSUER &&
