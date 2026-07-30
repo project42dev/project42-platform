@@ -335,6 +335,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
         event.actor_user_id === owner.id &&
         event.actor_issuer === issuer &&
         event.actor_subject === "owner-subject" &&
+        JSON.parse(event.metadata_json).actorKind === "owner" &&
         !/@|example\.test/i.test(event.metadata_json),
     ),
   );

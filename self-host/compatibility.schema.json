@@ -89,7 +89,8 @@
             "deadLetterRecovery",
             "states",
             "maxAttempts",
-            "auditProvenance"
+            "auditProvenance",
+            "auditActorKindField"
           ],
           "properties": {
             "contractVersion": { "const": "1.0" },
@@ -128,7 +129,8 @@
                 { "const": "system" }
               ],
               "items": false
-            }
+            },
+            "auditActorKindField": { "const": "metadata.actorKind" }
           }
         }
       }

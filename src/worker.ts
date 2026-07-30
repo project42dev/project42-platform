@@ -899,7 +899,11 @@ class D1Project42Repository {
     idempotencyKey: string;
     now: string;
     requiresApprovedOwner?: boolean;
+    ignoreIdempotencyConflict?: boolean;
   }): D1PreparedStatement {
+    const conflictClause = input.ignoreIdempotencyConflict
+      ? " ON CONFLICT (installation_id, idempotency_key) DO NOTHING"
+      : "";
     return this.db
       .prepare(
         `INSERT INTO account_notifications (
@@ -919,7 +923,7 @@ class D1Project42Repository {
              WHERE u.installation_id = ?
                AND u.id = ?
                AND u.account_state = 'approved'
-          )`,
+          )${conflictClause}`,
       )
       .bind(
         input.id,
@@ -1041,6 +1045,21 @@ class D1Project42Repository {
         })),
       );
       const lastOwnerId = selectedOwners.at(-1)?.id ?? null;
+      const recipientEvidenceCondition = notifications
+        .map(
+          () =>
+            `(idempotency_key = ? AND recipient_user_id = ? ` +
+            `AND subject_user_id = ? AND kind = ?)`,
+        )
+        .join(" OR ");
+      const recipientEvidenceBindings = notifications.flatMap(
+        (notification) => [
+          notification.idempotencyKey,
+          notification.recipientUserId,
+          notification.subjectUserId,
+          notification.kind,
+        ],
+      );
       const advance = lastOwnerId
         ? this.db
             .prepare(
@@ -1055,7 +1074,13 @@ class D1Project42Repository {
                   AND (
                     recipient_cutoff_at = CAST(? AS TEXT) OR
                     (recipient_cutoff_at IS NULL AND CAST(? AS TEXT) IS NULL)
-                  )`,
+                  )
+                  AND (
+                    SELECT COUNT(*)
+                      FROM account_notifications
+                     WHERE installation_id = ?
+                       AND (${recipientEvidenceCondition})
+                  ) = ?`,
             )
             .bind(
               complete ? "complete" : "pending",
@@ -1067,6 +1092,9 @@ class D1Project42Repository {
               fanout.revision,
               fanout.recipient_cutoff_at,
               fanout.recipient_cutoff_at,
+              this.installationId,
+              ...recipientEvidenceBindings,
+              notifications.length,
             )
         : this.db
             .prepare(
@@ -1089,22 +1117,14 @@ class D1Project42Repository {
             );
       const statements = [
         ...notifications.map((notification) =>
-          this.accountNotificationStatement(notification),
+          this.accountNotificationStatement({
+            ...notification,
+            ignoreIdempotencyConflict: true,
+          }),
         ),
         advance,
       ];
       const validateAdvance = (results: D1Result<unknown>[]) => {
-        if (
-          notifications.some(
-            (_, index) => (results[index]?.meta.changes ?? 0) !== 1,
-          )
-        ) {
-          throw new ApiFailure(
-            409,
-            "account_notification_fanout_recipient_changed",
-            "The notification fanout recipient set changed during expansion.",
-          );
-        }
         if (
           (results[statements.length - 1]?.meta.changes ?? 0) !== 1
         ) {
@@ -1124,9 +1144,7 @@ class D1Project42Repository {
       } catch (error) {
         if (
           (error instanceof ApiFailure &&
-            (error.code === "account_notification_fanout_conflict" ||
-              error.code ===
-                "account_notification_fanout_recipient_changed")) ||
+            error.code === "account_notification_fanout_conflict") ||
           (error instanceof Error &&
             /unique constraint.*account_notifications/i.test(error.message))
         ) {
@@ -1663,6 +1681,7 @@ class D1Project42Repository {
         input.outcome ??
           (input.state === "delivered" ? "success" : "failed"),
         JSON.stringify({
+          actorKind: input.actor.kind,
           kind: input.kind,
           state: input.state,
           attemptCount: input.attemptCount,

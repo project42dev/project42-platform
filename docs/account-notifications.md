@@ -85,9 +85,13 @@ transaction. A dispatcher expands at most 20 approved owners from each of at
 most four durable fan-out records per run. The fan-out stores an opaque owner
 cursor and revision, remains pending while another page exists, and becomes
 terminal only after the complete ordered owner set has been traversed. Stable
-per-owner idempotency keys and a compare-and-set cursor prevent duplicate pages
-under concurrent dispatch. A large owner population therefore cannot create an
-unbounded registration batch, and pending pages are never silently discarded.
+per-owner idempotency keys make recipient inserts safely repeatable. The
+compare-and-set cursor advances only when SQL can prove that every selected
+recipient has a matching outbox row. Owner churn or a concurrent dispatcher can
+therefore leave reusable partial inserts, but cannot skip a recipient page or
+create duplicate alerts on retry. A large owner population therefore cannot
+create an unbounded registration batch, and pending pages are never silently
+discarded.
 If registration precedes owner bootstrap, an empty fan-out remains pending.
 The first expansion that finds an approved owner establishes an immutable
 recipient cutoff and includes that first owner. Later pages traverse the
@@ -99,9 +103,11 @@ recipient set.
 Stable SHA-256 idempotency keys bind the installation, authoritative event,
 kind, and recipient. The outbox stores no rendered content or recipient email.
 It resolves a currently verified primary email only after a successful claim.
-Audit events retain explicit owner or system provenance, the opaque
-notification ID, kind, state, attempt number, and allow-listed error code. They
-do not retain message content, addresses, or vendor diagnostics.
+Audit events retain an allow-listed `actorKind` of `owner` or `system`, the
+opaque notification ID, kind, state, attempt number, and allow-listed error
+code. Owner-triggered operations additionally retain the owner's opaque user
+and identity keys. They do not retain message content, addresses, or vendor
+diagnostics.
 
 ## Bootstrap
 

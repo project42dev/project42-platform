@@ -96,6 +96,10 @@ if (
     "AccountNotificationAdapter" ||
   manifest.database.accountNotifications.adapterModuleVariable !==
     "ACCOUNT_NOTIFICATION_ADAPTER_MODULE" ||
+  manifest.database.accountNotifications.auditActorKindField !==
+    "metadata.actorKind" ||
+  manifest.database.accountNotifications.auditProvenance.join(",") !==
+    "owner,system" ||
   !compose.includes(
     "ACCOUNT_NOTIFICATION_ADAPTER_MODULE: ${PROJECT42_ACCOUNT_NOTIFICATION_ADAPTER_MODULE:-}",
   ) ||

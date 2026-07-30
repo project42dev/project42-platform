@@ -210,6 +210,7 @@ test("registration and lifecycle hooks enqueue atomically and dispatch exactly o
     assert.equal(audit.actor_user_id, null);
     assert.equal(audit.actor_issuer, null);
     assert.equal(audit.actor_subject, null);
+    assert.equal(JSON.parse(audit.metadata_json).actorKind, "system");
     assert.doesNotMatch(
       audit.metadata_json,
       /@|example\.test|owner@example|learner@example/i,
@@ -426,6 +427,131 @@ test("owner alerts expand through durable bounded pages without truncation", asy
     )
     .all();
   assert.deepEqual(outbox.results, [{ state: "delivered", count: 52 }]);
+});
+
+test("D1 fanout retries owner churn without skipping or duplicating recipients", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-29",
+    d1Databases: { PROJECT42_DB: "project42-account-notification-owner-churn" },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  assert.equal(typeof database.batchWithPostcondition, "undefined");
+  await applyD1Migrations(database);
+  const installationId = "notification-owner-churn";
+  const repository = new D1Project42Repository(database, installationId);
+  const now = "2026-07-29T12:00:00.000Z";
+  await repository.ensureInstallation(now);
+  const firstOwner = await repository.createOrRefreshAccount(
+    verifiedIdentity("owner-churn-a", "owner-churn-a@example.test"),
+    true,
+    "owner-churn-a-bootstrap",
+    now,
+  );
+  const secondOwner = await repository.createOrRefreshAccount(
+    verifiedIdentity("owner-churn-b", "owner-churn-b@example.test"),
+    true,
+    "owner-churn-b-bootstrap",
+    now,
+  );
+  const learnerIdentity = verifiedIdentity(
+    "owner-churn-learner",
+    "owner-churn-learner@example.test",
+  );
+  const learner = await repository.createOrRefreshAccount(
+    learnerIdentity,
+    false,
+    "owner-churn-registration",
+    now,
+  );
+  await repository.createRegistrationRequest({
+    account: learner,
+    identity: learnerIdentity,
+    receiptTokenDigest: "9".repeat(64),
+    requestId: "owner-churn-registration",
+    now,
+  });
+
+  let churnBeforeNextBatch = true;
+  const churnDatabase = {
+    prepare(query) {
+      return database.prepare(query);
+    },
+    async batch(statements) {
+      if (churnBeforeNextBatch) {
+        churnBeforeNextBatch = false;
+        await database
+          .prepare(
+            `DELETE FROM role_assignments
+              WHERE installation_id = ? AND user_id = ? AND role = 'owner'`,
+          )
+          .bind(installationId, firstOwner.id)
+          .run();
+      }
+      return database.batch(statements);
+    },
+  };
+  const churnRepository = new D1Project42Repository(
+    churnDatabase,
+    installationId,
+  );
+  const firstAdapter = new DeterministicAccountNotificationAdapter(now);
+  const firstDispatch = await churnRepository.dispatchAccountNotifications({
+    actor: systemActor,
+    adapter: firstAdapter,
+    requestId: "owner-churn-first-dispatch",
+    now,
+  });
+  assert.equal(firstDispatch.delivered, 2);
+  const pendingFanout = await database
+    .prepare(
+      `SELECT state, cursor_owner_user_id, revision
+         FROM account_notification_fanouts`,
+    )
+    .first();
+  assert.deepEqual(pendingFanout, {
+    state: "pending",
+    cursor_owner_user_id: null,
+    revision: 1,
+  });
+
+  const retryAdapter = new DeterministicAccountNotificationAdapter(now);
+  const retryDispatch = await repository.dispatchAccountNotifications({
+    actor: systemActor,
+    adapter: retryAdapter,
+    requestId: "owner-churn-retry",
+    now,
+  });
+  assert.equal(retryDispatch.delivered, 0);
+  const completedFanout = await database
+    .prepare(
+      `SELECT state, cursor_owner_user_id, revision
+         FROM account_notification_fanouts`,
+    )
+    .first();
+  assert.deepEqual(completedFanout, {
+    state: "complete",
+    cursor_owner_user_id: secondOwner.id,
+    revision: 2,
+  });
+  const ownerAlerts = await database
+    .prepare(
+      `SELECT recipient_user_id, state, COUNT(*) AS count
+         FROM account_notifications
+        WHERE kind = 'owner-registration-alert'
+        GROUP BY recipient_user_id, state`,
+    )
+    .all();
+  assert.deepEqual(ownerAlerts.results, [
+    {
+      recipient_user_id: secondOwner.id,
+      state: "delivered",
+      count: 1,
+    },
+  ]);
 });
 
 test("notification idempotency conflicts roll back the authoritative D1 batch", async (t) => {
@@ -1097,28 +1223,33 @@ test(
           ),
       ]);
 
-      await administrationPool.query("BEGIN");
+      const restoreClient = await restoredPool.connect();
       try {
-        for (const table of [
-          "installations",
-          "users",
-          "user_identities",
-          "role_assignments",
-          "approval_decisions",
-          "registration_requests",
-          "account_notifications",
-          "account_notification_fanouts",
-          "audit_events",
-        ]) {
-          await administrationPool.query(
-            `INSERT INTO "${restoredSchema}"."${table}"
-             SELECT * FROM "${sourceSchema}"."${table}"`,
-          );
+        await restoreClient.query("BEGIN");
+        try {
+          for (const table of [
+            "installations",
+            "users",
+            "user_identities",
+            "role_assignments",
+            "approval_decisions",
+            "registration_requests",
+            "account_notifications",
+            "account_notification_fanouts",
+            "audit_events",
+          ]) {
+            await restoreClient.query(
+              `INSERT INTO "${restoredSchema}"."${table}"
+               SELECT * FROM "${sourceSchema}"."${table}"`,
+            );
+          }
+          await restoreClient.query("COMMIT");
+        } catch (error) {
+          await restoreClient.query("ROLLBACK");
+          throw error;
         }
-        await administrationPool.query("COMMIT");
-      } catch (error) {
-        await administrationPool.query("ROLLBACK");
-        throw error;
+      } finally {
+        restoreClient.release();
       }
 
       const restoredDatabase =
