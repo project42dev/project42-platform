@@ -375,6 +375,34 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
     emailClaim: "present",
     emailVerificationClaim: "missing",
   });
+
+  const emailOtpVerificationToken = await new SignJWT({
+    nonce: "expected-nonce",
+    auth_time: now,
+    amr: ["otp"],
+    email: "otp-learner@example.com",
+  })
+    .setProtectedHeader({ alg: "RS256", kid: "test-key" })
+    .setIssuer(issuer)
+    .setSubject("otp-subject")
+    .setAudience("project42-browser")
+    .setIssuedAt(now)
+    .setExpirationTime(now + 300)
+    .sign(privateKey);
+  const emailOtpIdentity = await verifier.verifyToken(emailOtpVerificationToken, {
+    audience: "project42-browser",
+    nonce: "expected-nonce",
+    requireAuthenticationTime: true,
+    diagnosticRequestId: "2efccf1e-9e2d-4b7d-9e20-675c0ee44c1a",
+  });
+  assert.equal(emailOtpIdentity.emailVerified, true);
+  assert.deepEqual(claimContractDiagnostics.at(-1), {
+    level: "info",
+    requestId: "2efccf1e-9e2d-4b7d-9e20-675c0ee44c1a",
+    action: "oidc.identity.claim_contract",
+    emailClaim: "present",
+    emailVerificationClaim: "verified_by_email_otp",
+  });
   assert.equal(
     JSON.stringify(claimContractDiagnostics).includes("learner@example.com"),
     false,

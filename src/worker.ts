@@ -564,6 +564,9 @@ class OidcJwtVerifier implements IdentityVerifier {
       }
       const emailValue = payload[this.env.OIDC_EMAIL_CLAIM];
       const verifiedValue = payload[this.env.OIDC_EMAIL_VERIFIED_CLAIM];
+      const emailVerified =
+        verifiedValue === true ||
+        (verifiedValue === undefined && isEmailOtpAuthentication(payload.amr));
       const displayNameValue = deriveIdentityDisplayName(payload, emailValue);
       if (
         options.diagnosticRequestId &&
@@ -591,7 +594,10 @@ class OidcJwtVerifier implements IdentityVerifier {
             requestId: options.diagnosticRequestId,
             action: "oidc.identity.claim_contract",
             emailClaim,
-            emailVerificationClaim,
+            emailVerificationClaim:
+              emailVerified && emailVerificationClaim === "missing"
+                ? "verified_by_email_otp"
+                : emailVerificationClaim,
           }),
         );
       }
@@ -600,7 +606,7 @@ class OidcJwtVerifier implements IdentityVerifier {
         issuer: payload.iss,
         subject: payload.sub,
         email: typeof emailValue === "string" ? emailValue.trim().toLowerCase() : null,
-        emailVerified: verifiedValue === true,
+        emailVerified,
         displayName: displayNameValue,
         ...(typeof payload.iat === "number" ? { issuedAt: payload.iat } : {}),
         ...(typeof payload.auth_time === "number"
@@ -8093,6 +8099,15 @@ function deriveIdentityDisplayName(
 
 function shouldAdoptIdentityDisplayName(value: string | null): boolean {
   return !cleanIdentityName(value);
+}
+
+function isEmailOtpAuthentication(value: unknown): boolean {
+  if (!Array.isArray(value)) return false;
+  return value.some(
+    (method) =>
+      typeof method === "string" &&
+      /^(otp|email_otp|emailotp|email)$/i.test(method.trim()),
+  );
 }
 
 function requireGithubLinkConfiguration(env: WorkerEnvironment): {
