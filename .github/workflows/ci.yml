@@ -96,7 +96,7 @@ jobs:
       PROJECT42_DATABASE_PASSWORD: K7v9nP4rX2mQ8sL6zC5dH3jF
       PROJECT42_IDENTITY_ADMIN_PASSWORD: W6q2Zp8rN4c7Vx5mJ9s3Kt1H
       PROJECT42_SESSION_ENCRYPTION_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY
-      PROJECT42_ACCOUNT_MERGE_REQUIRED_CONSENTS: profile,progress,attempts,transcript,badges,linked-identities
+      PROJECT42_ACCOUNT_MERGE_REQUIRED_CONSENTS: '[{"purpose":"learning-record","policyVersion":"2026-07-27"}]'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Validate secure Compose model
