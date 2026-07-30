@@ -114,6 +114,13 @@ Migration `0015_admin_pagination_indexes.sql` adds the complete tenant-scoped
 account and audit keyset indexes used by bounded owner administration queries.
 Apply it before validating large account or audit traversals.
 
+Migration `0016_account_notification_outbox.sql` adds the persistent account
+notification outbox, bounded delivery indexes, idempotency uniqueness, and
+database-enforced lifecycle guards. The Worker defaults to disabled delivery:
+apply the migration without selecting a notification vendor or adding a secret.
+Review [the account notification outbox contract](../account-notifications.md)
+before supplying a backend adapter.
+
 Migration `0011_authoritative_progress_imports.sql` adds event schema versions and
 the immutable `progress.imported` event. The Worker then reads
 `/v1/me/progress` from the event projection, writes browser and portable imports

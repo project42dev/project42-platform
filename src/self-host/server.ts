@@ -13,6 +13,7 @@ import { FilesystemProfilePhotoBucket } from "./filesystem-profile-photo-bucket.
 import { writeWebResponseToNode } from "./http-response.js";
 import { applyPostgresMigrations } from "./migrate.js";
 import { PostgresD1CompatibilityDatabase } from "./postgres-d1.js";
+import { loadAccountNotificationAdapter } from "./account-notification-adapter.js";
 
 const configuration = readConfiguration(process.env);
 const pool = new Pool({
@@ -22,6 +23,9 @@ const pool = new Pool({
 });
 const authAbuseLimiter = createSelfHostAuthAbuseLimiter(pool);
 await applyPostgresMigrations(pool, configuration.migrationDirectory);
+const accountNotificationAdapter = await loadAccountNotificationAdapter(
+  configuration.accountNotificationAdapterModule,
+);
 const database = new PostgresD1CompatibilityDatabase(pool);
 const repository = new D1Project42Repository(
   database as unknown as D1Database,
@@ -81,6 +85,7 @@ const server = createServer(async (incoming, outgoing) => {
       undefined,
       authAbuseLimiter,
       createTrustedSocketClientAddressResolver(incoming),
+      accountNotificationAdapter,
     );
     await writeWebResponseToNode(outgoing, response);
   } catch (error) {

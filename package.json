@@ -1,6 +1,6 @@
 {
   "name": "@project42/platform",
-  "version": "0.67.1",
+  "version": "0.68.0",
   "description": "Open-source content, assessment, and learning-record core for Project 42.",
   "type": "module",
   "main": "./dist/index.js",
@@ -9,6 +9,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./self-host/account-notification-adapter": {
+      "types": "./dist/self-host/account-notification-adapter.d.ts",
+      "import": "./dist/self-host/account-notification-adapter.js"
     }
   },
   "files": [

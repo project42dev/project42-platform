@@ -90,6 +90,27 @@ if (
 ) {
   throw new Error("Compatibility manifest learning-record semantics have drifted");
 }
+if (
+  manifest.database.accountNotifications.deliveryDefault !== "disabled" ||
+  manifest.database.accountNotifications.adapterContract !==
+    "AccountNotificationAdapter" ||
+  manifest.database.accountNotifications.adapterModuleVariable !==
+    "ACCOUNT_NOTIFICATION_ADAPTER_MODULE" ||
+  manifest.database.accountNotifications.auditActorKindField !==
+    "metadata.actorKind" ||
+  manifest.database.accountNotifications.auditProvenance.join(",") !==
+    "owner,system" ||
+  !compose.includes(
+    "ACCOUNT_NOTIFICATION_ADAPTER_MODULE: ${PROJECT42_ACCOUNT_NOTIFICATION_ADAPTER_MODULE:-}",
+  ) ||
+  !exampleEnvironment.includes(
+    "PROJECT42_ACCOUNT_NOTIFICATION_ADAPTER_MODULE=",
+  )
+) {
+  throw new Error(
+    "Reference self-host account notification delivery contract has drifted",
+  );
+}
 if (manifest.supportLevel === "production" && compose.includes("start-dev")) {
   throw new Error("A production manifest cannot point to a development identity profile");
 }

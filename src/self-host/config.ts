@@ -42,6 +42,7 @@ export interface SelfHostConfiguration {
   migrationDirectory: string;
   learningRecordAdapter: LearningRecordAdapterConfiguration;
   accountMergeRequiredConsents: AccountMergeConsentRequirement[];
+  accountNotificationAdapterModule: string | null;
   browserSession: SelfHostBrowserSessionConfiguration;
 }
 
@@ -114,6 +115,16 @@ export function readConfiguration(
   const port = Number(environment.PORT ?? "8787");
   if (!Number.isInteger(port) || port < 1 || port > 65_535) {
     throw new Error("PORT must be an integer from 1 through 65535");
+  }
+  const accountNotificationAdapterModule =
+    environment.ACCOUNT_NOTIFICATION_ADAPTER_MODULE?.trim() || null;
+  if (
+    accountNotificationAdapterModule &&
+    /^(?:data|https?|node):/i.test(accountNotificationAdapterModule)
+  ) {
+    throw new Error(
+      "ACCOUNT_NOTIFICATION_ADAPTER_MODULE must be a local file or installed package",
+    );
   }
 
   const publicUrl = serviceUrl("PUBLIC_URL");
@@ -202,6 +213,7 @@ export function readConfiguration(
     accountMergeRequiredConsents: readAccountMergeConsentRequirements(
       environment.ACCOUNT_MERGE_REQUIRED_CONSENTS,
     ),
+    accountNotificationAdapterModule,
     browserSession,
   };
 }

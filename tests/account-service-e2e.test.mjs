@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 import { Miniflare } from "miniflare";
-import { starterCatalog } from "../dist/index.js";
+import {
+  DeterministicAccountNotificationAdapter,
+  starterCatalog,
+} from "../dist/index.js";
 import {
   D1Project42Repository,
   GithubIdentityLinkAdapter,
@@ -70,6 +73,13 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
 
   const identities = new Map([
     ["owner-token", identity("owner-subject", "owner@example.test")],
+    [
+      "stale-owner-token",
+      {
+        ...identity("owner-subject", "owner@example.test"),
+        authenticatedAt: Math.floor(Date.now() / 1_000) - 3_600,
+      },
+    ],
     ["learner-token", identity("learner-subject", "learner@other.example")],
     ["other-token", identity("other-subject", "other@other.example")],
     ["delete-token", identity("delete-subject", "delete@trusted.example")],
@@ -127,7 +137,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     },
   );
 
-  async function api(token, path, init = {}) {
+  async function api(token, path, init = {}, notificationAdapter) {
     const headers = new Headers(init.headers);
     headers.set("authorization", `Bearer ${token}`);
     headers.set("origin", allowedOrigin);
@@ -140,6 +150,11 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
       verifier,
       repository,
       githubLinkAdapter,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      notificationAdapter,
     );
   }
 
@@ -148,6 +163,20 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   const owner = (await readBody(ownerSession)).account;
   assert.equal(owner.state, "approved");
   assert.deepEqual(new Set(owner.roles), new Set(["learner", "owner"]));
+
+  const unavailableNotificationDispatch = await api(
+    "owner-token",
+    "/v1/admin/notifications/dispatch",
+    {
+      method: "POST",
+      body: JSON.stringify({}),
+    },
+  );
+  assert.equal(unavailableNotificationDispatch.status, 503);
+  assert.equal(
+    (await readBody(unavailableNotificationDispatch)).error.code,
+    "account_notification_delivery_unavailable",
+  );
 
   const initialProfileResponse = await api("owner-token", "/v1/me/profile");
   assert.equal(initialProfileResponse.status, 200);
@@ -243,6 +272,163 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   const learner = await repository.findAccount(identities.get("learner-token"));
   assert.ok(learner);
   assert.equal(learner.state, "pending");
+  await repository.createRegistrationRequest({
+    account: learner,
+    identity: identities.get("learner-token"),
+    receiptTokenDigest: "8".repeat(64),
+    requestId: "e2e-registration-notification",
+    now: new Date().toISOString(),
+  });
+
+  const notificationAdapter =
+    new DeterministicAccountNotificationAdapter(
+      new Date().toISOString(),
+    );
+  const learnerNotificationDispatch = await api(
+    "learner-token",
+    "/v1/admin/notifications/dispatch",
+    { method: "POST", body: JSON.stringify({ limit: 10 }) },
+    notificationAdapter,
+  );
+  assert.equal(learnerNotificationDispatch.status, 403);
+  assert.equal(
+    (await readBody(learnerNotificationDispatch)).error.code,
+    "owner_required",
+  );
+  const staleNotificationDispatch = await api(
+    "stale-owner-token",
+    "/v1/admin/notifications/dispatch",
+    { method: "POST", body: JSON.stringify({ limit: 10 }) },
+    notificationAdapter,
+  );
+  assert.equal(staleNotificationDispatch.status, 401);
+  assert.equal(
+    (await readBody(staleNotificationDispatch)).error.code,
+    "recent_authentication_required",
+  );
+  const ownerNotificationDispatch = await api(
+    "owner-token",
+    "/v1/admin/notifications/dispatch",
+    { method: "POST", body: JSON.stringify({ limit: 10 }) },
+    notificationAdapter,
+  );
+  assert.equal(ownerNotificationDispatch.status, 200);
+  const ownerNotificationDispatchBody =
+    await readBody(ownerNotificationDispatch);
+  assert.equal(
+    ownerNotificationDispatchBody.summary.delivered,
+    2,
+    JSON.stringify(ownerNotificationDispatchBody.summary),
+  );
+  const ownerDispatchAudits = await database
+    .prepare(
+      `SELECT actor_user_id, actor_issuer, actor_subject, metadata_json
+         FROM audit_events
+        WHERE action = 'account-notification.delivered'
+        ORDER BY sequence`,
+    )
+    .all();
+  assert.equal(ownerDispatchAudits.results.length, 2);
+  assert.ok(
+    ownerDispatchAudits.results.every(
+      (event) =>
+        event.actor_user_id === owner.id &&
+        event.actor_issuer === issuer &&
+        event.actor_subject === "owner-subject" &&
+        JSON.parse(event.metadata_json).actorKind === "owner" &&
+        !/@|example\.test/i.test(event.metadata_json),
+    ),
+  );
+  const deadLetterId = "notification-dead-letter-e2e";
+  const deadLetterAt = new Date().toISOString();
+  await database
+    .prepare(
+      `INSERT INTO account_notifications (
+         id, installation_id, recipient_user_id, subject_user_id, kind,
+         state, template_version, idempotency_key, attempt_count,
+         max_attempts, available_at, last_error_code, created_at, updated_at
+       ) VALUES (
+         ?, 'e2e', ?, ?, 'registration-receipt', 'dead-letter', '1.0',
+         ?, 5, 5, ?, 'delivery-temporary-failure', ?, ?
+       )`,
+    )
+    .bind(
+      deadLetterId,
+      learner.id,
+      learner.id,
+      "9".repeat(64),
+      deadLetterAt,
+      deadLetterAt,
+      deadLetterAt,
+    )
+    .run();
+  const learnerReplay = await api(
+    "learner-token",
+    "/v1/admin/notifications/replay",
+    {
+      method: "POST",
+      body: JSON.stringify({ notificationIds: [deadLetterId] }),
+    },
+  );
+  assert.equal(learnerReplay.status, 403);
+  assert.equal((await readBody(learnerReplay)).error.code, "owner_required");
+  const staleOwnerReplay = await api(
+    "stale-owner-token",
+    "/v1/admin/notifications/replay",
+    {
+      method: "POST",
+      body: JSON.stringify({ notificationIds: [deadLetterId] }),
+    },
+  );
+  assert.equal(staleOwnerReplay.status, 401);
+  assert.equal(
+    (await readBody(staleOwnerReplay)).error.code,
+    "recent_authentication_required",
+  );
+  const ownerReplay = await api(
+    "owner-token",
+    "/v1/admin/notifications/replay",
+    {
+      method: "POST",
+      body: JSON.stringify({ notificationIds: [deadLetterId] }),
+    },
+  );
+  assert.equal(ownerReplay.status, 200);
+  assert.deepEqual((await readBody(ownerReplay)).summary, {
+    requested: 1,
+    replayed: 1,
+    alreadyReplayed: 0,
+  });
+  const repeatedOwnerReplay = await api(
+    "owner-token",
+    "/v1/admin/notifications/replay",
+    {
+      method: "POST",
+      body: JSON.stringify({ notificationIds: [deadLetterId] }),
+    },
+  );
+  assert.equal(repeatedOwnerReplay.status, 200);
+  assert.deepEqual((await readBody(repeatedOwnerReplay)).summary, {
+    requested: 1,
+    replayed: 0,
+    alreadyReplayed: 1,
+  });
+  const replayAudit = await database
+    .prepare(
+      `SELECT actor_user_id, actor_issuer, actor_subject, outcome,
+              metadata_json
+         FROM audit_events
+        WHERE action = 'account-notification.dead-letter-replayed'
+        ORDER BY sequence DESC
+        LIMIT 1`,
+    )
+    .first();
+  assert.equal(replayAudit.actor_user_id, owner.id);
+  assert.equal(replayAudit.actor_issuer, issuer);
+  assert.equal(replayAudit.actor_subject, "owner-subject");
+  assert.equal(replayAudit.outcome, "success");
+  assert.match(replayAudit.metadata_json, /replayOfNotificationId/);
+  assert.doesNotMatch(replayAudit.metadata_json, /@|example\.test/i);
 
   const pendingProgress = await api("learner-token", "/v1/me/progress");
   assert.equal(pendingProgress.status, 403);

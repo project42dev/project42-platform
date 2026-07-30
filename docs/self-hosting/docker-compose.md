@@ -64,6 +64,20 @@ Migration `012_admin_pagination_indexes.sql` adds the complete tenant-scoped
 account and audit keyset indexes used by bounded owner administration queries.
 Apply it before validating large account or audit traversals.
 
+Migration `013_account_notification_outbox.sql` adds the provider-neutral
+account notification outbox and its delivery-state guards. The reference
+container intentionally uses disabled delivery and requires no messaging
+credential. A self-hoster must review and supply a backend
+`AccountNotificationAdapter` before dispatch can claim queued work. Set
+`PROJECT42_ACCOUNT_NOTIFICATION_ADAPTER_MODULE` to an installed package name or
+to the absolute container path of a reviewed module mounted read-only by a
+Compose override. That module must export
+`createAccountNotificationAdapter()`. It receives an abort signal and absolute
+deadline for every delivery; it must use the opaque notification ID for
+downstream idempotency. Keep the variable empty to preserve fail-closed
+delivery. See
+[Account notification outbox](../account-notifications.md).
+
 Migration `008_authoritative_progress_imports.sql` adds schema-versioned
 `progress.imported` events. The API reads progress from the rebuilt event
 projection while retaining the older relational progress tables as compatibility
