@@ -176,7 +176,7 @@ services:
 
   secure-topology-smoke:
     profiles: ["test"]
-    image: curlimages/curl:8.16.0
+    image: curlimages/curl:8.21.0
     environment:
       CURL_CA_BUNDLE: /trust/root.crt
     volumes:

@@ -283,6 +283,11 @@ test("secure release gate drives a real browser session and isolated restore", a
     compose,
     "secure-backup-restore-smoke",
   );
+  const topologySmokeService = composeServiceBlock(
+    compose,
+    "secure-topology-smoke",
+  );
+  assert.match(topologySmokeService, /image: curlimages\/curl:8\.21\.0/);
   assert.match(backupService, /project42_profile_photos:\/source-photos:ro/);
   assert.match(backupService, /project42_identity:\/source-identity:ro/);
   assert.match(backupService, /project42_caddy_data:\/source-caddy-data:ro/);
