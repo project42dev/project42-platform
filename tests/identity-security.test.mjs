@@ -68,6 +68,12 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
   };
   const verifier = new OidcJwtVerifier(env);
   const now = Math.floor(Date.now() / 1000);
+  const claimContractDiagnostics = [];
+  const originalConsoleInfo = console.info;
+  console.info = (entry) => claimContractDiagnostics.push(JSON.parse(entry));
+  t.after(() => {
+    console.info = originalConsoleInfo;
+  });
   const valid = await new SignJWT({
     email: "learner@example.com",
     email_verified: true,
@@ -99,6 +105,8 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
     nonce: "expected-nonce",
     auth_time: now,
     azp: "project42-browser",
+    email: "learner@example.com",
+    email_verified: true,
   })
     .setProtectedHeader({ alg: "RS256", kid: "test-key" })
     .setIssuer(issuer)
@@ -108,11 +116,21 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
     .setExpirationTime(now + 300)
     .sign(privateKey);
   const browserIdentity = await verifier.verifyToken(browserIdentityToken, {
-    audience: "project42-browser",
-    nonce: "expected-nonce",
-    requireAuthenticationTime: true,
-  });
+      audience: "project42-browser",
+      nonce: "expected-nonce",
+      requireAuthenticationTime: true,
+      diagnosticRequestId: "b5d9f227-830c-43e8-8bb6-e31bf75e06ba",
+    });
   assert.equal(browserIdentity.authenticatedAt, now);
+  assert.deepEqual(claimContractDiagnostics, [
+    {
+      level: "info",
+      requestId: "b5d9f227-830c-43e8-8bb6-e31bf75e06ba",
+      action: "oidc.identity.claim_contract",
+      emailClaim: "present",
+      emailVerificationClaim: "verified",
+    },
+  ]);
   await assert.rejects(
     verifier.verifyToken(browserIdentityToken, {
       audience: "project42-browser",
@@ -194,6 +212,71 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
         error.diagnostic?.category === "authentication_time_invalid",
     );
   }
+
+  const nonBooleanVerificationToken = await new SignJWT({
+    nonce: "expected-nonce",
+    auth_time: now,
+    email: "learner@example.com",
+    email_verified: "true",
+  })
+    .setProtectedHeader({ alg: "RS256", kid: "test-key" })
+    .setIssuer(issuer)
+    .setSubject("stable-subject")
+    .setAudience("project42-browser")
+    .setIssuedAt(now)
+    .setExpirationTime(now + 300)
+    .sign(privateKey);
+  const nonBooleanVerificationIdentity = await verifier.verifyToken(
+    nonBooleanVerificationToken,
+    {
+      audience: "project42-browser",
+      nonce: "expected-nonce",
+      requireAuthenticationTime: true,
+      diagnosticRequestId: "cc19345a-e9d1-4b5e-89ee-c46d1a695d6b",
+    },
+  );
+  assert.equal(nonBooleanVerificationIdentity.email, "learner@example.com");
+  assert.equal(nonBooleanVerificationIdentity.emailVerified, false);
+  assert.deepEqual(claimContractDiagnostics.at(-1), {
+    level: "info",
+    requestId: "cc19345a-e9d1-4b5e-89ee-c46d1a695d6b",
+    action: "oidc.identity.claim_contract",
+    emailClaim: "present",
+    emailVerificationClaim: "invalid_type",
+  });
+  const missingVerificationToken = await new SignJWT({
+    nonce: "expected-nonce",
+    auth_time: now,
+    email: "learner@example.com",
+  })
+    .setProtectedHeader({ alg: "RS256", kid: "test-key" })
+    .setIssuer(issuer)
+    .setSubject("stable-subject")
+    .setAudience("project42-browser")
+    .setIssuedAt(now)
+    .setExpirationTime(now + 300)
+    .sign(privateKey);
+  const missingVerificationIdentity = await verifier.verifyToken(
+    missingVerificationToken,
+    {
+      audience: "project42-browser",
+      nonce: "expected-nonce",
+      requireAuthenticationTime: true,
+      diagnosticRequestId: "a3b08354-84af-40b8-ac06-7093475c1ee9",
+    },
+  );
+  assert.equal(missingVerificationIdentity.emailVerified, false);
+  assert.deepEqual(claimContractDiagnostics.at(-1), {
+    level: "info",
+    requestId: "a3b08354-84af-40b8-ac06-7093475c1ee9",
+    action: "oidc.identity.claim_contract",
+    emailClaim: "present",
+    emailVerificationClaim: "missing",
+  });
+  assert.equal(
+    JSON.stringify(claimContractDiagnostics).includes("learner@example.com"),
+    false,
+  );
 
   const wrongAudience = await new SignJWT({})
     .setProtectedHeader({ alg: "RS256", kid: "test-key" })
