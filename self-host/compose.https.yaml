@@ -2,7 +2,9 @@ name: project42-https
 
 services:
   database:
-    image: postgres:17.10-alpine3.23
+    build:
+      context: ./postgres
+    image: project42/postgres:${PROJECT42_VERSION:-local}
     environment:
       POSTGRES_DB: project42
       POSTGRES_USER: project42
@@ -238,7 +240,7 @@ services:
 
   secure-backup-restore-smoke:
     profiles: ["test"]
-    image: postgres:17.10-alpine3.23
+    image: project42/postgres:${PROJECT42_VERSION:-local}
     user: "0:0"
     environment:
       PROJECT42_DATABASE_PASSWORD: ${PROJECT42_DATABASE_PASSWORD:?set PROJECT42_DATABASE_PASSWORD}

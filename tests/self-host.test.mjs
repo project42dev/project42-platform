@@ -133,6 +133,12 @@ test("secure reference Compose exposes only the HTTPS gateway", async () => {
     "utf8",
   );
   const gateway = composeServiceBlock(compose, "gateway");
+  const database = composeServiceBlock(compose, "database");
+  assert.match(database, /context: \.\/postgres/);
+  assert.match(
+    database,
+    /image: project42\/postgres:\$\{PROJECT42_VERSION:-local\}/,
+  );
   const api = composeServiceBlock(compose, "api");
   const identity = composeServiceBlock(compose, "identity");
 
@@ -282,6 +288,10 @@ test("secure release gate drives a real browser session and isolated restore", a
   const backupService = composeServiceBlock(
     compose,
     "secure-backup-restore-smoke",
+  );
+  assert.match(
+    backupService,
+    /image: project42\/postgres:\$\{PROJECT42_VERSION:-local\}/,
   );
   const topologySmokeService = composeServiceBlock(
     compose,
