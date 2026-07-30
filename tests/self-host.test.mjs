@@ -136,6 +136,7 @@ test("secure reference Compose exposes only the HTTPS gateway", async () => {
   const api = composeServiceBlock(compose, "api");
   const identity = composeServiceBlock(compose, "identity");
 
+  assert.match(gateway, /image: caddy:2\.11\.4-alpine/);
   assert.match(gateway, /- "443:443"/);
   assert.doesNotMatch(api, /\n    ports:/);
   assert.doesNotMatch(identity, /\n    ports:/);

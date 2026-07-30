@@ -59,7 +59,7 @@ services:
     restart: unless-stopped
 
   gateway:
-    image: caddy:2.10.2-alpine
+    image: caddy:2.11.4-alpine
     environment:
       XDG_DATA_HOME: /data
       XDG_CONFIG_HOME: /config
