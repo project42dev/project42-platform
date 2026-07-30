@@ -4,6 +4,45 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.70.0] - 2026-07-30
+
+### Added
+
+- Privacy-safe signed-token diagnostics for accepting or rejecting the verified-email
+  claim contract without recording identity values.
+- A secure HTTPS Compose profile that proves the Learn-to-identity-to-API browser
+  journey with API-owned `HttpOnly` sessions, trusted local TLS, backup and restore,
+  deterministic configuration checks, and container vulnerability gates.
+- Encrypted, authenticated continuation cursors for bounded owner account and audit
+  administration queries.
+
+### Changed
+
+- Secure Compose validation consumes the redirect-safe Learn release and verifies
+  sign-in, callback, session use, sign-out, and recovery from a clean browser.
+- Release artifact upload and download steps use immutable Node 24-compatible GitHub
+  Actions revisions.
+- Secure backup checksum verification is portable across the supported Alpine-based
+  utility images.
+
+### Security
+
+- Secure self-host images were rebuilt on remediated Caddy, curl, PostgreSQL, API,
+  and browser-smoke bases and the release gate now rejects critical image
+  vulnerabilities.
+- Browser smoke and API containers run as non-root with constrained capabilities and
+  an explicit browser seccomp profile.
+- Administration cursors fail closed after tampering, secret rotation, or reuse
+  across installations, query types, or account-state filters.
+
+### Known limitations
+
+- The self-host compatibility level remains `evaluation`.
+- Real provider token claims and owner administration journeys still require
+  deployment-specific validation before a hosted production promotion is accepted.
+- Identity providers, email delivery, domains, secrets, and first-owner authority
+  remain deployment-owner responsibilities.
+
 ## [0.69.0] - 2026-07-30
 
 ### Added
@@ -32,4 +71,5 @@ semantic versioning.
 - Identity-provider configuration and real user journeys remain deployment-owner
   responsibilities.
 
+[0.70.0]: https://github.com/project42dev/project42-platform/releases/tag/v0.70.0
 [0.69.0]: https://github.com/project42dev/project42-platform/releases/tag/v0.69.0
