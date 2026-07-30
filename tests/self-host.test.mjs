@@ -722,6 +722,66 @@ test(
       assert.deepEqual(account.roles, ["learner", "owner"]);
       assert.deepEqual(await repository.findAccount(identity), account);
 
+      const initialProfile = await repository.getProfile(account, now);
+      assert.deepEqual(initialProfile, {
+        userId: account.id,
+        displayName: "Owner",
+        bio: null,
+        organization: null,
+        location: null,
+        websiteUrl: null,
+        locale: null,
+        timeZone: null,
+        reducedMotion: false,
+        highContrast: false,
+        photoAvailable: false,
+        photoUpdatedAt: null,
+        createdAt: now,
+        updatedAt: now,
+      });
+      const profileUpdatedAt = "2026-07-27T12:00:30.000Z";
+      const updatedProfile = await repository.updateProfile({
+        account,
+        request: {
+          displayName: "PostgreSQL Owner",
+          bio: "Portable profile integration fixture.",
+          organization: "Example learning organization",
+          location: "Remote",
+          websiteUrl: "https://example.test/learner",
+          locale: "en-US",
+          timeZone: "America/New_York",
+          reducedMotion: true,
+          highContrast: true,
+        },
+        fields: [
+          "displayName",
+          "bio",
+          "organization",
+          "location",
+          "websiteUrl",
+          "locale",
+          "timeZone",
+          "reducedMotion",
+          "highContrast",
+        ],
+        requestId: "postgres-profile-update",
+        now: profileUpdatedAt,
+      });
+      assert.equal(updatedProfile.displayName, "PostgreSQL Owner");
+      assert.equal(updatedProfile.createdAt, now);
+      assert.equal(updatedProfile.updatedAt, profileUpdatedAt);
+      assert.deepEqual(
+        await repository.getProfile(account, profileUpdatedAt),
+        updatedProfile,
+      );
+      const learnerExport = await repository.exportLearnerData({
+        account,
+        requestId: "postgres-profile-export",
+        now: "2026-07-27T12:00:45.000Z",
+      });
+      assert.deepEqual(learnerExport.profile, updatedProfile);
+      assert.equal(learnerExport.exportedAt, "2026-07-27T12:00:45.000Z");
+
       for (const suffix of ["a", "b"]) {
         await repository.createOrRefreshAccount(
           {

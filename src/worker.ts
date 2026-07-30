@@ -4746,9 +4746,9 @@ class D1Project42Repository {
                 COALESCE(p.high_contrast, 0) AS high_contrast,
                 p.photo_object_key,
                 p.photo_content_type, p.photo_byte_length, p.photo_etag,
-                p.photo_updated_at,
-                COALESCE(p.created_at, u.created_at) AS created_at,
-                COALESCE(p.updated_at, u.updated_at) AS updated_at
+                CAST(p.photo_updated_at AS TEXT) AS photo_updated_at,
+                COALESCE(CAST(p.created_at AS TEXT), u.created_at) AS created_at,
+                COALESCE(CAST(p.updated_at AS TEXT), u.updated_at) AS updated_at
            FROM users u
            LEFT JOIN user_profiles p
              ON p.installation_id = u.installation_id AND p.user_id = u.id
@@ -4839,7 +4839,7 @@ class D1Project42Repository {
           next.timeZone,
           next.reducedMotion ? 1 : 0,
           next.highContrast ? 1 : 0,
-          input.now,
+          current.createdAt,
           input.now,
         ),
       this.auditStatement({
@@ -7759,10 +7759,31 @@ function mapProfile(row: ProfileRow, fallbackTimestamp: string): LearnerProfile 
     reducedMotion: row.reduced_motion === 1,
     highContrast: row.high_contrast === 1,
     photoAvailable: Boolean(row.photo_object_key),
-    photoUpdatedAt: row.photo_updated_at,
-    createdAt: row.created_at || fallbackTimestamp,
-    updatedAt: row.updated_at || fallbackTimestamp,
+    photoUpdatedAt: normalizeProfileTimestamp(row.photo_updated_at, null),
+    createdAt: normalizeProfileTimestamp(row.created_at, fallbackTimestamp),
+    updatedAt: normalizeProfileTimestamp(row.updated_at, fallbackTimestamp),
   };
+}
+
+function normalizeProfileTimestamp(
+  value: string | null,
+  fallback: string,
+): string;
+function normalizeProfileTimestamp(
+  value: string | null,
+  fallback: null,
+): string | null;
+function normalizeProfileTimestamp(
+  value: string | null,
+  fallback: string | null,
+): string | null {
+  const selected = value || fallback;
+  if (selected === null) return selected;
+  const timestamp = new Date(selected);
+  if (Number.isNaN(timestamp.getTime())) {
+    throw new Error("Profile timestamp is not a valid date-time");
+  }
+  return timestamp.toISOString();
 }
 
 function mapConsent(row: ConsentRow): ConsentRecord {

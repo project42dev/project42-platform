@@ -63,6 +63,10 @@ sessions.
 Migration `012_admin_pagination_indexes.sql` adds the complete tenant-scoped
 account and audit keyset indexes used by bounded owner administration queries.
 Apply it before validating large account or audit traversals.
+The required PostgreSQL release gate also creates, reads, and updates a learner
+profile and exports that learner's complete data package. This catches
+adapter-specific timestamp projection failures that migration-only checks cannot
+detect.
 
 Migration `013_account_notification_outbox.sql` adds the provider-neutral
 account notification outbox and its delivery-state guards. The reference
