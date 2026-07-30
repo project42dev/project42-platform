@@ -1102,7 +1102,7 @@ test(
         for (const table of [
           "installations",
           "users",
-          "identities",
+          "user_identities",
           "role_assignments",
           "approval_decisions",
           "registration_requests",
