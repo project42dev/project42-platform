@@ -80,7 +80,13 @@ photos, linked identities, progress, merge proofs, and every unknown future
 The callback consumes its transaction before handling a provider denial or
 exchanging the authorization code. This fail-closed ordering prevents replay;
 a provider error or transient exchange failure requires the learner to start a
-new sign-in transaction.
+new sign-in transaction. An expired provider ID token also remains rejected.
+The callback clears its transaction cookie and redirects to the normalized
+learner return target with the generic `auth=error` state so the learner can
+start a fresh transaction instead of remaining on an API error response.
+Server diagnostics record only the bounded JOSE category, code, claim name, and
+coarsened timing metadata; they never include the token, authorization code,
+state, nonce, identity claims, or return target.
 
 Both unauthenticated routes are protected before transaction creation, cookie
 parsing, or provider exchange. Hosted Workers require the
