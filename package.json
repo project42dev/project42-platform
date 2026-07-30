@@ -29,6 +29,10 @@
     ".dev.vars.example",
     "LICENSE",
     "LICENSE-CONTENT.md",
+    "CHANGELOG.md",
+    "RELEASE_NOTES.md",
+    "SUPPORT.md",
+    "CONTRIBUTING.md",
     "README.md"
   ],
   "scripts": {
@@ -44,10 +48,13 @@
     "content:freshness": "node scripts/check-freshness.mjs",
     "self-host:validate": "node scripts/validate-self-host-release.mjs",
     "resources:validate": "node scripts/validate-resource-packs.mjs",
+    "release:check": "node scripts/validate-release-governance.mjs",
+    "release:manifest": "node scripts/generate-release-manifest.mjs",
+    "release:rehearse": "node scripts/rehearse-release.mjs",
     "sources:links": "node scripts/check-source-links.mjs",
     "learning-records:measure": "node scripts/measure-hosted-learning-record-adapter.mjs",
     "test": "npm run build && node --test tests/*.test.mjs && npm run resources:validate",
-    "check": "npm run training:check && npm test && npm run learning-records:measure && npm run content:freshness && npm run self-host:validate",
+    "check": "npm run training:check && npm test && npm run learning-records:measure && npm run content:freshness && npm run sources:links && npm run self-host:validate && npm run release:check",
     "prepare": "npm run build"
   },
   "engines": {
