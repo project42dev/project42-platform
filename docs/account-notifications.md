@@ -103,6 +103,21 @@ recipient set.
 Stable SHA-256 idempotency keys bind the installation, authoritative event,
 kind, and recipient. The outbox stores no rendered content or recipient email.
 It resolves a currently verified primary email only after a successful claim.
+Immediately before calling the adapter, the repository also rechecks the
+recipient against the current installation-scoped account state. An owner
+registration alert requires an approved account with an active `owner` role in
+that same installation and requires the subject to retain a current, unrevoked,
+unexpired registration request. Learner notices require the recipient and
+subject to remain the same account. Registration receipts must match the exact
+current request through its immutable request time, while lifecycle notices
+must match the user's current transition identifier, decision state, and
+decision time. Those correlations prevent a later request or state cycle from
+making an older notice eligible again. A stale or cross-installation recipient
+fails closed as an immutable dead letter with the privacy-safe
+`recipient-ineligible` code. Missing or unverified current email remains a
+bounded retryable `recipient-unavailable` condition. Neither condition exposes
+an address, request identifier, transition identifier, or account state to the
+adapter.
 Audit events retain an allow-listed `actorKind` of `owner` or `system`, the
 opaque notification ID, kind, state, attempt number, and allow-listed error
 code. Owner-triggered operations additionally retain the owner's opaque user
@@ -144,7 +159,9 @@ Do not reset attempts or turn terminal rows back into pending work. An owner
 with recent authentication can recover a dead letter through
 `POST /v1/admin/notifications/replay` with one through ten unique opaque
 notification IDs. Recovery creates a new pending row linked to the immutable
-dead-letter source. Repeating the request returns `alreadyReplayed` and cannot
+dead-letter source. The recovery row preserves the source event's immutable
+`created_at` request or transition correlation while using current availability
+and update times. Repeating the request returns `alreadyReplayed` and cannot
 create a duplicate. If that recovery row also reaches dead letter, it can be
 recovered as a new link in the evidence chain.
 

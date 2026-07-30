@@ -39,6 +39,748 @@ function verifiedIdentity(subject, email) {
   };
 }
 
+async function exerciseDeliveryTimeRecipientEligibility(database, prefix) {
+  const primaryInstallationId = `${prefix}-primary`;
+  const otherInstallationId = `${prefix}-other`;
+  const primaryRepository = new D1Project42Repository(
+    database,
+    primaryInstallationId,
+  );
+  const otherRepository = new D1Project42Repository(
+    database,
+    otherInstallationId,
+  );
+  const now = "2026-07-29T12:00:00.000Z";
+  await primaryRepository.ensureInstallation(now);
+  await otherRepository.ensureInstallation(now);
+
+  const removedOwner = await primaryRepository.createOrRefreshAccount(
+    verifiedIdentity(
+      `${prefix}-removed-owner`,
+      `${prefix}-removed-owner@example.test`,
+    ),
+    true,
+    `${prefix}-removed-owner-bootstrap`,
+    now,
+  );
+  const revokedOwner = await primaryRepository.createOrRefreshAccount(
+    verifiedIdentity(
+      `${prefix}-revoked-owner`,
+      `${prefix}-revoked-owner@example.test`,
+    ),
+    true,
+    `${prefix}-revoked-owner-bootstrap`,
+    now,
+  );
+  const subject = await primaryRepository.createOrRefreshAccount(
+    verifiedIdentity(`${prefix}-subject`, `${prefix}-subject@example.test`),
+    false,
+    `${prefix}-subject-registration`,
+    now,
+  );
+  const lifecycleRecipient =
+    await primaryRepository.createOrRefreshAccount(
+      verifiedIdentity(
+        `${prefix}-lifecycle`,
+        `${prefix}-lifecycle@example.test`,
+      ),
+      false,
+      `${prefix}-lifecycle-registration`,
+      now,
+    );
+
+  const subjectRequestId = `${prefix}-subject-request`;
+  const approvedTransitionId = `${prefix}-approved-transition`;
+  const suspendedTransitionId = `${prefix}-suspended-transition`;
+  await database.batch([
+    database
+      .prepare(
+        `UPDATE users
+            SET active_registration_request_id = ?, updated_at = ?
+          WHERE installation_id = ? AND id = ?`,
+      )
+      .bind(subjectRequestId, now, primaryInstallationId, subject.id),
+    database
+      .prepare(
+        `INSERT INTO registration_requests (
+           id, installation_id, user_id, receipt_token_digest, requested_at,
+           last_seen_at, expires_at, revoked_at, replaced_by_request_id
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, NULL)`,
+      )
+      .bind(
+        subjectRequestId,
+        primaryInstallationId,
+        subject.id,
+        "5".repeat(64),
+        now,
+        now,
+        "2026-08-29T12:00:00.000Z",
+      ),
+    database
+      .prepare(
+        `DELETE FROM role_assignments
+          WHERE installation_id = ? AND user_id = ? AND role = 'owner'`,
+      )
+      .bind(primaryInstallationId, removedOwner.id),
+    database
+      .prepare(
+        `INSERT INTO role_assignments (
+           installation_id, user_id, role, assigned_by_user_id, assigned_at
+         ) VALUES (?, ?, 'owner', NULL, ?)`,
+      )
+      .bind(otherInstallationId, removedOwner.id, now),
+    database
+      .prepare(
+        `UPDATE users SET account_state = 'revoked', updated_at = ?
+          WHERE installation_id = ? AND id = ?`,
+      )
+      .bind(now, primaryInstallationId, revokedOwner.id),
+    database
+      .prepare(
+        `UPDATE users
+            SET account_state = 'approved', state_revision = state_revision + 1,
+                state_transition_id = ?, updated_at = ?
+          WHERE installation_id = ? AND id = ?`,
+      )
+      .bind(
+        approvedTransitionId,
+        now,
+        primaryInstallationId,
+        lifecycleRecipient.id,
+      ),
+    database
+      .prepare(
+        `INSERT INTO approval_decisions (
+           id, installation_id, user_id, from_state, to_state, decision_kind,
+           reason, actor_user_id, domain_rule_id, decided_at, transition_id
+         ) VALUES (?, ?, ?, 'pending', 'approved', 'owner-decision',
+                   'Eligibility fixture.', NULL, NULL, ?, ?)`,
+      )
+      .bind(
+        `${prefix}-approved-decision`,
+        primaryInstallationId,
+        lifecycleRecipient.id,
+        now,
+        approvedTransitionId,
+      ),
+  ]);
+  await database.batch([
+    database
+      .prepare(
+        `UPDATE users
+            SET account_state = 'suspended',
+                state_revision = state_revision + 1,
+                state_transition_id = ?, updated_at = ?
+          WHERE installation_id = ? AND id = ?`,
+      )
+      .bind(
+        suspendedTransitionId,
+        now,
+        primaryInstallationId,
+        lifecycleRecipient.id,
+      ),
+    database
+      .prepare(
+        `INSERT INTO approval_decisions (
+           id, installation_id, user_id, from_state, to_state, decision_kind,
+           reason, actor_user_id, domain_rule_id, decided_at, transition_id
+         ) VALUES (?, ?, ?, 'approved', 'suspended', 'owner-decision',
+                   'Eligibility fixture.', NULL, NULL, ?, ?)`,
+      )
+      .bind(
+        `${prefix}-suspended-decision`,
+        primaryInstallationId,
+        lifecycleRecipient.id,
+        now,
+        suspendedTransitionId,
+      ),
+  ]);
+
+  const notificationRows = [
+    {
+      id: `${prefix}-removed-owner-alert`,
+      recipientUserId: removedOwner.id,
+      subjectUserId: subject.id,
+      kind: "owner-registration-alert",
+      idempotencyKey: "6".repeat(64),
+    },
+    {
+      id: `${prefix}-revoked-owner-alert`,
+      recipientUserId: revokedOwner.id,
+      subjectUserId: subject.id,
+      kind: "owner-registration-alert",
+      idempotencyKey: "7".repeat(64),
+    },
+    {
+      id: `${prefix}-stale-approval`,
+      recipientUserId: lifecycleRecipient.id,
+      subjectUserId: lifecycleRecipient.id,
+      kind: "learner-approved",
+      idempotencyKey: "8".repeat(64),
+    },
+    {
+      id: `${prefix}-current-suspension`,
+      recipientUserId: lifecycleRecipient.id,
+      subjectUserId: lifecycleRecipient.id,
+      kind: "learner-suspended",
+      idempotencyKey: "9".repeat(64),
+    },
+  ];
+  await database.batch(
+    notificationRows.map((notification) =>
+      database
+        .prepare(
+          `INSERT INTO account_notifications (
+             id, installation_id, recipient_user_id, subject_user_id, kind,
+             state, template_version, idempotency_key, attempt_count,
+             max_attempts, available_at, created_at, updated_at
+           ) VALUES (?, ?, ?, ?, ?, 'pending', '1.0', ?, 0, 5, ?, ?, ?)`,
+        )
+        .bind(
+          notification.id,
+          primaryInstallationId,
+          notification.recipientUserId,
+          notification.subjectUserId,
+          notification.kind,
+          notification.idempotencyKey,
+          now,
+          now,
+          now,
+        ),
+    ),
+  );
+
+  const otherAdapter = new DeterministicAccountNotificationAdapter(now);
+  const otherSummary = await otherRepository.dispatchAccountNotifications({
+    actor: systemActor,
+    adapter: otherAdapter,
+    requestId: `${prefix}-other-installation-dispatch`,
+    now,
+  });
+  assert.equal(otherSummary.claimed, 0);
+  assert.equal(otherAdapter.deliveries.length, 0);
+
+  const adapter = new DeterministicAccountNotificationAdapter(now);
+  const summary = await primaryRepository.dispatchAccountNotifications({
+    actor: systemActor,
+    adapter,
+    requestId: `${prefix}-primary-dispatch`,
+    now,
+  });
+  assert.equal(summary.claimed, 4);
+  assert.equal(summary.delivered, 1);
+  assert.equal(summary.deadLetter, 3);
+  assert.deepEqual(
+    adapter.deliveries.map((delivery) => delivery.kind),
+    ["learner-suspended"],
+  );
+
+  const states = await database
+    .prepare(
+      `SELECT id, state, last_error_code
+         FROM account_notifications
+        WHERE installation_id = ?
+        ORDER BY id`,
+    )
+    .bind(primaryInstallationId)
+    .all();
+  assert.deepEqual(
+    Object.fromEntries(
+      states.results.map((row) => [
+        row.id,
+        { state: row.state, errorCode: row.last_error_code },
+      ]),
+    ),
+    {
+      [`${prefix}-current-suspension`]: {
+        state: "delivered",
+        errorCode: null,
+      },
+      [`${prefix}-removed-owner-alert`]: {
+        state: "dead-letter",
+        errorCode: "recipient-ineligible",
+      },
+      [`${prefix}-revoked-owner-alert`]: {
+        state: "dead-letter",
+        errorCode: "recipient-ineligible",
+      },
+      [`${prefix}-stale-approval`]: {
+        state: "dead-letter",
+        errorCode: "recipient-ineligible",
+      },
+    },
+  );
+  const ineligibleAudits = await database
+    .prepare(
+      `SELECT metadata_json
+         FROM audit_events
+        WHERE installation_id = ?
+          AND action = 'account-notification.dead-lettered'
+        ORDER BY sequence`,
+    )
+    .bind(primaryInstallationId)
+    .all();
+  assert.equal(ineligibleAudits.results.length, 3);
+  for (const audit of ineligibleAudits.results) {
+    assert.equal(
+      JSON.parse(audit.metadata_json).errorCode,
+      "recipient-ineligible",
+    );
+    assert.doesNotMatch(audit.metadata_json, /@|example\.test/i);
+  }
+}
+
+async function exerciseNotificationEventCorrelation(database, prefix) {
+  const installationId = `${prefix}-correlation`;
+  const otherInstallationId = `${prefix}-correlation-other`;
+  const repository = new D1Project42Repository(database, installationId);
+  const otherRepository = new D1Project42Repository(
+    database,
+    otherInstallationId,
+  );
+  const setupAt = "2026-05-01T00:00:00.000Z";
+  const dispatchAt = "2026-07-30T12:00:00.000Z";
+  await repository.ensureInstallation(setupAt);
+  await otherRepository.ensureInstallation(setupAt);
+  const owner = await repository.createOrRefreshAccount(
+    verifiedIdentity(`${prefix}-owner`, `${prefix}-owner@example.test`),
+    true,
+    `${prefix}-owner-bootstrap`,
+    setupAt,
+  );
+
+  async function createLearner(name) {
+    const identity = verifiedIdentity(
+      `${prefix}-${name}`,
+      `${prefix}-${name}@example.test`,
+    );
+    return {
+      identity,
+      account: await repository.createOrRefreshAccount(
+        identity,
+        false,
+        `${prefix}-${name}-create`,
+        setupAt,
+      ),
+    };
+  }
+
+  async function requestAccount(learner, digestCharacter, requestedAt) {
+    await repository.createRegistrationRequest({
+      account: learner.account,
+      identity: learner.identity,
+      receiptTokenDigest: digestCharacter.repeat(64),
+      requestId: `${prefix}-${digestCharacter}-registration`,
+      now: requestedAt,
+    });
+  }
+
+  async function transitionAccount(learner, to, at, label) {
+    learner.account = await repository.changeAccountState({
+      actor: owner,
+      targetId: learner.account.id,
+      to,
+      reason: `Notification correlation fixture: ${label}.`,
+      requestId: `${prefix}-${label}`,
+      now: at,
+    });
+  }
+
+  const pendingReceipt = await createLearner("pending-receipt");
+  const rejectedReceipt = await createLearner("rejected-receipt");
+  const expiredReceipt = await createLearner("expired-receipt");
+  const revokedReceipt = await createLearner("revoked-receipt");
+  const replacedReceipt = await createLearner("replaced-receipt");
+  const resolvedSubject = await createLearner("resolved-subject");
+  const approvedLifecycle = await createLearner("approved-lifecycle");
+  const suspendedLifecycle = await createLearner("suspended-lifecycle");
+  const revokedLifecycle = await createLearner("revoked-lifecycle");
+  const stateCycle = await createLearner("state-cycle");
+  const rejectedCycle = await createLearner("rejected-cycle");
+  const mismatchSubject = await createLearner("mismatch-subject");
+
+  const pendingRequestedAt = "2026-07-29T08:00:00.000Z";
+  await requestAccount(pendingReceipt, "a", pendingRequestedAt);
+
+  const rejectedAt = "2026-07-29T08:05:00.000Z";
+  const rejectedRequestedAt = "2026-07-29T08:06:00.000Z";
+  await transitionAccount(
+    rejectedReceipt,
+    "rejected",
+    rejectedAt,
+    "reject-receipt-account",
+  );
+  await requestAccount(rejectedReceipt, "b", rejectedRequestedAt);
+
+  const expiredRequestedAt = "2026-06-01T08:00:00.000Z";
+  await requestAccount(expiredReceipt, "c", expiredRequestedAt);
+
+  const revokedRequestedAt = "2026-07-29T08:10:00.000Z";
+  await requestAccount(revokedReceipt, "d", revokedRequestedAt);
+  const revokedRequest = await database
+    .prepare(
+      `SELECT id FROM registration_requests
+        WHERE installation_id = ? AND user_id = ? AND requested_at = ?`,
+    )
+    .bind(installationId, revokedReceipt.account.id, revokedRequestedAt)
+    .first();
+  assert.ok(revokedRequest?.id);
+  await database.batch([
+    database
+      .prepare(
+        `UPDATE registration_requests
+            SET revoked_at = ?
+          WHERE installation_id = ? AND id = ?`,
+      )
+      .bind(
+        "2026-07-29T08:11:00.000Z",
+        installationId,
+        revokedRequest.id,
+      ),
+    database
+      .prepare(
+        `UPDATE users
+            SET active_registration_request_id = NULL, updated_at = ?
+          WHERE installation_id = ? AND id = ?`,
+      )
+      .bind(
+        "2026-07-29T08:11:00.000Z",
+        installationId,
+        revokedReceipt.account.id,
+      ),
+  ]);
+
+  const replacedRequestedAt = "2026-07-29T08:20:00.000Z";
+  const replacementRequestedAt = "2026-07-29T08:21:00.000Z";
+  await requestAccount(replacedReceipt, "e", replacedRequestedAt);
+  await requestAccount(replacedReceipt, "f", replacementRequestedAt);
+
+  const resolvedRequestedAt = "2026-07-29T08:30:00.000Z";
+  await requestAccount(resolvedSubject, "g", resolvedRequestedAt);
+  await transitionAccount(
+    resolvedSubject,
+    "approved",
+    "2026-07-29T08:31:00.000Z",
+    "resolve-registration-before-owner-alert",
+  );
+
+  const approvedAt = "2026-07-29T09:00:00.000Z";
+  await transitionAccount(
+    approvedLifecycle,
+    "approved",
+    approvedAt,
+    "approve-current-lifecycle",
+  );
+
+  const suspendedApprovedAt = "2026-07-29T09:10:00.000Z";
+  const suspendedAt = "2026-07-29T09:11:00.000Z";
+  await transitionAccount(
+    suspendedLifecycle,
+    "approved",
+    suspendedApprovedAt,
+    "approve-before-suspension",
+  );
+  await transitionAccount(
+    suspendedLifecycle,
+    "suspended",
+    suspendedAt,
+    "suspend-current-lifecycle",
+  );
+
+  const revokedAt = "2026-07-29T09:20:00.000Z";
+  await transitionAccount(
+    revokedLifecycle,
+    "revoked",
+    revokedAt,
+    "revoke-current-lifecycle",
+  );
+
+  const firstCycleApprovalAt = "2026-07-29T09:30:00.000Z";
+  const cycleSuspensionAt = "2026-07-29T09:31:00.000Z";
+  const currentCycleApprovalAt = "2026-07-29T09:32:00.000Z";
+  await transitionAccount(
+    stateCycle,
+    "approved",
+    firstCycleApprovalAt,
+    "cycle-first-approval",
+  );
+  await transitionAccount(
+    stateCycle,
+    "suspended",
+    cycleSuspensionAt,
+    "cycle-suspension",
+  );
+  await transitionAccount(
+    stateCycle,
+    "approved",
+    currentCycleApprovalAt,
+    "cycle-current-approval",
+  );
+
+  const rejectedCycleAt = "2026-07-29T09:40:00.000Z";
+  const rejectedCycleApprovalAt = "2026-07-29T09:41:00.000Z";
+  await transitionAccount(
+    rejectedCycle,
+    "rejected",
+    rejectedCycleAt,
+    "cycle-rejection",
+  );
+  await transitionAccount(
+    rejectedCycle,
+    "approved",
+    rejectedCycleApprovalAt,
+    "cycle-approval-after-rejection",
+  );
+
+  const staleRevokedId = `${prefix}-stale-revoked`;
+  const mismatchedId = `${prefix}-mismatched-subject`;
+  await database.batch([
+    database
+      .prepare(
+        `INSERT INTO account_notifications (
+           id, installation_id, recipient_user_id, subject_user_id, kind,
+           state, template_version, idempotency_key, attempt_count,
+           max_attempts, available_at, created_at, updated_at
+         ) VALUES (?, ?, ?, ?, 'learner-revoked', 'pending', '1.0', ?,
+                   0, 5, ?, ?, ?)`,
+      )
+      .bind(
+        staleRevokedId,
+        installationId,
+        revokedLifecycle.account.id,
+        revokedLifecycle.account.id,
+        "1".repeat(64),
+        dispatchAt,
+        "2026-07-29T09:19:00.000Z",
+        dispatchAt,
+      ),
+    database
+      .prepare(
+        `INSERT INTO account_notifications (
+           id, installation_id, recipient_user_id, subject_user_id, kind,
+           state, template_version, idempotency_key, attempt_count,
+           max_attempts, available_at, created_at, updated_at
+         ) VALUES (?, ?, ?, ?, 'learner-approved', 'pending', '1.0', ?,
+                   0, 5, ?, ?, ?)`,
+      )
+      .bind(
+        mismatchedId,
+        installationId,
+        approvedLifecycle.account.id,
+        mismatchSubject.account.id,
+        "2".repeat(64),
+        dispatchAt,
+        approvedAt,
+        dispatchAt,
+      ),
+  ]);
+
+  const otherAdapter = new DeterministicAccountNotificationAdapter(dispatchAt);
+  const otherSummary = await otherRepository.dispatchAccountNotifications({
+    actor: systemActor,
+    adapter: otherAdapter,
+    requestId: `${prefix}-correlation-other-dispatch`,
+    now: dispatchAt,
+  });
+  assert.equal(otherSummary.claimed, 0);
+  assert.equal(otherAdapter.deliveries.length, 0);
+
+  const adapter = new DeterministicAccountNotificationAdapter(dispatchAt);
+  for (let page = 0; page < 20; page += 1) {
+    const summary = await repository.dispatchAccountNotifications({
+      actor: systemActor,
+      adapter,
+      requestId: `${prefix}-correlation-dispatch-${page}`,
+      now: dispatchAt,
+      limit: 10,
+    });
+    const unfinished = await database
+      .prepare(
+        `SELECT
+           (SELECT COUNT(*) FROM account_notification_fanouts
+             WHERE installation_id = ? AND state = 'pending') +
+           (SELECT COUNT(*) FROM account_notifications
+             WHERE installation_id = ?
+               AND state IN ('pending', 'retryable', 'delivering')) AS count`,
+      )
+      .bind(installationId, installationId)
+      .first();
+    if (Number(unfinished?.count ?? 0) === 0) break;
+    assert.ok(
+      page < 19 || summary.claimed > 0,
+      "notification correlation dispatch did not converge",
+    );
+  }
+
+  const unfinished = await database
+    .prepare(
+      `SELECT COUNT(*) AS count
+         FROM account_notifications
+        WHERE installation_id = ?
+          AND state IN ('pending', 'retryable', 'delivering')`,
+    )
+    .bind(installationId)
+    .first();
+  assert.equal(Number(unfinished?.count ?? 0), 0);
+
+  async function notificationState(userId, kind, createdAt) {
+    return database
+      .prepare(
+        `SELECT state, last_error_code
+           FROM account_notifications
+          WHERE installation_id = ? AND subject_user_id = ?
+            AND kind = ? AND created_at = ?
+          ORDER BY id
+          LIMIT 1`,
+      )
+      .bind(installationId, userId, kind, createdAt)
+      .first();
+  }
+
+  assert.deepEqual(
+    await notificationState(
+      pendingReceipt.account.id,
+      "registration-receipt",
+      pendingRequestedAt,
+    ),
+    { state: "delivered", last_error_code: null },
+  );
+  assert.deepEqual(
+    await notificationState(
+      rejectedReceipt.account.id,
+      "registration-receipt",
+      rejectedRequestedAt,
+    ),
+    { state: "delivered", last_error_code: null },
+  );
+  for (const [learner, requestedAt] of [
+    [expiredReceipt, expiredRequestedAt],
+    [revokedReceipt, revokedRequestedAt],
+    [replacedReceipt, replacedRequestedAt],
+    [resolvedSubject, resolvedRequestedAt],
+  ]) {
+    assert.deepEqual(
+      await notificationState(
+        learner.account.id,
+        "registration-receipt",
+        requestedAt,
+      ),
+      { state: "dead-letter", last_error_code: "recipient-ineligible" },
+    );
+  }
+  assert.deepEqual(
+    await notificationState(
+      replacedReceipt.account.id,
+      "registration-receipt",
+      replacementRequestedAt,
+    ),
+    { state: "delivered", last_error_code: null },
+  );
+
+  for (const [learner, kind, at] of [
+    [approvedLifecycle, "learner-approved", approvedAt],
+    [rejectedReceipt, "learner-rejected", rejectedAt],
+    [suspendedLifecycle, "learner-suspended", suspendedAt],
+    [revokedLifecycle, "learner-revoked", revokedAt],
+    [stateCycle, "learner-approved", currentCycleApprovalAt],
+    [rejectedCycle, "learner-approved", rejectedCycleApprovalAt],
+  ]) {
+    assert.deepEqual(await notificationState(learner.account.id, kind, at), {
+      state: "delivered",
+      last_error_code: null,
+    });
+  }
+  for (const [learner, kind, at] of [
+    [suspendedLifecycle, "learner-approved", suspendedApprovedAt],
+    [stateCycle, "learner-approved", firstCycleApprovalAt],
+    [stateCycle, "learner-suspended", cycleSuspensionAt],
+    [rejectedCycle, "learner-rejected", rejectedCycleAt],
+  ]) {
+    assert.deepEqual(await notificationState(learner.account.id, kind, at), {
+      state: "dead-letter",
+      last_error_code: "recipient-ineligible",
+    });
+  }
+  for (const id of [staleRevokedId, mismatchedId]) {
+    assert.deepEqual(
+      await database
+        .prepare(
+          `SELECT state, last_error_code
+             FROM account_notifications
+            WHERE installation_id = ? AND id = ?`,
+        )
+        .bind(installationId, id)
+        .first(),
+      { state: "dead-letter", last_error_code: "recipient-ineligible" },
+    );
+  }
+
+  for (const [learner, expectedStates] of [
+    [pendingReceipt, ["delivered"]],
+    [rejectedReceipt, ["delivered"]],
+    [replacedReceipt, ["delivered", "delivered"]],
+    [expiredReceipt, ["dead-letter"]],
+    [revokedReceipt, ["dead-letter"]],
+    [resolvedSubject, ["dead-letter"]],
+  ]) {
+    const alerts = await database
+      .prepare(
+        `SELECT state, last_error_code
+           FROM account_notifications
+          WHERE installation_id = ? AND subject_user_id = ?
+            AND kind = 'owner-registration-alert'
+          ORDER BY created_at, id`,
+      )
+      .bind(installationId, learner.account.id)
+      .all();
+    assert.deepEqual(
+      alerts.results.map((row) => row.state),
+      expectedStates,
+    );
+    for (const row of alerts.results) {
+      assert.equal(
+        row.last_error_code,
+        row.state === "dead-letter" ? "recipient-ineligible" : null,
+      );
+    }
+  }
+
+  const deadLetters = await database
+    .prepare(
+      `SELECT COUNT(*) AS count
+         FROM account_notifications
+        WHERE installation_id = ? AND state = 'dead-letter'
+          AND last_error_code = 'recipient-ineligible'`,
+    )
+    .bind(installationId)
+    .first();
+  const ineligibleAudits = await database
+    .prepare(
+      `SELECT metadata_json
+         FROM audit_events
+        WHERE installation_id = ?
+          AND action = 'account-notification.dead-lettered'
+          AND metadata_json LIKE '%recipient-ineligible%'
+        ORDER BY sequence`,
+    )
+    .bind(installationId)
+    .all();
+  assert.equal(
+    ineligibleAudits.results.length,
+    Number(deadLetters?.count ?? 0),
+  );
+  for (const audit of ineligibleAudits.results) {
+    assert.equal(
+      JSON.parse(audit.metadata_json).errorCode,
+      "recipient-ineligible",
+    );
+    assert.doesNotMatch(
+      audit.metadata_json,
+      /@|example\.test|transition|registration-request/i,
+    );
+  }
+}
+
 test("registration and lifecycle hooks enqueue atomically and dispatch exactly once", async (t) => {
   const miniflare = new Miniflare({
     compatibilityDate: "2026-07-29",
@@ -298,6 +1040,38 @@ test("registration and lifecycle hooks enqueue atomically and dispatch exactly o
     .bind(learner.id)
     .first();
   assert.equal(deletedFanouts.count, 0);
+});
+
+test("D1 rechecks notification recipients before delivery", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-29",
+    d1Databases: {
+      PROJECT42_DB: "project42-account-notification-recipient-recheck",
+    },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  await applyD1Migrations(database);
+  await exerciseDeliveryTimeRecipientEligibility(database, "d1-eligibility");
+});
+
+test("D1 correlates notifications to the current request and transition", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-29",
+    d1Databases: {
+      PROJECT42_DB: "project42-account-notification-event-correlation",
+    },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  await applyD1Migrations(database);
+  await exerciseNotificationEventCorrelation(database, "d1-event");
 });
 
 test("owner alerts expand through durable bounded pages without truncation", async (t) => {
@@ -1073,6 +1847,67 @@ test("a pre-bootstrap registration waits and alerts the first approved owner", a
     },
   );
 });
+
+test(
+  "PostgreSQL rechecks notification recipients before delivery",
+  { skip: !process.env.TEST_POSTGRES_URL },
+  async () => {
+    const administrationPool = new Pool({
+      connectionString: process.env.TEST_POSTGRES_URL,
+    });
+    const suffix = crypto.randomUUID().replaceAll("-", "");
+    const schema = `notification_eligibility_${suffix}`;
+    let pool;
+    try {
+      await administrationPool.query(`CREATE SCHEMA "${schema}"`);
+      pool = new Pool({
+        connectionString: process.env.TEST_POSTGRES_URL,
+        options: `-c search_path=${schema}`,
+      });
+      await applyPostgresMigrations(pool, "self-host/postgres");
+      const database = new PostgresD1CompatibilityDatabase(pool);
+      await exerciseDeliveryTimeRecipientEligibility(
+        database,
+        "postgres-eligibility",
+      );
+    } finally {
+      await pool?.end();
+      await administrationPool
+        .query(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`)
+        .catch(() => undefined);
+      await administrationPool.end();
+    }
+  },
+);
+
+test(
+  "PostgreSQL correlates notifications to the current request and transition",
+  { skip: !process.env.TEST_POSTGRES_URL },
+  async () => {
+    const administrationPool = new Pool({
+      connectionString: process.env.TEST_POSTGRES_URL,
+    });
+    const suffix = crypto.randomUUID().replaceAll("-", "");
+    const schema = `notification_event_correlation_${suffix}`;
+    let pool;
+    try {
+      await administrationPool.query(`CREATE SCHEMA "${schema}"`);
+      pool = new Pool({
+        connectionString: process.env.TEST_POSTGRES_URL,
+        options: `-c search_path=${schema}`,
+      });
+      await applyPostgresMigrations(pool, "self-host/postgres");
+      const database = new PostgresD1CompatibilityDatabase(pool);
+      await exerciseNotificationEventCorrelation(database, "postgres-event");
+    } finally {
+      await pool?.end();
+      await administrationPool
+        .query(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`)
+        .catch(() => undefined);
+      await administrationPool.end();
+    }
+  },
+);
 
 test(
   "PostgreSQL expands the NULL-cursor first page and preserves outbox recovery across restore",

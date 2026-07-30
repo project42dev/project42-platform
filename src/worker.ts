@@ -214,6 +214,7 @@ interface AccountNotificationRow {
   lease_token: string | null;
   primary_email: string | null;
   email_verified: number;
+  recipient_eligible: number;
 }
 
 interface AccountNotificationFanoutRow {
@@ -228,6 +229,7 @@ interface AccountNotificationFanoutRow {
 }
 
 class AccountNotificationDeliveryDeadlineExceeded extends Error {}
+class AccountNotificationRecipientIneligible extends Error {}
 
 interface TransactionalPostconditionDatabase {
   batchWithPostcondition(
@@ -1301,7 +1303,97 @@ class D1Project42Repository {
         .prepare(
           `SELECT n.id, n.recipient_user_id, n.kind, n.state,
                   n.attempt_count, n.max_attempts, n.lease_token,
-                  u.primary_email, u.email_verified
+                  u.primary_email, u.email_verified,
+                  CASE
+                    WHEN n.kind = 'owner-registration-alert' THEN
+                      CASE WHEN u.account_state = 'approved' AND EXISTS (
+                        SELECT 1
+                          FROM role_assignments r
+                         WHERE r.installation_id = n.installation_id
+                           AND r.user_id = n.recipient_user_id
+                           AND r.role = 'owner'
+                      ) AND EXISTS (
+                        SELECT 1
+                          FROM users subject
+                          JOIN registration_requests rr
+                            ON rr.installation_id = subject.installation_id
+                           AND rr.user_id = subject.id
+                           AND rr.id = subject.active_registration_request_id
+                         WHERE subject.installation_id = n.installation_id
+                           AND subject.id = n.subject_user_id
+                           AND subject.account_state IN ('pending', 'rejected')
+                           AND rr.revoked_at IS NULL
+                           AND rr.expires_at > ?
+                      ) THEN 1 ELSE 0 END
+                    WHEN n.recipient_user_id <> n.subject_user_id THEN 0
+                    WHEN n.kind = 'registration-receipt' THEN
+                      CASE WHEN u.account_state IN ('pending', 'rejected')
+                        AND u.active_registration_request_id IS NOT NULL
+                        AND EXISTS (
+                          SELECT 1
+                            FROM registration_requests rr
+                           WHERE rr.installation_id = n.installation_id
+                             AND rr.user_id = n.recipient_user_id
+                             AND rr.id = u.active_registration_request_id
+                             AND rr.revoked_at IS NULL
+                             AND rr.expires_at > ?
+                             AND rr.requested_at = n.created_at
+                        )
+                      THEN 1 ELSE 0 END
+                    WHEN n.kind = 'learner-approved' THEN
+                      CASE WHEN u.account_state = 'approved'
+                        AND u.state_transition_id IS NOT NULL
+                        AND EXISTS (
+                          SELECT 1
+                            FROM approval_decisions d
+                           WHERE d.installation_id = n.installation_id
+                             AND d.user_id = n.recipient_user_id
+                             AND d.transition_id = u.state_transition_id
+                             AND d.to_state = 'approved'
+                             AND d.decided_at = n.created_at
+                        )
+                      THEN 1 ELSE 0 END
+                    WHEN n.kind = 'learner-rejected' THEN
+                      CASE WHEN u.account_state = 'rejected'
+                        AND u.state_transition_id IS NOT NULL
+                        AND EXISTS (
+                          SELECT 1
+                            FROM approval_decisions d
+                           WHERE d.installation_id = n.installation_id
+                             AND d.user_id = n.recipient_user_id
+                             AND d.transition_id = u.state_transition_id
+                             AND d.to_state = 'rejected'
+                             AND d.decided_at = n.created_at
+                        )
+                      THEN 1 ELSE 0 END
+                    WHEN n.kind = 'learner-suspended' THEN
+                      CASE WHEN u.account_state = 'suspended'
+                        AND u.state_transition_id IS NOT NULL
+                        AND EXISTS (
+                          SELECT 1
+                            FROM approval_decisions d
+                           WHERE d.installation_id = n.installation_id
+                             AND d.user_id = n.recipient_user_id
+                             AND d.transition_id = u.state_transition_id
+                             AND d.to_state = 'suspended'
+                             AND d.decided_at = n.created_at
+                        )
+                      THEN 1 ELSE 0 END
+                    WHEN n.kind = 'learner-revoked' THEN
+                      CASE WHEN u.account_state = 'revoked'
+                        AND u.state_transition_id IS NOT NULL
+                        AND EXISTS (
+                          SELECT 1
+                            FROM approval_decisions d
+                           WHERE d.installation_id = n.installation_id
+                             AND d.user_id = n.recipient_user_id
+                             AND d.transition_id = u.state_transition_id
+                             AND d.to_state = 'revoked'
+                             AND d.decided_at = n.created_at
+                        )
+                      THEN 1 ELSE 0 END
+                    ELSE 0
+                  END AS recipient_eligible
              FROM account_notifications n
              JOIN users u
                ON u.id = n.recipient_user_id
@@ -1309,10 +1401,13 @@ class D1Project42Repository {
             WHERE n.installation_id = ? AND n.id = ?
             LIMIT 1`,
         )
-        .bind(this.installationId, candidate.id)
+        .bind(input.now, input.now, this.installationId, candidate.id)
         .first<AccountNotificationRow>();
       if (!notification || notification.lease_token !== leaseToken) continue;
       try {
+        if (notification.recipient_eligible !== 1) {
+          throw new AccountNotificationRecipientIneligible();
+        }
         if (
           notification.email_verified !== 1 ||
           !notification.primary_email
@@ -1402,12 +1497,18 @@ class D1Project42Repository {
           continue;
         }
         const failure =
-          notification.email_verified !== 1 || !notification.primary_email
+          error instanceof AccountNotificationRecipientIneligible
             ? {
-                code: "recipient-unavailable" as const,
-                retryable: true,
+                code: "recipient-ineligible" as const,
+                retryable: false,
               }
-            : normalizeAccountNotificationDeliveryError(error);
+            : notification.email_verified !== 1 ||
+                !notification.primary_email
+              ? {
+                  code: "recipient-unavailable" as const,
+                  retryable: true,
+                }
+              : normalizeAccountNotificationDeliveryError(error);
         const nextState: AccountNotificationState =
           failure.retryable &&
           notification.attempt_count < notification.max_attempts
@@ -1557,16 +1658,15 @@ class D1Project42Repository {
                last_error_code, delivered_at, replay_of_notification_id,
                created_at, updated_at
              )
-             SELECT ?, installation_id, recipient_user_id, subject_user_id,
-                    kind, 'pending', template_version, ?, 0, max_attempts, ?,
-                    NULL, NULL, NULL, NULL, id, ?, ?
-               FROM account_notifications
-              WHERE installation_id = ? AND id = ? AND state = 'dead-letter'`,
+              SELECT ?, installation_id, recipient_user_id, subject_user_id,
+                     kind, 'pending', template_version, ?, 0, max_attempts, ?,
+                     NULL, NULL, NULL, NULL, id, created_at, ?
+                FROM account_notifications
+               WHERE installation_id = ? AND id = ? AND state = 'dead-letter'`,
           )
           .bind(
             replayId,
             replayIdempotencyKey,
-            input.now,
             input.now,
             input.now,
             this.installationId,
