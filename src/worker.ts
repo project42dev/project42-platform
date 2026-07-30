@@ -564,7 +564,7 @@ class OidcJwtVerifier implements IdentityVerifier {
       }
       const emailValue = payload[this.env.OIDC_EMAIL_CLAIM];
       const verifiedValue = payload[this.env.OIDC_EMAIL_VERIFIED_CLAIM];
-      const displayNameValue = payload.name;
+      const displayNameValue = deriveIdentityDisplayName(payload, emailValue);
       if (
         options.diagnosticRequestId &&
         /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
@@ -601,10 +601,7 @@ class OidcJwtVerifier implements IdentityVerifier {
         subject: payload.sub,
         email: typeof emailValue === "string" ? emailValue.trim().toLowerCase() : null,
         emailVerified: verifiedValue === true,
-        displayName:
-          typeof displayNameValue === "string" && displayNameValue.trim()
-            ? displayNameValue.trim()
-            : null,
+        displayName: displayNameValue,
         ...(typeof payload.iat === "number" ? { issuedAt: payload.iat } : {}),
         ...(typeof payload.auth_time === "number"
           ? { authenticatedAt: payload.auth_time }
@@ -883,8 +880,10 @@ class GithubIdentityLinkAdapter {
     code: string;
     codeVerifier: string;
   }): Promise<ExternalProviderIdentity> {
+    let providerStep = "configuration";
     try {
       const configuration = requireGithubLinkConfiguration(this.env);
+      providerStep = "token_exchange";
       const fetcher = this.fetcher;
       const tokenResponse = await fetcher(
         "https://github.com/login/oauth/access_token",
@@ -922,6 +921,7 @@ class GithubIdentityLinkAdapter {
           "GitHub did not confirm this identity-link request.",
         );
       }
+      providerStep = "user_lookup";
       const userResponse = await fetcher("https://api.github.com/user", {
         method: "GET",
         redirect: "error",
@@ -963,6 +963,14 @@ class GithubIdentityLinkAdapter {
       };
     } catch (error) {
       if (error instanceof ApiFailure) throw error;
+      console.warn(
+        JSON.stringify({
+          level: "warn",
+          action: "github.identity_link.provider_failure",
+          step: providerStep,
+          errorType: error instanceof Error ? error.name : "unknown",
+        }),
+      );
       throw new ApiFailure(
         502,
         "github_provider_unavailable",
@@ -2553,7 +2561,9 @@ class D1Project42Repository {
                 WHERE installation_id = ? AND id = ?`,
             )
             .bind(
-              identity.displayName,
+              shouldAdoptIdentityDisplayName(existing.displayName)
+                ? identity.displayName
+                : null,
               identity.emailVerified ? 1 : 0,
               identity.email,
               identity.emailVerified ? 1 : 0,
@@ -8048,6 +8058,41 @@ async function readProviderJson(response: Response): Promise<Record<string, unkn
     "identity_provider_response_invalid",
     "The external identity provider returned an invalid response.",
   );
+}
+
+function cleanIdentityName(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const candidate = value.trim().replace(/\s+/g, " ");
+  if (!candidate || /^(unknown|undefined|null|anonymous)$/i.test(candidate)) {
+    return null;
+  }
+  return candidate.slice(0, 255);
+}
+
+function deriveIdentityDisplayName(
+  payload: Record<string, unknown>,
+  emailValue: unknown,
+): string | null {
+  const direct = cleanIdentityName(payload.name);
+  if (direct) return direct;
+  const given = cleanIdentityName(payload.given_name);
+  const family = cleanIdentityName(payload.family_name);
+  const combined = [given, family].filter(Boolean).join(" ");
+  if (combined) return combined.slice(0, 255);
+  const preferred = cleanIdentityName(payload.preferred_username);
+  if (preferred && !preferred.includes("@")) return preferred;
+  // Only use the local part as a last-resort label; it is never used as an
+  // authorization key and avoids rendering a placeholder for valid identities.
+  if (typeof emailValue === "string") {
+    const localPart = emailValue.trim().split("@", 1)[0];
+    const fallback = cleanIdentityName(localPart?.replace(/[._-]+/g, " "));
+    if (fallback) return fallback;
+  }
+  return null;
+}
+
+function shouldAdoptIdentityDisplayName(value: string | null): boolean {
+  return !cleanIdentityName(value);
 }
 
 function requireGithubLinkConfiguration(env: WorkerEnvironment): {
