@@ -83,6 +83,29 @@ services:
       retries: 20
     restart: unless-stopped
 
+  trust-export:
+    image: alpine:3.23
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        cp /caddy-data/caddy/pki/authorities/local/root.crt /trust/root.crt
+        chmod 0444 /trust/root.crt
+    volumes:
+      - project42_caddy_data:/caddy-data:ro
+      - project42_trust:/trust
+    depends_on:
+      gateway:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp:size=1m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: "no"
+
   api:
     build:
       context: ..
@@ -113,7 +136,7 @@ services:
       DOMAIN_APPROVAL_ENABLED: "false"
       PROFILE_PHOTO_DIRECTORY: /var/lib/project42/profile-photos
       MIGRATION_DIRECTORY: self-host/postgres
-      NODE_EXTRA_CA_CERTS: /caddy-data/caddy/pki/authorities/local/root.crt
+      NODE_EXTRA_CA_CERTS: /trust/root.crt
     depends_on:
       database:
         condition: service_healthy
@@ -121,6 +144,8 @@ services:
         condition: service_healthy
       gateway:
         condition: service_healthy
+      trust-export:
+        condition: service_completed_successfully
     healthcheck:
       test:
         - CMD
@@ -136,7 +161,7 @@ services:
       retries: 6
     volumes:
       - project42_profile_photos:/var/lib/project42/profile-photos
-      - project42_caddy_data:/caddy-data:ro
+      - project42_trust:/trust:ro
     read_only: true
     tmpfs:
       - /tmp:size=16m,mode=1777
@@ -151,9 +176,9 @@ services:
     profiles: ["test"]
     image: curlimages/curl:8.16.0
     environment:
-      CURL_CA_BUNDLE: /caddy-data/caddy/pki/authorities/local/root.crt
+      CURL_CA_BUNDLE: /trust/root.crt
     volumes:
-      - project42_caddy_data:/caddy-data:ro
+      - project42_trust:/trust:ro
     command:
       - /bin/sh
       - -ec
@@ -180,3 +205,4 @@ volumes:
   project42_profile_photos:
   project42_caddy_data:
   project42_caddy_config:
+  project42_trust:

@@ -147,7 +147,7 @@ test("secure reference Compose exposes only the HTTPS gateway", async () => {
   );
   assert.match(
     api,
-    /NODE_EXTRA_CA_CERTS: \/caddy-data\/caddy\/pki\/authorities\/local\/root\.crt/,
+    /NODE_EXTRA_CA_CERTS: \/trust\/root\.crt/,
   );
   assert.match(
     api,
@@ -161,7 +161,19 @@ test("secure reference Compose exposes only the HTTPS gateway", async () => {
   assert.match(identity, /KC_PROXY_HEADERS: xforwarded/);
   assert.match(identity, /KC_HTTP_ENABLED: "true"/);
 
+  const trustExport = composeServiceBlock(compose, "trust-export");
+  assert.match(
+    trustExport,
+    /cp \/caddy-data\/caddy\/pki\/authorities\/local\/root\.crt \/trust\/root\.crt/,
+  );
+  assert.match(trustExport, /chmod 0444 \/trust\/root\.crt/);
+  assert.match(
+    api,
+    /trust-export:\r?\n        condition: service_completed_successfully/,
+  );
+
   const smoke = composeServiceBlock(compose, "secure-topology-smoke");
+  assert.match(smoke, /CURL_CA_BUNDLE: \/trust\/root\.crt/);
   for (const host of [
     "learn.project42.localhost",
     "api.project42.localhost",

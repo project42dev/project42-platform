@@ -193,7 +193,9 @@ runs this stack:
 Close and reopen the browser after changing trust. Remove that trust when the
 lab is retired. The root certificate is public material; the Caddy private CA
 key remains inside the `project42_caddy_data` volume and must be protected like
-other operational secrets.
+other operational secrets. Compose copies only the public root certificate into
+a separate read-only trust volume for the unprivileged API and verifier
+containers; neither receives the private CA key.
 
 For an external deployment, put the same services behind a trusted public or
 enterprise HTTPS reverse proxy, register the exact API callback, and set:
