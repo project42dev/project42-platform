@@ -193,6 +193,20 @@ test("secure reference Compose exposes only the HTTPS gateway", async () => {
   }
 });
 
+test("runtime image pins a patched Node base and removes package managers", async () => {
+  const dockerfile = await readFile(
+    new URL("../self-host/Dockerfile", import.meta.url),
+    "utf8",
+  );
+  assert.equal(
+    dockerfile.match(/FROM node:22\.23\.1-alpine3\.24/g)?.length,
+    2,
+  );
+  assert.match(dockerfile, /\/usr\/local\/lib\/node_modules/);
+  assert.match(dockerfile, /\/usr\/local\/bin\/npm/);
+  assert.match(dockerfile, /USER node/);
+});
+
 test("secure release gate drives a real browser session and isolated restore", async () => {
   const [
     compose,

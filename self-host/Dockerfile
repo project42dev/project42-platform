@@ -1,4 +1,4 @@
-FROM node:22.20.0-alpine3.22 AS build
+FROM node:22.23.1-alpine3.24 AS build
 WORKDIR /workspace
 COPY package.json package-lock.json tsconfig.json ./
 RUN npm ci --ignore-scripts
@@ -7,11 +7,20 @@ COPY content ./content
 COPY scripts ./scripts
 RUN npm run build
 
-FROM node:22.20.0-alpine3.22 AS runtime
+FROM node:22.23.1-alpine3.24 AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts \
+  && npm cache clean --force \
+  && rm -rf \
+    /opt/yarn-* \
+    /usr/local/lib/node_modules \
+    /usr/local/bin/corepack \
+    /usr/local/bin/npm \
+    /usr/local/bin/npx \
+    /usr/local/bin/yarn \
+    /usr/local/bin/yarnpkg
 COPY --from=build /workspace/dist ./dist
 COPY self-host/postgres ./self-host/postgres
 USER node
