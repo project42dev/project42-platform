@@ -2,62 +2,75 @@
 
 ## Active branch
 
-`fix/oidc-expired-token-recovery-ab6437`
+`fix/identity-token-diagnostics-ab6437`
 
-Base: `9bbffd791a40ebcd9a154d08050a3e391942dc82`
-(`origin/main`).
+Base: `c5cdb8c9a44a70ea0fa1b8f481af97b160cedcf1` (`origin/main`,
+signed Platform `v0.67.0` source).
 
-## Diagnosis
+## Release candidate
 
-- Private production evidence recorded one `/v1/auth/callback` failure with
-  `invalid_identity_token`, `jose_validation`, `ERR_JWT_EXPIRED`, claim `exp`.
-- The callback ran on an older Worker deployment. No real callback has reached
-  the later `v0.68.1` deployment.
-- The provider and Worker clocks differ by approximately 0.53 seconds. This
-  does not support relaxing expiration validation.
-- The authorization request already requires `prompt=login` and `max_age=0`.
-  Microsoft documents a one-hour default ID-token lifetime and the possibility
-  of expired ID tokens from stale caches.
+Platform `0.67.1` is a no-migration identity-observability patch. Browser
+ID-token validation still fails closed and returns the same sanitized response,
+but server logs can now distinguish:
 
-## Change
+- nonce mismatch;
+- authorized-party mismatch;
+- invalid recent-authentication time; and
+- JOSE validation failures, including a whitelisted claim name when available.
 
-- Expired browser ID tokens remain rejected; no clock tolerance was added.
-- The exact `ERR_JWT_EXPIRED`/`exp` callback failure now redirects to the
-  normalized learner return target with `auth=error`.
-- The consumed OIDC transaction cookie is cleared, no browser session is
-  created, and the learner can start a new transaction with a fresh state.
-- The recovery log includes only the request identifier, route, recovery
-  action, and existing bounded identity-token diagnostic. It never logs the
-  token, authorization code, state, nonce, issuer, subject, email, name, return
-  target, tenant, application identifier, or secret.
-- Browser-session documentation records the fail-closed restart contract.
+Diagnostics contain no token, claim value, authorization code, state, cookie,
+identity, tenant, application, or secret value.
+
+## Prepared
+
+- `package.json`, the package-lock root, self-host example, and compatibility
+  release/package/image values identify `0.67.1`.
+- README release notes document the privacy-safe diagnostic boundary.
+- Unit coverage asserts exact failure categories for nonce, authorized-party,
+  missing `auth_time`, and stale/future `auth_time` cases.
+- PostgreSQL migration head remains `012_admin_pagination_indexes.sql`; hosted
+  D1 remains unchanged.
+- No identity-validation requirement, API response, schema, migration, binding,
+  credential, or production configuration changed.
 
 ## Verification
 
 - `npm ci --ignore-scripts` passed with zero vulnerabilities.
-- Focused browser/OIDC/identity tests passed.
-- The complete suite passed 297 tests: 292 passed, five optional PostgreSQL
-  tests skipped, and zero failed.
-- Twelve resource packs containing 94 resources validated.
-- Fifty hosted D1 measurement streams completed with zero errors and p95
-  455.33 ms against the 1,000 ms threshold.
-- Freshness checked 572 references against 60 primary sources.
-- Self-host compatibility `0.68.1` validated.
-- `npm run api:check` regenerated Worker types and completed a Wrangler dry
-  run; it did not deploy.
+- `npm run build` passed.
+- Focused browser-session, OIDC transport, and identity-security tests passed:
+  14 tests, zero failures.
+- The complete test suite passed 276 tests: 273 passed, three optional
+  live-PostgreSQL tests skipped, and zero failed.
+- The release gates validated 12 resource packs / 94 resources, 50 hosted D1
+  measurement streams with zero errors and p95 374.04 ms against the 1,000 ms
+  threshold, 572 freshness references / 60 primary sources, and self-host
+  compatibility `0.67.1`.
+- `npm run api:check` regenerated Worker types and completed a Wrangler dry run;
+  it did not deploy.
 - `npm audit --audit-level=high` reported zero vulnerabilities.
+- The package dry run produced `@project42/platform@0.67.1` with 704 files,
+  1,983,333 packed bytes, and 9,336,754 unpacked bytes.
 - `git diff --check` passed.
-- The local canonical `training:check` remains affected by existing Windows
-  generated-caption line-ending normalization. The build-regenerate path and
-  all equivalent deterministic gates passed; protected Linux CI must run the
-  canonical complete check.
+- A local `npm run check` stopped at `training:check` because Windows checkout
+  line-ending normalization made an existing generated caption appear stale.
+  This is not related to the patch; the equivalent build, complete test suite,
+  resource, measurement, freshness, compatibility, API, audit, and packaging
+  gates all passed. Protected Linux CI must still run the canonical complete
+  release gate before merge.
 
-## Remaining gates
+## Outstanding release gates
 
-- Commit and push through the Project 42 GitHub App.
+- Commit and push the candidate with the Project 42 GitHub App.
 - Open a protected pull request and require complete Linux CI.
-- Merge, prepare a signed release, and deploy through the private operations
-  release process.
-- Ask the owner to begin one new private-browser sign-in after deployment.
-- Query only the new callback's privacy-safe diagnostic and session outcome.
-- Keep AB#6437 Active until that real production login succeeds.
+- Complete independent review of diagnostic privacy and validation behavior.
+- Merge only after all required checks pass.
+- Create and verify the signed `v0.67.1` release on the exact merge commit.
+- Update the private production deployment packet to the exact signed release.
+- Run mutation-free Preview, deploy the existing Worker without D1 migration,
+  and validate health, CORS, account/session boundaries, and OIDC canaries.
+- Ask the owner to start one new private-browser login. Use only the fixed
+  diagnostic category to identify the failed validator; never retain the token
+  or callback credentials.
+
+AB#6437, AB#5418, and AB#6191 remain Active until a real owner session and the
+production verified-email claim contract pass.
