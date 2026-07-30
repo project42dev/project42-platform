@@ -90,7 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      PROJECT42_VERSION: 0.69.0
+      PROJECT42_VERSION: 0.70.0
       PROJECT42_LEARN_SOURCE_REF: f9e9cd1293bd7337c4c71e78f7e7f21e31ca4e52
       PROJECT42_INSTALLATION_ID: ci-secure-topology
       PROJECT42_DATABASE_PASSWORD: K7v9nP4rX2mQ8sL6zC5dH3jF
