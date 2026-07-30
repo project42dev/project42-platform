@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -160,6 +161,10 @@ END;\n`,
   return { migrations, state, fake };
 }
 
+function sha256(value) {
+  return createHash("sha256").update(value).digest("hex");
+}
+
 test("remote runner applies trigger migrations, verifies checksums, and reruns", async (t) => {
   const fixture = await createFixture(t);
   const arguments_ = [
@@ -218,6 +223,80 @@ test("remote runner rejects unbound and drifted existing ledgers", async (t) => 
   const drifted = await runPowerShell(arguments_, environment);
   assert.notEqual(drifted.code, 0);
   assert.match(drifted.stderr, /checksum drift/);
+});
+
+test("remote runner accepts legacy LF and CRLF checksums without rewriting the ledger", async (t) => {
+  const fixture = await createFixture(t);
+  const names = ["0001_initial.sql", "0002_trigger.sql"];
+  const lfContents = Object.fromEntries(
+    await Promise.all(
+      names.map(async (name) => [
+        name,
+        await readFile(join(fixture.migrations, name), "utf8"),
+      ]),
+    ),
+  );
+  const legacyCrLfChecksums = Object.fromEntries(
+    names.map((name) => [
+      name,
+      sha256(lfContents[name].replace(/\n/g, "\r\n")),
+    ]),
+  );
+  await writeFile(
+    fixture.state,
+    JSON.stringify({ ledger: names, checksums: legacyCrLfChecksums }),
+  );
+  const arguments_ = [
+    "-Database",
+    "test-database",
+    "-MigrationsDirectory",
+    fixture.migrations,
+    "-WranglerCommand",
+    fixture.fake,
+    "-Plan",
+  ];
+  const environment = { PROJECT42_FAKE_D1_STATE: fixture.state };
+
+  const lfCheckout = await runPowerShell(arguments_, environment);
+  assert.equal(lfCheckout.code, 0, lfCheckout.stderr);
+  assert.equal(
+    JSON.parse(lfCheckout.stdout).checksumContract,
+    "sha256-normalized-lf-v1",
+  );
+  assert.deepEqual(
+    JSON.parse(await readFile(fixture.state, "utf8")).checksums,
+    legacyCrLfChecksums,
+    "read-only validation must not rewrite legacy checksum records",
+  );
+
+  for (const name of names) {
+    await writeFile(
+      join(fixture.migrations, name),
+      lfContents[name].replace(/\n/g, "\r\n"),
+    );
+  }
+  const legacyLfChecksums = Object.fromEntries(
+    names.map((name) => [name, sha256(lfContents[name])]),
+  );
+  await writeFile(
+    fixture.state,
+    JSON.stringify({ ledger: names, checksums: legacyLfChecksums }),
+  );
+  const crLfCheckout = await runPowerShell(arguments_, environment);
+  assert.equal(crLfCheckout.code, 0, crLfCheckout.stderr);
+  assert.deepEqual(
+    JSON.parse(await readFile(fixture.state, "utf8")).checksums,
+    legacyLfChecksums,
+    "the opposite checkout line ending must also preserve the ledger",
+  );
+
+  await writeFile(
+    join(fixture.migrations, names[0]),
+    `${lfContents[names[0]]}-- substantive drift\n`,
+  );
+  const substantiveDrift = await runPowerShell(arguments_, environment);
+  assert.notEqual(substantiveDrift.code, 0);
+  assert.match(substantiveDrift.stderr, /checksum drift/);
 });
 
 test("remote runner preserves the last successful ledger on import failure", async (t) => {
