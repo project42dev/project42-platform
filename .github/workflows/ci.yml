@@ -114,12 +114,18 @@ jobs:
         run: |
           Set-StrictMode -Version Latest
           $ErrorActionPreference = 'Stop'
-          $published = docker compose -f self-host/compose.https.yaml ps --format json |
+          $publishedServices = docker compose -f self-host/compose.https.yaml ps --format json |
             ConvertFrom-Json |
-            Where-Object { $_.Publishers } |
-            ForEach-Object { $_.Publishers } |
-            Where-Object { $_.PublishedPort -gt 0 }
-          if (@($published).Count -ne 1 -or $published[0].PublishedPort -ne 443) {
+            Where-Object {
+              @($_.Publishers | Where-Object { $_.PublishedPort -gt 0 }).Count -gt 0
+            }
+          $wrongPorts = @($publishedServices.Publishers |
+            Where-Object { $_.PublishedPort -ne 443 })
+          if (
+            @($publishedServices).Count -ne 1 -or
+            $publishedServices[0].Service -ne 'gateway' -or
+            $wrongPorts.Count -gt 0
+          ) {
             throw "The secure topology must publish exactly TCP 443."
           }
       - name: Capture secure-stack diagnostics
