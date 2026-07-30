@@ -452,6 +452,17 @@ class ApiFailure extends Error {
         | "jose_validation";
       joseCode?: string;
       claim?: string;
+      timing?: {
+        expNumeric: boolean;
+        iatNumeric: boolean;
+        authTimeNumeric: boolean;
+        expMinusNowSeconds?: number;
+        iatMinusNowSeconds?: number;
+        expMinusIatSeconds?: number;
+        authTimeMinusNowSeconds?: number;
+        issuerMatches: boolean;
+        audienceMatches: boolean;
+      };
     },
   ) {
     super(message);
@@ -559,6 +570,7 @@ class OidcJwtVerifier implements IdentityVerifier {
       if (error instanceof joseErrors.JOSEError) {
         const joseError = error as joseErrors.JOSEError & {
           claim?: unknown;
+          payload?: unknown;
         };
         const safeClaim =
           typeof joseError.claim === "string" &&
@@ -567,6 +579,57 @@ class OidcJwtVerifier implements IdentityVerifier {
           )
             ? joseError.claim
             : undefined;
+        const payload =
+          joseError.payload &&
+          typeof joseError.payload === "object" &&
+          !Array.isArray(joseError.payload)
+            ? (joseError.payload as Record<string, unknown>)
+            : undefined;
+        const readNumericDate = (name: string): number | undefined => {
+          const value = payload?.[name];
+          return typeof value === "number" && Number.isFinite(value)
+            ? value
+            : undefined;
+        };
+        const bucketSeconds = (value: number): number =>
+          Math.round(Math.max(-86_400, Math.min(86_400, value)) / 10) * 10;
+        const now = Math.floor(Date.now() / 1_000);
+        const expiration = readNumericDate("exp");
+        const issuedAt = readNumericDate("iat");
+        const authenticatedAt = readNumericDate("auth_time");
+        const expectedAudience = options.audience ?? this.env.OIDC_AUDIENCE;
+        const audience = payload?.aud;
+        const timing =
+          options.nonce &&
+          joseError.code === "ERR_JWT_EXPIRED" &&
+          safeClaim === "exp" &&
+          payload
+          ? {
+              expNumeric: expiration !== undefined,
+              iatNumeric: issuedAt !== undefined,
+              authTimeNumeric: authenticatedAt !== undefined,
+              ...(expiration !== undefined
+                ? { expMinusNowSeconds: bucketSeconds(expiration - now) }
+                : {}),
+              ...(issuedAt !== undefined
+                ? { iatMinusNowSeconds: bucketSeconds(issuedAt - now) }
+                : {}),
+              ...(expiration !== undefined && issuedAt !== undefined
+                ? { expMinusIatSeconds: bucketSeconds(expiration - issuedAt) }
+                : {}),
+              ...(authenticatedAt !== undefined
+                ? {
+                    authTimeMinusNowSeconds: bucketSeconds(
+                      authenticatedAt - now,
+                    ),
+                  }
+                : {}),
+              issuerMatches: payload.iss === this.env.OIDC_ISSUER,
+              audienceMatches:
+                audience === expectedAudience ||
+                (Array.isArray(audience) && audience.includes(expectedAudience)),
+            }
+          : undefined;
         throw new ApiFailure(
           401,
           options.nonce ? "invalid_identity_token" : "invalid_access_token",
@@ -579,6 +642,7 @@ class OidcJwtVerifier implements IdentityVerifier {
                 category: "jose_validation",
                 joseCode: joseError.code,
                 ...(safeClaim ? { claim: safeClaim } : {}),
+                ...(timing ? { timing } : {}),
               }
             : undefined,
         );
