@@ -85,3 +85,64 @@ jobs:
       - name: Stop evaluation stack
         if: always()
         run: docker compose --env-file self-host/.env.example -f self-host/compose.yaml down --volumes
+
+  secure-self-host-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PROJECT42_VERSION: 0.69.0
+      PROJECT42_LEARN_SOURCE_REF: cc385d7870ac52b023560684ea9423bf995b0c62
+      PROJECT42_INSTALLATION_ID: ci-secure-topology
+      PROJECT42_DATABASE_PASSWORD: K7v9nP4rX2mQ8sL6zC5dH3jF
+      PROJECT42_IDENTITY_ADMIN_PASSWORD: W6q2Zp8rN4c7Vx5mJ9s3Kt1H
+      PROJECT42_SESSION_ENCRYPTION_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY
+      PROJECT42_ACCOUNT_MERGE_REQUIRED_CONSENTS: '[{"purpose":"learning-record","policyVersion":"2026-07-27"}]'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Validate secure Compose model
+        run: docker compose -f self-host/compose.https.yaml config --quiet
+      - name: Start secure stack
+        run: docker compose -f self-host/compose.https.yaml up --build --detach --wait
+      - name: Verify HTTPS API, identity, and sign-in surface
+        run: >-
+          docker compose
+          -f self-host/compose.https.yaml
+          --profile test
+          run --rm secure-topology-smoke
+      - name: Verify only the HTTPS gateway is published
+        shell: pwsh
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+          $services = @(docker compose -f self-host/compose.https.yaml ps --format json |
+            ConvertFrom-Json)
+          $publishedEndpoints = @($services | ForEach-Object {
+            $serviceName = $_.Service
+            @($_.Publishers) |
+              Where-Object { $_.PublishedPort -gt 0 } |
+              ForEach-Object {
+                [PSCustomObject]@{
+                  Service = $serviceName
+                  Port = [int]$_.PublishedPort
+                  Protocol = $_.Protocol
+                }
+              }
+          })
+          $publishedServiceNames = @($publishedEndpoints.Service |
+            Sort-Object -Unique)
+          $unexpectedEndpoints = @($publishedEndpoints |
+            Where-Object { $_.Port -ne 443 -or $_.Protocol -ne 'tcp' })
+          if (
+            $publishedEndpoints.Count -eq 0 -or
+            $publishedServiceNames.Count -ne 1 -or
+            $publishedServiceNames[0] -ne 'gateway' -or
+            $unexpectedEndpoints.Count -gt 0
+          ) {
+            throw "The secure topology must publish exactly TCP 443."
+          }
+      - name: Capture secure-stack diagnostics
+        if: failure()
+        run: docker compose -f self-host/compose.https.yaml logs --no-color
+      - name: Stop secure stack
+        if: always()
+        run: docker compose -f self-host/compose.https.yaml down --volumes

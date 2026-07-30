@@ -110,11 +110,8 @@ evidence required by sensitive account routes, but it cannot issue the
 `Secure` API-owned browser-session cookie. `BROWSER_SESSION_MODE=disabled`
 fails closed if a browser-session endpoint is called.
 
-Learn 0.9.0 is the coordinated candidate implementing the API-owned HTTP-only
-cookie contract, but it has not been published. The machine-readable
-compatibility manifest therefore marks 0.9.0 as `candidate`, not `released`,
-and does not claim that the older browser-side OIDC client is compatible. The
-candidate needs only this public runtime value:
+Learn 0.11.0 is the coordinated released client implementing the API-owned
+HTTP-only cookie contract. It needs only this public build-time value:
 
 ```text
 NEXT_PUBLIC_PROJECT42_API_ORIGIN=https://api.example.org
@@ -126,8 +123,82 @@ sign-in through `/v1/auth/start`; it must not store access or refresh tokens.
 ### Enable API-owned browser sessions behind HTTPS
 
 Do not disable `Secure` cookies or relax the HTTPS checks for local testing.
-Instead, put the API, Learn, and identity provider behind a trusted local or
-external HTTPS reverse proxy, register the exact API callback, and set:
+The supported local HTTPS topology puts the API, Learn, and identity provider
+behind Caddy's persistent internal certificate authority. It exposes only TCP
+443 to the host; PostgreSQL, Keycloak, Learn, and the API remain private on the
+Compose network.
+
+Copy and edit the secure example:
+
+```bash
+cp self-host/env.https.example self-host/.env.https
+```
+
+Generate independent random values for the database and Keycloak administrator
+passwords. Generate the session key without writing it to shell history:
+
+```bash
+openssl rand -base64 32 | tr '+/' '-_' | tr -d '='
+```
+
+Set that output as `PROJECT42_SESSION_ENCRYPTION_KEY`, replace the stable
+installation ID, and preserve the release-pinned Learn source commit unless the
+compatibility manifest for a later Platform release names another compatible
+Learn version. Then validate and start the topology:
+
+```bash
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml config --quiet
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml up --build --detach --wait
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  --profile test run --rm secure-topology-smoke
+```
+
+The three browser origins are:
+
+| Surface | Secure local address |
+| --- | --- |
+| Learn | `https://learn.project42.localhost` |
+| Account API | `https://api.project42.localhost` |
+| Keycloak | `https://identity.project42.localhost` |
+
+The `.localhost` names resolve to loopback and share the same registrable site,
+which permits the API's `Secure`, `HttpOnly`, `SameSite=Lax` session cookie
+without weakening its production policy. Inside the Compose network, the API
+uses the private TLS name `identity.project42.internal` for token and signing-key
+traffic while retaining the public issuer and browser authorization URL. The
+verifier explicitly connects each public TLS name to the `gateway` service, so
+SNI and certificate validation remain exact without depending on container
+`.localhost` resolution.
+
+### Trust the local certificate authority
+
+Do not bypass certificate verification. After the gateway has started, copy
+its public root certificate out of the persistent Caddy data volume:
+
+```bash
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml \
+  cp gateway:/data/caddy/pki/authorities/local/root.crt ./project42-local-root.crt
+```
+
+Trust `project42-local-root.crt` only on the private workstation or lab that
+runs this stack:
+
+- Windows: import it into the current user's **Trusted Root Certification
+  Authorities** store.
+- macOS: add it to the login keychain and set **Always Trust**.
+- Linux: use the distribution's documented local CA procedure, commonly
+  copying it under `/usr/local/share/ca-certificates/` and running
+  `update-ca-certificates`.
+
+Close and reopen the browser after changing trust. Remove that trust when the
+lab is retired. The root certificate is public material; the Caddy private CA
+key remains inside the `project42_caddy_data` volume and must be protected like
+other operational secrets. Compose copies only the public root certificate into
+a separate read-only trust volume for the unprivileged API and verifier
+containers; neither receives the private CA key.
+
+For an external deployment, put the same services behind a trusted public or
+enterprise HTTPS reverse proxy, register the exact API callback, and set:
 
 ```text
 PROJECT42_PUBLIC_URL=https://api.example.org
@@ -144,11 +215,11 @@ PROJECT42_OIDC_LOGOUT_ENDPOINT=https://identity.example.org/realms/project42/pro
 PROJECT42_SESSION_ENCRYPTION_KEY=<base64url-encoded-32-byte-random-key>
 ```
 
-The reference realm includes a public PKCE browser client with an exact
-`https://localhost:8787/v1/auth/callback` demonstration redirect. Replace that
-registration with the deployment's exact HTTPS API origin; do not add a
-wildcard. A production operator may instead provision a confidential client
-and place its secret in the deployment's secret manager.
+The secure reference realm includes a public PKCE browser client with the exact
+`https://api.project42.localhost/v1/auth/callback` redirect. Replace that
+registration with the deployment's exact HTTPS API origin for an external
+deployment; do not add a wildcard. A production operator may instead provision
+a confidential client and place its secret in the deployment's secret manager.
 
 Keycloak 26.7 full access tokens include `auth_time`; both reference clients
 explicitly disable lightweight access tokens so bearer authorization retains
@@ -201,6 +272,7 @@ Stop without deleting persistent data:
 
 ```bash
 docker compose --env-file self-host/.env -f self-host/compose.yaml down
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml down
 ```
 
 The following evaluation-only reset permanently removes its database and
@@ -208,6 +280,13 @@ reference-identity volumes:
 
 ```bash
 docker compose --env-file self-host/.env -f self-host/compose.yaml down --volumes
+```
+
+For the HTTPS lab, first remove the copied root certificate from the operating
+system trust store. Then remove the stack and its private local-CA key:
+
+```bash
+docker compose --env-file self-host/.env.https -f self-host/compose.https.yaml down --volumes
 ```
 
 ## Production boundary

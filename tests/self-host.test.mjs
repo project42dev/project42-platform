@@ -127,6 +127,103 @@ test("reference Compose gates API readiness on the public health contract", asyn
   assert.match(apiService, /\n      retries: 6\r?\n/);
 });
 
+test("secure reference Compose exposes only the HTTPS gateway", async () => {
+  const compose = await readFile(
+    new URL("../self-host/compose.https.yaml", import.meta.url),
+    "utf8",
+  );
+  const gateway = composeServiceBlock(compose, "gateway");
+  const api = composeServiceBlock(compose, "api");
+  const identity = composeServiceBlock(compose, "identity");
+
+  assert.match(gateway, /- "443:443"/);
+  assert.doesNotMatch(api, /\n    ports:/);
+  assert.doesNotMatch(identity, /\n    ports:/);
+  assert.match(api, /NODE_ENV: production/);
+  assert.match(api, /BROWSER_SESSION_MODE: oidc/);
+  assert.match(
+    api,
+    /OIDC_REDIRECT_URI: https:\/\/api\.project42\.localhost\/v1\/auth\/callback/,
+  );
+  assert.match(
+    api,
+    /NODE_EXTRA_CA_CERTS: \/trust\/root\.crt/,
+  );
+  assert.match(
+    api,
+    /OIDC_TOKEN_ENDPOINT: https:\/\/identity\.project42\.internal\//,
+  );
+  assert.match(
+    api,
+    /OIDC_JWKS_URL: https:\/\/identity\.project42\.internal\//,
+  );
+  assert.match(identity, /KC_HOSTNAME: https:\/\/identity\.project42\.localhost/);
+  assert.match(identity, /KC_PROXY_HEADERS: xforwarded/);
+  assert.match(identity, /KC_HTTP_ENABLED: "true"/);
+
+  const trustExport = composeServiceBlock(compose, "trust-export");
+  assert.match(
+    trustExport,
+    /cp \/caddy-data\/caddy\/pki\/authorities\/local\/root\.crt \/trust\/root\.crt/,
+  );
+  assert.match(trustExport, /chmod 0444 \/trust\/root\.crt/);
+  assert.match(
+    api,
+    /trust-export:\r?\n        condition: service_completed_successfully/,
+  );
+
+  const smoke = composeServiceBlock(compose, "secure-topology-smoke");
+  assert.match(smoke, /CURL_CA_BUNDLE: \/trust\/root\.crt/);
+  for (const host of [
+    "learn.project42.localhost",
+    "api.project42.localhost",
+    "identity.project42.localhost",
+  ]) {
+    assert.match(
+      smoke,
+      new RegExp(`--connect-to ${host.replaceAll(".", "\\.")}:443:gateway:443`),
+    );
+  }
+});
+
+test("secure local gateway and realm use exact same-site HTTPS origins", async () => {
+  const [caddyfile, realmText] = await Promise.all([
+    readFile(new URL("../self-host/Caddyfile", import.meta.url), "utf8"),
+    readFile(
+      new URL(
+        "../self-host/keycloak/project42-https-realm.json",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  ]);
+  for (const host of [
+    "learn.project42.localhost",
+    "api.project42.localhost",
+    "identity.project42.localhost",
+  ]) {
+    assert.match(caddyfile, new RegExp(`https://${host.replaceAll(".", "\\.")}`));
+  }
+  assert.equal((caddyfile.match(/tls internal/g) ?? []).length, 3);
+  assert.match(caddyfile, /admin 127\.0\.0\.1:2019/);
+  assert.doesNotMatch(caddyfile, /admin 0\.0\.0\.0/);
+  assert.match(caddyfile, /https:\/\/identity\.project42\.internal/);
+
+  const realm = JSON.parse(realmText);
+  const client = realm.clients.find(
+    ({ clientId }) => clientId === "project42-api-browser",
+  );
+  assert.ok(client);
+  assert.equal(client.publicClient, true);
+  assert.equal(client.attributes["pkce.code.challenge.method"], "S256");
+  assert.deepEqual(client.redirectUris, [
+    "https://api.project42.localhost/v1/auth/callback",
+  ]);
+  assert.deepEqual(client.webOrigins, [
+    "https://learn.project42.localhost",
+  ]);
+});
+
 test("local evaluation profile permits only its explicit HTTP service hosts", () => {
   const configuration = readConfiguration(evaluationEnvironment);
   assert.equal(configuration.publicUrl.href, "http://localhost:8787/");
@@ -385,8 +482,8 @@ test("reference Keycloak clients preserve bearer auth_time evidence", async () =
   );
   assert.ok(manifest.identity.requiredClaims.includes("auth_time"));
   assert.ok(manifest.identity.requiredClaims.includes("nonce"));
-  assert.equal(manifest.learn.availability, "candidate");
-  assert.equal(manifest.learn.minimumVersion, "0.9.0");
+  assert.equal(manifest.learn.availability, "released");
+  assert.equal(manifest.learn.minimumVersion, "0.11.0");
 });
 
 test("self-host auth limiter uses PostgreSQL and only the normalized socket peer", async () => {

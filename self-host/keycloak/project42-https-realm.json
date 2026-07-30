@@ -1,0 +1,44 @@
+{
+  "realm": "project42",
+  "enabled": true,
+  "displayName": "Project 42",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "verifyEmail": true,
+  "loginWithEmailAllowed": true,
+  "sslRequired": "external",
+  "clients": [
+    {
+      "clientId": "project42-api-browser",
+      "name": "Project 42 API-owned browser session",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "rootUrl": "https://api.project42.localhost",
+      "redirectUris": [
+        "https://api.project42.localhost/v1/auth/callback"
+      ],
+      "webOrigins": [
+        "https://learn.project42.localhost"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "client.use.lightweight.access.token.enabled": "false",
+        "post.logout.redirect.uris": "https://learn.project42.localhost/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "project42-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "project42-api",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ]
+}
