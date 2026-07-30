@@ -4,10 +4,14 @@ export const ADMIN_PAGE_DEFAULT_SIZE = 50;
 export const ADMIN_PAGE_MAX_SIZE = 100;
 export const ADMIN_CURSOR_MAX_LENGTH = 2_048;
 
-const CURSOR_VERSION = 1;
-const CURSOR_DIGEST_DOMAIN = "project42-admin-cursor-v1";
+const CURSOR_VERSION = 2;
+const CURSOR_INITIALIZATION_VECTOR_BYTES = 12;
+const CURSOR_ROOT_KEY_BYTES = 32;
+const CURSOR_ADDITIONAL_DATA = "project42-admin-cursor-v2";
+const CURSOR_KEY_DERIVATION_SALT = "project42-admin-cursor-key-v2";
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder("utf-8", { fatal: true });
+let processCursorKey: Promise<CryptoKey> | undefined;
 
 interface AccountCursorPayload extends Record<string, unknown> {
   v: typeof CURSOR_VERSION;
@@ -62,19 +66,25 @@ export function validateAdminPageSize(value: number): number {
   return value;
 }
 
-export async function encodeAccountAdminCursor(input: {
-  installationId: string;
-  state?: AccountState;
-  position: AccountCursorPosition;
-}): Promise<string> {
-  return encodeCursor({
-    v: CURSOR_VERSION,
-    k: "accounts",
-    i: input.installationId,
-    f: input.state ?? "*",
-    c: input.position.createdAt,
-    u: input.position.userId,
-  });
+export async function encodeAccountAdminCursor(
+  input: {
+    installationId: string;
+    state?: AccountState;
+    position: AccountCursorPosition;
+  },
+  encryptionKey: CryptoKey,
+): Promise<string> {
+  return encodeCursor(
+    {
+      v: CURSOR_VERSION,
+      k: "accounts",
+      i: input.installationId,
+      f: input.state ?? "*",
+      c: input.position.createdAt,
+      u: input.position.userId,
+    },
+    encryptionKey,
+  );
 }
 
 export async function decodeAccountAdminCursor(
@@ -83,8 +93,9 @@ export async function decodeAccountAdminCursor(
     installationId: string;
     state?: AccountState;
   },
+  encryptionKey: CryptoKey,
 ): Promise<AccountCursorPosition> {
-  const payload = await decodeCursor(cursor);
+  const payload = await decodeCursor(cursor, encryptionKey);
   if (
     !isAccountCursorPayload(payload) ||
     payload.i !== expected.installationId ||
@@ -98,24 +109,31 @@ export async function decodeAccountAdminCursor(
   };
 }
 
-export async function encodeAuditAdminCursor(input: {
-  installationId: string;
-  position: AuditCursorPosition;
-}): Promise<string> {
-  return encodeCursor({
-    v: CURSOR_VERSION,
-    k: "audit",
-    i: input.installationId,
-    f: "*",
-    s: input.position.sequence,
-  });
+export async function encodeAuditAdminCursor(
+  input: {
+    installationId: string;
+    position: AuditCursorPosition;
+  },
+  encryptionKey: CryptoKey,
+): Promise<string> {
+  return encodeCursor(
+    {
+      v: CURSOR_VERSION,
+      k: "audit",
+      i: input.installationId,
+      f: "*",
+      s: input.position.sequence,
+    },
+    encryptionKey,
+  );
 }
 
 export async function decodeAuditAdminCursor(
   cursor: string,
   expected: { installationId: string },
+  encryptionKey: CryptoKey,
 ): Promise<AuditCursorPosition> {
-  const payload = await decodeCursor(cursor);
+  const payload = await decodeCursor(cursor, encryptionKey);
   if (
     !isAuditCursorPayload(payload) ||
     payload.i !== expected.installationId
@@ -127,14 +145,29 @@ export async function decodeAuditAdminCursor(
 
 async function encodeCursor(
   payload: AccountCursorPayload | AuditCursorPayload,
+  encryptionKey: CryptoKey,
 ): Promise<string> {
-  const encodedPayload = toBase64Url(textEncoder.encode(JSON.stringify(payload)));
-  const digest = await cursorDigest(encodedPayload);
-  return `${encodedPayload}.${toBase64Url(digest)}`;
+  const initializationVector = new Uint8Array(
+    CURSOR_INITIALIZATION_VECTOR_BYTES,
+  );
+  crypto.getRandomValues(initializationVector);
+  const ciphertext = await crypto.subtle.encrypt(
+    {
+      name: "AES-GCM",
+      iv: initializationVector,
+      additionalData: textEncoder.encode(CURSOR_ADDITIONAL_DATA),
+    },
+    encryptionKey,
+    textEncoder.encode(JSON.stringify(payload)),
+  );
+  return `${toBase64Url(initializationVector)}.${toBase64Url(
+    new Uint8Array(ciphertext),
+  )}`;
 }
 
 async function decodeCursor(
   cursor: string,
+  encryptionKey: CryptoKey,
 ): Promise<Record<string, unknown>> {
   if (
     cursor.length === 0 ||
@@ -143,31 +176,93 @@ async function decodeCursor(
   ) {
     throw new InvalidAdminCursorError();
   }
-  const [encodedPayload, encodedDigest] = cursor.split(".");
-  if (!encodedPayload || !encodedDigest) {
+  const [encodedInitializationVector, encodedCiphertext] = cursor.split(".");
+  if (!encodedInitializationVector || !encodedCiphertext) {
     throw new InvalidAdminCursorError();
   }
-  let receivedDigest: Uint8Array;
   let decoded: unknown;
   try {
-    receivedDigest = fromBase64Url(encodedDigest);
-    decoded = JSON.parse(textDecoder.decode(fromBase64Url(encodedPayload)));
+    const initializationVector = fromBase64Url(
+      encodedInitializationVector,
+    );
+    const ciphertext = fromBase64Url(encodedCiphertext);
+    if (
+      initializationVector.byteLength !== CURSOR_INITIALIZATION_VECTOR_BYTES ||
+      ciphertext.byteLength <= 16
+    ) {
+      throw new InvalidAdminCursorError();
+    }
+    const plaintext = await crypto.subtle.decrypt(
+      {
+        name: "AES-GCM",
+        iv: initializationVector,
+        additionalData: textEncoder.encode(CURSOR_ADDITIONAL_DATA),
+      },
+      encryptionKey,
+      ciphertext,
+    );
+    decoded = JSON.parse(textDecoder.decode(plaintext));
   } catch {
     throw new InvalidAdminCursorError();
   }
-  const expectedDigest = await cursorDigest(encodedPayload);
-  if (!constantTimeEqual(receivedDigest, expectedDigest) || !isObject(decoded)) {
+  if (!isObject(decoded)) {
     throw new InvalidAdminCursorError();
   }
   return decoded;
 }
 
-async function cursorDigest(encodedPayload: string): Promise<Uint8Array> {
-  const digest = await crypto.subtle.digest(
-    "SHA-256",
-    textEncoder.encode(`${CURSOR_DIGEST_DOMAIN}\0${encodedPayload}`),
+export function readAdminCursorEncryptionKey(
+  encodedRootKey?: string,
+): Promise<CryptoKey> {
+  const normalized = encodedRootKey?.trim();
+  if (!normalized) {
+    processCursorKey ??= deriveAdminCursorEncryptionKey(randomRootKey());
+    return processCursorKey;
+  }
+  let rootKey: Uint8Array<ArrayBuffer>;
+  try {
+    rootKey = fromBase64Url(normalized);
+  } catch {
+    throw new Error(
+      "The administration cursor key must be a base64url-encoded 32-byte value.",
+    );
+  }
+  if (rootKey.byteLength !== CURSOR_ROOT_KEY_BYTES) {
+    throw new Error(
+      "The administration cursor key must be a base64url-encoded 32-byte value.",
+    );
+  }
+  return deriveAdminCursorEncryptionKey(rootKey);
+}
+
+async function deriveAdminCursorEncryptionKey(
+  rootKey: Uint8Array<ArrayBuffer>,
+): Promise<CryptoKey> {
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    rootKey,
+    "HKDF",
+    false,
+    ["deriveKey"],
   );
-  return new Uint8Array(digest);
+  return crypto.subtle.deriveKey(
+    {
+      name: "HKDF",
+      hash: "SHA-256",
+      salt: textEncoder.encode(CURSOR_KEY_DERIVATION_SALT),
+      info: textEncoder.encode(CURSOR_ADDITIONAL_DATA),
+    },
+    keyMaterial,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"],
+  );
+}
+
+function randomRootKey(): Uint8Array<ArrayBuffer> {
+  const rootKey = new Uint8Array(CURSOR_ROOT_KEY_BYTES);
+  crypto.getRandomValues(rootKey);
+  return rootKey;
 }
 
 function isAccountCursorPayload(
@@ -240,7 +335,7 @@ function toBase64Url(bytes: Uint8Array): string {
     .replace(/=+$/g, "");
 }
 
-function fromBase64Url(value: string): Uint8Array {
+function fromBase64Url(value: string): Uint8Array<ArrayBuffer> {
   if (!/^[A-Za-z0-9_-]+$/.test(value)) {
     throw new InvalidAdminCursorError();
   }
@@ -251,14 +346,9 @@ function fromBase64Url(value: string): Uint8Array {
     .replace(/_/g, "/")
     .padEnd(value.length + ((4 - remainder) % 4), "=");
   const binary = atob(base64);
-  return Uint8Array.from(binary, (character) => character.charCodeAt(0));
-}
-
-function constantTimeEqual(left: Uint8Array, right: Uint8Array): boolean {
-  let difference = left.length ^ right.length;
-  const length = Math.max(left.length, right.length);
-  for (let index = 0; index < length; index += 1) {
-    difference |= (left[index] ?? 0) ^ (right[index] ?? 0);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
   }
-  return difference === 0;
+  return bytes;
 }

@@ -2,7 +2,9 @@ name: project42
 
 services:
   database:
-    image: postgres:17.10-alpine3.23
+    build:
+      context: ./postgres
+    image: project42/postgres:${PROJECT42_VERSION:-local}
     environment:
       POSTGRES_DB: project42
       POSTGRES_USER: project42

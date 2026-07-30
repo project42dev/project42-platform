@@ -32,6 +32,9 @@ const repository = new D1Project42Repository(
   configuration.installationId,
   undefined,
   configuration.accountMergeRequiredConsents,
+  configuration.browserSession.mode === "oidc"
+    ? configuration.browserSession.encryptionKey
+    : undefined,
 );
 const profilePhotos = new FilesystemProfilePhotoBucket(
   configuration.profilePhotoDirectory,

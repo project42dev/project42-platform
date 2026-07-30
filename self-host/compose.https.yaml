@@ -2,7 +2,9 @@ name: project42-https
 
 services:
   database:
-    image: postgres:17.10-alpine3.23
+    build:
+      context: ./postgres
+    image: project42/postgres:${PROJECT42_VERSION:-local}
     environment:
       POSTGRES_DB: project42
       POSTGRES_USER: project42
@@ -59,7 +61,7 @@ services:
     restart: unless-stopped
 
   gateway:
-    image: caddy:2.10.2-alpine
+    image: caddy:2.11.4-alpine
     environment:
       XDG_DATA_HOME: /data
       XDG_CONFIG_HOME: /config
@@ -134,6 +136,8 @@ services:
       SESSION_ENCRYPTION_KEY: ${PROJECT42_SESSION_ENCRYPTION_KEY:?set PROJECT42_SESSION_ENCRYPTION_KEY}
       ALLOWED_ORIGINS: https://learn.project42.localhost
       DOMAIN_APPROVAL_ENABLED: "false"
+      BOOTSTRAP_OWNER_ISSUER: ${PROJECT42_BOOTSTRAP_OWNER_ISSUER:-}
+      BOOTSTRAP_OWNER_SUBJECT: ${PROJECT42_BOOTSTRAP_OWNER_SUBJECT:-}
       PROFILE_PHOTO_DIRECTORY: /var/lib/project42/profile-photos
       MIGRATION_DIRECTORY: self-host/postgres
       NODE_EXTRA_CA_CERTS: /trust/root.crt
@@ -174,7 +178,7 @@ services:
 
   secure-topology-smoke:
     profiles: ["test"]
-    image: curlimages/curl:8.16.0
+    image: curlimages/curl:8.21.0
     environment:
       CURL_CA_BUNDLE: /trust/root.crt
     volumes:
@@ -199,6 +203,70 @@ services:
       - ALL
     restart: "no"
 
+  secure-browser-session-smoke:
+    profiles: ["test"]
+    build:
+      context: ..
+      dockerfile: self-host/browser-smoke/Dockerfile
+    image: project42/secure-browser-smoke:${PROJECT42_VERSION:-local}
+    environment:
+      PROJECT42_KEYCLOAK_ADMIN_ORIGIN: http://identity:8080
+      PROJECT42_IDENTITY_ADMIN_PASSWORD: ${PROJECT42_IDENTITY_ADMIN_PASSWORD:?set PROJECT42_IDENTITY_ADMIN_PASSWORD}
+      PROJECT42_BROWSER_SMOKE_SUBJECT: ${PROJECT42_BROWSER_SMOKE_SUBJECT:-}
+      PROJECT42_BROWSER_SMOKE_EMAIL: ${PROJECT42_BROWSER_SMOKE_EMAIL:?set PROJECT42_BROWSER_SMOKE_EMAIL}
+      PROJECT42_BROWSER_SMOKE_PASSWORD: ${PROJECT42_BROWSER_SMOKE_PASSWORD:?set PROJECT42_BROWSER_SMOKE_PASSWORD}
+    volumes:
+      - project42_trust:/trust:ro
+    depends_on:
+      api:
+        condition: service_healthy
+      learn:
+        condition: service_started
+      gateway:
+        condition: service_healthy
+    shm_size: 1gb
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+      - /home/pwuser:size=64m,mode=0700,uid=1001,gid=1001
+    security_opt:
+      - no-new-privileges:true
+      - seccomp=./browser-smoke/seccomp_profile.json
+    cap_drop:
+      - ALL
+    cap_add:
+      - SYS_CHROOT
+    restart: "no"
+
+  secure-backup-restore-smoke:
+    profiles: ["test"]
+    image: project42/postgres:${PROJECT42_VERSION:-local}
+    user: "0:0"
+    environment:
+      PROJECT42_DATABASE_PASSWORD: ${PROJECT42_DATABASE_PASSWORD:?set PROJECT42_DATABASE_PASSWORD}
+    command: ["/bin/sh", "/validation/smoke-secure-backup-restore.sh"]
+    volumes:
+      - ./smoke-secure-backup-restore.sh:/validation/smoke-secure-backup-restore.sh:ro
+      - project42_profile_photos:/source-photos:ro
+      - project42_identity:/source-identity:ro
+      - project42_caddy_data:/source-caddy-data:ro
+      - project42_caddy_config:/source-caddy-config:ro
+      - project42_restore_photos:/restored-photos
+      - project42_restore_identity:/restored-identity
+      - project42_restore_caddy_data:/restored-caddy-data
+      - project42_restore_caddy_config:/restored-caddy-config
+      - project42_backup_test:/evidence
+    depends_on:
+      api:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - DAC_READ_SEARCH
+    restart: "no"
+
 volumes:
   project42_database:
   project42_identity:
@@ -206,3 +274,8 @@ volumes:
   project42_caddy_data:
   project42_caddy_config:
   project42_trust:
+  project42_restore_photos:
+  project42_restore_identity:
+  project42_restore_caddy_data:
+  project42_restore_caddy_config:
+  project42_backup_test:

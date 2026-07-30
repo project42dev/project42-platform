@@ -65,12 +65,21 @@ database's unique audit sequence in descending order, so the newest recorded
 event is returned first. Both queries fetch at most `pageSize + 1` tenant-scoped
 rows to determine whether another page exists.
 
-The cursor is deterministic traversal state protected by a format and integrity
-digest and bound to its installation, query kind, and account-state filter. It
-is not an authorization boundary. Approved-owner authorization and
-installation-scoped SQL remain the security boundaries. The same SQL and cursor
-contract runs through the Cloudflare D1 adapter and the PostgreSQL compatibility
-adapter.
+The cursor contains traversal state encrypted and authenticated with AES-GCM.
+The service derives a purpose-specific cursor key from the deployment's
+`SESSION_ENCRYPTION_KEY`; plaintext installation, query-kind, filter, and
+position values are not exposed to clients. The authenticated payload remains
+bound to its installation, query kind, and account-state filter. It is not an
+authorization boundary. Approved-owner authorization and installation-scoped
+SQL remain the security boundaries. The same SQL and cursor contract runs
+through the Cloudflare D1 adapter and the PostgreSQL compatibility adapter.
+
+Rotating `SESSION_ENCRYPTION_KEY` intentionally invalidates outstanding
+continuation values. Clients treat the resulting `invalid_admin_cursor`
+response as stale-page state, discard the cursor, and restart from the first
+page. The local evaluation profile can use a process-scoped ephemeral cursor
+key, but every production and secure self-host deployment supplies the stable
+secret-backed key already required for API-owned browser sessions.
 
 ## Client migration
 

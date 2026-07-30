@@ -91,17 +91,67 @@ jobs:
     timeout-minutes: 25
     env:
       PROJECT42_VERSION: 0.69.0
-      PROJECT42_LEARN_SOURCE_REF: cc385d7870ac52b023560684ea9423bf995b0c62
+      PROJECT42_LEARN_SOURCE_REF: f9e9cd1293bd7337c4c71e78f7e7f21e31ca4e52
       PROJECT42_INSTALLATION_ID: ci-secure-topology
       PROJECT42_DATABASE_PASSWORD: K7v9nP4rX2mQ8sL6zC5dH3jF
       PROJECT42_IDENTITY_ADMIN_PASSWORD: W6q2Zp8rN4c7Vx5mJ9s3Kt1H
       PROJECT42_SESSION_ENCRYPTION_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY
       PROJECT42_ACCOUNT_MERGE_REQUIRED_CONSENTS: '[{"purpose":"learning-record","policyVersion":"2026-07-27"}]'
+      PROJECT42_BOOTSTRAP_OWNER_ISSUER: https://identity.project42.localhost/realms/project42
+      PROJECT42_BROWSER_SMOKE_EMAIL: secure-compose-owner@example.test
+      PROJECT42_BROWSER_SMOKE_PASSWORD: J8s2N7q4R9v6X3m5K1c8H4w7D2p9F6t3
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Enforce deterministic self-host security policy
+        run: node scripts/scan-self-host-release.mjs
+      - name: Scan secure configuration and packaged files
+        run: |
+          mkdir -p "$RUNNER_TEMP/trivy-cache"
+          docker run --rm \
+            --volume "$PWD:/workspace:ro" \
+            --volume "$RUNNER_TEMP/trivy-cache:/root/.cache/trivy" \
+            aquasec/trivy:0.66.0 \
+            config --exit-code 1 --severity CRITICAL /workspace/self-host
+          docker run --rm \
+            --volume "$PWD:/workspace:ro" \
+            --volume "$RUNNER_TEMP/trivy-cache:/root/.cache/trivy" \
+            aquasec/trivy:0.66.0 \
+            fs --scanners secret --exit-code 1 --severity HIGH,CRITICAL \
+            /workspace/self-host
       - name: Validate secure Compose model
         run: docker compose -f self-host/compose.https.yaml config --quiet
-      - name: Start secure stack
+      - name: Start secure identity prerequisites
+        run: |
+          docker compose -f self-host/compose.https.yaml \
+            up --detach --wait database identity gateway
+          docker compose -f self-host/compose.https.yaml \
+            run --rm --no-deps trust-export
+      - name: Provision immutable browser-smoke identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          identity=(docker compose -f self-host/compose.https.yaml exec -T identity /opt/keycloak/bin/kcadm.sh)
+          "${identity[@]}" config credentials \
+            --server http://127.0.0.1:8080 \
+            --realm master \
+            --user bootstrap-admin \
+            --password "$PROJECT42_IDENTITY_ADMIN_PASSWORD"
+          subject="$("${identity[@]}" create users -r project42 -i \
+            -s "username=$PROJECT42_BROWSER_SMOKE_EMAIL" \
+            -s "email=$PROJECT42_BROWSER_SMOKE_EMAIL" \
+            -s 'firstName=Secure' \
+            -s 'lastName=Compose Owner' \
+            -s 'enabled=true' \
+            -s 'emailVerified=true')"
+          test -n "$subject"
+          "${identity[@]}" set-password -r project42 \
+            --userid "$subject" \
+            --new-password "$PROJECT42_BROWSER_SMOKE_PASSWORD"
+          {
+            echo "PROJECT42_BOOTSTRAP_OWNER_SUBJECT=$subject"
+            echo "PROJECT42_BROWSER_SMOKE_SUBJECT=$subject"
+          } >> "$GITHUB_ENV"
+      - name: Start complete secure stack
         run: docker compose -f self-host/compose.https.yaml up --build --detach --wait
       - name: Verify HTTPS API, identity, and sign-in surface
         run: >-
@@ -109,6 +159,36 @@ jobs:
           -f self-host/compose.https.yaml
           --profile test
           run --rm secure-topology-smoke
+      - name: Verify real browser authentication and secure session
+        run: >-
+          docker compose
+          -f self-host/compose.https.yaml
+          --profile test
+          run --rm --build secure-browser-session-smoke
+      - name: Verify secure backup and isolated restore
+        run: >-
+          docker compose
+          -f self-host/compose.https.yaml
+          --profile test
+          run --rm secure-backup-restore-smoke
+      - name: Scan every secure-topology image
+        run: |
+          mapfile -t images < <(
+            docker compose \
+              -f self-host/compose.https.yaml \
+              --profile test \
+              config --images |
+            sort --unique
+          )
+          test "${#images[@]}" -gt 0
+          for image in "${images[@]}"; do
+            docker image inspect "$image" >/dev/null 2>&1 || docker pull "$image"
+            docker run --rm \
+              --volume /var/run/docker.sock:/var/run/docker.sock \
+              --volume "$RUNNER_TEMP/trivy-cache:/root/.cache/trivy" \
+              aquasec/trivy:0.66.0 \
+              image --exit-code 1 --severity CRITICAL "$image"
+          done
       - name: Verify only the HTTPS gateway is published
         shell: pwsh
         run: |
