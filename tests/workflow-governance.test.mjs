@@ -46,9 +46,9 @@ function assertSafeReleaseWorkflow(source, label) {
   );
 
   const forbiddenManualCapabilities = [
-    /\b(?:contents|packages|id-token|attestations|artifact-metadata): write\b/,
+    /\b(?:contents|packages): write\b/,
     /\bsecrets\./,
-    /actions\/(?:attest|upload-|deploy-)/,
+    /actions\/deploy-/,
     /\bdocker\b/,
     /\bcosign\b/,
     /\bgh release\b/,
@@ -62,6 +62,19 @@ function assertSafeReleaseWorkflow(source, label) {
       validateBlock,
       forbidden,
       `${label} manual validation must not have publication capability ${forbidden}`,
+    );
+  }
+
+  for (const permission of [
+    "contents: read",
+    "id-token: write",
+    "attestations: write",
+    "artifact-metadata: write",
+  ]) {
+    assert.match(
+      validateBlock,
+      new RegExp(`^      ${permission}$`, "m"),
+      `${label} manual candidate must use the exact ${permission} permission`,
     );
   }
 
@@ -119,8 +132,8 @@ test("release governance rejects publication-boundary regressions", () => {
   assert.throws(() =>
     assertSafeReleaseWorkflow(
       releaseSource.replace(
-        "    permissions:\n      contents: read\n    steps:",
-        "    permissions:\n      contents: read\n      id-token: write\n    steps:",
+        "      contents: read\n      id-token: write",
+        "      contents: read\n      packages: write\n      id-token: write",
       ),
       "manual-write-permission",
     ),
@@ -157,4 +170,32 @@ test("tagged releases emit governed versioned artifacts and human release notes"
   assert.match(releaseSource, /cosign sign --yes "\$PROJECT42_IMAGE"/);
   assert.match(releaseSource, /--notes-file RELEASE_NOTES\.md/);
   assert.doesNotMatch(releaseSource, /--generate-notes/);
+});
+
+test("manual candidates round-trip through temporary attested artifact storage", () => {
+  const releaseSource = normalize(readFileSync(releasePath, "utf8"));
+  const releaseIndex = releaseSource.indexOf("\n  release:\n");
+  const validateBlock = releaseSource.slice(
+    releaseSource.indexOf("\n  validate:\n"),
+    releaseIndex,
+  );
+
+  assert.match(validateBlock, /actions\/attest@[0-9a-f]{40}/);
+  assert.match(validateBlock, /actions\/upload-artifact@[0-9a-f]{40}/);
+  assert.match(validateBlock, /actions\/download-artifact@[0-9a-f]{40}/);
+  assert.match(
+    validateBlock,
+    /name: project42-platform-candidate-\$\{\{ github\.sha \}\}-\$\{\{ github\.run_id \}\}-\$\{\{ github\.run_attempt \}\}/,
+  );
+  assert.match(validateBlock, /^\s+retention-days: 1$/m);
+  assert.match(validateBlock, /^\s+if-no-files-found: error$/m);
+  assert.match(validateBlock, /^\s+compression-level: 0$/m);
+  assert.match(validateBlock, /--release-dir=candidate-download/);
+  assert.match(validateBlock, /--release-dir candidate-download/);
+  assert.match(validateBlock, /rm -rf candidate-download/);
+  assert.match(validateBlock, /test ! -e candidate-download/);
+  assert.match(validateBlock, /steps\.candidate-upload\.outputs\.artifact-id/);
+  assert.match(validateBlock, /steps\.candidate-upload\.outputs\.artifact-digest/);
+  assert.match(validateBlock, /steps\.candidate-attestation\.outputs\.attestation-id/);
+  assert.doesNotMatch(validateBlock, /\bgh release\b|\bgit tag\b|\bghcr\.io\b|--push\b/);
 });

@@ -16,6 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -65,6 +68,55 @@ jobs:
             --version "$version" \
             --source-commit "$source_commit"
           npm run release:check -- --release-dir=release
+      - name: Attest temporary candidate artifacts
+        id: candidate-attestation
+        uses: actions/attest@36051bcae73b7c2a8a6945a48cbf80953c6baa35 # v4
+        with:
+          subject-path: |
+            release/project42-platform-*.tgz
+            release/project42-content-*.tar.gz
+            release/project42-migrations-*.tar.gz
+            release/project42-compatibility-*.json
+            release/project42-release-manifest-*.json
+            release/project42-release-rehearsal-*.json
+            release/SHA256SUMS
+      - name: Upload temporary candidate bundle
+        id: candidate-upload
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: project42-platform-candidate-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: release/
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+          include-hidden-files: false
+      - name: Download candidate into a clean consumer directory
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: project42-platform-candidate-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: candidate-download
+      - name: Verify, consume, roll back, and clean up candidate
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          npm run release:check -- --release-dir=candidate-download
+          npm run release:rehearse -- \
+            --release-dir candidate-download \
+            --version "$version"
+          npm run release:check -- --release-dir=candidate-download
+          rm -rf candidate-download
+          test ! -e candidate-download
+      - name: Record sanitized candidate evidence
+        run: |
+          {
+            echo "### Temporary candidate"
+            echo
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo "- Run: \`${GITHUB_RUN_ID}\` attempt \`${GITHUB_RUN_ATTEMPT}\`"
+            echo "- Artifact ID: \`${{ steps.candidate-upload.outputs.artifact-id }}\`"
+            echo "- Artifact digest: \`${{ steps.candidate-upload.outputs.artifact-digest }}\`"
+            echo "- Attestation ID: \`${{ steps.candidate-attestation.outputs.attestation-id }}\`"
+            echo "- Retention: one day; this workflow does not publish a tag, release, package, image, or deployment."
+          } >> "$GITHUB_STEP_SUMMARY"
 
   release:
     name: Publish signed tag release
