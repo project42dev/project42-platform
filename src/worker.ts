@@ -2561,7 +2561,9 @@ class D1Project42Repository {
             .prepare(
               `UPDATE users
                   SET display_name = COALESCE(?, display_name),
-                      primary_email = CASE WHEN ? = 1 THEN ? ELSE primary_email END,
+                      -- Preserve the provider-supplied address for account display.
+                      -- The separate email_verified flag remains the approval signal.
+                      primary_email = COALESCE(?, primary_email),
                       email_verified = CASE WHEN ? = 1 THEN 1 ELSE email_verified END,
                       updated_at = ?
                 WHERE installation_id = ? AND id = ?`,
@@ -2570,7 +2572,6 @@ class D1Project42Repository {
               shouldAdoptIdentityDisplayName(existing.displayName)
                 ? identity.displayName
                 : null,
-              identity.emailVerified ? 1 : 0,
               identity.email,
               identity.emailVerified ? 1 : 0,
               now,
@@ -2619,7 +2620,7 @@ class D1Project42Repository {
           userId,
           this.installationId,
           identity.displayName,
-          identity.emailVerified ? identity.email : null,
+          identity.email,
           identity.emailVerified ? 1 : 0,
           state,
           now,
