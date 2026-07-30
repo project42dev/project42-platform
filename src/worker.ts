@@ -500,6 +500,7 @@ class OidcJwtVerifier implements IdentityVerifier {
       audience?: string;
       nonce?: string;
       requireAuthenticationTime?: boolean;
+      diagnosticRequestId?: string;
     } = {},
   ): Promise<VerifiedIdentity> {
     try {
@@ -555,6 +556,36 @@ class OidcJwtVerifier implements IdentityVerifier {
       const emailValue = payload[this.env.OIDC_EMAIL_CLAIM];
       const verifiedValue = payload[this.env.OIDC_EMAIL_VERIFIED_CLAIM];
       const displayNameValue = payload.name;
+      if (
+        options.diagnosticRequestId &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+          options.diagnosticRequestId,
+        )
+      ) {
+        const emailClaim =
+          emailValue === undefined
+            ? "missing"
+            : typeof emailValue === "string" && emailValue.trim()
+              ? "present"
+              : "invalid_type";
+        const emailVerificationClaim =
+          verifiedValue === undefined
+            ? "missing"
+            : typeof verifiedValue !== "boolean"
+              ? "invalid_type"
+              : verifiedValue
+                ? "verified"
+                : "unverified";
+        console.info(
+          JSON.stringify({
+            level: "info",
+            requestId: options.diagnosticRequestId,
+            action: "oidc.identity.claim_contract",
+            emailClaim,
+            emailVerificationClaim,
+          }),
+        );
+      }
       return {
         provider: "oidc",
         issuer: payload.iss,
@@ -9329,6 +9360,7 @@ async function handleRequest(
             audience?: string;
             nonce?: string;
             requireAuthenticationTime?: boolean;
+            diagnosticRequestId?: string;
           },
         ) => Promise<VerifiedIdentity>;
       };
@@ -9345,6 +9377,7 @@ async function handleRequest(
           audience: exchanged.clientId,
           nonce: transaction.nonce,
           requireAuthenticationTime: true,
+          diagnosticRequestId: requestId,
         });
       } catch (error) {
         if (

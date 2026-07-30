@@ -17,6 +17,13 @@ implicit grants. The provider must issue signed ID tokens with `iss`, `sub`,
 `aud`, `exp`, `iat`, `auth_time`, and `nonce`. A token with multiple audiences
 must identify the configured client in `azp`.
 
+Trusted-domain approval also requires a non-empty email claim and a separate
+email-verification claim whose JSON value is the Boolean `true`. Email presence,
+provider documentation, an authentication-method claim, and the string
+`"true"` are not substitutes for that signed Boolean assertion. Keep domain
+approval disabled until a real signed token from every enabled sign-in method
+has proved this contract.
+
 Configure these non-secret values:
 
 ```text
@@ -87,6 +94,16 @@ start a fresh transaction instead of remaining on an API error response.
 Server diagnostics record only the bounded JOSE category, code, claim name, and
 coarsened timing metadata; they never include the token, authorization code,
 state, nonce, identity claims, or return target.
+
+After a signed ID token passes issuer, audience, expiry, nonce, authorized-party,
+and recent-authentication validation, the server records one low-cardinality
+`oidc.identity.claim_contract` diagnostic. It classifies the email claim as
+`missing`, `present`, or `invalid_type` and the verification claim as `missing`,
+`invalid_type`, `unverified`, or `verified`. The record includes the server
+request ID but no token, email, subject, issuer, tenant, application identifier,
+claim value, authorization code, state, nonce, or return target. This is the
+evidence surface for accepting a deployment's verified-email contract without
+retaining identity data in operational logs.
 
 Both unauthenticated routes are protected before transaction creation, cookie
 parsing, or provider exchange. Hosted Workers require the
