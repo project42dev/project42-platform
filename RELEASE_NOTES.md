@@ -1,6 +1,12 @@
-# Project 42 platform v0.70.0
+# Project 42 platform v0.70.1
 
-Version 0.70.0 makes the reusable hosted and self-host account boundary materially
+Version 0.70.1 preserves the reusable hosted and self-host account boundary from
+v0.70.0 and fixes cross-platform Cloudflare D1 migration checksum verification.
+The migration runner now hashes a byte-preserving LF-normalized representation,
+accepts equivalent legacy LF- or CRLF-bound ledger records without rewriting
+them, and continues to reject every substantive migration change.
+
+Version 0.70.0 made the reusable hosted and self-host account boundary materially
 easier to verify before production promotion. It adds privacy-safe evidence for the
 signed verified-email contract, encrypted owner-administration cursors, and a secure
 HTTPS Compose acceptance path that exercises a real browser through Learn, Keycloak,
@@ -34,7 +40,7 @@ invalidates outstanding cursors. Clients receiving `invalid_admin_cursor` must
 discard the continuation value and restart the same query from its first page.
 Clients must never parse or construct cursors.
 
-Secure self-host installations should recreate containers from the v0.70.0 images
+Secure self-host installations should recreate containers from the v0.70.1 images
 rather than retaining the older utility or runtime images. The HTTPS profile exposes
 only its gateway on TCP 443 and expects the documented local trust setup; automation
 that depended on direct host access to an internal service is outside the supported
@@ -42,7 +48,7 @@ secure topology.
 
 ## Migrations
 
-There is no new PostgreSQL migration in v0.70.0. The compatibility manifest retains
+There is no new PostgreSQL migration in v0.70.1. The compatibility manifest retains
 migration head `013_account_notification_outbox.sql`. Apply every migration through
 that file in order when upgrading from an older release. Hosted Cloudflare D1
 deployments use their separately governed numbered D1 migrations and must not apply
@@ -54,7 +60,7 @@ Before upgrading:
 2. Capture and verify a restorable database backup.
 3. Record the current application and immutable image digest.
 4. Preserve profile-photo, identity-provider, gateway data, and configuration.
-5. Preview the v0.70.0 compatibility and release manifests.
+5. Preview the v0.70.1 compatibility and release manifests.
 
 After upgrading, verify health, the authenticated browser-session lifecycle, owner
 account and audit pagination, authorization boundaries, profile storage, learning

@@ -4,6 +4,16 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.70.1] - 2026-07-30
+
+### Fixed
+
+- Cloudflare D1 migration checksums now use a line-ending-neutral LF contract
+  while accepting equivalent legacy LF- and CRLF-bound ledger records without
+  rewriting production history.
+- Substantive migration changes remain fail-closed and checksum-bound byte for
+  byte apart from line-ending normalization.
+
 ## [0.70.0] - 2026-07-30
 
 ### Added
@@ -71,5 +81,6 @@ semantic versioning.
 - Identity-provider configuration and real user journeys remain deployment-owner
   responsibilities.
 
+[0.70.1]: https://github.com/project42dev/project42-platform/releases/tag/v0.70.1
 [0.70.0]: https://github.com/project42dev/project42-platform/releases/tag/v0.70.0
 [0.69.0]: https://github.com/project42dev/project42-platform/releases/tag/v0.69.0
