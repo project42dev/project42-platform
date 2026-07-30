@@ -144,7 +144,8 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
       error.code === "invalid_identity_token" &&
       error.diagnostic?.category === "jose_validation" &&
       error.diagnostic?.joseCode === "ERR_JWT_CLAIM_VALIDATION_FAILED" &&
-      error.diagnostic?.claim === "auth_time",
+      error.diagnostic?.claim === "auth_time" &&
+      error.diagnostic?.timing === undefined,
   );
 
   const wrongAuthorizedParty = await new SignJWT({
@@ -226,6 +227,77 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
       }),
     ),
     (error) => error.code === "invalid_access_token",
+  );
+
+  const expiredBrowserIdentity = await new SignJWT({
+    nonce: "diagnostic-nonce",
+    auth_time: now - 600,
+    email: "must-not-appear@example.com",
+    name: "Must Not Appear",
+  })
+    .setProtectedHeader({ alg: "RS256", kid: "test-key" })
+    .setIssuer(issuer)
+    .setSubject("must-not-appear")
+    .setAudience("project42-browser")
+    .setIssuedAt(now - 600)
+    .setExpirationTime(now - 300)
+    .sign(privateKey);
+  await assert.rejects(
+    verifier.verifyToken(expiredBrowserIdentity, {
+      audience: "project42-browser",
+      nonce: "diagnostic-nonce",
+      requireAuthenticationTime: true,
+    }),
+    (error) => {
+      assert.equal(error.code, "invalid_identity_token");
+      assert.equal(error.diagnostic?.category, "jose_validation");
+      assert.equal(error.diagnostic?.joseCode, "ERR_JWT_EXPIRED");
+      assert.equal(error.diagnostic?.claim, "exp");
+      assert.deepEqual(
+        {
+          expNumeric: error.diagnostic?.timing?.expNumeric,
+          iatNumeric: error.diagnostic?.timing?.iatNumeric,
+          authTimeNumeric: error.diagnostic?.timing?.authTimeNumeric,
+          expMinusIatSeconds:
+            error.diagnostic?.timing?.expMinusIatSeconds,
+          issuerMatches: error.diagnostic?.timing?.issuerMatches,
+          audienceMatches: error.diagnostic?.timing?.audienceMatches,
+        },
+        {
+          expNumeric: true,
+          iatNumeric: true,
+          authTimeNumeric: true,
+          expMinusIatSeconds: 300,
+          issuerMatches: true,
+          audienceMatches: true,
+        },
+      );
+      assert.ok(error.diagnostic.timing.expMinusNowSeconds <= -290);
+      assert.ok(error.diagnostic.timing.expMinusNowSeconds >= -320);
+      assert.ok(error.diagnostic.timing.iatMinusNowSeconds <= -590);
+      assert.ok(error.diagnostic.timing.iatMinusNowSeconds >= -620);
+      assert.ok(error.diagnostic.timing.authTimeMinusNowSeconds <= -590);
+      assert.ok(error.diagnostic.timing.authTimeMinusNowSeconds >= -620);
+      for (const value of [
+        error.diagnostic.timing.expMinusNowSeconds,
+        error.diagnostic.timing.iatMinusNowSeconds,
+        error.diagnostic.timing.expMinusIatSeconds,
+        error.diagnostic.timing.authTimeMinusNowSeconds,
+      ]) {
+        assert.equal(Math.abs(value % 10), 0);
+      }
+      const serialized = JSON.stringify(error.diagnostic);
+      for (const forbidden of [
+        "must-not-appear",
+        "must-not-appear@example.com",
+        "diagnostic-nonce",
+        issuer,
+        expiredBrowserIdentity,
+      ]) {
+        assert.equal(serialized.includes(forbidden), false);
+      }
+      return true;
+    },
   );
 
   const { privateKey: attackerKey } = await generateKeyPair("RS256");
