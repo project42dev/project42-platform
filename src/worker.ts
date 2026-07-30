@@ -79,6 +79,7 @@ import {
   decodeAuditAdminCursor,
   encodeAccountAdminCursor,
   encodeAuditAdminCursor,
+  readAdminCursorEncryptionKey,
   validateAdminPageSize,
 } from "./admin-pagination.js";
 import {
@@ -965,6 +966,7 @@ class GithubIdentityLinkAdapter {
 
 class D1Project42Repository {
   private readonly learningEvents: SqlLearningEventStore;
+  private readonly adminCursorEncryptionKey: Promise<CryptoKey>;
 
   constructor(
     private readonly db: D1Database,
@@ -972,12 +974,15 @@ class D1Project42Repository {
     learningEvents?: SqlLearningEventStore,
     private readonly requiredMergeConsents: AccountMergeConsentRequirement[] =
       readAccountMergeConsentRequirements(),
+    adminCursorRootKey?: string,
   ) {
     this.learningEvents =
       learningEvents ??
       new SqlLearningEventStore(
         db as unknown as LearningEventDatabase,
       );
+    this.adminCursorEncryptionKey =
+      readAdminCursorEncryptionKey(adminCursorRootKey);
   }
 
   get authorizationInstallationId(): string {
@@ -2721,11 +2726,16 @@ class D1Project42Repository {
     cursor?: string;
   }): Promise<AdminAccountPage> {
     validateAdminPageSize(input.pageSize);
+    const encryptionKey = await this.adminCursorEncryptionKey;
     const position = input.cursor
-      ? await decodeAccountAdminCursor(input.cursor, {
-          installationId: this.installationId,
-          ...(input.state ? { state: input.state } : {}),
-        })
+      ? await decodeAccountAdminCursor(
+          input.cursor,
+          {
+            installationId: this.installationId,
+            ...(input.state ? { state: input.state } : {}),
+          },
+          encryptionKey,
+        )
       : null;
     const bindings: Array<string | number> = [this.installationId];
     if (input.state) {
@@ -2749,14 +2759,17 @@ class D1Project42Repository {
     const last = rows.at(-1);
     const nextCursor =
       hasMore && last
-        ? await encodeAccountAdminCursor({
-            installationId: this.installationId,
-            ...(input.state ? { state: input.state } : {}),
-            position: {
-              createdAt: last.created_at,
-              userId: last.id,
+        ? await encodeAccountAdminCursor(
+            {
+              installationId: this.installationId,
+              ...(input.state ? { state: input.state } : {}),
+              position: {
+                createdAt: last.created_at,
+                userId: last.id,
+              },
             },
-          })
+            encryptionKey,
+          )
         : null;
     return {
       accounts: rows.map(mapAccount),
@@ -6399,10 +6412,15 @@ class D1Project42Repository {
     cursor?: string;
   }): Promise<AdminAuditEventPage> {
     validateAdminPageSize(input.pageSize);
+    const encryptionKey = await this.adminCursorEncryptionKey;
     const position = input.cursor
-      ? await decodeAuditAdminCursor(input.cursor, {
-          installationId: this.installationId,
-        })
+      ? await decodeAuditAdminCursor(
+          input.cursor,
+          {
+            installationId: this.installationId,
+          },
+          encryptionKey,
+        )
       : null;
     const result = await this.db
       .prepare(
@@ -6423,10 +6441,13 @@ class D1Project42Repository {
     }
     const nextCursor =
       hasMore && sequence
-        ? await encodeAuditAdminCursor({
-            installationId: this.installationId,
-            position: { sequence },
-          })
+        ? await encodeAuditAdminCursor(
+            {
+              installationId: this.installationId,
+              position: { sequence },
+            },
+            encryptionKey,
+          )
         : null;
     return {
       events: rows.map(mapAuditEvent),
@@ -9235,6 +9256,7 @@ async function handleRequest(
         readAccountMergeConsentRequirements(
           env.ACCOUNT_MERGE_REQUIRED_CONSENTS,
         ),
+        env.SESSION_ENCRYPTION_KEY,
       );
     await repository.ensureInstallation(now);
     if (request.method === "POST" && url.pathname === "/v1/deletion-status") {

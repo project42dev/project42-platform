@@ -129,8 +129,10 @@ Release `0.64.0` adds bounded cursor pagination to owner account and audit
 administration. Existing `accounts` and `events` arrays remain stable while
 page metadata supplies deterministic continuation; opaque cursors are bound to
 the installation, query, and account-state filter, and owner authorization runs
-before cursor parsing. Cloudflare D1 and PostgreSQL use equivalent ordering and
-continuation contracts. The release also promotes the reference Keycloak profile
+before cursor parsing. Current cursors encrypt and authenticate that state with
+a deployment key derived from `SESSION_ENCRYPTION_KEY`. Cloudflare D1 and
+PostgreSQL use equivalent ordering and continuation contracts. The release also
+promotes the reference Keycloak profile
 to an executable browser-session gate covering authorization code, S256 PKCE,
 nonce and state binding, callback exchange, Secure HttpOnly host cookies,
 issuer-and-subject account continuity, session rotation, sign-out, and
