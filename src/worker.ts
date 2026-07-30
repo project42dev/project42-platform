@@ -7,6 +7,11 @@ import {
   type LearnerProgress,
 } from "./index.js";
 import {
+  authorizeProject42Operation,
+  type Project42AuthorizationDecision,
+  type Project42AuthorizationPermission,
+} from "./authorization.js";
+import {
   ACCOUNT_STATES,
   canTransitionAccount,
   getVerifiedEmailDomain,
@@ -942,6 +947,10 @@ class D1Project42Repository {
       new SqlLearningEventStore(
         db as unknown as LearningEventDatabase,
       );
+  }
+
+  get authorizationInstallationId(): string {
+    return this.installationId;
   }
 
   async ensureInstallation(now: string): Promise<void> {
@@ -6022,6 +6031,35 @@ class D1Project42Repository {
     }).run();
   }
 
+  async recordRoleAuthorizationDenied(input: {
+    account: Account;
+    permission: Project42AuthorizationPermission;
+    denialCode: string;
+    method: string;
+    path: string;
+    requestId: string;
+    now: string;
+  }): Promise<void> {
+    await this.auditStatement({
+      id: crypto.randomUUID(),
+      actor: input.account.identity,
+      actorUserId: input.account.id,
+      action: "authorization.role.denied",
+      targetType: "protected_route",
+      targetId: input.path,
+      requestId: input.requestId,
+      outcome: "denied",
+      reason: "The authenticated account did not satisfy the role and installation boundary.",
+      metadata: {
+        method: input.method,
+        permission: input.permission,
+        denialCode: input.denialCode,
+        accountState: input.account.state,
+      },
+      now: input.now,
+    }).run();
+  }
+
   async completeDeletion(input: {
     actor: Account;
     deletionRequestId: string;
@@ -8365,10 +8403,6 @@ function isMergeProofToken(value: string): boolean {
   return /^[0-9a-f-]{36}\.[0-9a-f-]{36}$/i.test(value);
 }
 
-function isOwner(account: Account): boolean {
-  return account.state === "approved" && account.roles.includes("owner");
-}
-
 function requireApproved(account: Account): void {
   if (account.state !== "approved") {
     throw new ApiFailure(
@@ -8399,14 +8433,150 @@ const NON_APPROVED_SELF_SERVICE_ALLOWLIST = new Map<
   ["DELETE /v1/me/deletion", "deletion-rights"],
 ]);
 
-function authorizeSelfServiceRoute(
+function authorizationFailure(
+  decision: Exclude<Project42AuthorizationDecision, { allowed: true }>,
   account: Account,
+): ApiFailure {
+  switch (decision.code) {
+    case "authentication_required":
+      return new ApiFailure(
+        401,
+        "authentication_required",
+        "Sign in before accessing protected Project 42 data.",
+      );
+    case "account_not_approved":
+      return new ApiFailure(
+        403,
+        `account_${account.state}`,
+        `This account is ${account.state} and cannot access learner records.`,
+      );
+    case "owner_role_required":
+      return new ApiFailure(
+        403,
+        "owner_required",
+        "An approved owner account is required.",
+      );
+    case "self_scope_mismatch":
+      return new ApiFailure(
+        403,
+        "self_scope_mismatch",
+        "Self-service requests can access only the authenticated learner.",
+      );
+    case "installation_scope_invalid":
+    case "installation_scope_mismatch":
+      return new ApiFailure(
+        403,
+        "installation_scope_mismatch",
+        "The authenticated account does not belong to this Project 42 installation.",
+      );
+    case "account_state_invalid":
+    case "role_assignment_invalid":
+    case "learner_role_required":
+      return new ApiFailure(
+        403,
+        "role_assignment_invalid",
+        "The account role assignment is not valid for this protected operation.",
+      );
+  }
+}
+
+async function requireProject42Authorization(
+  account: Account,
+  repository: D1Project42Repository,
+  permission: Project42AuthorizationPermission,
   request: Request,
-): SelfServiceAuthorization {
-  if (account.state === "approved") return "approved";
+  requestId: string,
+  now: string,
+  options: {
+    targetAccountId?: string;
+  } = {},
+): Promise<void> {
+  const decision = authorizeProject42Operation(
+    {
+      authenticated: true,
+      accountId: account.id,
+      installationId: account.installationId,
+      accountState: account.state,
+      roles: account.roles,
+    },
+    {
+      permission,
+      installationId:
+        repository.authorizationInstallationId ?? account.installationId,
+      ...(options.targetAccountId
+        ? { targetAccountId: options.targetAccountId }
+        : {}),
+    },
+  );
+  if (decision.allowed) {
+    return;
+  }
+  if (permission === "installation:owner-administration") {
+    await repository.recordOwnerAuthorizationDenied({
+      account,
+      method: request.method,
+      path: new URL(request.url).pathname,
+      requestId,
+      now,
+    });
+    // Keep the public administration response deliberately generic. The
+    // privacy-safe audit event retains the internal denial context without
+    // disclosing account state, role shape, or installation membership to a
+    // caller probing the owner boundary.
+    throw new ApiFailure(
+      403,
+      "owner_required",
+      "An approved owner account is required.",
+    );
+  } else {
+    await repository.recordRoleAuthorizationDenied({
+      account,
+      permission,
+      denialCode: decision.code,
+      method: request.method,
+      path: new URL(request.url).pathname,
+      requestId,
+      now,
+    });
+  }
+  throw authorizationFailure(decision, account);
+}
+
+async function authorizeSelfServiceRoute(
+  account: Account,
+  repository: D1Project42Repository,
+  request: Request,
+  requestId: string,
+  now: string,
+): Promise<SelfServiceAuthorization> {
+  if (account.state === "approved") {
+    await requireProject42Authorization(
+      account,
+      repository,
+      "self:learner-records",
+      request,
+      requestId,
+      now,
+      { targetAccountId: account.id },
+    );
+    return "approved";
+  }
   const route = `${request.method.toUpperCase()} ${new URL(request.url).pathname}`;
   const authorization = NON_APPROVED_SELF_SERVICE_ALLOWLIST.get(route);
-  if (authorization) return authorization;
+  if (authorization) {
+    await requireProject42Authorization(
+      account,
+      repository,
+      authorization === "account-state"
+        ? "self:account-state"
+        : "self:data-rights",
+      request,
+      requestId,
+      now,
+      { targetAccountId: account.id },
+    );
+    return authorization;
+  }
   requireApproved(account);
   throw new Error("Unreachable self-service authorization state.");
 }
@@ -8480,16 +8650,14 @@ async function requireOwner(
   requestId: string,
   now: string,
 ): Promise<void> {
-  if (!isOwner(account)) {
-    await repository.recordOwnerAuthorizationDenied({
-      account,
-      method: request.method,
-      path: new URL(request.url).pathname,
-      requestId,
-      now,
-    });
-    throw new ApiFailure(403, "owner_required", "An approved owner account is required.");
-  }
+  await requireProject42Authorization(
+    account,
+    repository,
+    "installation:owner-administration",
+    request,
+    requestId,
+    now,
+  );
 }
 
 function requireRecentAuthentication(identity: VerifiedIdentity, now: string): void {
@@ -9174,6 +9342,14 @@ async function handleRequest(
           )
         : null;
       if (account.state === "approved") {
+        await requireProject42Authorization(
+          account,
+          repository,
+          "session:establish",
+          request,
+          requestId,
+          now,
+        );
         const sessionToken = randomBase64Url(48);
         const session = await repository.createBrowserSession({
           account,
@@ -9300,6 +9476,16 @@ async function handleRequest(
         requestId,
         now,
       );
+      if (account.state === "approved") {
+        await requireProject42Authorization(
+          account,
+          repository,
+          "session:establish",
+          request,
+          requestId,
+          now,
+        );
+      }
       return json(
         { account: accountStateDisclosure(account) },
         account.state === "approved" ? 200 : 202,
@@ -9313,6 +9499,15 @@ async function handleRequest(
       throw new ApiFailure(401, "account_not_registered", "Register this identity first.");
     }
     if (request.method === "GET" && url.pathname === "/v1/auth/session") {
+      await requireProject42Authorization(
+        account,
+        repository,
+        "self:account-state",
+        request,
+        requestId,
+        now,
+        { targetAccountId: account.id },
+      );
       return json(
         {
           account: accountStateDisclosure(account),
@@ -9336,7 +9531,14 @@ async function handleRequest(
           "Sign in with a browser session before renewing.",
         );
       }
-      requireApproved(account);
+      await requireProject42Authorization(
+        account,
+        repository,
+        "session:establish",
+        request,
+        requestId,
+        now,
+      );
       const replacementToken = randomBase64Url(48);
       const replacement = await repository.rotateBrowserSession({
         session: browserSession,
@@ -9394,9 +9596,21 @@ async function handleRequest(
       );
       return response;
     }
+    if (
+      url.pathname === "/v1/admin" ||
+      url.pathname.startsWith("/v1/admin/")
+    ) {
+      await requireOwner(account, repository, request, requestId, now);
+    }
     if (url.pathname === "/v1/me" || url.pathname.startsWith("/v1/me/")) {
       await requireSelfScope(account, repository, request, requestId, now);
-      authorizeSelfServiceRoute(account, request);
+      await authorizeSelfServiceRoute(
+        account,
+        repository,
+        request,
+        requestId,
+        now,
+      );
     }
     if (request.method === "GET" && url.pathname === "/v1/me") {
       return json(

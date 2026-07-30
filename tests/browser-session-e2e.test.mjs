@@ -236,6 +236,72 @@ test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", asyn
   assert.equal(session.headers.get("access-control-allow-credentials"), "true");
   assert.equal((await session.json()).account.displayName, "Browser Learner");
 
+  await database
+    .prepare(
+      `DELETE FROM role_assignments
+        WHERE installation_id = ? AND user_id = (
+          SELECT user_id
+            FROM user_identities
+           WHERE installation_id = ? AND issuer = ? AND subject = ?
+        )`,
+    )
+    .bind(
+      env.INSTALLATION_ID,
+      env.INSTALLATION_ID,
+      env.OIDC_ISSUER,
+      "browser-learner",
+    )
+    .run();
+  const staleRoleSession = await api(
+    new Request("https://api.example.test/v1/me/profile", {
+      headers: {
+        cookie: sessionCookie,
+        origin: "https://learn.example.test",
+      },
+    }),
+  );
+  assert.equal(staleRoleSession.status, 403);
+  assert.equal(
+    (await staleRoleSession.json()).error.code,
+    "role_assignment_invalid",
+  );
+  await database
+    .prepare(
+      `INSERT INTO role_assignments (
+         installation_id, user_id, role, assigned_by_user_id, assigned_at
+       )
+       SELECT ?, user_id, ?, user_id, ?
+         FROM user_identities
+        WHERE installation_id = ? AND issuer = ? AND subject = ?`,
+    )
+    .bind(
+      env.INSTALLATION_ID,
+      "learner",
+      new Date().toISOString(),
+      env.INSTALLATION_ID,
+      env.OIDC_ISSUER,
+      "browser-learner",
+    )
+    .run();
+  await database
+    .prepare(
+      `INSERT INTO role_assignments (
+         installation_id, user_id, role, assigned_by_user_id, assigned_at
+       )
+       SELECT ?, user_id, ?, user_id, ?
+         FROM user_identities
+        WHERE installation_id = ? AND issuer = ? AND subject = ?`,
+    )
+    .bind(
+      env.INSTALLATION_ID,
+      "owner",
+      new Date().toISOString(),
+      env.INSTALLATION_ID,
+      env.OIDC_ISSUER,
+      "browser-learner",
+    )
+    .run();
+
   const originlessRenewal = await api(
     new Request("https://api.example.test/v1/auth/renew", {
       method: "POST",

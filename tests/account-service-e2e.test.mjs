@@ -164,6 +164,35 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   assert.equal(owner.state, "approved");
   assert.deepEqual(new Set(owner.roles), new Set(["learner", "owner"]));
 
+  await database
+    .prepare(
+      "DELETE FROM role_assignments WHERE installation_id = ? AND user_id = ?",
+    )
+    .bind(env.INSTALLATION_ID, owner.id)
+    .run();
+  const staleBearerRole = await api("owner-token", "/v1/me/profile");
+  assert.equal(staleBearerRole.status, 403);
+  assert.equal(
+    (await readBody(staleBearerRole)).error.code,
+    "role_assignment_invalid",
+  );
+  for (const role of ["learner", "owner"]) {
+    await database
+      .prepare(
+        `INSERT INTO role_assignments (
+           installation_id, user_id, role, assigned_by_user_id, assigned_at
+         ) VALUES (?, ?, ?, ?, ?)`,
+      )
+      .bind(
+        env.INSTALLATION_ID,
+        owner.id,
+        role,
+        owner.id,
+        new Date().toISOString(),
+      )
+      .run();
+  }
+
   const unavailableNotificationDispatch = await api(
     "owner-token",
     "/v1/admin/notifications/dispatch",
@@ -1361,6 +1390,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     "deletion.complete",
     "data.transcript.export",
     "authorization.owner.denied",
+    "authorization.role.denied",
     "authorization.self-scope.denied",
   ]) {
     assert.ok(events.some((event) => event.action === action), `missing ${action}`);
@@ -1371,6 +1401,15 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
         event.action === "authorization.owner.denied" &&
         event.outcome === "denied" &&
         event.targetType === "admin_route",
+    ),
+  );
+  assert.ok(
+    events.some(
+      (event) =>
+        event.action === "authorization.role.denied" &&
+        event.outcome === "denied" &&
+        event.metadata.denialCode === "role_assignment_invalid" &&
+        !JSON.stringify(event.metadata).includes("owner@example.test"),
     ),
   );
   assert.equal(
