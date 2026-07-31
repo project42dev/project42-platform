@@ -10,14 +10,28 @@ import {
   validateLearnerDataPolicy,
 } from "../dist/index.js";
 
-test("publishes a valid, versioned, pre-account learner-data policy", () => {
+test("publishes a valid, versioned learner-data policy", () => {
   assert.deepEqual(validateLearnerDataPolicy(defaultLearnerDataPolicy), {
     valid: true,
     errors: [],
   });
   assert.equal(defaultLearnerDataPolicy.schemaVersion, 1);
   assert.equal(defaultLearnerDataPolicy.policyVersion, "2026-07-27");
-  assert.equal(defaultLearnerDataPolicy.accountBackedRecords, "planned");
+  // AB#6425: the durable account-backed record contract is released, so the
+  // policy must report the shipped capability rather than "planned". Whether a
+  // given deployment has an account service configured is a separate, runtime
+  // concern - the notice must stay neutral about that.
+  assert.equal(defaultLearnerDataPolicy.accountBackedRecords, "available");
+  assert.doesNotMatch(
+    defaultLearnerDataPolicy.currentStorageNotice,
+    /not enabled yet/i,
+    "the notice must not contradict the released capability",
+  );
+  assert.match(
+    defaultLearnerDataPolicy.currentStorageNotice,
+    /configur/i,
+    "the notice must tell an unconfigured distribution that records require configuration",
+  );
   assert.equal(defaultLearnerDataPolicy.identity.authoritativeKey, "issuer-subject");
   assert.equal(defaultLearnerDataPolicy.identity.emailIsAuthoritative, false);
   assert.equal(defaultLearnerDataPolicy.adapters.hostedRecordStore, "cloudflare-d1");

@@ -232,9 +232,16 @@ export const defaultLearnerDataPolicy: LearnerDataPolicyV1 = {
   policyId: "project42-learner-data",
   policyVersion: LEARNER_DATA_POLICY_VERSION,
   effectiveDate: "2026-07-27",
-  accountBackedRecords: "planned",
+  // AB#6425: this states what the released software supports, not what any one
+  // deployment has switched on. The durable account-backed record contract is
+  // released, so reporting "planned" understated the shipped capability. Whether
+  // a given distribution actually stores account-backed records depends on it
+  // configuring an account service, which the notice below and the rendered
+  // learner-data page describe - keeping self-hosted and unconfigured
+  // distributions provider-neutral.
+  accountBackedRecords: "available",
   currentStorageNotice:
-    "Project 42 currently keeps learner progress in this browser. Account-backed cross-device records are not enabled yet.",
+    "Project 42 keeps learner progress in this browser. A deployment that configures an account service also stores approved learner records durably across devices; without that configuration only browser-local progress is kept.",
   identity: {
     protocol: "openid-connect-authorization-code-pkce",
     authoritativeKey: "issuer-subject",
