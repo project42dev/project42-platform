@@ -70,9 +70,18 @@ export function normalizeExactDomain(value: string): string {
 export function getVerifiedEmailDomain(
   identity: Pick<VerifiedIdentity, "email" | "emailVerified">,
 ): string | null {
-  if (!identity.emailVerified || !identity.email) return null;
-  const at = identity.email.lastIndexOf("@");
-  if (at <= 0 || at === identity.email.length - 1) return null;
+  // Strict boolean, not truthiness: verification decides automatic approval, so
+  // a claim that merely looks affirmative - the string "true", 1, a non-empty
+  // object decoded from a token or a restored record - must not count as a
+  // signed verification (AB#5782).
+  if (identity.emailVerified !== true) return null;
+  if (typeof identity.email !== "string" || !identity.email) return null;
+  const at = identity.email.indexOf("@");
+  // Exactly one separator. Taking the last "@" would resolve a malformed
+  // address such as "learner@@example.com" - or "learner@corp@attacker.test" -
+  // to a domain the address does not legitimately belong to.
+  if (at <= 0 || at !== identity.email.lastIndexOf("@")) return null;
+  if (at === identity.email.length - 1) return null;
   try {
     return normalizeExactDomain(identity.email.slice(at + 1));
   } catch {

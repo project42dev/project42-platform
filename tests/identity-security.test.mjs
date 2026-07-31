@@ -960,3 +960,83 @@ test("data-rights routes require recent authentication and explicit deletion con
     "recent_authentication_required",
   );
 });
+
+test("look-alike, internationalized, and malformed domains cannot reach an exact match", () => {
+  // AB#5782 requires that only an exact, normalized, provider-verified domain
+  // can trigger automatic approval. These are the shapes an attacker controls.
+
+  // Unicode look-alikes must never normalize onto the ASCII domain they mimic.
+  // URL parsing punycodes them, so the round-trip equality check rejects them
+  // rather than silently matching.
+  for (const homoglyph of [
+    "exampłe.com",
+    "exämple.com",
+    "еxample.com", // Cyrillic е
+    "example.cоm", // Cyrillic о
+  ]) {
+    assert.throws(
+      () => normalizeExactDomain(homoglyph),
+      /valid normalized DNS name|not a valid DNS name/,
+      `${homoglyph} must not normalize to an ASCII domain`,
+    );
+    assert.equal(
+      getVerifiedEmailDomain({
+        email: `learner@${homoglyph}`,
+        emailVerified: true,
+      }),
+      null,
+      `${homoglyph} must not yield a matchable domain`,
+    );
+  }
+
+  // An already-punycoded label is a distinct domain and must not match the
+  // ASCII spelling it renders as.
+  assert.equal(exactDomainMatches("xn--exmple-cua.com", "example.com"), false);
+
+  // Subdomain, suffix, and prefix confusion.
+  assert.equal(exactDomainMatches("example.com.evil.test", "example.com"), false);
+  assert.equal(exactDomainMatches("notexample.com", "example.com"), false);
+  assert.equal(exactDomainMatches("example.company", "example.com"), false);
+
+  // A trailing root dot is the same DNS name and must normalize onto it, so a
+  // rule cannot be bypassed by appending one.
+  assert.equal(exactDomainMatches("example.com.", "example.com"), true);
+
+  // Structurally invalid or injection-shaped values fail closed.
+  for (const malformed of [
+    "",
+    " ",
+    "example .com",
+    "example.com:443",
+    "example.com/path",
+    "exa mple.com",
+    "..example.com",
+    "example..com",
+    `${"a".repeat(64)}.example.com`,
+  ]) {
+    assert.throws(
+      () => normalizeExactDomain(malformed),
+      undefined,
+      `${JSON.stringify(malformed)} must be rejected`,
+    );
+  }
+
+  // A verified claim that is not a strict boolean true must not count as
+  // verification, so a string "true" cannot bypass approval.
+  for (const emailVerified of ["true", 1, {}, null, undefined]) {
+    assert.equal(
+      getVerifiedEmailDomain({ email: "learner@example.com", emailVerified }),
+      null,
+      `emailVerified=${JSON.stringify(emailVerified)} must not verify`,
+    );
+  }
+
+  // Malformed addresses cannot produce a domain.
+  for (const email of ["learner", "@example.com", "learner@", "learner@@example.com"]) {
+    assert.equal(
+      getVerifiedEmailDomain({ email, emailVerified: true }),
+      null,
+      `${email} must not yield a domain`,
+    );
+  }
+});
