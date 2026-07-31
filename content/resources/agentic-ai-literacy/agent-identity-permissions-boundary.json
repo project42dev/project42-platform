@@ -1,0 +1,82 @@
+{
+  "id": "agent-identity-permissions-boundary",
+  "slug": "agent-identity-permissions-boundary",
+  "title": "Agent Identity and Permissions Boundary",
+  "summary": "Map every agent, runtime, user, tool, and downstream service to explicit identities, permissions, approvals, and auditable effects.",
+  "category": "Agentic AI literacy",
+  "format": "checklist",
+  "audience": ["developer", "operator", "leader"],
+  "level": "advanced",
+  "providers": ["provider-neutral"],
+  "prerequisites": [
+    "An inventory of actors, tools, data stores, networks, and external systems",
+    "A defined authorization and audit system of record"
+  ],
+  "owner": "project42-editorial",
+  "reviewCadenceDays": 60,
+  "lastVerified": "2026-07-27",
+  "tags": ["agentic-ai", "identity", "permissions", "authorization", "audit"],
+  "relatedLearningStages": ["locate-tools-state-and-authority"],
+  "accessibility": {
+    "plainLanguageSummary": "Know which identity acts, what it may do, who approved it, and how to revoke it.",
+    "nonColorCues": "Permission states use allowed, denied, approval-required, and unknown text labels.",
+    "reducedMotionAlternative": "Render the actor-to-action map as a static table."
+  },
+  "sections": [
+    {
+      "id": "map-actors",
+      "title": "Map identity across the complete system",
+      "paragraphs": [
+        "Distinguish the human requester, interactive client, model endpoint, agent runtime, tool adapter, workload identity, delegated user identity, downstream service, reviewer, and emergency operator. A model name is not an execution identity.",
+        "For each actor, record authentication method, token audience, allowed actions, resource scope, data boundary, lifetime, delegation, and audit owner. Avoid shared credentials that make two actors indistinguishable."
+      ]
+    },
+    {
+      "id": "enforce-permissions",
+      "title": "Enforce least privilege and fresh approval",
+      "paragraphs": [
+        "Validate tool arguments and resource targets before execution. Bind consequential operations to scoped identities and explicit approval immediately before the effect. Treat retrieved instructions, tool output, memory, and model text as untrusted data rather than authorization.",
+        "Test denied paths, confused-deputy cases, cross-user access, stale tokens, replayed approvals, and attempts to widen scope through tool parameters or downstream delegation."
+      ],
+      "code": {
+        "language": "text",
+        "label": "Identity and permission boundary record",
+        "code": "Task: [BOUNDED AGENT OPERATION]\nScope: [ACTORS, SYSTEMS, RESOURCES, DATA CLASSES, AND TENANCY]\nPermissions: [ACTOR -> ACTION -> RESOURCE -> CONDITION -> EXPIRY]\nEvidence: [AUTHENTICATION, AUTHORIZATION, APPROVAL, EXECUTION, AND AUDIT RECORDS]\nAuthority: [REQUESTER, APPROVER, EXECUTION IDENTITY, RISK OWNER, AND REVOKER]\nDenied cases: [CROSS-USER, STALE TOKEN, REPLAY, PARAMETER ESCALATION, AND UNTRUSTED INSTRUCTION]\nStop conditions: [UNKNOWN ACTOR, AUDIENCE MISMATCH, EXCESS PRIVILEGE, OR MISSING AUDIT]\nVerification: [TEST ALLOW/DENY MATRIX AND TRACE ONE EFFECT TO ONE IDENTITY]\nRecovery: [REVOKE CREDENTIALS, STOP TOOLS, ROTATE IF NEEDED, AND RECONCILE EFFECTS]"
+      }
+    },
+    {
+      "id": "expected-evidence",
+      "title": "Expected evidence and verification",
+      "paragraphs": [
+        "Expected evidence includes an actor map, allow-and-deny matrix, short-lived credential configuration, approval policy, parameter validation, audit correlation, revocation procedure, and negative-test results.",
+        "Verify that every external effect maps to exactly one authenticated execution identity and one valid authorization decision. Stop when ownership or audit correlation is ambiguous. Recover by revoking before repairing data or replaying work."
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "title": "Agents in the OpenAI Agents SDK",
+      "url": "https://openai.github.io/openai-agents-js/guides/agents/",
+      "publisher": "OpenAI",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "How Claude Code works",
+      "url": "https://code.claude.com/docs/en/how-claude-code-works",
+      "publisher": "Anthropic",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Agents in Agent Development Kit",
+      "url": "https://adk.dev/agents/",
+      "publisher": "Google",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "What is Microsoft Foundry Agent Service?",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/overview",
+      "publisher": "Microsoft",
+      "lastVerified": "2026-07-27"
+    }
+  ]
+}

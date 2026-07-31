@@ -1,0 +1,82 @@
+{
+  "id": "agentic-autonomy-boundary-decision",
+  "slug": "agentic-autonomy-boundary-decision",
+  "title": "Agentic Autonomy Boundary Decision",
+  "summary": "Choose the smallest safe autonomy envelope by separating proposed actions, executable authority, approvals, budgets, exits, and accountable human control.",
+  "category": "Agentic AI literacy",
+  "format": "decision-path",
+  "audience": ["practitioner", "developer", "operator", "leader"],
+  "level": "intermediate",
+  "providers": ["provider-neutral"],
+  "prerequisites": [
+    "A bounded goal with measurable completion and non-goals",
+    "An inventory of tools, data, identities, side effects, and human approvers"
+  ],
+  "owner": "project42-editorial",
+  "reviewCadenceDays": 60,
+  "lastVerified": "2026-07-27",
+  "tags": ["agentic-ai", "autonomy", "authority", "approval", "least-privilege"],
+  "relatedLearningStages": ["classify-control-flow", "locate-tools-state-and-authority"],
+  "accessibility": {
+    "plainLanguageSummary": "Grant only the actions, time, cost, and data access needed for one bounded goal.",
+    "nonColorCues": "Authority levels are numbered and named, with explicit allowed and prohibited actions.",
+    "reducedMotionAlternative": "Show the authority ladder and approval gates as a static table."
+  },
+  "sections": [
+    {
+      "id": "separate-choice-from-power",
+      "title": "Separate model choice from executable power",
+      "paragraphs": [
+        "A model can recommend a next step without having permission to execute it. The runtime, identity, tool adapter, policy, and approval system determine whether a proposal becomes an effect. Treat that boundary as enforceable code and identity configuration, not a prompt promise.",
+        "Begin with read-only observation, bounded computation, and reversible drafts. Add external writes, financial effects, destructive operations, privileged data, or downstream delegation only when a named risk owner accepts specific controls and independent postcondition checks."
+      ]
+    },
+    {
+      "id": "choose-envelope",
+      "title": "Choose and enforce the autonomy envelope",
+      "paragraphs": [
+        "Define allowed tools, resources, arguments, data classes, destinations, cost, elapsed time, step count, retry count, concurrency, and approval gates. State prohibited actions explicitly. Bind execution to least-privilege identities and short-lived authorization rather than sharing broad user credentials.",
+        "Require an approval immediately before a consequential action, using the exact proposed target and effect. Approval of a goal is not blanket approval of every future tool call. Expired, changed, ambiguous, or replayed approvals fail closed."
+      ],
+      "code": {
+        "language": "text",
+        "label": "Autonomy envelope record",
+        "code": "Task: [BOUNDED GOAL AND COMPLETION CONDITION]\nScope: [ALLOWED SYSTEMS, DATA, DESTINATIONS, AND NON-GOALS]\nPermissions: [READ/WRITE ACTIONS, LEAST-PRIVILEGE IDENTITY, AND EXPIRY]\nEvidence: [PROPOSED ACTION, APPROVAL, EXECUTION RESULT, AND POSTCONDITION]\nAuthority: [RISK OWNER, APPROVER, EXECUTOR, AND EMERGENCY STOP OWNER]\nBudgets: [STEPS, RETRIES, TIME, COST, CONCURRENCY, AND DATA VOLUME]\nStop conditions: [BUDGET, AMBIGUITY, POLICY DENIAL, NON-PROGRESS, OR UNVERIFIED EFFECT]\nVerification: [INDEPENDENTLY CHECK TARGET, EFFECT, AUDIT EVENT, AND REMAINING AUTHORITY]\nRecovery: [REVOKE ACCESS, STOP NEW WORK, RECONCILE EFFECTS, AND RESTORE OR ESCALATE]"
+      }
+    },
+    {
+      "id": "expected-evidence",
+      "title": "Expected evidence and verification",
+      "paragraphs": [
+        "Expected evidence includes a permission matrix, executable policy, approval record, budget counters, identity and tool logs, postcondition checks, denial tests, and emergency-stop ownership. Prompts alone are not authority controls.",
+        "Verify at least one allowed action, one denied action, one expired approval, one budget exit, and one attempted privilege escalation. Stop if the runtime cannot prove what identity performed an effect. Recover by revoking authority before reconciling external state."
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "title": "Building effective agents",
+      "url": "https://www.anthropic.com/engineering/building-effective-agents",
+      "publisher": "Anthropic",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Agents in the OpenAI Agents SDK",
+      "url": "https://openai.github.io/openai-agents-js/guides/agents/",
+      "publisher": "OpenAI",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Agents in Agent Development Kit",
+      "url": "https://adk.dev/agents/",
+      "publisher": "Google",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "What is Microsoft Foundry Agent Service?",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/overview",
+      "publisher": "Microsoft",
+      "lastVerified": "2026-07-27"
+    }
+  ]
+}

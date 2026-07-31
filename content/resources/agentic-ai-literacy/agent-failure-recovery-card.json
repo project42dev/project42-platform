@@ -1,0 +1,82 @@
+{
+  "id": "agent-failure-recovery-card",
+  "slug": "agent-failure-recovery-card",
+  "title": "Agent Failure, Stop, and Recovery Card",
+  "summary": "Design explicit exits and reconciliation for non-progress, tool failure, partial effects, timeouts, stale state, unsafe instructions, and unavailable humans.",
+  "category": "Agentic AI literacy",
+  "format": "playbook",
+  "audience": ["developer", "operator", "leader"],
+  "level": "advanced",
+  "providers": ["provider-neutral"],
+  "prerequisites": [
+    "A bounded run contract with observable state and postconditions",
+    "Named incident, data, security, and business recovery owners"
+  ],
+  "owner": "project42-editorial",
+  "reviewCadenceDays": 60,
+  "lastVerified": "2026-07-27",
+  "tags": ["agentic-ai", "failure", "recovery", "incident-response", "reconciliation"],
+  "relatedLearningStages": ["locate-tools-state-and-authority", "justify-system-classification"],
+  "accessibility": {
+    "plainLanguageSummary": "Stop new work, find what actually changed, restore a known-good state, and verify before resuming.",
+    "nonColorCues": "Incident phases are numbered detect, contain, reconcile, recover, verify, and learn.",
+    "reducedMotionAlternative": "Display the entire incident sequence as a static runbook."
+  },
+  "sections": [
+    {
+      "id": "declare-failures",
+      "title": "Declare failures before the run",
+      "paragraphs": [
+        "Define completion, non-progress, repeated action, budget exhaustion, policy denial, malformed tool output, untrusted instructions, stale state, timeout, human unavailability, and postcondition mismatch. A loop that merely stops producing errors is not necessarily complete.",
+        "Distinguish failure before an effect, uncertain execution, confirmed partial effect, and confirmed completed effect. Retrying an uncertain write without an idempotency or reconciliation strategy can make the incident worse."
+      ]
+    },
+    {
+      "id": "recover-in-order",
+      "title": "Recover in a controlled order",
+      "paragraphs": [
+        "First stop admission and revoke or pause tool authority. Preserve logs, approvals, request identifiers, checkpoints, and external-system evidence. Query the system of record to determine what happened instead of asking the model to remember.",
+        "Reconcile each effect, compensate or restore where authorized, verify postconditions independently, and require a human release decision before resuming. Update fixtures and controls from the failure without erasing the original evidence."
+      ],
+      "code": {
+        "language": "text",
+        "label": "Agent failure and recovery record",
+        "code": "Task: [FAILED OR UNCERTAIN AGENT RUN]\nScope: [RUN, TOOLS, IDENTITIES, STATE, EXTERNAL EFFECTS, AND AFFECTED USERS]\nPermissions: [INCIDENT READ, CONTAINMENT, COMPENSATION, RESTORE, AND RESUME AUTHORITY]\nEvidence: [TIMELINE, REQUEST IDS, APPROVALS, TOOL RESULTS, SYSTEM-OF-RECORD STATE, AND GAPS]\nAuthority: [INCIDENT COMMANDER, SECURITY/DATA OWNER, BUSINESS OWNER, AND RESUME APPROVER]\nFailure class: [BEFORE EFFECT | UNCERTAIN | PARTIAL | COMPLETE BUT INVALID]\nStop conditions: [NEW WORK, REPEATED EFFECT, EVIDENCE LOSS, OR UNAUTHORIZED RECOVERY]\nVerification: [RECONCILE EVERY EFFECT AND INDEPENDENTLY CHECK RESTORED POSTCONDITIONS]\nRecovery: [CONTAIN, REVOKE, RECONCILE, COMPENSATE/RESTORE, VERIFY, AND APPROVE RESUME]"
+      }
+    },
+    {
+      "id": "expected-evidence",
+      "title": "Expected evidence and verification",
+      "paragraphs": [
+        "Expected evidence includes detection time, containment action, authority revocation, preserved trajectory, external-system reconciliation, recovery action, independent verification, residual impact, and accountable resume decision.",
+        "Exercise at least timeout-before-write, timeout-after-write, duplicate request, stale checkpoint, unavailable approver, and malicious tool-output cases. Stop if recovery depends on unverified model narration. Recover from systems of record and immutable evidence."
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "title": "Building effective agents",
+      "url": "https://www.anthropic.com/engineering/building-effective-agents",
+      "publisher": "Anthropic",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Unrolling the Codex agent loop",
+      "url": "https://openai.com/index/unrolling-the-codex-agent-loop/",
+      "publisher": "OpenAI",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Agents in Agent Development Kit",
+      "url": "https://adk.dev/agents/",
+      "publisher": "Google",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "What is Microsoft Foundry Agent Service?",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/overview",
+      "publisher": "Microsoft",
+      "lastVerified": "2026-07-27"
+    }
+  ]
+}

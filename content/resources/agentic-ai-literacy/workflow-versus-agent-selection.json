@@ -1,0 +1,82 @@
+{
+  "id": "workflow-versus-agent-selection",
+  "slug": "workflow-versus-agent-selection",
+  "title": "Deterministic Workflow Versus Agent Selection",
+  "summary": "Select a fixed workflow, single agent, or hybrid by measuring task variability, control needs, failure cost, and evidence quality rather than rewarding autonomy.",
+  "category": "Agentic AI literacy",
+  "format": "decision-path",
+  "audience": ["practitioner", "developer", "operator", "leader"],
+  "level": "intermediate",
+  "providers": ["provider-neutral"],
+  "prerequisites": [
+    "A representative task set with success and failure criteria",
+    "A known deterministic baseline or a reason one cannot satisfy the task"
+  ],
+  "owner": "project42-editorial",
+  "reviewCadenceDays": 60,
+  "lastVerified": "2026-07-27",
+  "tags": ["agentic-ai", "workflow", "agent", "architecture", "evaluation"],
+  "relatedLearningStages": ["classify-control-flow", "justify-system-classification"],
+  "accessibility": {
+    "plainLanguageSummary": "Use fixed code when the route is known; add model-directed choice only when measured variability requires it.",
+    "nonColorCues": "Options are labeled fixed, hybrid, and agentic with written selection gates.",
+    "reducedMotionAlternative": "Present the comparison as a static decision table and ordered checklist."
+  },
+  "sections": [
+    {
+      "id": "start-with-baseline",
+      "title": "Start with the least-complex sufficient baseline",
+      "paragraphs": [
+        "Use a deterministic workflow when inputs, transitions, validations, and recovery paths can be stated in code. A model can still perform bounded extraction, classification, or generation inside that workflow without controlling the route.",
+        "Consider an agent when the task requires adapting the next action from incomplete observations, tool feedback, or changing conditions and when that benefit can be measured. Do not use an agent merely because the task has many steps or because a provider calls a feature agentic."
+      ]
+    },
+    {
+      "id": "compare-equivalent-designs",
+      "title": "Compare equivalent designs",
+      "paragraphs": [
+        "Evaluate the same cases, tools, permissions, state, budgets, and output contract across fixed, hybrid, and agentic designs. Compare task success, critical failures, reproducibility, side effects, human effort, latency, cost, recovery, and audit completeness.",
+        "Select the simplest design that passes every critical gate. If an agent improves average quality but increases unbounded effects or unrecoverable failures, redesign the authority boundary instead of accepting the aggregate score."
+      ],
+      "code": {
+        "language": "text",
+        "label": "Workflow-versus-agent decision record",
+        "code": "Task: [REPRESENTATIVE TASK SET AND REQUIRED OUTCOME]\nScope: [INPUTS, TOOLS, DATA, OUTPUTS, AND NON-GOALS]\nPermissions: [IDENTICAL AUTHORITY ENVELOPE FOR EACH CANDIDATE]\nEvidence: [FIXED, HYBRID, AND AGENTIC RESULTS ON THE SAME CASES]\nAuthority: [DESIGN OWNER, RISK OWNER, AND FINAL HUMAN DECIDER]\nSelection rule: [LEAST-COMPLEX DESIGN THAT PASSES ALL CRITICAL GATES]\nStop conditions: [NO BASELINE, INCOMPARABLE TESTS, CRITICAL FAILURE, OR UNOWNED RECOVERY]\nVerification: [REPLAY CASES, CHECK SIDE EFFECTS, AND INDEPENDENTLY CONFIRM THE WINNER]\nRecovery: [REVERT TO THE LAST PASSING DESIGN AND PRESERVE FAILED TRAJECTORIES]"
+      }
+    },
+    {
+      "id": "expected-evidence",
+      "title": "Expected evidence and verification",
+      "paragraphs": [
+        "Expected evidence includes the baseline, representative and adversarial cases, equivalent permissions, per-case trajectories, critical gates, aggregate measures, operating cost, human-review burden, and a signed selection decision.",
+        "Verify repeatability and recovery, not only answer quality. Stop when tests are not comparable or the proposed design cannot reconcile partial effects. Recover by returning traffic to the last known-good design and retaining evidence for redesign."
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "title": "Building effective agents",
+      "url": "https://www.anthropic.com/engineering/building-effective-agents",
+      "publisher": "Anthropic",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Unrolling the Codex agent loop",
+      "url": "https://openai.com/index/unrolling-the-codex-agent-loop/",
+      "publisher": "OpenAI",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Agents in Agent Development Kit",
+      "url": "https://adk.dev/agents/",
+      "publisher": "Google",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "What is Microsoft Foundry Agent Service?",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/overview",
+      "publisher": "Microsoft",
+      "lastVerified": "2026-07-27"
+    }
+  ]
+}

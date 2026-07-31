@@ -1,0 +1,82 @@
+{
+  "id": "agentic-ai-one-minute-decision-card",
+  "slug": "agentic-ai-one-minute-decision-card",
+  "title": "Is This Agentic AI? One-Minute Decision Card",
+  "summary": "Classify an exact AI experience by observable control flow instead of a provider, model, assistant, copilot, or agent label.",
+  "category": "Agentic AI literacy",
+  "format": "decision-path",
+  "audience": ["learner", "practitioner", "developer", "leader", "educator"],
+  "level": "beginner",
+  "providers": ["provider-neutral"],
+  "prerequisites": [
+    "Name the exact product surface, version, configuration, and observed run",
+    "Separate the model from the interface, tools, state, policy, and runtime"
+  ],
+  "owner": "project42-editorial",
+  "reviewCadenceDays": 60,
+  "lastVerified": "2026-07-27",
+  "tags": ["agentic-ai", "classification", "decision-card", "control-flow", "evidence"],
+  "relatedLearningStages": ["name-the-layers", "classify-control-flow"],
+  "accessibility": {
+    "plainLanguageSummary": "Ask who chooses the next step, who executes tools, what state persists, and who can stop the run.",
+    "nonColorCues": "Every outcome uses a class name and observable-signal list; color is never the only cue.",
+    "reducedMotionAlternative": "Present the complete decision tree as an ordered text list with no animated transitions."
+  },
+  "sections": [
+    {
+      "id": "freeze-the-unit",
+      "title": "Freeze the unit before naming the class",
+      "paragraphs": [
+        "Do not ask whether an entire provider or model family is agentic. Record the exact experience, version, configuration, tools, permissions, and observation date. The same model can appear in a one-call endpoint, a fixed workflow, or a tool-running agentic harness.",
+        "If the boundary is not observable, classify the claim as unknown. A product name, natural-language conversation, multiple turns, or a returned tool-call object does not prove execution, durable state, feedback, or autonomous continuation."
+      ]
+    },
+    {
+      "id": "follow-control-flow",
+      "title": "Follow the observable control flow",
+      "paragraphs": [
+        "A model maps supplied input to output. A deterministic workflow follows code-owned transitions. An agent has a bounded goal and model-directed next-step choice. An agentic system adds the runtime, tools, state, policy, telemetry, evaluation, recovery, and accountable people around one or more agents.",
+        "Ask five questions in order: who chooses the next step, who executes a proposed action, who owns durable state, who decides to stop or recover, and which human or deterministic control retains final authority."
+      ],
+      "code": {
+        "language": "text",
+        "label": "One-minute classification record",
+        "code": "Task: [CLASSIFY ONE EXACT EXPERIENCE]\nScope: [SURFACE, VERSION, CONFIGURATION, TOOLS, AND OBSERVATION DATE]\nPermissions: [READ, WRITE, NETWORK, DATA, AND APPROVAL BOUNDARIES]\nEvidence: [NEXT-STEP CONTROLLER, EXECUTOR, STATE, FEEDBACK, STOP, AND HUMAN CONTROL]\nAuthority: [WHO MAY APPROVE EFFECTS AND FINAL CLASSIFICATION]\nDecision: [MODEL | ASSISTANT | TOOL-CALLING MODEL | DETERMINISTIC WORKFLOW | AGENT | AGENTIC SYSTEM | MULTI-AGENT SYSTEM | UNKNOWN]\nStop conditions: [MISSING BOUNDARY, UNSUPPORTED CLAIM, OR UNVERIFIED SIDE EFFECT]\nVerification: [TRACE ONE RUN AND LINK EACH SIGNAL TO DOCUMENTED OR TESTED EVIDENCE]\nRecovery: [WITHDRAW THE CLAIM, PRESERVE UNKNOWN, AND REQUEST THE MISSING EVIDENCE]"
+      }
+    },
+    {
+      "id": "expected-evidence",
+      "title": "Expected evidence and verification",
+      "paragraphs": [
+        "Expected evidence is a dated system boundary, an observable transition trace, tool-execution and side-effect evidence, state ownership, stop and recovery behavior, and the accountable reviewer. Label each claim documented, tested, inferred, or unknown.",
+        "Verify the classification against at least one plausible neighboring class. Stop publication if a critical boundary is unknown or if a marketing label is doing the work of evidence. Recover by narrowing the claim to the exact behavior the evidence supports."
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "title": "Building effective agents",
+      "url": "https://www.anthropic.com/engineering/building-effective-agents",
+      "publisher": "Anthropic",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Agents in the OpenAI Agents SDK",
+      "url": "https://openai.github.io/openai-agents-js/guides/agents/",
+      "publisher": "OpenAI",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Agents in Agent Development Kit",
+      "url": "https://adk.dev/agents/",
+      "publisher": "Google",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "What is Microsoft Foundry Agent Service?",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/overview",
+      "publisher": "Microsoft",
+      "lastVerified": "2026-07-27"
+    }
+  ]
+}

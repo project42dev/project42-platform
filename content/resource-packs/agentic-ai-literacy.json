@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0",
+  "id": "agentic-ai-literacy",
+  "title": "Agentic AI decision cards and case studies",
+  "resourceRoots": ["agentic-ai-literacy"],
+  "resourceIds": [
+    "agentic-ai-one-minute-decision-card",
+    "agentic-autonomy-boundary-decision",
+    "workflow-versus-agent-selection",
+    "agent-identity-permissions-boundary",
+    "agent-state-memory-boundary",
+    "agentic-evaluation-evidence-card",
+    "agent-failure-recovery-card",
+    "single-versus-multi-agent-decision",
+    "agentic-ai-class-comparison-table",
+    "provider-experience-case-cards",
+    "agentic-claim-verification-checklist",
+    "agentic-ai-terms-and-misconceptions"
+  ],
+  "exactResourceCount": 12,
+  "requiredProviders": ["provider-neutral"],
+  "minimumSourcesPerResource": 3,
+  "requiredArtifactFields": [
+    "Task:",
+    "Scope:",
+    "Permissions:",
+    "Evidence:",
+    "Authority:",
+    "Stop conditions:",
+    "Verification:",
+    "Recovery:"
+  ],
+  "requiredGuidance": {
+    "verification": true,
+    "recovery": true,
+    "safeArtifacts": true
+  }
+}

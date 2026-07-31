@@ -1,0 +1,82 @@
+{
+  "id": "agent-state-memory-boundary",
+  "slug": "agent-state-memory-boundary",
+  "title": "Agent State and Memory Boundary",
+  "summary": "Decide what state an agent may read, write, retain, retrieve, summarize, expire, export, and delete without treating memory as trusted truth.",
+  "category": "Agentic AI literacy",
+  "format": "decision-path",
+  "audience": ["practitioner", "developer", "operator"],
+  "level": "advanced",
+  "providers": ["provider-neutral"],
+  "prerequisites": [
+    "A bounded run-state model and data classification",
+    "Named systems of record, retention owners, and deletion obligations"
+  ],
+  "owner": "project42-editorial",
+  "reviewCadenceDays": 60,
+  "lastVerified": "2026-07-27",
+  "tags": ["agentic-ai", "state", "memory", "retention", "privacy"],
+  "relatedLearningStages": ["locate-tools-state-and-authority"],
+  "accessibility": {
+    "plainLanguageSummary": "Separate current-run state, durable records, retrieved context, and generated summaries.",
+    "nonColorCues": "State classes are named transient, durable, retrieved, derived, and unknown.",
+    "reducedMotionAlternative": "Show the state lifecycle as a static ordered list from collection through deletion."
+  },
+  "sections": [
+    {
+      "id": "separate-state-classes",
+      "title": "Separate state, memory, and systems of record",
+      "paragraphs": [
+        "Current-run observations, conversation history, checkpoints, durable user records, vector retrieval, caches, generated summaries, and external systems of record have different authority and retention. Calling all of them memory hides where data came from and whether it remains current.",
+        "Every stored item needs a subject, provenance, purpose, sensitivity, owner, write authority, version, expiry, correction path, export behavior, and deletion behavior. Generated summaries remain derived claims and must not silently replace authoritative records."
+      ]
+    },
+    {
+      "id": "design-lifecycle",
+      "title": "Design a bounded state lifecycle",
+      "paragraphs": [
+        "Minimize collection and isolate tenants and users. Validate writes against a schema and authorization policy. Preserve idempotency and version checks where retries can duplicate or overwrite state. Mark retrieved or tool-produced content as untrusted input.",
+        "Define checkpoint, resume, conflict, expiry, correction, export, deletion, backup, and restore behavior. A resumed agent must know which external effects already happened instead of relying on a generated recollection."
+      ],
+      "code": {
+        "language": "text",
+        "label": "State and memory lifecycle record",
+        "code": "Task: [BOUNDED RUN OR USER JOURNEY]\nScope: [TRANSIENT STATE, DURABLE RECORDS, RETRIEVAL, CACHE, AND SYSTEMS OF RECORD]\nPermissions: [WHO MAY READ, APPEND, CORRECT, DELETE, EXPORT, AND RESTORE]\nEvidence: [PROVENANCE, VERSION, WRITE RESULT, RETENTION, AND DELETION RECORD]\nAuthority: [DATA OWNER, RECORD OWNER, PRIVACY OWNER, AND RECOVERY OWNER]\nRetention: [PURPOSE, EXPIRY, LEGAL HOLD, BACKUP, AND TOMBSTONE RULES]\nStop conditions: [UNKNOWN PROVENANCE, CROSS-SUBJECT ACCESS, VERSION CONFLICT, OR FAILED DELETION]\nVerification: [TEST ISOLATION, RETRY, RESUME, CONFLICT, EXPORT, DELETE, AND RESTORE]\nRecovery: [STOP WRITES, RECONCILE EFFECTS, RESTORE AUTHORIZED STATE, AND REVALIDATE]"
+      }
+    },
+    {
+      "id": "expected-evidence",
+      "title": "Expected evidence and verification",
+      "paragraphs": [
+        "Expected evidence includes a state inventory, provenance and schema rules, authorization tests, isolation tests, retention schedule, export and deletion results, checkpoint/retry traces, and restore evidence.",
+        "Verify a normal run, interrupted resume, duplicate retry, concurrent update, expired record, export, deletion, and restore. Stop if the agent cannot distinguish an authoritative record from derived context. Recover by freezing writes and reconciling the system of record first."
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "title": "Agents in the OpenAI Agents SDK",
+      "url": "https://openai.github.io/openai-agents-js/guides/agents/",
+      "publisher": "OpenAI",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "How Claude Code works",
+      "url": "https://code.claude.com/docs/en/how-claude-code-works",
+      "publisher": "Anthropic",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Agents in Agent Development Kit",
+      "url": "https://adk.dev/agents/",
+      "publisher": "Google",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "What is Microsoft Foundry Agent Service?",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/overview",
+      "publisher": "Microsoft",
+      "lastVerified": "2026-07-27"
+    }
+  ]
+}

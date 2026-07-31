@@ -1,0 +1,82 @@
+{
+  "id": "agentic-evaluation-evidence-card",
+  "slug": "agentic-evaluation-evidence-card",
+  "title": "Agentic System Evaluation Evidence Card",
+  "summary": "Evaluate outcomes, trajectories, tool effects, authority, recovery, cost, latency, and human effort across representative and adversarial cases.",
+  "category": "Agentic AI literacy",
+  "format": "checklist",
+  "audience": ["practitioner", "developer", "operator", "leader", "educator"],
+  "level": "advanced",
+  "providers": ["provider-neutral"],
+  "prerequisites": [
+    "A versioned system boundary and representative task set",
+    "Critical safety, authorization, reliability, and recovery gates"
+  ],
+  "owner": "project42-editorial",
+  "reviewCadenceDays": 60,
+  "lastVerified": "2026-07-27",
+  "tags": ["agentic-ai", "evaluation", "trajectory", "safety", "evidence"],
+  "relatedLearningStages": ["compare-product-experiences", "justify-system-classification"],
+  "accessibility": {
+    "plainLanguageSummary": "Score what happened, how it happened, what it changed, and whether it recovered safely.",
+    "nonColorCues": "Every gate uses pass, fail, blocked, or not-tested text plus evidence references.",
+    "reducedMotionAlternative": "Present trajectories as ordered event tables rather than animated traces."
+  },
+  "sections": [
+    {
+      "id": "evaluate-more-than-answer",
+      "title": "Evaluate more than the final answer",
+      "paragraphs": [
+        "A plausible final response can hide unauthorized tools, repeated non-progress, fabricated observations, duplicate effects, excessive cost, or recovery failure. Capture the trajectory: observations, model decisions, tool proposals, approvals, executions, results, state changes, checks, exits, and human interventions.",
+        "Separate task quality, factuality, policy compliance, authorization, side effects, postconditions, recovery, latency, cost, capacity, and reviewer effort. Critical failures remain blocking even when an average score is high."
+      ]
+    },
+    {
+      "id": "build-evaluation-set",
+      "title": "Build a versioned evaluation set",
+      "paragraphs": [
+        "Include representative tasks, boundary cases, untrusted tool output, stale data, denied permissions, timeouts before and after writes, duplicate callbacks, partial outages, non-progress, and recovery cases. Run the same set against the simplest credible baseline.",
+        "Record exact model, harness, prompts or policies, tools, permissions, data snapshot, evaluator, scoring rules, and environment. Automated judges can assist, but consequential dispositions require deterministic checks or accountable human review."
+      ],
+      "code": {
+        "language": "text",
+        "label": "Agentic evaluation evidence record",
+        "code": "Task: [VERSIONED REPRESENTATIVE AND ADVERSARIAL CASE SET]\nScope: [MODEL, HARNESS, TOOLS, STATE, POLICY, DATA, AND ENVIRONMENT]\nPermissions: [TEST AUTHORITY AND EFFECT ISOLATION]\nEvidence: [OUTCOME, TRAJECTORY, TOOL EFFECTS, POSTCONDITIONS, COST, LATENCY, AND HUMAN EFFORT]\nAuthority: [EVALUATION OWNER, RISK OWNER, AND FINAL HUMAN DISPOSITION]\nCritical gates: [AUTHORIZATION, DATA, SAFETY, DUPLICATE EFFECT, STOP, AND RECOVERY]\nStop conditions: [CRITICAL FAILURE, INVALID FIXTURE, EVIDENCE GAP, OR UNCONTAINED EFFECT]\nVerification: [REPLAY, INDEPENDENT CHECK, BASELINE COMPARISON, AND SCORE RECOMPUTATION]\nRecovery: [ISOLATE TEST EFFECTS, RESTORE FIXTURE, PRESERVE TRACE, AND BLOCK RELEASE]"
+      }
+    },
+    {
+      "id": "expected-evidence",
+      "title": "Expected evidence and verification",
+      "paragraphs": [
+        "Expected evidence includes versioned fixtures, exact-build metadata, per-case trajectories, deterministic postcondition checks, human-review notes, critical-gate results, baseline comparison, aggregate measures, and residual risks.",
+        "Verify score recomputation and at least one independent review. Stop release on any critical authorization, safety, effect, or recovery failure. Recover by containing test effects, preserving the failed trace, and reopening the design rather than editing the score."
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "title": "Building effective agents",
+      "url": "https://www.anthropic.com/engineering/building-effective-agents",
+      "publisher": "Anthropic",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Unrolling the Codex agent loop",
+      "url": "https://openai.com/index/unrolling-the-codex-agent-loop/",
+      "publisher": "OpenAI",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Agents in Agent Development Kit",
+      "url": "https://adk.dev/agents/",
+      "publisher": "Google",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "What is Microsoft Foundry Agent Service?",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/overview",
+      "publisher": "Microsoft",
+      "lastVerified": "2026-07-27"
+    }
+  ]
+}

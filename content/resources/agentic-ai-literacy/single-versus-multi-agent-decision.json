@@ -1,0 +1,82 @@
+{
+  "id": "single-versus-multi-agent-decision",
+  "slug": "single-versus-multi-agent-decision",
+  "title": "Single-Agent Versus Multi-Agent Decision",
+  "summary": "Add separately controlled agents and handoffs only when equivalent evidence shows necessary specialization, isolation, or parallel ownership.",
+  "category": "Agentic AI literacy",
+  "format": "decision-path",
+  "audience": ["practitioner", "developer", "operator", "leader"],
+  "level": "advanced",
+  "providers": ["provider-neutral"],
+  "prerequisites": [
+    "A passing deterministic or single-agent baseline",
+    "A measurable reason that one bounded controller cannot meet the requirement"
+  ],
+  "owner": "project42-editorial",
+  "reviewCadenceDays": 60,
+  "lastVerified": "2026-07-27",
+  "tags": ["agentic-ai", "single-agent", "multi-agent", "handoff", "orchestration"],
+  "relatedLearningStages": ["classify-control-flow", "justify-system-classification"],
+  "accessibility": {
+    "plainLanguageSummary": "Multiple model calls are not multiple agents; require distinct responsibilities and observable coordination.",
+    "nonColorCues": "Designs are labeled single controller, delegated specialists, and coordinated peers.",
+    "reducedMotionAlternative": "Show responsibilities and handoffs as a static responsibility matrix."
+  },
+  "sections": [
+    {
+      "id": "prove-multiple-agents",
+      "title": "Prove that multiple agents exist",
+      "paragraphs": [
+        "Multiple prompts, models, providers, parallel calls, or personas do not by themselves create a multi-agent system. Require separately instructed or controlled units with distinct responsibilities and observable delegation, coordination, or handoff contracts.",
+        "Record who owns the shared goal, which agent may act on which resources, what state is shared, how conflicts are resolved, how provenance survives handoff, and which controller decides completion."
+      ]
+    },
+    {
+      "id": "justify-coordination",
+      "title": "Justify coordination cost and failure modes",
+      "paragraphs": [
+        "Compare the multi-agent candidate with an equivalent single-agent design using the same cases and authority. Measure quality, critical errors, coordination overhead, duplicated work, latency, cost, traceability, recovery, and human-review effort.",
+        "Use multiple agents only when specialization, privilege isolation, independent checking, or parallel ownership produces necessary measured value. Prefer deterministic routing for known delegation rules."
+      ],
+      "code": {
+        "language": "text",
+        "label": "Single-versus-multi-agent decision record",
+        "code": "Task: [SHARED OUTCOME AND REPRESENTATIVE CASE SET]\nScope: [CANDIDATE AGENTS, RESPONSIBILITIES, TOOLS, STATE, AND HANDOFFS]\nPermissions: [PER-AGENT LEAST PRIVILEGE AND SHARED-RESOURCE RULES]\nEvidence: [SINGLE-AGENT AND MULTI-AGENT RESULTS ON EQUIVALENT CASES]\nAuthority: [ORCHESTRATOR OWNER, AGENT OWNERS, RISK OWNER, AND FINAL HUMAN]\nHandoff contract: [INPUT, PROVENANCE, ACCEPTANCE, TIMEOUT, REJECT, AND ESCALATION]\nStop conditions: [NO MEASURED BENEFIT, CONFLICT, LOST PROVENANCE, LOOP, OR UNOWNED EFFECT]\nVerification: [TRACE RESPONSIBILITY AND RECOMPUTE QUALITY, COST, AND RECOVERY RESULTS]\nRecovery: [STOP DELEGATION, RECONCILE SHARED STATE, AND FALL BACK TO LAST PASSING DESIGN]"
+      }
+    },
+    {
+      "id": "expected-evidence",
+      "title": "Expected evidence and verification",
+      "paragraphs": [
+        "Expected evidence includes distinct agent contracts, responsibility and permission matrices, handoff schemas, shared-state rules, equivalent baseline results, coordination measures, conflict tests, failure recovery, and a human selection decision.",
+        "Verify one successful handoff, rejected handoff, timeout, conflicting update, duplicate delegation, and agent outage. Stop when responsibility or provenance becomes ambiguous. Recover by disabling delegation and returning to the last passing simpler design."
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "title": "Building effective agents",
+      "url": "https://www.anthropic.com/engineering/building-effective-agents",
+      "publisher": "Anthropic",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Agents in the OpenAI Agents SDK",
+      "url": "https://openai.github.io/openai-agents-js/guides/agents/",
+      "publisher": "OpenAI",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Agents in Agent Development Kit",
+      "url": "https://adk.dev/agents/",
+      "publisher": "Google",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "What is Microsoft Foundry Agent Service?",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/overview",
+      "publisher": "Microsoft",
+      "lastVerified": "2026-07-27"
+    }
+  ]
+}
