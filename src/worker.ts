@@ -6332,6 +6332,7 @@ class D1Project42Repository {
       .prepare(
         `SELECT d.id, d.user_id, d.state, d.requested_at, d.cancellation_deadline,
                 d.status_token_digest,
+                u.account_state,
                 i.issuer, i.subject, p.photo_object_key,
                 EXISTS (
                   SELECT 1 FROM role_assignments r
@@ -6339,6 +6340,8 @@ class D1Project42Repository {
                      AND r.user_id = d.user_id AND r.role = 'owner'
                 ) AS is_owner
            FROM deletion_requests d
+           JOIN users u
+             ON u.installation_id = d.installation_id AND u.id = d.user_id
            JOIN user_identities i
              ON i.installation_id = d.installation_id AND i.user_id = d.user_id
             AND i.status = 'active' AND i.is_primary = 1
@@ -6355,6 +6358,7 @@ class D1Project42Repository {
         requested_at: string;
         cancellation_deadline: string;
         status_token_digest: string | null;
+        account_state: AccountState;
         issuer: string;
         subject: string;
         photo_object_key: string | null;
@@ -6529,6 +6533,16 @@ class D1Project42Repository {
           deletionRequestId: deletion.id,
           subjectDigest,
           identityCount: identityDigests.length,
+          // AB#5692 requires every account transition - deletion included - to
+          // record the prior and resulting state. Deletion removes the user row
+          // rather than moving account_state, so the prior state is captured
+          // here before it is destroyed and the result is recorded as the
+          // terminal "deleted" value. from/to match the shape used by
+          // changeAccountState so audit consumers can read them uniformly.
+          from: deletion.account_state,
+          to: "deleted",
+          deletionRequestFrom: deletion.state,
+          deletionRequestTo: "completed",
         },
         now: input.now,
       }),
