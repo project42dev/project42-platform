@@ -2205,8 +2205,11 @@ class D1Project42Repository {
       await this.db.batch([
         this.db
           .prepare(
+            // Same CHECK (revoked_at >= created_at) hazard as the account-state
+            // mass revoke: a stale request timestamp must not make revoking a
+            // session throw instead of revoking it.
             `UPDATE browser_sessions
-                SET revoked_at = ?
+                SET revoked_at = MAX(created_at, ?)
               WHERE id = ? AND installation_id = ? AND revoked_at IS NULL`,
           )
           .bind(now, row.id, this.installationId),
@@ -4776,8 +4779,14 @@ class D1Project42Repository {
         ? [
             this.db
               .prepare(
+                // Never earlier than the session existed. revoked_at carries a
+                // CHECK (revoked_at >= created_at); a session created after this
+                // request captured its timestamp would abort the whole batch, so
+                // an owner suspending or revoking an account would fail outright
+                // and the account would keep both its state and its sessions.
+                // Revocation must not be losable to a timestamp race.
                 `UPDATE browser_sessions
-                    SET revoked_at = ?
+                    SET revoked_at = MAX(created_at, ?)
                   WHERE installation_id = ? AND user_id = ?
                     AND revoked_at IS NULL`,
               )

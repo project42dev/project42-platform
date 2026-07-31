@@ -295,3 +295,120 @@ test("an enabled domain rule cannot auto-approve while automatic approval is dis
   );
   assert.equal(approved.state, "approved");
 });
+
+test("revoking access still succeeds when a session was created after the request timestamp", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-28",
+    d1Databases: { PROJECT42_DB: "project42-revocation-clock-skew" },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  await applyD1Migrations(database);
+
+  const installationId = "revocation-clock-skew";
+  const repository = new D1Project42Repository(database, installationId);
+  const now = "2026-07-31T12:00:00.000Z";
+  await repository.ensureInstallation(now);
+
+  const owner = await repository.createOrRefreshAccount(
+    {
+      provider: "oidc",
+      issuer: "https://identity.example.test",
+      subject: "owner",
+      email: "owner@example.test",
+      emailVerified: true,
+      displayName: "Owner",
+      authenticatedAt: 1785326400,
+    },
+    true,
+    "owner-registration",
+    now,
+  );
+  const learner = await repository.createOrRefreshAccount(
+    {
+      provider: "oidc",
+      issuer: "https://identity.example.test",
+      subject: "learner",
+      email: "learner@example.test",
+      emailVerified: true,
+      displayName: "Learner",
+      authenticatedAt: 1785326400,
+    },
+    false,
+    "learner-registration",
+    now,
+  );
+  const approved = await repository.changeAccountState({
+    actor: owner,
+    targetId: learner.id,
+    to: "approved",
+    reason: "Approve for the revocation fixture.",
+    requestId: "approve",
+    now,
+  });
+
+  // A live session whose created_at is LATER than the timestamp the revoking
+  // request will carry. browser_sessions has CHECK (revoked_at >= created_at),
+  // so writing the request timestamp directly aborts the batch and the owner's
+  // revocation fails outright - leaving the account approved and the session
+  // usable. Revocation must never be losable to a clock difference.
+  const laterThanRevocation = "2026-07-31T12:05:00.000Z";
+  await repository.createBrowserSession({
+    account: approved,
+    identity: {
+      provider: "oidc",
+      issuer: "https://identity.example.test",
+      subject: "learner",
+      email: "learner@example.test",
+      emailVerified: true,
+      displayName: "Learner",
+      authenticatedAt: 1785326400,
+    },
+    tokenDigest: "a".repeat(64),
+    requestId: "create-session",
+    now: laterThanRevocation,
+  });
+  const live = await database
+    .prepare(
+      "SELECT COUNT(*) AS count FROM browser_sessions WHERE installation_id = ? AND revoked_at IS NULL",
+    )
+    .bind(installationId)
+    .first();
+  assert.equal(Number(live.count), 1);
+
+  const revoked = await repository.changeAccountState({
+    actor: owner,
+    targetId: learner.id,
+    to: "revoked",
+    reason: "Revoke while a newer session exists.",
+    requestId: "revoke",
+    now,
+  });
+  assert.equal(revoked.state, "revoked");
+
+  const remaining = await database
+    .prepare(
+      "SELECT COUNT(*) AS count FROM browser_sessions WHERE installation_id = ? AND revoked_at IS NULL",
+    )
+    .bind(installationId)
+    .first();
+  assert.equal(
+    Number(remaining.count),
+    0,
+    "revocation must leave no usable session behind",
+  );
+
+  const stamped = await database
+    .prepare(
+      "SELECT created_at, revoked_at FROM browser_sessions WHERE installation_id = ?",
+    )
+    .bind(installationId)
+    .first();
+  assert.ok(
+    stamped.revoked_at >= stamped.created_at,
+    "revoked_at must never predate the session it revokes",
+  );
+});

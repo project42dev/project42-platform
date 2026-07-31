@@ -320,3 +320,116 @@ test(
     }
   },
 );
+
+test("concurrent state changes cannot open an authorization window", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-28",
+    d1Databases: { PROJECT42_DB: "project42-authorization-concurrency" },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  const migrations = (await readdir(new URL("../migrations/", import.meta.url)))
+    .filter((name) => name.endsWith(".sql"))
+    .sort();
+  for (const migration of migrations) {
+    const sql = await readFile(
+      new URL(`../migrations/${migration}`, import.meta.url),
+      "utf8",
+    );
+    await database.exec(sql.replace(/\r?\n/g, " "));
+  }
+
+  const { D1Project42Repository } = await import("../dist/worker.js");
+  const scope = "authorization-concurrency";
+  const repository = new D1Project42Repository(database, scope);
+  const now = "2026-07-31T12:00:00.000Z";
+  await repository.ensureInstallation(now);
+
+  const identity = (subject) => ({
+    provider: "oidc",
+    issuer: "https://issuer.example.test",
+    subject,
+    email: `${subject}@example.test`,
+    emailVerified: true,
+    displayName: subject,
+    authenticatedAt: 1785326400,
+  });
+
+  const owner = await repository.createOrRefreshAccount(
+    identity("owner"),
+    true,
+    "owner-bootstrap",
+    now,
+  );
+  const learner = await repository.createOrRefreshAccount(
+    identity("learner"),
+    false,
+    "learner-registration",
+    now,
+  );
+  const approved = await repository.changeAccountState({
+    actor: owner,
+    targetId: learner.id,
+    to: "approved",
+    reason: "Approve for the concurrency fixture.",
+    requestId: "approve",
+    now,
+  });
+  assert.equal(approved.state, "approved");
+
+  // Two owners act on the same account at the same instant, moving it to two
+  // different terminal-ish states. Exactly one may win. If both applied, the
+  // account could end up in a state neither owner authorized, and the audit
+  // trail would claim two conflicting transitions from the same prior state.
+  const results = await Promise.allSettled([
+    repository.changeAccountState({
+      actor: owner,
+      targetId: learner.id,
+      to: "suspended",
+      reason: "First concurrent owner decision.",
+      requestId: "concurrent-suspend",
+      now,
+    }),
+    repository.changeAccountState({
+      actor: owner,
+      targetId: learner.id,
+      to: "revoked",
+      reason: "Second concurrent owner decision.",
+      requestId: "concurrent-revoke",
+      now,
+    }),
+  ]);
+  const winners = results.filter((result) => result.status === "fulfilled");
+  assert.equal(winners.length, 1, "exactly one concurrent decision may commit");
+
+  const finalState = winners[0].value.state;
+  const stored = await database
+    .prepare("SELECT account_state FROM users WHERE installation_id = ? AND id = ?")
+    .bind(scope, learner.id)
+    .first();
+  assert.equal(stored.account_state, finalState);
+
+  // Exactly one transition away from approved is recorded - the losing decision
+  // must leave no decision row and no audit event behind.
+  const decisions = await database
+    .prepare(
+      `SELECT COUNT(*) AS count FROM approval_decisions
+        WHERE installation_id = ? AND user_id = ? AND from_state = 'approved'`,
+    )
+    .bind(scope, learner.id)
+    .first();
+  assert.equal(Number(decisions.count), 1);
+
+  // Neither outcome may leave the learner authorized: both suspended and
+  // revoked must deny learner data, so a lost update cannot silently preserve
+  // access.
+  assert.notEqual(finalState, "approved");
+  const decision = decide("self:profile:read", {
+    accountState: finalState,
+    roles: ["learner"],
+  });
+  assert.equal(decision.allowed, false);
+});

@@ -403,7 +403,19 @@ test(
   "large PostgreSQL fixtures choose the matching account and audit keyset indexes",
   { skip: !process.env.TEST_POSTGRES_URL },
   async () => {
-    const pool = new Pool({ connectionString: process.env.TEST_POSTGRES_URL });
+    // Own schema per run. Sharing the public schema lets other PostgreSQL tests
+    // leave rows behind, and the planner then stops choosing the keyset indexes
+    // this test exists to prove - a phantom failure that says nothing about the
+    // query plan under test.
+    const administrationPool = new Pool({
+      connectionString: process.env.TEST_POSTGRES_URL,
+    });
+    const schema = `pagination_${crypto.randomUUID().replaceAll("-", "")}`;
+    await administrationPool.query(`CREATE SCHEMA "${schema}"`);
+    const pool = new Pool({
+      connectionString: process.env.TEST_POSTGRES_URL,
+      options: `-c search_path=${schema}`,
+    });
     const client = await pool.connect();
     const nonce = crypto.randomUUID();
     const targetInstallation = `pagination-plan-target-${nonce}`;
@@ -595,6 +607,10 @@ test(
         )
         .catch(() => undefined);
       await pool.end();
+      await administrationPool
+        .query(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`)
+        .catch(() => undefined);
+      await administrationPool.end();
     }
   },
 );

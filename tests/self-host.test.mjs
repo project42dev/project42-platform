@@ -904,7 +904,19 @@ test(
   "PostgreSQL migrations and account repository operate together",
   { skip: !process.env.TEST_POSTGRES_URL },
   async () => {
-    const pool = new Pool({ connectionString: process.env.TEST_POSTGRES_URL });
+    // Own schema per run, matching the recovery-rehearsal test above. This test
+    // asserts exact row counts, so sharing the public schema with any other
+    // PostgreSQL test - or with a previous run against the same database - makes
+    // those counts report residue and fail for reasons unrelated to the contract.
+    const administrationPool = new Pool({
+      connectionString: process.env.TEST_POSTGRES_URL,
+    });
+    const schema = `selfhost_${crypto.randomUUID().replaceAll("-", "")}`;
+    await administrationPool.query(`CREATE SCHEMA "${schema}"`);
+    const pool = new Pool({
+      connectionString: process.env.TEST_POSTGRES_URL,
+      options: `-c search_path=${schema}`,
+    });
     try {
       const applied = await applyPostgresMigrations(pool, "self-host/postgres");
       const expectedMigrations = [
@@ -1476,6 +1488,10 @@ test(
       );
     } finally {
       await pool.end();
+      await administrationPool
+        .query(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`)
+        .catch(() => undefined);
+      await administrationPool.end();
     }
   },
 );
