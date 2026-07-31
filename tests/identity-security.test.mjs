@@ -504,6 +504,92 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
   );
 });
 
+test("JWKS key-resolution failures are classified as unavailable, not an invalid token (AB#6514)", async (t) => {
+  const { publicKey, privateKey } = await generateKeyPair("RS256");
+  let jwksResponse = { status: 200, body: null };
+  const server = createServer((request, response) => {
+    if (request.url !== "/jwks") {
+      response.writeHead(404).end();
+      return;
+    }
+    response.writeHead(jwksResponse.status, {
+      "content-type": "application/json",
+    });
+    response.end(jwksResponse.body);
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  t.after(() => server.close());
+  const address = server.address();
+  assert.ok(address && typeof address === "object");
+  const issuer = "https://issuer.example.test";
+  const env = {
+    OIDC_ISSUER: issuer,
+    OIDC_AUDIENCE: "project42-tests",
+    OIDC_JWKS_URL: `http://127.0.0.1:${address.port}/jwks`,
+    OIDC_EMAIL_CLAIM: "email",
+    OIDC_EMAIL_VERIFIED_CLAIM: "email_verified",
+  };
+  const now = Math.floor(Date.now() / 1000);
+  const token = await new SignJWT({})
+    .setProtectedHeader({ alg: "RS256", kid: "current-key" })
+    .setIssuer(issuer)
+    .setSubject("stable-subject")
+    .setAudience("project42-tests")
+    .setIssuedAt(now)
+    .setExpirationTime(now + 300)
+    .sign(privateKey);
+
+  // A JWKS response with no key matching the token's kid (e.g. serving a
+  // stale cache mid key-rotation) must not be reported as an invalid token.
+  jwksResponse = {
+    status: 200,
+    body: JSON.stringify({
+      keys: [
+        {
+          ...(await exportJWK(publicKey)),
+          kid: "a-different-key",
+          use: "sig",
+          alg: "RS256",
+        },
+      ],
+    }),
+  };
+  const diagnostics = [];
+  const originalConsoleError = console.error;
+  console.error = (entry) => diagnostics.push(JSON.parse(entry));
+  t.after(() => {
+    console.error = originalConsoleError;
+  });
+  await assert.rejects(
+    new OidcJwtVerifier(env).verify(
+      new Request("https://api.example.test/v1/me", {
+        headers: { authorization: `Bearer ${token}` },
+      }),
+    ),
+    (error) =>
+      error.status === 503 &&
+      error.code === "identity_verification_unavailable",
+  );
+  assert.equal(diagnostics.length, 1);
+  assert.equal(diagnostics[0].code, "identity_verification_unavailable");
+  assert.equal(diagnostics[0].joseCode, "ERR_JWKS_NO_MATCHING_KEY");
+  assert.doesNotMatch(JSON.stringify(diagnostics[0]), /stable-subject/);
+
+  // A malformed JWKS response (upstream hiccup, not a real invalid token)
+  // must also be reported as unavailable, not as a bad token.
+  jwksResponse = { status: 200, body: "not valid json" };
+  await assert.rejects(
+    new OidcJwtVerifier(env).verify(
+      new Request("https://api.example.test/v1/me", {
+        headers: { authorization: `Bearer ${token}` },
+      }),
+    ),
+    (error) =>
+      error.status === 503 &&
+      error.code === "identity_verification_unavailable",
+  );
+});
+
 test("CORS preflight succeeds only for configured origins", async () => {
   const env = {
     ALLOWED_ORIGINS: "https://learn.example.test",
