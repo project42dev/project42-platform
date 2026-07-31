@@ -610,6 +610,34 @@ class OidcJwtVerifier implements IdentityVerifier {
     } catch (error) {
       if (error instanceof ApiFailure) throw error;
       if (error instanceof joseErrors.JOSEError) {
+        if (
+          error.code === "ERR_JWKS_TIMEOUT" ||
+          error.code === "ERR_JWKS_INVALID" ||
+          error.code === "ERR_JWKS_NO_MATCHING_KEY" ||
+          error.code === "ERR_JWKS_MULTIPLE_MATCHING_KEYS" ||
+          // jose throws its bare base JOSEError class (never a named
+          // subclass) specifically when the remote JWKS endpoint itself
+          // returned a non-200 response or an unparseable body. Every other
+          // verification failure (expired/claim/signature/etc.) always
+          // throws one of its specific named subclasses, so seeing the raw
+          // base class here reliably means the JWKS fetch itself failed.
+          error.constructor === joseErrors.JOSEError
+        ) {
+          console.error(
+            JSON.stringify({
+              level: "error",
+              requestId: options.diagnosticRequestId,
+              action: "oidc.identity.key_resolution",
+              code: "identity_verification_unavailable",
+              joseCode: error.code,
+            }),
+          );
+          throw new ApiFailure(
+            503,
+            "identity_verification_unavailable",
+            "Sign-in verification is temporarily unavailable. Try again.",
+          );
+        }
         const joseError = error as joseErrors.JOSEError & {
           claim?: unknown;
           payload?: unknown;
