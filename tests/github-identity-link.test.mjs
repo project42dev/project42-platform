@@ -91,6 +91,7 @@ test("GitHub provider fetches use the runtime function without a receiver", asyn
       if (calls === 1) {
         assert.equal(url, "https://github.com/login/oauth/access_token");
         assert.equal(init.redirect, "error");
+        assert.ok(init.signal instanceof AbortSignal);
         return Response.json({
           access_token: "provider-token",
           token_type: "bearer",
@@ -98,6 +99,7 @@ test("GitHub provider fetches use the runtime function without a receiver", asyn
       }
       assert.equal(url, "https://api.github.com/user");
       assert.equal(init.headers.authorization, "Bearer provider-token");
+      assert.ok(init.signal instanceof AbortSignal);
       return Response.json({
         id: 42,
         login: "contributor",
@@ -114,6 +116,74 @@ test("GitHub provider fetches use the runtime function without a receiver", asyn
   assert.equal(calls, 2);
   assert.equal(identity.subject, "42");
   assert.equal(identity.providerLogin, "contributor");
+});
+
+async function captureWarnings(action) {
+  const output = [];
+  const original = console.warn;
+  console.warn = (...values) => output.push(values.join(" "));
+  try {
+    await action();
+  } finally {
+    console.warn = original;
+  }
+  return output;
+}
+
+test("GitHub provider timeout is bounded, classified, and never logs provider detail (AB#6485)", async () => {
+  const sensitiveDetail = "provider-detail-that-must-not-be-logged";
+  const adapter = new GithubIdentityLinkAdapter(environment, async (_url, init) => {
+    assert.ok(init.signal instanceof AbortSignal);
+    throw new DOMException(sensitiveDetail, "AbortError");
+  });
+
+  const output = await captureWarnings(async () => {
+    await assert.rejects(
+      adapter.verify({
+        code: "temporary-code",
+        codeVerifier: "v".repeat(43),
+        requestId: "request-id",
+      }),
+      (error) =>
+        error?.code === "github_provider_unavailable" &&
+        !error.message.includes(sensitiveDetail),
+    );
+  });
+
+  assert.equal(output.length, 1);
+  const event = JSON.parse(output[0]);
+  assert.deepEqual(event, {
+    level: "warn",
+    requestId: "request-id",
+    action: "github.identity_link.provider_failure",
+    step: "token_exchange",
+    reason: "timeout",
+    errorType: "AbortError",
+  });
+  assert.doesNotMatch(output[0], new RegExp(sensitiveDetail));
+});
+
+test("GitHub provider network failures are classified and never log provider detail", async () => {
+  const sensitiveDetail = "network-detail-that-must-not-be-logged";
+  const adapter = new GithubIdentityLinkAdapter(environment, async () => {
+    throw new TypeError(sensitiveDetail);
+  });
+
+  const output = await captureWarnings(async () => {
+    await assert.rejects(
+      adapter.verify({
+        code: "temporary-code",
+        codeVerifier: "v".repeat(43),
+        requestId: "request-id",
+      }),
+      (error) => error?.code === "github_provider_unavailable",
+    );
+  });
+
+  assert.equal(output.length, 1);
+  const event = JSON.parse(output[0]);
+  assert.equal(event.reason, "network");
+  assert.doesNotMatch(output[0], new RegExp(sensitiveDetail));
 });
 
 test("GitHub linkage fails closed on missing or cross-origin configuration", () => {

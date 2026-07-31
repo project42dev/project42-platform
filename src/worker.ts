@@ -858,6 +858,8 @@ class BrowserOidcAdapter {
   }
 }
 
+const GITHUB_LINK_PROVIDER_TIMEOUT_MS = 1e4;
+
 class GithubIdentityLinkAdapter {
   constructor(
     private readonly env: WorkerEnvironment,
@@ -881,8 +883,15 @@ class GithubIdentityLinkAdapter {
   async verify(input: {
     code: string;
     codeVerifier: string;
+    requestId?: string;
   }): Promise<ExternalProviderIdentity> {
     let providerStep = "configuration";
+    let timedOut = false;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, GITHUB_LINK_PROVIDER_TIMEOUT_MS);
     try {
       const configuration = requireGithubLinkConfiguration(this.env);
       providerStep = "token_exchange";
@@ -892,6 +901,7 @@ class GithubIdentityLinkAdapter {
         {
         method: "POST",
         redirect: "error",
+        signal: controller.signal,
         headers: {
           accept: "application/json",
           "content-type": "application/x-www-form-urlencoded",
@@ -927,6 +937,7 @@ class GithubIdentityLinkAdapter {
       const userResponse = await fetcher("https://api.github.com/user", {
         method: "GET",
         redirect: "error",
+        signal: controller.signal,
         headers: {
           accept: "application/vnd.github+json",
           authorization: `Bearer ${accessToken}`,
@@ -965,11 +976,21 @@ class GithubIdentityLinkAdapter {
       };
     } catch (error) {
       if (error instanceof ApiFailure) throw error;
+      const reason =
+        timedOut ||
+        (error instanceof DOMException &&
+          (error.name === "TimeoutError" || error.name === "AbortError"))
+          ? "timeout"
+          : error instanceof TypeError
+            ? "network"
+            : "unknown";
       console.warn(
         JSON.stringify({
           level: "warn",
+          requestId: input.requestId,
           action: "github.identity_link.provider_failure",
           step: providerStep,
+          reason,
           errorType: error instanceof Error ? error.name : "unknown",
         }),
       );
@@ -978,6 +999,8 @@ class GithubIdentityLinkAdapter {
         "github_provider_unavailable",
         "GitHub account linking is temporarily unavailable.",
       );
+    } finally {
+      clearTimeout(timeout);
     }
   }
 }
@@ -9948,6 +9971,7 @@ async function handleRequest(
         const providerIdentity = await githubLinkAdapter.verify({
           code: completion.code,
           codeVerifier: completion.codeVerifier,
+          requestId,
         });
         const linkedIdentity = await repository.completeIdentityLink({
           account,
