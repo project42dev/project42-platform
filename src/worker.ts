@@ -2665,6 +2665,13 @@ class D1Project42Repository {
     ownerBootstrap: boolean,
     requestId: string,
     now: string,
+    // Defence in depth for AB#5782/AB#6191. The admin routes refuse to create or
+    // enable a domain rule while automatic approval is off, but a rule enabled
+    // before the flag was cleared - or written out of band - must not approve a
+    // registration either. Read per call rather than held on the repository so an
+    // injected repository cannot carry a stale value. Defaults to disabled so
+    // every caller fails closed.
+    domainApprovalEnabled = false,
   ): Promise<Account> {
     const existing = await this.findAccount(identity);
     if (existing) {
@@ -2728,7 +2735,9 @@ class D1Project42Repository {
       return (await this.findAccount(identity)) ?? existing;
     }
 
-    const verifiedDomain = getVerifiedEmailDomain(identity);
+    const verifiedDomain = domainApprovalEnabled
+      ? getVerifiedEmailDomain(identity)
+      : null;
     const domainRule = verifiedDomain
       ? await this.db
           .prepare(
@@ -9645,6 +9654,7 @@ async function handleRequest(
         ownerBootstrap,
         requestId,
         now,
+        env.DOMAIN_APPROVAL_ENABLED === "true",
       );
       const priorSessionToken = readCookie(request, BROWSER_SESSION_COOKIE);
       const priorSession = priorSessionToken
@@ -9788,6 +9798,7 @@ async function handleRequest(
         ownerBootstrap,
         requestId,
         now,
+        env.DOMAIN_APPROVAL_ENABLED === "true",
       );
       if (account.state === "approved") {
         await requireProject42Authorization(

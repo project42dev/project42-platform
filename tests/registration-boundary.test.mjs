@@ -202,3 +202,96 @@ test("concurrent stale owner decisions commit exactly one state transition and a
     (error) => error.code === "account_not_found",
   );
 });
+
+test("an enabled domain rule cannot auto-approve while automatic approval is disabled", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-28",
+    d1Databases: { PROJECT42_DB: "project42-registration-domain-killswitch" },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  await applyD1Migrations(database);
+
+  const installationId = "registration-domain-killswitch";
+  const now = "2026-07-31T12:00:00.000Z";
+
+  // Seed an enabled rule directly, standing in for one enabled before the flag
+  // was cleared or written out of band. The admin routes could not create this
+  // while DOMAIN_APPROVAL_ENABLED is false, but the row can still exist.
+  const seedRepository = new D1Project42Repository(database, installationId);
+  await seedRepository.ensureInstallation(now);
+  const owner = await seedRepository.createOrRefreshAccount(
+    {
+      provider: "oidc",
+      issuer: "https://identity.example.test",
+      subject: "owner",
+      email: "owner@example.test",
+      emailVerified: true,
+      displayName: "Owner",
+      authenticatedAt: 1785326400,
+    },
+    true,
+    "owner-registration",
+    now,
+  );
+  await database
+    .prepare(
+      `INSERT INTO approved_email_domains (
+         id, installation_id, domain, enabled, created_by_user_id,
+         created_at, updated_at, policy_version
+       ) VALUES (?, ?, ?, 1, ?, ?, ?, 1)`,
+    )
+    .bind("rule-1", installationId, "trusted.example.test", owner.id, now, now)
+    .run();
+
+  const identity = {
+    provider: "oidc",
+    issuer: "https://identity.example.test",
+    subject: "domain-learner",
+    email: "learner@trusted.example.test",
+    emailVerified: true,
+    displayName: "Domain Learner",
+    authenticatedAt: 1785326400,
+  };
+
+  const repository = new D1Project42Repository(database, installationId);
+  const gated = await repository.createOrRefreshAccount(
+    identity,
+    false,
+    "domain-registration",
+    now,
+    false,
+  );
+  assert.equal(
+    gated.state,
+    "pending",
+    "a verified exact-domain match must not approve while the kill switch is off",
+  );
+
+  const decision = await database
+    .prepare(
+      "SELECT decision_kind, domain_rule_id FROM approval_decisions WHERE user_id = ?",
+    )
+    .bind(gated.id)
+    .first();
+  assert.equal(decision.decision_kind, "registration");
+  assert.equal(
+    decision.domain_rule_id,
+    null,
+    "no domain rule may be credited when automatic approval is disabled",
+  );
+
+  // The same rule and identity approve once the deployment enables the flag,
+  // proving the gate is the only thing standing in the way.
+  const approved = await repository.createOrRefreshAccount(
+    { ...identity, subject: "domain-learner-2" },
+    false,
+    "domain-registration-2",
+    now,
+    true,
+  );
+  assert.equal(approved.state, "approved");
+});
