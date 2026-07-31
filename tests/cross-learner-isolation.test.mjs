@@ -196,3 +196,121 @@ test("an approved learner cannot read or change another learner's records", asyn
     assert.equal(response.status, 403, `${path} must require owner authority`);
   }
 });
+
+test("a learner-initiated reconciliation must involve the learner's own account", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-28",
+    d1Databases: { PROJECT42_DB: "project42-merge-self-participation" },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  await applyD1Migrations(database);
+
+  const repository = new D1Project42Repository(database, installationId);
+  const now = new Date().toISOString();
+  await repository.ensureInstallation(now);
+
+  const identities = new Map();
+  const ownerIdentity = identity("owner");
+  identities.set("owner-token", ownerIdentity);
+  for (const name of ["alice", "bob", "carol"]) {
+    identities.set(`${name}-token`, identity(name));
+  }
+
+  const verifier = {
+    verify: async (request) => {
+      const token = request.headers
+        .get("authorization")
+        ?.replace(/^Bearer /, "");
+      const verified = token ? identities.get(token) : undefined;
+      if (!verified) throw new Error("Test request is missing a known identity.");
+      return verified;
+    },
+  };
+
+  const env = {
+    INSTALLATION_ID: installationId,
+    ALLOWED_ORIGINS: allowedOrigin,
+    BOOTSTRAP_OWNER_ISSUER: issuer,
+    BOOTSTRAP_OWNER_SUBJECT: ownerIdentity.subject,
+    DOMAIN_APPROVAL_ENABLED: "false",
+    LEARNING_RECORD_ADAPTER: "cloudflare-d1",
+    PROJECT42_DB: database,
+  };
+
+  async function api(token, path, init = {}) {
+    const headers = new Headers(init.headers);
+    headers.set("authorization", `Bearer ${token}`);
+    headers.set("origin", allowedOrigin);
+    if (init.body && !headers.has("content-type")) {
+      headers.set("content-type", "application/json");
+    }
+    return handleRequest(
+      new Request(`https://api.example.test${path}`, { ...init, headers }),
+      env,
+      verifier,
+      repository,
+    );
+  }
+
+  const owner = await repository.createOrRefreshAccount(
+    ownerIdentity,
+    true,
+    "owner-bootstrap",
+    now,
+  );
+  const learners = {};
+  for (const name of ["alice", "bob", "carol"]) {
+    await api(`${name}-token`, "/v1/session", { method: "POST" });
+    const account = await repository.findAccount(identities.get(`${name}-token`));
+    await repository.changeAccountState({
+      actor: owner,
+      targetId: account.id,
+      to: "approved",
+      reason: `Approve ${name} for the merge participation fixture.`,
+      requestId: `approve-${name}`,
+      now,
+    });
+    learners[name] = account;
+  }
+
+  // Bob and Carol each mint a genuine one-time proof. Alice obtains both -
+  // the strongest form of this attack, where the proof requirement is fully
+  // satisfied - and still must not be able to reconcile two accounts that are
+  // not hers. Participation is checked before any merge work begins.
+  const proofs = {};
+  for (const name of ["bob", "carol"]) {
+    const minted = await api(`${name}-token`, "/v1/me/account-merge-proof", {
+      method: "POST",
+    });
+    assert.equal(minted.status, 201);
+    proofs[name] = (await minted.json()).proof.token;
+    assert.ok(proofs[name], `${name} must receive a usable proof token`);
+  }
+
+  const foreign = await api("alice-token", "/v1/me/account-merges/preview", {
+    method: "POST",
+    body: JSON.stringify({
+      sourceUserId: learners.bob.id,
+      survivorUserId: learners.carol.id,
+      sourceProofToken: proofs.bob,
+      survivorProofToken: proofs.carol,
+      idempotencyKey: "foreign-merge-attempt-000001",
+    }),
+  });
+  assert.equal(foreign.status, 403);
+  assert.equal(
+    (await foreign.json()).error.code,
+    "merge_self_participation_required",
+  );
+
+  // No merge case may have been created by the refused attempt.
+  const cases = await database
+    .prepare("SELECT COUNT(*) AS count FROM account_merge_cases WHERE installation_id = ?")
+    .bind(installationId)
+    .first();
+  assert.equal(Number(cases.count), 0);
+});

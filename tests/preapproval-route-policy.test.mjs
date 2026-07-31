@@ -257,6 +257,7 @@ test("non-approved bearer identities have an exhaustive fail-closed self-service
       }),
     },
     { method: "POST", path: "/v1/me/account-merge-proof" },
+    { method: "POST", path: "/v1/me/account-merges/preview" },
     {
       method: "POST",
       path: "/v1/me/future-protected-route",

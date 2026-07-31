@@ -10384,6 +10384,41 @@ async function handleRequest(
 
     if (
       request.method === "POST" &&
+      url.pathname === "/v1/me/account-merges/preview"
+    ) {
+      // AB#6231 clause 1: the learner initiates reconciliation from their own
+      // profile after recent authentication to both accounts. This grants no
+      // new authority - createAccountMergePreview already requires a distinct,
+      // account-bound recovery proof for each side, so reaching here means the
+      // caller has already proven control of both. The extra self check below
+      // stops an approved learner who somehow obtained two proofs from
+      // reconciling two accounts that are not theirs.
+      requireApproved(account);
+      requireRecentAuthentication(identity, now);
+      const mergeRequest = normalizeAccountMergePreviewRequest(
+        await readJson<unknown>(request),
+      );
+      if (
+        mergeRequest.sourceUserId !== account.id &&
+        mergeRequest.survivorUserId !== account.id
+      ) {
+        throw new ApiFailure(
+          403,
+          "merge_self_participation_required",
+          "A learner-initiated reconciliation must involve the learner's own account.",
+        );
+      }
+      const merge = await repository.createAccountMergePreview({
+        actor: account,
+        request: mergeRequest,
+        requestId,
+        now,
+      });
+      return json({ merge }, 201, requestId, origin);
+    }
+
+    if (
+      request.method === "POST" &&
       url.pathname === "/v1/admin/account-merges/recovery-proofs"
     ) {
       await requireOwner(account, repository, request, requestId, now);
