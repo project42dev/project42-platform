@@ -8,8 +8,10 @@ import {
   InvalidAdminPageSizeError,
   decodeAccountAdminCursor,
   decodeAuditAdminCursor,
+  decodeDeletionAdminCursor,
   encodeAccountAdminCursor,
   encodeAuditAdminCursor,
+  encodeDeletionAdminCursor,
   readAdminCursorEncryptionKey,
   validateAdminPageSize,
 } from "../dist/admin-pagination.js";
@@ -215,5 +217,58 @@ test("administration cursor keys reject malformed or short roots", () => {
         Buffer.alloc(31, 0x41).toString("base64url"),
       ),
     /base64url-encoded 32-byte/,
+  );
+});
+
+test("deletion cursors are integrity protected and bound to their installation and kind", async () => {
+  const position = {
+    requestedAt: "2026-07-31T12:00:00.000Z",
+    deletionRequestId: "deletion-1",
+  };
+  const cursor = await encodeDeletionAdminCursor(
+    { installationId: "install-a", position },
+    cursorKeyA,
+  );
+
+  assert.ok(cursor.length <= ADMIN_CURSOR_MAX_LENGTH);
+  assert.doesNotMatch(
+    cursor,
+    /deletion-1|install-a|2026-07-31/,
+    "an opaque cursor must not leak private query state",
+  );
+
+  assert.deepEqual(
+    await decodeDeletionAdminCursor(cursor, { installationId: "install-a" }, cursorKeyAReplica),
+    position,
+    "an equivalent key must round-trip the position",
+  );
+
+  // Tampered, cross-installation, wrong-key, and wrong-kind cursors all fail closed.
+  await assert.rejects(
+    () => decodeDeletionAdminCursor(alter(cursor), { installationId: "install-a" }, cursorKeyA),
+    InvalidAdminCursorError,
+  );
+  await assert.rejects(
+    () => decodeDeletionAdminCursor(cursor, { installationId: "install-b" }, cursorKeyA),
+    InvalidAdminCursorError,
+  );
+  await assert.rejects(
+    () => decodeDeletionAdminCursor(cursor, { installationId: "install-a" }, cursorKeyB),
+    InvalidAdminCursorError,
+  );
+
+  const auditCursor = await encodeAuditAdminCursor(
+    { installationId: "install-a", position: { sequence: "7" } },
+    cursorKeyA,
+  );
+  await assert.rejects(
+    () => decodeDeletionAdminCursor(auditCursor, { installationId: "install-a" }, cursorKeyA),
+    InvalidAdminCursorError,
+    "an audit cursor must not be accepted as a deletion cursor",
+  );
+  await assert.rejects(
+    () => decodeAuditAdminCursor(cursor, { installationId: "install-a" }, cursorKeyA),
+    InvalidAdminCursorError,
+    "a deletion cursor must not be accepted as an audit cursor",
   );
 });

@@ -17,6 +17,19 @@ const POSTGRES_DECOY_AUDIT_COUNT = AUDIT_COUNT * 100;
 const TARGET_INSTALLATION = "pagination-scale-target";
 const OTHER_INSTALLATION = "pagination-scale-other";
 
+async function applyD1Migrations(database) {
+  const migrations = (await readdir(new URL("../migrations/", import.meta.url)))
+    .filter((name) => name.endsWith(".sql"))
+    .sort();
+  for (const migration of migrations) {
+    const sql = await readFile(
+      new URL(`../migrations/${migration}`, import.meta.url),
+      "utf8",
+    );
+    await database.exec(sql.replace(/\r?\n/g, " "));
+  }
+}
+
 function sqlLiteral(value) {
   if (value === null) return "NULL";
   if (typeof value === "number") {
@@ -585,3 +598,75 @@ test(
     }
   },
 );
+
+test("pending deletion pages never skip or duplicate an outstanding request", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-28",
+    d1Databases: { PROJECT42_DB: "project42-deletion-pagination" },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  await applyD1Migrations(database);
+
+  const installationId = "deletion-pagination";
+  const repository = new D1Project42Repository(
+    database,
+    installationId,
+    undefined,
+    undefined,
+    Buffer.alloc(32, 0x51).toString("base64url"),
+  );
+  const now = "2026-07-31T12:00:00.000Z";
+  await repository.ensureInstallation(now);
+
+  // Deliberately give many requests an identical requested_at so the id
+  // tiebreaker is the only thing preventing a skipped or repeated row.
+  const TOTAL = 127;
+  const expected = new Set();
+  for (let index = 0; index < TOTAL; index += 1) {
+    const account = await repository.createOrRefreshAccount(
+      {
+        provider: "oidc",
+        issuer: "https://identity.example.test",
+        subject: `deletion-learner-${index}`,
+        email: `learner${index}@example.test`,
+        emailVerified: true,
+        displayName: `Learner ${index}`,
+        authenticatedAt: 1785326400,
+      },
+      true,
+      `registration-${index}`,
+      now,
+    );
+    const { deletionRequest } = await repository.requestDeletion({
+      account,
+      requestId: `deletion-${index}`,
+      // Only three distinct timestamps across 127 rows.
+      now: `2026-07-31T12:0${index % 3}:00.000Z`,
+    });
+    expected.add(deletionRequest.id);
+  }
+
+  const seen = [];
+  let cursor;
+  let pages = 0;
+  do {
+    const page = await repository.listPendingDeletionPage({
+      pageSize: 10,
+      cursor,
+    });
+    pages += 1;
+    assert.ok(page.page.returnedCount <= 10);
+    assert.equal(page.page.returnedCount, page.requests.length);
+    for (const request of page.requests) seen.push(request.id);
+    cursor = page.page.hasMore ? page.page.nextCursor : undefined;
+    assert.ok(pages < 40, "pagination must terminate");
+  } while (cursor);
+
+  assert.equal(seen.length, TOTAL, "every pending request must be returned exactly once");
+  assert.equal(new Set(seen).size, TOTAL, "no request may be returned twice");
+  assert.deepEqual(new Set(seen), expected, "no pending request may be hidden");
+});

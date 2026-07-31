@@ -59,3 +59,24 @@ export function buildAdminAuditPageQuery(positioned: boolean): string {
            ORDER BY sequence DESC
            LIMIT ?`;
 }
+
+/**
+ * Builds the tenant-scoped pending-deletion keyset query executed by both
+ * supported SQL adapters. requested_at is not unique on its own, so the id is
+ * carried as a tiebreaker to guarantee no request is duplicated across a page
+ * boundary or - far worse for an owner reviewing outstanding work - skipped.
+ */
+export function buildAdminDeletionPageQuery(positioned: boolean): string {
+  return `SELECT d.id, d.user_id AS userId, d.state,
+                 d.requested_at AS requestedAt,
+                 d.cancellation_deadline AS cancellationDeadline,
+                 u.display_name AS displayName, u.primary_email AS primaryEmail
+            FROM deletion_requests d
+            JOIN users u
+              ON u.installation_id = d.installation_id AND u.id = d.user_id
+           WHERE d.installation_id = ?
+             AND d.state IN ('requested', 'processing')
+             ${positioned ? "AND (d.requested_at, d.id) > (?, ?)" : ""}
+           ORDER BY d.requested_at ASC, d.id ASC
+           LIMIT ?`;
+}

@@ -30,6 +30,15 @@ interface AuditCursorPayload extends Record<string, unknown> {
   s: string;
 }
 
+interface DeletionCursorPayload extends Record<string, unknown> {
+  v: typeof CURSOR_VERSION;
+  k: "deletions";
+  i: string;
+  f: "*";
+  r: string;
+  d: string;
+}
+
 export interface AccountCursorPosition {
   createdAt: string;
   userId: string;
@@ -37,6 +46,11 @@ export interface AccountCursorPosition {
 
 export interface AuditCursorPosition {
   sequence: string;
+}
+
+export interface DeletionCursorPosition {
+  requestedAt: string;
+  deletionRequestId: string;
 }
 
 export class InvalidAdminCursorError extends Error {
@@ -143,8 +157,46 @@ export async function decodeAuditAdminCursor(
   return { sequence: payload.s };
 }
 
+export async function encodeDeletionAdminCursor(
+  input: {
+    installationId: string;
+    position: DeletionCursorPosition;
+  },
+  encryptionKey: CryptoKey,
+): Promise<string> {
+  return encodeCursor(
+    {
+      v: CURSOR_VERSION,
+      k: "deletions",
+      i: input.installationId,
+      f: "*",
+      r: input.position.requestedAt,
+      d: input.position.deletionRequestId,
+    },
+    encryptionKey,
+  );
+}
+
+export async function decodeDeletionAdminCursor(
+  cursor: string,
+  expected: { installationId: string },
+  encryptionKey: CryptoKey,
+): Promise<DeletionCursorPosition> {
+  const payload = await decodeCursor(cursor, encryptionKey);
+  if (
+    !isDeletionCursorPayload(payload) ||
+    payload.i !== expected.installationId
+  ) {
+    throw new InvalidAdminCursorError();
+  }
+  return {
+    requestedAt: payload.r,
+    deletionRequestId: payload.d,
+  };
+}
+
 async function encodeCursor(
-  payload: AccountCursorPayload | AuditCursorPayload,
+  payload: AccountCursorPayload | AuditCursorPayload | DeletionCursorPayload,
   encryptionKey: CryptoKey,
 ): Promise<string> {
   const initializationVector = new Uint8Array(
@@ -296,6 +348,21 @@ function isAuditCursorPayload(
     value.f === "*" &&
     typeof value.s === "string" &&
     /^[1-9]\d{0,18}$/.test(value.s)
+  );
+}
+
+function isDeletionCursorPayload(
+  value: Record<string, unknown>,
+): value is DeletionCursorPayload {
+  return (
+    hasExactKeys(value, ["v", "k", "i", "f", "r", "d"]) &&
+    value.v === CURSOR_VERSION &&
+    value.k === "deletions" &&
+    isBoundedString(value.i, 1, 256) &&
+    value.f === "*" &&
+    isBoundedString(value.r, 1, 64) &&
+    Number.isFinite(Date.parse(value.r)) &&
+    isBoundedString(value.d, 1, 256)
   );
 }
 

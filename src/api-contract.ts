@@ -353,6 +353,11 @@ export interface AdminAuditEventPage {
   page: AdminPageInfo;
 }
 
+export interface AdminDeletionPage {
+  requests: unknown[];
+  page: AdminPageInfo;
+}
+
 export interface LearnerModuleProgressRecord {
   pathId: string;
   moduleId: string;

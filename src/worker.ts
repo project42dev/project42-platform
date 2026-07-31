@@ -24,6 +24,7 @@ import type {
   Account,
   AdminAccountPage,
   AdminAuditEventPage,
+  AdminDeletionPage,
   AccountNotificationDispatchRequest,
   AccountNotificationDispatchSummary,
   AccountNotificationReplayRequest,
@@ -77,14 +78,17 @@ import {
   InvalidAdminPageSizeError,
   decodeAccountAdminCursor,
   decodeAuditAdminCursor,
+  decodeDeletionAdminCursor,
   encodeAccountAdminCursor,
   encodeAuditAdminCursor,
+  encodeDeletionAdminCursor,
   readAdminCursorEncryptionKey,
   validateAdminPageSize,
 } from "./admin-pagination.js";
 import {
   buildAdminAccountPageQuery,
   buildAdminAuditPageQuery,
+  buildAdminDeletionPageQuery,
 } from "./admin-pagination-query.js";
 import {
   readAccountMergeConsentRequirements,
@@ -6184,22 +6188,52 @@ class D1Project42Repository {
     };
   }
 
-  async listPendingDeletions(): Promise<unknown[]> {
+  async listPendingDeletionPage(input: {
+    pageSize: number;
+    cursor?: string;
+  }): Promise<AdminDeletionPage> {
+    validateAdminPageSize(input.pageSize);
+    const encryptionKey = await this.adminCursorEncryptionKey;
+    const position = input.cursor
+      ? await decodeDeletionAdminCursor(
+          input.cursor,
+          { installationId: this.installationId },
+          encryptionKey,
+        )
+      : null;
     const result = await this.db
-      .prepare(
-        `SELECT d.id, d.user_id AS userId, d.state,
-                d.requested_at AS requestedAt,
-                d.cancellation_deadline AS cancellationDeadline,
-                u.display_name AS displayName, u.primary_email AS primaryEmail
-           FROM deletion_requests d
-           JOIN users u
-             ON u.installation_id = d.installation_id AND u.id = d.user_id
-          WHERE d.installation_id = ? AND d.state IN ('requested', 'processing')
-          ORDER BY d.requested_at ASC`,
+      .prepare(buildAdminDeletionPageQuery(Boolean(position)))
+      .bind(
+        this.installationId,
+        ...(position ? [position.requestedAt, position.deletionRequestId] : []),
+        input.pageSize + 1,
       )
-      .bind(this.installationId)
       .all<Record<string, unknown>>();
-    return result.results;
+    const hasMore = result.results.length > input.pageSize;
+    const rows = result.results.slice(0, input.pageSize);
+    const last = rows.at(-1);
+    const nextCursor =
+      hasMore && last
+        ? await encodeDeletionAdminCursor(
+            {
+              installationId: this.installationId,
+              position: {
+                requestedAt: String(last.requestedAt),
+                deletionRequestId: String(last.id),
+              },
+            },
+            encryptionKey,
+          )
+        : null;
+    return {
+      requests: rows,
+      page: {
+        pageSize: input.pageSize,
+        returnedCount: rows.length,
+        hasMore,
+        nextCursor,
+      },
+    };
   }
 
   async recordOwnerAuthorizationDenied(input: {
@@ -10624,7 +10658,7 @@ async function handleRequest(
     if (url.pathname === "/v1/admin/deletions" && request.method === "GET") {
       await requireOwner(account, repository, request, requestId, now);
       return json(
-        { requests: await repository.listPendingDeletions() },
+        await repository.listPendingDeletionPage(normalizeAdminPageQuery(url)),
         200,
         requestId,
         origin,
