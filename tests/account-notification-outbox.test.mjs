@@ -300,6 +300,238 @@ test("registration and lifecycle hooks enqueue atomically and dispatch exactly o
   assert.equal(deletedFanouts.count, 0);
 });
 
+test("stale recipient eligibility is rechecked immediately before delivery (AB#6460)", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-29",
+    d1Databases: { PROJECT42_DB: "project42-account-notification-recheck" },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  await applyD1Migrations(database);
+  const installationId = "notification-recheck";
+  const repository = new D1Project42Repository(database, installationId);
+  const now = "2026-07-29T12:00:00.000Z";
+  await repository.ensureInstallation(now);
+
+  const owner = await repository.createOrRefreshAccount(
+    verifiedIdentity("recheck-owner", "recheck-owner@example.test"),
+    true,
+    "recheck-owner-bootstrap",
+    now,
+  );
+  const learnerIdentity = verifiedIdentity(
+    "recheck-learner",
+    "recheck-learner@example.test",
+  );
+  const learner = await repository.createOrRefreshAccount(
+    learnerIdentity,
+    false,
+    "recheck-learner-signup",
+    now,
+  );
+  // Registration queues a registration-receipt (recipient: the learner) and
+  // an owner-registration-alert (recipient: every current owner).
+  await repository.createRegistrationRequest({
+    account: learner,
+    identity: learnerIdentity,
+    receiptTokenDigest: "b".repeat(64),
+    requestId: "recheck-registration",
+    now,
+  });
+  // Approving queues a learner-approved notification (recipient: the
+  // learner), then suspending before delivery queues a learner-suspended
+  // notification and moves the account past the state the earlier
+  // notifications asserted.
+  await repository.changeAccountState({
+    actor: owner,
+    targetId: learner.id,
+    to: "approved",
+    reason: "Approved after owner review.",
+    requestId: "recheck-approve",
+    now: "2026-07-29T12:01:00.000Z",
+  });
+  await repository.changeAccountState({
+    actor: owner,
+    targetId: learner.id,
+    to: "suspended",
+    reason: "Suspended before the approval notice was delivered.",
+    requestId: "recheck-suspend",
+    now: "2026-07-29T12:01:30.000Z",
+  });
+  const adapter = new DeterministicAccountNotificationAdapter(
+    "2026-07-29T12:02:00.000Z",
+  );
+  const summary = await repository.dispatchAccountNotifications({
+    actor: systemActor,
+    adapter,
+    requestId: "recheck-dispatch",
+    now: "2026-07-29T12:02:00.000Z",
+  });
+
+  // Only the still-current learner-suspended notification is eligible.
+  // registration-receipt, owner-registration-alert, and learner-approved
+  // all assert a state that no longer holds (the learner has since moved
+  // past pending/approved to suspended) and must not be delivered, even
+  // though the recipient's email is verified and reachable.
+  assert.deepEqual(
+    adapter.deliveries.map((delivery) => delivery.recipient),
+    ["recheck-learner@example.test"],
+  );
+  assert.equal(summary.delivered, 1);
+  assert.equal(summary.deadLetter, 3);
+
+  const rows = await database
+    .prepare(
+      `SELECT kind, state, last_error_code
+         FROM account_notifications
+        WHERE installation_id = ?
+        ORDER BY kind`,
+    )
+    .bind(installationId)
+    .all();
+  assert.deepEqual(
+    rows.results,
+    [
+      {
+        kind: "learner-approved",
+        state: "dead-letter",
+        last_error_code: "recipient-ineligible",
+      },
+      {
+        kind: "learner-suspended",
+        state: "delivered",
+        last_error_code: null,
+      },
+      {
+        kind: "owner-registration-alert",
+        state: "dead-letter",
+        last_error_code: "recipient-ineligible",
+      },
+      {
+        kind: "registration-receipt",
+        state: "dead-letter",
+        last_error_code: "recipient-ineligible",
+      },
+    ],
+  );
+});
+
+test("owner-registration-alert delivery rechecks the recipient still holds the owner role (AB#6460)", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-29",
+    d1Databases: { PROJECT42_DB: "project42-account-notification-owner-recheck" },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  await applyD1Migrations(database);
+  const installationId = "notification-owner-recheck";
+  const repository = new D1Project42Repository(database, installationId);
+  const now = "2026-07-29T12:00:00.000Z";
+  await repository.ensureInstallation(now);
+
+  const firstOwner = await repository.createOrRefreshAccount(
+    verifiedIdentity("owner-recheck-a", "owner-recheck-a@example.test"),
+    true,
+    "owner-recheck-a-bootstrap",
+    now,
+  );
+  const learnerIdentity = verifiedIdentity(
+    "owner-recheck-learner",
+    "owner-recheck-learner@example.test",
+  );
+  const learner = await repository.createOrRefreshAccount(
+    learnerIdentity,
+    false,
+    "owner-recheck-learner-signup",
+    now,
+  );
+  await repository.createRegistrationRequest({
+    account: learner,
+    identity: learnerIdentity,
+    receiptTokenDigest: "d".repeat(64),
+    requestId: "owner-recheck-registration",
+    now,
+  });
+
+  // Fanout expansion filters candidates by currently-held role, so a role
+  // removed BEFORE expansion runs simply means no alert row is ever
+  // materialized for that recipient (already covered structurally by the
+  // eligibility recheck's role clause never seeing a false-positive row).
+  // To exercise the delivery-time role recheck itself, insert an
+  // already-queued alert row directly, exactly as if it had been fanned out
+  // while the recipient still held the role, then demote them before the
+  // dispatcher ever attempts to deliver it.
+  const queuedAt = "2026-07-29T12:01:00.000Z";
+  await database
+    .prepare(
+      `INSERT INTO account_notifications (
+         id, installation_id, recipient_user_id, subject_user_id, kind,
+         state, template_version, idempotency_key, attempt_count,
+         max_attempts, available_at, lease_token, lease_expires_at,
+         last_error_code, delivered_at, replay_of_notification_id,
+         created_at, updated_at
+       ) VALUES (?, ?, ?, ?, 'owner-registration-alert', 'pending', 'v1', ?,
+                 0, 5, ?, NULL, NULL, NULL, NULL, NULL, ?, ?)`,
+    )
+    .bind(
+      "owner-recheck-queued-alert",
+      installationId,
+      firstOwner.id,
+      learner.id,
+      "f".repeat(64),
+      queuedAt,
+      queuedAt,
+      queuedAt,
+    )
+    .run();
+  await database
+    .prepare(
+      `DELETE FROM role_assignments
+        WHERE installation_id = ? AND user_id = ? AND role = 'owner'`,
+    )
+    .bind(installationId, firstOwner.id)
+    .run();
+
+  const adapter = new DeterministicAccountNotificationAdapter(
+    "2026-07-29T12:02:00.000Z",
+  );
+  const summary = await repository.dispatchAccountNotifications({
+    actor: systemActor,
+    adapter,
+    requestId: "owner-recheck-dispatch",
+    now: "2026-07-29T12:02:00.000Z",
+  });
+
+  // The demoted owner must not receive the queued alert even though their
+  // email is verified and reachable and the underlying registration is
+  // still genuinely pending — only the role changed.
+  assert.equal(
+    adapter.deliveries.some(
+      (delivery) => delivery.recipient === "owner-recheck-a@example.test",
+    ),
+    false,
+  );
+  const rejected = await database
+    .prepare(
+      `SELECT state, last_error_code
+         FROM account_notifications
+        WHERE installation_id = ? AND id = 'owner-recheck-queued-alert'`,
+    )
+    .bind(installationId)
+    .first();
+  assert.deepEqual(rejected, {
+    state: "dead-letter",
+    last_error_code: "recipient-ineligible",
+  });
+  assert.equal(summary.deadLetter >= 1, true);
+});
+
 test("owner alerts expand through durable bounded pages without truncation", async (t) => {
   const miniflare = new Miniflare({
     compatibilityDate: "2026-07-29",
