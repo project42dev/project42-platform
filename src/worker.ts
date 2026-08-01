@@ -3538,12 +3538,23 @@ class D1Project42Repository {
       ["profile.reducedMotion", "reduced_motion"],
       ["profile.highContrast", "high_contrast"],
     ] as const;
+    // reduced_motion and high_contrast are NOT NULL with a schema default of
+    // 0; every other profile column is nullable. Neither account may have a
+    // profile row yet (a merge requested immediately after registration,
+    // before either learner ever opened profile settings), so an explicit
+    // NULL bind here would violate that constraint instead of falling back
+    // to the column default the way a bare INSERT would.
+    const notNullProfileDefaults: Partial<Record<string, unknown>> = {
+      reduced_motion: 0,
+      high_contrast: 0,
+    };
     const selectedProfile: Record<string, unknown> = {};
     for (const [conflictKey, column] of profileFields) {
+      const fallback = notNullProfileDefaults[column] ?? null;
       selectedProfile[column] = selectMergeValue(
         conflictKey,
-        sourceProfile?.[column] ?? null,
-        survivorProfile?.[column] ?? null,
+        sourceProfile?.[column] ?? fallback,
+        survivorProfile?.[column] ?? fallback,
         input.request.resolutions,
       );
     }
@@ -8756,6 +8767,19 @@ function requireApproved(account: Account): void {
   }
 }
 
+function requireAccountMergeParticipant(
+  account: Account,
+  merge: AccountMergePreview,
+): void {
+  if (account.id !== merge.sourceUserId && account.id !== merge.survivorUserId) {
+    throw new ApiFailure(
+      403,
+      "merge_self_participation_required",
+      "A learner-initiated reconciliation must involve the learner's own account.",
+    );
+  }
+}
+
 type SelfServiceAuthorization =
   | "approved"
   | "account-state"
@@ -10439,6 +10463,66 @@ async function handleRequest(
         now,
       });
       return json({ merge }, 201, requestId, origin);
+    }
+
+    const selfAccountMergeCompleteMatch = url.pathname.match(
+      /^\/v1\/me\/account-merges\/([^/]+)\/complete$/,
+    );
+    if (request.method === "POST" && selfAccountMergeCompleteMatch) {
+      // AB#6849: the same self-participation guard as the preview route above
+      // - the caller must control one side of the merge it is completing.
+      requireApproved(account);
+      requireRecentAuthentication(identity, now);
+      const mergeCaseId = decodeURIComponent(
+        selfAccountMergeCompleteMatch[1] ?? "",
+      );
+      const preview = await repository.getAccountMergePreview(mergeCaseId);
+      requireAccountMergeParticipant(account, preview);
+      const receipt = await repository.completeAccountMerge({
+        actor: account,
+        mergeCaseId,
+        request: normalizeCompleteAccountMergeRequest(
+          await readJson<unknown>(request),
+        ),
+        requestId,
+        now,
+      });
+      return json({ receipt }, 200, requestId, origin);
+    }
+    const selfAccountMergeReceiptMatch = url.pathname.match(
+      /^\/v1\/me\/account-merges\/([^/]+)\/receipt$/,
+    );
+    if (request.method === "GET" && selfAccountMergeReceiptMatch) {
+      requireApproved(account);
+      const mergeCaseId = decodeURIComponent(
+        selfAccountMergeReceiptMatch[1] ?? "",
+      );
+      const preview = await repository.getAccountMergePreview(mergeCaseId);
+      requireAccountMergeParticipant(account, preview);
+      const receipt = await repository.getAccountMergeReceipt(mergeCaseId);
+      return json({ receipt }, 200, requestId, origin);
+    }
+    const selfAccountMergeRollbackMatch = url.pathname.match(
+      /^\/v1\/me\/account-merges\/([^/]+)\/rollback$/,
+    );
+    if (request.method === "POST" && selfAccountMergeRollbackMatch) {
+      requireApproved(account);
+      requireRecentAuthentication(identity, now);
+      const mergeCaseId = decodeURIComponent(
+        selfAccountMergeRollbackMatch[1] ?? "",
+      );
+      const preview = await repository.getAccountMergePreview(mergeCaseId);
+      requireAccountMergeParticipant(account, preview);
+      const receipt = await repository.rollbackAccountMerge({
+        actor: account,
+        mergeCaseId,
+        request: normalizeRollbackAccountMergeRequest(
+          await readJson<unknown>(request),
+        ),
+        requestId,
+        now,
+      });
+      return json({ receipt }, 200, requestId, origin);
     }
 
     if (

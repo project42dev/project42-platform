@@ -1352,3 +1352,262 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
   );
   assert.equal(owner.roles.includes("owner"), true);
 });
+
+test("a learner can complete, fetch the receipt for, and roll back their own reconciliation without owner involvement AB#6849", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-26",
+    d1Databases: { PROJECT42_DB: "project42-account-merge-self-service" },
+    r2Buckets: { PROFILE_PHOTOS: "project42-account-merge-self-service-photos" },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  const profilePhotos = await miniflare.getR2Bucket("PROFILE_PHOTOS");
+  const migrations = (await readdir(new URL("../migrations/", import.meta.url)))
+    .filter((name) => name.endsWith(".sql"))
+    .sort();
+  for (const migration of migrations) {
+    const sql = await readFile(
+      new URL(`../migrations/${migration}`, import.meta.url),
+      "utf8",
+    );
+    await database.exec(sql.replace(/\r?\n/g, " "));
+  }
+
+  const identities = new Map([
+    ["owner-token", identity("self-merge-owner", "owner@self.example.test")],
+    ["source-token", identity("self-merge-source", "source@self.example.test")],
+    [
+      "survivor-token",
+      identity("self-merge-survivor", "survivor@self.example.test"),
+    ],
+    [
+      "attacker-token",
+      identity("self-merge-attacker", "attacker@self.example.test"),
+    ],
+  ]);
+  const verifier = {
+    verify: async (request) => {
+      const token = request.headers.get("authorization")?.replace(/^Bearer /, "");
+      const verified = token ? identities.get(token) : null;
+      if (!verified) throw new Error("Unknown merge test identity.");
+      return {
+        ...verified,
+        issuedAt: Math.floor(Date.now() / 1_000),
+        authenticatedAt: Math.floor(Date.now() / 1_000),
+      };
+    },
+  };
+  const repository = new D1Project42Repository(database, "merge-self-service");
+  const env = {
+    INSTALLATION_ID: "merge-self-service",
+    ALLOWED_ORIGINS: allowedOrigin,
+    BOOTSTRAP_OWNER_ISSUER: issuer,
+    BOOTSTRAP_OWNER_SUBJECT: "self-merge-owner",
+    DOMAIN_APPROVAL_ENABLED: "false",
+    LEARNING_RECORD_ADAPTER: "cloudflare-d1",
+    PROFILE_PHOTOS: profilePhotos,
+  };
+  async function api(token, path, init = {}) {
+    const headers = new Headers(init.headers);
+    headers.set("authorization", `Bearer ${token}`);
+    headers.set("origin", allowedOrigin);
+    if (init.body && !headers.has("content-type")) {
+      headers.set("content-type", "application/json");
+    }
+    return handleRequest(
+      new Request(`https://api.merge.example.test${path}`, {
+        ...init,
+        headers,
+      }),
+      env,
+      verifier,
+      repository,
+    );
+  }
+  async function json(response) {
+    return response.json();
+  }
+
+  await api("owner-token", "/v1/session", { method: "POST" });
+  for (const token of ["source-token", "survivor-token", "attacker-token"]) {
+    await api(token, "/v1/session", { method: "POST" });
+  }
+  const source = await repository.findAccount(identities.get("source-token"));
+  const survivor = await repository.findAccount(identities.get("survivor-token"));
+  const attacker = await repository.findAccount(identities.get("attacker-token"));
+  for (const account of [source, survivor, attacker]) {
+    assert.equal(
+      (
+        await api("owner-token", `/v1/admin/accounts/${account.id}/state`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            state: "approved",
+            reason: "Approve the self-service merge fixture.",
+          }),
+        })
+      ).status,
+      200,
+    );
+  }
+
+  for (const token of ["source-token", "survivor-token"]) {
+    assert.equal(
+      (
+        await api(token, "/v1/me/consents", {
+          method: "POST",
+          body: JSON.stringify({
+            purpose: "learning-record",
+            policyVersion: "2026-07-27",
+            decision: "granted",
+          }),
+        })
+      ).status,
+      201,
+    );
+  }
+
+  const sourceProof = (
+    await json(
+      await api("source-token", "/v1/me/account-merge-proof", {
+        method: "POST",
+      }),
+    )
+  ).proof;
+  const survivorProof = (
+    await json(
+      await api("survivor-token", "/v1/me/account-merge-proof", {
+        method: "POST",
+      }),
+    )
+  ).proof;
+
+  // AB#6848: each side authenticates itself and mints its own proof; no
+  // second OIDC client or owner attestation is involved. AB#6231's
+  // self-participation guard on preview already covers this - the assertion
+  // here is that the same guard also protects complete/receipt/rollback.
+  const previewResponse = await api("survivor-token", "/v1/me/account-merges/preview", {
+    method: "POST",
+    body: JSON.stringify({
+      sourceUserId: source.id,
+      survivorUserId: survivor.id,
+      sourceProofToken: sourceProof.token,
+      survivorProofToken: survivorProof.token,
+      idempotencyKey: "self-merge-preview-0001",
+    }),
+  });
+  assert.equal(previewResponse.status, 201);
+  const preview = (await json(previewResponse)).merge;
+
+  const outsiderPreviewAttempt = await api(
+    "attacker-token",
+    "/v1/me/account-merges/preview",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        sourceUserId: source.id,
+        survivorUserId: survivor.id,
+        sourceProofToken: sourceProof.token,
+        survivorProofToken: survivorProof.token,
+        idempotencyKey: "self-merge-preview-outsider-0001",
+      }),
+    },
+  );
+  assert.equal(outsiderPreviewAttempt.status, 403);
+  assert.equal(
+    (await json(outsiderPreviewAttempt)).error.code,
+    "merge_self_participation_required",
+  );
+
+  const outsiderComplete = await api(
+    "attacker-token",
+    `/v1/me/account-merges/${preview.id}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        confirmation: `MERGE ${source.id} INTO ${survivor.id}`,
+        idempotencyKey: "self-merge-preview-0001",
+        resolutions: Object.fromEntries(
+          preview.conflicts.map((conflict) => [conflict.key, "survivor"]),
+        ),
+      }),
+    },
+  );
+  assert.equal(outsiderComplete.status, 403);
+  assert.equal(
+    (await json(outsiderComplete)).error.code,
+    "merge_self_participation_required",
+  );
+  const outsiderReceipt = await api(
+    "attacker-token",
+    `/v1/me/account-merges/${preview.id}/receipt`,
+  );
+  assert.equal(outsiderReceipt.status, 403);
+  const outsiderRollback = await api(
+    "attacker-token",
+    `/v1/me/account-merges/${preview.id}/rollback`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        confirmation: `ROLL BACK ${preview.id}`,
+        reason: "An outsider must never roll back a reconciliation.",
+      }),
+    },
+  );
+  assert.equal(outsiderRollback.status, 403);
+
+  const completeResponse = await api(
+    "source-token",
+    `/v1/me/account-merges/${preview.id}/complete`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        confirmation: `MERGE ${source.id} INTO ${survivor.id}`,
+        idempotencyKey: "self-merge-preview-0001",
+        resolutions: Object.fromEntries(
+          preview.conflicts.map((conflict) => [conflict.key, "survivor"]),
+        ),
+      }),
+    },
+  );
+  assert.equal(completeResponse.status, 200);
+  const receipt = (await json(completeResponse)).receipt;
+  assert.equal(receipt.status, "completed");
+
+  const survivorReceiptFetch = await api(
+    "survivor-token",
+    `/v1/me/account-merges/${preview.id}/receipt`,
+  );
+  assert.equal(survivorReceiptFetch.status, 200);
+  assert.equal((await json(survivorReceiptFetch)).receipt.id, receipt.id);
+
+  const rollbackResponse = await api(
+    "survivor-token",
+    `/v1/me/account-merges/${preview.id}/rollback`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        confirmation: `ROLL BACK ${preview.id}`,
+        reason: "The learner changed their mind before the window closed.",
+      }),
+    },
+  );
+  assert.equal(rollbackResponse.status, 200);
+  assert.equal((await json(rollbackResponse)).receipt.status, "rolled-back");
+
+  const postRollbackOutsider = await api(
+    "attacker-token",
+    `/v1/me/account-merges/${preview.id}/rollback`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        confirmation: `ROLL BACK ${preview.id}`,
+        reason: "An outsider must never roll back a reconciliation.",
+      }),
+    },
+  );
+  assert.equal(postRollbackOutsider.status, 403);
+});
