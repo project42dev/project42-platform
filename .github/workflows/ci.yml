@@ -90,7 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      PROJECT42_VERSION: 0.70.2
+      PROJECT42_VERSION: 0.71.0
       PROJECT42_LEARN_SOURCE_REF: f9e9cd1293bd7337c4c71e78f7e7f21e31ca4e52
       PROJECT42_INSTALLATION_ID: ci-secure-topology
       PROJECT42_DATABASE_PASSWORD: K7v9nP4rX2mQ8sL6zC5dH3jF
@@ -226,3 +226,31 @@ jobs:
       - name: Stop secure stack
         if: always()
         run: docker compose -f self-host/compose.https.yaml down --volumes
+
+  # AB#5418 requires the Authorization Code + PKCE flow to complete against the
+  # hosted test provider as well as the reference self-host provider above. This
+  # job is the hosted leg. It runs only where a hosted test identity is
+  # configured, because it signs in as a real user against a real issuer; it
+  # cannot be satisfied by a stub without defeating its own purpose.
+  hosted-identity-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: vars.PROJECT42_HOSTED_IDENTITY_ENABLED == 'true'
+    env:
+      PROJECT42_HOSTED_LEARN_ORIGIN: ${{ vars.PROJECT42_HOSTED_LEARN_ORIGIN }}
+      PROJECT42_HOSTED_API_ORIGIN: ${{ vars.PROJECT42_HOSTED_API_ORIGIN }}
+      PROJECT42_HOSTED_ISSUER: ${{ vars.PROJECT42_HOSTED_ISSUER }}
+      PROJECT42_HOSTED_SMOKE_EMAIL: ${{ secrets.PROJECT42_HOSTED_SMOKE_EMAIL }}
+      PROJECT42_HOSTED_SMOKE_PASSWORD: ${{ secrets.PROJECT42_HOSTED_SMOKE_PASSWORD }}
+      PROJECT42_HOSTED_SMOKE_SUBJECT: ${{ secrets.PROJECT42_HOSTED_SMOKE_SUBJECT }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Verify hosted-provider PKCE sign-in and secure session
+        run: node scripts/smoke-hosted-browser-session.mjs

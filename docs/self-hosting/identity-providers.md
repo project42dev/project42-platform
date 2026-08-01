@@ -91,6 +91,54 @@ the ID token—contains the API audience and configured email-verification claim
 Other conforming OIDC providers work when they satisfy the same contract. Provider
 names are examples, not hard-coded adapters.
 
+## Sign-in conformance coverage
+
+The Authorization Code with PKCE contract is proven against two providers, because
+a provider-neutral contract that is only ever exercised against one implementation
+is not actually proven to be provider-neutral.
+
+| Leg | Provider | Where it runs |
+|---|---|---|
+| Reference self-host | Keycloak | `self-host-smoke` and `secure-self-host-smoke` CI jobs |
+| Hosted | Any deployed hosted issuer | `hosted-identity-smoke` CI job |
+
+Both legs drive a real browser through a real provider's own sign-in pages and
+assert the same guarantees: an `S256` PKCE challenge with `state` and `nonce` on
+the authorization request, a completed callback, a `Secure`/`HttpOnly`/`SameSite=Lax`
+session cookie, a single-use OIDC transaction cookie that does not survive the
+callback, an identity resolved by issuer and subject, and a session that is
+genuinely invalidated on sign-out. Neither leg accepts a stub, a local JWKS
+server, or a mocked provider.
+
+The self-host leg provisions and removes its own ephemeral identity. The hosted
+leg cannot: signing in as a real user against a real hosted issuer needs a real
+test identity that already exists. It therefore runs only where one is configured,
+gated on the `PROJECT42_HOSTED_IDENTITY_ENABLED` repository variable so that forks
+and unconfigured clones are unaffected rather than failing.
+
+Configure the hosted leg with these repository variables:
+
+| Variable | Purpose |
+|---|---|
+| `PROJECT42_HOSTED_IDENTITY_ENABLED` | Set to `true` to run the hosted leg |
+| `PROJECT42_HOSTED_LEARN_ORIGIN` | Deployed Learn origin to sign in through |
+| `PROJECT42_HOSTED_API_ORIGIN` | Deployed API origin owning the callback |
+| `PROJECT42_HOSTED_ISSUER` | Exact expected `iss`; the authorization request must reach it |
+
+and these Actions secrets:
+
+| Secret | Purpose |
+|---|---|
+| `PROJECT42_HOSTED_SMOKE_EMAIL` | Test identity's sign-in address |
+| `PROJECT42_HOSTED_SMOKE_PASSWORD` | Test identity's password |
+| `PROJECT42_HOSTED_SMOKE_SUBJECT` | Optional expected immutable subject |
+
+Use a dedicated, non-owner test identity with no administrative rights. If the
+provider's sign-in form differs from the Entra External ID default, override
+`PROJECT42_HOSTED_USERNAME_SELECTOR`, `PROJECT42_HOSTED_PASSWORD_SELECTOR`, and
+`PROJECT42_HOSTED_SUBMIT_SELECTOR` rather than editing the script — the leg is
+provider-neutral by configuration.
+
 ## Deployment-time client provisioning
 
 Use the versioned
