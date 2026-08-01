@@ -4,6 +4,42 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.71.0] - 2026-08-01
+
+### Added
+
+- An `ACCOUNT_NOTIFICATION_DELIVERY` Worker provides a provider-neutral delivery
+  adapter for account notifications, with a Resend implementation behind
+  `POST /v1/deliver`. The account service reaches it through a service binding,
+  so the delivery provider can be replaced without changing account logic.
+- Learners can complete, fetch the receipt for, and roll back their own account
+  reconciliation through `/v1/me/account-merges/:id/{complete,receipt,rollback}`.
+  Each route requires the caller to be the source or survivor of that merge.
+  Owner involvement is no longer required for a learner to resolve their own
+  duplicate account.
+- An optional `SESSION_COOKIE_DOMAIN` variable scopes the browser session cookie
+  across sibling subdomains. Leaving it unset preserves the previous host-only
+  behavior exactly.
+
+### Changed
+
+- The browser session cookie is named `__Secure-project42_session` rather than
+  `__Host-project42_session`. A `__Host-` cookie carrying a `Domain` attribute is
+  rejected outright by the browser under RFC 6265bis §4.1.3, so the prefix had to
+  change for `SESSION_COOKIE_DOMAIN` to be usable at all. `__Secure-` is still
+  browser-enforced to require `Secure`. The one-time OIDC transaction and
+  registration receipt cookies remain `__Host-`; they are single-flow and never
+  need cross-subdomain scope.
+
+### Fixed
+
+- Completing a merge no longer fails with a `NOT NULL` constraint violation on
+  `user_profiles.reduced_motion` when neither account has ever opened profile
+  settings. The merge built an explicit insert that bound `NULL` over the
+  column's own SQL default; it now falls back to that default. This path was
+  reachable in the new learner-initiated flow, where two freshly registered
+  duplicate accounts can be merged before either has profile settings.
+
 ## [0.70.2] - 2026-07-30
 
 ### Fixed
@@ -91,6 +127,7 @@ semantic versioning.
 - Identity-provider configuration and real user journeys remain deployment-owner
   responsibilities.
 
+[0.71.0]: https://github.com/project42dev/project42-platform/releases/tag/v0.71.0
 [0.70.2]: https://github.com/project42dev/project42-platform/releases/tag/v0.70.2
 [0.70.1]: https://github.com/project42dev/project42-platform/releases/tag/v0.70.1
 [0.70.0]: https://github.com/project42dev/project42-platform/releases/tag/v0.70.0

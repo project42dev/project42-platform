@@ -1,6 +1,28 @@
-# Project 42 platform v0.70.2
+# Project 42 platform v0.71.0
 
-Version 0.70.2 preserves the reusable hosted and self-host account boundary from
+Version 0.71.0 lets a learner resolve their own duplicate account without owner
+involvement, adds a provider-neutral delivery adapter for account notifications,
+and allows the browser session to be scoped across sibling subdomains.
+
+Account reconciliation gains learner-scoped `complete`, `receipt`, and `rollback`
+routes under `/v1/me/account-merges/:id`. Each requires the caller to be the
+source or survivor of that specific merge, mirroring the guard the preview route
+already used. The owner-scoped routes are unchanged; this adds a self-service
+path rather than widening owner authority.
+
+Account notifications are delivered through a separate
+`ACCOUNT_NOTIFICATION_DELIVERY` Worker reached by service binding, with a Resend
+implementation behind `POST /v1/deliver`. The delivery provider is now
+replaceable without touching account logic, matching the adapter pattern used
+elsewhere in the platform.
+
+The browser session cookie can be scoped across sibling subdomains through the
+optional `SESSION_COOKIE_DOMAIN` variable. Leaving it unset preserves the
+previous host-only behavior exactly. Enabling it required renaming the session
+cookie to `__Secure-project42_session`, because a browser rejects a `__Host-`
+cookie outright when it carries a `Domain` attribute.
+
+Version 0.70.2 preserved the reusable hosted and self-host account boundary from
 v0.70.1 and adds a bounded browser-only clock-skew tolerance for OIDC ID tokens.
 The tolerance applies only when the callback validates both its nonce and fresh
 authentication time. Bearer access tokens remain strict, and every signature,
@@ -41,13 +63,19 @@ image.
 
 No public TypeScript export is removed in this release.
 
+The browser session cookie is renamed from `__Host-project42_session` to
+`__Secure-project42_session`. Sessions issued before this release are not read
+back after upgrading, so every signed-in browser is signed out once and must
+sign in again. No account data is affected. Any automation, smoke test, or
+monitoring that matched the previous cookie name by string must be updated.
+
 Administration cursors issued before this release are intentionally incompatible
 with the encrypted cursor contract. Rotating `SESSION_ENCRYPTION_KEY` also
 invalidates outstanding cursors. Clients receiving `invalid_admin_cursor` must
 discard the continuation value and restart the same query from its first page.
 Clients must never parse or construct cursors.
 
-Secure self-host installations should recreate containers from the v0.70.2 images
+Secure self-host installations should recreate containers from the v0.71.0 images
 rather than retaining the older utility or runtime images. The HTTPS profile exposes
 only its gateway on TCP 443 and expects the documented local trust setup; automation
 that depended on direct host access to an internal service is outside the supported
@@ -55,7 +83,7 @@ secure topology.
 
 ## Migrations
 
-There is no new PostgreSQL migration in v0.70.2. The compatibility manifest retains
+There is no new PostgreSQL migration in v0.71.0. The compatibility manifest retains
 migration head `013_account_notification_outbox.sql`. Apply every migration through
 that file in order when upgrading from an older release. Hosted Cloudflare D1
 deployments use their separately governed numbered D1 migrations and must not apply
@@ -67,7 +95,7 @@ Before upgrading:
 2. Capture and verify a restorable database backup.
 3. Record the current application and immutable image digest.
 4. Preserve profile-photo, identity-provider, gateway data, and configuration.
-5. Preview the v0.70.2 compatibility and release manifests.
+5. Preview the v0.71.0 compatibility and release manifests.
 
 After upgrading, verify health, the authenticated browser-session lifecycle, owner
 account and audit pagination, authorization boundaries, profile storage, learning
