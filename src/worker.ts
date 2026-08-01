@@ -9822,6 +9822,14 @@ async function handleRequest(
             "set-cookie",
             clearHostCookie(BROWSER_SESSION_COOKIE),
           );
+          // Signing out must clear every local identity artefact, not just the
+          // session. A pending learner holds only the registration receipt and
+          // has no session to sign out of, so leaving it behind strands the
+          // browser on the pending receipt with no way back to a clean state.
+          response.headers.append(
+            "set-cookie",
+            clearHostCookie(REGISTRATION_RECEIPT_COOKIE),
+          );
           return response;
         }
         throw new ApiFailure(
@@ -9974,6 +9982,13 @@ async function handleRequest(
       response.headers.append(
         "set-cookie",
         clearHostCookie(BROWSER_SESSION_COOKIE),
+      );
+      // Same reasoning as the browser-session sign-out above: a pending or
+      // rejected browser holds only the registration receipt, so sign-out must
+      // clear it or the browser cannot return to a clean state.
+      response.headers.append(
+        "set-cookie",
+        clearHostCookie(REGISTRATION_RECEIPT_COOKIE),
       );
       return response;
     }
