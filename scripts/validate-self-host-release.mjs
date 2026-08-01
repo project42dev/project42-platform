@@ -254,7 +254,7 @@ for (const fragment of [
   "chromium.launch",
   "chromiumSandbox: true",
   "--host-resolver-rules=",
-  "__Host-project42_session",
+  "__Secure-project42_session",
   "sessionCookie.secure",
   "sessionCookie.httpOnly",
   'sessionCookie.sameSite, "Lax"',

@@ -76,7 +76,7 @@ try {
 
   const cookies = await context.cookies(apiOrigin);
   const sessionCookie = cookies.find(
-    (cookie) => cookie.name === "__Host-project42_session",
+    (cookie) => cookie.name === "__Secure-project42_session",
   );
   assert.ok(sessionCookie, "The API session cookie was not stored.");
   assert.equal(sessionCookie.secure, true);
@@ -118,7 +118,7 @@ try {
     .waitFor();
   assert.equal(
     (await context.cookies(apiOrigin)).some(
-      (cookie) => cookie.name === "__Host-project42_session",
+      (cookie) => cookie.name === "__Secure-project42_session",
     ),
     false,
     "The browser retained the session cookie after sign-out.",

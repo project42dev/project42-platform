@@ -2,7 +2,12 @@ const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
 export const OIDC_TRANSACTION_COOKIE = "__Host-project42_oidc" as const;
-export const BROWSER_SESSION_COOKIE = "__Host-project42_session" as const;
+// __Secure-, not __Host-: the __Host- prefix forbids a Domain attribute
+// entirely (RFC 6265bis 4.1.3), and this cookie needs one so a single
+// sign-in is presented across learn./admin./account./api.project-42.dev
+// (see ADR-0009's 2026-08-01 amendment). __Secure- still requires Secure and
+// is browser-enforced the same way; only the Domain restriction differs.
+export const BROWSER_SESSION_COOKIE = "__Secure-project42_session" as const;
 export const REGISTRATION_RECEIPT_COOKIE =
   "__Host-project42_registration" as const;
 
@@ -182,13 +187,26 @@ export function readCookie(request: Request, name: string): string | null {
   return null;
 }
 
+const SUBDOMAIN_COOKIE_DOMAIN_PATTERN = /^\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$/;
+
 export function createHostCookie(
   name: string,
   value: string,
   maximumAgeSeconds: number,
+  cookieDomain?: string | null,
 ): string {
-  if (!name.startsWith("__Host-")) {
-    throw new Error("Browser security cookies must use the __Host- prefix.");
+  const isHostPrefixed = name.startsWith("__Host-");
+  const isSecurePrefixed = name.startsWith("__Secure-");
+  if (!isHostPrefixed && !isSecurePrefixed) {
+    throw new Error(
+      "Browser security cookies must use the __Host- or __Secure- prefix.",
+    );
+  }
+  if (isHostPrefixed && cookieDomain) {
+    // RFC 6265bis 4.1.3: a __Host- cookie with a Domain attribute must be
+    // rejected by the user agent, so setting one here would silently drop
+    // the whole Set-Cookie response rather than merely widen its scope.
+    throw new Error("A __Host- prefixed cookie cannot carry a Domain attribute.");
   }
   if (
     !Number.isSafeInteger(maximumAgeSeconds) ||
@@ -197,11 +215,17 @@ export function createHostCookie(
   ) {
     throw new Error("Cookie lifetime is invalid.");
   }
-  return `${name}=${value}; Path=/; Max-Age=${maximumAgeSeconds}; Secure; HttpOnly; SameSite=Lax`;
+  if (cookieDomain && !SUBDOMAIN_COOKIE_DOMAIN_PATTERN.test(cookieDomain)) {
+    throw new Error(
+      "cookieDomain must be a leading-dot registrable domain, such as .example.com.",
+    );
+  }
+  const domainAttribute = cookieDomain ? `; Domain=${cookieDomain}` : "";
+  return `${name}=${value}; Path=/; Max-Age=${maximumAgeSeconds}${domainAttribute}; Secure; HttpOnly; SameSite=Lax`;
 }
 
-export function clearHostCookie(name: string): string {
-  return createHostCookie(name, "", 0);
+export function clearHostCookie(name: string, cookieDomain?: string | null): string {
+  return createHostCookie(name, "", 0, cookieDomain);
 }
 
 export function normalizeReturnTarget(

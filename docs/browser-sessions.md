@@ -131,9 +131,17 @@ untrusted forwarding header.
 
 ## Security and operations
 
-Transaction cookies and session cookies use the `__Host-` prefix, `Secure`,
-`HttpOnly`, `Path=/`, and `SameSite=Lax`. Session tokens are random and only
-their SHA-256 digests are stored. Rotation, revocation, and account-state
+Transaction and registration-receipt cookies use the `__Host-` prefix; the
+session cookie uses `__Secure-` so it can optionally carry a `Domain`
+attribute (`__Host-` forbids one entirely per RFC 6265bis). All three are
+`Secure`, `HttpOnly`, `Path=/`, and `SameSite=Lax`. By default the session
+cookie is still host-only, matching a single-origin deployment. Setting the
+`SESSION_COOKIE_DOMAIN` Worker variable to a leading-dot registrable domain
+(for example `.project-42.dev`) scopes the session cookie to every subdomain
+of that domain from one sign-in, without a second identity client — the
+Worker still authorizes every request independently of which subdomain
+presented the cookie. Session tokens are random and only their SHA-256
+digests are stored. Rotation, revocation, and account-state
 changes are committed with append-only audit evidence. Suspension, revocation,
 merge, and merge rollback revoke affected sessions and require a fresh sign-in.
 Session creation and renewal recheck the live database state. A session created

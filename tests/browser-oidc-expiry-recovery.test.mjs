@@ -197,7 +197,7 @@ test("browser identity tokens tolerate only bounded clock skew and establish an 
   );
   assert.equal(
     callbackCookies.some((value) =>
-      value.startsWith("__Host-project42_session="),
+      value.startsWith("__Secure-project42_session="),
     ),
     false,
   );
@@ -300,7 +300,7 @@ test("browser identity tokens tolerate only bounded clock skew and establish an 
   assert.ok(
     boundaryCookies.some(
       (value) =>
-        value.startsWith("__Host-project42_session=") &&
+        value.startsWith("__Secure-project42_session=") &&
         value.includes("Secure") &&
         value.includes("HttpOnly") &&
         value.includes("SameSite=Lax"),

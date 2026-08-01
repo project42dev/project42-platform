@@ -197,12 +197,12 @@ test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", asyn
   const callbackCookies = setCookies(callback);
   const sessionCookie = cookiePair(
     callbackCookies,
-    "__Host-project42_session",
+    "__Secure-project42_session",
   );
   assert.ok(
     callbackCookies.some(
       (value) =>
-        value.startsWith("__Host-project42_session=") &&
+        value.startsWith("__Secure-project42_session=") &&
         value.includes("Secure") &&
         value.includes("HttpOnly") &&
         value.includes("SameSite=Lax") &&
@@ -403,7 +403,7 @@ test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", asyn
   assert.equal(renewal.status, 200);
   const replacementCookie = cookiePair(
     setCookies(renewal),
-    "__Host-project42_session",
+    "__Secure-project42_session",
   );
   assert.notEqual(replacementCookie, sessionCookie);
 
@@ -417,7 +417,7 @@ test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", asyn
   assert.ok(
     setCookies(replaced).some(
       (value) =>
-        value.startsWith("__Host-project42_session=") &&
+        value.startsWith("__Secure-project42_session=") &&
         value.includes("Max-Age=0"),
     ),
   );
@@ -447,7 +447,7 @@ test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", asyn
   assert.ok(
     setCookies(signout).some(
       (value) =>
-        value.startsWith("__Host-project42_session=") &&
+        value.startsWith("__Secure-project42_session=") &&
         value.includes("Max-Age=0"),
     ),
   );
@@ -464,7 +464,7 @@ test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", asyn
     new Request("https://api.example.test/v1/auth/signout", {
       method: "POST",
       headers: {
-        cookie: "__Host-project42_session=unknown-session",
+        cookie: "__Secure-project42_session=unknown-session",
         origin: "https://learn.example.test",
       },
     }),
@@ -474,7 +474,7 @@ test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", asyn
   assert.ok(
     setCookies(recoverInvalidCookie).some(
       (value) =>
-        value.startsWith("__Host-project42_session=") &&
+        value.startsWith("__Secure-project42_session=") &&
       value.includes("Max-Age=0"),
     ),
   );
@@ -698,8 +698,8 @@ test("pending and rejected OIDC callbacks receive only an installation-scoped st
   assert.ok(
     !pendingCookies.some(
       (value) =>
-        value.startsWith("__Host-project42_session=") &&
-        !value.startsWith("__Host-project42_session=;"),
+        value.startsWith("__Secure-project42_session=") &&
+        !value.startsWith("__Secure-project42_session=;"),
     ),
   );
   assert.equal(
@@ -880,7 +880,7 @@ test("pending and rejected OIDC callbacks receive only an installation-scoped st
   const staleSession = await api(
     new Request("https://api.example.test/v1/auth/session", {
       headers: {
-        cookie: `__Host-project42_session=${staleToken}`,
+        cookie: `__Secure-project42_session=${staleToken}`,
         origin: "https://learn.example.test",
       },
     }),
@@ -972,13 +972,13 @@ test("pending and rejected OIDC callbacks receive only an installation-scoped st
   );
   const approvedSessionCookie = cookiePair(
     setCookies(approvedCallback),
-    "__Host-project42_session",
+    "__Secure-project42_session",
   );
   assert.ok(
     setCookies(approvedCallback).some(
       (value) =>
-        value.startsWith("__Host-project42_session=") &&
-        !value.startsWith("__Host-project42_session=;"),
+        value.startsWith("__Secure-project42_session=") &&
+        !value.startsWith("__Secure-project42_session=;"),
     ),
   );
 
@@ -1021,7 +1021,7 @@ test("pending and rejected OIDC callbacks receive only an installation-scoped st
   const restoredCallback = await signIn();
   const restoredSessionCookie = cookiePair(
     setCookies(restoredCallback),
-    "__Host-project42_session",
+    "__Secure-project42_session",
   );
   await repository.changeAccountState({
     actor: owner,

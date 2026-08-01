@@ -67,7 +67,7 @@ test("host cookies are HttpOnly and return targets stay on allowed origins", () 
     "opaque-session",
     3600,
   );
-  assert.match(sessionCookie, /^__Host-project42_session=/);
+  assert.match(sessionCookie, /^__Secure-project42_session=/);
   assert.match(sessionCookie, /Path=\//);
   assert.match(sessionCookie, /Secure/);
   assert.match(sessionCookie, /HttpOnly/);
@@ -98,6 +98,32 @@ test("host cookies are HttpOnly and return targets stay on allowed origins", () 
     ),
     "https://learn.example.test/account/",
   );
+});
+
+test("a cookie domain scopes the session cookie across subdomains but is refused on __Host- cookies", () => {
+  const scopedCookie = createHostCookie(
+    BROWSER_SESSION_COOKIE,
+    "opaque-session",
+    3600,
+    ".project-42.dev",
+  );
+  assert.match(scopedCookie, /^__Secure-project42_session=/);
+  assert.match(scopedCookie, /Domain=\.project-42\.dev/);
+  assert.match(scopedCookie, /Secure/);
+  assert.match(scopedCookie, /HttpOnly/);
+  assert.match(clearHostCookie(BROWSER_SESSION_COOKIE, ".project-42.dev"), /Domain=\.project-42\.dev.*Max-Age=0|Max-Age=0.*Domain=\.project-42\.dev/);
+
+  assert.throws(
+    () => createHostCookie(OIDC_TRANSACTION_COOKIE, "value", 60, ".project-42.dev"),
+    /cannot carry a Domain attribute/,
+  );
+  for (const invalid of ["project-42.dev", ".", "..project-42.dev", "not a domain", ""]) {
+    if (invalid === "") continue;
+    assert.throws(
+      () => createHostCookie(BROWSER_SESSION_COOKIE, "value", 60, invalid),
+      /leading-dot registrable domain/,
+    );
+  }
 });
 
 test("browser OIDC configuration fails closed on unsafe endpoints and key size", async () => {

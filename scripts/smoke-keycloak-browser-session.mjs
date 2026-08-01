@@ -206,12 +206,12 @@ try {
   );
   const sessionCookie = cookiePair(
     responseCookies(callback),
-    "__Host-project42_session",
+    "__Secure-project42_session",
   );
   assert.ok(
     responseCookies(callback).some(
       (cookie) =>
-        cookie.startsWith("__Host-project42_session=") &&
+        cookie.startsWith("__Secure-project42_session=") &&
         cookie.includes("Secure") &&
         cookie.includes("HttpOnly") &&
         cookie.includes("SameSite=Lax") &&
@@ -246,7 +246,7 @@ try {
   assert.equal(renewal.status, 200);
   const replacementCookie = cookiePair(
     responseCookies(renewal),
-    "__Host-project42_session",
+    "__Secure-project42_session",
   );
   assert.notEqual(replacementCookie, sessionCookie);
   const replacedSession = await api(
@@ -273,7 +273,7 @@ try {
   assert.ok(
     responseCookies(signout).some(
       (cookie) =>
-        cookie.startsWith("__Host-project42_session=") &&
+        cookie.startsWith("__Secure-project42_session=") &&
         cookie.includes("Max-Age=0"),
     ),
   );

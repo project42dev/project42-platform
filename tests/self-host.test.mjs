@@ -282,7 +282,7 @@ test("secure release gate drives a real browser session and isolated restore", a
   assert.match(browserSmoke, /verifyProvisionedUser/);
   assert.doesNotMatch(browserSmoke, /Keycloak did not preserve/);
   assert.doesNotMatch(browserSmoke, /waitUntil: "networkidle"/);
-  assert.match(browserSmoke, /__Host-project42_session/);
+  assert.match(browserSmoke, /__Secure-project42_session/);
   assert.match(browserSmoke, /sessionCookie\.secure, true/);
   assert.match(browserSmoke, /sessionCookie\.httpOnly, true/);
   assert.match(browserSmoke, /sessionCookie\.sameSite, "Lax"/);
@@ -571,7 +571,7 @@ test("Node self-host bridge preserves both browser callback Set-Cookie fields", 
     const headers = new Headers({ "content-type": "text/plain" });
     headers.append(
       "set-cookie",
-      "__Host-project42_session=session; Path=/; Secure; HttpOnly; SameSite=Lax",
+      "__Secure-project42_session=session; Path=/; Secure; HttpOnly; SameSite=Lax",
     );
     headers.append(
       "set-cookie",
@@ -599,7 +599,7 @@ test("Node self-host bridge preserves both browser callback Set-Cookie fields", 
   response.resume();
   await new Promise((resolve) => response.once("end", resolve));
   assert.deepEqual(response.headers["set-cookie"], [
-    "__Host-project42_session=session; Path=/; Secure; HttpOnly; SameSite=Lax",
+    "__Secure-project42_session=session; Path=/; Secure; HttpOnly; SameSite=Lax",
     "__Host-project42_oidc=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=Lax",
   ]);
   assert.equal(

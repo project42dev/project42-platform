@@ -185,6 +185,11 @@ type WorkerEnvironment = Omit<
   AUTH_INSTALLATION_RATE_LIMITER?: RateLimit;
   ACCOUNT_NOTIFICATION_DELIVERY?: Fetcher;
   ACCOUNT_MERGE_REQUIRED_CONSENTS?: string;
+  // Leading-dot registrable domain, e.g. ".project-42.dev". Unset keeps the
+  // session cookie host-only (self-host default). Set only once every
+  // subdomain that will receive it enforces the same origin/CORS and
+  // per-route authorization checks - see ADR-0009's 2026-08-01 amendment.
+  SESSION_COOKIE_DOMAIN?: string;
 };
 
 interface BrowserSessionRow {
@@ -9771,6 +9776,7 @@ async function handleRequest(
               BROWSER_SESSION_COOKIE,
               sessionToken,
               secondsUntil(now, session.expiresAt),
+              env.SESSION_COOKIE_DOMAIN,
             ),
             clearHostCookie(OIDC_TRANSACTION_COOKIE),
             clearHostCookie(REGISTRATION_RECEIPT_COOKIE),
@@ -9797,7 +9803,7 @@ async function handleRequest(
               receiptToken,
               secondsUntil(now, registration.expiresAt),
             ),
-            clearHostCookie(BROWSER_SESSION_COOKIE),
+            clearHostCookie(BROWSER_SESSION_COOKIE, env.SESSION_COOKIE_DOMAIN),
             clearHostCookie(OIDC_TRANSACTION_COOKIE),
           ],
           requestId,
@@ -9808,7 +9814,7 @@ async function handleRequest(
       return redirect(
         returnTarget.toString(),
         [
-          clearHostCookie(BROWSER_SESSION_COOKIE),
+          clearHostCookie(BROWSER_SESSION_COOKIE, env.SESSION_COOKIE_DOMAIN),
           clearHostCookie(REGISTRATION_RECEIPT_COOKIE),
           clearHostCookie(OIDC_TRANSACTION_COOKIE),
         ],
@@ -9844,7 +9850,7 @@ async function handleRequest(
           );
           response.headers.append(
             "set-cookie",
-            clearHostCookie(BROWSER_SESSION_COOKIE),
+            clearHostCookie(BROWSER_SESSION_COOKIE, env.SESSION_COOKIE_DOMAIN),
           );
           // Signing out must clear every local identity artefact, not just the
           // session. A pending learner holds only the registration receipt and
@@ -9977,6 +9983,7 @@ async function handleRequest(
           BROWSER_SESSION_COOKIE,
           replacementToken,
           secondsUntil(now, replacement.expiresAt),
+          env.SESSION_COOKIE_DOMAIN,
         ),
       );
       return response;
@@ -10005,7 +10012,7 @@ async function handleRequest(
       );
       response.headers.append(
         "set-cookie",
-        clearHostCookie(BROWSER_SESSION_COOKIE),
+        clearHostCookie(BROWSER_SESSION_COOKIE, env.SESSION_COOKIE_DOMAIN),
       );
       // Same reasoning as the browser-session sign-out above: a pending or
       // rejected browser holds only the registration receipt, so sign-out must
@@ -10919,7 +10926,7 @@ async function handleRequest(
     ) {
       response.headers.append(
         "set-cookie",
-        clearHostCookie(BROWSER_SESSION_COOKIE),
+        clearHostCookie(BROWSER_SESSION_COOKIE, env.SESSION_COOKIE_DOMAIN),
       );
     }
     if (
