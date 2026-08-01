@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "project42-account-notification-delivery",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-26",
+  "workers_dev": false,
+  // No routes. This Worker is reachable only through the account service's
+  // ACCOUNT_NOTIFICATION_DELIVERY service binding, so it has no public URL and
+  // no origin to defend.
+  "vars": {
+    "ACCOUNT_NOTIFICATION_CONTRACT_VERSION": "1.0",
+    "NOTIFICATION_FROM": "Project 42 <contact@project-42.dev>",
+    "NOTIFICATION_REPLY_TO": "contact@project-42.dev"
+  }
+  // RESEND_API_KEY is a secret, never a var. Set it with:
+  //   wrangler secret put RESEND_API_KEY
+  // sourced from kv-hcs-vault-01/hcs-project42dev-ops-resend-api-key.
+}
