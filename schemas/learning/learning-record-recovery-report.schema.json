@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://project-42.dev/schemas/learning-record-recovery-report-v1.1.json",
+  "$id": "https://project-42.dev/schemas/learning-record-recovery-report-v1.2.json",
   "title": "Project 42 learning-record recovery report",
   "type": "object",
   "additionalProperties": false,
@@ -13,6 +13,7 @@
     "backupId",
     "backupSha256",
     "backupBytes",
+    "backupExpiryDays",
     "restoredEventCount",
     "replayedDeletionEventCount",
     "deletionReceiptStatus",
@@ -29,11 +30,11 @@
     "maximumRecoveryTimeSeconds"
   ],
   "properties": {
-    "contractVersion": { "const": "1.1" },
+    "contractVersion": { "const": "1.2" },
     "promotionStatus": { "const": "ready" },
     "checks": {
       "type": "array",
-      "minItems": 15,
+      "minItems": 17,
       "uniqueItems": true,
       "items": {
         "enum": [
@@ -44,6 +45,8 @@
           "truncated-backup-rejected",
           "checksum-mismatched-backup-rejected",
           "wrong-migration-head-rejected",
+          "backup-within-retention-window",
+          "expired-backup-rejected",
           "authoritative-event-order-restored",
           "enrollment-progress-attempt-correction-projections-rebuilt",
           "transcript-projection-rebuilt",
@@ -71,6 +74,7 @@
       "pattern": "^[a-f0-9]{64}$"
     },
     "backupBytes": { "type": "integer", "minimum": 1 },
+    "backupExpiryDays": { "type": "integer", "minimum": 1 },
     "restoredEventCount": { "type": "integer", "minimum": 1 },
     "replayedDeletionEventCount": { "type": "integer", "minimum": 1 },
     "deletionReceiptStatus": { "const": "verified" },
