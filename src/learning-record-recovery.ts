@@ -10,9 +10,11 @@ import type { LearningRecordAdapterKind } from "./learning-record-adapter.js";
 import {
   createLearningRecordRecoveryBackup,
   digestLearningRecordRecoveryArtifact,
+  isLearningRecordRecoveryBackupExpired,
   type LearningRecordRecoveryBackupArtifact,
   verifyLearningRecordRecoveryBackup,
 } from "./learning-record-recovery-backup.js";
+import { defaultLearnerDataPolicy } from "./learner-data-policy.js";
 import {
   type LearningRecordDeletionReceipt,
   type LearningRecordReceiptStore,
@@ -21,7 +23,7 @@ import {
   verifyLearningRecordExport,
 } from "./learning-record-receipts.js";
 
-export const LEARNING_RECORD_RECOVERY_CONTRACT_VERSION = "1.1" as const;
+export const LEARNING_RECORD_RECOVERY_CONTRACT_VERSION = "1.2" as const;
 export const DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES = Object.freeze({
   maximumRecoveryPointSeconds: 24 * 60 * 60,
   maximumRecoveryTimeSeconds: 8 * 60 * 60,
@@ -62,6 +64,7 @@ export interface LearningRecordRecoveryReport {
   backupId: string;
   backupSha256: string;
   backupBytes: number;
+  backupExpiryDays: number;
   restoredEventCount: number;
   replayedDeletionEventCount: number;
   deletionReceiptStatus: "verified";
@@ -319,15 +322,24 @@ async function runLearningRecordRecoveryConformanceInternal(
       sourceCurrentAt: measurement.sourceCurrentAt,
     },
   );
+  const backupExpiryDays = defaultLearnerDataPolicy.deletion.backupExpiryDays;
   const verifiedRecoveryBackup =
     await verifyLearningRecordRecoveryBackup(recoveryBackup, {
       adapter,
       migrationHead,
+      maxAgeDays: backupExpiryDays,
+      now: recoveryStartedAt,
     });
   await assertInvalidRecoveryBackupsFail(recoveryBackup, {
     adapter,
     migrationHead,
   });
+  await assertExpiredRecoveryBackupIsRejected(
+    recoveryBackup,
+    { adapter, migrationHead },
+    backupExpiryDays,
+    measurement.backupCapturedAt,
+  );
 
   const deletionReceipt = await sourceEngine.deleteVerified(
     scope.installationId,
@@ -403,6 +415,8 @@ async function runLearningRecordRecoveryConformanceInternal(
       "truncated-backup-rejected",
       "checksum-mismatched-backup-rejected",
       "wrong-migration-head-rejected",
+      "backup-within-retention-window",
+      "expired-backup-rejected",
       "authoritative-event-order-restored",
       "enrollment-progress-attempt-correction-projections-rebuilt",
       "transcript-projection-rebuilt",
@@ -417,6 +431,7 @@ async function runLearningRecordRecoveryConformanceInternal(
     backupId: verifiedRecoveryBackup.manifest.backupId,
     backupSha256: verifiedRecoveryBackup.manifest.artifactSha256,
     backupBytes: verifiedRecoveryBackup.manifest.payloadBytes,
+    backupExpiryDays,
     restoredEventCount,
     replayedDeletionEventCount: replay.deletedEventCount,
     deletionReceiptStatus: "verified",
@@ -551,6 +566,43 @@ async function assertInvalidRecoveryBackupsFail(
     ? "0010_wrong_head.sql"
     : "007_wrong_head.sql";
   await assertRejectedBackup(wrongHead, expected, "wrong migration head");
+}
+
+async function assertExpiredRecoveryBackupIsRejected(
+  backup: LearningRecordRecoveryBackupArtifact,
+  expected: {
+    adapter: LearningRecordAdapterKind;
+    migrationHead: string;
+  },
+  backupExpiryDays: number,
+  backupCapturedAt: string,
+): Promise<void> {
+  const capturedAtMs = Date.parse(backupCapturedAt);
+  const justExpiredNow = new Date(
+    capturedAtMs + backupExpiryDays * 24 * 60 * 60 * 1000 + 1,
+  ).toISOString();
+  if (
+    !isLearningRecordRecoveryBackupExpired(backup.manifest, {
+      maxAgeDays: backupExpiryDays,
+      now: justExpiredNow,
+    })
+  ) {
+    throw new Error(
+      "Recovery backup expiry evaluation did not flag a backup past its retention window.",
+    );
+  }
+  try {
+    await verifyLearningRecordRecoveryBackup(backup, {
+      ...expected,
+      maxAgeDays: backupExpiryDays,
+      now: justExpiredNow,
+    });
+  } catch {
+    return;
+  }
+  throw new Error(
+    "An expired recovery backup passed verification instead of being rejected.",
+  );
 }
 
 function assertProjectionMatch(

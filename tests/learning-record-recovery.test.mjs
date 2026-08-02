@@ -6,7 +6,10 @@ import Ajv2020 from "ajv/dist/2020.js";
 import {
   createLearningRecordRecoveryBackup,
   DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES,
+  defaultLearnerDataPolicy,
   digestLearningRecordRecoveryArtifact,
+  isLearningRecordRecoveryBackupExpired,
+  LearningEventEngine,
   measureLearningRecordRecovery,
   restoreVerifiedLearningRecordExport,
   runLearningRecordRecoveryConformance,
@@ -149,13 +152,14 @@ test("recovery gate restores projections and replays post-backup deletion", asyn
   const validateReport = new Ajv2020({ strict: true }).compile(reportSchema);
 
   assert.equal(validateReport(report), true);
-  assert.equal(report.contractVersion, "1.1");
+  assert.equal(report.contractVersion, "1.2");
   assert.equal(report.promotionStatus, "ready");
   assert.equal(report.adapter, "cloudflare-d1");
   assert.equal(report.migrationHead, "0011_authoritative_progress_imports.sql");
   assert.match(report.backupId, /^learning-recovery-[a-f0-9]{32}$/);
   assert.match(report.backupSha256, /^[a-f0-9]{64}$/);
   assert.ok(report.backupBytes > 0);
+  assert.equal(report.backupExpiryDays, 35);
   assert.equal(report.restoredEventCount, 8);
   assert.equal(report.replayedDeletionEventCount, 4);
   assert.equal(report.deletionReceiptStatus, "verified");
@@ -178,6 +182,8 @@ test("recovery gate restores projections and replays post-backup deletion", asyn
     "truncated-backup-rejected",
     "checksum-mismatched-backup-rejected",
     "wrong-migration-head-rejected",
+    "backup-within-retention-window",
+    "expired-backup-rejected",
     "authoritative-event-order-restored",
     "enrollment-progress-attempt-correction-projections-rebuilt",
     "transcript-projection-rebuilt",
@@ -625,4 +631,148 @@ test("default recovery clock measures the 24-hour RPO and 8-hour RTO objectives"
     DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES.maximumRecoveryTimeSeconds,
   );
   assert.equal(report.promotionStatus, "ready");
+});
+
+test("a recovery backup actually expires per the declared retention policy, not just in name", async () => {
+  const backupExpiryDays = defaultLearnerDataPolicy.deletion.backupExpiryDays;
+  assert.equal(backupExpiryDays, 35);
+
+  const capturedAt = "2026-07-01T00:00:00.000Z";
+  const withinWindow = new Date(
+    Date.parse(capturedAt) + (backupExpiryDays - 1) * 24 * 60 * 60 * 1000,
+  ).toISOString();
+  const atTheBoundary = new Date(
+    Date.parse(capturedAt) + backupExpiryDays * 24 * 60 * 60 * 1000,
+  ).toISOString();
+  const pastTheWindow = new Date(
+    Date.parse(capturedAt) + (backupExpiryDays + 1) * 24 * 60 * 60 * 1000,
+  ).toISOString();
+
+  assert.equal(
+    isLearningRecordRecoveryBackupExpired(
+      { capturedAt },
+      { maxAgeDays: backupExpiryDays, now: withinWindow },
+    ),
+    false,
+  );
+  assert.equal(
+    isLearningRecordRecoveryBackupExpired(
+      { capturedAt },
+      { maxAgeDays: backupExpiryDays, now: atTheBoundary },
+    ),
+    false,
+    "the boundary day itself is still inside the retention window",
+  );
+  assert.equal(
+    isLearningRecordRecoveryBackupExpired(
+      { capturedAt },
+      { maxAgeDays: backupExpiryDays, now: pastTheWindow },
+    ),
+    true,
+  );
+  assert.throws(
+    () =>
+      isLearningRecordRecoveryBackupExpired(
+        { capturedAt: pastTheWindow },
+        { maxAgeDays: backupExpiryDays, now: capturedAt },
+      ),
+    /must not be captured in the future/,
+  );
+
+  // The same enforcement must fire on the actual restore path, not only on
+  // the standalone predicate: verifyLearningRecordRecoveryBackup is the
+  // function every restore calls before touching a store, so it is where a
+  // fail-closed expiry check has to live to be real rather than decorative.
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-28",
+    d1Databases: { SOURCE: "project42-backup-expiry-source" },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  try {
+    const database = await miniflare.getD1Database("SOURCE");
+    await applyD1Migrations(database);
+    const installationId = "backup-expiry-conformance";
+    const learnerId = "backup-expiry-learner";
+    await seedRecoveryPrincipals(database, installationId, [learnerId]);
+    const store = new SqlLearningEventStore(database);
+    const engine = new LearningEventEngine(store, { now: () => capturedAt });
+    const access = {
+      installationId,
+      actorType: "learner",
+      actorUserId: learnerId,
+      permissions: [
+        "learning:write:self",
+        "learning:read:self",
+        "learning:delete:self",
+      ],
+    };
+    await engine.execute(
+      {
+        schemaVersion: "1.0",
+        installationId,
+        learnerId,
+        contentVersion: "backup-expiry-1.0.0",
+        actor: { type: "learner", userId: learnerId },
+        type: "path.enroll",
+        idempotencyKey: "backup-expiry-enroll-0001",
+        occurredAt: capturedAt,
+        payload: {
+          pathId: "backup-expiry-path",
+          pathTitle: "Backup expiry path",
+          moduleIds: ["backup-expiry-module"],
+          badge: {
+            id: "backup-expiry-badge",
+            name: "Backup expiry badge",
+            description: "Backup expiry evidence fixture.",
+          },
+        },
+      },
+      access,
+    );
+    const exported = await store.exportVerified(
+      installationId,
+      learnerId,
+      capturedAt,
+    );
+    const backup = await createLearningRecordRecoveryBackup([exported], {
+      adapter: "cloudflare-d1",
+      migrationHead: "0011_authoritative_progress_imports.sql",
+      capturedAt,
+      sourceCurrentAt: capturedAt,
+    });
+
+    const stillValid = await verifyLearningRecordRecoveryBackup(backup, {
+      adapter: "cloudflare-d1",
+      migrationHead: "0011_authoritative_progress_imports.sql",
+      maxAgeDays: backupExpiryDays,
+      now: withinWindow,
+    });
+    assert.equal(stillValid.streams.length, 1);
+
+    await assert.rejects(
+      () =>
+        verifyLearningRecordRecoveryBackup(backup, {
+          adapter: "cloudflare-d1",
+          migrationHead: "0011_authoritative_progress_imports.sql",
+          maxAgeDays: backupExpiryDays,
+          now: pastTheWindow,
+        }),
+      /exceeds the 35-day retention window and must not be restored from/,
+    );
+
+    // Omitting maxAgeDays keeps existing callers working unchanged - expiry
+    // enforcement is opt-in per verification, not a hidden global change.
+    const noExpiryRequested = await verifyLearningRecordRecoveryBackup(
+      backup,
+      {
+        adapter: "cloudflare-d1",
+        migrationHead: "0011_authoritative_progress_imports.sql",
+      },
+    );
+    assert.equal(noExpiryRequested.streams.length, 1);
+  } finally {
+    await miniflare.dispose();
+  }
 });

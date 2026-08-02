@@ -174,6 +174,7 @@ export {
 export {
   createLearningRecordRecoveryBackup,
   digestLearningRecordRecoveryArtifact,
+  isLearningRecordRecoveryBackupExpired,
   LEARNING_RECORD_RECOVERY_BACKUP_VERSION,
   verifyLearningRecordRecoveryBackup,
 } from "./learning-record-recovery-backup.js";

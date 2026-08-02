@@ -107,6 +107,22 @@ still match the target runtime and every embedded export receipt must validate.
 Runtime verification rejects properties not declared by the machine-readable
 artifact, manifest, or payload schema.
 
+Optionally, callers may also pass `maxAgeDays` (and, for deterministic
+evidence, `now`) to `verifyLearningRecordRecoveryBackup`. When supplied, a
+backup captured more than `maxAgeDays` before `now` is rejected before any
+restore write happens — a declared retention window (RR-04's
+`defaultLearnerDataPolicy.deletion.backupExpiryDays`, currently 35 days) is
+worthless unless something actually refuses to restore from an expired
+backup. `runLearningRecordRecoveryConformance` and
+`runMeasuredLearningRecordRecoveryConformance` enforce this automatically
+using the platform's declared `backupExpiryDays`, and the report records
+`backupExpiryDays` plus the `backup-within-retention-window` and
+`expired-backup-rejected` checks as promotion evidence.
+`isLearningRecordRecoveryBackupExpired` exposes the same predicate without
+throwing, for callers that want to run an expiry sweep independent of a
+restore attempt (for example, alerting on aging backups before they age out
+of the window).
+
 `measureLearningRecordRecovery` validates UTC chronology and calculates:
 
 - recovery point as `sourceCurrentAt - backupCapturedAt`; and

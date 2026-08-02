@@ -34,6 +34,37 @@ export interface LearningRecordRecoveryBackupArtifact {
 export interface LearningRecordRecoveryBackupExpectation {
   adapter: LearningRecordAdapterKind;
   migrationHead: string;
+  /**
+   * The learner-data retention policy's backup expiry window in days
+   * (`defaultLearnerDataPolicy.deletion.backupExpiryDays`). When provided,
+   * a backup captured more than this many days before `now` is rejected:
+   * an expired backup must never be treated as a valid restore source.
+   */
+  maxAgeDays?: number;
+  /** ISO UTC instant to measure backup age against. Defaults to the current time. */
+  now?: string;
+}
+
+/**
+ * Reports whether a recovery backup has aged past its retention policy's
+ * expiry window, without throwing. Used by callers that want to enforce
+ * expiry as a scheduled sweep rather than at verification time.
+ */
+export function isLearningRecordRecoveryBackupExpired(
+  manifest: Pick<LearningRecordRecoveryBackupManifest, "capturedAt">,
+  expectation: { maxAgeDays: number; now?: string },
+): boolean {
+  const maxAgeDays = expectation.maxAgeDays;
+  if (!Number.isFinite(maxAgeDays) || maxAgeDays <= 0) {
+    throw new Error("maxAgeDays must be a positive finite number.");
+  }
+  const capturedAt = timestamp(manifest.capturedAt, "capturedAt");
+  const now = timestamp(expectation.now ?? new Date().toISOString(), "now");
+  const ageMs = now - capturedAt;
+  if (ageMs < 0) {
+    throw new Error("A recovery backup must not be captured in the future.");
+  }
+  return ageMs > maxAgeDays * 24 * 60 * 60 * 1000;
 }
 
 export async function digestLearningRecordRecoveryArtifact(
@@ -143,6 +174,18 @@ export async function verifyLearningRecordRecoveryBackup(
     `learning-recovery-${manifest.artifactSha256.slice(0, 32)}`
   ) {
     throw new Error("Recovery backup id does not match its artifact checksum.");
+  }
+  if (
+    expected.maxAgeDays !== undefined &&
+    isLearningRecordRecoveryBackupExpired(manifest, {
+      maxAgeDays: expected.maxAgeDays,
+      ...(expected.now !== undefined ? { now: expected.now } : {}),
+    })
+  ) {
+    throw new Error(
+      `Recovery backup captured at ${manifest.capturedAt} exceeds the ` +
+        `${expected.maxAgeDays}-day retention window and must not be restored from.`,
+    );
   }
 
   let parsed: unknown;
