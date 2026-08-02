@@ -10794,6 +10794,7 @@ async function handleRequest(
     const accountMatch = url.pathname.match(/^\/v1\/admin\/accounts\/([^/]+)\/state$/);
     if (accountMatch && request.method === "PATCH") {
       await requireOwner(account, repository, request, requestId, now);
+      requireRecentAuthentication(identity, now);
       const body = await readJson<{ state: AccountState; reason: string }>(request);
       if (!ACCOUNT_STATES.includes(body.state)) {
         throw new ApiFailure(400, "invalid_account_state", "Unknown account state.");
@@ -10826,6 +10827,7 @@ async function handleRequest(
     }
     if (url.pathname === "/v1/admin/domains" && request.method === "POST") {
       await requireOwner(account, repository, request, requestId, now);
+      requireRecentAuthentication(identity, now);
       const body = await readJson<CreateDomainRuleRequest>(request);
       if (!body.reason || body.reason.trim().length < 5 || body.reason.length > 500) {
         throw new ApiFailure(400, "invalid_reason", "A reason between 5 and 500 characters is required.");
@@ -10842,6 +10844,7 @@ async function handleRequest(
     const domainMatch = url.pathname.match(/^\/v1\/admin\/domains\/([^/]+)$/);
     if (domainMatch && request.method === "PATCH") {
       await requireOwner(account, repository, request, requestId, now);
+      requireRecentAuthentication(identity, now);
       const body = await readJson<{ enabled: boolean; reason: string }>(request);
       if (typeof body.enabled !== "boolean") {
         throw new ApiFailure(400, "invalid_domain_state", "Enabled must be true or false.");
@@ -10862,6 +10865,7 @@ async function handleRequest(
     }
     if (domainMatch && request.method === "DELETE") {
       await requireOwner(account, repository, request, requestId, now);
+      requireRecentAuthentication(identity, now);
       const body = await readJson<DeleteDomainRuleRequest>(request);
       if (!body.reason || body.reason.trim().length < 5 || body.reason.length > 500) {
         throw new ApiFailure(400, "invalid_reason", "A reason between 5 and 500 characters is required.");
