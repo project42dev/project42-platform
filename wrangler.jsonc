@@ -4,6 +4,12 @@
   "main": "src/worker.ts",
   "compatibility_date": "2026-07-26",
   "compatibility_flags": ["nodejs_compat"],
+  // RR-05 (AB#5195/AB#6477): enforces the 365-day "privileged-audit" detail
+  // window declared in src/learner-data-policy.ts by running
+  // purgeExpiredAuditDetail() daily via the worker's scheduled() handler.
+  "triggers": {
+    "crons": ["17 3 * * *"]
+  },
   "observability": {
     "enabled": true,
     "logs": {
