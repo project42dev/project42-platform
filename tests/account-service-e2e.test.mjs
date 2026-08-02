@@ -559,6 +559,31 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     "owner_required",
   );
 
+  // RR-02/GAP-13: an owner session outside the recent-authentication window
+  // must not be able to move another account's state, even with valid owner
+  // authority. Step-up freshness is checked, not just role.
+  const staleAccountState = await api(
+    "stale-owner-token",
+    `/v1/admin/accounts/${encodeURIComponent(learner.id)}/state`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        state: "approved",
+        reason: "Attempted while the owner session is stale.",
+      }),
+    },
+  );
+  assert.equal(staleAccountState.status, 401);
+  assert.equal(
+    (await readBody(staleAccountState)).error.code,
+    "recent_authentication_required",
+  );
+  const staleAccountStateAfter = await database
+    .prepare("SELECT account_state FROM users WHERE installation_id = ? AND id = ?")
+    .bind("e2e", learner.id)
+    .first();
+  assert.equal(staleAccountStateAfter.account_state, "pending");
+
   const approved = await api(
     "owner-token",
     `/v1/admin/accounts/${encodeURIComponent(learner.id)}/state`,
@@ -1166,6 +1191,34 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     now: new Date().toISOString(),
   });
 
+  // RR-02/GAP-13: domain-policy mutations are owner-scoped but must also
+  // require a fresh sign-in. A stale owner session is refused before the
+  // domain-approval kill switch is even evaluated.
+  const staleDomainCreate = await api("stale-owner-token", "/v1/admin/domains", {
+    method: "POST",
+    body: JSON.stringify({
+      domain: "stale-attempt.example",
+      enabled: false,
+      reason: "Attempted while the owner session is stale.",
+    }),
+  });
+  assert.equal(staleDomainCreate.status, 401);
+  assert.equal(
+    (await readBody(staleDomainCreate)).error.code,
+    "recent_authentication_required",
+  );
+  assert.equal(
+    (
+      await database
+        .prepare(
+          "SELECT COUNT(*) AS count FROM approved_email_domains WHERE domain = ?",
+        )
+        .bind("stale-attempt.example")
+        .first()
+    ).count,
+    0,
+  );
+
   const disabledDomain = await api("owner-token", "/v1/admin/domains", {
     method: "POST",
     body: JSON.stringify({
@@ -1191,6 +1244,48 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   assert.equal(stagedDomainResponse.status, 201);
   const stagedDomain = (await readBody(stagedDomainResponse)).domain;
   assert.equal(stagedDomain.enabled, false);
+
+  const staleDomainPatch = await api(
+    "stale-owner-token",
+    `/v1/admin/domains/${encodeURIComponent(stagedDomain.id)}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        enabled: false,
+        reason: "Attempted while the owner session is stale.",
+      }),
+    },
+  );
+  assert.equal(staleDomainPatch.status, 401);
+  assert.equal(
+    (await readBody(staleDomainPatch)).error.code,
+    "recent_authentication_required",
+  );
+
+  const staleDomainDelete = await api(
+    "stale-owner-token",
+    `/v1/admin/domains/${encodeURIComponent(stagedDomain.id)}`,
+    {
+      method: "DELETE",
+      body: JSON.stringify({
+        reason: "Attempted while the owner session is stale.",
+      }),
+    },
+  );
+  assert.equal(staleDomainDelete.status, 401);
+  assert.equal(
+    (await readBody(staleDomainDelete)).error.code,
+    "recent_authentication_required",
+  );
+  assert.equal(
+    (
+      await database
+        .prepare("SELECT COUNT(*) AS count FROM approved_email_domains WHERE id = ?")
+        .bind(stagedDomain.id)
+        .first()
+    ).count,
+    1,
+  );
 
   const removedDomainResponse = await api(
     "owner-token",
