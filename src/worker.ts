@@ -1042,6 +1042,58 @@ class GithubIdentityLinkAdapter {
   }
 }
 
+// RR-05 (audit-log field hardening, AB#5195/AB#6477): audit_events.metadata_json
+// has no schema-level shape constraint beyond json_valid, so every writer must
+// reject sensitive keys itself. Denylist substrings and the email-shape check
+// cover the metadata classes actually written today (state machine transitions,
+// timestamps, opaque identifiers) without needing to hand-maintain an allowlist
+// across 30+ call sites. Extend this list, not each call site, when a genuinely
+// new sensitive field name shows up in review.
+const AUDIT_METADATA_SENSITIVE_KEY_SUBSTRINGS = [
+  "password",
+  "secret",
+  "token",
+  "credential",
+  "ssn",
+  "email",
+  "phone",
+  "address",
+  "cookie",
+  "authorization",
+] as const;
+
+const AUDIT_METADATA_EMAIL_LIKE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+class AuditMetadataViolationError extends Error {
+  constructor(readonly key: string, readonly reason: string) {
+    super(`audit metadata field "${key}" rejected: ${reason}`);
+    this.name = "AuditMetadataViolationError";
+  }
+}
+
+function assertAuditMetadataIsSafe(
+  metadata: Record<string, unknown>,
+): Record<string, unknown> {
+  for (const [key, value] of Object.entries(metadata)) {
+    const lowerKey = key.toLowerCase();
+    for (const banned of AUDIT_METADATA_SENSITIVE_KEY_SUBSTRINGS) {
+      if (lowerKey.includes(banned)) {
+        throw new AuditMetadataViolationError(
+          key,
+          `key name matches the sensitive-field pattern "${banned}"`,
+        );
+      }
+    }
+    if (typeof value === "string" && AUDIT_METADATA_EMAIL_LIKE.test(value)) {
+      throw new AuditMetadataViolationError(
+        key,
+        "value is shaped like an email address",
+      );
+    }
+  }
+  return metadata;
+}
+
 class D1Project42Repository {
   private readonly learningEvents: SqlLearningEventStore;
   private readonly adminCursorEncryptionKey: Promise<CryptoKey>;
@@ -1965,16 +2017,18 @@ class D1Project42Repository {
         input.requestId,
         input.outcome ??
           (input.state === "delivered" ? "success" : "failed"),
-        JSON.stringify({
-          actorKind: input.actor.kind,
-          kind: input.kind,
-          state: input.state,
-          attemptCount: input.attemptCount,
-          ...(input.errorCode ? { errorCode: input.errorCode } : {}),
-          ...(input.replayOfNotificationId
-            ? { replayOfNotificationId: input.replayOfNotificationId }
-            : {}),
-        }),
+        JSON.stringify(
+          assertAuditMetadataIsSafe({
+            actorKind: input.actor.kind,
+            kind: input.kind,
+            state: input.state,
+            attemptCount: input.attemptCount,
+            ...(input.errorCode ? { errorCode: input.errorCode } : {}),
+            ...(input.replayOfNotificationId
+              ? { replayOfNotificationId: input.replayOfNotificationId }
+              : {}),
+          }),
+        ),
         input.now,
         this.installationId,
         input.notificationId,
@@ -2140,7 +2194,9 @@ class D1Project42Repository {
           id,
           input.requestId,
           "OIDC authorization code and nonce validation completed.",
-          JSON.stringify({ expiresAt, absoluteExpiresAt }),
+          JSON.stringify(
+            assertAuditMetadataIsSafe({ expiresAt, absoluteExpiresAt }),
+          ),
           input.now,
           id,
           this.installationId,
@@ -2236,7 +2292,9 @@ class D1Project42Repository {
             row.id,
             requestId,
             "The browser session account is no longer approved.",
-            JSON.stringify({ state: row.account_state }),
+            JSON.stringify(
+              assertAuditMetadataIsSafe({ state: row.account_state }),
+            ),
             now,
           ),
       ]);
@@ -2406,7 +2464,12 @@ class D1Project42Repository {
           id,
           input.requestId,
           "The verified identity requires account approval.",
-          JSON.stringify({ state: input.account.state, expiresAt }),
+          JSON.stringify(
+            assertAuditMetadataIsSafe({
+              state: input.account.state,
+              expiresAt,
+            }),
+          ),
           input.now,
           id,
           this.installationId,
@@ -2577,10 +2640,12 @@ class D1Project42Repository {
         id,
         input.requestId,
         "The browser session identifier was rotated.",
-        JSON.stringify({
-          priorSessionId: input.session.id,
-          expiresAt,
-        }),
+        JSON.stringify(
+          assertAuditMetadataIsSafe({
+            priorSessionId: input.session.id,
+            expiresAt,
+          }),
+        ),
         input.now,
         input.session.id,
         this.installationId,
@@ -7479,7 +7544,7 @@ class D1Project42Repository {
         input.requestId,
         input.outcome,
         input.reason,
-        JSON.stringify(input.metadata),
+        JSON.stringify(assertAuditMetadataIsSafe(input.metadata)),
         input.now,
       );
   }
@@ -10986,16 +11051,56 @@ async function enforceAuthAbuseLimit(
   }
 }
 
+// RR-05 (audit-log field hardening, AB#5195/AB#6477): the "privileged-audit"
+// retention class in learner-data-policy.ts declares a 365-day detail window,
+// but nothing enforced it — audit_events rows were kept in full indefinitely.
+// This clears metadata_json/reason once a row ages past the window while
+// preserving the append-only core (actor/target/action/outcome/occurred_at)
+// the audit trail depends on. Global across installations: the retention rule
+// is uniform, not tenant-specific, so no installation_id filter is needed.
+const AUDIT_DETAIL_RETAIN_DAYS = 365;
+
+async function purgeExpiredAuditDetail(
+  db: D1Database,
+  now: string,
+  retainDays: number = AUDIT_DETAIL_RETAIN_DAYS,
+): Promise<D1Result<unknown>> {
+  const cutoff = new Date(
+    new Date(now).getTime() - retainDays * 24 * 60 * 60 * 1000,
+  ).toISOString();
+  return db
+    .prepare(
+      `UPDATE audit_events
+          SET metadata_json = '{}', reason = NULL
+        WHERE occurred_at < ?
+          AND (metadata_json <> '{}' OR reason IS NOT NULL)`,
+    )
+    .bind(cutoff)
+    .run();
+}
+
 export {
+  assertAuditMetadataIsSafe,
+  AUDIT_DETAIL_RETAIN_DAYS,
   BrowserOidcAdapter,
   D1Project42Repository,
   GithubIdentityLinkAdapter,
   OidcJwtVerifier,
   handleRequest,
+  purgeExpiredAuditDetail,
 };
 
 export default {
   fetch(request: Request, env: WorkerEnvironment): Promise<Response> {
     return handleRequest(request, env);
+  },
+  scheduled(
+    _event: ScheduledController,
+    env: WorkerEnvironment,
+    ctx: ExecutionContext,
+  ): void {
+    ctx.waitUntil(
+      purgeExpiredAuditDetail(env.PROJECT42_DB, new Date().toISOString()),
+    );
   },
 } satisfies ExportedHandler<WorkerEnvironment>;
