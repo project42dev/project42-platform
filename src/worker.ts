@@ -11079,15 +11079,48 @@ async function purgeExpiredAuditDetail(
     .run();
 }
 
+// RR-03 (export/deletion/retention privacy evidence, AB#5771): the
+// "deletion-receipt" retention class in learner-data-policy.ts declares a
+// 90-day dispute window, but nothing enforced it — deletion_tombstones rows
+// kept their status_token_digest (the receipt a departed learner or support
+// could use to look up completion status) indefinitely. This clears the
+// status token once a tombstone ages past the window while preserving the
+// minimized, already-digest-only append-only core (subject_digest,
+// deletion_request_id, requested_at, completed_at) that restore-time
+// deletion-replay (T13) depends on. Global across installations, matching
+// the audit-detail purge above.
+const DELETION_RECEIPT_RETAIN_DAYS = 90;
+
+async function purgeExpiredDeletionReceipts(
+  db: D1Database,
+  now: string,
+  retainDays: number = DELETION_RECEIPT_RETAIN_DAYS,
+): Promise<D1Result<unknown>> {
+  const cutoff = new Date(
+    new Date(now).getTime() - retainDays * 24 * 60 * 60 * 1000,
+  ).toISOString();
+  return db
+    .prepare(
+      `UPDATE deletion_tombstones
+          SET status_token_digest = NULL
+        WHERE completed_at < ?
+          AND status_token_digest IS NOT NULL`,
+    )
+    .bind(cutoff)
+    .run();
+}
+
 export {
   assertAuditMetadataIsSafe,
   AUDIT_DETAIL_RETAIN_DAYS,
   BrowserOidcAdapter,
   D1Project42Repository,
+  DELETION_RECEIPT_RETAIN_DAYS,
   GithubIdentityLinkAdapter,
   OidcJwtVerifier,
   handleRequest,
   purgeExpiredAuditDetail,
+  purgeExpiredDeletionReceipts,
 };
 
 export default {
@@ -11099,8 +11132,8 @@ export default {
     env: WorkerEnvironment,
     ctx: ExecutionContext,
   ): void {
-    ctx.waitUntil(
-      purgeExpiredAuditDetail(env.PROJECT42_DB, new Date().toISOString()),
-    );
+    const now = new Date().toISOString();
+    ctx.waitUntil(purgeExpiredAuditDetail(env.PROJECT42_DB, now));
+    ctx.waitUntil(purgeExpiredDeletionReceipts(env.PROJECT42_DB, now));
   },
 } satisfies ExportedHandler<WorkerEnvironment>;
