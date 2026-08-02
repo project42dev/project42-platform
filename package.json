@@ -54,7 +54,8 @@
     "sources:links": "node scripts/check-source-links.mjs",
     "learning-records:measure": "node scripts/measure-hosted-learning-record-adapter.mjs",
     "test": "npm run build && node --test tests/*.test.mjs && npm run resources:validate",
-    "check": "npm run training:check && npm test && npm run learning-records:measure && npm run content:freshness && npm run sources:links && npm run self-host:validate && npm run release:check",
+    "check": "npm run audit:production && npm run training:check && npm test && npm run learning-records:measure && npm run content:freshness && npm run sources:links && npm run self-host:validate && npm run release:check",
+    "audit:production": "npm audit --omit=dev --audit-level=moderate",
     "prepare": "npm run build"
   },
   "engines": {
