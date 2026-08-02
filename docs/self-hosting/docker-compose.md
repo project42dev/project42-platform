@@ -469,6 +469,73 @@ The release workflow also publishes GitHub artifact attestations and signs the
 digest-addressed OCI image. Review `compatibility.json` before approving an
 update; `automaticApply` is deliberately `false`.
 
+## Apply an update
+
+Apply updates one release at a time; do not skip a compatibility manifest.
+
+1. Verify the release as described above and review its `compatibility.json`
+   for the new `database.migrationHead` and any changed adapter or identity
+   contract.
+2. Take and rehearse a backup of the current deployment using the
+   [Back up and restore](#back-up-and-restore) procedure for the profile in
+   use. An update must never be attempted without a rehearsed, checksum-verified
+   backup of the same state it will move away from.
+3. Set `PROJECT42_VERSION` in `self-host/.env` (or `self-host/.env.https`) to
+   the verified release version.
+4. Re-run the same start command used for the initial install:
+
+   ```bash
+   docker compose --env-file self-host/.env -f self-host/compose.yaml \
+     up --build --detach --wait
+   ```
+
+   `--wait` gates on the API's `GET /health` probe. The API applies every
+   unapplied, checksum-locked PostgreSQL migration under an advisory lock
+   before it reports healthy; a migration file that already applied and then
+   changed causes startup to fail instead of silently altering the schema. If
+   `--wait` times out or exits non-zero, the update did not reach a healthy
+   state; do not route traffic to it.
+5. Confirm the new version is serving:
+
+   ```bash
+   curl --fail http://localhost:8787/health
+   docker compose --env-file self-host/.env -f self-host/compose.yaml \
+     exec -T database psql --username=project42 --dbname=project42 \
+     --command="SELECT name FROM project42_schema_migrations ORDER BY applied_at DESC LIMIT 5"
+   ```
+
+## Roll back a failed update
+
+PostgreSQL migrations in this repository are forward-only: applying an update
+can add schema that an older image does not understand, so re-pinning
+`PROJECT42_VERSION` to the previous release **does not** by itself undo a
+migration that already committed. Treat rollback as a restore, not a version
+downgrade:
+
+1. Stop the stack so nothing writes to the database during rollback:
+
+   ```bash
+   docker compose --env-file self-host/.env -f self-host/compose.yaml stop api identity
+   ```
+
+2. Restore the database (and, for the HTTPS profile, the identity, profile-photo,
+   and Caddy volumes) from the pre-update backup captured in step 2 of
+   [Apply an update](#apply-an-update), following the restore commands in
+   [Back up and restore](#back-up-and-restore). Verify the restored
+   `SHA256SUMS` and the migration inventory match the pre-update state before
+   continuing.
+3. Set `PROJECT42_VERSION` back to the prior, previously verified release.
+4. Start the stack again with the same `up --build --detach --wait` command and
+   confirm `GET /health` reports healthy before restoring traffic.
+
+If the update failed before any new migration committed (the advisory-locked
+transaction for each migration file rolls back on error, so a mid-migration
+failure never leaves a half-applied file), re-pinning `PROJECT42_VERSION` to
+the prior release and restarting the stack is sufficient and the database
+restore in step 2 is not required. Confirm this by comparing
+`project42_schema_migrations` against the pre-update backup's migration
+inventory; do not assume it without checking.
+
 See [Identity providers](identity-providers.md) for the adapter contract and
 [learner data policy](../learner-data-policy.md) for retention, deletion, and
 recovery controls.
