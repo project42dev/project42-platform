@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "registryVersion": "0.1.2",
+  "registryVersion": "0.1.3",
   "lastReviewed": "2026-08-03",
   "purpose": "Candidate Learn and Field Guide content, as data. This is product content data, not planning material: it lives beside catalog.json and source-registry.json, is versioned with the content it governs, and is uploaded to the delivery platform config share so the content builder can read it. A list the builder cannot see cannot drive a build.",
   "usageRules": [
@@ -160,7 +160,6 @@
       "title": "Retrieval-augmented generation, embeddings, and vector search",
       "surface": "learn",
       "level": "intermediate",
-      "status": "candidate",
       "gapEvidence": "0 word-boundary occurrence(s) of \\bRAG\\b|retrieval[- ]augmented in the measured corpus; 5 occurrence(s) across 1 surveyed source(s)",
       "marketSignal": "Present in 1 of 27 surveyed sources.",
       "evidenceSources": [
@@ -180,17 +179,19 @@
         "suggestedBy": [
           "codecademy"
         ]
-      }
+      },
+      "status": "retired",
+      "statusSetBy": "human",
+      "statusSetOn": "2026-08-03T21:00:00.000Z",
+      "note": "Superseded by the surface-qualified entries produced by the first discovery pass. Hand-authored before discovery existed and measured against a merged corpus, so it could not distinguish a Learn gap from a Field Guide gap. Retired rather than deleted so the history of what was believed stays readable."
     },
     {
       "id": "orchestration-frameworks",
       "title": "Agent orchestration frameworks and portability",
       "surface": "learn",
       "level": "intermediate",
-      "status": "candidate",
       "gapEvidence": "0 word-boundary occurrence(s) of \\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b in the measured corpus; 4 occurrence(s) across 1 surveyed source(s)",
       "marketSignal": "Present in 1 of 27 surveyed sources.",
-      "note": "Project 42 is provider-neutral. Teach the portability question and the tradeoffs, not one vendor's framework as the answer.",
       "evidenceSources": [],
       "blockedBy": null,
       "gapMeasurement": {
@@ -205,41 +206,53 @@
         "suggestedBy": [
           "codecademy"
         ]
-      }
+      },
+      "status": "retired",
+      "statusSetBy": "human",
+      "statusSetOn": "2026-08-03T21:00:00.000Z",
+      "note": "Superseded by the surface-qualified entries produced by the first discovery pass. Hand-authored before discovery existed and measured against a merged corpus, so it could not distinguish a Learn gap from a Field Guide gap. Retired rather than deleted so the history of what was believed stays readable."
     },
     {
       "id": "executive-and-leader-track",
       "title": "AI for executives, leaders, and decision makers",
       "surface": "learn",
       "level": "beginner",
-      "status": "candidate",
       "gapEvidence": "Zero matches for 'executive'. The catalog's stated audiences are learners and practitioners; there is no decision-maker track.",
       "marketSignal": "A distinct and heavily marketed category across enterprise catalogs, framed around governance, strategy, and value measurement rather than implementation.",
       "evidenceSources": [],
-      "blockedBy": null
+      "blockedBy": null,
+      "status": "retired",
+      "statusSetBy": "human",
+      "statusSetOn": "2026-08-03T21:00:00.000Z",
+      "note": "Superseded by the surface-qualified entries produced by the first discovery pass. Hand-authored before discovery existed and measured against a merged corpus, so it could not distinguish a Learn gap from a Field Guide gap. Retired rather than deleted so the history of what was believed stays readable."
     },
     {
       "id": "voice-agents-and-instructors",
       "title": "Voice agents, virtual instructors, captions, and accessible media",
       "surface": "learn",
       "level": "intermediate",
-      "status": "candidate",
       "gapEvidence": "Zero matches for 'voice agent'. 'voice' appears 4 times, 'caption' 49 times but only as an accessibility asset requirement, never as subject matter.",
       "marketSignal": "Named in the opportunity catalog's own high-value families.",
-      "note": "Directly adjacent to the P2 virtual instructor work. Building this content and building the instructor share evidence.",
       "evidenceSources": [],
-      "blockedBy": null
+      "blockedBy": null,
+      "status": "retired",
+      "statusSetBy": "human",
+      "statusSetOn": "2026-08-03T21:00:00.000Z",
+      "note": "Superseded by the surface-qualified entries produced by the first discovery pass. Hand-authored before discovery existed and measured against a merged corpus, so it could not distinguish a Learn gap from a Field Guide gap. Retired rather than deleted so the history of what was believed stays readable."
     },
     {
       "id": "fine-tuning-and-distillation",
       "title": "Fine-tuning, adapters, distillation, synthetic data, and when not to train",
       "surface": "learn",
       "level": "advanced",
-      "status": "candidate",
       "gapEvidence": "'fine-tun' appears 5 times and 'distillat' zero times across 69 modules. Present as a mention, absent as instruction.",
       "marketSignal": "Standard advanced-tier content across watched services.",
       "evidenceSources": [],
-      "blockedBy": null
+      "blockedBy": null,
+      "status": "retired",
+      "statusSetBy": "human",
+      "statusSetOn": "2026-08-03T21:00:00.000Z",
+      "note": "Superseded by the surface-qualified entries produced by the first discovery pass. Hand-authored before discovery existed and measured against a merged corpus, so it could not distinguish a Learn gap from a Field Guide gap. Retired rather than deleted so the history of what was believed stays readable."
     },
     {
       "id": "retrieval-augmented-generation-learn",
