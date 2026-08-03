@@ -3,6 +3,11 @@
 Project 42 treats content automation as an evidence-linked proposal system. It does
 not let a model publish, merge, approve, deploy, or close work.
 
+This document defines the schemas a proposal must satisfy. See the
+[content freshness pipeline](content-freshness-pipeline.md) for the process that is
+meant to produce one: the monitoring sequence, the quality stages, and an honest
+account of how much of that process actually runs today.
+
 The reusable contracts in `schemas/content-maintenance/` separate three concerns:
 
 1. `content-change-packet.schema.json` records deterministic source observations,

@@ -4,6 +4,10 @@ Project 42 treats the teaching script as the product and voice, avatar, and play
 technology as replaceable presentation layers. A short list of talking points is not
 a class-ready script.
 
+See the [training package format](training-package-format.md) for the field-level
+reference on both schemas below, the real generated package layout, and what a
+player and top-level package manifest would need before either is implemented.
+
 ## Two public contracts
 
 The `schemas/training` directory contains:
