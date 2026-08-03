@@ -1,0 +1,123 @@
+{
+  "schemaVersion": "1.0",
+  "registryVersion": "0.1.0",
+  "lastReviewed": "2026-08-03",
+  "purpose": "Candidate Learn and Field Guide content, as data. This is product content data, not planning material: it lives beside catalog.json and source-registry.json, is versioned with the content it governs, and is uploaded to the delivery platform config share so the content builder can read it. A list the builder cannot see cannot drive a build.",
+  "usageRules": [
+    "Discovery inputs only. Never copy course outlines, lesson sequences, exercises, assessment items, artwork, branding, or proprietary teaching structure from any watched service.",
+    "Every delivered item needs original instruction, primary-source evidence, accessibility assets, and a named freshness owner.",
+    "A watch-list entry is evidence of market demand and topic vocabulary. It is never a content source."
+  ],
+  "coverageBaseline": {
+    "measuredAgainst": "content/catalog.json 0.42.0 plus content/modules, content/resources, content/resource-packs",
+    "measuredOn": "2026-08-03",
+    "method": "Word-boundary regex over all committed module, resource and resource-pack JSON. Counts are occurrences, not modules.",
+    "substantiveModules": 69,
+    "classReadyModules": 40,
+    "outlineOnlyModules": 29
+  },
+  "watchList": [
+    { "id": "microsoft-learn", "url": "https://learn.microsoft.com/training/", "pattern": "Free modular paths, sandboxes, role-based discovery, knowledge checks" },
+    { "id": "pluralsight", "url": "https://www.pluralsight.com/ai", "pattern": "Skill levels, paths, assessments, sandboxes, expert-led technical courses" },
+    { "id": "coursera", "url": "https://www.coursera.org/browse/data-science/machine-learning", "pattern": "University and vendor programs, projects, specializations, certificates" },
+    { "id": "deeplearning-ai", "url": "https://www.deeplearning.ai/courses/", "pattern": "Focused AI short courses, conceptual progression, practitioner labs", "fetchNote": "Returns HTTP 403 to non-browser clients. Manual review only." },
+    { "id": "hugging-face-learn", "url": "https://huggingface.co/learn", "pattern": "Open-model, NLP, agents, audio, vision, community course material" },
+    { "id": "datacamp", "url": "https://www.datacamp.com/category/ai", "pattern": "Browser exercises, skill tracks, projects, assessments" },
+    { "id": "linkedin-learning", "url": "https://www.linkedin.com/learning/topics/artificial-intelligence", "pattern": "Short professional courses, exercise files, role and career framing" },
+    { "id": "udemy", "url": "https://www.udemy.com/courses/development/data-science/", "pattern": "Broad topic discovery, learner demand, project-oriented packaging" },
+    { "id": "cbt-nuggets", "url": "https://www.cbtnuggets.com/", "pattern": "Instructor-led technical nuggets, practice, certification sequencing" },
+    { "id": "edx", "url": "https://www.edx.org/learn/artificial-intelligence", "pattern": "Academic depth, professional programs, audit-friendly structures" },
+    { "id": "oreilly-learning", "url": "https://www.oreilly.com/online-learning/", "pattern": "Books plus courses, live learning, sandboxes, labs, assessments" },
+    { "id": "fast-ai", "url": "https://course.fast.ai/", "pattern": "Practical-first deep learning, free reproducible notebooks" },
+    { "id": "nvidia-dli", "url": "https://www.nvidia.com/en-us/training/", "pattern": "Accelerated-computing labs, hardware-aware AI, certificates" },
+    { "id": "aws-skill-builder", "url": "https://skillbuilder.aws/", "pattern": "Cloud labs, role paths, architecture, operations, certification" },
+    { "id": "google-cloud-skills-boost", "url": "https://www.cloudskillsboost.google/", "pattern": "Hands-on cloud labs, badges, role paths, generative AI" },
+    { "id": "kaggle-learn", "url": "https://www.kaggle.com/learn", "pattern": "Short notebooks, datasets, applied exercises" },
+    { "id": "databricks-academy", "url": "https://www.databricks.com/learn/training/home", "pattern": "Data and AI platform learning, labs, role-based certification" },
+    { "id": "linux-foundation-training", "url": "https://training.linuxfoundation.org/", "pattern": "Open-source operations, cloud-native, vendor-neutral certification" },
+    { "id": "codecademy", "url": "https://www.codecademy.com/catalog/subject/artificial-intelligence", "pattern": "Interactive coding, guided practice, immediate feedback" },
+    { "id": "udacity", "url": "https://www.udacity.com/ai", "pattern": "Project-based technical programs and reviewer feedback" },
+    { "id": "ibm-skillsbuild", "url": "https://skillsbuild.org/", "pattern": "Accessible introductory and career-oriented AI learning" },
+    { "id": "skillsoft-percipio", "url": "https://www.skillsoft.com/platform-solution/percipio", "pattern": "Enterprise skill plans, multimodal learning, compliance analytics" },
+    { "id": "mit-ocw", "url": "https://ocw.mit.edu/search/?q=artificial+intelligence", "pattern": "Rigorous open academic material, assignments, readings" },
+    { "id": "stanford-online", "url": "https://online.stanford.edu/search-catalog?keywords=artificial%20intelligence", "pattern": "Advanced AI and ML theory, academic and practitioner crossover" },
+    { "id": "full-stack-deep-learning", "url": "https://fullstackdeeplearning.com/", "pattern": "Product, deployment, evaluation, data, operational lifecycle" },
+    { "id": "freecodecamp", "url": "https://www.freecodecamp.org/learn/", "pattern": "Free project-based learning, long-form practitioner tutorials" },
+    { "id": "google-cloud-agents", "url": "https://cloud.google.com/discover/what-are-ai-agents", "pattern": "Vendor agent definitions and terminology" }
+  ],
+  "opportunities": [
+    {
+      "id": "retrieval-augmented-generation",
+      "title": "Retrieval-augmented generation, embeddings, and vector search",
+      "surface": "learn",
+      "level": "intermediate",
+      "status": "candidate",
+      "gapEvidence": "Zero word-boundary matches for 'RAG', 'retrieval-augmented', or 'vector' across all committed content. 'embedding' appears twice. The 69-module catalog does not teach retrieval at all.",
+      "marketSignal": "Named among the highest-demand 2026 skills across multiple catalogs; carried as a full professional certificate by at least one major platform.",
+      "evidenceSources": ["https://learn.microsoft.com/", "https://huggingface.co/learn"],
+      "blockedBy": null
+    },
+    {
+      "id": "orchestration-frameworks",
+      "title": "Agent orchestration frameworks and portability",
+      "surface": "learn",
+      "level": "intermediate",
+      "status": "candidate",
+      "gapEvidence": "Zero matches for 'LangChain'. 'orchestrat' appears 69 times but as a concept, with no framework-level treatment.",
+      "marketSignal": "Framework-specific courses are a standard catalog entry across watched services.",
+      "note": "Project 42 is provider-neutral. Teach the portability question and the tradeoffs, not one vendor's framework as the answer.",
+      "evidenceSources": [],
+      "blockedBy": null
+    },
+    {
+      "id": "executive-and-leader-track",
+      "title": "AI for executives, leaders, and decision makers",
+      "surface": "learn",
+      "level": "beginner",
+      "status": "candidate",
+      "gapEvidence": "Zero matches for 'executive'. The catalog's stated audiences are learners and practitioners; there is no decision-maker track.",
+      "marketSignal": "A distinct and heavily marketed category across enterprise catalogs, framed around governance, strategy, and value measurement rather than implementation.",
+      "evidenceSources": [],
+      "blockedBy": null
+    },
+    {
+      "id": "voice-agents-and-instructors",
+      "title": "Voice agents, virtual instructors, captions, and accessible media",
+      "surface": "learn",
+      "level": "intermediate",
+      "status": "candidate",
+      "gapEvidence": "Zero matches for 'voice agent'. 'voice' appears 4 times, 'caption' 49 times but only as an accessibility asset requirement, never as subject matter.",
+      "marketSignal": "Named in the opportunity catalog's own high-value families.",
+      "note": "Directly adjacent to the P2 virtual instructor work. Building this content and building the instructor share evidence.",
+      "evidenceSources": [],
+      "blockedBy": null
+    },
+    {
+      "id": "fine-tuning-and-distillation",
+      "title": "Fine-tuning, adapters, distillation, synthetic data, and when not to train",
+      "surface": "learn",
+      "level": "advanced",
+      "status": "candidate",
+      "gapEvidence": "'fine-tun' appears 5 times and 'distillat' zero times across 69 modules. Present as a mention, absent as instruction.",
+      "marketSignal": "Standard advanced-tier content across watched services.",
+      "evidenceSources": [],
+      "blockedBy": null
+    }
+  ],
+  "confirmedStrengths": [
+    { "topic": "evaluation", "occurrences": 458 },
+    { "topic": "cost", "occurrences": 355 },
+    { "topic": "incident response", "occurrences": 225 },
+    { "topic": "observability", "occurrences": 205 },
+    { "topic": "security", "occurrences": 203 },
+    { "topic": "privacy", "occurrences": 156 },
+    { "topic": "provenance", "occurrences": 155 },
+    { "topic": "accessibility", "occurrences": 126 },
+    { "topic": "red teaming", "occurrences": 43 },
+    { "topic": "prompt injection", "occurrences": 30 },
+    { "topic": "guardrails", "occurrences": 25 },
+    { "topic": "multimodal", "occurrences": 22 },
+    { "topic": "on-premises", "occurrences": 20 },
+    { "topic": "open-weight", "occurrences": 17 }
+  ]
+}
