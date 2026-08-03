@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "registryVersion": "0.1.0",
+  "registryVersion": "0.1.1",
   "lastReviewed": "2026-08-03",
   "purpose": "Candidate Learn and Field Guide content, as data. This is product content data, not planning material: it lives beside catalog.json and source-registry.json, is versioned with the content it governs, and is uploaded to the delivery platform config share so the content builder can read it. A list the builder cannot see cannot drive a build.",
   "usageRules": [
@@ -17,33 +17,142 @@
     "outlineOnlyModules": 29
   },
   "watchList": [
-    { "id": "microsoft-learn", "url": "https://learn.microsoft.com/training/", "pattern": "Free modular paths, sandboxes, role-based discovery, knowledge checks" },
-    { "id": "pluralsight", "url": "https://www.pluralsight.com/ai", "pattern": "Skill levels, paths, assessments, sandboxes, expert-led technical courses" },
-    { "id": "coursera", "url": "https://www.coursera.org/browse/data-science/machine-learning", "pattern": "University and vendor programs, projects, specializations, certificates" },
-    { "id": "deeplearning-ai", "url": "https://www.deeplearning.ai/courses/", "pattern": "Focused AI short courses, conceptual progression, practitioner labs", "fetchNote": "Returns HTTP 403 to non-browser clients. Manual review only." },
-    { "id": "hugging-face-learn", "url": "https://huggingface.co/learn", "pattern": "Open-model, NLP, agents, audio, vision, community course material" },
-    { "id": "datacamp", "url": "https://www.datacamp.com/category/ai", "pattern": "Browser exercises, skill tracks, projects, assessments" },
-    { "id": "linkedin-learning", "url": "https://www.linkedin.com/learning/topics/artificial-intelligence", "pattern": "Short professional courses, exercise files, role and career framing" },
-    { "id": "udemy", "url": "https://www.udemy.com/courses/development/data-science/", "pattern": "Broad topic discovery, learner demand, project-oriented packaging" },
-    { "id": "cbt-nuggets", "url": "https://www.cbtnuggets.com/", "pattern": "Instructor-led technical nuggets, practice, certification sequencing" },
-    { "id": "edx", "url": "https://www.edx.org/learn/artificial-intelligence", "pattern": "Academic depth, professional programs, audit-friendly structures" },
-    { "id": "oreilly-learning", "url": "https://www.oreilly.com/online-learning/", "pattern": "Books plus courses, live learning, sandboxes, labs, assessments" },
-    { "id": "fast-ai", "url": "https://course.fast.ai/", "pattern": "Practical-first deep learning, free reproducible notebooks" },
-    { "id": "nvidia-dli", "url": "https://www.nvidia.com/en-us/training/", "pattern": "Accelerated-computing labs, hardware-aware AI, certificates" },
-    { "id": "aws-skill-builder", "url": "https://skillbuilder.aws/", "pattern": "Cloud labs, role paths, architecture, operations, certification" },
-    { "id": "google-cloud-skills-boost", "url": "https://www.cloudskillsboost.google/", "pattern": "Hands-on cloud labs, badges, role paths, generative AI" },
-    { "id": "kaggle-learn", "url": "https://www.kaggle.com/learn", "pattern": "Short notebooks, datasets, applied exercises" },
-    { "id": "databricks-academy", "url": "https://www.databricks.com/learn/training/home", "pattern": "Data and AI platform learning, labs, role-based certification" },
-    { "id": "linux-foundation-training", "url": "https://training.linuxfoundation.org/", "pattern": "Open-source operations, cloud-native, vendor-neutral certification" },
-    { "id": "codecademy", "url": "https://www.codecademy.com/catalog/subject/artificial-intelligence", "pattern": "Interactive coding, guided practice, immediate feedback" },
-    { "id": "udacity", "url": "https://www.udacity.com/ai", "pattern": "Project-based technical programs and reviewer feedback" },
-    { "id": "ibm-skillsbuild", "url": "https://skillsbuild.org/", "pattern": "Accessible introductory and career-oriented AI learning" },
-    { "id": "skillsoft-percipio", "url": "https://www.skillsoft.com/platform-solution/percipio", "pattern": "Enterprise skill plans, multimodal learning, compliance analytics" },
-    { "id": "mit-ocw", "url": "https://ocw.mit.edu/search/?q=artificial+intelligence", "pattern": "Rigorous open academic material, assignments, readings" },
-    { "id": "stanford-online", "url": "https://online.stanford.edu/search-catalog?keywords=artificial%20intelligence", "pattern": "Advanced AI and ML theory, academic and practitioner crossover" },
-    { "id": "full-stack-deep-learning", "url": "https://fullstackdeeplearning.com/", "pattern": "Product, deployment, evaluation, data, operational lifecycle" },
-    { "id": "freecodecamp", "url": "https://www.freecodecamp.org/learn/", "pattern": "Free project-based learning, long-form practitioner tutorials" },
-    { "id": "google-cloud-agents", "url": "https://cloud.google.com/discover/what-are-ai-agents", "pattern": "Vendor agent definitions and terminology" }
+    {
+      "id": "microsoft-learn",
+      "url": "https://learn.microsoft.com/training/",
+      "pattern": "Free modular paths, sandboxes, role-based discovery, knowledge checks"
+    },
+    {
+      "id": "pluralsight",
+      "url": "https://www.pluralsight.com/ai",
+      "pattern": "Skill levels, paths, assessments, sandboxes, expert-led technical courses"
+    },
+    {
+      "id": "coursera",
+      "url": "https://www.coursera.org/browse/data-science/machine-learning",
+      "pattern": "University and vendor programs, projects, specializations, certificates"
+    },
+    {
+      "id": "deeplearning-ai",
+      "url": "https://www.deeplearning.ai/courses/",
+      "pattern": "Focused AI short courses, conceptual progression, practitioner labs",
+      "fetchNote": "Returns HTTP 403 to non-browser clients. Manual review only."
+    },
+    {
+      "id": "hugging-face-learn",
+      "url": "https://huggingface.co/learn",
+      "pattern": "Open-model, NLP, agents, audio, vision, community course material"
+    },
+    {
+      "id": "datacamp",
+      "url": "https://www.datacamp.com/category/ai",
+      "pattern": "Browser exercises, skill tracks, projects, assessments"
+    },
+    {
+      "id": "linkedin-learning",
+      "url": "https://www.linkedin.com/learning/topics/artificial-intelligence",
+      "pattern": "Short professional courses, exercise files, role and career framing"
+    },
+    {
+      "id": "udemy",
+      "url": "https://www.udemy.com/courses/development/data-science/",
+      "pattern": "Broad topic discovery, learner demand, project-oriented packaging"
+    },
+    {
+      "id": "cbt-nuggets",
+      "url": "https://www.cbtnuggets.com/",
+      "pattern": "Instructor-led technical nuggets, practice, certification sequencing"
+    },
+    {
+      "id": "edx",
+      "url": "https://www.edx.org/learn/artificial-intelligence",
+      "pattern": "Academic depth, professional programs, audit-friendly structures"
+    },
+    {
+      "id": "oreilly-learning",
+      "url": "https://www.oreilly.com/online-learning/",
+      "pattern": "Books plus courses, live learning, sandboxes, labs, assessments"
+    },
+    {
+      "id": "fast-ai",
+      "url": "https://course.fast.ai/",
+      "pattern": "Practical-first deep learning, free reproducible notebooks"
+    },
+    {
+      "id": "nvidia-dli",
+      "url": "https://www.nvidia.com/en-us/training/",
+      "pattern": "Accelerated-computing labs, hardware-aware AI, certificates"
+    },
+    {
+      "id": "aws-skill-builder",
+      "url": "https://skillbuilder.aws/",
+      "pattern": "Cloud labs, role paths, architecture, operations, certification"
+    },
+    {
+      "id": "google-cloud-skills-boost",
+      "url": "https://www.cloudskillsboost.google/",
+      "pattern": "Hands-on cloud labs, badges, role paths, generative AI"
+    },
+    {
+      "id": "kaggle-learn",
+      "url": "https://www.kaggle.com/learn",
+      "pattern": "Short notebooks, datasets, applied exercises"
+    },
+    {
+      "id": "databricks-academy",
+      "url": "https://www.databricks.com/learn/training/home",
+      "pattern": "Data and AI platform learning, labs, role-based certification"
+    },
+    {
+      "id": "linux-foundation-training",
+      "url": "https://training.linuxfoundation.org/",
+      "pattern": "Open-source operations, cloud-native, vendor-neutral certification"
+    },
+    {
+      "id": "codecademy",
+      "url": "https://www.codecademy.com/catalog/subject/artificial-intelligence",
+      "pattern": "Interactive coding, guided practice, immediate feedback"
+    },
+    {
+      "id": "udacity",
+      "url": "https://www.udacity.com/ai",
+      "pattern": "Project-based technical programs and reviewer feedback"
+    },
+    {
+      "id": "ibm-skillsbuild",
+      "url": "https://skillsbuild.org/",
+      "pattern": "Accessible introductory and career-oriented AI learning"
+    },
+    {
+      "id": "skillsoft-percipio",
+      "url": "https://www.skillsoft.com/platform-solution/percipio",
+      "pattern": "Enterprise skill plans, multimodal learning, compliance analytics"
+    },
+    {
+      "id": "mit-ocw",
+      "url": "https://ocw.mit.edu/search/?q=artificial+intelligence",
+      "pattern": "Rigorous open academic material, assignments, readings"
+    },
+    {
+      "id": "stanford-online",
+      "url": "https://online.stanford.edu/search-catalog?keywords=artificial%20intelligence",
+      "pattern": "Advanced AI and ML theory, academic and practitioner crossover"
+    },
+    {
+      "id": "full-stack-deep-learning",
+      "url": "https://fullstackdeeplearning.com/",
+      "pattern": "Product, deployment, evaluation, data, operational lifecycle"
+    },
+    {
+      "id": "freecodecamp",
+      "url": "https://www.freecodecamp.org/learn/",
+      "pattern": "Free project-based learning, long-form practitioner tutorials"
+    },
+    {
+      "id": "google-cloud-agents",
+      "url": "https://cloud.google.com/discover/what-are-ai-agents",
+      "pattern": "Vendor agent definitions and terminology"
+    }
   ],
   "opportunities": [
     {
@@ -52,10 +161,26 @@
       "surface": "learn",
       "level": "intermediate",
       "status": "candidate",
-      "gapEvidence": "Zero word-boundary matches for 'RAG', 'retrieval-augmented', or 'vector' across all committed content. 'embedding' appears twice. The 69-module catalog does not teach retrieval at all.",
-      "marketSignal": "Named among the highest-demand 2026 skills across multiple catalogs; carried as a full professional certificate by at least one major platform.",
-      "evidenceSources": ["https://learn.microsoft.com/", "https://huggingface.co/learn"],
-      "blockedBy": null
+      "gapEvidence": "0 word-boundary occurrence(s) of \\bRAG\\b|retrieval[- ]augmented in the measured corpus; 5 occurrence(s) across 1 surveyed source(s)",
+      "marketSignal": "Present in 1 of 27 surveyed sources.",
+      "evidenceSources": [
+        "https://learn.microsoft.com/",
+        "https://huggingface.co/learn"
+      ],
+      "blockedBy": null,
+      "gapMeasurement": {
+        "probe": "\\bRAG\\b|retrieval[- ]augmented",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T19:40:48.991Z"
+      },
+      "provenance": {
+        "firstSeen": "2026-08-03T19:41:00.636Z",
+        "lastConfirmed": "2026-08-03T19:41:00.636Z",
+        "confirmCount": 1,
+        "suggestedBy": [
+          "codecademy"
+        ]
+      }
     },
     {
       "id": "orchestration-frameworks",
@@ -63,11 +188,24 @@
       "surface": "learn",
       "level": "intermediate",
       "status": "candidate",
-      "gapEvidence": "Zero matches for 'LangChain'. 'orchestrat' appears 69 times but as a concept, with no framework-level treatment.",
-      "marketSignal": "Framework-specific courses are a standard catalog entry across watched services.",
+      "gapEvidence": "0 word-boundary occurrence(s) of \\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b in the measured corpus; 4 occurrence(s) across 1 surveyed source(s)",
+      "marketSignal": "Present in 1 of 27 surveyed sources.",
       "note": "Project 42 is provider-neutral. Teach the portability question and the tradeoffs, not one vendor's framework as the answer.",
       "evidenceSources": [],
-      "blockedBy": null
+      "blockedBy": null,
+      "gapMeasurement": {
+        "probe": "\\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T19:40:48.991Z"
+      },
+      "provenance": {
+        "firstSeen": "2026-08-03T19:41:00.636Z",
+        "lastConfirmed": "2026-08-03T19:41:00.636Z",
+        "confirmCount": 1,
+        "suggestedBy": [
+          "codecademy"
+        ]
+      }
     },
     {
       "id": "executive-and-leader-track",
@@ -105,19 +243,61 @@
     }
   ],
   "confirmedStrengths": [
-    { "topic": "evaluation", "occurrences": 458 },
-    { "topic": "cost", "occurrences": 355 },
-    { "topic": "incident response", "occurrences": 225 },
-    { "topic": "observability", "occurrences": 205 },
-    { "topic": "security", "occurrences": 203 },
-    { "topic": "privacy", "occurrences": 156 },
-    { "topic": "provenance", "occurrences": 155 },
-    { "topic": "accessibility", "occurrences": 126 },
-    { "topic": "red teaming", "occurrences": 43 },
-    { "topic": "prompt injection", "occurrences": 30 },
-    { "topic": "guardrails", "occurrences": 25 },
-    { "topic": "multimodal", "occurrences": 22 },
-    { "topic": "on-premises", "occurrences": 20 },
-    { "topic": "open-weight", "occurrences": 17 }
+    {
+      "topic": "evaluation",
+      "occurrences": 458
+    },
+    {
+      "topic": "cost",
+      "occurrences": 355
+    },
+    {
+      "topic": "incident response",
+      "occurrences": 225
+    },
+    {
+      "topic": "observability",
+      "occurrences": 205
+    },
+    {
+      "topic": "security",
+      "occurrences": 203
+    },
+    {
+      "topic": "privacy",
+      "occurrences": 156
+    },
+    {
+      "topic": "provenance",
+      "occurrences": 155
+    },
+    {
+      "topic": "accessibility",
+      "occurrences": 126
+    },
+    {
+      "topic": "red teaming",
+      "occurrences": 43
+    },
+    {
+      "topic": "prompt injection",
+      "occurrences": 30
+    },
+    {
+      "topic": "guardrails",
+      "occurrences": 25
+    },
+    {
+      "topic": "multimodal",
+      "occurrences": 22
+    },
+    {
+      "topic": "on-premises",
+      "occurrences": 20
+    },
+    {
+      "topic": "open-weight",
+      "occurrences": 17
+    }
   ]
 }
