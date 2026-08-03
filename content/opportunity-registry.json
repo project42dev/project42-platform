@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "registryVersion": "0.1.1",
+  "registryVersion": "0.1.2",
   "lastReviewed": "2026-08-03",
   "purpose": "Candidate Learn and Field Guide content, as data. This is product content data, not planning material: it lives beside catalog.json and source-registry.json, is versioned with the content it governs, and is uploaded to the delivery platform config share so the content builder can read it. A list the builder cannot see cannot drive a build.",
   "usageRules": [
@@ -240,6 +240,456 @@
       "marketSignal": "Standard advanced-tier content across watched services.",
       "evidenceSources": [],
       "blockedBy": null
+    },
+    {
+      "id": "retrieval-augmented-generation-learn",
+      "title": "Retrieval-augmented generation, embeddings, and vector search (Learn)",
+      "surface": "learn",
+      "level": "intermediate",
+      "gapEvidence": "Learn corpus: 0 word-boundary occurrence(s) of \\bRAG\\b|retrieval[- ]augmented in the measured corpus; 5 occurrence(s) across 1 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bRAG\\b|retrieval[- ]augmented",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 1 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "codecademy"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "learn",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
+    },
+    {
+      "id": "orchestration-frameworks-learn",
+      "title": "Agent orchestration frameworks and portability (Learn)",
+      "surface": "learn",
+      "level": "intermediate",
+      "gapEvidence": "Learn corpus: 0 word-boundary occurrence(s) of \\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b in the measured corpus; 4 occurrence(s) across 1 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 1 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "codecademy"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "learn",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
+    },
+    {
+      "id": "executive-and-leader-track-learn",
+      "title": "AI for executives, leaders, and decision makers (Learn)",
+      "surface": "learn",
+      "level": "beginner",
+      "gapEvidence": "Learn corpus: 0 word-boundary occurrence(s) of \\bexecutives?\\b|\\bboard[- ]level\\b in the measured corpus; 17 occurrence(s) across 6 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bexecutives?\\b|\\bboard[- ]level\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 6 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "pluralsight",
+          "edx",
+          "nvidia-dli",
+          "databricks-academy",
+          "udacity",
+          "google-cloud-agents"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "learn",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
+    },
+    {
+      "id": "voice-agents-and-instructors-learn",
+      "title": "Voice agents, virtual instructors, and accessible media (Learn)",
+      "surface": "learn",
+      "level": "intermediate",
+      "gapEvidence": "Learn corpus: 0 word-boundary occurrence(s) of \\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b in the measured corpus; 6 occurrence(s) across 3 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 3 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "fast-ai",
+          "codecademy",
+          "google-cloud-agents"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "learn",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
+    },
+    {
+      "id": "retrieval-augmented-generation-field-guide",
+      "title": "Retrieval-augmented generation, embeddings, and vector search (Field Guide)",
+      "surface": "field-guide",
+      "level": "intermediate",
+      "gapEvidence": "Field Guide corpus: 0 word-boundary occurrence(s) of \\bRAG\\b|retrieval[- ]augmented in the measured corpus; 5 occurrence(s) across 1 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bRAG\\b|retrieval[- ]augmented",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 1 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "codecademy"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "field-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
+    },
+    {
+      "id": "vector-search-and-embeddings-field-guide",
+      "title": "Embeddings and vector stores (Field Guide)",
+      "surface": "field-guide",
+      "level": "intermediate",
+      "gapEvidence": "Field Guide corpus: 0 word-boundary occurrence(s) of \\bvector (search|database|store)\\b|\\bembeddings?\\b in the measured corpus; 3 occurrence(s) across 2 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bvector (search|database|store)\\b|\\bembeddings?\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 2 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "fast-ai",
+          "codecademy"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "field-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
+    },
+    {
+      "id": "orchestration-frameworks-field-guide",
+      "title": "Agent orchestration frameworks and portability (Field Guide)",
+      "surface": "field-guide",
+      "level": "intermediate",
+      "gapEvidence": "Field Guide corpus: 0 word-boundary occurrence(s) of \\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b in the measured corpus; 4 occurrence(s) across 1 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 1 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "codecademy"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "field-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
+    },
+    {
+      "id": "executive-and-leader-track-field-guide",
+      "title": "AI for executives, leaders, and decision makers (Field Guide)",
+      "surface": "field-guide",
+      "level": "beginner",
+      "gapEvidence": "Field Guide corpus: 0 word-boundary occurrence(s) of \\bexecutives?\\b|\\bboard[- ]level\\b in the measured corpus; 17 occurrence(s) across 6 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bexecutives?\\b|\\bboard[- ]level\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 6 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "pluralsight",
+          "edx",
+          "nvidia-dli",
+          "databricks-academy",
+          "udacity",
+          "google-cloud-agents"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "field-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
+    },
+    {
+      "id": "voice-agents-and-instructors-field-guide",
+      "title": "Voice agents, virtual instructors, and accessible media (Field Guide)",
+      "surface": "field-guide",
+      "level": "intermediate",
+      "gapEvidence": "Field Guide corpus: 0 word-boundary occurrence(s) of \\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b in the measured corpus; 6 occurrence(s) across 3 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 3 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "fast-ai",
+          "codecademy",
+          "google-cloud-agents"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "field-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
+    },
+    {
+      "id": "retrieval-augmented-generation-visual-guide",
+      "title": "Retrieval-augmented generation, embeddings, and vector search (Visual Guide)",
+      "surface": "visual-guide",
+      "level": "intermediate",
+      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bRAG\\b|retrieval[- ]augmented in the measured corpus; 5 occurrence(s) across 1 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bRAG\\b|retrieval[- ]augmented",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 1 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "codecademy"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "visual-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
+    },
+    {
+      "id": "vector-search-and-embeddings-visual-guide",
+      "title": "Embeddings and vector stores (Visual Guide)",
+      "surface": "visual-guide",
+      "level": "intermediate",
+      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bvector (search|database|store)\\b|\\bembeddings?\\b in the measured corpus; 3 occurrence(s) across 2 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bvector (search|database|store)\\b|\\bembeddings?\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 2 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "fast-ai",
+          "codecademy"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "visual-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
+    },
+    {
+      "id": "orchestration-frameworks-visual-guide",
+      "title": "Agent orchestration frameworks and portability (Visual Guide)",
+      "surface": "visual-guide",
+      "level": "intermediate",
+      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b in the measured corpus; 4 occurrence(s) across 1 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 1 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "codecademy"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "visual-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
+    },
+    {
+      "id": "executive-and-leader-track-visual-guide",
+      "title": "AI for executives, leaders, and decision makers (Visual Guide)",
+      "surface": "visual-guide",
+      "level": "beginner",
+      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bexecutives?\\b|\\bboard[- ]level\\b in the measured corpus; 17 occurrence(s) across 6 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bexecutives?\\b|\\bboard[- ]level\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 6 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "pluralsight",
+          "edx",
+          "nvidia-dli",
+          "databricks-academy",
+          "udacity",
+          "google-cloud-agents"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "visual-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
+    },
+    {
+      "id": "fine-tuning-and-distillation-visual-guide",
+      "title": "Fine-tuning, adapters, distillation, and when not to train (Visual Guide)",
+      "surface": "visual-guide",
+      "level": "advanced",
+      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bdistillation\\b|\\bLoRA\\b|\\badapters?\\b in the measured corpus; 2 occurrence(s) across 1 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bdistillation\\b|\\bLoRA\\b|\\badapters?\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 1 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "codecademy"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "visual-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
+    },
+    {
+      "id": "voice-agents-and-instructors-visual-guide",
+      "title": "Voice agents, virtual instructors, and accessible media (Visual Guide)",
+      "surface": "visual-guide",
+      "level": "intermediate",
+      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b in the measured corpus; 6 occurrence(s) across 3 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 3 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "fast-ai",
+          "codecademy",
+          "google-cloud-agents"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "visual-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
+    },
+    {
+      "id": "model-context-protocol-visual-guide",
+      "title": "Model Context Protocol and tool interoperability (Visual Guide)",
+      "surface": "visual-guide",
+      "level": "intermediate",
+      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bMCP\\b|Model Context Protocol in the measured corpus; 9 occurrence(s) across 3 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bMCP\\b|Model Context Protocol",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 3 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "linkedin-learning",
+          "codecademy",
+          "udacity"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "visual-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
+    },
+    {
+      "id": "cost-and-capacity-management-visual-guide",
+      "title": "Cost, capacity, and spend control for AI systems (Visual Guide)",
+      "surface": "visual-guide",
+      "level": "intermediate",
+      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bcost (control|ceiling|management)\\b|\\btokens? per minute\\b in the measured corpus; 4 occurrence(s) across 1 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bcost (control|ceiling|management)\\b|\\btokens? per minute\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-03T22:25:02.618Z"
+      },
+      "marketSignal": "Present in 1 of 27 surveyed sources.",
+      "provenance": {
+        "suggestedBy": [
+          "google-cloud-agents"
+        ],
+        "firstSeen": "2026-08-03T22:25:02.618Z",
+        "lastConfirmed": "2026-08-03T22:25:12.417Z",
+        "confirmCount": 1
+      },
+      "kind": "visual-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-03T22:25:12.417Z"
     }
   ],
   "confirmedStrengths": [
