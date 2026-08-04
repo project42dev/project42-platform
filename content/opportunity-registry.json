@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "registryVersion": "0.1.5",
+  "registryVersion": "0.1.6",
   "lastReviewed": "2026-08-04",
   "purpose": "Candidate Learn and Field Guide content, as data. This is product content data, not planning material: it lives beside catalog.json and source-registry.json, is versioned with the content it governs, and is uploaded to the delivery platform config share so the content builder can read it. A list the builder cannot see cannot drive a build.",
   "usageRules": [
@@ -263,7 +263,7 @@
       "gapMeasurement": {
         "probe": "\\bRAG\\b|retrieval[- ]augmented",
         "occurrences": 0,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "marketSignal": "Present in 1 of 27 surveyed sources.",
       "provenance": {
@@ -271,8 +271,8 @@
           "codecademy"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-04T01:25:17.868Z",
-        "confirmCount": 2,
+        "lastConfirmed": "2026-08-04T03:57:26.763Z",
+        "confirmCount": 3,
         "peakSourceCount": 1
       },
       "kind": "learn",
@@ -284,11 +284,16 @@
         "sourceCount": 1,
         "sourcesSurveyed": 27,
         "sourcesReachable": 22,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "demandHistory": [
         {
           "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 1,
+          "supplyOccurrences": 0
+        },
+        {
+          "observedOn": "2026-08-04T03:57:26.763Z",
           "sourceCount": 1,
           "supplyOccurrences": 0
         }
@@ -329,7 +334,7 @@
       "gapMeasurement": {
         "probe": "\\bexecutives?\\b|\\bboard[- ]level\\b|\\bdecision[- ]makers?\\b|\\bC[- ]?suite\\b",
         "occurrences": 1,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "marketSignal": "Present in 7 of 27 surveyed sources.",
       "provenance": {
@@ -343,8 +348,8 @@
           "codecademy"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-04T01:25:17.868Z",
-        "confirmCount": 2,
+        "lastConfirmed": "2026-08-04T03:57:26.763Z",
+        "confirmCount": 3,
         "peakSourceCount": 7
       },
       "kind": "learn",
@@ -356,11 +361,16 @@
         "sourceCount": 7,
         "sourcesSurveyed": 27,
         "sourcesReachable": 22,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "demandHistory": [
         {
           "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 7,
+          "supplyOccurrences": 1
+        },
+        {
+          "observedOn": "2026-08-04T03:57:26.763Z",
           "sourceCount": 7,
           "supplyOccurrences": 1
         }
@@ -375,7 +385,7 @@
       "gapMeasurement": {
         "probe": "\\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b|\\bTTS\\b|\\bSTT\\b|\\bvirtual instructors?\\b",
         "occurrences": 0,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "marketSignal": "Present in 3 of 27 surveyed sources.",
       "provenance": {
@@ -385,8 +395,8 @@
           "google-cloud-agents"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-04T01:25:17.868Z",
-        "confirmCount": 2,
+        "lastConfirmed": "2026-08-04T03:57:26.763Z",
+        "confirmCount": 3,
         "peakSourceCount": 3
       },
       "kind": "learn",
@@ -398,11 +408,16 @@
         "sourceCount": 3,
         "sourcesSurveyed": 27,
         "sourcesReachable": 22,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "demandHistory": [
         {
           "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 3,
+          "supplyOccurrences": 0
+        },
+        {
+          "observedOn": "2026-08-04T03:57:26.763Z",
           "sourceCount": 3,
           "supplyOccurrences": 0
         }
@@ -417,7 +432,7 @@
       "gapMeasurement": {
         "probe": "\\bRAG\\b|retrieval[- ]augmented",
         "occurrences": 0,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "marketSignal": "Present in 1 of 27 surveyed sources.",
       "provenance": {
@@ -425,8 +440,8 @@
           "codecademy"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-04T01:25:17.868Z",
-        "confirmCount": 2,
+        "lastConfirmed": "2026-08-04T03:57:26.763Z",
+        "confirmCount": 3,
         "peakSourceCount": 1
       },
       "kind": "field-guide",
@@ -438,11 +453,16 @@
         "sourceCount": 1,
         "sourcesSurveyed": 27,
         "sourcesReachable": 22,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "demandHistory": [
         {
           "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 1,
+          "supplyOccurrences": 0
+        },
+        {
+          "observedOn": "2026-08-04T03:57:26.763Z",
           "sourceCount": 1,
           "supplyOccurrences": 0
         }
@@ -457,7 +477,7 @@
       "gapMeasurement": {
         "probe": "\\bvector (search|database|store)\\b|\\bembeddings?\\b",
         "occurrences": 0,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "marketSignal": "Present in 2 of 27 surveyed sources.",
       "provenance": {
@@ -466,8 +486,8 @@
           "codecademy"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-04T01:25:17.868Z",
-        "confirmCount": 2,
+        "lastConfirmed": "2026-08-04T03:57:26.763Z",
+        "confirmCount": 3,
         "peakSourceCount": 2
       },
       "kind": "field-guide",
@@ -479,11 +499,16 @@
         "sourceCount": 2,
         "sourcesSurveyed": 27,
         "sourcesReachable": 22,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "demandHistory": [
         {
           "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 2,
+          "supplyOccurrences": 0
+        },
+        {
+          "observedOn": "2026-08-04T03:57:26.763Z",
           "sourceCount": 2,
           "supplyOccurrences": 0
         }
@@ -524,7 +549,7 @@
       "gapMeasurement": {
         "probe": "\\bexecutives?\\b|\\bboard[- ]level\\b|\\bdecision[- ]makers?\\b|\\bC[- ]?suite\\b",
         "occurrences": 0,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "marketSignal": "Present in 7 of 27 surveyed sources.",
       "provenance": {
@@ -538,8 +563,8 @@
           "codecademy"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-04T01:25:17.868Z",
-        "confirmCount": 2,
+        "lastConfirmed": "2026-08-04T03:57:26.763Z",
+        "confirmCount": 3,
         "peakSourceCount": 7
       },
       "kind": "field-guide",
@@ -551,11 +576,16 @@
         "sourceCount": 7,
         "sourcesSurveyed": 27,
         "sourcesReachable": 22,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "demandHistory": [
         {
           "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 7,
+          "supplyOccurrences": 0
+        },
+        {
+          "observedOn": "2026-08-04T03:57:26.763Z",
           "sourceCount": 7,
           "supplyOccurrences": 0
         }
@@ -570,7 +600,7 @@
       "gapMeasurement": {
         "probe": "\\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b|\\bTTS\\b|\\bSTT\\b|\\bvirtual instructors?\\b",
         "occurrences": 0,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "marketSignal": "Present in 3 of 27 surveyed sources.",
       "provenance": {
@@ -580,8 +610,8 @@
           "google-cloud-agents"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-04T01:25:17.868Z",
-        "confirmCount": 2,
+        "lastConfirmed": "2026-08-04T03:57:26.763Z",
+        "confirmCount": 3,
         "peakSourceCount": 3
       },
       "kind": "field-guide",
@@ -593,11 +623,16 @@
         "sourceCount": 3,
         "sourcesSurveyed": 27,
         "sourcesReachable": 22,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "demandHistory": [
         {
           "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 3,
+          "supplyOccurrences": 0
+        },
+        {
+          "observedOn": "2026-08-04T03:57:26.763Z",
           "sourceCount": 3,
           "supplyOccurrences": 0
         }
@@ -930,7 +965,7 @@
       "gapMeasurement": {
         "probe": "\\bvector (search|database|store)\\b|\\bembeddings?\\b",
         "occurrences": 1,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "marketSignal": "Present in 2 of 27 surveyed sources.",
       "marketMeasurement": {
@@ -938,7 +973,7 @@
         "sourceCount": 2,
         "sourcesSurveyed": 27,
         "sourcesReachable": 22,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "provenance": {
         "suggestedBy": [
@@ -946,8 +981,8 @@
           "codecademy"
         ],
         "firstSeen": "2026-08-04T01:24:57.534Z",
-        "lastConfirmed": "2026-08-04T01:25:17.868Z",
-        "confirmCount": 1,
+        "lastConfirmed": "2026-08-04T03:57:26.763Z",
+        "confirmCount": 2,
         "peakSourceCount": 2
       },
       "kind": "learn",
@@ -957,6 +992,11 @@
       "demandHistory": [
         {
           "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 2,
+          "supplyOccurrences": 1
+        },
+        {
+          "observedOn": "2026-08-04T03:57:26.763Z",
           "sourceCount": 2,
           "supplyOccurrences": 1
         }
@@ -971,7 +1011,7 @@
       "gapMeasurement": {
         "probe": "\\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b|\\bAutoGen\\b|\\bCrewAI\\b|\\bLangGraph\\b|\\bPydantic ?AI\\b",
         "occurrences": 0,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "marketSignal": "Present in 1 of 27 surveyed sources.",
       "marketMeasurement": {
@@ -979,15 +1019,15 @@
         "sourceCount": 1,
         "sourcesSurveyed": 27,
         "sourcesReachable": 22,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "provenance": {
         "suggestedBy": [
           "codecademy"
         ],
         "firstSeen": "2026-08-04T01:24:57.534Z",
-        "lastConfirmed": "2026-08-04T01:25:17.868Z",
-        "confirmCount": 1,
+        "lastConfirmed": "2026-08-04T03:57:26.763Z",
+        "confirmCount": 2,
         "peakSourceCount": 1
       },
       "kind": "learn",
@@ -997,6 +1037,11 @@
       "demandHistory": [
         {
           "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 1,
+          "supplyOccurrences": 0
+        },
+        {
+          "observedOn": "2026-08-04T03:57:26.763Z",
           "sourceCount": 1,
           "supplyOccurrences": 0
         }
@@ -1011,7 +1056,7 @@
       "gapMeasurement": {
         "probe": "\\bfine[- ]?tun\\w*|\\bdistillation\\b|\\bLoRA\\b|\\bQLoRA\\b|\\bPEFT\\b|\\badapter (layers?|tuning|weights?)\\b",
         "occurrences": 5,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "marketSignal": "Present in 2 of 27 surveyed sources.",
       "marketMeasurement": {
@@ -1019,7 +1064,7 @@
         "sourceCount": 2,
         "sourcesSurveyed": 27,
         "sourcesReachable": 22,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "provenance": {
         "suggestedBy": [
@@ -1027,8 +1072,8 @@
           "codecademy"
         ],
         "firstSeen": "2026-08-04T01:24:57.534Z",
-        "lastConfirmed": "2026-08-04T01:25:17.868Z",
-        "confirmCount": 1,
+        "lastConfirmed": "2026-08-04T03:57:26.763Z",
+        "confirmCount": 2,
         "peakSourceCount": 2
       },
       "kind": "learn",
@@ -1038,6 +1083,11 @@
       "demandHistory": [
         {
           "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 2,
+          "supplyOccurrences": 5
+        },
+        {
+          "observedOn": "2026-08-04T03:57:26.763Z",
           "sourceCount": 2,
           "supplyOccurrences": 5
         }
@@ -1052,7 +1102,7 @@
       "gapMeasurement": {
         "probe": "\\bcost (control|ceiling|management|governance)\\b|\\btokens? per minute\\b|\\bTPM\\b|\\bspend (limit|cap|control)\\b",
         "occurrences": 1,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "marketSignal": "Present in 1 of 27 surveyed sources.",
       "marketMeasurement": {
@@ -1060,15 +1110,15 @@
         "sourceCount": 1,
         "sourcesSurveyed": 27,
         "sourcesReachable": 22,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "provenance": {
         "suggestedBy": [
           "google-cloud-agents"
         ],
         "firstSeen": "2026-08-04T01:24:57.534Z",
-        "lastConfirmed": "2026-08-04T01:25:17.868Z",
-        "confirmCount": 1,
+        "lastConfirmed": "2026-08-04T03:57:26.763Z",
+        "confirmCount": 2,
         "peakSourceCount": 1
       },
       "kind": "learn",
@@ -1078,6 +1128,11 @@
       "demandHistory": [
         {
           "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 1,
+          "supplyOccurrences": 1
+        },
+        {
+          "observedOn": "2026-08-04T03:57:26.763Z",
           "sourceCount": 1,
           "supplyOccurrences": 1
         }
@@ -1092,7 +1147,7 @@
       "gapMeasurement": {
         "probe": "\\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b|\\bAutoGen\\b|\\bCrewAI\\b|\\bLangGraph\\b|\\bPydantic ?AI\\b",
         "occurrences": 0,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "marketSignal": "Present in 1 of 27 surveyed sources.",
       "marketMeasurement": {
@@ -1100,15 +1155,15 @@
         "sourceCount": 1,
         "sourcesSurveyed": 27,
         "sourcesReachable": 22,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "provenance": {
         "suggestedBy": [
           "codecademy"
         ],
         "firstSeen": "2026-08-04T01:24:57.534Z",
-        "lastConfirmed": "2026-08-04T01:25:17.868Z",
-        "confirmCount": 1,
+        "lastConfirmed": "2026-08-04T03:57:26.763Z",
+        "confirmCount": 2,
         "peakSourceCount": 1
       },
       "kind": "field-guide",
@@ -1118,6 +1173,11 @@
       "demandHistory": [
         {
           "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 1,
+          "supplyOccurrences": 0
+        },
+        {
+          "observedOn": "2026-08-04T03:57:26.763Z",
           "sourceCount": 1,
           "supplyOccurrences": 0
         }
@@ -1132,7 +1192,7 @@
       "gapMeasurement": {
         "probe": "\\bfine[- ]?tun\\w*|\\bdistillation\\b|\\bLoRA\\b|\\bQLoRA\\b|\\bPEFT\\b|\\badapter (layers?|tuning|weights?)\\b",
         "occurrences": 0,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "marketSignal": "Present in 2 of 27 surveyed sources.",
       "marketMeasurement": {
@@ -1140,7 +1200,7 @@
         "sourceCount": 2,
         "sourcesSurveyed": 27,
         "sourcesReachable": 22,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "provenance": {
         "suggestedBy": [
@@ -1148,8 +1208,8 @@
           "codecademy"
         ],
         "firstSeen": "2026-08-04T01:24:57.534Z",
-        "lastConfirmed": "2026-08-04T01:25:17.868Z",
-        "confirmCount": 1,
+        "lastConfirmed": "2026-08-04T03:57:26.763Z",
+        "confirmCount": 2,
         "peakSourceCount": 2
       },
       "kind": "field-guide",
@@ -1159,6 +1219,11 @@
       "demandHistory": [
         {
           "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 2,
+          "supplyOccurrences": 0
+        },
+        {
+          "observedOn": "2026-08-04T03:57:26.763Z",
           "sourceCount": 2,
           "supplyOccurrences": 0
         }
@@ -1173,7 +1238,7 @@
       "gapMeasurement": {
         "probe": "\\bcost (control|ceiling|management|governance)\\b|\\btokens? per minute\\b|\\bTPM\\b|\\bspend (limit|cap|control)\\b",
         "occurrences": 3,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "marketSignal": "Present in 1 of 27 surveyed sources.",
       "marketMeasurement": {
@@ -1181,15 +1246,15 @@
         "sourceCount": 1,
         "sourcesSurveyed": 27,
         "sourcesReachable": 22,
-        "measuredOn": "2026-08-04T01:24:57.534Z"
+        "measuredOn": "2026-08-04T03:56:07.288Z"
       },
       "provenance": {
         "suggestedBy": [
           "google-cloud-agents"
         ],
         "firstSeen": "2026-08-04T01:24:57.534Z",
-        "lastConfirmed": "2026-08-04T01:25:17.868Z",
-        "confirmCount": 1,
+        "lastConfirmed": "2026-08-04T03:57:26.763Z",
+        "confirmCount": 2,
         "peakSourceCount": 1
       },
       "kind": "field-guide",
@@ -1199,6 +1264,11 @@
       "demandHistory": [
         {
           "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 1,
+          "supplyOccurrences": 3
+        },
+        {
+          "observedOn": "2026-08-04T03:57:26.763Z",
           "sourceCount": 1,
           "supplyOccurrences": 3
         }
