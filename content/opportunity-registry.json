@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
-  "registryVersion": "0.1.3",
-  "lastReviewed": "2026-08-03",
+  "registryVersion": "0.1.5",
+  "lastReviewed": "2026-08-04",
   "purpose": "Candidate Learn and Field Guide content, as data. This is product content data, not planning material: it lives beside catalog.json and source-registry.json, is versioned with the content it governs, and is uploaded to the delivery platform config share so the content builder can read it. A list the builder cannot see cannot drive a build.",
   "usageRules": [
     "Discovery inputs only. Never copy course outlines, lesson sequences, exercises, assessment items, artwork, branding, or proprietary teaching structure from any watched service.",
@@ -263,7 +263,7 @@
       "gapMeasurement": {
         "probe": "\\bRAG\\b|retrieval[- ]augmented",
         "occurrences": 0,
-        "measuredOn": "2026-08-03T22:25:02.618Z"
+        "measuredOn": "2026-08-04T01:24:57.534Z"
       },
       "marketSignal": "Present in 1 of 27 surveyed sources.",
       "provenance": {
@@ -271,13 +271,28 @@
           "codecademy"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-03T22:25:12.417Z",
-        "confirmCount": 1
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 2,
+        "peakSourceCount": 1
       },
       "kind": "learn",
       "status": "candidate",
       "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "statusSetOn": "2026-08-03T22:25:12.417Z",
+      "marketMeasurement": {
+        "occurrences": 5,
+        "sourceCount": 1,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 1,
+          "supplyOccurrences": 0
+        }
+      ]
     },
     {
       "id": "orchestration-frameworks-learn",
@@ -300,22 +315,23 @@
         "confirmCount": 1
       },
       "kind": "learn",
-      "status": "candidate",
-      "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "status": "retired",
+      "statusSetBy": "human",
+      "statusSetOn": "2026-08-04T01:25:28.860Z",
+      "note": "Retired because the probe behind it was measuring the wrong thing. Its regex was \bLangChain\b|\bLlamaIndex\b|\bSemantic Kernel\b, which appear zero times in the corpus, so it reported the nine-module class-ready reliable-agent-workflows path plus five mcp-orchestration resources as a total gap. Replaced by two probes that separate the question: agent-orchestration measures the subject and finds it covered, and orchestration-framework-portability measures the real gap, which is that we never name the frameworks a reader may be searching for."
     },
     {
       "id": "executive-and-leader-track-learn",
       "title": "AI for executives, leaders, and decision makers (Learn)",
       "surface": "learn",
       "level": "beginner",
-      "gapEvidence": "Learn corpus: 0 word-boundary occurrence(s) of \\bexecutives?\\b|\\bboard[- ]level\\b in the measured corpus; 17 occurrence(s) across 6 surveyed source(s)",
+      "gapEvidence": "Learn corpus: 1 word-boundary occurrence(s) of \\bexecutives?\\b|\\bboard[- ]level\\b|\\bdecision[- ]makers?\\b|\\bC[- ]?suite\\b in the measured corpus; 21 occurrence(s) across 7 surveyed source(s)",
       "gapMeasurement": {
-        "probe": "\\bexecutives?\\b|\\bboard[- ]level\\b",
-        "occurrences": 0,
-        "measuredOn": "2026-08-03T22:25:02.618Z"
+        "probe": "\\bexecutives?\\b|\\bboard[- ]level\\b|\\bdecision[- ]makers?\\b|\\bC[- ]?suite\\b",
+        "occurrences": 1,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
       },
-      "marketSignal": "Present in 6 of 27 surveyed sources.",
+      "marketSignal": "Present in 7 of 27 surveyed sources.",
       "provenance": {
         "suggestedBy": [
           "pluralsight",
@@ -323,27 +339,43 @@
           "nvidia-dli",
           "databricks-academy",
           "udacity",
-          "google-cloud-agents"
+          "google-cloud-agents",
+          "codecademy"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-03T22:25:12.417Z",
-        "confirmCount": 1
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 2,
+        "peakSourceCount": 7
       },
       "kind": "learn",
       "status": "candidate",
       "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "statusSetOn": "2026-08-03T22:25:12.417Z",
+      "marketMeasurement": {
+        "occurrences": 21,
+        "sourceCount": 7,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 7,
+          "supplyOccurrences": 1
+        }
+      ]
     },
     {
       "id": "voice-agents-and-instructors-learn",
       "title": "Voice agents, virtual instructors, and accessible media (Learn)",
       "surface": "learn",
       "level": "intermediate",
-      "gapEvidence": "Learn corpus: 0 word-boundary occurrence(s) of \\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b in the measured corpus; 6 occurrence(s) across 3 surveyed source(s)",
+      "gapEvidence": "Learn corpus: 0 word-boundary occurrence(s) of \\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b|\\bTTS\\b|\\bSTT\\b|\\bvirtual instructors?\\b in the measured corpus; 6 occurrence(s) across 3 surveyed source(s)",
       "gapMeasurement": {
-        "probe": "\\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b",
+        "probe": "\\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b|\\bTTS\\b|\\bSTT\\b|\\bvirtual instructors?\\b",
         "occurrences": 0,
-        "measuredOn": "2026-08-03T22:25:02.618Z"
+        "measuredOn": "2026-08-04T01:24:57.534Z"
       },
       "marketSignal": "Present in 3 of 27 surveyed sources.",
       "provenance": {
@@ -353,13 +385,28 @@
           "google-cloud-agents"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-03T22:25:12.417Z",
-        "confirmCount": 1
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 2,
+        "peakSourceCount": 3
       },
       "kind": "learn",
       "status": "candidate",
       "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "statusSetOn": "2026-08-03T22:25:12.417Z",
+      "marketMeasurement": {
+        "occurrences": 6,
+        "sourceCount": 3,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 3,
+          "supplyOccurrences": 0
+        }
+      ]
     },
     {
       "id": "retrieval-augmented-generation-field-guide",
@@ -370,7 +417,7 @@
       "gapMeasurement": {
         "probe": "\\bRAG\\b|retrieval[- ]augmented",
         "occurrences": 0,
-        "measuredOn": "2026-08-03T22:25:02.618Z"
+        "measuredOn": "2026-08-04T01:24:57.534Z"
       },
       "marketSignal": "Present in 1 of 27 surveyed sources.",
       "provenance": {
@@ -378,13 +425,28 @@
           "codecademy"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-03T22:25:12.417Z",
-        "confirmCount": 1
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 2,
+        "peakSourceCount": 1
       },
       "kind": "field-guide",
       "status": "candidate",
       "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "statusSetOn": "2026-08-03T22:25:12.417Z",
+      "marketMeasurement": {
+        "occurrences": 5,
+        "sourceCount": 1,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 1,
+          "supplyOccurrences": 0
+        }
+      ]
     },
     {
       "id": "vector-search-and-embeddings-field-guide",
@@ -395,7 +457,7 @@
       "gapMeasurement": {
         "probe": "\\bvector (search|database|store)\\b|\\bembeddings?\\b",
         "occurrences": 0,
-        "measuredOn": "2026-08-03T22:25:02.618Z"
+        "measuredOn": "2026-08-04T01:24:57.534Z"
       },
       "marketSignal": "Present in 2 of 27 surveyed sources.",
       "provenance": {
@@ -404,13 +466,28 @@
           "codecademy"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-03T22:25:12.417Z",
-        "confirmCount": 1
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 2,
+        "peakSourceCount": 2
       },
       "kind": "field-guide",
       "status": "candidate",
       "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "statusSetOn": "2026-08-03T22:25:12.417Z",
+      "marketMeasurement": {
+        "occurrences": 3,
+        "sourceCount": 2,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 2,
+          "supplyOccurrences": 0
+        }
+      ]
     },
     {
       "id": "orchestration-frameworks-field-guide",
@@ -433,22 +510,23 @@
         "confirmCount": 1
       },
       "kind": "field-guide",
-      "status": "candidate",
-      "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "status": "retired",
+      "statusSetBy": "human",
+      "statusSetOn": "2026-08-04T01:25:28.860Z",
+      "note": "Retired because the probe behind it was measuring the wrong thing. Its regex was \bLangChain\b|\bLlamaIndex\b|\bSemantic Kernel\b, which appear zero times in the corpus, so it reported the nine-module class-ready reliable-agent-workflows path plus five mcp-orchestration resources as a total gap. Replaced by two probes that separate the question: agent-orchestration measures the subject and finds it covered, and orchestration-framework-portability measures the real gap, which is that we never name the frameworks a reader may be searching for."
     },
     {
       "id": "executive-and-leader-track-field-guide",
       "title": "AI for executives, leaders, and decision makers (Field Guide)",
       "surface": "field-guide",
       "level": "beginner",
-      "gapEvidence": "Field Guide corpus: 0 word-boundary occurrence(s) of \\bexecutives?\\b|\\bboard[- ]level\\b in the measured corpus; 17 occurrence(s) across 6 surveyed source(s)",
+      "gapEvidence": "Field Guide corpus: 0 word-boundary occurrence(s) of \\bexecutives?\\b|\\bboard[- ]level\\b|\\bdecision[- ]makers?\\b|\\bC[- ]?suite\\b in the measured corpus; 21 occurrence(s) across 7 surveyed source(s)",
       "gapMeasurement": {
-        "probe": "\\bexecutives?\\b|\\bboard[- ]level\\b",
+        "probe": "\\bexecutives?\\b|\\bboard[- ]level\\b|\\bdecision[- ]makers?\\b|\\bC[- ]?suite\\b",
         "occurrences": 0,
-        "measuredOn": "2026-08-03T22:25:02.618Z"
+        "measuredOn": "2026-08-04T01:24:57.534Z"
       },
-      "marketSignal": "Present in 6 of 27 surveyed sources.",
+      "marketSignal": "Present in 7 of 27 surveyed sources.",
       "provenance": {
         "suggestedBy": [
           "pluralsight",
@@ -456,27 +534,43 @@
           "nvidia-dli",
           "databricks-academy",
           "udacity",
-          "google-cloud-agents"
+          "google-cloud-agents",
+          "codecademy"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-03T22:25:12.417Z",
-        "confirmCount": 1
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 2,
+        "peakSourceCount": 7
       },
       "kind": "field-guide",
       "status": "candidate",
       "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "statusSetOn": "2026-08-03T22:25:12.417Z",
+      "marketMeasurement": {
+        "occurrences": 21,
+        "sourceCount": 7,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 7,
+          "supplyOccurrences": 0
+        }
+      ]
     },
     {
       "id": "voice-agents-and-instructors-field-guide",
       "title": "Voice agents, virtual instructors, and accessible media (Field Guide)",
       "surface": "field-guide",
       "level": "intermediate",
-      "gapEvidence": "Field Guide corpus: 0 word-boundary occurrence(s) of \\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b in the measured corpus; 6 occurrence(s) across 3 surveyed source(s)",
+      "gapEvidence": "Field Guide corpus: 0 word-boundary occurrence(s) of \\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b|\\bTTS\\b|\\bSTT\\b|\\bvirtual instructors?\\b in the measured corpus; 6 occurrence(s) across 3 surveyed source(s)",
       "gapMeasurement": {
-        "probe": "\\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b",
+        "probe": "\\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b|\\bTTS\\b|\\bSTT\\b|\\bvirtual instructors?\\b",
         "occurrences": 0,
-        "measuredOn": "2026-08-03T22:25:02.618Z"
+        "measuredOn": "2026-08-04T01:24:57.534Z"
       },
       "marketSignal": "Present in 3 of 27 surveyed sources.",
       "provenance": {
@@ -486,13 +580,28 @@
           "google-cloud-agents"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-03T22:25:12.417Z",
-        "confirmCount": 1
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 2,
+        "peakSourceCount": 3
       },
       "kind": "field-guide",
       "status": "candidate",
       "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "statusSetOn": "2026-08-03T22:25:12.417Z",
+      "marketMeasurement": {
+        "occurrences": 6,
+        "sourceCount": 3,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 3,
+          "supplyOccurrences": 0
+        }
+      ]
     },
     {
       "id": "retrieval-augmented-generation-visual-guide",
@@ -503,7 +612,7 @@
       "gapMeasurement": {
         "probe": "\\bRAG\\b|retrieval[- ]augmented",
         "occurrences": 0,
-        "measuredOn": "2026-08-03T22:25:02.618Z"
+        "measuredOn": "2026-08-04T01:24:57.534Z"
       },
       "marketSignal": "Present in 1 of 27 surveyed sources.",
       "provenance": {
@@ -511,13 +620,28 @@
           "codecademy"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-03T22:25:12.417Z",
-        "confirmCount": 1
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 2,
+        "peakSourceCount": 1
       },
       "kind": "visual-guide",
       "status": "candidate",
       "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "statusSetOn": "2026-08-03T22:25:12.417Z",
+      "marketMeasurement": {
+        "occurrences": 5,
+        "sourceCount": 1,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 1,
+          "supplyOccurrences": 0
+        }
+      ]
     },
     {
       "id": "vector-search-and-embeddings-visual-guide",
@@ -528,7 +652,7 @@
       "gapMeasurement": {
         "probe": "\\bvector (search|database|store)\\b|\\bembeddings?\\b",
         "occurrences": 0,
-        "measuredOn": "2026-08-03T22:25:02.618Z"
+        "measuredOn": "2026-08-04T01:24:57.534Z"
       },
       "marketSignal": "Present in 2 of 27 surveyed sources.",
       "provenance": {
@@ -537,13 +661,28 @@
           "codecademy"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-03T22:25:12.417Z",
-        "confirmCount": 1
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 2,
+        "peakSourceCount": 2
       },
       "kind": "visual-guide",
       "status": "candidate",
       "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "statusSetOn": "2026-08-03T22:25:12.417Z",
+      "marketMeasurement": {
+        "occurrences": 3,
+        "sourceCount": 2,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 2,
+          "supplyOccurrences": 0
+        }
+      ]
     },
     {
       "id": "orchestration-frameworks-visual-guide",
@@ -566,22 +705,23 @@
         "confirmCount": 1
       },
       "kind": "visual-guide",
-      "status": "candidate",
-      "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "status": "retired",
+      "statusSetBy": "human",
+      "statusSetOn": "2026-08-04T01:25:28.860Z",
+      "note": "Retired because the probe behind it was measuring the wrong thing. Its regex was \bLangChain\b|\bLlamaIndex\b|\bSemantic Kernel\b, which appear zero times in the corpus, so it reported the nine-module class-ready reliable-agent-workflows path plus five mcp-orchestration resources as a total gap. Replaced by two probes that separate the question: agent-orchestration measures the subject and finds it covered, and orchestration-framework-portability measures the real gap, which is that we never name the frameworks a reader may be searching for."
     },
     {
       "id": "executive-and-leader-track-visual-guide",
       "title": "AI for executives, leaders, and decision makers (Visual Guide)",
       "surface": "visual-guide",
       "level": "beginner",
-      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bexecutives?\\b|\\bboard[- ]level\\b in the measured corpus; 17 occurrence(s) across 6 surveyed source(s)",
+      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bexecutives?\\b|\\bboard[- ]level\\b|\\bdecision[- ]makers?\\b|\\bC[- ]?suite\\b in the measured corpus; 21 occurrence(s) across 7 surveyed source(s)",
       "gapMeasurement": {
-        "probe": "\\bexecutives?\\b|\\bboard[- ]level\\b",
+        "probe": "\\bexecutives?\\b|\\bboard[- ]level\\b|\\bdecision[- ]makers?\\b|\\bC[- ]?suite\\b",
         "occurrences": 0,
-        "measuredOn": "2026-08-03T22:25:02.618Z"
+        "measuredOn": "2026-08-04T01:24:57.534Z"
       },
-      "marketSignal": "Present in 6 of 27 surveyed sources.",
+      "marketSignal": "Present in 7 of 27 surveyed sources.",
       "provenance": {
         "suggestedBy": [
           "pluralsight",
@@ -589,52 +729,84 @@
           "nvidia-dli",
           "databricks-academy",
           "udacity",
-          "google-cloud-agents"
+          "google-cloud-agents",
+          "codecademy"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-03T22:25:12.417Z",
-        "confirmCount": 1
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 2,
+        "peakSourceCount": 7
       },
       "kind": "visual-guide",
       "status": "candidate",
       "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "statusSetOn": "2026-08-03T22:25:12.417Z",
+      "marketMeasurement": {
+        "occurrences": 21,
+        "sourceCount": 7,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 7,
+          "supplyOccurrences": 0
+        }
+      ]
     },
     {
       "id": "fine-tuning-and-distillation-visual-guide",
       "title": "Fine-tuning, adapters, distillation, and when not to train (Visual Guide)",
       "surface": "visual-guide",
       "level": "advanced",
-      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bdistillation\\b|\\bLoRA\\b|\\badapters?\\b in the measured corpus; 2 occurrence(s) across 1 surveyed source(s)",
+      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bfine[- ]?tun\\w*|\\bdistillation\\b|\\bLoRA\\b|\\bQLoRA\\b|\\bPEFT\\b|\\badapter (layers?|tuning|weights?)\\b in the measured corpus; 17 occurrence(s) across 2 surveyed source(s)",
       "gapMeasurement": {
-        "probe": "\\bdistillation\\b|\\bLoRA\\b|\\badapters?\\b",
+        "probe": "\\bfine[- ]?tun\\w*|\\bdistillation\\b|\\bLoRA\\b|\\bQLoRA\\b|\\bPEFT\\b|\\badapter (layers?|tuning|weights?)\\b",
         "occurrences": 0,
-        "measuredOn": "2026-08-03T22:25:02.618Z"
+        "measuredOn": "2026-08-04T01:24:57.534Z"
       },
-      "marketSignal": "Present in 1 of 27 surveyed sources.",
+      "marketSignal": "Present in 2 of 27 surveyed sources.",
       "provenance": {
         "suggestedBy": [
-          "codecademy"
+          "codecademy",
+          "pluralsight"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-03T22:25:12.417Z",
-        "confirmCount": 1
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 2,
+        "peakSourceCount": 2
       },
       "kind": "visual-guide",
       "status": "candidate",
       "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "statusSetOn": "2026-08-03T22:25:12.417Z",
+      "marketMeasurement": {
+        "occurrences": 17,
+        "sourceCount": 2,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 2,
+          "supplyOccurrences": 0
+        }
+      ]
     },
     {
       "id": "voice-agents-and-instructors-visual-guide",
       "title": "Voice agents, virtual instructors, and accessible media (Visual Guide)",
       "surface": "visual-guide",
       "level": "intermediate",
-      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b in the measured corpus; 6 occurrence(s) across 3 surveyed source(s)",
+      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b|\\bTTS\\b|\\bSTT\\b|\\bvirtual instructors?\\b in the measured corpus; 6 occurrence(s) across 3 surveyed source(s)",
       "gapMeasurement": {
-        "probe": "\\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b",
+        "probe": "\\bvoice agents?\\b|\\bspeech[- ]to[- ]text\\b|\\btext[- ]to[- ]speech\\b|\\bTTS\\b|\\bSTT\\b|\\bvirtual instructors?\\b",
         "occurrences": 0,
-        "measuredOn": "2026-08-03T22:25:02.618Z"
+        "measuredOn": "2026-08-04T01:24:57.534Z"
       },
       "marketSignal": "Present in 3 of 27 surveyed sources.",
       "provenance": {
@@ -644,13 +816,28 @@
           "google-cloud-agents"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-03T22:25:12.417Z",
-        "confirmCount": 1
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 2,
+        "peakSourceCount": 3
       },
       "kind": "visual-guide",
       "status": "candidate",
       "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "statusSetOn": "2026-08-03T22:25:12.417Z",
+      "marketMeasurement": {
+        "occurrences": 6,
+        "sourceCount": 3,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 3,
+          "supplyOccurrences": 0
+        }
+      ]
     },
     {
       "id": "model-context-protocol-visual-guide",
@@ -661,7 +848,7 @@
       "gapMeasurement": {
         "probe": "\\bMCP\\b|Model Context Protocol",
         "occurrences": 0,
-        "measuredOn": "2026-08-03T22:25:02.618Z"
+        "measuredOn": "2026-08-04T01:24:57.534Z"
       },
       "marketSignal": "Present in 3 of 27 surveyed sources.",
       "provenance": {
@@ -671,24 +858,39 @@
           "udacity"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-03T22:25:12.417Z",
-        "confirmCount": 1
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 2,
+        "peakSourceCount": 3
       },
       "kind": "visual-guide",
       "status": "candidate",
       "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "statusSetOn": "2026-08-03T22:25:12.417Z",
+      "marketMeasurement": {
+        "occurrences": 9,
+        "sourceCount": 3,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 3,
+          "supplyOccurrences": 0
+        }
+      ]
     },
     {
       "id": "cost-and-capacity-management-visual-guide",
       "title": "Cost, capacity, and spend control for AI systems (Visual Guide)",
       "surface": "visual-guide",
       "level": "intermediate",
-      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bcost (control|ceiling|management)\\b|\\btokens? per minute\\b in the measured corpus; 4 occurrence(s) across 1 surveyed source(s)",
+      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bcost (control|ceiling|management|governance)\\b|\\btokens? per minute\\b|\\bTPM\\b|\\bspend (limit|cap|control)\\b in the measured corpus; 4 occurrence(s) across 1 surveyed source(s)",
       "gapMeasurement": {
-        "probe": "\\bcost (control|ceiling|management)\\b|\\btokens? per minute\\b",
+        "probe": "\\bcost (control|ceiling|management|governance)\\b|\\btokens? per minute\\b|\\bTPM\\b|\\bspend (limit|cap|control)\\b",
         "occurrences": 0,
-        "measuredOn": "2026-08-03T22:25:02.618Z"
+        "measuredOn": "2026-08-04T01:24:57.534Z"
       },
       "marketSignal": "Present in 1 of 27 surveyed sources.",
       "provenance": {
@@ -696,13 +898,434 @@
           "google-cloud-agents"
         ],
         "firstSeen": "2026-08-03T22:25:02.618Z",
-        "lastConfirmed": "2026-08-03T22:25:12.417Z",
-        "confirmCount": 1
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 2,
+        "peakSourceCount": 1
       },
       "kind": "visual-guide",
       "status": "candidate",
       "statusSetBy": "discovery",
-      "statusSetOn": "2026-08-03T22:25:12.417Z"
+      "statusSetOn": "2026-08-03T22:25:12.417Z",
+      "marketMeasurement": {
+        "occurrences": 4,
+        "sourceCount": 1,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 1,
+          "supplyOccurrences": 0
+        }
+      ]
+    },
+    {
+      "id": "vector-search-and-embeddings-learn",
+      "title": "Embeddings and vector stores (Learn)",
+      "surface": "learn",
+      "level": "intermediate",
+      "gapEvidence": "Learn corpus: 1 word-boundary occurrence(s) of \\bvector (search|database|store)\\b|\\bembeddings?\\b in the measured corpus; 3 occurrence(s) across 2 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bvector (search|database|store)\\b|\\bembeddings?\\b",
+        "occurrences": 1,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "marketSignal": "Present in 2 of 27 surveyed sources.",
+      "marketMeasurement": {
+        "occurrences": 3,
+        "sourceCount": 2,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "provenance": {
+        "suggestedBy": [
+          "fast-ai",
+          "codecademy"
+        ],
+        "firstSeen": "2026-08-04T01:24:57.534Z",
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 1,
+        "peakSourceCount": 2
+      },
+      "kind": "learn",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-04T01:25:17.868Z",
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 2,
+          "supplyOccurrences": 1
+        }
+      ]
+    },
+    {
+      "id": "orchestration-framework-portability-learn",
+      "title": "Mapping our orchestration patterns onto named frameworks (Learn)",
+      "surface": "learn",
+      "level": "intermediate",
+      "gapEvidence": "Learn corpus: 0 word-boundary occurrence(s) of \\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b|\\bAutoGen\\b|\\bCrewAI\\b|\\bLangGraph\\b|\\bPydantic ?AI\\b in the measured corpus; 5 occurrence(s) across 1 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b|\\bAutoGen\\b|\\bCrewAI\\b|\\bLangGraph\\b|\\bPydantic ?AI\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "marketSignal": "Present in 1 of 27 surveyed sources.",
+      "marketMeasurement": {
+        "occurrences": 5,
+        "sourceCount": 1,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "provenance": {
+        "suggestedBy": [
+          "codecademy"
+        ],
+        "firstSeen": "2026-08-04T01:24:57.534Z",
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 1,
+        "peakSourceCount": 1
+      },
+      "kind": "learn",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-04T01:25:17.868Z",
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 1,
+          "supplyOccurrences": 0
+        }
+      ]
+    },
+    {
+      "id": "fine-tuning-and-distillation-learn",
+      "title": "Fine-tuning, adapters, distillation, and when not to train (Learn)",
+      "surface": "learn",
+      "level": "advanced",
+      "gapEvidence": "Learn corpus: 5 word-boundary occurrence(s) of \\bfine[- ]?tun\\w*|\\bdistillation\\b|\\bLoRA\\b|\\bQLoRA\\b|\\bPEFT\\b|\\badapter (layers?|tuning|weights?)\\b in the measured corpus; 17 occurrence(s) across 2 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bfine[- ]?tun\\w*|\\bdistillation\\b|\\bLoRA\\b|\\bQLoRA\\b|\\bPEFT\\b|\\badapter (layers?|tuning|weights?)\\b",
+        "occurrences": 5,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "marketSignal": "Present in 2 of 27 surveyed sources.",
+      "marketMeasurement": {
+        "occurrences": 17,
+        "sourceCount": 2,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "provenance": {
+        "suggestedBy": [
+          "pluralsight",
+          "codecademy"
+        ],
+        "firstSeen": "2026-08-04T01:24:57.534Z",
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 1,
+        "peakSourceCount": 2
+      },
+      "kind": "learn",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-04T01:25:17.868Z",
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 2,
+          "supplyOccurrences": 5
+        }
+      ]
+    },
+    {
+      "id": "cost-and-capacity-management-learn",
+      "title": "Cost, capacity, and spend control for AI systems (Learn)",
+      "surface": "learn",
+      "level": "intermediate",
+      "gapEvidence": "Learn corpus: 1 word-boundary occurrence(s) of \\bcost (control|ceiling|management|governance)\\b|\\btokens? per minute\\b|\\bTPM\\b|\\bspend (limit|cap|control)\\b in the measured corpus; 4 occurrence(s) across 1 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bcost (control|ceiling|management|governance)\\b|\\btokens? per minute\\b|\\bTPM\\b|\\bspend (limit|cap|control)\\b",
+        "occurrences": 1,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "marketSignal": "Present in 1 of 27 surveyed sources.",
+      "marketMeasurement": {
+        "occurrences": 4,
+        "sourceCount": 1,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "provenance": {
+        "suggestedBy": [
+          "google-cloud-agents"
+        ],
+        "firstSeen": "2026-08-04T01:24:57.534Z",
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 1,
+        "peakSourceCount": 1
+      },
+      "kind": "learn",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-04T01:25:17.868Z",
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 1,
+          "supplyOccurrences": 1
+        }
+      ]
+    },
+    {
+      "id": "orchestration-framework-portability-field-guide",
+      "title": "Mapping our orchestration patterns onto named frameworks (Field Guide)",
+      "surface": "field-guide",
+      "level": "intermediate",
+      "gapEvidence": "Field Guide corpus: 0 word-boundary occurrence(s) of \\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b|\\bAutoGen\\b|\\bCrewAI\\b|\\bLangGraph\\b|\\bPydantic ?AI\\b in the measured corpus; 5 occurrence(s) across 1 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b|\\bAutoGen\\b|\\bCrewAI\\b|\\bLangGraph\\b|\\bPydantic ?AI\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "marketSignal": "Present in 1 of 27 surveyed sources.",
+      "marketMeasurement": {
+        "occurrences": 5,
+        "sourceCount": 1,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "provenance": {
+        "suggestedBy": [
+          "codecademy"
+        ],
+        "firstSeen": "2026-08-04T01:24:57.534Z",
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 1,
+        "peakSourceCount": 1
+      },
+      "kind": "field-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-04T01:25:17.868Z",
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 1,
+          "supplyOccurrences": 0
+        }
+      ]
+    },
+    {
+      "id": "fine-tuning-and-distillation-field-guide",
+      "title": "Fine-tuning, adapters, distillation, and when not to train (Field Guide)",
+      "surface": "field-guide",
+      "level": "advanced",
+      "gapEvidence": "Field Guide corpus: 0 word-boundary occurrence(s) of \\bfine[- ]?tun\\w*|\\bdistillation\\b|\\bLoRA\\b|\\bQLoRA\\b|\\bPEFT\\b|\\badapter (layers?|tuning|weights?)\\b in the measured corpus; 17 occurrence(s) across 2 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bfine[- ]?tun\\w*|\\bdistillation\\b|\\bLoRA\\b|\\bQLoRA\\b|\\bPEFT\\b|\\badapter (layers?|tuning|weights?)\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "marketSignal": "Present in 2 of 27 surveyed sources.",
+      "marketMeasurement": {
+        "occurrences": 17,
+        "sourceCount": 2,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "provenance": {
+        "suggestedBy": [
+          "pluralsight",
+          "codecademy"
+        ],
+        "firstSeen": "2026-08-04T01:24:57.534Z",
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 1,
+        "peakSourceCount": 2
+      },
+      "kind": "field-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-04T01:25:17.868Z",
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 2,
+          "supplyOccurrences": 0
+        }
+      ]
+    },
+    {
+      "id": "cost-and-capacity-management-field-guide",
+      "title": "Cost, capacity, and spend control for AI systems (Field Guide)",
+      "surface": "field-guide",
+      "level": "intermediate",
+      "gapEvidence": "Field Guide corpus: 3 word-boundary occurrence(s) of \\bcost (control|ceiling|management|governance)\\b|\\btokens? per minute\\b|\\bTPM\\b|\\bspend (limit|cap|control)\\b in the measured corpus; 4 occurrence(s) across 1 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bcost (control|ceiling|management|governance)\\b|\\btokens? per minute\\b|\\bTPM\\b|\\bspend (limit|cap|control)\\b",
+        "occurrences": 3,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "marketSignal": "Present in 1 of 27 surveyed sources.",
+      "marketMeasurement": {
+        "occurrences": 4,
+        "sourceCount": 1,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "provenance": {
+        "suggestedBy": [
+          "google-cloud-agents"
+        ],
+        "firstSeen": "2026-08-04T01:24:57.534Z",
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 1,
+        "peakSourceCount": 1
+      },
+      "kind": "field-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-04T01:25:17.868Z",
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 1,
+          "supplyOccurrences": 3
+        }
+      ]
+    },
+    {
+      "id": "agent-orchestration-visual-guide",
+      "title": "Agent orchestration and multi-agent patterns (Visual Guide)",
+      "surface": "visual-guide",
+      "level": "intermediate",
+      "gapEvidence": "Visual Guide corpus: 4 word-boundary occurrence(s) of \\borchestrat\\w*|\\bmulti[- ]agent\\b|\\bagent handoffs?\\b in the measured corpus; 12 occurrence(s) across 3 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\borchestrat\\w*|\\bmulti[- ]agent\\b|\\bagent handoffs?\\b",
+        "occurrences": 4,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "marketSignal": "Present in 3 of 27 surveyed sources.",
+      "marketMeasurement": {
+        "occurrences": 12,
+        "sourceCount": 3,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "provenance": {
+        "suggestedBy": [
+          "databricks-academy",
+          "codecademy",
+          "google-cloud-agents"
+        ],
+        "firstSeen": "2026-08-04T01:24:57.534Z",
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 1,
+        "peakSourceCount": 3
+      },
+      "kind": "visual-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-04T01:25:17.868Z",
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 3,
+          "supplyOccurrences": 4
+        }
+      ]
+    },
+    {
+      "id": "orchestration-framework-portability-visual-guide",
+      "title": "Mapping our orchestration patterns onto named frameworks (Visual Guide)",
+      "surface": "visual-guide",
+      "level": "intermediate",
+      "gapEvidence": "Visual Guide corpus: 0 word-boundary occurrence(s) of \\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b|\\bAutoGen\\b|\\bCrewAI\\b|\\bLangGraph\\b|\\bPydantic ?AI\\b in the measured corpus; 5 occurrence(s) across 1 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bLangChain\\b|\\bLlamaIndex\\b|\\bSemantic Kernel\\b|\\bAutoGen\\b|\\bCrewAI\\b|\\bLangGraph\\b|\\bPydantic ?AI\\b",
+        "occurrences": 0,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "marketSignal": "Present in 1 of 27 surveyed sources.",
+      "marketMeasurement": {
+        "occurrences": 5,
+        "sourceCount": 1,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "provenance": {
+        "suggestedBy": [
+          "codecademy"
+        ],
+        "firstSeen": "2026-08-04T01:24:57.534Z",
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 1,
+        "peakSourceCount": 1
+      },
+      "kind": "visual-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-04T01:25:17.868Z",
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 1,
+          "supplyOccurrences": 0
+        }
+      ]
+    },
+    {
+      "id": "multi-agent-topology-diagram-visual-guide",
+      "title": "Multi-agent topologies and failure amplification (Visual Guide)",
+      "surface": "visual-guide",
+      "level": "advanced",
+      "gapEvidence": "Visual Guide corpus: 1 word-boundary occurrence(s) of \\bmulti[- ]agent\\b|\\bagent[- ]to[- ]agent\\b in the measured corpus; 6 occurrence(s) across 2 surveyed source(s)",
+      "gapMeasurement": {
+        "probe": "\\bmulti[- ]agent\\b|\\bagent[- ]to[- ]agent\\b",
+        "occurrences": 1,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "marketSignal": "Present in 2 of 27 surveyed sources.",
+      "marketMeasurement": {
+        "occurrences": 6,
+        "sourceCount": 2,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T01:24:57.534Z"
+      },
+      "provenance": {
+        "suggestedBy": [
+          "codecademy",
+          "google-cloud-agents"
+        ],
+        "firstSeen": "2026-08-04T01:24:57.534Z",
+        "lastConfirmed": "2026-08-04T01:25:17.868Z",
+        "confirmCount": 1,
+        "peakSourceCount": 2
+      },
+      "kind": "visual-guide",
+      "status": "candidate",
+      "statusSetBy": "discovery",
+      "statusSetOn": "2026-08-04T01:25:17.868Z",
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T01:25:17.868Z",
+          "sourceCount": 2,
+          "supplyOccurrences": 1
+        }
+      ]
     }
   ],
   "confirmedStrengths": [
