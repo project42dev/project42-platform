@@ -184,6 +184,8 @@ export interface LearningModule {
     questions: KnowledgeQuestion[];
   };
   sources: SourceReference[];
+  reviewCadenceDays?: number;
+  lastVerified?: string;
 }
 
 export interface LearningPath {
@@ -240,7 +242,7 @@ export interface FieldGuideCatalog extends CatalogMetadata {
   resources: Resource[];
 }
 
-export interface Catalog extends LearningCatalog, FieldGuideCatalog {}
+export interface Catalog extends LearningCatalog, FieldGuideCatalog { }
 
 export interface ValidationResult {
   valid: boolean;
