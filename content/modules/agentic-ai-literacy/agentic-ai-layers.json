@@ -3,6 +3,8 @@
   "title": "Name the Layers in an AI Experience",
   "summary": "Separate the model from the interface, context, retrieval, memory, tools, policy, and runtime around it.",
   "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 35,
   "objectives": [

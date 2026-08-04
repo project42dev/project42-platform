@@ -3,6 +3,8 @@
   "title": "Evaluate the Exact Serving Build",
   "summary": "Gate a self-hosted endpoint on representative quality, safety, security, performance, and recovery evidence from the exact deployable build.",
   "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 60,
   "objectives": [

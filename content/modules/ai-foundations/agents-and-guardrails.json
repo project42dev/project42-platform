@@ -3,6 +3,8 @@
   "title": "Agents, Tools, and Guardrails",
   "summary": "Recognize agentic behavior, choose the simplest sufficient design, and place enforceable controls around loops that can affect real systems.",
   "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 42,
   "objectives": [

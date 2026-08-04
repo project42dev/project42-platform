@@ -3,6 +3,8 @@
   "title": "Model Incident Response and Recovery",
   "summary": "Detect, contain, diagnose, recover, communicate, and learn from incidents across self-hosted model artifacts, endpoints, infrastructure, data, policy, and operations.",
   "level": "advanced",
+  "reviewCadenceDays": 60,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 64,
   "objectives": [

@@ -3,6 +3,8 @@
   "title": "Prompt Gemini with Evaluated Contracts",
   "summary": "Design clear, versioned Gemini prompts, separate instruction authority from variable and multimodal input, choose structured output when appropriate, and improve behavior through controlled evaluation.",
   "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["google"],
   "estimatedMinutes": 52,
   "objectives": [

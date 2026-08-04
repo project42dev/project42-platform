@@ -3,6 +3,8 @@
   "title": "Reliable Agent Capstone: Design, Test, and Operate",
   "summary": "Prove that an agent workflow can be understood, constrained, evaluated, observed, recovered, and handed off with evidence.",
   "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral", "anthropic", "openai", "google"],
   "estimatedMinutes": 150,
   "objectives": [

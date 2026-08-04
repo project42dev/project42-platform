@@ -3,6 +3,8 @@
   "title": "AI Systems and Useful Work",
   "summary": "Recognize what an AI system is, where it can help, and where human judgment remains essential.",
   "level": "beginner",
+  "reviewCadenceDays": 90,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 24,
   "objectives": [

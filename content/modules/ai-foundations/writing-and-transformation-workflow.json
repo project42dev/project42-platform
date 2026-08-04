@@ -3,6 +3,8 @@
   "title": "Writing and Transformation Workflow",
   "summary": "Use AI to transform material while preserving meaning, voice, evidence, privacy, and reviewability.",
   "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 36,
   "objectives": [

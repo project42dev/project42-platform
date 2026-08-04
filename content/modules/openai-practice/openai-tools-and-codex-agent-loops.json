@@ -3,6 +3,8 @@
   "title": "Build Bounded OpenAI Tool and Codex Agent Loops",
   "summary": "Connect OpenAI models to built-in and custom tools through narrow schemas, matched call results, enforced authority, explicit budgets, approvals, sandbox boundaries, and verified side effects.",
   "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["openai"],
   "estimatedMinutes": 62,
   "objectives": [

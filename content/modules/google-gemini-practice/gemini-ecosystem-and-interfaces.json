@@ -3,6 +3,8 @@
   "title": "Navigate the Gemini Ecosystem and Interfaces",
   "summary": "Distinguish Gemini Apps, Google AI Studio, the Gemini API, models, SDKs, and hosted capabilities so each task begins on the right surface with current evidence.",
   "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["google"],
   "estimatedMinutes": 48,
   "objectives": [

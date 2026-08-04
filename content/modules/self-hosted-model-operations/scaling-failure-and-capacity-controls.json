@@ -3,6 +3,8 @@
   "title": "Scaling, Failure, and Capacity Controls",
   "summary": "Scale self-hosted inference from measured demand while preserving quality, admission, failure isolation, availability, cost, and recovery evidence.",
   "level": "advanced",
+  "reviewCadenceDays": 60,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 58,
   "objectives": [

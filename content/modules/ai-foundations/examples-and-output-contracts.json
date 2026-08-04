@@ -3,6 +3,8 @@
   "title": "Examples and Output Contracts",
   "summary": "Use representative examples and explicit output contracts to make responses easier to consume and validate.",
   "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 32,
   "objectives": [

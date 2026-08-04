@@ -3,6 +3,8 @@
   "title": "Model Artifact Integrity and Safe Promotion",
   "summary": "Acquire model artifacts into quarantine, verify identity and provenance, inspect executable surfaces, and promote only an immutable reviewed bundle.",
   "level": "advanced",
+  "reviewCadenceDays": 60,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 54,
   "objectives": [

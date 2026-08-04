@@ -3,6 +3,8 @@
   "title": "Secure Gemini Workflows with Layered Trust Boundaries",
   "summary": "Threat-model prompt injection, unsafe content, sensitive data, excessive tool authority, and factuality failures, then enforce layered controls around Gemini.",
   "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["google"],
   "estimatedMinutes": 58,
   "objectives": [

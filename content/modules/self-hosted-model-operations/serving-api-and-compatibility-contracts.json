@@ -3,6 +3,8 @@
   "title": "Model Serving and API Compatibility Contracts",
   "summary": "Expose a bounded model endpoint with explicit health, identity, request, response, streaming, error, authentication, and compatibility contracts.",
   "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 55,
   "objectives": [

@@ -3,6 +3,8 @@
   "title": "Build Reliable OpenAI Responses API Workflows",
   "summary": "Integrate the OpenAI Responses API with environment-based configuration, typed item handling, deliberate conversation state, output validation, bounded recovery, and privacy-aware telemetry.",
   "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["openai"],
   "estimatedMinutes": 56,
   "objectives": [

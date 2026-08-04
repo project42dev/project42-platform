@@ -3,6 +3,8 @@
   "title": "Safe Tool-Use Workflow",
   "summary": "Control what an AI system can read or change through explicit tools, permissions, approvals, and recovery.",
   "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 40,
   "objectives": [

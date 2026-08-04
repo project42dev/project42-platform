@@ -3,6 +3,8 @@
   "title": "Evaluate and Observe Gemini Workflows",
   "summary": "Measure Gemini quality, safety, factuality, multimodal behavior, tool trajectories, latency, cost, and drift with versioned cases, calibrated graders, trace evidence, and release gates.",
   "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["google"],
   "estimatedMinutes": 58,
   "objectives": [

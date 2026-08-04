@@ -3,6 +3,8 @@
   "title": "Classify Who Chooses the Next Step",
   "summary": "Distinguish model calls, deterministic workflows, agents, and agentic systems by executable control flow and feedback.",
   "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 38,
   "objectives": [

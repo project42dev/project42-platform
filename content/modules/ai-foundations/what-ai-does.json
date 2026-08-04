@@ -3,6 +3,8 @@
   "title": "What AI Does—and Does Not Do",
   "summary": "Build an accurate first mental model of generative AI as pattern-driven software with useful capabilities, observable limitations, and evidence requirements.",
   "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 40,
   "objectives": [

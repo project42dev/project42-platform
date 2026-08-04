@@ -3,6 +3,8 @@
   "title": "Secure Claude Workflows with Layered Trust Boundaries",
   "summary": "Threat-model direct and indirect prompt injection, data exposure, excessive authority, and unsafe side effects, then enforce layered controls around Claude.",
   "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["anthropic"],
   "estimatedMinutes": 58,
   "objectives": [

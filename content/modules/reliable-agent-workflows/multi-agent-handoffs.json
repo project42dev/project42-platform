@@ -3,6 +3,8 @@
   "title": "Build Auditable Multi-Agent Handoffs",
   "summary": "Transfer control, context, authority, and evidence between specialized agents without losing user intent or creating hidden permission expansion.",
   "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 50,
   "objectives": [

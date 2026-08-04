@@ -3,6 +3,8 @@
   "title": "Compare Exact Product Experiences",
   "summary": "Use dated first-party evidence to compare model endpoints, assistants, developer agents, frameworks, and managed agent services.",
   "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 45,
   "objectives": [

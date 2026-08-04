@@ -3,6 +3,8 @@
   "title": "Coding and Analysis Workflow",
   "summary": "Use AI to change code or analyze data through scoped plans, executable checks, and reversible recovery.",
   "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 44,
   "objectives": [

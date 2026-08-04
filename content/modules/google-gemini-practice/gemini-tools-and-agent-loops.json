@@ -3,6 +3,8 @@
   "title": "Build Bounded Gemini Tool and Agent Loops",
   "summary": "Connect Gemini to function tools and agent runtimes through narrow schemas, explicit execution ownership, external authorization, matched results, budgets, approvals, and verified side effects.",
   "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["google"],
   "estimatedMinutes": 62,
   "objectives": [

@@ -3,6 +3,8 @@
   "title": "Observe Agent Quality, Cost, and Risk",
   "summary": "Instrument agent runs with privacy-preserving traces, metrics, logs, and quality signals that support diagnosis without turning telemetry into a sensitive-data archive.",
   "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 52,
   "objectives": [

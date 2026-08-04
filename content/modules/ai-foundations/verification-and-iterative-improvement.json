@@ -3,6 +3,8 @@
   "title": "Verification and Iterative Improvement",
   "summary": "Check AI output with evidence, diagnose the kind of failure, and improve the workflow without hiding uncertainty.",
   "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 34,
   "objectives": [

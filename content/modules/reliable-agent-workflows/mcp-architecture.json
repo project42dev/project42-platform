@@ -3,6 +3,8 @@
   "title": "Understand MCP Architecture and Contracts",
   "summary": "Model the host, client, server, lifecycle, capabilities, primitives, and tool contracts that let AI applications connect to external context and actions.",
   "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 48,
   "objectives": [

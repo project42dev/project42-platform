@@ -3,6 +3,8 @@
   "title": "Build Reliable Claude API Workflows",
   "summary": "Integrate the Claude Messages API with environment-based credentials, explicit request contracts, state ownership, validation, observability, and bounded recovery.",
   "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["anthropic"],
   "estimatedMinutes": 54,
   "objectives": [

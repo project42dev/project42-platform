@@ -3,6 +3,8 @@
   "title": "Research with Evidence",
   "summary": "Plan, execute, verify, and recover a bounded AI-assisted research workflow.",
   "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 38,
   "objectives": [

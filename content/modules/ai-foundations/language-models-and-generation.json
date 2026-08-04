@@ -3,6 +3,8 @@
   "title": "How Language Models Produce Responses",
   "summary": "Build a practical mental model of training, inference, token-by-token generation, and uncertainty.",
   "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 26,
   "objectives": [

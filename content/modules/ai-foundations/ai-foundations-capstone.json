@@ -3,6 +3,8 @@
   "title": "AI Foundations Capstone",
   "summary": "Plan, execute, verify, and explain a complete AI-assisted workflow with evidence that another person can review.",
   "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 75,
   "objectives": [

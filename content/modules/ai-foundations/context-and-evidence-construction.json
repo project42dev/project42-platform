@@ -3,6 +3,8 @@
   "title": "Context and Evidence Construction",
   "summary": "Build a small, trustworthy working set that helps an AI system answer from evidence instead of guesswork.",
   "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 30,
   "objectives": [

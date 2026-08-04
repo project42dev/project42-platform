@@ -3,6 +3,8 @@
   "title": "Observability, Cost, and Performance",
   "summary": "Instrument model serving with privacy-conscious logs, metrics, traces, alerts, and cost evidence that connect user outcomes to exact model and runtime identities.",
   "level": "advanced",
+  "reviewCadenceDays": 60,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 55,
   "objectives": [

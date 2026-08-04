@@ -3,6 +3,8 @@
   "title": "Secure OpenAI Workflows with Layered Trust Boundaries",
   "summary": "Threat-model direct and indirect prompt injection, sensitive data, excessive tool authority, and unsafe output, then enforce layered controls around OpenAI workflows.",
   "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["openai"],
   "estimatedMinutes": 58,
   "objectives": [

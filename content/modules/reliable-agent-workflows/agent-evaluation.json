@@ -3,6 +3,8 @@
   "title": "Evaluate Agent Behavior with Evidence",
   "summary": "Build representative, adversarial, and regression evaluation sets that measure outcomes, trajectories, safety, cost, and latency before agent changes reach production.",
   "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 54,
   "objectives": [

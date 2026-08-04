@@ -3,6 +3,8 @@
   "title": "Self-Hosted Model Operations Capstone",
   "summary": "Deploy and defend a portable self-hosted model service whose identity, security, evaluation, capacity, telemetry, lifecycle, recovery, and approvals are proven by reviewable evidence.",
   "level": "advanced",
+  "reviewCadenceDays": 60,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 210,
   "objectives": [

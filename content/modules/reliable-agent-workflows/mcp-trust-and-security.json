@@ -3,6 +3,8 @@
   "title": "Secure MCP Trust Boundaries",
   "summary": "Threat-model remote and local MCP integrations, constrain authority, validate tokens and servers, and keep untrusted content from steering consequential actions.",
   "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 52,
   "objectives": [

@@ -3,6 +3,8 @@
   "title": "Compare AI Providers without False Equivalence",
   "summary": "Use a dated, source-backed matrix to separate portable application contracts from changing or non-equivalent Anthropic, OpenAI, and Google capabilities.",
   "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral", "anthropic", "openai", "google"],
   "estimatedMinutes": 62,
   "objectives": [

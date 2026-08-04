@@ -3,6 +3,8 @@
   "title": "Design Safe Agent Memory Boundaries",
   "summary": "Separate short-lived context from durable memory and govern what may be written, retrieved, corrected, expired, and deleted.",
   "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 46,
   "objectives": [

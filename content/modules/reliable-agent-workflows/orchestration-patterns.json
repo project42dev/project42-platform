@@ -3,6 +3,8 @@
   "title": "Choose Reliable Orchestration Patterns",
   "summary": "Match deterministic workflows, model-directed routing, manager patterns, parallel work, and review loops to the uncertainty and control needs of a task.",
   "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 50,
   "objectives": [

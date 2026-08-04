@@ -3,6 +3,8 @@
   "title": "Plan a Cross-Provider Migration",
   "summary": "Inventory dependencies, map compatibility without assuming equivalence, preserve stable application contracts, and establish an evaluation baseline before changing provider traffic.",
   "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral", "anthropic", "openai", "google"],
   "estimatedMinutes": 58,
   "objectives": [

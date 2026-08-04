@@ -3,6 +3,8 @@
   "title": "Locate Tools, State, and Human Authority",
   "summary": "Follow proposed actions through execution, durable state, verification, recovery, and accountable human control.",
   "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 42,
   "objectives": [

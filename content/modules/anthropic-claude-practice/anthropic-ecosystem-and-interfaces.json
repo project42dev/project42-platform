@@ -3,6 +3,8 @@
   "title": "Navigate the Claude Ecosystem",
   "summary": "Choose deliberately among Claude's conversational workspace, developer platform, API, and coding-agent surfaces without confusing their controls or operating models.",
   "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["anthropic"],
   "estimatedMinutes": 42,
   "objectives": [

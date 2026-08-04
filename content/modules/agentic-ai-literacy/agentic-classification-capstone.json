@@ -3,6 +3,8 @@
   "title": "Defend an Agentic-AI Classification",
   "summary": "Produce a human-reviewed evidence dossier that classifies an exact system without hiding uncertainty or overstating autonomy.",
   "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 70,
   "objectives": [

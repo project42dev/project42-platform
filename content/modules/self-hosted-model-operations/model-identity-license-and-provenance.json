@@ -3,6 +3,8 @@
   "title": "Model Identity, Licensing, and Provenance",
   "summary": "Identify the exact model artifact, distinguish open weights from Open Source AI, and make a reviewable license and lineage decision before deployment.",
   "level": "advanced",
+  "reviewCadenceDays": 60,
+  "lastVerified": "2026-07-27",
   "providers": ["provider-neutral"],
   "estimatedMinutes": 48,
   "objectives": [

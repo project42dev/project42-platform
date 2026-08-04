@@ -3,6 +3,8 @@
   "title": "Execute, Roll Back, and Close a Provider Migration",
   "summary": "Move from offline evidence through shadow and canary stages, reconcile state and side effects during rollback, and hand off residual risk only after production observation.",
   "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": ["provider-neutral", "anthropic", "openai", "google"],
   "estimatedMinutes": 61,
   "objectives": [
