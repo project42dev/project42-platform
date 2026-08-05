@@ -1,3 +1,40 @@
+# Project 42 platform v0.72.0
+
+Version 0.72.0 centralizes all Mermaid diagram sources and their catalogue under
+`content/diagrams/`, adds currency fields to every Learn module, and bumps the
+recovery contract version to 1.2.
+
+Diagram sources previously scattered across individual content modules now live in
+a single `content/diagrams/` directory with a `catalogue.json` export. Downstream
+consumers (learn, guide, project-42.dev) reference diagrams through the platform
+package rather than maintaining their own copies.
+
+All 66 Learn modules now carry explicit `reviewCadenceDays` and `lastVerified`
+fields, replacing the previous implicit currency model. This makes content
+freshness measurable and automatable.
+
+The recovery contract version moves from 1.1 to 1.2, reflecting the updated
+recovery report schema. Self-host compatibility manifests and example
+environments are updated accordingly.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+No database migrations are required. The recovery contract version bump is a
+schema-only change; existing recovery backups remain valid.
+
+## Known limitations
+
+None new in this release.
+
+## Rollback
+
+Revert to v0.71.0. Recovery backups created under v0.72.0 use the 1.2 contract
+but remain structurally compatible with the v0.71.0 recovery path.
+
 # Project 42 platform v0.71.0
 
 Version 0.71.0 lets a learner resolve their own duplicate account without owner
