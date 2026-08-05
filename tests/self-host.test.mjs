@@ -852,13 +852,13 @@ test(
         { backupCapturedAt, sourceCurrentAt },
       );
 
-      assert.equal(report.contractVersion, "1.1");
+      assert.equal(report.contractVersion, "1.2");
       assert.equal(report.adapter, "postgresql");
       assert.equal(report.migrationHead, "008_authoritative_progress_imports.sql");
       assert.equal(report.recoveryPointSeconds, 90);
       assert.ok(
         report.recoveryTimeSeconds <=
-          DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES.maximumRecoveryTimeSeconds,
+        DEFAULT_LEARNING_RECORD_RECOVERY_OBJECTIVES.maximumRecoveryTimeSeconds,
       );
       assert.equal(
         report.maximumRecoveryPointSeconds,

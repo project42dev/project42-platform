@@ -12,14 +12,16 @@
   },
   "database": {
     "adapter": "postgresql",
-    "supportedMajors": [17],
+    "supportedMajors": [
+      17
+    ],
     "migrationHead": "013_account_notification_outbox.sql",
     "learningRecords": {
       "selectionVariable": "LEARNING_RECORD_ADAPTER",
       "contractVersion": "1.1",
       "eventContractVersion": "1.1",
       "receiptContractVersion": "1.0",
-      "recoveryContractVersion": "1.1",
+      "recoveryContractVersion": "1.2",
       "semanticFingerprint": "learning-records/1.1;events/1.1;receipts/1.0;append-only;atomic-batch;optimistic-revision;authoritative-progress-import;verified-deletion-replay",
       "transactionMode": "atomic-sequential-batch"
     },
@@ -41,14 +43,26 @@
         "dead-letter"
       ],
       "maxAttempts": 5,
-      "auditProvenance": ["owner", "system"],
+      "auditProvenance": [
+        "owner",
+        "system"
+      ],
       "auditActorKindField": "metadata.actorKind"
     }
   },
   "identity": {
     "protocol": "oidc",
     "flow": "authorization-code-pkce",
-    "requiredClaims": ["iss", "sub", "aud", "exp", "iat", "auth_time", "nonce", "email_verified"],
+    "requiredClaims": [
+      "iss",
+      "sub",
+      "aud",
+      "exp",
+      "iat",
+      "auth_time",
+      "nonce",
+      "email_verified"
+    ],
     "referenceProvider": "keycloak",
     "referenceVersion": "26.7.0",
     "provisioning": {
