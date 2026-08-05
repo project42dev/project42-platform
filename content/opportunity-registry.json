@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
-  "registryVersion": "0.1.6",
-  "lastReviewed": "2026-08-04",
+  "registryVersion": "0.1.8",
+  "lastReviewed": "2026-08-05",
   "purpose": "Candidate Learn and Field Guide content, as data. This is product content data, not planning material: it lives beside catalog.json and source-registry.json, is versioned with the content it governs, and is uploaded to the delivery platform config share so the content builder can read it. A list the builder cannot see cannot drive a build.",
   "usageRules": [
     "Discovery inputs only. Never copy course outlines, lesson sequences, exercises, assessment items, artwork, branding, or proprietary teaching structure from any watched service.",
@@ -1396,6 +1396,293 @@
           "supplyOccurrences": 1
         }
       ]
+    },
+    {
+      "id": "connect-your-tools-to-your-own-model-endpoint-learn",
+      "title": "Connect your editor and agents to a model endpoint you own (Learn)",
+      "surface": "learn",
+      "level": "intermediate",
+      "gapEvidence": "learn corpus: 12 occurrence(s) of OpenAI[- ]compatible|apiBase|base URL override|bring your own key|BYOK in the measured corpus; 0 occurrence(s) across 27 surveyed source(s). Every provider path in the corpus teaches calling a vendor API. Nothing teaches pointing an editor, an agent extension, or a CLI at an endpoint the learner controls, which is the step between having a deployment and getting work out of it.",
+      "gapMeasurement": {
+        "probe": "OpenAI[- ]compatible|apiBase|base URL override|bring your own key|BYOK",
+        "occurrences": 12,
+        "measuredOn": "2026-08-04T20:15:00.000Z"
+      },
+      "marketSignal": "Present in 0 of 27 surveyed sources. NO MEASURED MARKET DEMAND. This is an owner strategy call, not a discovery finding: no training marketplace teaches it, which is the reason to teach it and the reason the scorer will rank it last.",
+      "provenance": {
+        "suggestedBy": [
+          "owner"
+        ],
+        "firstSeen": "2026-08-04T20:15:00.000Z",
+        "lastConfirmed": "2026-08-04T20:15:00.000Z",
+        "confirmCount": 1,
+        "peakSourceCount": 0
+      },
+      "kind": "learn",
+      "status": "candidate",
+      "statusSetBy": "owner",
+      "statusSetOn": "2026-08-04T20:15:00.000Z",
+      "marketMeasurement": {
+        "occurrences": 0,
+        "sourceCount": 0,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T20:15:00.000Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T20:15:00.000Z",
+          "sourceCount": 0,
+          "supplyOccurrences": 12
+        }
+      ],
+      "note": "Owner strategy entry 2026-08-04. Every claim behind this topic was proven by running it against a live deployment, not read from documentation. Discovery will never propose this, because demand is measured against training marketplaces and none of them cover it. Do not let a future discovery run retire it for scoring zero."
+    },
+    {
+      "id": "model-endpoint-api-shapes-and-deployment-names-field-guide",
+      "title": "Endpoint API shapes: deployment names, api-version, and why a client 404s (Field Guide)",
+      "surface": "field-guide",
+      "level": "intermediate",
+      "gapEvidence": "field-guide corpus: 2 occurrence(s) of api-version|DeploymentNotFound|deployment name|legacy path shape in the measured corpus; 0 occurrence(s) across 27 surveyed source(s). A vendor model id and a deployment name are different identifiers, and using the wrong one produces a 404 that reads like a broken endpoint. The v1 API removed the two incompatibilities that made this hard, and no module explains either the failure or the fix.",
+      "gapMeasurement": {
+        "probe": "api-version|DeploymentNotFound|deployment name|legacy path shape",
+        "occurrences": 2,
+        "measuredOn": "2026-08-04T20:15:00.000Z"
+      },
+      "marketSignal": "Present in 0 of 27 surveyed sources. NO MEASURED MARKET DEMAND. This is an owner strategy call, not a discovery finding: no training marketplace teaches it, which is the reason to teach it and the reason the scorer will rank it last.",
+      "provenance": {
+        "suggestedBy": [
+          "owner"
+        ],
+        "firstSeen": "2026-08-04T20:15:00.000Z",
+        "lastConfirmed": "2026-08-04T20:15:00.000Z",
+        "confirmCount": 1,
+        "peakSourceCount": 0
+      },
+      "kind": "field-guide",
+      "status": "candidate",
+      "statusSetBy": "owner",
+      "statusSetOn": "2026-08-04T20:15:00.000Z",
+      "marketMeasurement": {
+        "occurrences": 0,
+        "sourceCount": 0,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T20:15:00.000Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T20:15:00.000Z",
+          "sourceCount": 0,
+          "supplyOccurrences": 2
+        }
+      ],
+      "note": "Owner strategy entry 2026-08-04. Every claim behind this topic was proven by running it against a live deployment, not read from documentation. Discovery will never propose this, because demand is measured against training marketplaces and none of them cover it. Do not let a future discovery run retire it for scoring zero."
+    },
+    {
+      "id": "identity-and-secrets-for-model-access-field-guide",
+      "title": "Identity and secrets for model access: tenant scope, data plane, and key retrieval (Field Guide)",
+      "surface": "field-guide",
+      "level": "intermediate",
+      "gapEvidence": "field-guide corpus: 16 occurrence(s) of data plane|tenant[- ]scoped|managed identity|secret store|key vault in the measured corpus; 0 occurrence(s) across 27 surveyed source(s). A secret read is a data-plane call scoped to a tenant, not to a subscription. Getting this backwards produces an authorization error that reads as a missing role and is not one. Learners who deploy a model hit this before they get a single completion.",
+      "gapMeasurement": {
+        "probe": "data plane|tenant[- ]scoped|managed identity|secret store|key vault",
+        "occurrences": 16,
+        "measuredOn": "2026-08-04T20:15:00.000Z"
+      },
+      "marketSignal": "Present in 0 of 27 surveyed sources. NO MEASURED MARKET DEMAND. This is an owner strategy call, not a discovery finding: no training marketplace teaches it, which is the reason to teach it and the reason the scorer will rank it last.",
+      "provenance": {
+        "suggestedBy": [
+          "owner"
+        ],
+        "firstSeen": "2026-08-04T20:15:00.000Z",
+        "lastConfirmed": "2026-08-04T20:15:00.000Z",
+        "confirmCount": 1,
+        "peakSourceCount": 0
+      },
+      "kind": "field-guide",
+      "status": "candidate",
+      "statusSetBy": "owner",
+      "statusSetOn": "2026-08-04T20:15:00.000Z",
+      "marketMeasurement": {
+        "occurrences": 0,
+        "sourceCount": 0,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T20:15:00.000Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T20:15:00.000Z",
+          "sourceCount": 0,
+          "supplyOccurrences": 16
+        }
+      ],
+      "note": "Owner strategy entry 2026-08-04. Every claim behind this topic was proven by running it against a live deployment, not read from documentation. Discovery will never propose this, because demand is measured against training marketplaces and none of them cover it. Do not let a future discovery run retire it for scoring zero."
+    },
+    {
+      "id": "cost-controls-for-agentic-tools-learn",
+      "title": "Cost controls for agentic tools: why alerts and capacity are not brakes (Learn)",
+      "surface": "learn",
+      "level": "intermediate",
+      "gapEvidence": "learn corpus: 8 occurrence(s) of alert[- ]only|spend (cap|ceiling|brake)|cost control|token budget|budget guard in the measured corpus; 0 occurrence(s) across 27 surveyed source(s). A cloud budget emails at thresholds and does not stop spend, and throttling capacity does not save money on per-token billing, it only makes the tool fail. An agentic extension issues many calls per task with full file context. The only real stop lives in the caller. This is the most expensive thing a learner can get wrong.",
+      "gapMeasurement": {
+        "probe": "alert[- ]only|spend (cap|ceiling|brake)|cost control|token budget|budget guard",
+        "occurrences": 8,
+        "measuredOn": "2026-08-04T20:15:00.000Z"
+      },
+      "marketSignal": "Present in 0 of 27 surveyed sources. NO MEASURED MARKET DEMAND. This is an owner strategy call, not a discovery finding: no training marketplace teaches it, which is the reason to teach it and the reason the scorer will rank it last.",
+      "provenance": {
+        "suggestedBy": [
+          "owner"
+        ],
+        "firstSeen": "2026-08-04T20:15:00.000Z",
+        "lastConfirmed": "2026-08-04T20:15:00.000Z",
+        "confirmCount": 1,
+        "peakSourceCount": 0
+      },
+      "kind": "learn",
+      "status": "candidate",
+      "statusSetBy": "owner",
+      "statusSetOn": "2026-08-04T20:15:00.000Z",
+      "marketMeasurement": {
+        "occurrences": 0,
+        "sourceCount": 0,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-04T20:15:00.000Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-04T20:15:00.000Z",
+          "sourceCount": 0,
+          "supplyOccurrences": 8
+        }
+      ],
+      "note": "Owner strategy entry 2026-08-04. Every claim behind this topic was proven by running it against a live deployment, not read from documentation. Discovery will never propose this, because demand is measured against training marketplaces and none of them cover it. Do not let a future discovery run retire it for scoring zero."
+    },
+    {
+      "id": "microsoft-foundry-fundamentals-learn",
+      "title": "Microsoft Foundry fundamentals: accounts, projects, deployments and quota",
+      "surface": "learn",
+      "level": "beginner",
+      "gapEvidence": "0 occurrence(s) of Microsoft Foundry|Azure AI Foundry in the measured corpus. No module covers the platform itself: what an account, a project and a deployment are, how quota and capacity work, and how the three deployment targets differ.",
+      "gapMeasurement": {
+        "probe": "Microsoft Foundry|Azure AI Foundry",
+        "occurrences": 0,
+        "measuredOn": "2026-08-05T02:30:00.000Z"
+      },
+      "marketSignal": "Present in 0 of 27 surveyed sources. NO MEASURED MARKET DEMAND. Owner strategy call, not a discovery finding: the product was renamed to Microsoft Foundry and no training marketplace covers it, which is the reason to teach it and the reason the scorer will rank it last.",
+      "provenance": {
+        "suggestedBy": [
+          "owner"
+        ],
+        "firstSeen": "2026-08-05T02:30:00.000Z",
+        "lastConfirmed": "2026-08-05T02:30:00.000Z",
+        "confirmCount": 1,
+        "peakSourceCount": 0
+      },
+      "kind": "learn",
+      "status": "candidate",
+      "statusSetBy": "owner",
+      "statusSetOn": "2026-08-05T02:30:00.000Z",
+      "marketMeasurement": {
+        "occurrences": 0,
+        "sourceCount": 0,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-05T02:30:00.000Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-05T02:30:00.000Z",
+          "sourceCount": 0,
+          "supplyOccurrences": 0
+        }
+      ],
+      "note": "Owner recommendation 2026-08-05. Do not let a future discovery run retire this for scoring zero: demand is measured against training marketplaces and none of them cover it."
+    },
+    {
+      "id": "deploy-your-own-model-estate-learn",
+      "title": "Deploy and operate your own multi-vendor model estate",
+      "surface": "learn",
+      "level": "intermediate",
+      "gapEvidence": "0 occurrence(s) of model estate|multi-vendor|deployment name in the measured corpus. The self-hosted path teaches operating a serving stack. Nothing teaches standing up a managed estate across several vendor families and choosing between them per job.",
+      "gapMeasurement": {
+        "probe": "model estate|multi-vendor|deployment name",
+        "occurrences": 0,
+        "measuredOn": "2026-08-05T02:30:00.000Z"
+      },
+      "marketSignal": "Present in 0 of 27 surveyed sources. NO MEASURED MARKET DEMAND. Owner strategy call, not a discovery finding: the product was renamed to Microsoft Foundry and no training marketplace covers it, which is the reason to teach it and the reason the scorer will rank it last.",
+      "provenance": {
+        "suggestedBy": [
+          "owner"
+        ],
+        "firstSeen": "2026-08-05T02:30:00.000Z",
+        "lastConfirmed": "2026-08-05T02:30:00.000Z",
+        "confirmCount": 1,
+        "peakSourceCount": 0
+      },
+      "kind": "learn",
+      "status": "candidate",
+      "statusSetBy": "owner",
+      "statusSetOn": "2026-08-05T02:30:00.000Z",
+      "marketMeasurement": {
+        "occurrences": 0,
+        "sourceCount": 0,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-05T02:30:00.000Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-05T02:30:00.000Z",
+          "sourceCount": 0,
+          "supplyOccurrences": 0
+        }
+      ],
+      "note": "Owner recommendation 2026-08-05. Do not let a future discovery run retire this for scoring zero: demand is measured against training marketplaces and none of them cover it."
+    },
+    {
+      "id": "model-behaviour-differences-field-guide",
+      "title": "How a model you host differs from a subscription or a vendor key",
+      "surface": "field-guide",
+      "level": "intermediate",
+      "gapEvidence": "0 occurrence(s) of deployment you own|vendor-hosted|rate limit|content filter in the measured corpus. Parameters, quota, content policy, version pinning and observability all change when the deployment is yours. Every one of these produces an error that does not name its own cause.",
+      "gapMeasurement": {
+        "probe": "deployment you own|vendor-hosted|rate limit|content filter",
+        "occurrences": 0,
+        "measuredOn": "2026-08-05T02:30:00.000Z"
+      },
+      "marketSignal": "Present in 0 of 27 surveyed sources. NO MEASURED MARKET DEMAND. Owner strategy call, not a discovery finding: the product was renamed to Microsoft Foundry and no training marketplace covers it, which is the reason to teach it and the reason the scorer will rank it last.",
+      "provenance": {
+        "suggestedBy": [
+          "owner"
+        ],
+        "firstSeen": "2026-08-05T02:30:00.000Z",
+        "lastConfirmed": "2026-08-05T02:30:00.000Z",
+        "confirmCount": 1,
+        "peakSourceCount": 0
+      },
+      "kind": "field-guide",
+      "status": "candidate",
+      "statusSetBy": "owner",
+      "statusSetOn": "2026-08-05T02:30:00.000Z",
+      "marketMeasurement": {
+        "occurrences": 0,
+        "sourceCount": 0,
+        "sourcesSurveyed": 27,
+        "sourcesReachable": 22,
+        "measuredOn": "2026-08-05T02:30:00.000Z"
+      },
+      "demandHistory": [
+        {
+          "observedOn": "2026-08-05T02:30:00.000Z",
+          "sourceCount": 0,
+          "supplyOccurrences": 0
+        }
+      ],
+      "note": "Owner recommendation 2026-08-05. Do not let a future discovery run retire this for scoring zero: demand is measured against training marketplaces and none of them cover it."
     }
   ],
   "confirmedStrengths": [
