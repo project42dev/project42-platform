@@ -4,6 +4,19 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.72.0] - 2026-08-04
+
+### Added
+
+- Centralized Mermaid diagram sources and catalogue under `content/diagrams/`,
+  with a `catalogue.json` export for downstream consumers.
+
+### Changed
+
+- All 66 Learn modules now carry explicit `reviewCadenceDays` and `lastVerified`
+  currency fields.
+- Recovery contract version bumped to 1.2.
+
 ## [0.71.0] - 2026-08-01
 
 ### Added
