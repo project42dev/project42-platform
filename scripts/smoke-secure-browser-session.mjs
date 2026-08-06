@@ -113,7 +113,7 @@ try {
     .click();
   await page
     .getByRole("button", {
-      name: "Continue to sign in or request access",
+      name: "Sign in",
     })
     .waitFor();
   assert.equal(
@@ -126,7 +126,7 @@ try {
 
   console.log(
     "Verified Learn, Keycloak, PKCE callback, secure browser cookie, " +
-      "authenticated API session, and sign-out through HTTPS Compose.",
+    "authenticated API session, and sign-out through HTTPS Compose.",
   );
 } finally {
   await browser?.close();
