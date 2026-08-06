@@ -1,3 +1,32 @@
+# Project 42 platform v0.72.1
+
+Version 0.72.1 persists the one-time terms acceptance made during an account
+request even when the request remains pending and therefore has no learner
+session. The private registration receipt authenticates this narrowly scoped
+write without granting access to modules or learner records.
+
+Both receipt-backed and signed-in acceptance retries are idempotent. A database
+constraint guarantees one current terms grant per learner and policy version,
+including under concurrent retries.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+Migration 0019 removes duplicate current terms grants, retaining one existing
+grant for each learner and policy version, and adds the uniqueness constraint.
+
+## Known limitations
+
+None new in this release.
+
+## Rollback
+
+Revert application code to v0.72.0. The added uniqueness index is compatible
+with v0.72.0 behavior and may remain in place.
+
 # Project 42 platform v0.72.0
 
 Version 0.72.0 centralizes all Mermaid diagram sources and their catalogue under

@@ -4,6 +4,18 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.72.1] - 2026-08-06
+
+### Added
+
+- Pending account requests can persist required terms acceptance through their
+  private registration receipt without receiving a learner session.
+
+### Fixed
+
+- Current terms acceptance is now idempotent and database-enforced as one grant
+  per learner and policy version across registration and signed-in retries.
+
 ## [0.72.0] - 2026-08-04
 
 ### Added

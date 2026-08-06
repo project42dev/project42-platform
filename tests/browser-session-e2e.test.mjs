@@ -133,7 +133,7 @@ test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", asyn
   const start = await api(
     new Request(
       "https://api.example.test/v1/auth/start?return_to=" +
-        encodeURIComponent("https://learn.example.test/profile/"),
+      encodeURIComponent("https://learn.example.test/profile/"),
     ),
   );
   assert.equal(start.status, 302);
@@ -425,7 +425,7 @@ test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", asyn
   const signout = await api(
     new Request(
       "https://api.example.test/v1/auth/signout?return_to=" +
-        encodeURIComponent("https://learn.example.test/"),
+      encodeURIComponent("https://learn.example.test/"),
       {
         method: "POST",
         headers: {
@@ -475,7 +475,7 @@ test("browser OIDC flow creates, rotates, and revokes an HttpOnly session", asyn
     setCookies(recoverInvalidCookie).some(
       (value) =>
         value.startsWith("__Secure-project42_session=") &&
-      value.includes("Max-Age=0"),
+        value.includes("Max-Age=0"),
     ),
   );
 
@@ -656,7 +656,7 @@ test("pending and rejected OIDC callbacks receive only an installation-scoped st
     const start = await api(
       new Request(
         "https://api.example.test/v1/auth/start?return_to=" +
-          encodeURIComponent("https://learn.example.test/account/"),
+        encodeURIComponent("https://learn.example.test/account/"),
       ),
     );
     const authorization = new URL(start.headers.get("location"));
@@ -740,9 +740,8 @@ test("pending and rejected OIDC callbacks receive only an installation-scoped st
   }
 
   const receiptValue = receiptCookie.split("=")[1];
-  const invalidReceiptValue = `${receiptValue.slice(0, -1)}${
-    receiptValue.endsWith("A") ? "B" : "A"
-  }`;
+  const invalidReceiptValue = `${receiptValue.slice(0, -1)}${receiptValue.endsWith("A") ? "B" : "A"
+    }`;
   const invalidReceipt = await api(
     new Request("https://api.example.test/v1/registration/status", {
       headers: {
@@ -831,6 +830,38 @@ test("pending and rejected OIDC callbacks receive only an installation-scoped st
     "__Host-project42_registration",
   );
   const currentReceiptValue = currentReceiptCookie.split("=")[1];
+
+  const acceptanceRequest = () =>
+    api(
+      new Request(
+        "https://api.example.test/v1/registration/terms-acceptance",
+        {
+          method: "POST",
+          headers: {
+            cookie: currentReceiptCookie,
+            origin: "https://learn.example.test",
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            termsVersion: "1.0",
+            acceptedAt: "2026-07-29T12:00:00.000Z",
+          }),
+        },
+      ),
+    );
+  const accepted = await acceptanceRequest();
+  assert.equal(accepted.status, 201);
+  assert.equal((await accepted.json()).acceptance.purpose, "terms-of-service");
+  const acceptedRetry = await acceptanceRequest();
+  assert.equal(acceptedRetry.status, 201);
+  const acceptanceRows = await database
+    .prepare(
+      `SELECT id FROM consent_records
+        WHERE installation_id = ? AND purpose = 'terms-of-service'`,
+    )
+    .bind(env.INSTALLATION_ID)
+    .all();
+  assert.equal(acceptanceRows.results.length, 1);
 
   const user = await database
     .prepare(

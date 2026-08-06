@@ -2556,6 +2556,114 @@ class D1Project42Repository {
     };
   }
 
+  async recordRegistrationTermsAcceptance(input: {
+    receiptTokenDigest: string;
+    termsVersion: string;
+    acceptedAt: string;
+    requestId: string;
+    now: string;
+  }): Promise<ConsentRecord> {
+    const registration = await this.db
+      .prepare(
+        `SELECT r.user_id, i.issuer, i.subject
+           FROM registration_requests r
+           JOIN users u
+             ON u.id = r.user_id AND u.installation_id = r.installation_id
+            JOIN user_identities i
+             ON i.user_id = r.user_id AND i.installation_id = r.installation_id
+            AND i.status = 'active'
+          WHERE r.installation_id = ? AND r.receipt_token_digest = ?
+            AND r.revoked_at IS NULL AND r.expires_at > ?
+            AND u.active_registration_request_id = r.id
+          LIMIT 1`,
+      )
+      .bind(this.installationId, input.receiptTokenDigest, input.now)
+      .first<{ user_id: string; issuer: string; subject: string }>();
+    if (!registration) {
+      throw new ApiFailure(
+        401,
+        "registration_receipt_invalid",
+        "The registration status receipt is invalid or expired.",
+      );
+    }
+
+    const existing = await this.db
+      .prepare(
+        `SELECT id, purpose, policy_version, decision, decided_at, contract_status
+           FROM consent_records
+          WHERE installation_id = ? AND user_id = ?
+            AND purpose = 'terms-of-service' AND policy_version = ?
+            AND decision = 'granted' AND contract_status = 'current'
+          ORDER BY decided_at DESC
+          LIMIT 1`,
+      )
+      .bind(this.installationId, registration.user_id, input.termsVersion)
+      .first<ConsentRow>();
+    if (existing) return mapConsent(existing);
+
+    const record: ConsentRecord = {
+      id: crypto.randomUUID(),
+      purpose: "terms-of-service",
+      policyVersion: input.termsVersion,
+      decision: "granted",
+      decidedAt: input.acceptedAt,
+      contractStatus: "current",
+    };
+    const inserted = await this.db
+      .prepare(
+        `INSERT OR IGNORE INTO consent_records (
+           id, installation_id, user_id, purpose, policy_version, decision,
+           decided_at, contract_status
+         ) VALUES (?, ?, ?, ?, ?, 'granted', ?, 'current')`,
+      )
+      .bind(
+        record.id,
+        this.installationId,
+        registration.user_id,
+        record.purpose,
+        record.policyVersion,
+        record.decidedAt,
+      )
+      .run();
+    if ((inserted.meta.changes ?? 0) === 1) {
+      await this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: {
+          issuer: registration.issuer,
+          subject: registration.subject,
+        },
+        actorUserId: registration.user_id,
+        action: "terms.accept",
+        targetType: "consent",
+        targetId: record.id,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: `terms-of-service:v${input.termsVersion}`,
+        metadata: {
+          purpose: record.purpose,
+          termsVersion: input.termsVersion,
+          acceptedAt: input.acceptedAt,
+          acceptanceFlow: "registration-receipt",
+        },
+        now: input.now,
+      }).run();
+      return record;
+    }
+    const concurrent = await this.db
+      .prepare(
+        `SELECT id, purpose, policy_version, decision, decided_at, contract_status
+           FROM consent_records
+          WHERE installation_id = ? AND user_id = ?
+            AND purpose = 'terms-of-service' AND policy_version = ?
+            AND decision = 'granted' AND contract_status = 'current'
+          LIMIT 1`,
+      )
+      .bind(this.installationId, registration.user_id, input.termsVersion)
+      .first<ConsentRow>();
+    if (!concurrent) throw new Error("Terms acceptance insert was not persisted.");
+    return mapConsent(concurrent);
+  }
+
   async rotateBrowserSession(input: {
     session: ResolvedBrowserSession;
     account: Account;
@@ -5905,24 +6013,25 @@ class D1Project42Repository {
       decidedAt: input.acceptedAt,
       contractStatus: "current",
     };
-    await this.db.batch([
-      this.db
-        .prepare(
-          `INSERT INTO consent_records (
-             id, installation_id, user_id, purpose, policy_version, decision,
-             decided_at, contract_status
-           ) VALUES (?, ?, ?, ?, ?, ?, ?, 'current')`,
-        )
-        .bind(
-          record.id,
-          this.installationId,
-          input.account.id,
-          record.purpose,
-          record.policyVersion,
-          record.decision,
-          record.decidedAt,
-        ),
-      this.auditStatement({
+    const inserted = await this.db
+      .prepare(
+        `INSERT OR IGNORE INTO consent_records (
+           id, installation_id, user_id, purpose, policy_version, decision,
+           decided_at, contract_status
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, 'current')`,
+      )
+      .bind(
+        record.id,
+        this.installationId,
+        input.account.id,
+        record.purpose,
+        record.policyVersion,
+        record.decision,
+        record.decidedAt,
+      )
+      .run();
+    if ((inserted.meta.changes ?? 0) === 1) {
+      await this.auditStatement({
         id: crypto.randomUUID(),
         actor: input.account.identity,
         actorUserId: input.account.id,
@@ -5938,9 +6047,22 @@ class D1Project42Repository {
           acceptedAt: input.acceptedAt,
         },
         now: input.now,
-      }),
-    ]);
-    return record;
+      }).run();
+      return record;
+    }
+    const existing = await this.db
+      .prepare(
+        `SELECT id, purpose, policy_version, decision, decided_at, contract_status
+           FROM consent_records
+          WHERE installation_id = ? AND user_id = ?
+            AND purpose = 'terms-of-service' AND policy_version = ?
+            AND decision = 'granted' AND contract_status = 'current'
+          LIMIT 1`,
+      )
+      .bind(this.installationId, input.account.id, input.termsVersion)
+      .first<ConsentRow>();
+    if (!existing) throw new Error("Terms acceptance insert was not persisted.");
+    return mapConsent(existing);
   }
 
   async listDeletionRequests(userId: string): Promise<DeletionRequest[]> {
@@ -9727,6 +9849,49 @@ async function handleRequest(
         requestId,
         origin,
       );
+    }
+    if (
+      request.method === "POST" &&
+      url.pathname === "/v1/registration/terms-acceptance"
+    ) {
+      requireCookieMutationOrigin(origin);
+      const receiptToken = readCookie(request, REGISTRATION_RECEIPT_COOKIE);
+      if (!receiptToken || !/^[A-Za-z0-9_-]{64}$/.test(receiptToken)) {
+        throw new ApiFailure(
+          401,
+          "registration_receipt_invalid",
+          "The registration status receipt is invalid or expired.",
+        );
+      }
+      const body = await readJson<{
+        termsVersion: string;
+        acceptedAt: string;
+      }>(request);
+      if (body.termsVersion !== TERMS_OF_SERVICE_VERSION) {
+        throw new ApiFailure(
+          400,
+          "invalid_terms_version",
+          "Terms acceptance must reference the current terms of service version.",
+        );
+      }
+      if (
+        typeof body.acceptedAt !== "string" ||
+        !Number.isFinite(Date.parse(body.acceptedAt))
+      ) {
+        throw new ApiFailure(
+          400,
+          "invalid_accepted_at",
+          "acceptedAt must be an ISO-8601 timestamp.",
+        );
+      }
+      const acceptance = await repository.recordRegistrationTermsAcceptance({
+        receiptTokenDigest: await sha256(receiptToken),
+        termsVersion: body.termsVersion,
+        acceptedAt: body.acceptedAt,
+        requestId,
+        now,
+      });
+      return json({ acceptance }, 201, requestId, origin);
     }
     if (request.method === "GET" && url.pathname === "/v1/auth/start") {
       const transaction: BrowserOidcTransaction = {
