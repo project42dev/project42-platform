@@ -110,7 +110,7 @@ try {
 
   await page
     .getByRole("button", { name: "Sign out on this browser" })
-    .click();
+    .click({ force: true });
   await page
     .getByRole("button", {
       name: "Sign in",
