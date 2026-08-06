@@ -535,7 +535,7 @@ test("profile and consent migration preserves legacy history and constrains new 
     contract_status: "legacy",
   });
   await database.exec(
-    "INSERT INTO consent_records (id,installation_id,user_id,purpose,policy_version,decision,decided_at,contract_status) VALUES ('current-consent','legacy','u1','learning-record','2026-07-27','granted','2026-07-27','current');",
+    "INSERT INTO consent_records (id,installation_id,user_id,purpose,policy_version,decision,decided_at,contract_status) VALUES ('current-consent','legacy','u1','product-improvement','2026-07-27','granted','2026-07-27','current');",
   );
   await assert.rejects(
     database.exec(

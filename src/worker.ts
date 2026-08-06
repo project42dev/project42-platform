@@ -97,6 +97,7 @@ import {
 import {
   LEARNER_CONSENT_PURPOSES,
   LEARNER_DATA_POLICY_VERSION,
+  TERMS_OF_SERVICE_VERSION,
 } from "./learner-data-policy.js";
 import {
   configureLearningRecordAdapter,
@@ -243,8 +244,8 @@ interface AccountNotificationFanoutRow {
   created_at: string;
 }
 
-class AccountNotificationDeliveryDeadlineExceeded extends Error {}
-class AccountNotificationRecipientIneligible extends Error {}
+class AccountNotificationDeliveryDeadlineExceeded extends Error { }
+class AccountNotificationRecipientIneligible extends Error { }
 
 interface TransactionalPostconditionDatabase {
   batchWithPostcondition(
@@ -293,12 +294,12 @@ interface IdentityLinkTransactionRow {
   code_challenge_method: "S256";
   return_path: string;
   status:
-    | "pending"
-    | "processing"
-    | "completed"
-    | "cancelled"
-    | "expired"
-    | "failed";
+  | "pending"
+  | "processing"
+  | "completed"
+  | "cancelled"
+  | "expired"
+  | "failed";
   created_at: string;
   expires_at: string;
   completed_at: string | null;
@@ -463,10 +464,10 @@ class ApiFailure extends Error {
     readonly retryAfterSeconds?: number,
     readonly diagnostic?: {
       category:
-        | "nonce_mismatch"
-        | "authorized_party_mismatch"
-        | "authentication_time_invalid"
-        | "jose_validation";
+      | "nonce_mismatch"
+      | "authorized_party_mismatch"
+      | "authentication_time_invalid"
+      | "jose_validation";
       joseCode?: string;
       claim?: string;
       timing?: {
@@ -526,9 +527,9 @@ class OidcJwtVerifier implements IdentityVerifier {
         requiredClaims,
         ...(options.nonce && options.requireAuthenticationTime
           ? {
-              clockTolerance:
-                BROWSER_IDENTITY_TOKEN_CLOCK_TOLERANCE_SECONDS,
-            }
+            clockTolerance:
+              BROWSER_IDENTITY_TOKEN_CLOCK_TOLERANCE_SECONDS,
+          }
           : {}),
       });
       if (!payload.iss || !payload.sub) {
@@ -655,15 +656,15 @@ class OidcJwtVerifier implements IdentityVerifier {
         };
         const safeClaim =
           typeof joseError.claim === "string" &&
-          ["iss", "sub", "aud", "exp", "iat", "nbf", "auth_time"].includes(
-            joseError.claim,
-          )
+            ["iss", "sub", "aud", "exp", "iat", "nbf", "auth_time"].includes(
+              joseError.claim,
+            )
             ? joseError.claim
             : undefined;
         const payload =
           joseError.payload &&
-          typeof joseError.payload === "object" &&
-          !Array.isArray(joseError.payload)
+            typeof joseError.payload === "object" &&
+            !Array.isArray(joseError.payload)
             ? (joseError.payload as Record<string, unknown>)
             : undefined;
         const readNumericDate = (name: string): number | undefined => {
@@ -682,10 +683,10 @@ class OidcJwtVerifier implements IdentityVerifier {
         const audience = payload?.aud;
         const timing =
           options.nonce &&
-          joseError.code === "ERR_JWT_EXPIRED" &&
-          safeClaim === "exp" &&
-          payload
-          ? {
+            joseError.code === "ERR_JWT_EXPIRED" &&
+            safeClaim === "exp" &&
+            payload
+            ? {
               expNumeric: expiration !== undefined,
               iatNumeric: issuedAt !== undefined,
               authTimeNumeric: authenticatedAt !== undefined,
@@ -700,17 +701,17 @@ class OidcJwtVerifier implements IdentityVerifier {
                 : {}),
               ...(authenticatedAt !== undefined
                 ? {
-                    authTimeMinusNowSeconds: bucketSeconds(
-                      authenticatedAt - now,
-                    ),
-                  }
+                  authTimeMinusNowSeconds: bucketSeconds(
+                    authenticatedAt - now,
+                  ),
+                }
                 : {}),
               issuerMatches: payload.iss === this.env.OIDC_ISSUER,
               audienceMatches:
                 audience === expectedAudience ||
                 (Array.isArray(audience) && audience.includes(expectedAudience)),
             }
-          : undefined;
+            : undefined;
         throw new ApiFailure(
           401,
           options.nonce ? "invalid_identity_token" : "invalid_access_token",
@@ -720,11 +721,11 @@ class OidcJwtVerifier implements IdentityVerifier {
           undefined,
           options.nonce
             ? {
-                category: "jose_validation",
-                joseCode: joseError.code,
-                ...(safeClaim ? { claim: safeClaim } : {}),
-                ...(timing ? { timing } : {}),
-              }
+              category: "jose_validation",
+              joseCode: joseError.code,
+              ...(safeClaim ? { claim: safeClaim } : {}),
+              ...(timing ? { timing } : {}),
+            }
             : undefined,
         );
       }
@@ -737,7 +738,7 @@ class BrowserOidcAdapter {
   constructor(
     private readonly env: WorkerEnvironment,
     private readonly fetcher: typeof fetch = fetch,
-  ) {}
+  ) { }
 
   async createAuthorization(
     transaction: BrowserOidcTransaction,
@@ -833,8 +834,8 @@ class BrowserOidcAdapter {
     } catch (error) {
       const reason =
         timedOut ||
-        (error instanceof DOMException &&
-          (error.name === "TimeoutError" || error.name === "AbortError"))
+          (error instanceof DOMException &&
+            (error.name === "TimeoutError" || error.name === "AbortError"))
           ? "timeout"
           : error instanceof TypeError
             ? "network"
@@ -901,7 +902,7 @@ class GithubIdentityLinkAdapter {
   constructor(
     private readonly env: WorkerEnvironment,
     private readonly fetcher: typeof fetch = fetch,
-  ) {}
+  ) { }
 
   createAuthorizationUrl(link: IdentityLinkTransaction): string {
     const configuration = requireGithubLinkConfiguration(this.env);
@@ -936,21 +937,21 @@ class GithubIdentityLinkAdapter {
       const tokenResponse = await fetcher(
         "https://github.com/login/oauth/access_token",
         {
-        method: "POST",
-        redirect: "error",
-        signal: controller.signal,
-        headers: {
-          accept: "application/json",
-          "content-type": "application/x-www-form-urlencoded",
-          "user-agent": "project42-account-service",
-        },
-        body: new URLSearchParams({
-          client_id: configuration.clientId,
-          client_secret: configuration.clientSecret,
-          code: input.code,
-          redirect_uri: configuration.redirectUri,
-          code_verifier: input.codeVerifier,
-        }),
+          method: "POST",
+          redirect: "error",
+          signal: controller.signal,
+          headers: {
+            accept: "application/json",
+            "content-type": "application/x-www-form-urlencoded",
+            "user-agent": "project42-account-service",
+          },
+          body: new URLSearchParams({
+            client_id: configuration.clientId,
+            client_secret: configuration.clientSecret,
+            code: input.code,
+            redirect_uri: configuration.redirectUri,
+            code_verifier: input.codeVerifier,
+          }),
         },
       );
       const tokenBody = await readProviderJson(tokenResponse);
@@ -985,8 +986,8 @@ class GithubIdentityLinkAdapter {
       const user = await readProviderJson(userResponse);
       const subject =
         typeof user.id === "number" &&
-        Number.isSafeInteger(user.id) &&
-        user.id > 0
+          Number.isSafeInteger(user.id) &&
+          user.id > 0
           ? String(user.id)
           : null;
       const providerLogin =
@@ -1015,8 +1016,8 @@ class GithubIdentityLinkAdapter {
       if (error instanceof ApiFailure) throw error;
       const reason =
         timedOut ||
-        (error instanceof DOMException &&
-          (error.name === "TimeoutError" || error.name === "AbortError"))
+          (error instanceof DOMException &&
+            (error.name === "TimeoutError" || error.name === "AbortError"))
           ? "timeout"
           : error instanceof TypeError
             ? "network"
@@ -1301,8 +1302,8 @@ class D1Project42Repository {
       );
       const advance = lastOwnerId
         ? this.db
-            .prepare(
-              `UPDATE account_notification_fanouts
+          .prepare(
+            `UPDATE account_notification_fanouts
                   SET state = ?,
                       cursor_owner_user_id = ?,
                       recipient_cutoff_at = COALESCE(recipient_cutoff_at, ?),
@@ -1320,24 +1321,24 @@ class D1Project42Repository {
                      WHERE installation_id = ?
                        AND (${recipientEvidenceCondition})
                   ) = ?`,
-            )
-            .bind(
-              complete ? "complete" : "pending",
-              lastOwnerId,
-              recipientCutoffAt,
-              input.now,
-              this.installationId,
-              fanout.id,
-              fanout.revision,
-              fanout.recipient_cutoff_at,
-              fanout.recipient_cutoff_at,
-              this.installationId,
-              ...recipientEvidenceBindings,
-              notifications.length,
-            )
+          )
+          .bind(
+            complete ? "complete" : "pending",
+            lastOwnerId,
+            recipientCutoffAt,
+            input.now,
+            this.installationId,
+            fanout.id,
+            fanout.revision,
+            fanout.recipient_cutoff_at,
+            fanout.recipient_cutoff_at,
+            this.installationId,
+            ...recipientEvidenceBindings,
+            notifications.length,
+          )
         : this.db
-            .prepare(
-              `UPDATE account_notification_fanouts
+          .prepare(
+            `UPDATE account_notification_fanouts
                   SET state = 'complete',
                       recipient_cutoff_at = COALESCE(recipient_cutoff_at, ?),
                       revision = revision + 1,
@@ -1345,15 +1346,15 @@ class D1Project42Repository {
                 WHERE installation_id = ? AND id = ?
                   AND state = 'pending' AND revision = ?
                   AND recipient_cutoff_at = CAST(? AS TEXT)`,
-            )
-            .bind(
-              recipientCutoffAt,
-              input.now,
-              this.installationId,
-              fanout.id,
-              fanout.revision,
-              fanout.recipient_cutoff_at,
-            );
+          )
+          .bind(
+            recipientCutoffAt,
+            input.now,
+            this.installationId,
+            fanout.id,
+            fanout.revision,
+            fanout.recipient_cutoff_at,
+          );
       const statements = [
         ...notifications.map((notification) =>
           this.accountNotificationStatement({
@@ -1736,29 +1737,29 @@ class D1Project42Repository {
         const failure =
           error instanceof AccountNotificationRecipientIneligible
             ? {
-                code: "recipient-ineligible" as const,
-                retryable: false,
-              }
+              code: "recipient-ineligible" as const,
+              retryable: false,
+            }
             : notification.email_verified !== 1 ||
-                !notification.primary_email
+              !notification.primary_email
               ? {
-                  code: "recipient-unavailable" as const,
-                  retryable: true,
-                }
+                code: "recipient-unavailable" as const,
+                retryable: true,
+              }
               : normalizeAccountNotificationDeliveryError(error);
         const nextState: AccountNotificationState =
           failure.retryable &&
-          notification.attempt_count < notification.max_attempts
+            notification.attempt_count < notification.max_attempts
             ? "retryable"
             : "dead-letter";
         const availableAt =
           nextState === "retryable"
             ? addSeconds(
-                input.now,
-                accountNotificationRetryDelaySeconds(
-                  notification.attempt_count,
-                ),
-              )
+              input.now,
+              accountNotificationRetryDelaySeconds(
+                notification.attempt_count,
+              ),
+            )
             : input.now;
         const failed = await this.db.batch([
           this.db
@@ -1815,7 +1816,7 @@ class D1Project42Repository {
     if (
       input.notificationIds.length < 1 ||
       input.notificationIds.length >
-        ACCOUNT_NOTIFICATION_DISPATCH_MAX_ITEMS ||
+      ACCOUNT_NOTIFICATION_DISPATCH_MAX_ITEMS ||
       new Set(input.notificationIds).size !== input.notificationIds.length ||
       input.notificationIds.some(
         (id) =>
@@ -2016,7 +2017,7 @@ class D1Project42Repository {
         input.notificationId,
         input.requestId,
         input.outcome ??
-          (input.state === "delivered" ? "success" : "failed"),
+        (input.state === "delivered" ? "success" : "failed"),
         JSON.stringify(
           assertAuditMetadataIsSafe({
             actorKind: input.actor.kind,
@@ -2132,8 +2133,11 @@ class D1Project42Repository {
       );
     }
     const id = crypto.randomUUID();
-    const expiresAt = addSeconds(input.now, 8 * 60 * 60);
-    const absoluteExpiresAt = addSeconds(input.now, 24 * 60 * 60);
+    // 7-day sliding window with 30-day absolute maximum.
+    // A learning site holds progress, not payment details;
+    // the threat model does not warrant an aggressive timeout.
+    const expiresAt = addSeconds(input.now, 7 * 24 * 60 * 60);
+    const absoluteExpiresAt = addSeconds(input.now, 30 * 24 * 60 * 60);
     const authenticatedAt = input.identity.authenticatedAt;
     if (
       typeof authenticatedAt !== "number" ||
@@ -2577,7 +2581,7 @@ class D1Project42Repository {
     const expiresAt = new Date(
       Math.min(
         Date.parse(input.session.absoluteExpiresAt),
-        Date.parse(input.now) + 8 * 60 * 60 * 1000,
+        Date.parse(input.now) + 7 * 24 * 60 * 60 * 1000,
       ),
     ).toISOString();
     const inserted = this.db
@@ -2817,12 +2821,12 @@ class D1Project42Repository {
       : null;
     const domainRule = verifiedDomain
       ? await this.db
-          .prepare(
-            `SELECT id, domain, policy_version FROM approved_email_domains
+        .prepare(
+          `SELECT id, domain, policy_version FROM approved_email_domains
               WHERE installation_id = ? AND domain = ? AND enabled = 1`,
-          )
-          .bind(this.installationId, verifiedDomain)
-          .first<{ id: string; domain: string; policy_version: number }>()
+        )
+        .bind(this.installationId, verifiedDomain)
+        .first<{ id: string; domain: string; policy_version: number }>()
       : null;
     const state: AccountState = ownerBootstrap || domainRule ? "approved" : "pending";
     const userId = crypto.randomUUID();
@@ -2984,13 +2988,13 @@ class D1Project42Repository {
     const encryptionKey = await this.adminCursorEncryptionKey;
     const position = input.cursor
       ? await decodeAccountAdminCursor(
-          input.cursor,
-          {
-            installationId: this.installationId,
-            ...(input.state ? { state: input.state } : {}),
-          },
-          encryptionKey,
-        )
+        input.cursor,
+        {
+          installationId: this.installationId,
+          ...(input.state ? { state: input.state } : {}),
+        },
+        encryptionKey,
+      )
       : null;
     const bindings: Array<string | number> = [this.installationId];
     if (input.state) {
@@ -3015,16 +3019,16 @@ class D1Project42Repository {
     const nextCursor =
       hasMore && last
         ? await encodeAccountAdminCursor(
-            {
-              installationId: this.installationId,
-              ...(input.state ? { state: input.state } : {}),
-              position: {
-                createdAt: last.created_at,
-                userId: last.id,
-              },
+          {
+            installationId: this.installationId,
+            ...(input.state ? { state: input.state } : {}),
+            position: {
+              createdAt: last.created_at,
+              userId: last.id,
             },
-            encryptionKey,
-          )
+          },
+          encryptionKey,
+        )
         : null;
     return {
       accounts: rows.map(mapAccount),
@@ -3590,11 +3594,11 @@ class D1Project42Repository {
     );
     const selectedEmailVerified =
       selectedEmail === sourceUser.primary_email &&
-      selectedEmail === survivorUser.primary_email
+        selectedEmail === survivorUser.primary_email
         ? Math.max(
-            Number(sourceUser.email_verified ?? 0),
-            Number(survivorUser.email_verified ?? 0),
-          )
+          Number(sourceUser.email_verified ?? 0),
+          Number(survivorUser.email_verified ?? 0),
+        )
         : selectedEmail === sourceUser.primary_email
           ? Number(sourceUser.email_verified ?? 0)
           : Number(survivorUser.email_verified ?? 0);
@@ -3782,8 +3786,8 @@ class D1Project42Repository {
           selectedProfile.photo_updated_at,
           String(
             survivorProfile?.created_at ??
-              sourceProfile?.created_at ??
-              input.now,
+            sourceProfile?.created_at ??
+            input.now,
           ),
           input.now,
         ),
@@ -4012,8 +4016,8 @@ class D1Project42Repository {
         id: string;
         merge_case_id: string;
         receipt_json:
-          | string
-          | { recordCounts?: Record<string, number> };
+        | string
+        | { recordCounts?: Record<string, number> };
         receipt_digest: string;
         created_at: string;
         snapshot_digest: string;
@@ -4535,45 +4539,45 @@ class D1Project42Repository {
     const identityId = existing?.id ?? crypto.randomUUID();
     const identityStatement = existing
       ? this.db
-          .prepare(
-            `UPDATE user_identities
+        .prepare(
+          `UPDATE user_identities
                 SET provider_login = ?, display_name = ?, status = 'active',
                     link_method = 'self-service', linked_at = ?,
                     last_verified_at = ?, last_seen_at = ?, unlinked_at = NULL
               WHERE installation_id = ? AND id = ? AND user_id = ?`,
-          )
-          .bind(
-            input.providerIdentity.providerLogin,
-            input.providerIdentity.displayName,
-            input.now,
-            input.now,
-            input.now,
-            this.installationId,
-            identityId,
-            input.account.id,
-          )
+        )
+        .bind(
+          input.providerIdentity.providerLogin,
+          input.providerIdentity.displayName,
+          input.now,
+          input.now,
+          input.now,
+          this.installationId,
+          identityId,
+          input.account.id,
+        )
       : this.db
-          .prepare(
-            `INSERT INTO user_identities (
+        .prepare(
+          `INSERT INTO user_identities (
                id, installation_id, provider, issuer, subject, user_id,
                provider_login, display_name, status, is_primary, link_method,
                linked_at, last_verified_at, last_seen_at, unlinked_at
              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', 0, 'self-service',
                        ?, ?, ?, NULL)`,
-          )
-          .bind(
-            identityId,
-            this.installationId,
-            provider,
-            input.providerIdentity.issuer,
-            input.providerIdentity.subject,
-            input.account.id,
-            input.providerIdentity.providerLogin,
-            input.providerIdentity.displayName,
-            input.now,
-            input.now,
-            input.now,
-          );
+        )
+        .bind(
+          identityId,
+          this.installationId,
+          provider,
+          input.providerIdentity.issuer,
+          input.providerIdentity.subject,
+          input.account.id,
+          input.providerIdentity.providerLogin,
+          input.providerIdentity.displayName,
+          input.now,
+          input.now,
+          input.now,
+        );
     try {
       await this.db.batch([
         identityStatement,
@@ -4778,22 +4782,22 @@ class D1Project42Repository {
               : null;
     const notification = notificationKind
       ? {
-          id: crypto.randomUUID(),
-          recipientUserId: input.targetId,
-          subjectUserId: input.targetId,
-          kind: notificationKind,
-          idempotencyKey: await sha256(
-            [
-              "account-notification",
-              ACCOUNT_NOTIFICATION_CONTRACT_VERSION,
-              this.installationId,
-              transitionId,
-              notificationKind,
-              input.targetId,
-            ].join(":"),
-          ),
-          now: input.now,
-        }
+        id: crypto.randomUUID(),
+        recipientUserId: input.targetId,
+        subjectUserId: input.targetId,
+        kind: notificationKind,
+        idempotencyKey: await sha256(
+          [
+            "account-notification",
+            ACCOUNT_NOTIFICATION_CONTRACT_VERSION,
+            this.installationId,
+            transitionId,
+            notificationKind,
+            input.targetId,
+          ].join(":"),
+        ),
+        now: input.now,
+      }
       : null;
     const statements: D1PreparedStatement[] = [
       this.db
@@ -4858,21 +4862,21 @@ class D1Project42Repository {
         .bind(input.now, this.installationId, input.targetId),
       ...(input.to !== "approved"
         ? [
-            this.db
-              .prepare(
-                // Never earlier than the session existed. revoked_at carries a
-                // CHECK (revoked_at >= created_at); a session created after this
-                // request captured its timestamp would abort the whole batch, so
-                // an owner suspending or revoking an account would fail outright
-                // and the account would keep both its state and its sessions.
-                // Revocation must not be losable to a timestamp race.
-                `UPDATE browser_sessions
+          this.db
+            .prepare(
+              // Never earlier than the session existed. revoked_at carries a
+              // CHECK (revoked_at >= created_at); a session created after this
+              // request captured its timestamp would abort the whole batch, so
+              // an owner suspending or revoking an account would fail outright
+              // and the account would keep both its state and its sessions.
+              // Revocation must not be losable to a timestamp race.
+              `UPDATE browser_sessions
                     SET revoked_at = MAX(created_at, ?)
                   WHERE installation_id = ? AND user_id = ?
                     AND revoked_at IS NULL`,
-              )
-              .bind(input.now, this.installationId, input.targetId),
-          ]
+            )
+            .bind(input.now, this.installationId, input.targetId),
+        ]
         : []),
       ...(notification
         ? [this.accountNotificationStatement(notification)]
@@ -5387,15 +5391,15 @@ class D1Project42Repository {
         events.length === 0 ||
         Boolean(
           lastImport &&
-            lastImport.payload.sourceChecksum !== checksum &&
-            Date.parse(legacy.updated_at) >=
-              Date.parse(lastImport.payload.synchronizedAt),
+          lastImport.payload.sourceChecksum !== checksum &&
+          Date.parse(legacy.updated_at) >=
+          Date.parse(lastImport.payload.synchronizedAt),
         );
       if (shouldMigrate) {
         const recordedAt = new Date().toISOString();
         const synchronizedAt =
           validUtcTimestamp(legacy.updated_at) &&
-          Date.parse(legacy.updated_at) <= Date.parse(recordedAt)
+            Date.parse(legacy.updated_at) <= Date.parse(recordedAt)
             ? legacy.updated_at
             : recordedAt;
         projection = (
@@ -5696,9 +5700,9 @@ class D1Project42Repository {
       input.actorType === "system"
         ? ({ type: "system", userId: null } as const)
         : ({
-            type: input.actorType,
-            userId: input.actorUserId ?? input.userId,
-          } as const);
+          type: input.actorType,
+          userId: input.actorUserId ?? input.userId,
+        } as const);
     const access: LearningEventAccess = {
       installationId: this.installationId,
       actorType: actor.type,
@@ -5728,7 +5732,7 @@ class D1Project42Repository {
       if (
         latestImport &&
         Date.parse(latestImport.payload.synchronizedAt) >=
-          Date.parse(input.synchronizedAt)
+        Date.parse(input.synchronizedAt)
       ) {
         return {
           event: latestImport,
@@ -5884,6 +5888,59 @@ class D1Project42Repository {
       }),
     ]);
     return consent;
+  }
+
+  async recordTermsAcceptance(input: {
+    account: Account;
+    termsVersion: string;
+    acceptedAt: string;
+    requestId: string;
+    now: string;
+  }): Promise<ConsentRecord> {
+    const record: ConsentRecord = {
+      id: crypto.randomUUID(),
+      purpose: "terms-of-service",
+      policyVersion: input.termsVersion,
+      decision: "granted",
+      decidedAt: input.acceptedAt,
+      contractStatus: "current",
+    };
+    await this.db.batch([
+      this.db
+        .prepare(
+          `INSERT INTO consent_records (
+             id, installation_id, user_id, purpose, policy_version, decision,
+             decided_at, contract_status
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, 'current')`,
+        )
+        .bind(
+          record.id,
+          this.installationId,
+          input.account.id,
+          record.purpose,
+          record.policyVersion,
+          record.decision,
+          record.decidedAt,
+        ),
+      this.auditStatement({
+        id: crypto.randomUUID(),
+        actor: input.account.identity,
+        actorUserId: input.account.id,
+        action: "terms.accept",
+        targetType: "consent",
+        targetId: record.id,
+        requestId: input.requestId,
+        outcome: "success",
+        reason: `terms-of-service:v${input.termsVersion}`,
+        metadata: {
+          purpose: record.purpose,
+          termsVersion: input.termsVersion,
+          acceptedAt: input.acceptedAt,
+        },
+        now: input.now,
+      }),
+    ]);
+    return record;
   }
 
   async listDeletionRequests(userId: string): Promise<DeletionRequest[]> {
@@ -6286,10 +6343,10 @@ class D1Project42Repository {
     const encryptionKey = await this.adminCursorEncryptionKey;
     const position = input.cursor
       ? await decodeDeletionAdminCursor(
-          input.cursor,
-          { installationId: this.installationId },
-          encryptionKey,
-        )
+        input.cursor,
+        { installationId: this.installationId },
+        encryptionKey,
+      )
       : null;
     const result = await this.db
       .prepare(buildAdminDeletionPageQuery(Boolean(position)))
@@ -6305,15 +6362,15 @@ class D1Project42Repository {
     const nextCursor =
       hasMore && last
         ? await encodeDeletionAdminCursor(
-            {
-              installationId: this.installationId,
-              position: {
-                requestedAt: String(last.requestedAt),
-                deletionRequestId: String(last.id),
-              },
+          {
+            installationId: this.installationId,
+            position: {
+              requestedAt: String(last.requestedAt),
+              deletionRequestId: String(last.id),
             },
-            encryptionKey,
-          )
+          },
+          encryptionKey,
+        )
         : null;
     return {
       requests: rows,
@@ -6544,7 +6601,7 @@ class D1Project42Repository {
             typeof value === "object" &&
             !Array.isArray(value) &&
             typeof (value as Record<string, unknown>).photo_object_key ===
-              "string"
+            "string"
           ) {
             profilePhotoObjectKeys.add(
               String((value as Record<string, unknown>).photo_object_key),
@@ -6731,12 +6788,12 @@ class D1Project42Repository {
     const encryptionKey = await this.adminCursorEncryptionKey;
     const position = input.cursor
       ? await decodeAuditAdminCursor(
-          input.cursor,
-          {
-            installationId: this.installationId,
-          },
-          encryptionKey,
-        )
+        input.cursor,
+        {
+          installationId: this.installationId,
+        },
+        encryptionKey,
+      )
       : null;
     const result = await this.db
       .prepare(
@@ -6758,12 +6815,12 @@ class D1Project42Repository {
     const nextCursor =
       hasMore && sequence
         ? await encodeAuditAdminCursor(
-            {
-              installationId: this.installationId,
-              position: { sequence },
-            },
-            encryptionKey,
-          )
+          {
+            installationId: this.installationId,
+            position: { sequence },
+          },
+          encryptionKey,
+        )
         : null;
     return {
       events: rows.map(mapAuditEvent),
@@ -7354,9 +7411,8 @@ class D1Project42Repository {
         .prepare(
           `SELECT 1 AS changed
              FROM ${tableName}
-            WHERE installation_id = ? AND ${
-              tableName === "users" ? "id" : "user_id"
-            } = ? AND ${timestampColumn} > ?
+            WHERE installation_id = ? AND ${tableName === "users" ? "id" : "user_id"
+          } = ? AND ${timestampColumn} > ?
             LIMIT 1`,
         )
         .bind(this.installationId, survivorUserId, completedAt)
@@ -8652,9 +8708,9 @@ function normalizeOwnerRecoveryProofRequest(
   ]);
   const methods = Array.isArray(record.methods)
     ? record.methods.filter(
-        (method): method is OwnerRecoveryProofRequest["methods"][number] =>
-          typeof method === "string" && methodsAllowed.has(method),
-      )
+      (method): method is OwnerRecoveryProofRequest["methods"][number] =>
+        typeof method === "string" && methodsAllowed.has(method),
+    )
     : [];
   if (
     typeof record.userId !== "string" ||
@@ -8863,7 +8919,9 @@ const NON_APPROVED_SELF_SERVICE_ALLOWLIST = new Map<
 >([
   ["GET /v1/me", "account-state"],
   ["GET /v1/me/consents", "consent-rights"],
+  ["PATCH /v1/me/consents", "consent-rights"],
   ["POST /v1/me/consents", "consent-rights"],
+  ["POST /v1/me/terms-acceptance", "consent-rights"],
   ["GET /v1/me/export", "export-rights"],
   ["GET /v1/me/deletion", "deletion-rights"],
   ["POST /v1/me/deletion", "deletion-rights"],
@@ -9547,8 +9605,8 @@ async function handleRequest(
   accountNotificationAdapter: AccountNotificationAdapter =
     env.ACCOUNT_NOTIFICATION_DELIVERY
       ? new ServiceBindingAccountNotificationAdapter(
-          env.ACCOUNT_NOTIFICATION_DELIVERY,
-        )
+        env.ACCOUNT_NOTIFICATION_DELIVERY,
+      )
       : new DisabledAccountNotificationAdapter(),
 ): Promise<Response> {
   const requestId = request.headers.get("x-request-id")?.slice(0, 100) || crypto.randomUUID();
@@ -9810,10 +9868,10 @@ async function handleRequest(
       const priorSessionToken = readCookie(request, BROWSER_SESSION_COOKIE);
       const priorSession = priorSessionToken
         ? await repository.resolveBrowserSession(
-            await sha256(priorSessionToken),
-            now,
-            requestId,
-          )
+          await sha256(priorSessionToken),
+          now,
+          requestId,
+        )
         : null;
       if (account.state === "approved") {
         await requireProject42Authorization(
@@ -9997,9 +10055,9 @@ async function handleRequest(
           account: accountStateDisclosure(account),
           session: browserSession
             ? {
-                expiresAt: browserSession.expiresAt,
-                absoluteExpiresAt: browserSession.absoluteExpiresAt,
-              }
+              expiresAt: browserSession.expiresAt,
+              absoluteExpiresAt: browserSession.absoluteExpiresAt,
+            }
             : null,
         },
         200,
@@ -10365,18 +10423,29 @@ async function handleRequest(
     }
     if (request.method === "GET" && url.pathname === "/v1/me/consents") {
       requireNonApprovedDataRightsAuthentication(account, identity, now);
-      return json(
-        { consents: await repository.listConsents(account.id) },
-        200,
-        requestId,
-        origin,
-      );
+      const allConsents = await repository.listConsents(account.id);
+      // Only return optional consent categories (marketing, analytics).
+      // Learning-record consent is now covered by terms acceptance (POST /v1/me/terms-acceptance).
+      const optionalPurposes = new Set(LEARNER_CONSENT_PURPOSES);
+      const optionalConsents = LEARNER_CONSENT_PURPOSES.map((purpose) => {
+        const latest = allConsents
+          .filter((c) => c.purpose === purpose)
+          .sort(
+            (a, b) =>
+              new Date(b.decidedAt).getTime() -
+              new Date(a.decidedAt).getTime(),
+          )[0];
+        return {
+          purpose,
+          decision: latest?.decision ?? "withdrawn",
+        };
+      });
+      return json({ consents: optionalConsents }, 200, requestId, origin);
     }
-    if (request.method === "POST" && url.pathname === "/v1/me/consents") {
+    if (request.method === "PATCH" && url.pathname === "/v1/me/consents") {
       requireNonApprovedDataRightsAuthentication(account, identity, now);
       const body = await readJson<{
         purpose: string;
-        policyVersion: string;
         decision: ConsentDecision;
       }>(request);
       if (
@@ -10388,17 +10457,7 @@ async function handleRequest(
         throw new ApiFailure(
           400,
           "invalid_consent_purpose",
-          "Consent purpose is not part of the accepted learner-data policy.",
-        );
-      }
-      if (
-        typeof body.policyVersion !== "string" ||
-        body.policyVersion !== LEARNER_DATA_POLICY_VERSION
-      ) {
-        throw new ApiFailure(
-          400,
-          "invalid_policy_version",
-          "Consent decisions must reference the current accepted learner-data policy.",
+          "Consent purpose must be one of the optional learner-data purposes.",
         );
       }
       if (!["granted", "withdrawn"].includes(body.decision)) {
@@ -10414,12 +10473,100 @@ async function handleRequest(
       const consent = await repository.recordConsent({
         account,
         purpose: body.purpose,
-        policyVersion: body.policyVersion,
+        policyVersion: LEARNER_DATA_POLICY_VERSION,
+        decision: body.decision,
+        requestId,
+        now,
+      });
+      return json({ consent }, 200, requestId, origin);
+    }
+    if (request.method === "POST" && url.pathname === "/v1/me/consents") {
+      requireNonApprovedDataRightsAuthentication(account, identity, now);
+      const body = await readJson<{
+        purpose: string;
+        policyVersion?: string;
+        decision: ConsentDecision;
+      }>(request);
+      // Accept both current optional purposes and legacy learning-record for
+      // backward compatibility with existing consent records and tests.
+      const acceptedPurposes = [
+        ...LEARNER_CONSENT_PURPOSES,
+        "learning-record" as const,
+      ] as const;
+      if (
+        typeof body.purpose !== "string" ||
+        !(acceptedPurposes as readonly string[]).includes(body.purpose)
+      ) {
+        throw new ApiFailure(
+          400,
+          "invalid_consent_purpose",
+          "Consent purpose must be one of the accepted learner-data purposes.",
+        );
+      }
+      if (!["granted", "withdrawn"].includes(body.decision)) {
+        throw new ApiFailure(
+          400,
+          "invalid_consent_decision",
+          "Consent decision must be granted or withdrawn.",
+        );
+      }
+      if (
+        body.policyVersion !== undefined &&
+        body.policyVersion !== LEARNER_DATA_POLICY_VERSION
+      ) {
+        throw new ApiFailure(
+          400,
+          "invalid_consent_policy_version",
+          `Consent policy version must be ${LEARNER_DATA_POLICY_VERSION}.`,
+        );
+      }
+      if (body.decision === "granted") {
+        requireApproved(account);
+      }
+      const consent = await repository.recordConsent({
+        account,
+        purpose: body.purpose,
+        policyVersion: body.policyVersion ?? LEARNER_DATA_POLICY_VERSION,
         decision: body.decision,
         requestId,
         now,
       });
       return json({ consent }, 201, requestId, origin);
+    }
+    if (request.method === "POST" && url.pathname === "/v1/me/terms-acceptance") {
+      requireNonApprovedDataRightsAuthentication(account, identity, now);
+      const body = await readJson<{
+        termsVersion: string;
+        acceptedAt: string;
+      }>(request);
+      if (
+        typeof body.termsVersion !== "string" ||
+        body.termsVersion !== TERMS_OF_SERVICE_VERSION
+      ) {
+        throw new ApiFailure(
+          400,
+          "invalid_terms_version",
+          "Terms acceptance must reference the current terms of service version.",
+        );
+      }
+      if (
+        typeof body.acceptedAt !== "string" ||
+        !Number.isFinite(Date.parse(body.acceptedAt))
+      ) {
+        throw new ApiFailure(
+          400,
+          "invalid_accepted_at",
+          "acceptedAt must be an ISO-8601 timestamp.",
+        );
+      }
+      const acceptance = await repository.recordTermsAcceptance({
+        account,
+        termsVersion: body.termsVersion,
+        acceptedAt: body.acceptedAt,
+        requestId,
+        now,
+      });
+      return json({ acceptance }, 201, requestId, origin);
     }
     if (request.method === "GET" && url.pathname === "/v1/me/export") {
       requireRecentAuthentication(identity, now);

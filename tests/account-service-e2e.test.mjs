@@ -616,7 +616,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   const consent = await api("learner-token", "/v1/me/consents", {
     method: "POST",
     body: JSON.stringify({
-      purpose: "learning-record",
+      purpose: "product-improvement",
       policyVersion: "2026-07-27",
       decision: "granted",
     }),
@@ -630,7 +630,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
       decision: "granted",
     },
     {
-      purpose: "learning-record",
+      purpose: "product-improvement",
       policyVersion: "2026-07-26",
       decision: "granted",
     },
@@ -781,7 +781,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
   assert.equal(
     (await readBody(await api("learner-token", "/v1/me/consents"))).consents
       .length,
-    1,
+    2,
   );
   const otherDeletionBody = await readBody(
     await otherApi("learner-token", "/v1/me/deletion", {
@@ -1523,10 +1523,9 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
     const page = await readBody(
       await api(
         "owner-token",
-        `/v1/admin/audit?pageSize=7${
-          auditCursor
-            ? `&cursor=${encodeURIComponent(auditCursor)}`
-            : ""
+        `/v1/admin/audit?pageSize=7${auditCursor
+          ? `&cursor=${encodeURIComponent(auditCursor)}`
+          : ""
         }`,
       ),
     );

@@ -139,8 +139,8 @@ export interface LearnerDataPolicyValidation {
 }
 
 export const LEARNER_DATA_POLICY_VERSION = "2026-07-27";
+export const TERMS_OF_SERVICE_VERSION = "1.0";
 export const LEARNER_CONSENT_PURPOSES = [
-  "learning-record",
   "product-improvement",
   "learning-reminders",
 ] as const;
@@ -288,8 +288,9 @@ export const defaultLearnerDataPolicy: LearnerDataPolicyV1 = {
         id: "learning-record",
         required: true,
         description:
-          "Store profile, enrollment, progress, attempts, scores, badges, and transcript records.",
-        withdrawalEffect: "Starts account deletion because the service cannot operate without it.",
+          "Store and maintain a durable learning record tied to your account.",
+        withdrawalEffect:
+          "The learning record is required for account-backed progress. Withdrawing this consent will delete your account and learning data.",
       },
       {
         id: "product-improvement",

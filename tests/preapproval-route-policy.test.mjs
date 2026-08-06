@@ -310,7 +310,7 @@ test("non-approved bearer identities have an exhaustive fail-closed self-service
       path: "/v1/me/consents",
       status: 201,
       body: JSON.stringify({
-        purpose: "learning-record",
+        purpose: "product-improvement",
         policyVersion,
         decision: "withdrawn",
       }),

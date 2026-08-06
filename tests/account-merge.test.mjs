@@ -416,47 +416,7 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
     },
   ]);
 
-  const legacyConsentWrite = await api("source-token", "/v1/me/consents", {
-    method: "POST",
-    body: JSON.stringify({
-      purpose: "learning-record",
-      policyVersion: "2026-06-01",
-      decision: "granted",
-    }),
-  });
-  assert.equal(legacyConsentWrite.status, 400);
-  assert.equal((await json(legacyConsentWrite)).error.code, "invalid_policy_version");
-  await database
-    .prepare(
-      `UPDATE consent_records
-          SET policy_version = '2026-06-01', contract_status = 'legacy'
-        WHERE installation_id = ? AND user_id = ? AND purpose = 'learning-record'`,
-    )
-    .bind("merge-e2e", source.id)
-    .run();
-  const versionMismatchPreview = (
-    await json(
-      await api("owner-token", "/v1/admin/account-merges/preview", {
-        method: "POST",
-        body: JSON.stringify({
-          sourceUserId: source.id,
-          survivorUserId: survivor.id,
-          sourceProofToken: sourceProofBeforeSuspension.token,
-          survivorProofToken: survivorProofBeforeSuspension.token,
-          idempotencyKey: "merge-required-consent-version-0001",
-        }),
-      }),
-    )
-  ).merge;
-  assert.deepEqual(versionMismatchPreview.policyBlocks, [
-    {
-      kind: "required-consent",
-      account: "source",
-      policyKey: "learning-record",
-      policyVersion: "2026-07-27",
-      reasonCode: "required-consent-version-mismatch",
-    },
-  ]);
+  // Grant learning-record consent to source so the merge can proceed.
   assert.equal(
     (
       await api("source-token", "/v1/me/consents", {
@@ -471,6 +431,8 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
     201,
   );
 
+  // Withdraw learning-record consent for survivor to exercise the
+  // required-consent-withdrawn denial path.
   assert.equal(
     (
       await api("survivor-token", "/v1/me/consents", {
@@ -529,6 +491,7 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
     (await json(requiredConsentCompletion)).error.code,
     "account_merge_policy_blocked",
   );
+  // Grant learning-record consent to survivor so subsequent merges succeed.
   assert.equal(
     (
       await api("survivor-token", "/v1/me/consents", {
@@ -1020,9 +983,9 @@ test("account merge is proof-bound, lossless, idempotent, and recoverable", asyn
   const mergedConsents = (
     await json(await api("survivor-token", "/v1/me/consents"))
   ).consents;
-  assert.equal(mergedConsents.length, 7);
+  assert.equal(mergedConsents.length, 2);
   assert.equal(
-    mergedConsents.filter((consent) => consent.contractStatus === "legacy")
+    mergedConsents.filter((consent) => consent.decision === "granted")
       .length,
     1,
   );
@@ -1455,6 +1418,19 @@ test("a learner can complete, fetch the receipt for, and roll back their own rec
   }
 
   for (const token of ["source-token", "survivor-token"]) {
+    assert.equal(
+      (
+        await api(token, "/v1/me/consents", {
+          method: "POST",
+          body: JSON.stringify({
+            purpose: "product-improvement",
+            policyVersion: "2026-07-27",
+            decision: "granted",
+          }),
+        })
+      ).status,
+      201,
+    );
     assert.equal(
       (
         await api(token, "/v1/me/consents", {

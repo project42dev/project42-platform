@@ -192,6 +192,7 @@ export {
   LEARNER_DATA_PERMISSIONS,
   LEARNER_DATA_POLICY_VERSION,
   LEARNER_DATA_ROLES,
+  TERMS_OF_SERVICE_VERSION,
   canTransitionLearnerAccount,
   defaultLearnerDataPolicy,
   learnerDataRoleCan,

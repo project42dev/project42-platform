@@ -116,11 +116,11 @@ test("OIDC verifier accepts only correctly signed issuer and audience tokens", a
     .setExpirationTime(now + 300)
     .sign(privateKey);
   const browserIdentity = await verifier.verifyToken(browserIdentityToken, {
-      audience: "project42-browser",
-      nonce: "expected-nonce",
-      requireAuthenticationTime: true,
-      diagnosticRequestId: "b5d9f227-830c-43e8-8bb6-e31bf75e06ba",
-    });
+    audience: "project42-browser",
+    nonce: "expected-nonce",
+    requireAuthenticationTime: true,
+    diagnosticRequestId: "b5d9f227-830c-43e8-8bb6-e31bf75e06ba",
+  });
   assert.equal(browserIdentity.authenticatedAt, now);
   assert.deepEqual(claimContractDiagnostics, [
     {
@@ -668,7 +668,7 @@ test("API denies learner data until approval and protects owner routes", async (
   };
   const verifier = { verify: async () => identity };
   const repository = {
-    ensureInstallation: async () => {},
+    ensureInstallation: async () => { },
     createOrRefreshAccount: async () => pending,
     findAccount: async () => pending,
     getProgress: async () => {
@@ -751,7 +751,7 @@ test("suspension and revocation disable existing learner and owner access", asyn
       updatedAt: "2026-07-27T00:00:00.000Z",
     };
     const repository = {
-      ensureInstallation: async () => {},
+      ensureInstallation: async () => { },
       findAccount: async () => account,
       getProgress: async () => {
         throw new Error(`${state} account must not reach learner storage`);
@@ -810,7 +810,7 @@ test("data-rights routes require recent authentication and explicit deletion con
   const calls = [];
   const verifier = { verify: async () => identity };
   const repository = {
-    ensureInstallation: async () => {},
+    ensureInstallation: async () => { },
     findAccount: async () => approved,
     listConsents: async () => [],
     recordConsent: async (input) => {
@@ -865,7 +865,7 @@ test("data-rights routes require recent authentication and explicit deletion con
     new Request("https://api.example.test/v1/me/consents", {
       method: "POST",
       body: JSON.stringify({
-        purpose: "learning-record",
+        purpose: "product-improvement",
         policyVersion: "2026-07-27",
         decision: "granted",
       }),
