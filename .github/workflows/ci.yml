@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   verify:
-    runs-on: [self-hosted, linux, x64, hcs]
+    runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres:17.10-alpine3.23
@@ -50,7 +50,7 @@ jobs:
       - run: npm run check
 
   self-host-smoke:
-    runs-on: [self-hosted, linux, x64, hcs]
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -88,7 +88,7 @@ jobs:
         run: docker compose --env-file self-host/.env.example -f self-host/compose.yaml down --volumes
 
   secure-self-host-smoke:
-    runs-on: [self-hosted, linux, x64, hcs]
+    runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
       PROJECT42_VERSION: 0.71.0
@@ -234,7 +234,7 @@ jobs:
   # configured, because it signs in as a real user against a real issuer; it
   # cannot be satisfied by a stub without defeating its own purpose.
   hosted-identity-smoke:
-    runs-on: [self-hosted, linux, x64, hcs]
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     if: vars.PROJECT42_HOSTED_IDENTITY_ENABLED == 'true'
     env:
