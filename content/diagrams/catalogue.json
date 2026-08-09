@@ -121,6 +121,36 @@
         "Keep preview, approval, release manifest, monitoring, and rollback evidence together."
       ],
       "source": "content-freshness-release.mmd"
+    },
+    {
+      "id": "agent-orchestration",
+      "title": "Agent orchestration and multi-agent patterns",
+      "category": "Agents",
+      "summary": "How tasks are classified, routed to specialist agents, executed with independent review, and assembled into a final response.",
+      "description": "A multi-agent system starts with a router that classifies intent and dispatches to the right specialist — coder, reviewer, investigator, or operator. Each specialist works within bounded guardrails and produces an evidence package. An independent reviewer (on a different model family) checks every output before it reaches the human.",
+      "altText": "A flowchart shows a Human request flowing to a Router agent that classifies intent into build, review, investigate, or operate. Each path leads to a specialist agent (Coder, Reviewer, Investigator, Operator). All outputs pass through an Independent reviewer. Approved outputs are assembled into a response delivered to the human. Rejected outputs return to the coder for revision.",
+      "caption": "Multi-agent orchestration routes tasks to specialists, enforces independent cross-model review, and assembles evidence-backed responses.",
+      "takeaways": [
+        "Classify intent before dispatching — misclassification is the most common failure mode.",
+        "Every specialist output passes through an independent reviewer on a different model family.",
+        "The human receives a complete audit trail, not just a final answer."
+      ],
+      "source": "agent-orchestration.mmd"
+    },
+    {
+      "id": "cost-and-capacity-management",
+      "title": "Cost, capacity, and spend control",
+      "category": "Governance",
+      "summary": "How cost estimation, capacity planning, spend monitoring, and brake mechanisms work together to control AI service costs.",
+      "description": "Controlling AI spend requires a continuous loop: estimate workload costs from token projections, allocate budgets as hard ceilings, provision the right capacity, monitor spend in real time, engage automated spend brakes at critical thresholds, and periodically audit and adjust based on actual usage data.",
+      "altText": "A flowchart shows Workload estimate flowing to Cost estimation (tokens × rate), then to Budget allocation, Capacity planning, and Endpoints deployed. A Monitoring dashboard branches: over-threshold triggers a Spend brake that halts endpoints and notifies a human operator; under-budget continues Regular operations. Regular operations periodically feed into Audit and adjust, which loops back to Cost estimation.",
+      "caption": "Cost control is a continuous loop: estimate, budget, provision, monitor, brake, audit, and adjust.",
+      "takeaways": [
+        "Budget is a hard ceiling — every agent run checks remaining budget before starting.",
+        "Spend brakes must be tested regularly; an untested brake is not a brake.",
+        "Continuous adjustment based on real usage data is the difference between controlled spend and surprise bills."
+      ],
+      "source": "cost-and-capacity-management.mmd"
     }
   ]
 }

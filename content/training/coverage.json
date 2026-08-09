@@ -332,7 +332,7 @@
       "instructorSchemaVersion": "1.0",
       "classScriptId": "language-models-and-generation-class",
       "classScriptVersion": "1.0.0",
-      "classScriptPath": "examples/training/language-models-and-generation/class-script.json"
+      "classScriptPath": "content/training/ai-foundations/language-models-and-generation/class-script.json"
     },
     {
       "moduleId": "mcp-architecture",

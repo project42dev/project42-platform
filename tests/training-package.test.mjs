@@ -10,7 +10,7 @@ import {
 import { buildTrainingFixtureArtifacts } from "../scripts/training-fixture-lib.mjs";
 
 const fixtureRoot = new URL(
-  "../examples/training/language-models-and-generation/",
+  "../content/training/ai-foundations/language-models-and-generation/",
   import.meta.url,
 );
 const schemaRoot = new URL("../schemas/training/", import.meta.url);
