@@ -18,6 +18,7 @@ is a separate decision.
 | Connect a tool or an editor | [tools/](tools/) |
 | Operate a deployment | [operations/](operations/) |
 | Know why something is built the way it is | [decisions/](decisions/) |
+| Understand Orchard, the content lifecycle engine | [orchard/](orchard/README.md) |
 | Build against the contracts | the contract pages below |
 | Get going quickly | [getting-started.md](getting-started.md) |
 
@@ -54,14 +55,19 @@ them as a breaking change until proven otherwise.
 - [virtual-instructor-production.md](virtual-instructor-production.md)
 - [training/](training/)
 
-## What is deliberately not here
+## Orchard
 
-**Orchard's documentation stays in the Orchard repository.** Orchard is a
-separate open-source tool with its own adopters, and documentation for running
-a tool belongs beside that tool. See
-[github.com/project42dev/orchard](https://github.com/project42dev/orchard),
-whose `docs/` carries its status, install guide, lifecycle, and thirteen
-decision records.
+Orchard is the content lifecycle engine, a separate open-source tool and a core
+part of Project 42. **What it is and what it does are documented here**, in
+[orchard/](orchard/README.md): status, lifecycle, workflow orchestration,
+decisions, and thirteen decision records.
+
+**How to deploy and run it stays with the code**, in
+[github.com/project42dev/orchard](https://github.com/project42dev/orchard).
+That is the line throughout this repository: what a thing is lives here, how to
+operate it lives beside the code the operator is running.
+
+## What is deliberately not here
 
 **Planning, PMO material and the original architecture decision records are
 private** by deliberate decision, so that candid early analysis has somewhere
