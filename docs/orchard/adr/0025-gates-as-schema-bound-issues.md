@@ -33,6 +33,20 @@
    event; a correction supersedes through a new authorized event.
 9. **Issue creation is idempotent**, keyed on gate, run and batch digest, and a
    timeout is reconciled before any retry.
+
+    > **Correction, 2026-08-15.** The builder had to override this. The
+    > contract's `batch_digest` (`lib/gates.mjs`) hashes the run id along with
+    > the batch, so keying idempotency on gate, run and batch digest as
+    > written above would open a fresh issue every month for the same
+    > unchanged held work, because the run id changes every run even when
+    > nothing else does. `announce-gates.mjs` instead keys the issue marker on
+    > `heldSetDigest` (`lib/gate-queue.mjs`), a hash of the sorted set of held
+    > item ids, revisions and proposal or artifact digests, which does not
+    > include the run id and so stays stable while the held set is stable.
+    > The `batch_digest` field itself is still computed and persisted exactly
+    > as this ADR describes; only the idempotency key that decides whether a
+    > new issue is opened uses the different value. See
+    > `project42-platform/docs/orchard/lifecycle-steps.md`, Step 5.
 10. **Gate 2 carries the finished artifact, the readable diff and its digest,
     the prepared-tree digest, tests, factual and accessibility review, the
     handoff chain, cost, tracker links, the allowlisted repository, the safe

@@ -41,7 +41,7 @@ Verified.
 | Currency track, inspecting the published corpus | yes | yes | yes | no |
 | Discovery track, searching approved sources | yes | yes | yes, deployed 2026-08-15 | no |
 | Seeding the shared inputs both tracks read | yes | yes | yes, deployed 2026-08-15 | no |
-| Request intake, a third way work enters | yes | yes | no | no |
+| Request intake, a third way work enters | yes | no | no | no |
 | Publication through a protected-main pull request | yes | yes | no | no |
 | Portable single-template deployment | yes | yes | yes | yes |
 
@@ -91,6 +91,12 @@ what came before rather than against nothing.
 
 ## Defects fixed on 2026-08-15
 
+- **This page's request intake row previously read "In branch: yes."** That
+  was false. There is no parser, no intake module and no issue template; the
+  row now reads "In branch: no," matching ADR-0022's own amendment ("no code,
+  no issue template, and no intake phase exists today") and `lifecycle.md`'s
+  "Known gaps" section. Whether to build request intake at all is owner
+  decision Q5 in the remediation plan, open.
 - **A missing source registry loaded as zero sources, silently.** The database
   build returned an empty list rather than failing when its input file was
   absent, so a rebuild in that state produced a discovery track that searched

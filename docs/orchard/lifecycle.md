@@ -112,7 +112,9 @@ converge on the same labeled issue and there is exactly one parser.
    originating issue number, and the requester's immutable numeric actor id.
 4. A request never starts a run by itself. It waits for the next scheduled run
    or a manual trigger, and it is scored on the same scale as a discovered
-   candidate, never bypassing scoring, the cutoff, or any cap.
+   candidate, never bypassing scoring or any cap. There is no cutoff to
+   bypass: see "There is no cutoff score" below, which applies identically to
+   a requested item.
 5. Requests are batched with discovered and currency items in the same Gate 1
    manifest and issue, with an origin column, so **discovery, the currency
    track, and request intake all feed the same queue and the same Gate 1
@@ -214,6 +216,12 @@ database is accepted only after integrity and schema verification succeeds.
 > The Mermaid source is in [`lifecycle.mmd`](lifecycle.mmd). The SVG above is
 > generated from it. GitHub does not render Mermaid in markdown files, so the
 > rendered image is committed alongside the source.
+>
+> **The SVG above has not been regenerated since the 2026-08-15 correction to
+> the source below** (dashed styling on every step this repository has not
+> yet built, and a new node for step 14, live verification). Whoever next has
+> `mmdc` available should regenerate it; the two must not drift, and until
+> they are regenerated the SVG understates what the corrected source says.
 
 <details>
 <summary>Mermaid source (click to expand)</summary>
@@ -226,34 +234,74 @@ flowchart TD
     end
 
   A1 --> B1["Candidate or finding<br/>one item and revision"]
-  A2 --> B1
+  A2 -.->|"no item id or revision today, I-12"| B1
 
   subgraph DELIVERY["Bound delivery lifecycle"]
     B1 --> B2{"Gate 1 decision"}
     B2 -->|deny, defer, or changes| B3["No delivery authority"]
-    B2 -->|approve| B4["Linked tracker item reconciled"]
-    B4 --> B5["Qualified role chain<br/>persisted handoffs"]
-    B5 --> B6["Immutable artifact binding"]
-    B6 --> B7{"Gate 2 decision<br/>exact artifact"}
-    B7 -->|deny, defer, or changes| B8["No publication authority"]
-    B7 -->|approve| B9["Deterministic branch<br/>protected-main pull request"]
-    B9 --> B10["Exact merge, tree, diff,<br/>head, and base reconciliation"]
-    B10 --> B11["Protected-main acknowledgement"]
-    B11 --> B12{"Owner accepts closure packet<br/>and completion notes?"}
+    B2 -.->|"approve, blocked today, I-04"| B4["Linked tracker item reconciled"]
+    B4 -.-> B5["Qualified role chain<br/>persisted handoffs"]
+    B5 -.-> B6["Immutable artifact binding"]
+    B6 -.-> B7{"Gate 2 decision<br/>exact artifact"}
+    B7 -.->|deny, defer, or changes| B8["No publication authority"]
+    B7 -.->|approve| B9["Deterministic branch<br/>protected-main pull request"]
+    B9 -.-> B10["Exact merge, tree, diff,<br/>head, and base reconciliation"]
+    B10 -.-> B11["Protected-main acknowledgement"]
+    B11 -.-> B11V["Verify the published content is live"]
+    B11V -.-> B12{"Owner accepts closure packet<br/>and completion notes?"}
     B12 -->|no| B13["Tracker remains open"]
-    B12 -->|yes| B14["Tracker item closed"]
+    B12 -.->|yes| B14["Tracker item closed"]
     end
 
-  B11 --> C1{"Instructor-led rendering wanted?"}
+  B11 -.-> C1{"Instructor-led rendering wanted?"}
   C1 -->|no| C2["Written content only"]
-  C1 -->|yes| C3["Build immutable media package<br/>and integrity manifest"]
+  C1 -.->|yes| C3["Build immutable media package<br/>and integrity manifest"]
 
-  B11 --> D1["Future Track 2 run<br/>re-inspects the canonical item"]
-  C3 --> D1
-  D1 -->|material finding| B1
+  B11 -.-> D1["Future Track 2 run<br/>re-inspects the canonical item"]
+  C3 -.-> D1
+  D1 -.->|material finding| B1
+
+  classDef notbuilt stroke-dasharray: 6 4
+  class B4,B5,B6,B7,B8,B9,B10,B11,B11V,B12,B13,B14,C1,C3,D1 notbuilt
 ```
 
+Dashed nodes and edges are steps this diagram's own numbering calls 6 through
+16 that are `NO RUNTIME` or `NOT BUILT` today, per
+[`lifecycle-steps.md`](lifecycle-steps.md). Solid is only the discovery track,
+the Gate 1 announcement, and a Gate 1 denial. **That is deliberately almost
+the whole diagram**, because that is what is actually running.
+
 </details>
+
+### The second Mermaid lifecycle, and why there are two
+
+`content/diagrams/orchard-lifecycle.mmd` is a second, independent diagram: the
+one rendered on the public interactive guide site
+(`guide.project-42.dev`, component `OrchardLifecycleDiagram`), drawn in the
+owner's fourteen-step mandate language rather than this page's sixteen
+machine states and two authority gates. Both diagrams describe the same
+lifecycle at different altitudes and are meant to keep existing side by side,
+one internal and technical, one public and narrative, the way
+[`lifecycle-steps.md`](lifecycle-steps.md)'s "why this document exists"
+section describes English noun phrases as insufficient on their own.
+
+**They previously conflicted on more than altitude: both drew unbuilt work as
+built.** This page's diagram is corrected above. The public diagram is not,
+and correcting it is out of scope for a documentation change: its data lives
+in `guide.project-42.dev/app/components/OrchardLifecycleDiagram/graph.ts`,
+application code in a different repository, and its shipped SVG is
+checksum-pinned in `content/diagrams/catalogue.json`, so a source edit
+without regenerating the SVG and its hash would break the site's own
+consistency check rather than fix anything. Specifically, `graph.ts`'s edges
+`currencyRecord`-`issue1`, `approvedTracker`, `orchestration`,
+`storeWritten`, `issue2`, `gate2`, `rework` and `commitPush` are all drawn
+solid, matching this page's diagram before its correction, and for the same
+reasons: I-12 (currency cannot produce a gated item) and steps 6 through 15
+being `NO RUNTIME` or `NOT BUILT` per `lifecycle-steps.md`. **Follow-up,
+tracked as part of T9's diagram work:** apply the same `pending` treatment
+already used there for `requestIntake` and `verifyLive` to the rest of that
+chain, regenerate `public/diagrams/orchard-lifecycle.svg`, and update its
+`sourceSha256`/`svgSha256` in `content/diagrams/catalogue.json`.
 
 ## The authoring ensemble: six roles designed, four running
 

@@ -61,6 +61,26 @@ step cannot be described at that level, it is not designed.
 `rendering`. **Any code referencing these will fail with `no such table`.**
 They belong to `schema/content-db.sql`, which production has never applied.
 
+### Three things called "publication"
+
+Corrected 2026-08-15 (T10, issue I-44). The word is overloaded across the
+schema and the prose. This is the disambiguation; the rename itself (below)
+is a schema change and is not done here.
+
+| Name | What it actually is | Where it lives | Real today? |
+| --- | --- | --- | --- |
+| `publication` (table) | A row per accepted content item, closing a queue item. | `schema/content-db.sql`, line ~93 | **No.** Developer-only schema, never applied to production. Any script querying it fails with `no such table`. See `publish-approved-item.mjs`, `record-publication.mjs`, `reject-publication.mjs`, Step 13. |
+| `publication_transaction` (table) | **The one that is real.** One row per publish attempt and its outcome: the exact artifact digest, the Gate 2 decision event, the PR head/base/tree/diff digests, the ADO external key. | `schema/migrations/002-two-track-authority.sql` | **Yes**, in the applied production schema, though `NO RUNTIME` today because nothing deployed can invoke `publish-approved-item.mjs` (Step 13). |
+| `publication_authority` (table) | Not a record of publishing at all. Per `publication_transaction`, an append-only row binding the protected adapter's identity and digest, checked against the administrator-provisioned `protected_trust_anchor` for scope `publication`. Written by `recordPublicationAuthority` at the same time the transaction is recorded, one row per transaction, never updated or deleted. | `schema/migrations/005-protected-trust-anchors.sql` | **Yes**, applied. `NO RUNTIME` today for the same reason as `publication_transaction`: nothing deployed reaches the code path that would write a row. |
+| "publication" (prose) | The informal noun for the *act* of publishing content live, i.e. Step 13 in this document, step 12-13 in the owner's mandate. Not a table at all. | everywhere in narrative docs | Refers to an event, not a row. |
+
+**Remediation not done here:** the plan's remediation for I-44 is "rename two
+of the three," which is a schema migration and a code change across every
+script that references these tables, out of scope for a documentation-only
+change. This table is the reconciliation the plan asked for: a reader can now
+tell the three apart without guessing. The rename itself is a follow-up for a
+build workstream.
+
 ### The state vocabulary
 
 ```
@@ -197,8 +217,20 @@ Formula version `track1-demand-1.0.0`, recorded on every item so a score can
 always be re-derived.
 
 **There is no cutoff.** Every candidate is proposed regardless of score.
-**Known defect:** two design documents disagree on whether a cutoff exists.
-Issue I-45.
+`score-opportunities.mjs` documents why in its own comments: a threshold would
+turn a temporary measurement into a permanent policy, since low reachability
+and a single-page catalogue scan both understate a real topic for reasons
+that have nothing to do with the topic.
+
+**Corrected 2026-08-15 (issue I-45).** Two design documents used to disagree
+with this and with each other: `project42dev-ops/docs/adrs/0022-orchard-two-track-lifecycle.md`'s
+request-intake amendment said a request is scored "above the cutoff," and
+`project42dev-ops/docs/architecture/orchard-two-track-target-architecture.md`
+described "no bypass of scoring, cutoff, or caps," both implying a score
+floor exists. `lifecycle.md`'s "There is no cutoff score" section already
+said the opposite. Both documents are now corrected to say there is no
+cutoff, matching the code; no number was invented. Whether a floor should be
+added is owner decision Q4 in the remediation plan, open.
 
 **Surface determines destination:**
 
@@ -275,8 +307,15 @@ unmentioned.
 contract's batch digest hashes the run id, so it changes every run and would
 open a fresh issue every month for the same unchanged work. `heldSetDigest`
 hashes the sorted set of item ids, revisions and digests, so the marker is
-stable while the held set is stable. **The design still specifies the other
-rule.** Issue I-46.
+stable while the held set is stable. Issue I-46.
+
+**Corrected 2026-08-15.** `docs/orchard/adr/0025-gates-as-schema-bound-issues.md`
+decision 9 said idempotency is "keyed on gate, run and batch digest," which is
+the rule the builder had to override for the reason above. The ADR now
+carries a correction note describing the override and why, rather than
+stating the overridden rule as current. The `batch_digest` field itself is
+still computed and persisted exactly as that ADR describes; only the issue
+idempotency key uses the different value.
 
 **Announcing can never fail the run.** Each gate is wrapped in its own
 try/catch. A failure logs
@@ -441,9 +480,10 @@ than something general.
 the latter two query `publication`, which does not exist. The table that does
 exist is `publication_transaction`. Issues I-01, I-03.
 
-**Naming defect:** three different things are called "publication" —
+**Naming defect:** three different things are called "publication":
 `publication`, `publication_transaction` and `publication_authority`. Two must
-be renamed. Issue I-44.
+be renamed. Issue I-44. See "Three things called 'publication'" above for the
+disambiguation; the rename itself is unbuilt.
 
 ---
 
@@ -455,7 +495,11 @@ be renamed. Issue I-44.
 **Intended:** fetch the published location and confirm the content is actually
 serving, then transition to `published` and on to `ado-closure-ready`.
 
-**This step is missing entirely from `lifecycle.mmd`.** Issue I-48.
+**Corrected 2026-08-15.** This step was missing entirely from
+`docs/orchard/lifecycle.mmd` (Issue I-48); the diagram jumped straight from
+publication to closure with no node for verification. It now has one, node
+`B11V`, styled the same dashed `notbuilt` as every other step past the
+denial branch of Gate 1. See "The two Mermaid lifecycle diagrams" below.
 
 ---
 
@@ -482,6 +526,46 @@ revisited.**
 The tool is called lifecycle management and the lifecycle has no end. Before
 this can be designed, "retirement" has to be defined: unpublish, mark
 superseded, archive, or delete. Issue I-27.
+
+---
+
+## The two Mermaid lifecycle diagrams
+
+Corrected 2026-08-15 (T10, issue I-48). Two static Mermaid lifecycle diagrams
+are committed, and they used to disagree with each other and with this
+document:
+
+1. **`docs/orchard/lifecycle.mmd`**, embedded in `lifecycle.md`. Sixteen
+   machine states and two authority gates, the same shape this document uses.
+   Was missing a node for Step 14, live verification, entirely, and drew
+   almost everything past Gate 1 as solid, built edges.
+2. **`content/diagrams/orchard-lifecycle.mmd`**, rendered on the public
+   interactive guide site. Fourteen owner-mandate steps across three intake
+   lanes. Draws the same overstatement: its `currencyRecord`-`issue1` edge and
+   everything from `approvedTracker` through `commitPush` are solid, though
+   only two of those (the currency edge and the tracker-item creation on
+   approval) are even reachable enough to have a specific issue number, I-12
+   and I-04; the rest are simply `NO RUNTIME` per Steps 7 through 13 above.
+
+**Resolution.** Both diagrams describe the same lifecycle at different
+altitudes and are meant to keep existing side by side; deleting either loses
+an audience (this document's technical reader, or the public site's
+narrative reader). What made them "conflicting" was not that two exist, it
+is that both told a story the code disproves. `lifecycle.mmd` is corrected:
+it now has a node for Step 14 and every step this document marks `NO
+RUNTIME` or `NOT BUILT` is styled dashed. `content/diagrams/orchard-lifecycle.mmd`
+is not corrected here. Its data is `graph.ts` in `guide.project-42.dev`,
+application code in a different repository, and its SVG is checksum-pinned
+in `content/diagrams/catalogue.json`; editing the Mermaid source without
+regenerating the SVG and updating that hash would fail the site's own
+consistency check rather than fix anything, and this is a documentation
+change with no build tooling available to it. **Follow-up:** apply the same
+`pending: true` treatment `graph.ts` already uses for `requestIntake` and
+`verifyLive` to `currencyRecord`, `approvedTracker`, `orchestration`,
+`storeWritten`, `issue2`, `gate2`, `rework` and `commitPush`, regenerate
+`public/diagrams/orchard-lifecycle.svg`, and update its `sourceSha256` and
+`svgSha256` in `content/diagrams/catalogue.json`. Tracked against T9, which
+already owns that diagram's dead links.
 
 ---
 
