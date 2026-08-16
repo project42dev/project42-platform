@@ -24,10 +24,13 @@ On 2026-08-14 the solution was reset to a never-run state ahead of its first
 full start-to-finish test. On 2026-08-15 the discovery track and the seeding
 job were deployed for the first time, completing the estate.
 
-**Nothing has ever completed the lifecycle end to end.** The publication and
-rendering tables in the content database are both empty. That is the single
-most useful fact on this page, and it is why several rows below stop short of
-Verified.
+**Nothing has ever completed the lifecycle end to end.** The
+`publication_transaction` table in the deployed workflow database has never
+held a row. That is the single most useful fact on this page, and it is why
+several rows below stop short of Verified. (Earlier revisions of this page
+reported on `publication` and `rendering`, which exist only in the
+developer-local content database and were never part of the deployed schema;
+a count read from a table production does not have measures nothing.)
 
 ## Where things stand
 
