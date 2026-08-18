@@ -1,0 +1,103 @@
+## 1. Mermaid diagram source
+
+```mermaid
+flowchart TB
+    R["INTERMEDIATE TRACE EXERCISE<br/>Illustrative models only<br/>Assume the starting node emits a faulty output<br/>Affected means receiving that output"]
+
+    subgraph CENTRAL["Illustrative centralized coordination"]
+        C0["Coordinator<br/>faulty start<br/>assigns model tasks and combines model results"]
+        C1["Agent 1<br/>affected"]
+        C2["Agent 2<br/>affected"]
+        C3["Agent 3<br/>affected"]
+        C0 -->|task marked faulty| C1
+        C0 -->|task marked faulty| C2
+        C0 -->|task marked faulty| C3
+        C1 -->|result returns| C0
+        C2 -->|result returns| C0
+        C3 -->|result returns| C0
+    end
+
+    subgraph SEQUENTIAL["Illustrative sequential handoff"]
+        S1["Agent A<br/>faulty start"]
+        S2["Agent B<br/>affected"]
+        S3["Agent C<br/>affected"]
+        S1 -->|output handed forward| S2
+        S2 -->|output handed forward| S3
+    end
+
+    subgraph PARALLEL["Illustrative parallel fan-out and convergence"]
+        P0["Dispatcher<br/>faulty start<br/>assigns model tasks"]
+        P1["Agent X<br/>affected"]
+        P2["Agent Y<br/>affected"]
+        P3["Agent Z<br/>affected"]
+        P4["Collector<br/>affected<br/>combines model results"]
+        P0 -->|task marked faulty| P1
+        P0 -->|task marked faulty| P2
+        P0 -->|task marked faulty| P3
+        P1 -->|result converges| P4
+        P2 -->|result converges| P4
+        P3 -->|result converges| P4
+    end
+
+    subgraph PEER["Illustrative peer-to-peer interaction"]
+        A["Peer A<br/>faulty start"]
+        B["Peer B<br/>affected"]
+        C["Peer C<br/>affected"]
+        D["Peer D<br/>affected"]
+        A -->|output sent| B
+        A -->|output sent| C
+        B -->|output sent| D
+        C -->|output sent| D
+        D -->|feedback sent| A
+    end
+
+    R -->|apply assumption| C0
+    R -->|apply assumption| S1
+    R -->|apply assumption| P0
+    R -->|apply assumption| A
+```
+
+## 2. Catalogue entry
+
+```yaml
+title: "Multi-agent topologies and failure amplification: intermediate trace exercise"
+category: "UNKNOWN"
+summary: "An intermediate diagram for tracing one stipulated faulty output through four author-created coordination arrangements."
+description: "Intermediate level. The diagram presents centralized coordination, sequential handoff, parallel fan-out with convergence, and peer-to-peer interaction as illustrative models created for this guide. They are not asserted to be a documented taxonomy. In every model, the exercise assumes that the named starting node emits a faulty output and defines an affected node as one that receives that output. The arrows stipulate where outputs travel inside the exercise. The image makes no claim that a deployed system uses these arrangements, that every received fault changes a recipient's behavior, or that one arrangement is safer than another. Comparative risk, real-world propagation mechanisms, mitigations, and a standard definition of failure amplification remain UNKNOWN and are therefore omitted."
+altText: "Four grouped flow models appear below a reading-rule node. The reading-rule node says this is an intermediate, illustrative exercise, assumes that a starting node emits a faulty output, and defines affected as receiving that output. An arrow applies that assumption to the starting node in each group. In the centralized-coordination group, the Coordinator is the faulty start and is assigned the model responsibilities of assigning tasks and combining results. Arrows carrying tasks marked faulty travel outward from the Coordinator to Agent 1, Agent 2, and Agent 3, all named affected. Separate result arrows travel from each agent back to the Coordinator. In the sequential-handoff group, an output travels from Agent A, the faulty start, to affected Agent B and then from Agent B to affected Agent C. In the parallel fan-out and convergence group, the Dispatcher is the faulty start and assigns model tasks. Three arrows carrying tasks marked faulty travel from the Dispatcher to affected Agent X, Agent Y, and Agent Z. Result arrows from those three agents converge on the affected Collector, which combines model results. In the peer-to-peer group, Peer A is the faulty start. Output arrows travel from Peer A to affected Peer B and affected Peer C. Arrows then travel from Peer B and Peer C to affected Peer D. A feedback arrow travels from Peer D to Peer A. Each visual group is an author-created model rather than a documented classification."
+caption: "Trace the stipulated faulty output along each arrow, then compare where the paths branch, converge, or return to an earlier node."
+takeaways:
+  - "A topology drawing should make its assumed communication directions and coordination responsibilities explicit."
+  - "Within this exercise, branching exposes more than one node to the same stipulated faulty output, convergence brings several result paths into one node, and feedback returns a path to an earlier node."
+  - "The diagrams support structural tracing only. They do not establish how frequently faults propagate or rank the arrangements by risk."
+  - "Illustrative models must not be presented as an evidence-backed taxonomy."
+```
+
+## Retry handling
+
+The quoted refusal identifies only an ensemble status and a proposal filename. It does not provide the rejected artifact or the reason for rejection. This retry therefore avoids unsupported real-world claims and presents each arrangement explicitly as an author-created trace model. Whether any wording or structure duplicates the unavailable rejected artifact is CANNOT VERIFY.
+
+## Sources
+
+1. Mermaid, “Flowcharts Syntax.”  
+   https://mermaid.js.org/syntax/flowchart.html  
+   Access check attempted 2026-08-18: CANNOT VERIFY because network access is unavailable.
+
+No topical source is cited. The diagram’s relationships are declared assumptions of an illustrative exercise, not claims about observed or documented multi-agent systems.
+
+**ASSUMPTIONS.**
+
+- The catalogue entry is serialized as YAML because no required serialization was supplied.
+- `takeaways` is represented as a list because its required field type was not supplied.
+- `category` is set to `UNKNOWN` because no category taxonomy was supplied.
+- The diagram assumes that arrows denote output travel only within its declared hypothetical models.
+- The source uses conservative flowchart syntax, but compatibility with the estate’s unspecified renderer is CANNOT VERIFY without a render test.
+- “Intermediate level” is treated as requiring explicit terminology plus enough explanation to trace branching, convergence, and feedback. No estate audience rubric was supplied.
+
+**OMITTED.**
+
+- A source-supported definition of multi-agent system, topology, failure amplification, or cascading failure was omitted because none was verified.
+- Claims that the four arrangements form a documented taxonomy were omitted.
+- Real-world failure mechanisms, comparative risk rankings, containment measures, retry limits, validation, independent checking, and human review were omitted because the supplied research did not support them.
+- A guarantee that the cited URL currently resolves and that the diagram renders in the estate’s renderer was omitted because network access, renderer details, and a render test were unavailable.
+- Specific comparison with the previous rejected content was omitted because neither that content nor its review findings were supplied.
