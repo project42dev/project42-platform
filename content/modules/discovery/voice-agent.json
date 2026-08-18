@@ -1,0 +1,310 @@
+# Voice agents, virtual instructors, and accessible media
+
+**Level: Intermediate**
+
+This lesson assumes that you can already describe a basic conversational interface and create ordinary audio or video content. You do not need experience with a particular platform or programming language.
+
+## Learning objectives
+
+By the end of the lesson, you should be able to:
+
+1. Model a voice-based learning interaction as a sequence of observable stages.
+2. Design a virtual instructor that lets learners recover from recognition, content, and navigation errors.
+3. Match audio and video content with appropriate captions, transcripts, descriptions, and controls.
+4. Create an evaluation plan covering instruction, accessibility, privacy, and operational failure.
+5. Explain why a voice interface must not be the only route through a learning experience.
+
+## 1. Treat the experience as a system
+
+For this lesson, a **voice agent** is an interface through which a learner speaks or listens during an interaction. A **virtual instructor** is the instructional role presented through that interface. The two are related, but they are not identical.
+
+A useful working model has six stages:
+
+1. **Input:** The learner speaks, types, selects a control, or uses another supported input method.
+2. **Interpretation:** The system forms a representation of the learner’s request.
+3. **Instructional decision:** The system selects an explanation, question, hint, or action.
+4. **Response construction:** It prepares the content to present.
+5. **Presentation:** It delivers speech, text, media, or a combination.
+6. **Confirmation and recovery:** The learner confirms, corrects, repeats, pauses, or changes mode.
+
+This is a design model for the lesson, not a claim that every implementation uses these exact stages.
+
+Do not hide the stages behind a single label such as “the assistant understood.” Record what entered each stage, what came out, and what the learner could do next. This makes failures diagnosable.
+
+### Example interaction record
+
+| Stage | Example record |
+|---|---|
+| Input | Learner asks for another example. |
+| Interpretation | Request classified as “request example.” |
+| Instructional decision | Select an example using a different context. |
+| Response construction | Prepare a short explanation and one check question. |
+| Presentation | Show text while presenting equivalent spoken content. |
+| Recovery | Offer repeat, slower delivery, text-only mode, and correction. |
+
+The final row is essential. A response that merely repeats itself does not provide a full recovery path.
+
+## 2. Give the learner control
+
+A virtual instructor should expose a small, consistent set of learner actions. Recommended actions include:
+
+- pause and resume;
+- repeat the last item;
+- move backward or forward;
+- request a shorter or more detailed explanation;
+- request an example;
+- correct the interpreted request;
+- switch between spoken and text interaction;
+- turn captions or descriptions on when those alternatives are available;
+- leave the interaction without losing already submitted work, where the learning design permits it.
+
+These are design recommendations, not universal technical capabilities.
+
+Avoid relying on open-ended speech for every task. For a consequential action, present the system’s interpretation and let the learner confirm or correct it. Examples include submitting an assessment, disclosing personal information, or replacing saved work.
+
+A useful confirmation pattern is:
+
+> “I understood your answer as: [interpreted answer]. Submit it, edit it, or try again?”
+
+Do not use confirmation after every harmless action. Excessive confirmation can interrupt the lesson. Decide which actions require it by considering the cost of an incorrect interpretation.
+
+## 3. Design the instructor, not just the voice
+
+The virtual instructor needs an explicit teaching policy. At minimum, define:
+
+- the learning objective for each activity;
+- what evidence counts as a successful response;
+- which misconceptions receive targeted feedback;
+- when to give a hint rather than an answer;
+- how many recovery attempts are allowed before offering another route;
+- how the learner can ask for human or non-conversational help;
+- which actions the instructor must never take automatically.
+
+Do not infer mastery from fluent speech, speaking speed, accent, confidence, or willingness to converse. Assess the evidence required by the learning objective.
+
+### Worked example
+
+Suppose the objective is:
+
+> Distinguish captions from transcripts.
+
+A weak instructor asks, “Do you understand?” A learner can answer yes without demonstrating the distinction.
+
+A stronger instructor asks:
+
+> “A recorded demonstration includes dialogue, alarms, and meaningful pauses. Which text alternative must be synchronized with the recording, and what information should it contain?”
+
+An acceptable answer should identify captions and should include both speech and meaningful non-speech audio. The Web Accessibility Initiative describes captions as synchronized text that includes speech and non-speech information needed to understand the content.[1]
+
+If the learner answers “a transcript,” the instructor can respond:
+
+> “A transcript is not normally synchronized with each moment of the recording. Try again: which alternative appears at the relevant time during playback?”
+
+The distinction matters because captions and transcripts serve different functions. The Web Accessibility Initiative describes transcripts as text versions of the information in audio or audiovisual content and notes that an interactive transcript can highlight text as it is spoken.[2]
+
+## 4. Build accessible media as a set of alternatives
+
+Accessible media is not achieved by adding a transcript alone. The required alternatives depend on what the original media communicates.
+
+### Audio-only material
+
+For prerecorded audio-only content, provide a transcript containing the information needed to understand the audio. This includes relevant dialogue, speaker identification when needed for understanding, and meaningful non-speech sounds.[2]
+
+### Video with important audio
+
+Provide captions synchronized with the video. Captions need to communicate relevant speech and non-speech audio, not merely a rough summary of the dialogue.[1]
+
+### Video with important visual information
+
+If information needed to understand the lesson appears only visually, provide that information through audio description or an equivalent media alternative. Audio description supplies information about important visual content that is not already conveyed by the main audio.[3]
+
+### Live audio
+
+If a live learning event contains audio needed for participation, plan a real-time text alternative. The Web Accessibility Initiative’s media guidance distinguishes accessibility work for live content from work on prerecorded content and identifies captions as an accessibility requirement covered by the Web Content Accessibility Guidelines.[4]
+
+### Player and interaction controls
+
+Media controls must be operable without requiring a particular input method. Web accessibility guidance requires functionality to be operable through a keyboard interface, subject to limited exceptions for input that depends on the path of movement rather than only its endpoints.[5]
+
+In practice, review the complete route through the activity:
+
+- Can the learner reach every control?
+- Is focus visible?
+- Are control names understandable without seeing their visual position?
+- Can the learner pause moving or time-dependent content?
+- Does switching mode preserve the learner’s place?
+- Is essential information available without sound?
+- Is essential information available without vision?
+
+The questions above form a review checklist. They do not establish that a particular implementation conforms to any legal or technical standard.
+
+## 5. Coordinate speech, text, and visual media
+
+Present equivalent information through different modes without forcing the learner to process all modes at once.
+
+For each instructor response, identify:
+
+1. **Core instructional content:** The proposition, question, or feedback the learner needs.
+2. **Mode-specific presentation:** Spoken phrasing, visible text, illustration, or animation.
+3. **Equivalent alternative:** The route that preserves the instructional meaning when a mode is unavailable.
+4. **Learner controls:** Pause, repeat, navigate, change speed, or switch mode.
+5. **Recovery response:** What happens when input is missing, ambiguous, or rejected.
+
+Do not assume that visible text is equivalent merely because it addresses the same topic. Compare the actual information. If the spoken response includes a warning, example, or correction that the visible response omits, the modes are not equivalent for that interaction.
+
+Likewise, captions should not be used to carry information that hearing learners receive visually rather than through audio. Important visual information needs a visual description or another equivalent presentation.[3]
+
+## 6. Make uncertainty visible and recoverable
+
+Use explicit states rather than pretending every interpretation is correct.
+
+A simple interaction can have these states:
+
+- **ready;**
+- **receiving input;**
+- **interpreted;**
+- **awaiting confirmation;**
+- **presenting;**
+- **paused;**
+- **needs clarification;**
+- **cannot continue;**
+- **completed.**
+
+For every state, specify:
+
+- what the learner is told;
+- which actions are available;
+- what data is retained;
+- how the learner returns to the lesson;
+- whether another interaction mode is available.
+
+Example clarification:
+
+> “I could not determine whether you asked for a definition or an example. Choose ‘definition,’ choose ‘example,’ or type your request.”
+
+Example terminal recovery:
+
+> “This activity cannot continue by voice. Your completed responses are preserved. Continue with text or return to the lesson menu.”
+
+These messages should describe the state and available actions. Do not blame the learner.
+
+## 7. Minimize data before selecting technology
+
+Voice interactions can involve submitted audio, interpreted text, conversation history, assessment responses, and operational records. Before implementation, document which of those categories the learning activity actually needs.
+
+For each category, answer:
+
+- Why is it collected?
+- Is it needed to deliver the lesson, evaluate learning, investigate failures, or serve another stated purpose?
+- Who can access it?
+- How long is it retained?
+- Can the activity operate without it?
+- What does the learner see before collection?
+- How can an authorized correction or deletion request be handled?
+
+The National Institute of Standards and Technology identifies privacy enhancement, transparency, accountability, explainability, safety, security, validity, reliability, and management of harmful bias among the characteristics considered in trustworthy AI risk management.[6] That framework does not determine the legal obligations of a particular learning service.
+
+The applicable legal requirements are **UNKNOWN** because no jurisdiction, institution, learner population, or deployment context was supplied. They are therefore not asserted in this lesson.
+
+## 8. Evaluate the complete learning route
+
+Evaluate real tasks, not isolated output quality. Create a test matrix that crosses learner goals with interaction modes and failure conditions.
+
+| Dimension | Example question | Evidence to collect |
+|---|---|---|
+| Instruction | Can the learner demonstrate the stated objective? | Responses scored against an objective-specific rubric |
+| Interpretation | Can the learner inspect and correct the interpreted input? | Successful corrections and unresolved cases |
+| Navigation | Can the learner pause, resume, repeat, and exit? | Task completion records and observed barriers |
+| Mode switching | Can the learner move between voice and text without losing context? | Preserved position and preserved submitted work |
+| Captions | Do synchronized captions include meaningful speech and sound information? | Human review against the media |
+| Transcript | Does the transcript preserve the information needed from the audio? | Human comparison with the source media |
+| Visual description | Is important visual-only information available through an alternative? | Review by someone who does not use the visuals |
+| Recovery | Does each failure state offer a usable next action? | Completion through deliberately induced failures |
+| Privacy | Is every collected data category tied to a documented purpose? | Data inventory and review record |
+
+Set acceptance thresholds before testing. No universal numerical threshold is supplied here, so any pass rate, error rate, response time, or sample size is **UNKNOWN** and is not asserted.
+
+Include participants who use the supported alternatives. A keyboard check performed by a designer does not replace evaluation of the full learning route with the intended audience. The Web Accessibility Initiative distinguishes evaluation by tools from evaluation by people and states that tools alone cannot determine accessibility.[7]
+
+## 9. Design exercise
+
+You are designing a five-minute video lesson followed by a spoken knowledge check. The video contains:
+
+- narration;
+- a diagram whose arrows change during the explanation;
+- an alert sound that signals an incorrect path;
+- a final question answered by voice.
+
+Produce a design specification containing:
+
+1. the accessible alternatives for the video;
+2. the controls available during playback;
+3. the confirmation step for the final answer;
+4. one clarification response;
+5. one non-voice route through the knowledge check;
+6. the data categories collected and the purpose of each;
+7. the evidence used to determine whether the learner met the objective.
+
+### Model response
+
+- Provide synchronized captions covering narration and the meaningful alert sound.[1]
+- Provide a transcript containing the instructional information from the audio.[2]
+- Convey the changing arrows through integrated narration, audio description, or another equivalent presentation because they carry visual information needed for the lesson.[3]
+- Make playback controls reachable and operable through a keyboard interface.[5]
+- After interpreting the final answer, display and speak the interpretation, then offer submit, edit, and try-again actions.
+- If the answer is ambiguous, ask a question that presents the specific alternatives rather than requesting an unrestricted repetition.
+- Provide a text field or selectable answer route that assesses the same objective.
+- Record each required data category and its declared purpose before implementation. Do not collect a category merely because the implementation can produce it.
+- Score the final answer against a rubric tied to the learning objective rather than against speaking style.
+
+## Summary
+
+An effective voice-based learning experience is more than generated speech. It is an instructional system with inspectable stages, explicit learner controls, equivalent media alternatives, recoverable failure states, and evidence tied to learning objectives.
+
+Use the following sequence:
+
+1. Define the objective.
+2. Model the interaction stages.
+3. Specify the instructor’s teaching and recovery policies.
+4. Provide text, caption, transcript, and visual-description routes where the content requires them.
+5. Preserve learner control across modes.
+6. Minimize and document data collection.
+7. Evaluate complete tasks, including deliberately induced failures.
+
+## Sources
+
+All source-content checks were performed on **2026-08-18**. Live URL resolution is **CANNOT VERIFY** because this authoring environment has no network access.
+
+1. World Wide Web Consortium, Web Accessibility Initiative, “Captions/Subtitles.”  
+   https://www.w3.org/WAI/media/av/captions/
+
+2. World Wide Web Consortium, Web Accessibility Initiative, “Transcripts.”  
+   https://www.w3.org/WAI/media/av/transcripts/
+
+3. World Wide Web Consortium, Web Accessibility Initiative, “Audio Description of Visual Information.”  
+   https://www.w3.org/WAI/media/av/description/
+
+4. World Wide Web Consortium, Web Accessibility Initiative, “Making Audio and Video Media Accessible.”  
+   https://www.w3.org/WAI/media/av/
+
+5. World Wide Web Consortium, Web Accessibility Initiative, “Keyboard Compatibility.”  
+   https://www.w3.org/WAI/WCAG21/Understanding/keyboard
+
+6. National Institute of Standards and Technology, “AI Risk Management Framework.”  
+   https://www.nist.gov/itl/ai-risk-management-framework
+
+7. World Wide Web Consortium, Web Accessibility Initiative, “Selecting Web Accessibility Evaluation Tools.”  
+   https://www.w3.org/WAI/test-evaluate/tools/selecting/
+
+## ASSUMPTIONS.
+
+- “Intermediate” means the learner understands basic conversational interfaces and ordinary media production but does not know a particular implementation platform.
+- No jurisdiction, deployment context, learner population, institutional policy, or technical stack was supplied.
+- The previous proposal’s content and the authoring ensemble’s underlying reasons were not supplied. Only the refusal notice was available. Reproducing or comparing the previous content was therefore impossible. This retry uses an original, standards-led structure centered on system stages, recovery design, equivalent media, and evaluation.
+- Generic terms such as speech recognition, captions, transcripts, keyboard interface, and audio description refer to techniques or media forms, not named tools or products.
+
+## OMITTED.
+
+- Product-specific implementation instructions, tool names, configuration keys, and platform settings were omitted because none were established by the supplied material.
+- Numerical performance thresholds and test sample sizes were omitted because no supportable values were supplied.
+- Legal compliance conclusions were omitted because the applicable jurisdiction and deployment context are UNKNOWN.
