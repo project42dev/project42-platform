@@ -209,6 +209,19 @@
         "name": "Self-Hosted Model Operator",
         "description": "Demonstrated evidence-based operation of a self-hosted model endpoint from artifact decision through recovery."
       }
+    },
+    {
+      "id": "discovery",
+      "title": "Newly Discovered Topics",
+      "summary": "Modules proposed by the monthly discovery run and approved by the owner, gathered here as each one is published.",
+      "audience": "Learners who want emerging tools, protocols, and practice covered as they appear, before they settle into a curated path.",
+      "level": "intermediate",
+      "moduleIds": [],
+      "badge": {
+        "id": "badge-discovery",
+        "name": "Emerging Practice",
+        "description": "Completed the discovered modules covering tooling and practice that entered the corpus this cycle."
+      }
     }
   ],
   "modules": [
@@ -217,14 +230,18 @@
       "title": "Anthropic in Practice",
       "summary": "Map Claude chat, API, and coding-agent workflows to the right job.",
       "level": "intermediate",
-      "providers": ["anthropic"],
+      "providers": [
+        "anthropic"
+      ],
       "estimatedMinutes": 18,
       "objectives": [
         "Separate conversational, API, and coding-agent use cases.",
         "Choose context and tool boundaries deliberately.",
         "Verify current model and product availability."
       ],
-      "prerequisites": ["agents-and-guardrails"],
+      "prerequisites": [
+        "agents-and-guardrails"
+      ],
       "sections": [
         {
           "id": "anthropic-surfaces",
@@ -248,14 +265,22 @@
           {
             "id": "q-anthropic-1",
             "prompt": "What should drive the choice between chat, API, and coding agent?",
-            "choices": ["The longest product name", "The workflow, control, and integration requirements", "A single default for every task"],
+            "choices": [
+              "The longest product name",
+              "The workflow, control, and integration requirements",
+              "A single default for every task"
+            ],
             "answerIndex": 1,
             "explanation": "The operating surface should match how the work is performed and controlled."
           },
           {
             "id": "q-anthropic-2",
             "prompt": "How should volatile model details be presented?",
-            "choices": ["Without dates", "With official sources and verification dates", "As permanent platform rules"],
+            "choices": [
+              "Without dates",
+              "With official sources and verification dates",
+              "As permanent platform rules"
+            ],
             "answerIndex": 1,
             "explanation": "Source links and verification dates make changing claims auditable."
           }
@@ -275,14 +300,18 @@
       "title": "OpenAI in Practice",
       "summary": "Understand conversational, API, and Codex workflows without conflating them.",
       "level": "intermediate",
-      "providers": ["openai"],
+      "providers": [
+        "openai"
+      ],
       "estimatedMinutes": 18,
       "objectives": [
         "Separate ChatGPT, API, and Codex use cases.",
         "Design around tools and structured outputs.",
         "Verify current models and platform behavior."
       ],
-      "prerequisites": ["agents-and-guardrails"],
+      "prerequisites": [
+        "agents-and-guardrails"
+      ],
       "sections": [
         {
           "id": "openai-surfaces",
@@ -306,14 +335,22 @@
           {
             "id": "q-openai-1",
             "prompt": "What is the safest way for software to consume model output?",
-            "choices": ["Parse whatever prose appears", "Use a structured contract and validate it", "Assume every response has the same shape"],
+            "choices": [
+              "Parse whatever prose appears",
+              "Use a structured contract and validate it",
+              "Assume every response has the same shape"
+            ],
             "answerIndex": 1,
             "explanation": "Structured, validated output creates an explicit application boundary."
           },
           {
             "id": "q-openai-2",
             "prompt": "Why distinguish ChatGPT, API, and Codex workflows?",
-            "choices": ["They have different operating and control models", "They always use unrelated providers", "There is no practical difference"],
+            "choices": [
+              "They have different operating and control models",
+              "They always use unrelated providers",
+              "There is no practical difference"
+            ],
             "answerIndex": 0,
             "explanation": "The surfaces differ in interaction, integration, permissions, and operations."
           }
@@ -339,14 +376,22 @@
       "title": "Choose a Provider Deliberately",
       "summary": "Use requirements and evaluation evidence instead of loyalty or a static leaderboard.",
       "level": "intermediate",
-      "providers": ["provider-neutral", "anthropic", "openai", "google"],
+      "providers": [
+        "provider-neutral",
+        "anthropic",
+        "openai",
+        "google"
+      ],
       "estimatedMinutes": 20,
       "objectives": [
         "Create a task-specific provider evaluation.",
         "Include security, data, cost, and operational requirements.",
         "Use different model families when independent review matters."
       ],
-      "prerequisites": ["anthropic-in-practice", "openai-in-practice"],
+      "prerequisites": [
+        "anthropic-in-practice",
+        "openai-in-practice"
+      ],
       "sections": [
         {
           "id": "decision-criteria",
@@ -370,14 +415,22 @@
           {
             "id": "q-provider-1",
             "prompt": "What is the strongest provider-selection method?",
-            "choices": ["A general leaderboard alone", "Task-specific evaluation plus operational requirements", "Whichever provider was selected first"],
+            "choices": [
+              "A general leaderboard alone",
+              "Task-specific evaluation plus operational requirements",
+              "Whichever provider was selected first"
+            ],
             "answerIndex": 1,
             "explanation": "Representative tasks and operational constraints measure fit for the actual workflow."
           },
           {
             "id": "q-provider-2",
             "prompt": "Why use a different model family for important review?",
-            "choices": ["To guarantee correctness", "To reduce correlated blind spots", "To avoid writing tests"],
+            "choices": [
+              "To guarantee correctness",
+              "To reduce correlated blind spots",
+              "To avoid writing tests"
+            ],
             "answerIndex": 1,
             "explanation": "Cross-family review adds independence but still requires objective checks."
           }
@@ -397,7 +450,9 @@
       "title": "Design a Bounded Agent Loop",
       "summary": "Turn a goal into an observable plan-act-check loop with explicit state, budgets, approvals, and stopping conditions.",
       "level": "intermediate",
-      "providers": ["provider-neutral"],
+      "providers": [
+        "provider-neutral"
+      ],
       "estimatedMinutes": 42,
       "objectives": [
         "Distinguish a fixed workflow from a model-directed agent loop.",
@@ -405,7 +460,9 @@
         "Implement deterministic success, escalation, and budget-based stopping conditions.",
         "Prevent untrusted observations from changing the agent's authority."
       ],
-      "prerequisites": ["agents-and-guardrails"],
+      "prerequisites": [
+        "agents-and-guardrails"
+      ],
       "sections": [
         {
           "id": "bounded-work-order",
@@ -470,23 +527,92 @@
         "schemaVersion": "1.1",
         "estimatedSeconds": 1260,
         "cues": [
-          {"id": "cue-loop-work-order", "kind": "narration", "sectionId": "bounded-work-order", "text": "Begin with a success contract that removes hidden decisions and names the evidence required to finish."},
-          {"id": "cue-loop-trust", "kind": "narration", "sectionId": "trust-boundaries", "text": "Keep authority in trusted policy while treating retrieved instructions as untrusted observations."},
-          {"id": "cue-loop-state", "kind": "narration", "sectionId": "loop-state", "text": "Model each iteration as an observable state transition from inspect to decide to act to verify."},
-          {"id": "cue-loop-visual", "kind": "visual", "sectionId": "loop-state", "text": "Animate inspect, decide, authorize, act, verify, and stop around a state ledger.", "accessibilityAlternative": "A text sequence lists inspect, decide, authorize, act, verify, and stop, with every step writing to a state ledger. Reduced-motion mode shows the complete sequence at once."},
-          {"id": "cue-loop-stop", "kind": "narration", "sectionId": "stop-and-recover", "text": "Use deterministic success, escalation, no-progress, policy, and budget terminals before uncertainty compounds."},
-          {"id": "cue-loop-prompt", "kind": "learner-prompt", "sectionId": "stop-and-recover", "text": "Ask learners to identify which terminal state handles repeated tool failure without claiming success."},
-          {"id": "cue-loop-pause", "kind": "pause", "sectionId": "stop-and-recover", "text": "Allow two minutes to add a no-progress detector and recovery state to the learner's loop."},
-          {"id": "cue-loop-checkpoint", "kind": "checkpoint", "sectionId": "stop-and-recover", "text": "Check that completion depends on independently observed evidence rather than model narration."},
-          {"id": "cue-loop-activity", "kind": "learner-prompt", "text": "Guide the five-scenario loop simulation and require the transition log as evidence."},
-          {"id": "cue-loop-assessment", "kind": "assessment-handoff", "text": "Begin the check after the learner can explain each state, budget, approval, and terminal condition."}
+          {
+            "id": "cue-loop-work-order",
+            "kind": "narration",
+            "sectionId": "bounded-work-order",
+            "text": "Begin with a success contract that removes hidden decisions and names the evidence required to finish."
+          },
+          {
+            "id": "cue-loop-trust",
+            "kind": "narration",
+            "sectionId": "trust-boundaries",
+            "text": "Keep authority in trusted policy while treating retrieved instructions as untrusted observations."
+          },
+          {
+            "id": "cue-loop-state",
+            "kind": "narration",
+            "sectionId": "loop-state",
+            "text": "Model each iteration as an observable state transition from inspect to decide to act to verify."
+          },
+          {
+            "id": "cue-loop-visual",
+            "kind": "visual",
+            "sectionId": "loop-state",
+            "text": "Animate inspect, decide, authorize, act, verify, and stop around a state ledger.",
+            "accessibilityAlternative": "A text sequence lists inspect, decide, authorize, act, verify, and stop, with every step writing to a state ledger. Reduced-motion mode shows the complete sequence at once."
+          },
+          {
+            "id": "cue-loop-stop",
+            "kind": "narration",
+            "sectionId": "stop-and-recover",
+            "text": "Use deterministic success, escalation, no-progress, policy, and budget terminals before uncertainty compounds."
+          },
+          {
+            "id": "cue-loop-prompt",
+            "kind": "learner-prompt",
+            "sectionId": "stop-and-recover",
+            "text": "Ask learners to identify which terminal state handles repeated tool failure without claiming success."
+          },
+          {
+            "id": "cue-loop-pause",
+            "kind": "pause",
+            "sectionId": "stop-and-recover",
+            "text": "Allow two minutes to add a no-progress detector and recovery state to the learner's loop."
+          },
+          {
+            "id": "cue-loop-checkpoint",
+            "kind": "checkpoint",
+            "sectionId": "stop-and-recover",
+            "text": "Check that completion depends on independently observed evidence rather than model narration."
+          },
+          {
+            "id": "cue-loop-activity",
+            "kind": "learner-prompt",
+            "text": "Guide the five-scenario loop simulation and require the transition log as evidence."
+          },
+          {
+            "id": "cue-loop-assessment",
+            "kind": "assessment-handoff",
+            "text": "Begin the check after the learner can explain each state, budget, approval, and terminal condition."
+          }
         ],
         "transcript": "Begin with a success contract that removes hidden decisions and names the evidence required to finish. Keep authority in trusted policy while treating retrieved instructions as untrusted observations. Model each iteration as an observable state transition from inspect to decide to act to verify. Use deterministic success, escalation, no-progress, policy, and budget terminals before uncertainty compounds.",
         "captions": [
-          {"cueId": "cue-loop-work-order", "startSeconds": 0, "endSeconds": 210, "text": "Begin with a success contract that removes hidden decisions and names the evidence required to finish."},
-          {"cueId": "cue-loop-trust", "startSeconds": 240, "endSeconds": 450, "text": "Keep authority in trusted policy while treating retrieved instructions as untrusted observations."},
-          {"cueId": "cue-loop-state", "startSeconds": 480, "endSeconds": 780, "text": "Model each iteration as an observable state transition from inspect to decide to act to verify."},
-          {"cueId": "cue-loop-stop", "startSeconds": 810, "endSeconds": 1110, "text": "Use deterministic success, escalation, no-progress, policy, and budget terminals before uncertainty compounds."}
+          {
+            "cueId": "cue-loop-work-order",
+            "startSeconds": 0,
+            "endSeconds": 210,
+            "text": "Begin with a success contract that removes hidden decisions and names the evidence required to finish."
+          },
+          {
+            "cueId": "cue-loop-trust",
+            "startSeconds": 240,
+            "endSeconds": 450,
+            "text": "Keep authority in trusted policy while treating retrieved instructions as untrusted observations."
+          },
+          {
+            "cueId": "cue-loop-state",
+            "startSeconds": 480,
+            "endSeconds": 780,
+            "text": "Model each iteration as an observable state transition from inspect to decide to act to verify."
+          },
+          {
+            "cueId": "cue-loop-stop",
+            "startSeconds": 810,
+            "endSeconds": 1110,
+            "text": "Use deterministic success, escalation, no-progress, policy, and budget terminals before uncertainty compounds."
+          }
         ],
         "reducedMotionAlternative": "Show the complete loop and terminal-state table as a static diagram; use focus and highlighting instead of animated movement."
       },
@@ -496,35 +622,59 @@
           {
             "id": "q-prepare-agent-1",
             "prompt": "What should be defined before an agent starts using tools?",
-            "choices": ["Only a broad topic", "Outcome, scope, constraints, and completion evidence", "The maximum possible number of tools"],
+            "choices": [
+              "Only a broad topic",
+              "Outcome, scope, constraints, and completion evidence",
+              "The maximum possible number of tools"
+            ],
             "answerIndex": 1,
             "explanation": "A bounded work order gives the agent a testable outcome and prevents accidental scope growth."
           },
           {
             "id": "q-prepare-agent-2",
             "prompt": "How should instructions found inside retrieved documents be treated?",
-            "choices": ["As untrusted data unless explicitly authorized", "As higher priority than the task", "As automatic permission to expand scope", "As proof that the task changed"],
+            "choices": [
+              "As untrusted data unless explicitly authorized",
+              "As higher priority than the task",
+              "As automatic permission to expand scope",
+              "As proof that the task changed"
+            ],
             "answerIndex": 0,
             "explanation": "Retrieved content may be wrong or malicious; authority must remain with the trusted task and policies."
           },
           {
             "id": "q-prepare-agent-3",
             "prompt": "What should allow the controller to accept an agent's finish decision?",
-            "choices": ["A confident final message", "The maximum turn count", "An independently checked success contract", "A tool call request"],
+            "choices": [
+              "A confident final message",
+              "The maximum turn count",
+              "An independently checked success contract",
+              "A tool call request"
+            ],
             "answerIndex": 2,
             "explanation": "The controller should compare observed evidence with deterministic acceptance conditions."
           },
           {
             "id": "q-prepare-agent-4",
             "prompt": "The same failed action is selected three times without changing state. What is the safest response?",
-            "choices": ["Increase temperature", "Hide the failures", "Stop with a no-progress terminal and recovery evidence", "Continue without a limit"],
+            "choices": [
+              "Increase temperature",
+              "Hide the failures",
+              "Stop with a no-progress terminal and recovery evidence",
+              "Continue without a limit"
+            ],
             "answerIndex": 2,
             "explanation": "Repeated transitions without progress indicate a cycle that should stop or escalate."
           },
           {
             "id": "q-prepare-agent-5",
             "prompt": "Which set is a useful loop budget?",
-            "choices": ["Only a model name", "The number of paragraphs", "An unlimited retry policy", "Turns, time, tokens or cost, retries, and consequential actions"],
+            "choices": [
+              "Only a model name",
+              "The number of paragraphs",
+              "An unlimited retry policy",
+              "Turns, time, tokens or cost, retries, and consequential actions"
+            ],
             "answerIndex": 3,
             "explanation": "Multiple bounded resources prevent runaway cost, delay, and repeated side effects."
           }
@@ -550,7 +700,9 @@
       "title": "Design Typed Tool Contracts and Action Controls",
       "summary": "Give an agent narrow, validated interfaces and enforce authority, idempotency, verification, and recovery outside the model.",
       "level": "intermediate",
-      "providers": ["provider-neutral"],
+      "providers": [
+        "provider-neutral"
+      ],
       "estimatedMinutes": 45,
       "objectives": [
         "Define typed tool inputs, outputs, errors, and side effects.",
@@ -558,7 +710,9 @@
         "Apply least privilege and exact-target approval to consequential actions.",
         "Design idempotency, postcondition checks, and recovery for uncertain outcomes."
       ],
-      "prerequisites": ["prepare-agent-work"],
+      "prerequisites": [
+        "prepare-agent-work"
+      ],
       "sections": [
         {
           "id": "action-ladder",
@@ -619,23 +773,92 @@
         "schemaVersion": "1.1",
         "estimatedSeconds": 1350,
         "cues": [
-          {"id": "cue-tool-risk", "kind": "narration", "sectionId": "action-ladder", "text": "Classify tool calls by data access, reversibility, external impact, cost, permission change, and destruction."},
-          {"id": "cue-tool-contract", "kind": "narration", "sectionId": "typed-tool-contract", "text": "Treat the schema as a narrow API contract while keeping authorization and policy in trusted application code."},
-          {"id": "cue-tool-schema-visual", "kind": "visual", "sectionId": "typed-tool-contract", "text": "Build the contract from typed inputs through stable result and error variants.", "accessibilityAlternative": "A static table maps each input constraint to validation, authorization, side effect, and error handling. Reduced-motion mode reveals no moving elements."},
-          {"id": "cue-tool-approval", "kind": "narration", "sectionId": "approval-before-impact", "text": "Bind approval to the exact resolved target before a consequential or irreversible action."},
-          {"id": "cue-tool-executor", "kind": "narration", "sectionId": "validate-execute-verify", "text": "Place identity, validation, authorization, limits, execution, postcondition checks, and audit in a trusted executor."},
-          {"id": "cue-tool-prompt", "kind": "learner-prompt", "sectionId": "validate-execute-verify", "text": "Ask learners which control rejects a validly shaped request for another tenant's resource."},
-          {"id": "cue-tool-pause", "kind": "pause", "sectionId": "validate-execute-verify", "text": "Allow two minutes to add a semantic authorization test to the tool contract."},
-          {"id": "cue-tool-checkpoint", "kind": "checkpoint", "sectionId": "validate-execute-verify", "text": "Check that learners distinguish schema validity, authorization, approval, and postcondition evidence."},
-          {"id": "cue-tool-activity", "kind": "learner-prompt", "text": "Run the five threat cases and retain the contract and result table."},
-          {"id": "cue-tool-assessment", "kind": "assessment-handoff", "text": "Begin the check after every side effect has a validation, authorization, verification, and recovery control."}
+          {
+            "id": "cue-tool-risk",
+            "kind": "narration",
+            "sectionId": "action-ladder",
+            "text": "Classify tool calls by data access, reversibility, external impact, cost, permission change, and destruction."
+          },
+          {
+            "id": "cue-tool-contract",
+            "kind": "narration",
+            "sectionId": "typed-tool-contract",
+            "text": "Treat the schema as a narrow API contract while keeping authorization and policy in trusted application code."
+          },
+          {
+            "id": "cue-tool-schema-visual",
+            "kind": "visual",
+            "sectionId": "typed-tool-contract",
+            "text": "Build the contract from typed inputs through stable result and error variants.",
+            "accessibilityAlternative": "A static table maps each input constraint to validation, authorization, side effect, and error handling. Reduced-motion mode reveals no moving elements."
+          },
+          {
+            "id": "cue-tool-approval",
+            "kind": "narration",
+            "sectionId": "approval-before-impact",
+            "text": "Bind approval to the exact resolved target before a consequential or irreversible action."
+          },
+          {
+            "id": "cue-tool-executor",
+            "kind": "narration",
+            "sectionId": "validate-execute-verify",
+            "text": "Place identity, validation, authorization, limits, execution, postcondition checks, and audit in a trusted executor."
+          },
+          {
+            "id": "cue-tool-prompt",
+            "kind": "learner-prompt",
+            "sectionId": "validate-execute-verify",
+            "text": "Ask learners which control rejects a validly shaped request for another tenant's resource."
+          },
+          {
+            "id": "cue-tool-pause",
+            "kind": "pause",
+            "sectionId": "validate-execute-verify",
+            "text": "Allow two minutes to add a semantic authorization test to the tool contract."
+          },
+          {
+            "id": "cue-tool-checkpoint",
+            "kind": "checkpoint",
+            "sectionId": "validate-execute-verify",
+            "text": "Check that learners distinguish schema validity, authorization, approval, and postcondition evidence."
+          },
+          {
+            "id": "cue-tool-activity",
+            "kind": "learner-prompt",
+            "text": "Run the five threat cases and retain the contract and result table."
+          },
+          {
+            "id": "cue-tool-assessment",
+            "kind": "assessment-handoff",
+            "text": "Begin the check after every side effect has a validation, authorization, verification, and recovery control."
+          }
         ],
         "transcript": "Classify tool calls by data access, reversibility, external impact, cost, permission change, and destruction. Treat the schema as a narrow API contract while keeping authorization and policy in trusted application code. Bind approval to the exact resolved target before a consequential or irreversible action. Place identity, validation, authorization, limits, execution, postcondition checks, and audit in a trusted executor.",
         "captions": [
-          {"cueId": "cue-tool-risk", "startSeconds": 0, "endSeconds": 240, "text": "Classify tool calls by data access, reversibility, external impact, cost, permission change, and destruction."},
-          {"cueId": "cue-tool-contract", "startSeconds": 270, "endSeconds": 570, "text": "Treat the schema as a narrow API contract while keeping authorization and policy in trusted application code."},
-          {"cueId": "cue-tool-approval", "startSeconds": 600, "endSeconds": 870, "text": "Bind approval to the exact resolved target before a consequential or irreversible action."},
-          {"cueId": "cue-tool-executor", "startSeconds": 900, "endSeconds": 1230, "text": "Place identity, validation, authorization, limits, execution, postcondition checks, and audit in a trusted executor."}
+          {
+            "cueId": "cue-tool-risk",
+            "startSeconds": 0,
+            "endSeconds": 240,
+            "text": "Classify tool calls by data access, reversibility, external impact, cost, permission change, and destruction."
+          },
+          {
+            "cueId": "cue-tool-contract",
+            "startSeconds": 270,
+            "endSeconds": 570,
+            "text": "Treat the schema as a narrow API contract while keeping authorization and policy in trusted application code."
+          },
+          {
+            "cueId": "cue-tool-approval",
+            "startSeconds": 600,
+            "endSeconds": 870,
+            "text": "Bind approval to the exact resolved target before a consequential or irreversible action."
+          },
+          {
+            "cueId": "cue-tool-executor",
+            "startSeconds": 900,
+            "endSeconds": 1230,
+            "text": "Place identity, validation, authorization, limits, execution, postcondition checks, and audit in a trusted executor."
+          }
         ],
         "reducedMotionAlternative": "Present the tool-contract and trusted-executor stages as one static table with keyboard-focus highlights."
       },
@@ -645,35 +868,60 @@
           {
             "id": "q-control-agent-1",
             "prompt": "What is the safest default permission strategy?",
-            "choices": ["Grant every available tool", "Grant only the authority required for the task", "Reuse production administrator credentials", "Let the model create credentials"],
+            "choices": [
+              "Grant every available tool",
+              "Grant only the authority required for the task",
+              "Reuse production administrator credentials",
+              "Let the model create credentials"
+            ],
             "answerIndex": 1,
             "explanation": "Least privilege limits both mistakes and misuse while preserving the ability to complete the task."
           },
           {
             "id": "q-control-agent-2",
             "prompt": "When should approval occur for an external or destructive action?",
-            "choices": ["Before the action can cause impact", "Only after the action succeeds", "At the end of the month", "After an automatic retry"],
+            "choices": [
+              "Before the action can cause impact",
+              "Only after the action succeeds",
+              "At the end of the month",
+              "After an automatic retry"
+            ],
             "answerIndex": 0,
             "explanation": "Approval must happen while the reviewer can still prevent or change the action."
           },
           {
             "id": "q-control-agent-3",
             "prompt": "A tool call matches its JSON schema but targets a resource owned by another tenant. What must happen?",
-            "choices": ["Execute because the JSON is valid", "Authorize the resolved resource for the current identity and reject it", "Ask the model whether it feels safe", "Remove the resource ID"],
+            "choices": [
+              "Execute because the JSON is valid",
+              "Authorize the resolved resource for the current identity and reject it",
+              "Ask the model whether it feels safe",
+              "Remove the resource ID"
+            ],
             "answerIndex": 1,
             "explanation": "Schema validation does not replace object-level authorization."
           },
           {
             "id": "q-control-agent-4",
             "prompt": "A timeout occurs after a write may have succeeded. What should the controller do?",
-            "choices": ["Retry without limits", "Assume success from the model's narration", "Reconcile the idempotency key and actual postcondition before retrying", "Change the schema"],
+            "choices": [
+              "Retry without limits",
+              "Assume success from the model's narration",
+              "Reconcile the idempotency key and actual postcondition before retrying",
+              "Change the schema"
+            ],
             "answerIndex": 2,
             "explanation": "Unknown outcome requires reconciliation because a blind retry can duplicate the side effect."
           },
           {
             "id": "q-control-agent-5",
             "prompt": "Why should tool results be treated as untrusted data?",
-            "choices": ["They can contain stale, malformed, or malicious instructions", "They are always empty", "They cannot affect later decisions", "They replace authorization"],
+            "choices": [
+              "They can contain stale, malformed, or malicious instructions",
+              "They are always empty",
+              "They cannot affect later decisions",
+              "They replace authorization"
+            ],
             "answerIndex": 0,
             "explanation": "Results can mislead the model or carry prompt injection and must not change governing authority."
           }
@@ -705,7 +953,9 @@
       "title": "Operate, Recover, and Improve Agent Systems",
       "summary": "Classify failures across the full agent stack, contain impact, reconcile uncertain actions, recover safely, and turn incidents into verified improvements.",
       "level": "intermediate",
-      "providers": ["provider-neutral"],
+      "providers": [
+        "provider-neutral"
+      ],
       "estimatedMinutes": 56,
       "objectives": [
         "Distinguish model, prompt, tool, retrieval, data, policy, orchestration, and infrastructure failures.",
@@ -713,7 +963,9 @@
         "Recover with reconciliation, idempotency, rollback, replay, and human escalation.",
         "Convert operational evidence into tests, controls, runbook updates, and measured improvement."
       ],
-      "prerequisites": ["agent-observability"],
+      "prerequisites": [
+        "agent-observability"
+      ],
       "sections": [
         {
           "id": "classify-before-changing",
@@ -781,25 +1033,104 @@
         "schemaVersion": "1.1",
         "estimatedSeconds": 1680,
         "cues": [
-          {"id": "cue-operations-classify", "kind": "narration", "sectionId": "classify-before-changing", "text": "Classify model, prompt, tool, retrieval, data, policy, orchestration, and infrastructure evidence before choosing a fix."},
-          {"id": "cue-operations-contain", "kind": "narration", "sectionId": "triage-and-contain", "text": "Assess actual and potential impact, contain unsafe behavior, and preserve secret-safe evidence before it changes."},
-          {"id": "cue-operations-recover", "kind": "narration", "sectionId": "reconcile-and-recover", "text": "Reconcile unknown outcomes before bounded retry, compensation, rollback, replay, or escalation."},
-          {"id": "cue-operations-visual", "kind": "visual", "sectionId": "reconcile-and-recover", "text": "Move an uncertain tool action through contain, reconcile, decide, recover, verify, and close states.", "accessibilityAlternative": "A static decision table lists evidence and allowed actions for contain, reconcile, decide, recover, verify, and close. Reduced-motion mode shows every state."},
-          {"id": "cue-operations-runbook", "kind": "narration", "sectionId": "runbook-and-communication", "text": "Use a target-specific runbook and communicate confirmed facts, hypotheses, impact, actions, and required decisions separately."},
-          {"id": "cue-operations-improve", "kind": "narration", "sectionId": "learn-and-improve", "text": "Close after user-visible recovery, then turn the incident into regression tests, control changes, rehearsal, and recurrence measures."},
-          {"id": "cue-operations-prompt", "kind": "learner-prompt", "sectionId": "reconcile-and-recover", "text": "Ask learners why a timeout after a write must be classified as unknown rather than failed."},
-          {"id": "cue-operations-pause", "kind": "pause", "sectionId": "runbook-and-communication", "text": "Allow three minutes to add one exact rollback target and one human escalation trigger."},
-          {"id": "cue-operations-checkpoint", "kind": "checkpoint", "sectionId": "learn-and-improve", "text": "Check that closure proves the external postcondition and assigns every prevention action."},
-          {"id": "cue-operations-activity", "kind": "learner-prompt", "text": "Guide failure classification, containment, reconciliation, rollback, communication, and prevention work."},
-          {"id": "cue-operations-assessment", "kind": "assessment-handoff", "text": "Begin the check after the learner can recover without duplicate impact or unsupported completion claims."}
+          {
+            "id": "cue-operations-classify",
+            "kind": "narration",
+            "sectionId": "classify-before-changing",
+            "text": "Classify model, prompt, tool, retrieval, data, policy, orchestration, and infrastructure evidence before choosing a fix."
+          },
+          {
+            "id": "cue-operations-contain",
+            "kind": "narration",
+            "sectionId": "triage-and-contain",
+            "text": "Assess actual and potential impact, contain unsafe behavior, and preserve secret-safe evidence before it changes."
+          },
+          {
+            "id": "cue-operations-recover",
+            "kind": "narration",
+            "sectionId": "reconcile-and-recover",
+            "text": "Reconcile unknown outcomes before bounded retry, compensation, rollback, replay, or escalation."
+          },
+          {
+            "id": "cue-operations-visual",
+            "kind": "visual",
+            "sectionId": "reconcile-and-recover",
+            "text": "Move an uncertain tool action through contain, reconcile, decide, recover, verify, and close states.",
+            "accessibilityAlternative": "A static decision table lists evidence and allowed actions for contain, reconcile, decide, recover, verify, and close. Reduced-motion mode shows every state."
+          },
+          {
+            "id": "cue-operations-runbook",
+            "kind": "narration",
+            "sectionId": "runbook-and-communication",
+            "text": "Use a target-specific runbook and communicate confirmed facts, hypotheses, impact, actions, and required decisions separately."
+          },
+          {
+            "id": "cue-operations-improve",
+            "kind": "narration",
+            "sectionId": "learn-and-improve",
+            "text": "Close after user-visible recovery, then turn the incident into regression tests, control changes, rehearsal, and recurrence measures."
+          },
+          {
+            "id": "cue-operations-prompt",
+            "kind": "learner-prompt",
+            "sectionId": "reconcile-and-recover",
+            "text": "Ask learners why a timeout after a write must be classified as unknown rather than failed."
+          },
+          {
+            "id": "cue-operations-pause",
+            "kind": "pause",
+            "sectionId": "runbook-and-communication",
+            "text": "Allow three minutes to add one exact rollback target and one human escalation trigger."
+          },
+          {
+            "id": "cue-operations-checkpoint",
+            "kind": "checkpoint",
+            "sectionId": "learn-and-improve",
+            "text": "Check that closure proves the external postcondition and assigns every prevention action."
+          },
+          {
+            "id": "cue-operations-activity",
+            "kind": "learner-prompt",
+            "text": "Guide failure classification, containment, reconciliation, rollback, communication, and prevention work."
+          },
+          {
+            "id": "cue-operations-assessment",
+            "kind": "assessment-handoff",
+            "text": "Begin the check after the learner can recover without duplicate impact or unsupported completion claims."
+          }
         ],
         "transcript": "Classify model, prompt, tool, retrieval, data, policy, orchestration, and infrastructure evidence before choosing a fix. Assess actual and potential impact, contain unsafe behavior, and preserve secret-safe evidence before it changes. Reconcile unknown outcomes before bounded retry, compensation, rollback, replay, or escalation. Use a target-specific runbook and communicate confirmed facts, hypotheses, impact, actions, and required decisions separately. Close after user-visible recovery, then turn the incident into regression tests, control changes, rehearsal, and recurrence measures.",
         "captions": [
-          {"cueId": "cue-operations-classify", "startSeconds": 0, "endSeconds": 300, "text": "Classify model, prompt, tool, retrieval, data, policy, orchestration, and infrastructure evidence before choosing a fix."},
-          {"cueId": "cue-operations-contain", "startSeconds": 330, "endSeconds": 630, "text": "Assess actual and potential impact, contain unsafe behavior, and preserve secret-safe evidence before it changes."},
-          {"cueId": "cue-operations-recover", "startSeconds": 660, "endSeconds": 990, "text": "Reconcile unknown outcomes before bounded retry, compensation, rollback, replay, or escalation."},
-          {"cueId": "cue-operations-runbook", "startSeconds": 1020, "endSeconds": 1320, "text": "Use a target-specific runbook and communicate confirmed facts, hypotheses, impact, actions, and required decisions separately."},
-          {"cueId": "cue-operations-improve", "startSeconds": 1350, "endSeconds": 1620, "text": "Close after user-visible recovery, then turn the incident into regression tests, control changes, rehearsal, and recurrence measures."}
+          {
+            "cueId": "cue-operations-classify",
+            "startSeconds": 0,
+            "endSeconds": 300,
+            "text": "Classify model, prompt, tool, retrieval, data, policy, orchestration, and infrastructure evidence before choosing a fix."
+          },
+          {
+            "cueId": "cue-operations-contain",
+            "startSeconds": 330,
+            "endSeconds": 630,
+            "text": "Assess actual and potential impact, contain unsafe behavior, and preserve secret-safe evidence before it changes."
+          },
+          {
+            "cueId": "cue-operations-recover",
+            "startSeconds": 660,
+            "endSeconds": 990,
+            "text": "Reconcile unknown outcomes before bounded retry, compensation, rollback, replay, or escalation."
+          },
+          {
+            "cueId": "cue-operations-runbook",
+            "startSeconds": 1020,
+            "endSeconds": 1320,
+            "text": "Use a target-specific runbook and communicate confirmed facts, hypotheses, impact, actions, and required decisions separately."
+          },
+          {
+            "cueId": "cue-operations-improve",
+            "startSeconds": 1350,
+            "endSeconds": 1620,
+            "text": "Close after user-visible recovery, then turn the incident into regression tests, control changes, rehearsal, and recurrence measures."
+          }
         ],
         "reducedMotionAlternative": "Present failure classification and recovery as static decision and runbook tables with focus highlighting."
       },
@@ -809,28 +1140,48 @@
           {
             "id": "q-review-agent-1",
             "prompt": "An agent gives the wrong answer because the retriever returned an expired policy. What is the primary failed boundary?",
-            "choices": ["Retrieval or data freshness", "Model style", "Infrastructure capacity", "User interface"],
+            "choices": [
+              "Retrieval or data freshness",
+              "Model style",
+              "Infrastructure capacity",
+              "User interface"
+            ],
             "answerIndex": 0,
             "explanation": "The evidence source was stale; changing model wording would not repair the failed retrieval/data boundary."
           },
           {
             "id": "q-review-agent-2",
             "prompt": "A write request times out after reaching the server. What should happen before retry?",
-            "choices": ["Assume failure", "Change models", "Reconcile the idempotency key and actual postcondition", "Retry without a limit"],
+            "choices": [
+              "Assume failure",
+              "Change models",
+              "Reconcile the idempotency key and actual postcondition",
+              "Retry without a limit"
+            ],
             "answerIndex": 2,
             "explanation": "The outcome is unknown until the system of record proves whether the side effect occurred."
           },
           {
             "id": "q-review-agent-3",
             "prompt": "Which failure should not be retried unchanged?",
-            "choices": ["A transient 503 within budget", "A validation or authorization rejection", "A connection reset before any request", "A provider-directed retry-after response"],
+            "choices": [
+              "A transient 503 within budget",
+              "A validation or authorization rejection",
+              "A connection reset before any request",
+              "A provider-directed retry-after response"
+            ],
             "answerIndex": 1,
             "explanation": "Deterministic validation and authorization failures require corrected input or authority, not repetition."
           },
           {
             "id": "q-review-agent-4",
             "prompt": "What is the first priority when an agent may still be taking unsafe actions?",
-            "choices": ["Write the postmortem", "Increase concurrency", "Contain the workflow or affected capability", "Tune the prompt"],
+            "choices": [
+              "Write the postmortem",
+              "Increase concurrency",
+              "Contain the workflow or affected capability",
+              "Tune the prompt"
+            ],
             "answerIndex": 2,
             "explanation": "Containment limits ongoing impact before diagnosis and long-term remediation."
           },
@@ -849,10 +1200,30 @@
         ]
       },
       "sources": [
-        {"title": "Incident Response Recommendations and Considerations for Cybersecurity Risk Management", "url": "https://www.nist.gov/publications/incident-response-recommendations-and-considerations-cybersecurity-risk-management-csf", "publisher": "NIST", "lastVerified": "2026-07-25"},
-        {"title": "Claude API errors", "url": "https://platform.claude.com/docs/en/api/errors", "publisher": "Anthropic", "lastVerified": "2026-07-25"},
-        {"title": "OpenAI API error codes", "url": "https://developers.openai.com/api/docs/guides/error-codes", "publisher": "OpenAI", "lastVerified": "2026-07-25"},
-        {"title": "Artificial Intelligence Risk Management Framework", "url": "https://www.nist.gov/itl/ai-risk-management-framework", "publisher": "NIST", "lastVerified": "2026-07-25"}
+        {
+          "title": "Incident Response Recommendations and Considerations for Cybersecurity Risk Management",
+          "url": "https://www.nist.gov/publications/incident-response-recommendations-and-considerations-cybersecurity-risk-management-csf",
+          "publisher": "NIST",
+          "lastVerified": "2026-07-25"
+        },
+        {
+          "title": "Claude API errors",
+          "url": "https://platform.claude.com/docs/en/api/errors",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-07-25"
+        },
+        {
+          "title": "OpenAI API error codes",
+          "url": "https://developers.openai.com/api/docs/guides/error-codes",
+          "publisher": "OpenAI",
+          "lastVerified": "2026-07-25"
+        },
+        {
+          "title": "Artificial Intelligence Risk Management Framework",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "publisher": "NIST",
+          "lastVerified": "2026-07-25"
+        }
       ]
     }
   ],
@@ -864,14 +1235,23 @@
       "summary": "Plain-language definitions for models, prompts, context, agents, tools, retrieval, and evaluations.",
       "category": "Reference",
       "format": "reference",
-      "audience": ["learner", "practitioner"],
+      "audience": [
+        "learner",
+        "practitioner"
+      ],
       "level": "beginner",
-      "providers": ["provider-neutral"],
+      "providers": [
+        "provider-neutral"
+      ],
       "prerequisites": [],
       "owner": "project42-editorial",
       "reviewCadenceDays": 90,
       "lastVerified": "2026-07-23",
-      "tags": ["glossary", "concepts", "beginner"],
+      "tags": [
+        "glossary",
+        "concepts",
+        "beginner"
+      ],
       "sections": [
         {
           "id": "glossary-core",
@@ -901,14 +1281,23 @@
       "summary": "A compact preflight for tasks, context, constraints, output, and verification.",
       "category": "Checklist",
       "format": "checklist",
-      "audience": ["learner", "practitioner"],
+      "audience": [
+        "learner",
+        "practitioner"
+      ],
       "level": "beginner",
-      "providers": ["provider-neutral"],
+      "providers": [
+        "provider-neutral"
+      ],
       "prerequisites": [],
       "owner": "project42-editorial",
       "reviewCadenceDays": 90,
       "lastVerified": "2026-07-23",
-      "tags": ["prompting", "checklist", "daily-use"],
+      "tags": [
+        "prompting",
+        "checklist",
+        "daily-use"
+      ],
       "sections": [
         {
           "id": "prompt-preflight",
@@ -938,14 +1327,25 @@
       "summary": "Permission, data, verification, logging, and rollback questions before an agent acts.",
       "category": "Checklist",
       "format": "checklist",
-      "audience": ["developer", "operator"],
+      "audience": [
+        "developer",
+        "operator"
+      ],
       "level": "intermediate",
-      "providers": ["provider-neutral"],
-      "prerequisites": ["Basic familiarity with AI agents and tool use"],
+      "providers": [
+        "provider-neutral"
+      ],
+      "prerequisites": [
+        "Basic familiarity with AI agents and tool use"
+      ],
       "owner": "project42-editorial",
       "reviewCadenceDays": 90,
       "lastVerified": "2026-07-23",
-      "tags": ["agents", "safety", "operations"],
+      "tags": [
+        "agents",
+        "safety",
+        "operations"
+      ],
       "sections": [
         {
           "id": "agent-preflight",
@@ -975,14 +1375,28 @@
       "summary": "A reusable comparison card for quality, cost, data, tools, and operations.",
       "category": "Decision tool",
       "format": "decision-path",
-      "audience": ["developer", "operator", "leader"],
+      "audience": [
+        "developer",
+        "operator",
+        "leader"
+      ],
       "level": "intermediate",
-      "providers": ["anthropic", "openai", "google"],
-      "prerequisites": ["A representative AI workload and acceptance criteria"],
+      "providers": [
+        "anthropic",
+        "openai",
+        "google"
+      ],
+      "prerequisites": [
+        "A representative AI workload and acceptance criteria"
+      ],
       "owner": "project42-editorial",
       "reviewCadenceDays": 90,
       "lastVerified": "2026-07-23",
-      "tags": ["providers", "models", "evaluation"],
+      "tags": [
+        "providers",
+        "models",
+        "evaluation"
+      ],
       "sections": [
         {
           "id": "provider-scorecard",
@@ -1012,14 +1426,24 @@
       "summary": "A reusable prompt and working loop for turning ordinary work into a clear, verifiable AI task.",
       "category": "How-to",
       "format": "template",
-      "audience": ["learner", "practitioner"],
+      "audience": [
+        "learner",
+        "practitioner"
+      ],
       "level": "beginner",
-      "providers": ["provider-neutral"],
+      "providers": [
+        "provider-neutral"
+      ],
       "prerequisites": [],
       "owner": "project42-editorial",
       "reviewCadenceDays": 90,
       "lastVerified": "2026-07-23",
-      "tags": ["prompting", "workflow", "template", "daily-use"],
+      "tags": [
+        "prompting",
+        "workflow",
+        "template",
+        "daily-use"
+      ],
       "sections": [
         {
           "id": "task-starter-template",
@@ -1066,14 +1490,28 @@
       "summary": "Keep long AI sessions focused by loading the smallest useful working set and refreshing stale context deliberately.",
       "category": "How-to",
       "format": "playbook",
-      "audience": ["practitioner", "developer"],
+      "audience": [
+        "practitioner",
+        "developer"
+      ],
       "level": "intermediate",
-      "providers": ["provider-neutral", "anthropic", "openai"],
-      "prerequisites": ["Experience with multi-turn AI work"],
+      "providers": [
+        "provider-neutral",
+        "anthropic",
+        "openai"
+      ],
+      "prerequisites": [
+        "Experience with multi-turn AI work"
+      ],
       "owner": "project42-editorial",
       "reviewCadenceDays": 90,
       "lastVerified": "2026-07-23",
-      "tags": ["context", "tokens", "sessions", "workflow"],
+      "tags": [
+        "context",
+        "tokens",
+        "sessions",
+        "workflow"
+      ],
       "sections": [
         {
           "id": "working-set",
@@ -1119,14 +1557,25 @@
       "summary": "Choose a level of checking that matches the claim, uncertainty, and consequence of the work.",
       "category": "Decision tool",
       "format": "decision-path",
-      "audience": ["learner", "practitioner", "developer"],
+      "audience": [
+        "learner",
+        "practitioner",
+        "developer"
+      ],
       "level": "beginner",
-      "providers": ["provider-neutral"],
+      "providers": [
+        "provider-neutral"
+      ],
       "prerequisites": [],
       "owner": "project42-editorial",
       "reviewCadenceDays": 90,
       "lastVerified": "2026-07-23",
-      "tags": ["verification", "quality", "risk", "checklist"],
+      "tags": [
+        "verification",
+        "quality",
+        "risk",
+        "checklist"
+      ],
       "sections": [
         {
           "id": "verification-levels",
