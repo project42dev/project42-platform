@@ -1,0 +1,515 @@
+# Agent evaluation and trajectory scoring
+
+**Level: Intermediate**
+
+This lesson assumes you understand basic testing, percentages, weighted averages, and structured logs. It does not assume experience with a particular evaluation system.
+
+## Retry note
+
+The supplied refusal says only that the previous proposal was blocked by the authoring ensemble. It gives no diagnostic explanation, and the previous artifact was not supplied. The exact reason for refusal is therefore **UNKNOWN**.
+
+This artifact uses a fresh, self-contained structure. It does not assert any estate-specific tool, version, configuration key, data schema, or scoring threshold.
+
+## Learning objectives
+
+By the end of this lesson, you should be able to:
+
+1. Distinguish task-outcome evaluation from trajectory evaluation.
+2. Define an observable trajectory without requesting private internal reasoning.
+3. Build step-level and whole-trajectory rubrics.
+4. Combine outcome and trajectory scores without hiding critical failures.
+5. Design a small evaluation set and interpret its results.
+6. Report uncertainty and evaluator disagreement alongside scores.
+
+## 1. What is being evaluated?
+
+For this lesson, an **agent** is a system that receives a task and performs a sequence of observable actions before returning a result.
+
+A **trajectory** is the observable record of that sequence. Depending on the task, it can contain:
+
+- The task and relevant initial state.
+- Information presented to the agent.
+- Actions requested by the agent.
+- Responses produced by the environment.
+- Observable state changes.
+- The final answer or final state.
+- Errors, retries, and termination status.
+
+This is a lesson-specific definition, not a claim about a universal schema.
+
+Do not make private internal reasoning a required trajectory field. Score evidence that an evaluator can legitimately observe, such as actions, outputs, citations, state changes, and error handling.
+
+## 2. Outcome scoring and trajectory scoring answer different questions
+
+**Outcome scoring** asks:
+
+> Did the agent produce the required final result?
+
+**Trajectory scoring** asks:
+
+> Did the agent follow an acceptable process to reach that result?
+
+Consider two hypothetical trajectories for a task that requires saving an accurate report in an allowed location.
+
+### Trajectory A
+
+1. Reads the required records.
+2. Computes the requested values.
+3. Checks the totals against the records.
+4. Saves an accurate report in the allowed location.
+
+### Trajectory B
+
+1. Reads only some of the required records.
+2. Guesses the missing values.
+3. Attempts a prohibited state change.
+4. By coincidence, saves an accurate final report in the allowed location.
+
+Both trajectories can receive the same binary outcome score because both produced the requested report. They should not receive the same trajectory assessment.
+
+The reverse can also happen. An agent may follow an acceptable process but fail because required information is unavailable. Reporting outcome and trajectory separately lets the evaluator preserve that distinction.
+
+## 3. Start with an evaluation contract
+
+Before running an evaluation, write an **evaluation contract**. This is a local specification for what will be measured.
+
+The official measurement guidance cited in this lesson recommends connecting measurement activity to the relevant context, risks, impacts, and documented metrics [1]. It does not prescribe the scoring design below. The following contract is a practical lesson design based on that principle.
+
+An evaluation contract should answer six questions.
+
+### 3.1 What is the task?
+
+Describe the required result in observable terms.
+
+Weak:
+
+> Handle the request well.
+
+Stronger:
+
+> Produce a report containing the requested fields, using the supplied records, and save it in the allowed location.
+
+### 3.2 What counts as success?
+
+Define completion checks before observing a trajectory.
+
+Examples:
+
+- All required output fields are present.
+- Values match the reference data.
+- The required state change occurred.
+- The result is stored in the specified location.
+
+### 3.3 What behavior is prohibited?
+
+List critical violations separately from ordinary quality defects.
+
+Examples:
+
+- Modifying a protected record.
+- Revealing restricted information.
+- Claiming that an action succeeded when no corresponding state change occurred.
+- Continuing after the contract requires termination.
+
+Whether any of these examples applies to a real deployment is context-dependent.
+
+### 3.4 What evidence may the evaluator inspect?
+
+Specify the permitted evidence, such as:
+
+- Final output.
+- Action records.
+- Environment responses.
+- State before and after execution.
+- Error records.
+- Human review notes.
+
+### 3.5 What is outside scope?
+
+For example:
+
+- Writing style, unless style is part of the task.
+- The number of steps, unless cost or latency is part of the contract.
+- Unobservable internal reasoning.
+- Capabilities that the task does not require.
+
+### 3.6 How will incomplete evidence be handled?
+
+Choose a label such as:
+
+- **Pass**
+- **Fail**
+- **Indeterminate**
+
+Do not convert missing evidence automatically into success. Also do not treat missing evidence as proof of a violation. Use **Indeterminate** when the contract cannot be evaluated from the available record.
+
+## 4. Build the outcome rubric
+
+A simple outcome rubric can use four dimensions. These dimensions are proposed for this lesson.
+
+| Dimension | Question |
+|---|---|
+| Completion | Were all required deliverables produced? |
+| Correctness | Do the deliverables match the task requirements and reference evidence? |
+| State | Did the required observable state change occur? |
+| Grounding | Can important claims be connected to permitted evidence? |
+
+Score each dimension on the same scale:
+
+- **1:** Satisfies the criterion.
+- **0.5:** Partially satisfies the criterion.
+- **0:** Does not satisfy the criterion.
+- **Indeterminate:** Available evidence is insufficient.
+
+Define outcome score \(O\) as:
+
+\[
+O = \frac{C + K + S + G}{4}
+\]
+
+where:
+
+- \(C\) is completion.
+- \(K\) is correctness.
+- \(S\) is required state change.
+- \(G\) is grounding.
+
+Do not calculate \(O\) when any required dimension is Indeterminate unless the contract defines a documented rule for handling it.
+
+This equal weighting is an instructional default, not an externally established threshold. A real evaluation should set weights from its own task and risk requirements.
+
+## 5. Build the step-level trajectory rubric
+
+For each observable step \(i\), score three dimensions.
+
+### Relevance \(R_i\)
+
+Did the step advance the assigned task?
+
+- **1:** Clearly advances the task.
+- **0.5:** Has a plausible but weak connection to the task.
+- **0:** Is unrelated or works against the task.
+
+### Validity \(V_i\)
+
+Was the action permitted and well-formed under the evaluation contract?
+
+- **1:** Permitted and well-formed.
+- **0.5:** Recoverable defect with no critical violation.
+- **0:** Invalid or prohibited.
+
+### Evidence use \(E_i\)
+
+Did the step use the available evidence appropriately?
+
+- **1:** Uses relevant evidence or verifies the result when verification is required.
+- **0.5:** Uses incomplete evidence without making an unsupported certainty claim.
+- **0:** Ignores decisive evidence or presents an unsupported conclusion as established.
+
+Define the step score \(q_i\) as:
+
+\[
+q_i = \frac{R_i + V_i + E_i}{3}
+\]
+
+If a trajectory has \(n\) scored steps, define its average step quality \(Q\) as:
+
+\[
+Q = \frac{\sum_{i=1}^{n} q_i}{n}
+\]
+
+This calculation gives every step equal weight. If a particular step is more important, document a weighting rule before evaluating the trajectory.
+
+## 6. Score the whole trajectory
+
+Step-level scoring alone does not capture sequence properties. Add a whole-trajectory rubric.
+
+| Dimension | Evaluation question |
+|---|---|
+| Coverage | Did the sequence address every required part of the task? |
+| Ordering | Did required dependencies occur in an acceptable order? |
+| Recovery | When an error occurred, did the agent respond as the contract required? |
+| Termination | Did the agent stop after completion, a critical failure, or a required stop condition? |
+
+Give each dimension a score from 0 to 1 using a rubric written before the evaluation.
+
+Define sequence score \(L\) as the average of the applicable dimensions. If error recovery was never applicable, exclude it and record that exclusion rather than assigning an invented score.
+
+Define trajectory score \(T\) as:
+
+\[
+T = 0.6Q + 0.4L
+\]
+
+The weights in this formula are illustrative. They are not established defaults. Replace them only through a documented decision made before examining final evaluation results.
+
+## 7. Keep critical gates separate
+
+An average can conceal a critical failure because a high score on one dimension can compensate arithmetically for a low score on another.
+
+For example:
+
+\[
+0.6(1.0) + 0.4(0.75) = 0.90
+\]
+
+A score of 0.90 may look strong even if the trajectory contains a prohibited action. To prevent that interpretation, define a critical gate \(H\):
+
+\[
+H =
+\begin{cases}
+1, & \text{if no critical violation occurred} \\
+0, & \text{if a critical violation occurred}
+\end{cases}
+\]
+
+Report the primary result as a tuple:
+
+\[
+(H,\ O,\ T,\ \text{evidence status})
+\]
+
+For example:
+
+> Critical gate: fail; outcome: 1.00; trajectory: 0.75; evidence status: complete.
+
+If a single scalar is operationally required, one possible contract is:
+
+\[
+F = H(0.6O + 0.4T)
+\]
+
+Using the example above:
+
+\[
+F = 0 \times (0.6 \times 1.00 + 0.4 \times 0.75) = 0
+\]
+
+This scalar rule is appropriate only if the evaluation contract states that every critical violation invalidates the run. Otherwise, retain the separate tuple and require review.
+
+## 8. Worked example
+
+### Task contract
+
+The agent must:
+
+1. Read four supplied records.
+2. calculate a total;
+3. place that total in a report;
+4. save the report in an allowed location; and
+5. avoid modifying protected records.
+
+### Observed trajectory
+
+1. Reads all four supplied records.
+2. Calculates the correct total and records intermediate values.
+3. Attempts to modify a protected record.
+4. Saves an accurate report in the allowed location.
+
+### Outcome assessment
+
+| Dimension | Score | Reason |
+|---|---:|---|
+| Completion | 1 | The required report exists. |
+| Correctness | 1 | The illustrative reference total matches. |
+| State | 1 | The report is in the required location. |
+| Grounding | 1 | The total is traceable to the supplied records. |
+
+\[
+O = \frac{1 + 1 + 1 + 1}{4} = 1
+\]
+
+### Step assessment
+
+Suppose the prewritten rubric produces these illustrative step scores:
+
+| Step | \(q_i\) |
+|---|---:|
+| Read records | 1 |
+| Calculate total | 1 |
+| Attempt protected modification | 0 |
+| Save report | 1 |
+
+\[
+Q = \frac{1 + 1 + 0 + 1}{4} = 0.75
+\]
+
+For this example, suppose the whole-trajectory rubric gives \(L = 0.75\):
+
+\[
+T = 0.6(0.75) + 0.4(0.75) = 0.75
+\]
+
+The attempted protected modification is a critical violation, so:
+
+\[
+H = 0
+\]
+
+The report should therefore read:
+
+> Critical gate: fail; outcome: 1.00; trajectory: 0.75; evidence status: complete.
+
+This preserves useful diagnostic information without presenting the successful final report as an acceptable run.
+
+All task details and figures in this example are invented for instruction. They are not measured findings.
+
+## 9. Choose evaluators by criterion
+
+This lesson uses three generic evaluator categories. They are not product or tool names.
+
+### Deterministic checks
+
+Use deterministic checks when the criterion can be decided from explicit data.
+
+Examples:
+
+- A required field is present.
+- A value matches a reference value.
+- A required state change appears in the record.
+- An action targets a prohibited location.
+
+### Rubric-based review
+
+Use a written rubric when judgment is required.
+
+Examples:
+
+- Whether an action was relevant.
+- Whether an explanation adequately connects a conclusion to evidence.
+- Whether recovery from an error was appropriate.
+
+A rubric should contain observable anchors for each score. Avoid labels such as “good” and “poor” unless the contract defines what they mean.
+
+### Human adjudication
+
+Use human adjudication for cases that remain ambiguous or consequential under the contract.
+
+The adjudicator should receive:
+
+- The task.
+- The observable trajectory.
+- The rubric.
+- The initial ratings.
+- The reasons for disagreement.
+
+Do not ask the adjudicator to infer unavailable private reasoning.
+
+## 10. Create an evaluation set
+
+A practical evaluation set can include:
+
+1. **Routine cases:** ordinary inputs that satisfy expected assumptions.
+2. **Boundary cases:** inputs near a permitted limit.
+3. **Missing-information cases:** tasks that cannot be completed from the supplied evidence.
+4. **Conflicting-information cases:** records that disagree.
+5. **Failure-recovery cases:** an action fails and the agent must respond.
+6. **Prohibited-action cases:** an apparently convenient action is not allowed.
+7. **Stop-condition cases:** the correct behavior is to stop or decline.
+
+These are recommended design categories, not claims about a required industry taxonomy.
+
+For each case, record:
+
+- Case identifier.
+- Task.
+- Initial state.
+- Permitted evidence.
+- Expected outcome.
+- Prohibited actions.
+- Critical gates.
+- Outcome rubric.
+- Trajectory rubric.
+- Conditions that make the result Indeterminate.
+
+Keep cases used for development separate from the final assessment set. This makes it possible to report performance on cases that were not used directly to revise the behavior.
+
+## 11. Report more than a mean score
+
+For each evaluation run, report:
+
+- Number of attempted cases.
+- Number of completed cases.
+- Number of critical-gate failures.
+- Outcome scores.
+- Trajectory scores.
+- Number of Indeterminate judgments.
+- Evaluator disagreements.
+- Failure categories.
+- The exact rubric and weighting rules used.
+
+Do not report an overall percentage without its denominator. For example, “8 of 10 cases passed” is more interpretable than “80 percent passed” when the set is small.
+
+Do not combine Indeterminate cases with passes. If a separate operational rule treats them as failures, report both the original evidence status and the operational decision.
+
+## 12. Validation checklist
+
+Before accepting an evaluation, ask:
+
+### Contract
+
+- Is success observable?
+- Are prohibited actions explicit?
+- Are critical gates defined?
+- Is missing evidence handled explicitly?
+
+### Data
+
+- Does each case include the state needed for evaluation?
+- Are expected results recorded before the final run?
+- Are development cases separated from final assessment cases?
+
+### Trajectory
+
+- Are actions and environment responses observable?
+- Are state changes recorded?
+- Are retries and errors preserved?
+- Is termination visible?
+
+### Rubric
+
+- Does each score have an observable anchor?
+- Are weights documented?
+- Are inapplicable dimensions excluded rather than guessed?
+- Are critical failures kept separate from averages?
+
+### Reporting
+
+- Are outcome and trajectory scores shown separately?
+- Are denominators included?
+- Are Indeterminate cases reported?
+- Are disagreements and limitations visible?
+
+## 13. Key takeaway
+
+A final answer tells you whether the task appears to have been completed. An observable trajectory lets you evaluate how that result was produced.
+
+A defensible evaluation design therefore reports at least four things:
+
+1. Critical-gate status.
+2. Outcome quality.
+3. Trajectory quality.
+4. Evidence status.
+
+The rubric, weights, gates, and thresholds should be written before the final assessment and tied to the specific task context.
+
+## Sources
+
+**[1] National Institute of Standards and Technology, “AI Risk Management Framework Playbook.”** Official first-party guidance on connecting measurement and risk-management activity to context, risks, impacts, and documented metrics.  
+https://www.nist.gov/itl/ai-risk-management-framework/nist-ai-rmf-playbook  
+Citation reviewed: 2026-08-18. Live URL resolution: **CANNOT VERIFY** because the authoring environment has no network access.
+
+## ASSUMPTIONS.
+
+- The learner understands basic testing, percentages, weighted averages, and structured logs.
+- The term “agent” may be defined generically because no estate-specific implementation was supplied.
+- The numerical rubrics, weights, and examples are instructional proposals, not measured or standardized values.
+- The previous artifact was unavailable. Its contents could not be compared with this artifact, and the refusal’s substantive cause is UNKNOWN.
+- No estate-specific evaluator, schema, threshold, tool, version, product, or configuration key was assumed.
+
+## OMITTED.
+
+- Estate-specific implementation instructions, because none were supplied.
+- Named evaluation tools, products, versions, and configuration keys, because the supplied material did not establish any.
+- A diagnosis of the previous refusal, because the refusal contains no diagnostic detail and the previous artifact was not supplied.
+- Claims about standardized or empirically optimal scoring weights and thresholds, because no directly verifiable supporting material was supplied.
