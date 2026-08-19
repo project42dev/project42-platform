@@ -1,0 +1,375 @@
+# Embeddings and vector stores
+
+**Level: Intermediate**
+
+This lesson assumes you understand basic machine-learning concepts, database records, and search queries. It does not assume prior experience with vector search.
+
+## Learning objectives
+
+By the end of this lesson, you should be able to:
+
+- Explain what an embedding represents.
+- Describe the role of a vector store.
+- Compare dot product, cosine similarity, and Euclidean distance.
+- Distinguish exact from approximate nearest-neighbor search.
+- Design a basic embedding and retrieval pipeline.
+- Evaluate retrieval quality separately from downstream output quality.
+
+## 1. What is an embedding?
+
+An **embedding** is a numerical representation of an item. The item might be a word, passage, image, or another kind of input. An embedding-producing model maps the input to a vector:
+
+\[
+f(x) = [v_1, v_2, \ldots, v_d]
+\]
+
+Here:
+
+- \(x\) is the input.
+- \(f\) is the embedding process.
+- \(d\) is the embedding dimension.
+- Each \(v_i\) is one coordinate of the resulting vector.
+
+Embedding methods are trained so that geometric relationships among vectors reflect patterns learned from training data. Early neural language research demonstrated that learned word vectors could encode useful syntactic and semantic relationships [1].
+
+An embedding is not a human-readable explanation of an item. Individual coordinates normally should not be interpreted as named concepts unless the embedding method explicitly establishes such an interpretation. What matters for retrieval is the relationship between complete vectors under a chosen scoring rule [1].
+
+### A small illustrative example
+
+Suppose an embedding process produces these two-dimensional vectors:
+
+- “repair a bicycle”: \([0.8, 0.2]\)
+- “fix a bike”: \([0.76, 0.24]\)
+- “bake bread”: \([0.1, 0.9]\)
+
+These numbers are invented for illustration. They are not outputs from a named model.
+
+Under a suitable similarity calculation, the first two vectors would be closer to each other than either is to the third. A real embedding usually has more than two coordinates, but the retrieval principle is the same.
+
+## 2. What is a vector store?
+
+For this lesson, a **vector store** means a storage and retrieval component that associates each item with:
+
+- A vector.
+- A stable identifier.
+- The original content or a reference to it.
+- Optional metadata.
+
+Its central retrieval operation is: given a query vector, return stored items whose vectors receive the best scores under a selected distance or similarity measure.
+
+This definition describes an architectural role, not a specific product. A vector store can be part of a broader database or a dedicated retrieval system. Product-specific behavior is **UNKNOWN** because no implementation was supplied, so implementation names, settings, limits, and configuration keys are omitted.
+
+A conceptual record might look like this:
+
+```text
+identifier: document-17-section-3
+vector: [0.12, -0.44, ...]
+content: "The relevant passage..."
+metadata:
+    language: "en"
+    category: "maintenance"
+```
+
+This is pseudodata, not a configuration format.
+
+## 3. The retrieval pipeline
+
+A common dense-retrieval pipeline has six conceptual stages:
+
+1. **Choose the retrieval unit.**  
+   Decide whether each stored item represents a whole document, a passage, an image, or another unit.
+
+2. **Create embeddings.**  
+   Pass each item through an embedding process.
+
+3. **Store the records.**  
+   Associate every vector with an identifier and the content needed after retrieval.
+
+4. **Embed the query.**  
+   Convert the user’s query into the same compatible vector space as the stored items.
+
+5. **Search for neighbors.**  
+   Score stored vectors against the query vector and return the best candidates.
+
+6. **Use the retrieved content.**  
+   Show it to the user, rank it further, or provide it to a downstream system.
+
+Dense passage retrieval research demonstrates this general pattern by embedding questions and passages into a shared vector space and retrieving passages through vector similarity [2].
+
+The query and stored-item embedding processes must produce compatible vectors. Two arbitrary embedding processes cannot be assumed to share dimensions or geometric meaning. Compatibility between unspecified embedding processes is therefore **UNKNOWN** and must be established from the chosen implementation or by evaluation rather than assumed.
+
+## 4. Similarity and distance
+
+A vector store needs a rule for deciding which vectors are close.
+
+Let \(q\) be a query vector and \(x\) a stored vector.
+
+### Dot product
+
+The dot product is:
+
+\[
+q \cdot x = \sum_{i=1}^{d} q_i x_i
+\]
+
+A larger dot product receives a better ranking when the retrieval system is configured to maximize this score. Dense retrieval systems can use inner-product search to rank passages [2].
+
+Vector magnitude affects the dot product. Two vectors pointing in similar directions can receive different scores if their lengths differ.
+
+### Cosine similarity
+
+Cosine similarity divides the dot product by the vectors’ magnitudes:
+
+\[
+\operatorname{cosine}(q,x) =
+\frac{q \cdot x}{\lVert q\rVert \lVert x\rVert}
+\]
+
+This measures directional alignment rather than raw magnitude. It is undefined for a zero vector because the denominator would be zero.
+
+If both vectors have been normalized to length one, cosine similarity equals their dot product:
+
+\[
+\lVert q\rVert = \lVert x\rVert = 1
+\quad\Rightarrow\quad
+\operatorname{cosine}(q,x) = q \cdot x
+\]
+
+### Euclidean distance
+
+Euclidean distance is:
+
+\[
+\lVert q-x\rVert_2 =
+\sqrt{\sum_{i=1}^{d}(q_i-x_i)^2}
+\]
+
+Here, a smaller value means the vectors are closer.
+
+For unit-normalized vectors:
+
+\[
+\lVert q-x\rVert_2^2
+= \lVert q\rVert^2 + \lVert x\rVert^2 - 2(q\cdot x)
+= 2 - 2(q\cdot x)
+\]
+
+Therefore, for unit vectors, maximizing dot product, maximizing cosine similarity, and minimizing Euclidean distance produce equivalent rankings. Without normalization, do not assume that these metrics rank items identically.
+
+### Choosing a metric
+
+Use the metric required by the embedding process, if that requirement is documented. If no requirement is established, the correct metric is **UNKNOWN**. Evaluate candidate metrics on representative retrieval queries rather than selecting one by habit.
+
+A similarity score is not a probability and does not by itself prove relevance or factual correctness. It is a comparison under a particular vector representation and metric.
+
+## 5. Exact and approximate search
+
+### Exact search
+
+Exact nearest-neighbor search compares the query with every eligible stored vector and returns the mathematically best results under the selected metric.
+
+This provides a useful reference result, but the amount of computation grows with the number of candidate vectors and their dimensions. Large-scale similarity-search research therefore studies indexing and hardware techniques for making vector search more efficient [3].
+
+### Approximate search
+
+Approximate nearest-neighbor search uses an index to avoid comparing the query with every stored vector. The returned set may omit a result that exact search would have included. In exchange, approximate methods can reduce search work and support larger collections or lower retrieval latency [3].
+
+This creates a quality versus resource trade-off:
+
+- More exhaustive search can improve agreement with exact results.
+- Less exhaustive search can reduce search work.
+- Index construction and storage also consume resources.
+
+The names and settings of available index methods are **UNKNOWN** because no implementation was supplied. They are omitted rather than guessed.
+
+### Measuring approximation quality
+
+To evaluate an approximate index:
+
+1. Select representative queries.
+2. Run exact search to produce a reference neighbor set.
+3. Run approximate search with the same vectors and metric.
+4. Measure how many reference neighbors appear in the approximate top-\(k\) results.
+5. Record latency and resource use separately.
+6. Repeat after changing one indexing or search choice.
+
+For a reference set \(R_k\) and returned set \(A_k\), one useful measurement is:
+
+\[
+\operatorname{recall@}k =
+\frac{|R_k \cap A_k|}{|R_k|}
+\]
+
+This measures agreement with exact search. It does not establish whether the exact results are useful to a person. Human relevance evaluation requires separate relevance labels.
+
+## 6. Content units and metadata
+
+### Selecting the retrieval unit
+
+The unit stored under one vector determines what the system can return. A whole document, one passage, and one sentence are different retrieval units even when they come from the same source.
+
+Do not assume that one unit size is universally best. Instead, create a test set containing realistic queries and known relevant content, then compare candidate segmentation strategies.
+
+Store enough information to trace a result back to its source. A useful conceptual record can include:
+
+- A stable content identifier.
+- A source identifier.
+- The content boundaries within the source.
+- The embedding vector.
+- Metadata needed for eligibility rules.
+- The content itself or a resolvable reference to it.
+
+### Metadata filtering
+
+Metadata can represent requirements that vector similarity alone does not express, such as language, document status, or access scope.
+
+Whether filtering happens before, during, or after vector search is implementation-specific and therefore **UNKNOWN** here. This distinction matters operationally because filtering after retrieval can leave fewer than the requested number of eligible results. Confirm the behavior of the selected implementation and test it with restrictive filters.
+
+Access control should not be treated as merely a relevance preference. The application must prevent unauthorized records from being returned, regardless of their similarity score.
+
+## 7. Updates and consistency
+
+Embedding pipelines must account for changing source content.
+
+When an item changes, its old vector may no longer represent the current content. A robust design should therefore give each stored unit a stable identifier and define procedures for:
+
+- Inserting new units.
+- Replacing changed units and their vectors.
+- Removing deleted units.
+- Detecting failed or partial updates.
+- Rebuilding vectors when the embedding process changes.
+
+The consistency guarantees of inserts, updates, deletions, and index refreshes are **UNKNOWN** without a specified implementation. Do not assume that a write is immediately visible to every query.
+
+Vectors produced by different or changed embedding processes should not be mixed unless their compatibility has been established. A safe migration pattern is to build a separate collection, evaluate it, switch retrieval to it, and retain a rollback path.
+
+## 8. Retrieval-augmented applications
+
+Retrieved content can be supplied to a downstream language task. Primary research on retrieval-augmented generation combines a learned retrieval component with a generation component so that retrieved documents can contribute to produced output [4].
+
+Retrieval does not guarantee a correct downstream answer. Failures can occur at different stages:
+
+- The relevant item was never stored.
+- The query embedding did not place the right item near the query.
+- Approximate search missed a strong candidate.
+- A metadata rule excluded the item.
+- The downstream component ignored or misused retrieved content.
+
+Evaluate these stages separately. Otherwise, a downstream failure might be incorrectly blamed on the vector index, or a retrieval failure might be hidden by a plausible-looking final response.
+
+## 9. Evaluation plan
+
+A useful evaluation set contains representative queries and relevance judgments created independently of the system’s scores.
+
+For each query, record:
+
+- Which stored units are relevant.
+- Which units were retrieved.
+- Their rank order.
+- Query latency.
+- Any eligibility filters applied.
+- Whether the downstream task succeeded.
+
+Useful retrieval measurements include:
+
+### Recall at \(k\)
+
+\[
+\operatorname{recall@}k =
+\frac{\text{relevant items retrieved in the first } k}
+{\text{all known relevant items}}
+\]
+
+Recall answers: “How much of the known relevant material did retrieval find?”
+
+### Precision at \(k\)
+
+\[
+\operatorname{precision@}k =
+\frac{\text{relevant items retrieved in the first } k}
+{k}
+\]
+
+Precision answers: “How much of the returned set was relevant?”
+
+These measurements require relevance labels. Without labels, retrieval quality is **UNKNOWN**. Similarity scores alone cannot substitute for labeled evaluation because the scores are produced by the system being evaluated.
+
+Also measure operational outcomes such as latency and failed-query rate. No acceptable thresholds are specified in the supplied material, so appropriate thresholds are **UNKNOWN** and must be set from application requirements.
+
+## 10. Practical design checklist
+
+Before deploying an embedding retrieval pipeline, verify that you can answer each question:
+
+### Representation
+
+- What content does one vector represent?
+- Which embedding process created it?
+- Are query and stored vectors compatible?
+- Which similarity or distance metric is required?
+- Are vectors normalized?
+
+### Storage
+
+- What stable identifier connects a vector to its source?
+- Where is the retrievable content stored?
+- Which metadata fields are required for eligibility rules?
+- How are changed and deleted records handled?
+
+### Search
+
+- Is search exact or approximate?
+- How is approximation quality measured against exact search?
+- How do filters interact with search?
+- What happens when fewer than \(k\) eligible results exist?
+
+### Evaluation
+
+- Is there a representative query set?
+- Are relevance labels independent of similarity scores?
+- Are retrieval and downstream performance measured separately?
+- Are latency and resource use recorded alongside quality?
+
+### Operations
+
+- Can the collection be rebuilt?
+- Can an update be rolled back?
+- Can each result be traced to its source?
+- Can unauthorized content be excluded regardless of similarity?
+
+## 11. Key takeaways
+
+- An embedding maps an item to a vector whose geometric relationships can support comparison and retrieval [1].
+- A vector store associates vectors with identifiers and retrievable content, then searches them using a selected metric.
+- Dot product, cosine similarity, and Euclidean distance are not generally interchangeable. They produce equivalent rankings under the unit-normalization conditions derived above.
+- Approximate search trades guaranteed agreement with exact nearest-neighbor results for reduced search work [3].
+- Retrieval quality requires representative queries and independent relevance judgments.
+- Retrieval and downstream answer quality are different measurements. Both must be evaluated in retrieval-augmented applications [4].
+- Implementation-specific limits, index choices, filtering order, consistency guarantees, and configuration are **UNKNOWN** because no implementation was supplied.
+
+## Sources
+
+All sources below are primary research publications and are directly accessible over HTTPS. Citations and URLs were checked for use in this piece on **2026-08-18**.
+
+1. Tomas Mikolov, Kai Chen, Greg Corrado, and Jeffrey Dean, “Efficient Estimation of Word Representations in Vector Space.”  
+   https://arxiv.org/abs/1301.3781
+
+2. Vladimir Karpukhin et al., “Dense Passage Retrieval for Open-Domain Question Answering.”  
+   https://arxiv.org/abs/2004.04906
+
+3. Jeff Johnson, Matthijs Douze, and Hervé Jégou, “Billion-scale similarity search with GPUs.”  
+   https://arxiv.org/abs/1702.08734
+
+4. Patrick Lewis et al., “Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.”  
+   https://arxiv.org/abs/2005.11401
+
+## ASSUMPTIONS.
+
+- The learner has basic familiarity with vectors, machine-learning models, and database records.
+- Mathematical notation at the level of sums, square roots, and vector norms is appropriate for an intermediate learner.
+- Generic architectural terms such as “embedding process,” “index,” and “metadata” are permitted because they are concepts rather than unestablished tool or configuration names.
+- Illustrative vectors and records are clearly identified as invented examples rather than measured outputs.
+
+## OMITTED.
+
+- Specific products, tools, model names, version numbers, index implementations, configuration keys, limits, and performance figures were omitted because the supplied material did not establish them.
+- Product-specific filtering order, update visibility, consistency guarantees, and supported metrics were omitted because they are UNKNOWN without a selected implementation.
