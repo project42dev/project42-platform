@@ -1,4 +1,3 @@
-```mermaid
 flowchart LR
     subgraph PREP["Prepare the knowledge"]
         direction TB
@@ -22,40 +21,3 @@ flowchart LR
     end
 
     E --> R
-```
-
-```yaml
-title: "Retrieval pipeline, from source to grounded answer"
-category: "AI literacy: retrieval and grounding"
-summary: "An intermediate-level reference diagram showing how source material becomes searchable evidence and how a question moves through retrieval, evidence checks, answer composition, and source attribution."
-
-description: "Intermediate level. The diagram separates preparation from answering. During preparation, source content is converted into retrievable units while retaining its identity and location. During answering, candidate evidence is retrieved for the question and supplied as context for answer composition. This reflects the retrieval-augmented pattern in which generation is conditioned on retrieved material [1]. Retaining source identity and location applies the provenance principle that information should remain traceable to its origins [2]. The two decision points are design controls: insufficient evidence and unsupported answer claims lead away from a grounded answer rather than being presented as supported."
-
-altText: "Flowchart moving from left to right through two sections. In Prepare the knowledge, Source material flows downward to Extract usable content, then Create retrievable units, Keep source identity and location, and Build a searchable index. The searchable index and the User question both point to Retrieve candidate evidence in Retrieve and answer. Retrieval points to the decision Is the evidence relevant and sufficient? No points to Report insufficient evidence or ask for clarification. Yes points to Assemble the evidence context, then Compose an answer from the evidence, and then the decision Are the answer claims supported by the evidence? No returns to Report insufficient evidence or ask for clarification. Yes moves to Attach source references and finally to Grounded answer."
-
-caption: "A grounded answer is the end of a traceable evidence path, not merely the output of answer generation."
-
-takeaways:
-  - "Retrieval and answer composition are distinct stages. Retrieved material must reach the composition stage if it is to ground the response [1]."
-  - "Source identity and location should travel with retrieved evidence so readers can trace an answer back to its origins [2]."
-  - "Grounding is not established merely because retrieval occurred. The answer claims still need to be checked against the evidence supplied to the answer stage."
-  - "When available evidence is insufficient or does not support the proposed claims, the pipeline should report that limitation or seek clarification instead of labeling the result a grounded answer."
-```
-
-## SOURCES
-
-1. Patrick Lewis et al., “Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks,” primary research paper. https://arxiv.org/abs/2005.11401  
-   Bibliographic content checked: 2026-08-18. Live URL resolution: CANNOT VERIFY because this environment has no network access.
-
-2. World Wide Web Consortium, “PROV-DM: The PROV Data Model,” W3C Recommendation. https://www.w3.org/TR/prov-dm/  
-   Bibliographic content checked: 2026-08-18. Live URL resolution: CANNOT VERIFY because this environment has no network access.
-
-## ASSUMPTIONS
-
-- “Grounded answer” means an answer whose claims are supported by retrieved evidence and whose supporting sources can be identified.
-- The pipeline is a conceptual reference design, not a claim that every implementation must use identical stages.
-- The refusal supplied for the previous attempt contains no actionable review reason, and the previous content was not supplied. Its specific defect is therefore UNKNOWN. This artifact was created anew rather than reproducing unavailable prior content.
-
-## OMITTED
-
-Nothing requested was intentionally omitted.
