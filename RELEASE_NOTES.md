@@ -1,3 +1,40 @@
+# Project 42 platform v0.75.0
+
+Version 0.75.0 was cut by the Orchard release role from everything merged into `main` since v0.74.0. It exists so that content already merged into the platform repository reaches the sites that consume the platform package.
+
+## Content
+
+Changed:
+
+
+
+- `content/catalog.json`
+- `content/diagrams/multi-agent.mmd`
+- `content/diagrams/retrieval-pipeline.mmd`
+- `content/modules/discovery/evaluation.json`
+- `content/modules/discovery/mcp.json`
+- `content/modules/discovery/microsoft-foundry.json`
+- `content/modules/discovery/orchestration.json`
+- `content/modules/discovery/rag.json`
+- `content/modules/discovery/vector.json`
+- `content/modules/discovery/voice-agent.json`
+
+## Migrations
+
+No file under `migrations/` was added or changed since v0.74.0.
+
+## Breaking changes
+
+Orchard does not classify breaking changes. Review the file list above, and the diff for this tag, before approving the release environment.
+
+## Known limitations
+
+None are recorded by the automation that cut this release. It reports what changed; it does not assess it.
+
+## Rollback
+
+Revert consuming sites to v0.74.0.
+
 # Project 42 platform v0.74.0
 
 Version 0.74.0 was cut by the Orchard release role from everything merged into `main` since v0.73.0. It exists so that content already merged into the platform repository reaches the sites that consume the platform package.

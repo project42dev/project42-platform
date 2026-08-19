@@ -4,6 +4,21 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.75.0] - 2026-08-19
+
+### Changed
+
+- `content/catalog.json`
+- `content/diagrams/multi-agent.mmd`
+- `content/diagrams/retrieval-pipeline.mmd`
+- `content/modules/discovery/evaluation.json`
+- `content/modules/discovery/mcp.json`
+- `content/modules/discovery/microsoft-foundry.json`
+- `content/modules/discovery/orchestration.json`
+- `content/modules/discovery/rag.json`
+- `content/modules/discovery/vector.json`
+- `content/modules/discovery/voice-agent.json`
+
 ## [0.74.0] - 2026-08-19
 
 ### Added
