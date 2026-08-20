@@ -1,3 +1,32 @@
+# Project 42 platform v0.77.0
+
+Version 0.77.0 was cut by the Orchard release role from everything merged into `main` since v0.76.0. It exists so that content already merged into the platform repository reaches the sites that consume the platform package.
+
+## Content
+
+Changed:
+
+
+
+- `content/diagrams/multi-agent.mmd`
+- `content/diagrams/retrieval-pipeline.mmd`
+
+## Migrations
+
+No file under `migrations/` was added or changed since v0.76.0.
+
+## Breaking changes
+
+Orchard does not classify breaking changes. Review the file list above, and the diff for this tag, before approving the release environment.
+
+## Known limitations
+
+None are recorded by the automation that cut this release. It reports what changed; it does not assess it.
+
+## Rollback
+
+Revert consuming sites to v0.76.0.
+
 # Project 42 platform v0.76.0
 
 Version 0.76.0 was cut by the Orchard release role from everything merged into `main` since v0.75.0. It exists so that content already merged into the platform repository reaches the sites that consume the platform package.
