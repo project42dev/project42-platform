@@ -221,7 +221,8 @@
         "p42-create-01a01d34-70d2-7389-9c19-4358fc25c0cf",
         "p42-create-01a01d34-7009-7adc-8379-9f42f9e47ffa",
         "agent-orchestration-and-multi-agent-patterns",
-        "ai-for-executives-leaders-and-decision-makers"
+        "ai-for-executives-leaders-and-decision-makers",
+        "model-context-protocol-tool-interoperability"
       ],
       "badge": {
         "id": "badge-discovery",
