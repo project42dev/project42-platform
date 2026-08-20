@@ -1,0 +1,185 @@
+{
+  "id": "model-context-protocol-tool-interoperability",
+  "title": "Model Context Protocol and Tool Interoperability",
+  "summary": "This intermediate module teaches you to reason about Model Context Protocol roles, capability discovery, and interoperable tool use. After completing it, you can trace a tool request across an MCP integration, distinguish protocol compatibility from semantic compatibility, and identify essential validation and authorization controls.",
+  "level": "intermediate",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 35,
+  "objectives": [
+    "Explain the responsibilities of an MCP host, client, and server.",
+    "Distinguish tools from resources and prompts.",
+    "Trace capability discovery and a tool request through an MCP integration.",
+    "Assess whether two components are merely protocol-compatible or meaningfully interoperable.",
+    "Apply validation, authorization, consent, and least-privilege checks to an MCP tool workflow."
+  ],
+  "prerequisites": [],
+  "sections": [
+    {
+      "id": "level-and-outcome",
+      "title": "Level and learning outcome",
+      "paragraphs": [
+        "This is an intermediate-level module. It assumes that you understand basic request and response interactions, structured data, and the difference between reading information and performing an action. It does not assume prior experience implementing Model Context Protocol.",
+        "Before this module, you may know that an AI application can connect to external capabilities without being able to explain the roles, negotiation process, or safety boundaries involved. After this module, you will be able to trace an MCP tool request, evaluate whether an integration is genuinely interoperable, and identify where validation and authorization must occur."
+      ]
+    },
+    {
+      "id": "why-a-shared-protocol-matters",
+      "title": "Why a shared protocol matters",
+      "paragraphs": [
+        "Model Context Protocol, commonly abbreviated MCP, defines a shared way for an AI application to exchange context and capability information with external servers. A shared protocol reduces the need for every application and server pairing to invent a separate interaction format.",
+        "Protocol compatibility is only the first layer of interoperability. Two components can exchange valid protocol messages while still disagreeing about the meaning of a field, the units expected by an operation, or the consequences of an action. Meaningful interoperability therefore requires both protocol conformance and clear capability descriptions.",
+        "MCP does not make every connected server interchangeable. Servers can expose different capabilities, use different input shapes, and produce different results. An application must inspect what a particular server advertises instead of assuming that every connection offers the same operations."
+      ],
+      "callout": "A shared message format enables communication, but clear semantics and safe behavior make the communication useful."
+    },
+    {
+      "id": "host-client-server-roles",
+      "title": "Host, client, and server roles",
+      "paragraphs": [
+        "The host is the application that manages the overall user experience and integration. It decides when external context or actions are appropriate, manages user-facing approval, and applies application security policy.",
+        "An MCP client is the host-side protocol participant that maintains a connection with one MCP server. A host can manage multiple clients when it needs to communicate with multiple servers. Keeping each client associated with one server gives the host a clear boundary for routing messages and isolating server interactions.",
+        "An MCP server advertises capabilities and handles requests related to those capabilities. A server can provide context, reusable interaction patterns, or callable actions. The server defines what it offers, while the host remains responsible for deciding what the application and user are allowed to use.",
+        "These roles are logical responsibilities. Understanding them helps locate failures: connection and routing concerns involve the client relationship, capability behavior involves the server, and user authorization or overall policy belongs with the host."
+      ]
+    },
+    {
+      "id": "core-server-primitives",
+      "title": "Tools, resources, and prompts",
+      "paragraphs": [
+        "A tool represents an operation that can be invoked with structured input. A tool may retrieve information, perform computation, or cause an external action. Because some tools can change external state, discovering a tool is not the same as receiving permission to invoke it.",
+        "A resource provides context that can be read by the application. Resources are appropriate for information that the application may inspect or include as context without treating the read itself as a general-purpose action.",
+        "A prompt provides a reusable message template or interaction pattern. It helps package an established way of asking for or organizing work, but it does not replace authorization for any tool that the resulting interaction may invoke.",
+        "The distinction matters when designing policy. Reading a resource, selecting a prompt, and invoking a state-changing tool can carry different risks even when the same server exposes all three."
+      ]
+    },
+    {
+      "id": "discovery-and-negotiation",
+      "title": "Discovery and capability negotiation",
+      "paragraphs": [
+        "An MCP interaction begins by establishing the client-server relationship and exchanging initialization information. During this stage, each side communicates the protocol features it supports. Later behavior should be based on the capabilities actually negotiated, not on assumptions about what every implementation supports.",
+        "After initialization, the client can discover the capabilities advertised by the server. For tools, discovery gives the host information such as the operation description and the structured input expected by that operation. The host can use this information to decide whether an invocation is appropriate and to construct valid input.",
+        "Capability declarations support interoperability by allowing components to adapt to what is available. They are not authorization grants. A server saying that an operation exists does not establish that a particular user, model, or application may run it.",
+        "A robust client treats unsupported capabilities as unavailable. It should not send an operation merely because another server supported it in an earlier connection."
+      ],
+      "callout": "Negotiate first, discover second, authorize third, and invoke only after validation."
+    },
+    {
+      "id": "tracing-a-tool-request",
+      "title": "Tracing an interoperable tool request",
+      "paragraphs": [
+        "First, the server advertises a tool and describes its expected input. The client relays that description within the host, where the application can determine whether the tool is relevant to the user's goal.",
+        "Second, the host checks policy and authorization. If the action is consequential or exceeds an existing approval, the host should obtain informed user confirmation before allowing the request to proceed.",
+        "Third, the host constructs input that matches the advertised structure. It should validate types, required values, ranges, and any application-specific restrictions before sending the request through the client.",
+        "Fourth, the server validates the request again and performs only the operation it is authorized to perform. Validation on the host does not remove the server's responsibility to distrust incoming requests.",
+        "Fifth, the result returns through the client to the host. The host should treat returned content as untrusted, check whether it has the expected form, and decide how much of it to expose to the model or user.",
+        "Finally, the host presents the outcome and any relevant error in a way the user can understand. This trace separates protocol transport from policy decisions and makes it easier to identify where an unsafe or incompatible interaction occurred."
+      ]
+    },
+    {
+      "id": "evaluating-interoperability",
+      "title": "Evaluating interoperability",
+      "paragraphs": [
+        "Begin with protocol compatibility. Confirm that both sides can establish the relationship, negotiate supported capabilities, and exchange the required request and result messages.",
+        "Next examine structural compatibility. A client must be able to interpret the server's capability descriptions, construct inputs matching the advertised shapes, and process successful and unsuccessful results.",
+        "Then examine semantic compatibility. Names and valid structures are insufficient if the parties disagree about meaning. Descriptions should make the operation's purpose, required inputs, possible effects, and returned information clear enough for the host to make a safe decision.",
+        "Finally examine operational compatibility. The integration should handle unavailable capabilities, rejected requests, server errors, and connection loss without silently pretending that the requested action succeeded.",
+        "An interoperable design therefore combines negotiation, discovery, clear descriptions, validation, explicit error handling, and policy enforcement. Passing only the message-format layer does not establish that the overall workflow is correct."
+      ]
+    },
+    {
+      "id": "security-boundaries",
+      "title": "Security boundaries for tool use",
+      "paragraphs": [
+        "Treat server descriptions, resource contents, tool results, and error text as untrusted input. Content received from a server can be inaccurate or malicious even when the protocol exchange itself is valid.",
+        "Apply least privilege. Give each server and tool access only to the information and actions required for its purpose. Avoid treating connection to a server as blanket permission to use everything it advertises.",
+        "Keep authorization separate from capability discovery. The host should check user identity, application policy, action sensitivity, and current consent before allowing an invocation. The server should independently enforce the permissions relevant to the external system it controls.",
+        "Validate in both directions. Validate requested inputs before invocation, and validate returned content before using it as trusted context or presenting it as a confirmed result.",
+        "Preserve a clear user boundary for consequential actions. A model proposing a tool call is not equivalent to a user approving its effects. The host should provide enough information for informed confirmation when confirmation is required."
+      ],
+      "callout": "Capability means an operation is available. Authorization means this requester may use it. Consent means the user has agreed to the relevant effect."
+    }
+  ],
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "model-context-protocol-tool-interoperability-q1",
+        "prompt": "Which component manages the overall user experience and applies application-level authorization policy?",
+        "choices": [
+          "The host",
+          "The server",
+          "The resource",
+          "The prompt"
+        ],
+        "answerIndex": 0,
+        "explanation": "The host manages the overall integration, user-facing approval, and application security policy."
+      },
+      {
+        "id": "model-context-protocol-tool-interoperability-q2",
+        "prompt": "What does a tool represent in this module?",
+        "choices": [
+          "A reusable message template only",
+          "A readable source of context only",
+          "An operation invoked with structured input",
+          "A guarantee that an action is authorized"
+        ],
+        "answerIndex": 2,
+        "explanation": "A tool is an operation that can be invoked with structured input. Advertising a tool does not grant permission to invoke it."
+      },
+      {
+        "id": "model-context-protocol-tool-interoperability-q3",
+        "prompt": "What should determine whether a client uses an optional protocol feature?",
+        "choices": [
+          "Whether another server supported it previously",
+          "Whether it was negotiated for the current relationship",
+          "Whether its name sounds familiar",
+          "Whether the model requests it"
+        ],
+        "answerIndex": 1,
+        "explanation": "Behavior should follow the capabilities negotiated for the current client-server relationship rather than assumptions based on other connections."
+      },
+      {
+        "id": "model-context-protocol-tool-interoperability-q4",
+        "prompt": "Two components exchange structurally valid messages but disagree about the units expected by a tool input. Which interoperability layer is missing?",
+        "choices": [
+          "Semantic compatibility",
+          "Connection routing",
+          "User interface styling",
+          "Capability discovery"
+        ],
+        "answerIndex": 0,
+        "explanation": "The message structure is valid, but the parties disagree about meaning. That is a semantic compatibility failure."
+      },
+      {
+        "id": "model-context-protocol-tool-interoperability-q5",
+        "prompt": "Which statement correctly distinguishes capability from authorization?",
+        "choices": [
+          "If a server advertises a tool, every connected user may invoke it.",
+          "Authorization is established automatically during capability discovery.",
+          "Capability says an operation is available, while authorization decides whether a requester may use it.",
+          "Capability and authorization are two names for the same decision."
+        ],
+        "answerIndex": 2,
+        "explanation": "Discovery establishes availability, not permission. The host and server must apply the relevant authorization policies separately."
+      }
+    ]
+  },
+  "reviewCadenceDays": 90,
+  "lastVerified": "2026-08-20",
+  "sources": [
+    {
+      "title": "Model Context Protocol Documentation",
+      "url": "https://modelcontextprotocol.io/docs",
+      "publisher": "Model Context Protocol",
+      "lastVerified": "2026-08-20"
+    },
+    {
+      "title": "Model Context Protocol Specification Repository",
+      "url": "https://github.com/modelcontextprotocol/specification",
+      "publisher": "Model Context Protocol",
+      "lastVerified": "2026-08-20"
+    }
+  ]
+}
