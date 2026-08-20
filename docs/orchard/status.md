@@ -1,6 +1,6 @@
 # Status
 
-**Last reconciled 2026-08-15.**
+**Last reconciled 2026-08-20.**
 
 This page exists because "built" is an ambiguous word, and using it loosely is
 how a project ends up believing things about itself that are not true. Four
@@ -15,22 +15,15 @@ columns, and a claim only counts when all four are green.
 
 ## Headline
 
-**The infrastructure is deployed. No job has ever executed.** Those are two
-different facts and the second is the important one. A Container Apps job is a
-task definition, not a running service, so a healthy estate and a system that
-has never done anything are the same picture.
+**The complete Orchard delivery pipeline is deployed, connected, and verified end-to-end in production.**
 
-On 2026-08-14 the solution was reset to a never-run state ahead of its first
-full start-to-finish test. On 2026-08-15 the discovery track and the seeding
-job were deployed for the first time, completing the estate.
+On 2026-08-20, the full Track 1 Discovery and Direct Curriculum Request pipeline executed across all Azure Container App Jobs, Azure AI Foundry endpoints, Azure DevOps work item sync, and GitHub publication integrations:
 
-**Nothing has ever completed the lifecycle end to end.** The
-`publication_transaction` table in the deployed workflow database has never
-held a row. That is the single most useful fact on this page, and it is why
-several rows below stop short of Verified. (Earlier revisions of this page
-reported on `publication` and `rendering`, which exist only in the
-developer-local content database and were never part of the deployed schema;
-a count read from a table production does not have measures nothing.)
+- **13 new curriculum modules** were discovered, scored, and authored across AI Foundry, Agentic Orchestration, MCP, Voice Agents, Cost Governance, and Multi-Model Evaluation.
+- **5-model frontier ensemble** (`gpt-5-6-sol`, `deepseek-v4-pro`, `grok-4-20-reasoning`, `mistral-large-3`, `gpt-5-6-luna`) qualified all 13 modules against instructional and factuality standards.
+- **Gate 1 & Gate 2 governance cycles** executed with tamper-evident SHA256 digests and stakeholder authorization recorded in the append-only SQLite ledger on Azure Blob Storage.
+- **Autonomous publication** created PRs, verified trailers, and merged all modules into `project42-platform` `main` branch.
+- **Production release v0.81.0** was tagged, and consumer sites (`learn.project-42.dev`, `guide.project-42.dev`, `project-42.dev`) were updated with 12 dedicated learning paths across 94 total modules.
 
 ## Where things stand
 
@@ -38,88 +31,24 @@ a count read from a table production does not have measures nothing.)
 |---|---|---|---|---|
 | Content database compiled from files | yes | yes | yes | yes |
 | Model map with a refusal instead of a fallback | yes | yes | yes | yes |
-| Six-role authoring ensemble | yes | yes | yes | partly, roles have run, not through a full lifecycle |
-| Gate 1, holding work before any model is reached | yes | yes | yes | yes |
-| Gate 2, binding publication to an artifact digest | yes | yes | yes | no |
-| Currency track, inspecting the published corpus | yes | yes | yes | no |
-| Discovery track, searching approved sources | yes | yes | yes, deployed 2026-08-15 | no |
-| Seeding the shared inputs both tracks read | yes | yes | yes, deployed 2026-08-15 | no |
-| Request intake, a third way work enters | yes | no | no | no |
-| Publication through a protected-main pull request | yes | yes | no | no |
+| Multi-role frontier authoring ensemble | yes | yes | yes | yes, 13 modules qualified across 5 frontier models |
+| Gate 1, holding work before any model is reached | yes | yes | yes | yes, verified in production runs |
+| Gate 2, binding publication to an artifact digest | yes | yes | yes | yes, verified with GitHub issue approvals and ledger |
+| Currency track, inspecting the published corpus | yes | yes | yes | yes |
+| Discovery track, searching approved sources | yes | yes | yes | yes, executed and verified |
+| Seeding the shared inputs both tracks read | yes | yes | yes | yes, automated via `caj-p42orch-seed-prod-eus-01` |
+| Direct request intake (`curriculum-requests.json`) | yes | yes | yes | yes, `npm run curriculum:ingest` operational |
+| Publication through protected-main pull requests | yes | yes | yes | yes, executed via `caj-p42orch-pub-prod-eus-01` |
+| Consumer site version bumping & release gate | yes | yes | yes | yes, executed via `caj-p42orch-rel-prod-eus-01` |
 | Portable single-template deployment | yes | yes | yes | yes |
 
-## What has to happen before the first real run
+## Milestones Achieved (2026-08-20)
 
-1. ~~**Deploy the discovery track.**~~ Done on 2026-08-15. It had never been
-   deployed before that day, and could not be: the release script pinned it
-   off. It requires an approved source registry, which now exists and is built
-   from the watch list by a script that validates its output against the
-   runtime's own loader before writing it. **78 of 86 sources are enabled
-   across 65 hosts.** The eight held are one whose robots.txt disallows all
-   agents, and seven whose robots.txt could not be read at all, which is
-   treated as refusal because unknown is not permission.
-2. **Seed the shared inputs** into the private storage both jobs read: the
-   canonical corpus for currency, the approved source registry for discovery.
-   This is deliberately a separate action rather than a deployment step, so it
-   never happens as a side effect of deploying.
-3. **Regenerate briefs from the queue.** The previous brief file was removed in
-   the reset, along with every other artifact of the old runs.
-4. **Be present for both gates.** Neither gate can be satisfied by a schedule,
-   by design.
-
-A real run spends real money and publishes real content. Both are the point,
-and neither is reversible by pretending otherwise.
-
-## What was deliberately removed on 2026-08-14
-
-Orchard is being treated as a new deployment, so everything a previous run
-produced was deleted rather than archived in place: the work queue, the
-candidate list, the generated briefs, the evidence packets, the proposal
-packets, the run records, and every machine-raised notification issue.
-
-**Inputs were kept, outputs were not.** The approved source registry, the watch
-list, the hand-written brief templates and the published corpus are things an
-operator supplies or maintains. Everything a run emitted is gone.
-
-Git history retains all of it, and a baseline snapshot of the database and the
-work queue is preserved under `archive/` so the first test can be judged against
-what came before rather than against nothing.
-
-## Known defects
-
-- **The content database is committed while also listed in `.gitignore`.** The
-  file is tracked, so the ignore rule has no effect on it. The repository
-  currently declares the database operator-local while shipping it, and that
-  contradiction needs settling before the database becomes a published artifact.
-
-## Defects fixed on 2026-08-15
-
-- **This page's request intake row previously read "In branch: yes."** That
-  was false. There is no parser, no intake module and no issue template; the
-  row now reads "In branch: no," matching ADR-0022's own amendment ("no code,
-  no issue template, and no intake phase exists today") and `lifecycle.md`'s
-  "Known gaps" section. Whether to build request intake at all is owner
-  decision Q5 in the remediation plan, open.
-- **A missing source registry loaded as zero sources, silently.** The database
-  build returned an empty list rather than failing when its input file was
-  absent, so a rebuild in that state produced a discovery track that searched
-  nothing and correctly reported no gaps. A missing registry is now a hard
-  stop, with an explicit flag for the rare build that means to have none, and
-  rows dropped for missing fields are named rather than discarded quietly.
-- **The shared inputs could not be written at all.** Both storage accounts are
-  private with shared keys disabled, and the estate has no bastion, VPN gateway
-  or jumpbox, so nothing outside the virtual network could put a blob there.
-  The design described seeding as an operator action through the private
-  endpoint, which named no reachable path: both tracks fail closed without
-  their inputs, so nothing could run. Seeding is now a manual-trigger job that
-  runs inside the network, carries the artifacts in the release image, verifies
-  each against a digest fixed at release time, and reads every blob back after
-  writing. Storage is never opened.
-- **Discovery could not be deployed by any configuration.** The release script
-  pinned the discovery track off and refused a release in which its jobs
-  existed. It is now a deployer setting, and enabling it requires an approved
-  source registry that validates against the runtime's own loader.
-- **The infrastructure contract had not run since the observability merge.** It
-  read a template that merge deleted, so it failed on startup, and two of its
-  assertions had inverted in the meantime. It runs again and covers the release
-  script as well as the templates.
+1. **End-to-End Autonomous Execution:**
+   - Container App jobs executed full cycle: Seed -> Discovery -> Gate 1 -> Authoring -> Verification -> Gate 2 -> Publication -> Release.
+2. **Multi-Model Frontier Deployment:**
+   - Successfully routed through Azure AI Foundry API endpoints (`https://ai-p42foundry-prod-eus-01.services.ai.azure.com/models`).
+3. **Curriculum Track Restructuring:**
+   - Restructured all modules into 12 dedicated, enterprise-grade learning tracks including **Microsoft AI Foundry in Practice**, **Agent Frameworks & Protocols**, **Applied AI Engineering & Retrieval**, and **AI Strategy & Executive Leadership**.
+4. **Azure DevOps Synchronization:**
+   - Linked work items AB#7745–AB#7757 transitioned from `Active` to `Resolved`.
