@@ -577,3 +577,11 @@ export type {
   KeycloakIdentityProvisioningAdapterOptions,
 } from "./keycloak-identity-provisioning-adapter.js";
 export { RESOURCE_AUDIENCES, RESOURCE_FORMATS } from "./schema.js";
+
+export {
+  loadDynamicCatalog,
+  loadCatalogFromPath,
+  mergeCatalogs,
+  type ContentSyncOptions,
+  type ContentSyncSummary,
+} from "./content-sync.js";
