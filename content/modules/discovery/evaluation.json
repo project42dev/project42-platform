@@ -1,0 +1,234 @@
+{
+  "id": "agent-evaluation-and-trajectory-scoring",
+  "title": "Agent evaluation and trajectory scoring",
+  "summary": "This intermediate module teaches you to design an agent evaluation that separates task outcomes from trajectory quality. After completing it, you can define a scoring rubric, calculate a normalized trajectory score, handle invalid trials, and interpret results without confusing plausible behavior with verified success.",
+  "level": "intermediate",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 40,
+  "objectives": [
+    "Distinguish outcome evaluation from trajectory evaluation.",
+    "Represent an agent trajectory as an ordered record of observations, actions, responses, and state changes.",
+    "Define measurable success conditions before running an evaluation.",
+    "Build a weighted trajectory rubric with observable criteria and scoring anchors.",
+    "Calculate and interpret a normalized trajectory score.",
+    "Separate agent failures from invalid trials caused by the evaluation setup.",
+    "Report outcome, trajectory, efficiency, and validity results without collapsing them into a misleading single number."
+  ],
+  "prerequisites": [],
+  "sections": [
+    {
+      "id": "level-and-scope",
+      "title": "Level and scope",
+      "paragraphs": [
+        "This is an intermediate-level module. It assumes that you understand the basic agent loop in which an agent receives an observation, selects an action, receives a response from an environment, and continues until it stops or reaches a limit. No advanced statistics, programming framework, or provider-specific knowledge is required.",
+        "After this module, you will be able to move from an informal judgment such as the agent looked convincing to a reproducible evaluation plan. You will be able to specify what success means, record what happened during an attempt, score observable properties of that attempt, and explain the limits of the resulting scores."
+      ]
+    },
+    {
+      "id": "evaluation-units",
+      "title": "Define the evaluation unit",
+      "paragraphs": [
+        "An agent evaluation begins with a task instance. A task instance contains an initial state, instructions, permitted interactions, constraints, and a success condition. The evaluation unit is one attempt by one agent configuration on one task instance under stated conditions.",
+        "Define the success condition before examining the attempt. A success condition should be testable from the final environment state or another independent artifact whenever possible. For example, if the task is to change a stored record, success concerns the resulting record rather than an agent message claiming that the record was changed.",
+        "Also define termination conditions. An attempt can end because the task succeeds, the agent declares completion, a step or resource limit is reached, the environment rejects further interaction, or the evaluation infrastructure fails. These endings are not interchangeable and should be recorded separately."
+      ],
+      "callout": "A fluent final answer is evidence about what the agent said. It is not, by itself, evidence that the environment reached the required state."
+    },
+    {
+      "id": "trajectory-anatomy",
+      "title": "Represent the trajectory",
+      "paragraphs": [
+        "A trajectory is the ordered record of an attempt. For this module, each step contains the observation available to the agent, the action selected by the agent, the environment response, and any observable state change. The complete record also includes the initial state, the terminal state, the termination reason, and resource measurements collected under the evaluation rules.",
+        "Order matters. An action can be reasonable after one observation but unsupported before that observation. A trajectory record therefore needs stable step ordering and enough information to connect each action to the evidence available at that point.",
+        "Keep observed data separate from evaluator interpretation. The action and environment response are observations. Labels such as unnecessary, unsafe, or well justified are evaluator judgments. Preserving this distinction makes disagreements easier to inspect.",
+        "Some agent designs expose intermediate reasoning, while others do not. Evaluation should not require private reasoning that is unavailable. Observable actions, responses, state changes, and final artifacts can still be evaluated consistently."
+      ]
+    },
+    {
+      "id": "outcome-versus-process",
+      "title": "Separate outcome and trajectory quality",
+      "paragraphs": [
+        "Outcome evaluation asks whether the required result was achieved. A binary outcome records success or failure according to the predefined verifier. Across valid trials, success rate is the number of successful trials divided by the number of valid trials.",
+        "Trajectory evaluation asks how the agent proceeded. It can measure whether actions were relevant, whether required evidence was gathered before consequential actions, whether constraints were respected, whether repeated or ineffective actions occurred, and whether the agent stopped appropriately.",
+        "Outcome and trajectory scores answer different questions. A successful outcome can follow a poor trajectory, such as one containing unnecessary risky actions. A strong-looking trajectory can still end in failure. Report both rather than treating one as a substitute for the other.",
+        "Efficiency measures such as step count, elapsed time, or consumed resources are also distinct. Lower use is not automatically better because an agent can appear efficient by stopping before completing the task. Compare efficiency among attempts with the same evaluation conditions, and interpret it alongside success."
+      ]
+    },
+    {
+      "id": "success-contract",
+      "title": "Write the success contract",
+      "paragraphs": [
+        "A success contract states what the evaluator will inspect and how it will decide success. It should identify the target state or artifact, required constraints, allowed tolerances if any, and the point at which verification occurs.",
+        "Prefer direct verification. If the task changes an environment, inspect the environment. If it produces a structured artifact, validate that artifact against the task requirements. Use a human or language-model judgment only when the criterion genuinely requires interpretation, and give that judge explicit scoring anchors.",
+        "Do not create or revise success rules after seeing which attempts would pass. That makes results depend on the evaluated outputs. If a defect in the contract is discovered, document the revision and rerun affected attempts under the revised rule."
+      ]
+    },
+    {
+      "id": "trajectory-rubric",
+      "title": "Build a trajectory rubric",
+      "paragraphs": [
+        "A trajectory rubric converts observable properties into scores. Each criterion needs a name, a description of the evidence to inspect, and anchors explaining what each score means. Criteria should be sufficiently distinct that the same behavior is not rewarded or penalized repeatedly under different labels.",
+        "One suitable three-point scale is 0 for a clear failure of the criterion, 1 for partial or inconsistent satisfaction, and 2 for full satisfaction. This is a rubric definition, not a universal scale. An evaluation may use another scale if its anchors are explicit.",
+        "Possible criteria include action relevance, evidence use, constraint compliance, recovery after an error, and termination quality. Use only criteria that apply to the task and can be judged from the recorded trajectory. Do not score hidden intent.",
+        "A criterion called evidence use might assign 0 when a consequential action contradicts or lacks required evidence, 1 when some relevant evidence is gathered but important support is missing, and 2 when the required evidence is gathered and used before the action. These anchors tell evaluators what observations distinguish the scores.",
+        "Weights express the evaluation's declared priorities. Set them before scoring attempts. A critical constraint can also be handled as a separate pass or fail gate rather than allowing strong performance elsewhere to cancel its violation."
+      ]
+    },
+    {
+      "id": "score-calculation",
+      "title": "Calculate the trajectory score",
+      "paragraphs": [
+        "For criterion i, let s_i be the assigned score and w_i be its positive weight. The weighted mean is the sum of w_i times s_i divided by the sum of w_i. If every criterion uses the 0 to 2 scale, the weighted mean also ranges from 0 to 2.",
+        "To express that result on a 0 to 100 scale, divide the weighted mean by 2 and multiply by 100. For example, consider two criteria with weights 2 and 1. If their scores are 1 and 2, the weighted mean is ((2 times 1) plus (1 times 2)) divided by 3, which equals 4 divided by 3. The normalized trajectory score is (4 divided by 3) divided by 2, multiplied by 100, or approximately 66.7.",
+        "A normalized score is meaningful only in relation to its rubric. It does not establish that two evaluations measured the same construct merely because both report numbers from 0 to 100. Publish the criteria, anchors, weights, and aggregation rule with the score.",
+        "Keep hard failures visible. If violating a required constraint causes automatic failure, report that rule separately and do not hide the violation inside an average."
+      ]
+    },
+    {
+      "id": "scoring-consistency",
+      "title": "Improve scoring consistency",
+      "paragraphs": [
+        "Test the rubric on a small set of representative trajectories before using it for the full evaluation. Have evaluators identify which recorded evidence supports each score. Disagreement can reveal ambiguous anchors, missing trajectory data, or criteria that combine multiple ideas.",
+        "When human judgment is required, evaluators should use the same instructions and should not infer facts absent from the record. When a language model assigns scores, treat it as an evaluator with its own possible inconsistencies rather than as an unquestionable reference. The cited research on language-model judging documents the use and study of such evaluators, which supports checking their behavior rather than assuming perfect judgment.",
+        "For subjective criteria, retain the evaluator's criterion-level scores and concise evidence references. A single total score makes it difficult to discover whether disagreement came from evidence use, constraint compliance, or another criterion.",
+        "If the rubric or evaluator instructions change, preserve the revision and identify which attempts were scored under it. Comparing scores produced by materially different rules requires explicit qualification."
+      ]
+    },
+    {
+      "id": "invalid-trials",
+      "title": "Handle invalid trials and uncertainty",
+      "paragraphs": [
+        "An invalid trial is one in which the planned evaluation was not actually conducted, such as when required task data is unavailable or the evaluation infrastructure prevents interaction. An agent failure is a valid trial in which the agent does not satisfy the task. Misclassifying difficult failures as invalid can inflate reported performance.",
+        "Define invalidation and retry rules before running the evaluation. Record the original attempt, the invalidation reason, whether a retry occurred, and which attempt entered the reported result. Do not silently remove trials.",
+        "If the available trajectory does not contain enough evidence to score a criterion, record that criterion as UNKNOWN rather than guessing. The aggregation rule must state how UNKNOWN values are handled. One defensible approach is to report coverage and avoid calculating a total score when a required criterion is unknown.",
+        "Missing evidence is not automatically evidence of failure unless the rubric explicitly requires the evidence to be present. For example, if the agent must verify a state before acting, absence of a recorded verification can legitimately fail the evidence-use criterion. Otherwise, the evaluator should not invent what happened."
+      ]
+    },
+    {
+      "id": "reporting-results",
+      "title": "Report results without hiding tradeoffs",
+      "paragraphs": [
+        "A useful report identifies the task set, evaluation unit, success contract, termination rules, invalid-trial policy, trajectory schema, rubric, criterion weights, aggregation rule, and evaluation conditions. It reports the number of valid, successful, failed, invalid, and UNKNOWN-scored trials rather than presenting only a percentage.",
+        "Present outcome success, critical constraint violations, criterion-level trajectory scores, total trajectory scores, and efficiency measures as separate results. This allows a reader to distinguish an agent that often succeeds inefficiently from one that behaves neatly but rarely completes the task.",
+        "Inspect individual trajectories as well as aggregate results. Repeated failure patterns can reveal missing evidence gathering, ineffective retries, premature stopping, or exploitation of a weak verifier. Such patterns should motivate a clearly documented evaluation revision, followed by rescoring or rerunning as appropriate.",
+        "Interactive-agent benchmarks in the cited sources evaluate agents through actions and environment feedback rather than final text alone. Their task designs differ, so their reported results should not be treated as interchangeable. The transferable lesson is to align the verifier and trajectory record with the environment and task being evaluated."
+      ]
+    },
+    {
+      "id": "evaluation-workflow",
+      "title": "Apply the workflow",
+      "paragraphs": [
+        "First, define each task instance and its independently testable success contract. Second, specify allowed actions, limits, termination reasons, invalidation rules, and retry rules. Third, record ordered trajectories with initial and terminal states.",
+        "Fourth, score the outcome using the predefined verifier. Fifth, score trajectory criteria using observable evidence and fixed anchors. Sixth, apply declared weights and gates without changing them after seeing results. Seventh, report validity, outcome, trajectory, and efficiency measures separately.",
+        "Finally, review disagreements and failure patterns. Revise a defective evaluator only with a documented reason, and rerun or rescore affected attempts. This workflow makes an agent evaluation inspectable and repeatable without pretending that one aggregate score captures every property of agent behavior."
+      ]
+    }
+  ],
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "agent-evaluation-and-trajectory-scoring-q1",
+        "prompt": "An agent states that it updated a record, but inspection shows that the record did not change. Under the module's outcome rule, what is the correct result?",
+        "choices": [
+          "Success, because the final statement claimed completion",
+          "Failure, because the required environment state was not achieved",
+          "UNKNOWN, because final statements cannot be evaluated",
+          "Success if the trajectory was otherwise efficient"
+        ],
+        "answerIndex": 1,
+        "explanation": "Outcome success is determined by the predefined success contract and the resulting state or artifact, not by the agent's claim."
+      },
+      {
+        "id": "agent-evaluation-and-trajectory-scoring-q2",
+        "prompt": "Which item belongs in a trajectory step as observed data rather than evaluator interpretation?",
+        "choices": [
+          "The action selected by the agent",
+          "A label saying the action was unnecessary",
+          "A judgment that the agent behaved safely",
+          "A conclusion that the reasoning was poor"
+        ],
+        "answerIndex": 0,
+        "explanation": "The selected action is part of the observed record. The other choices are evaluator judgments that should be stored separately from observations."
+      },
+      {
+        "id": "agent-evaluation-and-trajectory-scoring-q3",
+        "prompt": "Two trajectory criteria use a 0 to 2 scale. Their weights are 2 and 1, and their scores are 1 and 2. What normalized score does the module's formula produce?",
+        "choices": [
+          "50",
+          "60",
+          "Approximately 66.7",
+          "Approximately 83.3"
+        ],
+        "answerIndex": 2,
+        "explanation": "The weighted mean is ((2 times 1) plus (1 times 2)) divided by 3, or 4 divided by 3. Dividing by the maximum score of 2 and multiplying by 100 gives approximately 66.7."
+      },
+      {
+        "id": "agent-evaluation-and-trajectory-scoring-q4",
+        "prompt": "Required task data is unavailable, so the agent cannot begin the planned interaction. How should the attempt be classified under the module's definitions?",
+        "choices": [
+          "A successful trial",
+          "An agent failure",
+          "An invalid trial with a recorded reason",
+          "A perfect trajectory with no actions"
+        ],
+        "answerIndex": 2,
+        "explanation": "The planned evaluation was not conducted because required task data was unavailable. The attempt should be recorded as invalid according to predefined invalidation rules."
+      },
+      {
+        "id": "agent-evaluation-and-trajectory-scoring-q5",
+        "prompt": "A required trajectory criterion cannot be scored because the record lacks enough evidence. What should the evaluator do?",
+        "choices": [
+          "Guess the most likely score",
+          "Assign the highest score",
+          "Record UNKNOWN and follow the declared aggregation rule",
+          "Delete the trial without recording it"
+        ],
+        "answerIndex": 2,
+        "explanation": "The module requires evaluators to record UNKNOWN rather than inventing evidence. It also recommends reporting coverage and avoiding a total when a required criterion is unknown."
+      },
+      {
+        "id": "agent-evaluation-and-trajectory-scoring-q6",
+        "prompt": "Why should outcome success and trajectory quality be reported separately?",
+        "choices": [
+          "Because a good-looking trajectory always guarantees success",
+          "Because outcome and trajectory scores answer different questions",
+          "Because trajectory scoring replaces direct outcome verification",
+          "Because efficiency is identical to task success"
+        ],
+        "answerIndex": 1,
+        "explanation": "Outcome evaluation asks whether the required result was achieved, while trajectory evaluation asks how the agent proceeded. Either can be strong while the other is weak."
+      }
+    ]
+  },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-20",
+  "sources": [
+    {
+      "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+      "url": "https://arxiv.org/abs/2210.03629",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-20"
+    },
+    {
+      "title": "AgentBench: Evaluating LLMs as Agents",
+      "url": "https://arxiv.org/abs/2308.03688",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-20"
+    },
+    {
+      "title": "WebArena: A Realistic Web Environment for Building Autonomous Agents",
+      "url": "https://arxiv.org/abs/2307.13854",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-20"
+    },
+    {
+      "title": "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena",
+      "url": "https://arxiv.org/abs/2306.05685",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-20"
+    }
+  ]
+}

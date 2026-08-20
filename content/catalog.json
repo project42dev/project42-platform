@@ -224,7 +224,8 @@
         "ai-for-executives-leaders-and-decision-makers",
         "model-context-protocol-tool-interoperability",
         "mapping-our-orchestration-patterns-onto-named-frameworks",
-        "voice-agents-virtual-instructors-accessible-media"
+        "voice-agents-virtual-instructors-accessible-media",
+        "agent-evaluation-and-trajectory-scoring"
       ],
       "badge": {
         "id": "badge-discovery",
