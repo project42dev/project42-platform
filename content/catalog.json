@@ -211,28 +211,70 @@
       }
     },
     {
-      "id": "discovery",
-      "title": "Newly Discovered Topics",
-      "summary": "Modules proposed by the monthly discovery run and approved by the owner, gathered here as each one is published.",
-      "audience": "Learners who want emerging tools, protocols, and practice covered as they appear, before they settle into a curated path.",
+      "id": "microsoft-foundry-practice",
+      "title": "Microsoft AI Foundry in Practice",
+      "summary": "Provision Foundry projects, deploy frontier models, configure agent loops, and manage cloud boundaries.",
+      "audience": "Cloud engineers, solution architects, and developers building on the Microsoft AI stack.",
       "level": "intermediate",
       "moduleIds": [
-        "embeddings-and-vector-stores",
-        "p42-create-01a01d34-70d2-7389-9c19-4358fc25c0cf",
-        "p42-create-01a01d34-7009-7adc-8379-9f42f9e47ffa",
-        "agent-orchestration-and-multi-agent-patterns",
-        "ai-for-executives-leaders-and-decision-makers",
-        "model-context-protocol-tool-interoperability",
-        "mapping-our-orchestration-patterns-onto-named-frameworks",
-        "voice-agents-virtual-instructors-accessible-media",
-        "agent-evaluation-and-trajectory-scoring",
-        "p42-create-01a01d34-7143-772b-8799-fcceb0c7a408",
-        "p42-create-01a01d34-715c-7e21-8090-3d123eb470f0"
+        "p42-create-01a01d34-715c-7e21-8090-3d123eb470f0",
+        "p42-create-01a01d34-70d2-7389-9c19-4358fc25c0cf"
       ],
       "badge": {
-        "id": "badge-discovery",
-        "name": "Emerging Practice",
-        "description": "Completed the discovered modules covering tooling and practice that entered the corpus this cycle."
+        "id": "badge-microsoft-foundry",
+        "name": "Microsoft Foundry Practitioner",
+        "description": "Demonstrated proficiency provisioning and operating models in Microsoft AI Foundry."
+      }
+    },
+    {
+      "id": "agent-frameworks-and-protocols",
+      "title": "Agent Frameworks & Protocols",
+      "summary": "Build interoperable agents using the Model Context Protocol (MCP), orchestration frameworks, and real-time voice loops.",
+      "audience": "AI software engineers and system architects implementing production tool-using agents.",
+      "level": "intermediate",
+      "moduleIds": [
+        "model-context-protocol-tool-interoperability",
+        "agent-orchestration-and-multi-agent-patterns",
+        "mapping-our-orchestration-patterns-onto-named-frameworks",
+        "voice-agents-virtual-instructors-accessible-media"
+      ],
+      "badge": {
+        "id": "badge-agent-frameworks",
+        "name": "Agent Frameworks Engineer",
+        "description": "Mastered MCP interoperability, orchestration patterns, and multi-agent coordination."
+      }
+    },
+    {
+      "id": "applied-ai-engineering",
+      "title": "Applied AI Engineering & Retrieval",
+      "summary": "Implement Retrieval-Augmented Generation (RAG), vector stores, automated trajectory evaluation, and cost governance.",
+      "audience": "Practitioners designing robust retrieval pipelines, evaluation harnesses, and token economics.",
+      "level": "intermediate",
+      "moduleIds": [
+        "p42-create-01a01d34-7009-7adc-8379-9f42f9e47ffa",
+        "embeddings-and-vector-stores",
+        "agent-evaluation-and-trajectory-scoring",
+        "p42-create-01a01d34-7143-772b-8799-fcceb0c7a408"
+      ],
+      "badge": {
+        "id": "badge-applied-ai-engineering",
+        "name": "Applied AI Engineer",
+        "description": "Demonstrated mastery of RAG architectures, vector search, evaluation, and cost governance."
+      }
+    },
+    {
+      "id": "ai-executive-strategy",
+      "title": "AI Strategy & Executive Leadership",
+      "summary": "Evaluate AI business cases, governance, risk frameworks, and organizational capability roadmaps.",
+      "audience": "Executive leaders, technology directors, and decision-makers investing in AI initiatives.",
+      "level": "beginner",
+      "moduleIds": [
+        "ai-for-executives-leaders-and-decision-makers"
+      ],
+      "badge": {
+        "id": "badge-executive-ai",
+        "name": "AI Strategy Leader",
+        "description": "Completed executive strategy and governance training for enterprise AI deployment."
       }
     }
   ],
@@ -1235,6 +1277,2125 @@
           "url": "https://www.nist.gov/itl/ai-risk-management-framework",
           "publisher": "NIST",
           "lastVerified": "2026-07-25"
+        }
+      ]
+    },
+    {
+      "id": "p42-create-01a01d34-7143-772b-8799-fcceb0c7a408",
+      "title": "Cost, capacity, and spend control for AI systems",
+      "summary": "This intermediate module teaches you to calculate unit cost, translate measured demand into capacity, forecast spend, and choose controls that balance financial limits with service reliability. After completing it, you can build and explain a provider-neutral cost and capacity plan instead of treating an invoice or budget as an unexplained total.",
+      "level": "intermediate",
+      "providers": [
+        "provider-neutral"
+      ],
+      "estimatedMinutes": 45,
+      "objectives": [
+        "Calculate direct usage cost and cost per successful outcome from measured workload data.",
+        "Separate fixed, variable, shared, and avoidable costs so that a cost model does not hide important assumptions.",
+        "Calculate required capacity from peak demand, measured safe throughput, and an explicit headroom factor.",
+        "Forecast spend with documented workload and price assumptions while identifying environment-specific values as UNKNOWN.",
+        "Choose monitoring, alerting, budgeting, and enforcement controls appropriate to the consequence of exceeding a spend limit.",
+        "Explain how retries, rejected work, capacity headroom, and service objectives connect cost management to reliability."
+      ],
+      "prerequisites": [],
+      "sections": [
+        {
+          "id": "scope-and-level",
+          "title": "What this intermediate module assumes",
+          "paragraphs": [
+            "This module is explicitly intermediate. It assumes that you can work with multiplication, division, percentages, averages, request rates, and basic monitoring concepts. It introduces the cost and capacity relationships needed here, so it does not assume prior knowledge of queueing theory, financial accounting, or any named provider.",
+            "Before this module, you may be able to read a usage total or budget. After it, you can turn measured demand, prices, successful outcomes, and load-test results into a documented cost and capacity plan. You can also distinguish an informative budget alert from a control that actually limits work.",
+            "Exact prices, billing units, discounts, quotas, and contract terms are environment-specific. They are UNKNOWN until established from the applicable agreement, rate schedule, and usage records. Do not substitute an example value for an unknown production value."
+          ]
+        },
+        {
+          "id": "define-the-unit-of-work",
+          "title": "Start with a measurable unit of work",
+          "paragraphs": [
+            "A cost model needs a denominator. Depending on the system, useful denominators can include a request, completed document, resolved case, generated asset, evaluated candidate, or other outcome. The best denominator represents value delivered rather than activity alone.",
+            "Define a successful outcome before calculating unit cost. A request that failed, was rejected, timed out, produced an unusable result, or was discarded may still consume billable resources. Counting only submitted requests can therefore conceal the cost of unsuccessful work.",
+            "Use two related measures when possible. Direct usage cost per request equals direct usage spend divided by attempted requests. Total attributable cost per successful outcome equals all costs assigned to the workload divided by the number of successful outcomes. The second measure connects spend to delivered value, while the first helps diagnose technical consumption.",
+            "Record the measurement period, workload boundary, success definition, included cost categories, and allocation method beside each result. Without those definitions, two unit-cost figures can use the same label while measuring different things."
+          ]
+        },
+        {
+          "id": "build-the-cost-model",
+          "title": "Build a transparent cost model",
+          "paragraphs": [
+            "Separate costs into categories before adding them. Variable costs change with measured usage. Fixed costs remain for the period even if workload volume changes within the relevant range. Shared costs support more than one workload and require a documented allocation rule. Avoidable costs are consumed without delivering the intended outcome, such as unnecessary duplicate work or repeated failed attempts.",
+            "For a simple usage tier with one rate, direct usage spend equals billable units divided by the rate denominator, multiplied by the rate. If different unit classes, tiers, or time periods have different rates, calculate each applicable segment separately and then add the results. A single blended rate is safe only when its derivation is documented and appropriate for the decision.",
+            "A practical period equation is: total attributable spend equals direct variable spend plus assigned fixed spend plus assigned shared spend plus other applicable charges or adjustments. Taxes, credits, discounts, and commitments must be handled according to the actual agreement. Their values and treatment are UNKNOWN when that agreement is not available.",
+            "Consider a hypothetical workload with 2,400,000 billable units in a period. The hypothetical rate is 0.24 currency units per 1,000 billable units, so direct usage spend is 2,400 times 0.24, or 576 currency units. If assigned fixed and shared costs total 192 currency units, total attributable spend is 768 currency units. If 100,000 attempts produce 96,000 successful outcomes, total attributable cost per successful outcome is 768 divided by 96,000, or 0.008 currency units. These numbers are teaching inputs, not market prices."
+          ]
+        },
+        {
+          "id": "measure-demand-and-capacity",
+          "title": "Translate demand into capacity",
+          "paragraphs": [
+            "Capacity is the amount of workload a system can handle while meeting its stated service objectives. A theoretical maximum is not the same as safe operating capacity. Safe throughput should be measured under representative conditions while observing latency, errors, and saturation. The monitoring guidance in the sources identifies latency, traffic, errors, and saturation as central signals.",
+            "For an online workload, choose a planning demand such as a measured peak request rate or a justified forecast. Measure the sustainable throughput of one deployable capacity unit under the required service objective. Then apply an explicit headroom factor for uncertainty and variation. Required capacity units equal the ceiling of planning demand multiplied by the headroom factor, divided by safe throughput per capacity unit.",
+            "Suppose a hypothetical workload has planning demand of 120 requests per second. Testing shows that one capacity unit safely handles 18 requests per second under the target latency and error conditions. With a headroom factor of 1.25, required capacity is the ceiling of 120 times 1.25 divided by 18. The result is the ceiling of 8.33, so the plan requires 9 capacity units.",
+            "Headroom is a stated risk choice, not free capacity. More headroom can improve tolerance for bursts or uncertainty but can increase provisioned cost. Less headroom can reduce provisioned cost but leaves less room for variation. Record why the factor was chosen and identify the condition that would trigger a revision.",
+            "Average demand alone is insufficient when demand varies materially. Review peaks, duration, request classes, latency distributions, errors, saturation, and backlog behavior. For batch work, the corresponding questions are how much work must finish, the completion deadline, and the measured amount of work each capacity unit completes within that interval."
+          ]
+        },
+        {
+          "id": "forecast-cost-and-capacity-together",
+          "title": "Forecast cost and capacity together",
+          "paragraphs": [
+            "A spend forecast combines a workload forecast with the applicable cost model. Begin with workload drivers, convert them into attempted work and billable units, apply the relevant rates, and then add fixed and allocated shared costs. Keep the workload assumptions separate from price assumptions so that each can be changed independently.",
+            "Use scenarios when important inputs are uncertain. A lower, planning, and stress scenario can vary demand, success rate, retry rate, unit consumption, safe throughput, or price. Scenario labels do not make uncertain inputs factual. Mark an input UNKNOWN until measurement, a contract, or another authoritative record establishes it.",
+            "Capacity and spend forecasts must reconcile. If the capacity plan assumes nine continuously active units but the cost model includes only six, the models describe different systems. If the financial plan assumes demand will be rejected after a threshold, the capacity and service plans must account for those rejected requests.",
+            "Reforecast when actual demand, success rate, unit consumption, throughput, or applicable rates depart materially from the assumptions. The threshold for materiality is organization-specific and is UNKNOWN unless a governing policy defines it."
+          ]
+        },
+        {
+          "id": "design-spend-controls",
+          "title": "Use layered spend controls",
+          "paragraphs": [
+            "Spend visibility is the first layer. Meter the billable quantities and connect them to a workload, environment, request class, and outcome where feasible. Reconcile operational measurements with billing records because the system's technical counters and the bill may use different boundaries or timing.",
+            "A budget is a financial plan. An alert reports that observed or forecast spend has crossed a chosen condition. Neither one necessarily prevents additional work. Treating an alert as a hard limit is a control-design error unless a separate enforcement mechanism is explicitly connected to it.",
+            "Guardrails can include review requirements, usage envelopes, concurrency limits, request admission rules, and limits by workload or tenant. Enforcement can reject, delay, queue, degrade, or stop work, so each enforcement action needs a defined reliability and user impact. The overload guidance in the sources explains why accepting work beyond safe capacity can harm a service and why overload responses need deliberate design.",
+            "Use a control ladder. First measure and attribute spend. Next forecast and compare it with an approved envelope. Then warn owners early enough to act. Finally, enforce a limit only where the consequence of continued spending is greater than the consequence of delaying or rejecting work. Assign an owner, response time, escalation path, and recovery procedure to every alert or enforcement control.",
+            "Governance should make decisions traceable. Record the metric, threshold, scope, owner, intended action, exceptions, and review date. The risk-management source supports explicit governance, measurement, and management rather than relying on an undocumented control."
+          ]
+        },
+        {
+          "id": "diagnose-cost-variance",
+          "title": "Diagnose variance instead of guessing",
+          "paragraphs": [
+            "When spend differs from plan, decompose the difference. Check workload volume, billable units per attempt, success rate, repeated attempts, capacity hours, allocation changes, applicable rates, fixed charges, credits, and timing. This turns a total variance into candidate causes that can be tested.",
+            "For example, spend can rise while successful outcomes remain flat if attempts increase but success rate falls. Cost per attempt may appear stable even though cost per successful outcome becomes worse. Looking at both measures reveals the difference.",
+            "Do not label a cost as waste solely because it did not produce an immediate successful outcome. Testing, safety checks, resilience capacity, and evaluation can be intentional. Classify a cost as avoidable only after comparing it with the workload's documented purpose and risk requirements.",
+            "Close the loop after a change. Verify whether spend, successful outcomes, latency, errors, and saturation moved as expected. A change that lowers unit cost but violates a service or quality objective is not an unconditional improvement."
+          ]
+        },
+        {
+          "id": "operating-review",
+          "title": "Run a repeatable operating review",
+          "paragraphs": [
+            "A useful review begins with definitions: the workload boundary, successful outcome, service objective, measurement period, and cost categories. It then compares actual demand, capacity, spend, and unit cost with the plan. Variances are assigned to named causes only when evidence supports them.",
+            "The review should identify unknowns explicitly. Examples include an unconfirmed future rate, an unmeasured safe throughput, or an undocumented allocation rule. For each unknown, record what evidence would establish it, such as an applicable rate schedule, a representative load test, or an approved accounting policy.",
+            "Finish with decisions and verification dates. Typical decisions include revising the forecast, measuring a missing input, changing capacity, reducing unsuccessful work, or adjusting a control threshold. Recheck both financial and service outcomes after implementation."
+          ]
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "p42-create-01a01d34-7143-772b-8799-fcceb0c7a408-q1",
+            "prompt": "In the module's hypothetical cost example, what is the total attributable cost per successful outcome?",
+            "choices": [
+              "0.006 currency units",
+              "0.008 currency units",
+              "0.024 currency units",
+              "0.24 currency units"
+            ],
+            "answerIndex": 1,
+            "explanation": "Total attributable spend is 768 currency units and there are 96,000 successful outcomes. Dividing 768 by 96,000 gives 0.008 currency units per successful outcome."
+          },
+          {
+            "id": "p42-create-01a01d34-7143-772b-8799-fcceb0c7a408-q2",
+            "prompt": "Planning demand is 120 requests per second, the headroom factor is 1.25, and safe throughput is 18 requests per second per capacity unit. How many capacity units does the module's formula require?",
+            "choices": [
+              "7",
+              "8",
+              "9",
+              "10"
+            ],
+            "answerIndex": 2,
+            "explanation": "Multiply 120 by 1.25, divide by 18, and round up. The result is the ceiling of 8.33, which is 9 capacity units."
+          },
+          {
+            "id": "p42-create-01a01d34-7143-772b-8799-fcceb0c7a408-q3",
+            "prompt": "Which statement about a budget alert is correct according to the module?",
+            "choices": [
+              "It necessarily stops new work when the budget is reached.",
+              "It reports a condition but does not necessarily prevent more work.",
+              "It proves that all recorded spend is avoidable.",
+              "It replaces the need to measure billable quantities."
+            ],
+            "answerIndex": 1,
+            "explanation": "A budget alert provides information. Preventing additional work requires a separately designed and connected enforcement mechanism."
+          },
+          {
+            "id": "p42-create-01a01d34-7143-772b-8799-fcceb0c7a408-q4",
+            "prompt": "Which denominator best supports a value-oriented unit-cost measure?",
+            "choices": [
+              "Successful outcomes",
+              "Calendar days regardless of workload",
+              "Attempted requests with success ignored",
+              "The number of monitoring charts"
+            ],
+            "answerIndex": 0,
+            "explanation": "Total attributable spend divided by successful outcomes connects cost to delivered value and exposes the effect of unsuccessful work."
+          },
+          {
+            "id": "p42-create-01a01d34-7143-772b-8799-fcceb0c7a408-q5",
+            "prompt": "What should you do when the applicable production rate has not been established?",
+            "choices": [
+              "Use the hypothetical rate as if it were contractual.",
+              "Choose a plausible market rate and present it as fact.",
+              "Mark the rate UNKNOWN until an applicable agreement or rate schedule establishes it.",
+              "Omit variable usage from every future cost model."
+            ],
+            "answerIndex": 2,
+            "explanation": "The module requires environment-specific rates to be marked UNKNOWN until authoritative contractual or billing evidence establishes them."
+          }
+        ]
+      },
+      "reviewCadenceDays": 90,
+      "lastVerified": "2026-08-20",
+      "sources": [
+        {
+          "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+          "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+          "publisher": "National Institute of Standards and Technology",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Monitoring Distributed Systems",
+          "url": "https://sre.google/sre-book/monitoring-distributed-systems/",
+          "publisher": "Google",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Handling Overload",
+          "url": "https://sre.google/sre-book/handling-overload/",
+          "publisher": "Google",
+          "lastVerified": "2026-08-20"
+        }
+      ]
+    },
+    {
+      "id": "agent-evaluation-and-trajectory-scoring",
+      "title": "Agent evaluation and trajectory scoring",
+      "summary": "This intermediate module teaches you to design an agent evaluation that separates task outcomes from trajectory quality. After completing it, you can define a scoring rubric, calculate a normalized trajectory score, handle invalid trials, and interpret results without confusing plausible behavior with verified success.",
+      "level": "intermediate",
+      "providers": [
+        "provider-neutral"
+      ],
+      "estimatedMinutes": 40,
+      "objectives": [
+        "Distinguish outcome evaluation from trajectory evaluation.",
+        "Represent an agent trajectory as an ordered record of observations, actions, responses, and state changes.",
+        "Define measurable success conditions before running an evaluation.",
+        "Build a weighted trajectory rubric with observable criteria and scoring anchors.",
+        "Calculate and interpret a normalized trajectory score.",
+        "Separate agent failures from invalid trials caused by the evaluation setup.",
+        "Report outcome, trajectory, efficiency, and validity results without collapsing them into a misleading single number."
+      ],
+      "prerequisites": [],
+      "sections": [
+        {
+          "id": "level-and-scope",
+          "title": "Level and scope",
+          "paragraphs": [
+            "This is an intermediate-level module. It assumes that you understand the basic agent loop in which an agent receives an observation, selects an action, receives a response from an environment, and continues until it stops or reaches a limit. No advanced statistics, programming framework, or provider-specific knowledge is required.",
+            "After this module, you will be able to move from an informal judgment such as the agent looked convincing to a reproducible evaluation plan. You will be able to specify what success means, record what happened during an attempt, score observable properties of that attempt, and explain the limits of the resulting scores."
+          ]
+        },
+        {
+          "id": "evaluation-units",
+          "title": "Define the evaluation unit",
+          "paragraphs": [
+            "An agent evaluation begins with a task instance. A task instance contains an initial state, instructions, permitted interactions, constraints, and a success condition. The evaluation unit is one attempt by one agent configuration on one task instance under stated conditions.",
+            "Define the success condition before examining the attempt. A success condition should be testable from the final environment state or another independent artifact whenever possible. For example, if the task is to change a stored record, success concerns the resulting record rather than an agent message claiming that the record was changed.",
+            "Also define termination conditions. An attempt can end because the task succeeds, the agent declares completion, a step or resource limit is reached, the environment rejects further interaction, or the evaluation infrastructure fails. These endings are not interchangeable and should be recorded separately."
+          ],
+          "callout": "A fluent final answer is evidence about what the agent said. It is not, by itself, evidence that the environment reached the required state."
+        },
+        {
+          "id": "trajectory-anatomy",
+          "title": "Represent the trajectory",
+          "paragraphs": [
+            "A trajectory is the ordered record of an attempt. For this module, each step contains the observation available to the agent, the action selected by the agent, the environment response, and any observable state change. The complete record also includes the initial state, the terminal state, the termination reason, and resource measurements collected under the evaluation rules.",
+            "Order matters. An action can be reasonable after one observation but unsupported before that observation. A trajectory record therefore needs stable step ordering and enough information to connect each action to the evidence available at that point.",
+            "Keep observed data separate from evaluator interpretation. The action and environment response are observations. Labels such as unnecessary, unsafe, or well justified are evaluator judgments. Preserving this distinction makes disagreements easier to inspect.",
+            "Some agent designs expose intermediate reasoning, while others do not. Evaluation should not require private reasoning that is unavailable. Observable actions, responses, state changes, and final artifacts can still be evaluated consistently."
+          ]
+        },
+        {
+          "id": "outcome-versus-process",
+          "title": "Separate outcome and trajectory quality",
+          "paragraphs": [
+            "Outcome evaluation asks whether the required result was achieved. A binary outcome records success or failure according to the predefined verifier. Across valid trials, success rate is the number of successful trials divided by the number of valid trials.",
+            "Trajectory evaluation asks how the agent proceeded. It can measure whether actions were relevant, whether required evidence was gathered before consequential actions, whether constraints were respected, whether repeated or ineffective actions occurred, and whether the agent stopped appropriately.",
+            "Outcome and trajectory scores answer different questions. A successful outcome can follow a poor trajectory, such as one containing unnecessary risky actions. A strong-looking trajectory can still end in failure. Report both rather than treating one as a substitute for the other.",
+            "Efficiency measures such as step count, elapsed time, or consumed resources are also distinct. Lower use is not automatically better because an agent can appear efficient by stopping before completing the task. Compare efficiency among attempts with the same evaluation conditions, and interpret it alongside success."
+          ]
+        },
+        {
+          "id": "success-contract",
+          "title": "Write the success contract",
+          "paragraphs": [
+            "A success contract states what the evaluator will inspect and how it will decide success. It should identify the target state or artifact, required constraints, allowed tolerances if any, and the point at which verification occurs.",
+            "Prefer direct verification. If the task changes an environment, inspect the environment. If it produces a structured artifact, validate that artifact against the task requirements. Use a human or language-model judgment only when the criterion genuinely requires interpretation, and give that judge explicit scoring anchors.",
+            "Do not create or revise success rules after seeing which attempts would pass. That makes results depend on the evaluated outputs. If a defect in the contract is discovered, document the revision and rerun affected attempts under the revised rule."
+          ]
+        },
+        {
+          "id": "trajectory-rubric",
+          "title": "Build a trajectory rubric",
+          "paragraphs": [
+            "A trajectory rubric converts observable properties into scores. Each criterion needs a name, a description of the evidence to inspect, and anchors explaining what each score means. Criteria should be sufficiently distinct that the same behavior is not rewarded or penalized repeatedly under different labels.",
+            "One suitable three-point scale is 0 for a clear failure of the criterion, 1 for partial or inconsistent satisfaction, and 2 for full satisfaction. This is a rubric definition, not a universal scale. An evaluation may use another scale if its anchors are explicit.",
+            "Possible criteria include action relevance, evidence use, constraint compliance, recovery after an error, and termination quality. Use only criteria that apply to the task and can be judged from the recorded trajectory. Do not score hidden intent.",
+            "A criterion called evidence use might assign 0 when a consequential action contradicts or lacks required evidence, 1 when some relevant evidence is gathered but important support is missing, and 2 when the required evidence is gathered and used before the action. These anchors tell evaluators what observations distinguish the scores.",
+            "Weights express the evaluation's declared priorities. Set them before scoring attempts. A critical constraint can also be handled as a separate pass or fail gate rather than allowing strong performance elsewhere to cancel its violation."
+          ]
+        },
+        {
+          "id": "score-calculation",
+          "title": "Calculate the trajectory score",
+          "paragraphs": [
+            "For criterion i, let s_i be the assigned score and w_i be its positive weight. The weighted mean is the sum of w_i times s_i divided by the sum of w_i. If every criterion uses the 0 to 2 scale, the weighted mean also ranges from 0 to 2.",
+            "To express that result on a 0 to 100 scale, divide the weighted mean by 2 and multiply by 100. For example, consider two criteria with weights 2 and 1. If their scores are 1 and 2, the weighted mean is ((2 times 1) plus (1 times 2)) divided by 3, which equals 4 divided by 3. The normalized trajectory score is (4 divided by 3) divided by 2, multiplied by 100, or approximately 66.7.",
+            "A normalized score is meaningful only in relation to its rubric. It does not establish that two evaluations measured the same construct merely because both report numbers from 0 to 100. Publish the criteria, anchors, weights, and aggregation rule with the score.",
+            "Keep hard failures visible. If violating a required constraint causes automatic failure, report that rule separately and do not hide the violation inside an average."
+          ]
+        },
+        {
+          "id": "scoring-consistency",
+          "title": "Improve scoring consistency",
+          "paragraphs": [
+            "Test the rubric on a small set of representative trajectories before using it for the full evaluation. Have evaluators identify which recorded evidence supports each score. Disagreement can reveal ambiguous anchors, missing trajectory data, or criteria that combine multiple ideas.",
+            "When human judgment is required, evaluators should use the same instructions and should not infer facts absent from the record. When a language model assigns scores, treat it as an evaluator with its own possible inconsistencies rather than as an unquestionable reference. The cited research on language-model judging documents the use and study of such evaluators, which supports checking their behavior rather than assuming perfect judgment.",
+            "For subjective criteria, retain the evaluator's criterion-level scores and concise evidence references. A single total score makes it difficult to discover whether disagreement came from evidence use, constraint compliance, or another criterion.",
+            "If the rubric or evaluator instructions change, preserve the revision and identify which attempts were scored under it. Comparing scores produced by materially different rules requires explicit qualification."
+          ]
+        },
+        {
+          "id": "invalid-trials",
+          "title": "Handle invalid trials and uncertainty",
+          "paragraphs": [
+            "An invalid trial is one in which the planned evaluation was not actually conducted, such as when required task data is unavailable or the evaluation infrastructure prevents interaction. An agent failure is a valid trial in which the agent does not satisfy the task. Misclassifying difficult failures as invalid can inflate reported performance.",
+            "Define invalidation and retry rules before running the evaluation. Record the original attempt, the invalidation reason, whether a retry occurred, and which attempt entered the reported result. Do not silently remove trials.",
+            "If the available trajectory does not contain enough evidence to score a criterion, record that criterion as UNKNOWN rather than guessing. The aggregation rule must state how UNKNOWN values are handled. One defensible approach is to report coverage and avoid calculating a total score when a required criterion is unknown.",
+            "Missing evidence is not automatically evidence of failure unless the rubric explicitly requires the evidence to be present. For example, if the agent must verify a state before acting, absence of a recorded verification can legitimately fail the evidence-use criterion. Otherwise, the evaluator should not invent what happened."
+          ]
+        },
+        {
+          "id": "reporting-results",
+          "title": "Report results without hiding tradeoffs",
+          "paragraphs": [
+            "A useful report identifies the task set, evaluation unit, success contract, termination rules, invalid-trial policy, trajectory schema, rubric, criterion weights, aggregation rule, and evaluation conditions. It reports the number of valid, successful, failed, invalid, and UNKNOWN-scored trials rather than presenting only a percentage.",
+            "Present outcome success, critical constraint violations, criterion-level trajectory scores, total trajectory scores, and efficiency measures as separate results. This allows a reader to distinguish an agent that often succeeds inefficiently from one that behaves neatly but rarely completes the task.",
+            "Inspect individual trajectories as well as aggregate results. Repeated failure patterns can reveal missing evidence gathering, ineffective retries, premature stopping, or exploitation of a weak verifier. Such patterns should motivate a clearly documented evaluation revision, followed by rescoring or rerunning as appropriate.",
+            "Interactive-agent benchmarks in the cited sources evaluate agents through actions and environment feedback rather than final text alone. Their task designs differ, so their reported results should not be treated as interchangeable. The transferable lesson is to align the verifier and trajectory record with the environment and task being evaluated."
+          ]
+        },
+        {
+          "id": "evaluation-workflow",
+          "title": "Apply the workflow",
+          "paragraphs": [
+            "First, define each task instance and its independently testable success contract. Second, specify allowed actions, limits, termination reasons, invalidation rules, and retry rules. Third, record ordered trajectories with initial and terminal states.",
+            "Fourth, score the outcome using the predefined verifier. Fifth, score trajectory criteria using observable evidence and fixed anchors. Sixth, apply declared weights and gates without changing them after seeing results. Seventh, report validity, outcome, trajectory, and efficiency measures separately.",
+            "Finally, review disagreements and failure patterns. Revise a defective evaluator only with a documented reason, and rerun or rescore affected attempts. This workflow makes an agent evaluation inspectable and repeatable without pretending that one aggregate score captures every property of agent behavior."
+          ]
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "agent-evaluation-and-trajectory-scoring-q1",
+            "prompt": "An agent states that it updated a record, but inspection shows that the record did not change. Under the module's outcome rule, what is the correct result?",
+            "choices": [
+              "Success, because the final statement claimed completion",
+              "Failure, because the required environment state was not achieved",
+              "UNKNOWN, because final statements cannot be evaluated",
+              "Success if the trajectory was otherwise efficient"
+            ],
+            "answerIndex": 1,
+            "explanation": "Outcome success is determined by the predefined success contract and the resulting state or artifact, not by the agent's claim."
+          },
+          {
+            "id": "agent-evaluation-and-trajectory-scoring-q2",
+            "prompt": "Which item belongs in a trajectory step as observed data rather than evaluator interpretation?",
+            "choices": [
+              "The action selected by the agent",
+              "A label saying the action was unnecessary",
+              "A judgment that the agent behaved safely",
+              "A conclusion that the reasoning was poor"
+            ],
+            "answerIndex": 0,
+            "explanation": "The selected action is part of the observed record. The other choices are evaluator judgments that should be stored separately from observations."
+          },
+          {
+            "id": "agent-evaluation-and-trajectory-scoring-q3",
+            "prompt": "Two trajectory criteria use a 0 to 2 scale. Their weights are 2 and 1, and their scores are 1 and 2. What normalized score does the module's formula produce?",
+            "choices": [
+              "50",
+              "60",
+              "Approximately 66.7",
+              "Approximately 83.3"
+            ],
+            "answerIndex": 2,
+            "explanation": "The weighted mean is ((2 times 1) plus (1 times 2)) divided by 3, or 4 divided by 3. Dividing by the maximum score of 2 and multiplying by 100 gives approximately 66.7."
+          },
+          {
+            "id": "agent-evaluation-and-trajectory-scoring-q4",
+            "prompt": "Required task data is unavailable, so the agent cannot begin the planned interaction. How should the attempt be classified under the module's definitions?",
+            "choices": [
+              "A successful trial",
+              "An agent failure",
+              "An invalid trial with a recorded reason",
+              "A perfect trajectory with no actions"
+            ],
+            "answerIndex": 2,
+            "explanation": "The planned evaluation was not conducted because required task data was unavailable. The attempt should be recorded as invalid according to predefined invalidation rules."
+          },
+          {
+            "id": "agent-evaluation-and-trajectory-scoring-q5",
+            "prompt": "A required trajectory criterion cannot be scored because the record lacks enough evidence. What should the evaluator do?",
+            "choices": [
+              "Guess the most likely score",
+              "Assign the highest score",
+              "Record UNKNOWN and follow the declared aggregation rule",
+              "Delete the trial without recording it"
+            ],
+            "answerIndex": 2,
+            "explanation": "The module requires evaluators to record UNKNOWN rather than inventing evidence. It also recommends reporting coverage and avoiding a total when a required criterion is unknown."
+          },
+          {
+            "id": "agent-evaluation-and-trajectory-scoring-q6",
+            "prompt": "Why should outcome success and trajectory quality be reported separately?",
+            "choices": [
+              "Because a good-looking trajectory always guarantees success",
+              "Because outcome and trajectory scores answer different questions",
+              "Because trajectory scoring replaces direct outcome verification",
+              "Because efficiency is identical to task success"
+            ],
+            "answerIndex": 1,
+            "explanation": "Outcome evaluation asks whether the required result was achieved, while trajectory evaluation asks how the agent proceeded. Either can be strong while the other is weak."
+          }
+        ]
+      },
+      "reviewCadenceDays": 180,
+      "lastVerified": "2026-08-20",
+      "sources": [
+        {
+          "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+          "url": "https://arxiv.org/abs/2210.03629",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "AgentBench: Evaluating LLMs as Agents",
+          "url": "https://arxiv.org/abs/2308.03688",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "WebArena: A Realistic Web Environment for Building Autonomous Agents",
+          "url": "https://arxiv.org/abs/2307.13854",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena",
+          "url": "https://arxiv.org/abs/2306.05685",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        }
+      ]
+    },
+    {
+      "id": "ai-for-executives-leaders-and-decision-makers",
+      "title": "AI for Executives, Leaders, and Decision Makers",
+      "summary": "This intermediate module enables leaders to evaluate proposed AI uses, assign decision rights, demand decision-relevant evidence, and establish monitoring and escalation rules. After completing it, learners can turn an AI proposal into a documented decision to proceed, revise, restrict, pause, or reject.",
+      "level": "intermediate",
+      "providers": [
+        "provider-neutral"
+      ],
+      "estimatedMinutes": 55,
+      "objectives": [
+        "Classify an AI proposal by organizational impact, uncertainty, reversibility, and exposure.",
+        "Define accountable owners and decision rights for an AI use.",
+        "Request evidence that connects system performance to a specific organizational outcome and operating context.",
+        "Write approval conditions, monitoring measures, escalation thresholds, and stop conditions.",
+        "Distinguish responsibility that can be assigned to a provider from accountability that remains with the adopting organization.",
+        "Make and document a decision to proceed, revise, restrict, pause, or reject an AI proposal."
+      ],
+      "prerequisites": [],
+      "sections": [
+        {
+          "id": "level-and-scope",
+          "title": "Level and Scope",
+          "paragraphs": [
+            "This is an intermediate-level module. It assumes familiarity with ordinary organizational planning, budgeting, risk, and accountability, plus a basic understanding that AI systems produce outputs from data and instructions. It does not assume programming, model-building, statistical, or procurement expertise.",
+            "The executive task is not to determine whether AI is impressive in the abstract. It is to decide whether a defined use should be authorized under defined conditions. A complete decision identifies the intended outcome, affected people, accountable owner, supporting evidence, permitted boundaries, monitoring measures, and conditions for escalation or stopping.",
+            "The National Institute of Standards and Technology organizes AI risk work around four functions: Govern, Map, Measure, and Manage. Govern is cross-cutting, while the other functions address context, assessment, prioritization, and response. This module converts those functions into a practical leadership sequence rather than a technical implementation procedure."
+          ],
+          "callout": "Do not approve a general capability. Approve or reject a specific use, in a specific context, with a named owner and explicit conditions."
+        },
+        {
+          "id": "define-the-decision",
+          "title": "Define the Decision Before Reviewing the Technology",
+          "paragraphs": [
+            "Begin with a one-sentence decision statement: the organization is considering using an AI-enabled process to support a named task for named users in a named setting. State whether the output advises a person, prioritizes work, generates content, or directly triggers an action. This boundary prevents evidence about one use from being treated as proof for a different use.",
+            "Next, define the intended organizational outcome without referring to the AI itself. Examples include reducing unresolved requests, helping employees locate approved information, or improving the consistency of a review process. Then identify the present baseline. Without a baseline, a later change cannot be interpreted as improvement, deterioration, or no meaningful change.",
+            "Separate the output from the outcome. Producing a response is an output. Resolving a request correctly is an outcome. Classifying a case is an output. Making a timely and appropriate decision is an outcome. Executive evidence should connect output quality to the outcome that justified the proposal.",
+            "Identify who is affected, who operates the process, who can challenge an outcome, who can authorize changes, and who remains accountable. The Organisation for Economic Co-operation and Development principles emphasize human rights, transparency, robustness, safety, and accountability. Those concerns require attention to people and operating context, not only to technical performance."
+          ]
+        },
+        {
+          "id": "triage-the-proposal",
+          "title": "Triage by Impact, Uncertainty, Reversibility, and Exposure",
+          "paragraphs": [
+            "A practical portfolio triage uses four questions. Impact asks how serious a wrong or delayed outcome could be. Uncertainty asks how much relevant evidence is missing or how different the intended setting is from the tested setting. Reversibility asks whether an affected person and the organization can detect and correct an error. Exposure asks how many people, decisions, records, or business processes could be affected.",
+            "These dimensions guide the strength of review rather than producing an automatic score. A low-impact, reversible use with bounded exposure may justify a limited trial. A use with serious possible consequences, weak evidence, difficult correction, or broad exposure requires stronger review and controls. If the organization cannot describe the consequences or affected population, uncertainty remains unresolved and should not be silently treated as low risk.",
+            "Triage must consider the complete process. Human review does not by itself make a use safe or accountable. Leaders should ask whether reviewers have enough time, information, authority, and skill to detect and correct a problematic output. If they are expected merely to confirm it, the review control has not been demonstrated.",
+            "Record the reasoning behind the classification. The record should explain which consequences matter, what evidence is absent, how an error can be corrected, and what limits exposure. This allows a later reviewer to understand the decision instead of reconstructing it from memory."
+          ],
+          "callout": "High uncertainty is not evidence of high or low performance. It means the evidence is insufficient for the proposed decision."
+        },
+        {
+          "id": "assign-governance",
+          "title": "Assign Governance and Decision Rights",
+          "paragraphs": [
+            "Name one accountable business owner for the use. That owner is responsible for the organizational outcome and for ensuring that approval conditions remain satisfied. Other roles may operate the process, assess evidence, protect information, review legal obligations, or respond to incidents, but distributing tasks does not eliminate the need for accountable ownership.",
+            "Define decision rights before deployment. Specify who may approve initial use, change its scope, accept a known limitation, pause operation, restore operation, and retire the use. Also specify who can receive and investigate challenges from affected people. Ambiguous decision rights delay action when conditions change.",
+            "Responsibility for supporting work may be assigned to an external provider, but the adopting organization still needs its own decision about the use. Provider evidence can inform that decision, yet it does not establish that the system is appropriate in every local workflow, population, or consequence setting.",
+            "The Govern function in the National Institute of Standards and Technology framework is cross-cutting. For leaders, this means accountability, policy, roles, risk tolerance, and oversight should shape mapping, measurement, and management rather than appearing only at the final approval meeting."
+          ]
+        },
+        {
+          "id": "demand-relevant-evidence",
+          "title": "Demand Decision-Relevant Evidence",
+          "paragraphs": [
+            "Ask first what claim the evidence is meant to support. A useful claim names the task, population, operating conditions, outcome measure, and acceptable boundary. Evidence from a different task or setting may be informative, but its relevance must be explained rather than assumed.",
+            "Review evidence in four categories. Outcome evidence addresses whether the process achieves the intended result. Risk evidence addresses errors, harmful effects, security, privacy, and unequal effects on relevant groups. Operational evidence addresses whether people can use, supervise, challenge, and recover from the process. Economic evidence addresses the full organizational resources required to operate, review, correct, monitor, and retire the use.",
+            "For every measure, request a baseline, a decision threshold, a measurement method, a measurement frequency, an owner, and a predefined response. A measure without a threshold cannot by itself determine whether action is required. A threshold without an owner and response does not create an operating control.",
+            "Ask how testing represents the intended setting. Relevant questions include whether test cases cover ordinary and difficult conditions, whether affected groups are represented, whether reviewers used the same information and time constraints expected in operation, and whether failures were examined rather than averaged away.",
+            "Do not convert missing evidence into an unsupported claim. Record the item as UNKNOWN, identify what observation or test would establish it, and decide whether the unresolved uncertainty permits a bounded trial, requires more evidence, or prevents the proposed use."
+          ]
+        },
+        {
+          "id": "set-boundaries-and-controls",
+          "title": "Set Boundaries, Controls, and Human Recourse",
+          "paragraphs": [
+            "Approval conditions should state where the use is permitted and prohibited. Boundaries can cover eligible tasks, users, information, affected populations, output types, and actions that require independent authorization. A narrow boundary makes both evidence and accountability more specific.",
+            "Controls should address prevention, detection, response, and recovery. Prevention reduces the chance of an unacceptable event. Detection identifies when performance or operating conditions depart from expectations. Response assigns immediate action and communication. Recovery restores an acceptable process, corrects affected records or decisions where possible, and captures lessons for future decisions.",
+            "Provide a workable route for questions and challenges when people may be affected. The route should identify where a challenge goes, who reviews it, what information is available to the reviewer, and who can correct an outcome. Merely stating that a person remains involved does not establish meaningful recourse.",
+            "Document exceptions. If leaders accept a limitation, the record should state the reason, scope, duration, compensating control, accountable approver, and review date. An exception without an end or review condition can become an undocumented permanent policy."
+          ]
+        },
+        {
+          "id": "make-the-decision",
+          "title": "Choose and Document a Decision",
+          "paragraphs": [
+            "A leadership decision can be to proceed, revise, restrict, pause, or reject. Proceed means the evidence and controls support the defined use. Revise means the proposal needs changes before authorization. Restrict means only a narrower use or population is authorized. Pause means a temporary stop is required while specified evidence or remediation is completed. Reject means the proposed use is not acceptable under the considered conditions.",
+            "The decision record should contain the use statement, intended outcome, baseline, affected parties, impact and uncertainty assessment, evidence reviewed, unresolved UNKNOWN items, accountable owner, decision rights, boundaries, controls, measures, thresholds, escalation path, stop conditions, review date, and final rationale.",
+            "A decision record should distinguish facts from judgments. Test results, incident records, and observed process measures are evidence. Risk tolerance and acceptance of a tradeoff are governance judgments. Both belong in the record, but presenting a judgment as if it were measured evidence prevents meaningful review.",
+            "Approval is not the end of governance. It is permission to operate while stated assumptions and conditions remain valid. A material change in purpose, population, workflow, information, consequences, or observed performance requires reassessment because the original evidence may no longer answer the same question."
+          ],
+          "callout": "An approval without boundaries, monitoring, and stop conditions is incomplete."
+        },
+        {
+          "id": "monitor-and-escalate",
+          "title": "Monitor Outcomes and Trigger Action",
+          "paragraphs": [
+            "Monitoring should cover the intended outcome, known failure modes, operational behavior, challenges from affected people, incidents, corrective actions, and changes in context. Select measures because they inform a decision, not because they are easy to collect.",
+            "Each measure needs an action rule. A rule states what condition triggers investigation, restriction, pause, correction, or executive review. The threshold may be quantitative or qualitative, but it must be defined before the organization needs to rely on it.",
+            "Stop conditions identify circumstances in which continued operation is not authorized. Examples include loss of an essential control, evidence of a serious unaddressed effect, operation outside the approved boundary, inability to provide required review, or failure to produce required monitoring evidence. The accountable owner must know who can activate the stop and what process replaces the AI-enabled step.",
+            "Review dates are useful, but event-based review is also necessary. Reassessment should occur when the purpose, affected population, workflow, consequences, evidence, or operating environment changes materially. The decision record should state which changes count as review triggers.",
+            "After completing this module, a learner can take a proposal that previously consisted mainly of a capability description and convert it into an outcome-focused decision record with ownership, evidence requirements, boundaries, monitoring rules, escalation paths, and stop conditions."
+          ]
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "ai-for-executives-leaders-and-decision-makers-q1",
+            "prompt": "What should a leader define before deciding whether evidence supports an AI proposal?",
+            "choices": [
+              "The broad capability that appears most impressive",
+              "The specific use, intended outcome, affected people, and operating context",
+              "A permanent approval date",
+              "A provider's preferred demonstration"
+            ],
+            "answerIndex": 1,
+            "explanation": "The module requires leaders to define a specific use, outcome, affected parties, and context before judging evidence. Evidence cannot be evaluated for relevance when the decision boundary is undefined."
+          },
+          {
+            "id": "ai-for-executives-leaders-and-decision-makers-q2",
+            "prompt": "A proposed use has potentially serious consequences, limited relevant evidence, and errors that would be difficult to correct. Which response best follows the module's triage method?",
+            "choices": [
+              "Treat it as low risk because no failure has yet been observed",
+              "Approve it because a person will be present somewhere in the process",
+              "Require stronger review and controls, and do not treat missing evidence as low risk",
+              "Ignore reversibility because only measured performance matters"
+            ],
+            "answerIndex": 2,
+            "explanation": "Serious impact, high uncertainty, and difficult reversibility require stronger review and controls. Missing evidence remains uncertainty and does not prove safety or performance."
+          },
+          {
+            "id": "ai-for-executives-leaders-and-decision-makers-q3",
+            "prompt": "Which set of elements makes a monitoring measure usable as an operating control?",
+            "choices": [
+              "A measure name and a presentation date",
+              "A favorable example and a general promise to review it",
+              "A baseline, threshold, method, frequency, owner, and predefined response",
+              "A provider description without a local outcome"
+            ],
+            "answerIndex": 2,
+            "explanation": "The module states that every measure needs a baseline, decision threshold, method, frequency, owner, and response. Together these elements connect observation to accountable action."
+          },
+          {
+            "id": "ai-for-executives-leaders-and-decision-makers-q4",
+            "prompt": "What happens to organizational accountability when supporting work is assigned to an external provider?",
+            "choices": [
+              "The adopting organization no longer needs an accountable owner",
+              "Accountability automatically transfers to the provider",
+              "The organization still needs its own accountable owner and decision about the use",
+              "Only the provider may pause the use"
+            ],
+            "answerIndex": 2,
+            "explanation": "Provider evidence and services can support a decision, but the adopting organization remains responsible for deciding whether the specific use is appropriate in its own context."
+          },
+          {
+            "id": "ai-for-executives-leaders-and-decision-makers-q5",
+            "prompt": "Which statement best describes a stop condition?",
+            "choices": [
+              "A circumstance in which continued operation is no longer authorized",
+              "A target that is reviewed only after retirement",
+              "A general preference for future improvement",
+              "A substitute for naming an accountable owner"
+            ],
+            "answerIndex": 0,
+            "explanation": "A stop condition defines when operation must cease, such as loss of an essential control or operation outside the approved boundary. It must be connected to authority and a replacement process."
+          }
+        ]
+      },
+      "reviewCadenceDays": 180,
+      "lastVerified": "2026-08-20",
+      "sources": [
+        {
+          "title": "Artificial Intelligence Risk Management Framework",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "publisher": "National Institute of Standards and Technology",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Recommendation of the Council on Artificial Intelligence",
+          "url": "https://legalinstruments.oecd.org/en/instruments/OECD-LEGAL-0449",
+          "publisher": "Organisation for Economic Co-operation and Development",
+          "lastVerified": "2026-08-20"
+        }
+      ]
+    },
+    {
+      "id": "p42-create-01a01d34-70d2-7389-9c19-4358fc25c0cf",
+      "title": "Fine-tuning, adapters, distillation, and when not to train",
+      "summary": "This intermediate module enables learners to distinguish full fine-tuning, adapter-based training, and distillation, then decide whether training is appropriate for a specific model requirement. After completing it, learners can select an approach, explain the trade-offs, and design a baseline evaluation before committing training resources.",
+      "level": "intermediate",
+      "providers": [
+        "provider-neutral"
+      ],
+      "estimatedMinutes": 35,
+      "objectives": [
+        "Distinguish full fine-tuning, adapter-based training, and knowledge distillation by identifying what is trained in each approach.",
+        "Decide whether a requirement calls for behavioral adaptation, external knowledge retrieval, model compression, or no model training.",
+        "Choose an evaluation baseline and held-out checks before comparing a trained model with its starting model.",
+        "Identify data, governance, and operational questions that must be resolved before training."
+      ],
+      "prerequisites": [],
+      "sections": [
+        {
+          "id": "level-and-scope",
+          "title": "Level and scope",
+          "paragraphs": [
+            "This is an intermediate-level module. It assumes familiarity with training examples, model inference, and the distinction between training data and held-out evaluation data. It does not assume knowledge of optimization mathematics or any provider-specific training system.",
+            "In this module, fine-tuning means continuing training from an existing model by changing its trainable parameters for a target task or behavior. Full fine-tuning changes the original model parameters, while parameter-efficient approaches keep the original parameters fixed and train a smaller set of added or selected parameters. This distinction is described directly in the primary research on parameter-efficient transfer and low-rank adaptation [S1; S2]."
+          ]
+        },
+        {
+          "id": "start-with-the-required-change",
+          "title": "Start with the required change",
+          "paragraphs": [
+            "Before selecting a training method, state the required change in observable terms. Examples include following a stable output format, applying a classification policy, answering from a changing document collection, or running a smaller model under a deployment constraint. This framing separates behavior changes, knowledge-access changes, and compression goals.",
+            "Do not begin with the assumption that training is required. Treat training as one possible intervention and compare it with simpler interventions that can satisfy the same acceptance test. If instructions or workflow controls already produce acceptable results, further training adds work without changing the decision outcome.",
+            "If the requirement is access to information that changes independently of the model, consider retrieval rather than encoding that information through training. Retrieval-augmented generation supplies retrieved text to a generator and was introduced as a way to combine learned model parameters with an external document index [S4]."
+          ],
+          "callout": "Write the acceptance test before choosing the intervention. A method is suitable only if it improves the behavior that the test measures."
+        },
+        {
+          "id": "full-fine-tuning",
+          "title": "Full fine-tuning",
+          "paragraphs": [
+            "Full fine-tuning continues training while updating the original model parameters. The low-rank adaptation research contrasts this approach with freezing the original weights and training a much smaller set of added parameters [S2].",
+            "Consider full fine-tuning when the required behavioral change is broad enough to justify modifying the base model and when the team can evaluate, store, govern, and deploy the resulting model as a distinct trained artifact. This is a decision rule, not a guarantee that full fine-tuning will improve a particular task.",
+            "Do not infer success from training loss alone. Compare the resulting model with the unchanged baseline on held-out examples that represent the intended use, important failure cases, and unacceptable behavior. The evaluation should use the same tests for every candidate so that the intervention, rather than a changed test, explains the comparison."
+          ]
+        },
+        {
+          "id": "adapter-based-training",
+          "title": "Adapter-based training",
+          "paragraphs": [
+            "Classic adapter training inserts small trainable modules into a pretrained network while keeping the original network parameters fixed. The original adapter research demonstrated this structure as a parameter-efficient alternative to training a separate full model for every task [S1].",
+            "Low-rank adaptation also freezes the existing model weights, but it represents the trainable change through low-rank matrices associated with selected layers. Its primary paper describes this method as reducing the number of trainable parameters relative to full fine-tuning [S2].",
+            "Use adapter-based training as a candidate when you want a learned behavior change but also want to preserve an unchanged base model. Confirm that the intended training and serving environment supports the chosen adapter approach before designing around it. No universal compatibility claim is made here.",
+            "Adapter-based training is not automatically the best choice merely because it trains fewer parameters. The correct comparison is whether it meets the same held-out quality requirements and operational constraints as the alternatives."
+          ]
+        },
+        {
+          "id": "knowledge-distillation",
+          "title": "Knowledge distillation",
+          "paragraphs": [
+            "Knowledge distillation trains a student model using a teacher model's outputs as part of the training signal. The foundational distillation paper describes training the student with softened teacher output distributions, optionally combined with the ordinary labeled objective [S3].",
+            "Distillation is therefore aimed at transferring behavior into a separate student, commonly when the desired outcome is a model that is easier to deploy under a size or computation constraint. The student must still be evaluated independently because it is a newly trained model rather than a reference to the teacher at inference time [S3].",
+            "Teacher outputs are training targets in the distillation process, so the evaluation must include cases where the teacher is weak or wrong. A student that closely imitates an unwanted teacher behavior has not met the deployment requirement, even if the imitation objective improved."
+          ]
+        },
+        {
+          "id": "how-the-approaches-differ",
+          "title": "How the approaches differ",
+          "paragraphs": [
+            "The central distinction is what receives training updates. Full fine-tuning updates the original model parameters. Classic adapters keep those parameters fixed and train added modules. Low-rank adaptation keeps the original weights fixed and trains low-rank parameter changes. Distillation trains a separate student from a signal that includes teacher outputs [S1; S2; S3].",
+            "The approaches also answer different design questions. Fine-tuning and adapter-based training ask how to adapt an existing model's behavior. Distillation asks how to train a student to reproduce useful aspects of a teacher. Retrieval asks how to provide external information during generation without relying only on information encoded in model parameters [S4].",
+            "These categories can be combined in a larger system, but combination is not automatically beneficial. Each added intervention needs its own reason, acceptance test, and operational owner."
+          ]
+        },
+        {
+          "id": "when-not-to-train",
+          "title": "When not to train",
+          "paragraphs": [
+            "Do not train when the requirement is not yet testable. If stakeholders cannot provide representative inputs, expected outcomes, and unacceptable outcomes, there is no reliable basis for deciding whether training helped.",
+            "Do not train merely to insert frequently changing facts. A retrieval design can supply external passages during generation, allowing the information source to remain separate from the model parameters [S4]. Evaluate whether retrieved passages are relevant and whether generated answers are supported by those passages.",
+            "Do not train when a stable instruction, deterministic transformation, or workflow control already meets the acceptance test. In that case, training introduces another artifact to evaluate and govern without an established benefit.",
+            "Do not train on data whose permitted use, provenance, privacy requirements, or quality cannot be established. The risk-management framework published by the United States National Institute of Standards and Technology organizes AI risk work into Govern, Map, Measure, and Manage functions and treats documentation, measurement, and ongoing management as connected activities [S5].",
+            "No universal minimum training-set size is asserted in this module. The necessary amount and composition are UNKNOWN without a specified task, model, data distribution, target metric, and controlled evaluation."
+          ]
+        },
+        {
+          "id": "decision-procedure",
+          "title": "A practical decision procedure",
+          "paragraphs": [
+            "First, define an observable target and a held-out evaluation. Record the unchanged model's results as the baseline. Include ordinary cases, difficult cases, and cases that must not produce the requested behavior.",
+            "Second, identify the change type. For a behavior change, test instructions or workflow controls before considering fine-tuning or adapters. For changing external knowledge, test retrieval. For a smaller student that should imitate a teacher, test distillation. For a broad learned modification to the existing model, compare full fine-tuning with a parameter-efficient approach.",
+            "Third, list operational constraints before training. Include evaluation ownership, permitted data use, artifact storage, deployment compatibility, rollback, monitoring, and the process for replacing or retiring the trained artifact. The risk-management framework's Govern, Map, Measure, and Manage functions provide a first-party structure for organizing these responsibilities [S5].",
+            "Fourth, compare candidates on the same held-out cases and acceptance thresholds. Select the least complex intervention that meets the requirement. If no candidate meets it, retain the baseline and revise the data, requirement, or evaluation rather than declaring success."
+          ]
+        },
+        {
+          "id": "evaluation-and-stop-rules",
+          "title": "Evaluation and stop rules",
+          "paragraphs": [
+            "Keep training examples separate from the final held-out comparison. Use the held-out set to compare the unchanged baseline, the trained candidate, and any non-training alternative under the same conditions.",
+            "Measure what the requirement actually names. A formatting task needs format-validity checks. A classification task needs checks against expected labels and important error types. A retrieval-grounded task needs checks that the retrieved material is relevant and that the answer is supported by it. A compressed student needs comparison with both the teacher and the deployment constraints that motivated compression.",
+            "Set stop rules before running the comparison. Stop if the candidate misses a required quality threshold, creates an unacceptable failure, cannot be deployed in the intended environment, or uses data that has not passed the required governance review. These rules prevent a favorable secondary metric from concealing failure on the actual requirement."
+          ],
+          "callout": "A successful training run is not the same as a successful intervention. Success means beating the baseline on the declared acceptance test without violating a stop rule."
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "p42-create-01a01d34-70d2-7389-9c19-4358fc25c0cf-q1",
+            "prompt": "Which statement correctly distinguishes classic adapter training from full fine-tuning?",
+            "choices": [
+              "Classic adapter training keeps the original network parameters fixed and trains added modules, while full fine-tuning updates the original parameters.",
+              "Classic adapter training retrieves documents, while full fine-tuning stores documents outside the model.",
+              "Classic adapter training trains a separate student, while full fine-tuning never changes model parameters.",
+              "Classic adapter training requires no evaluation, while full fine-tuning requires held-out evaluation."
+            ],
+            "answerIndex": 0,
+            "explanation": "Classic adapters add trainable modules while keeping the original network parameters fixed. Full fine-tuning updates the original model parameters [S1; S2]."
+          },
+          {
+            "id": "p42-create-01a01d34-70d2-7389-9c19-4358fc25c0cf-q2",
+            "prompt": "A team needs answers based on a document collection that changes every week. Which option should it test before trying to encode those facts through training?",
+            "choices": [
+              "Full fine-tuning after every document change",
+              "Retrieval that supplies relevant external passages during generation",
+              "Distillation without access to the documents",
+              "Removing the held-out evaluation"
+            ],
+            "answerIndex": 1,
+            "explanation": "The module recommends testing retrieval when knowledge changes independently of the model because retrieval supplies external text during generation [S4]."
+          },
+          {
+            "id": "p42-create-01a01d34-70d2-7389-9c19-4358fc25c0cf-q3",
+            "prompt": "What is the defining training relationship in knowledge distillation?",
+            "choices": [
+              "A student is trained using a signal that includes a teacher's outputs.",
+              "An unchanged model is connected to a document index without training.",
+              "All original model parameters are frozen and no other parameters are trained.",
+              "A validation set is copied into the training set."
+            ],
+            "answerIndex": 0,
+            "explanation": "Knowledge distillation trains a student with a training signal that includes outputs from a teacher, such as softened output distributions [S3]."
+          },
+          {
+            "id": "p42-create-01a01d34-70d2-7389-9c19-4358fc25c0cf-q4",
+            "prompt": "When should a team postpone training according to this module?",
+            "choices": [
+              "When it lacks representative evaluation cases and clear expected outcomes",
+              "Whenever the base model produces any correct answer",
+              "Whenever an adapter approach exists",
+              "Whenever the teacher and student are different sizes"
+            ],
+            "answerIndex": 0,
+            "explanation": "Without representative cases and expected outcomes, the team cannot determine whether training improved the required behavior."
+          },
+          {
+            "id": "p42-create-01a01d34-70d2-7389-9c19-4358fc25c0cf-q5",
+            "prompt": "Which comparison best supports a training decision?",
+            "choices": [
+              "Compare each candidate on a different set of examples.",
+              "Compare training loss without testing the unchanged model.",
+              "Compare the baseline, trained candidate, and non-training alternative on the same held-out cases.",
+              "Select the method that changes the most parameters."
+            ],
+            "answerIndex": 2,
+            "explanation": "Using the same held-out cases keeps the acceptance test consistent across the unchanged baseline, the trained candidate, and any non-training alternative."
+          }
+        ]
+      },
+      "sources": [
+        {
+          "title": "S1: Parameter-Efficient Transfer Learning for NLP",
+          "url": "https://proceedings.mlr.press/v97/houlsby19a.html",
+          "publisher": "Proceedings of Machine Learning Research",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "S2: LoRA: Low-Rank Adaptation of Large Language Models",
+          "url": "https://arxiv.org/abs/2106.09685",
+          "publisher": "Authors via arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "S3: Distilling the Knowledge in a Neural Network",
+          "url": "https://arxiv.org/abs/1503.02531",
+          "publisher": "Authors via arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "S4: Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+          "url": "https://arxiv.org/abs/2005.11401",
+          "publisher": "Authors via arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "S5: Artificial Intelligence Risk Management Framework",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "publisher": "United States National Institute of Standards and Technology",
+          "lastVerified": "2026-08-20"
+        }
+      ],
+      "reviewCadenceDays": 180,
+      "lastVerified": "2026-08-20"
+    },
+    {
+      "id": "mapping-our-orchestration-patterns-onto-named-frameworks",
+      "title": "Mapping our orchestration patterns onto named frameworks",
+      "summary": "This intermediate module teaches you to compare observable orchestration behavior with ReAct, Plan-and-Solve, and Reflexion without claiming unsupported implementation equivalence. After completing it, you can produce an evidence-based mapping, identify partial matches, and leave an estate-specific classification UNKNOWN when the required evidence is absent.",
+      "level": "intermediate",
+      "providers": [
+        "provider-neutral"
+      ],
+      "estimatedMinutes": 30,
+      "objectives": [
+        "Describe the observable characteristics of ReAct, Plan-and-Solve, and Reflexion.",
+        "Map an orchestration trace to a named framework using control flow, generated artifacts, feedback, and reuse as evidence.",
+        "Distinguish a behavioral resemblance from proof that an implementation uses a particular framework.",
+        "Record a partial or UNKNOWN mapping instead of forcing an unsupported classification.",
+        "State what additional evidence would resolve an uncertain mapping."
+      ],
+      "prerequisites": [],
+      "sections": [
+        {
+          "id": "level-and-scope",
+          "title": "Level and scope",
+          "paragraphs": [
+            "This is an intermediate module. It assumes that you can read a sequence of model requests, external actions, observations, and retries. It does not assume prior knowledge of any named orchestration framework, access to hidden model reasoning, or familiarity with a particular provider.",
+            "In this module, orchestration means the observable control flow that coordinates model calls, actions, observations, plans, feedback, and repeated attempts. A mapping compares that observable flow with a documented framework. It does not prove that the implementation imports, copies, or was inspired by the framework.",
+            "No trace, design document, or pattern inventory for the estate was supplied with this module. The estate's actual framework mapping is therefore UNKNOWN and is not asserted here. The method below enables a learner to perform that mapping when evidence becomes available."
+          ],
+          "callout": "A responsible mapping names the evidence and its limits. Similar behavior is not proof of implementation identity."
+        },
+        {
+          "id": "evidence-first-workflow",
+          "title": "Use an evidence-first mapping workflow",
+          "paragraphs": [
+            "Begin with an observable trace or design description. Record the order of events without assigning a framework name. Useful events include creating a plan, selecting an action, receiving an observation, revising a plan, generating feedback after an attempt, and reusing that feedback in a later attempt.",
+            "Next, identify the unit being classified. A complete workflow can contain several patterns. For example, one phase might plan before execution while another phase repeatedly alternates actions and observations. Classifying each phase separately prevents a broad workflow label from hiding meaningful differences.",
+            "Compare each phase with the defining behavior of a named framework. Record a match only for characteristics visible in the evidence. Also record contradictions and missing evidence. A missing feature is not automatically a contradiction because logging may be incomplete.",
+            "Assign a result of match, partial match, no match, or UNKNOWN. Use match when the defining behavior is present, partial match when only some defining behavior is present, no match when evidence contradicts the defining behavior, and UNKNOWN when the available material cannot support a decision.",
+            "Finish by stating the scope of the conclusion. A suitable conclusion says that an observed phase is behaviorally consistent with a named framework. It should not say that the estate uses that framework unless implementation records establish that stronger claim."
+          ]
+        },
+        {
+          "id": "react-pattern",
+          "title": "Recognize the ReAct pattern",
+          "paragraphs": [
+            "The ReAct paper presents an approach in which reasoning and actions are interleaved. Actions produce observations, and those observations inform subsequent reasoning and actions. For mapping purposes, the important signature is a repeated cycle rather than a single plan followed by uninterrupted execution.",
+            "Evidence consistent with ReAct includes a trace that selects an action, receives an external observation, and then uses that observation before selecting another action. One action alone is insufficient to establish the repeated pattern. A simple request followed by a single response is also insufficient.",
+            "Do not require access to hidden model reasoning. If only observable orchestration records are available, classify the visible action and observation loop and state that unobserved reasoning cannot be evaluated. This keeps the conclusion within the available evidence."
+          ]
+        },
+        {
+          "id": "plan-and-solve-pattern",
+          "title": "Recognize the Plan-and-Solve pattern",
+          "paragraphs": [
+            "The Plan-and-Solve paper describes separating planning from solution execution. Its mapping signature is an explicit plan produced before the system carries out the solution steps.",
+            "Evidence consistent with Plan-and-Solve includes a plan artifact that decomposes a task and a later execution phase that follows or refers to that plan. Merely performing several steps is not enough because a multistep trace may emerge without a distinct planning phase.",
+            "If a system repeatedly replans after every external observation, parts of its behavior may resemble both planning and an interleaved action-observation loop. In that case, classify the phases separately or report a partial match instead of selecting one label for the entire workflow."
+          ]
+        },
+        {
+          "id": "reflexion-pattern",
+          "title": "Recognize the Reflexion pattern",
+          "paragraphs": [
+            "The Reflexion paper describes agents that use linguistic feedback from prior attempts to improve later attempts. Its mapping signature is not merely retrying. The distinguishing evidence is a textual reflection or feedback artifact that is retained and supplied to a subsequent attempt.",
+            "Evidence consistent with Reflexion includes an attempt, an evaluation or feedback stage, a generated reflection about what should change, and reuse of that reflection in another attempt. A retry caused only by a transient failure does not establish this pattern.",
+            "When a trace shows evaluation but does not show whether feedback is retained or reused, the Reflexion mapping is UNKNOWN or partial, depending on what is visible. Inspecting the inputs to the next attempt would establish whether the reflection was actually reused."
+          ]
+        },
+        {
+          "id": "mapping-examples",
+          "title": "Apply the distinctions",
+          "paragraphs": [
+            "Consider a phase that creates a three-step plan and then executes those steps in order. That phase is behaviorally consistent with Plan-and-Solve because planning is separated from execution. If execution later begins alternating actions with observations, that later phase can separately be consistent with ReAct.",
+            "Consider a workflow that attempts a task, receives an evaluation, writes a textual account of the failure, and includes that account in the next attempt. That workflow is behaviorally consistent with Reflexion. If the evaluation only triggers the same request again and no reflection is created or reused, the Reflexion label is unsupported.",
+            "Consider a log containing repeated external actions but no recorded observations, plans, or feedback artifacts. Several explanations remain possible, including incomplete logging. The correct mapping is UNKNOWN until a fuller trace or design description establishes the missing control flow.",
+            "A useful mapping statement has four parts: the phase being classified, the proposed framework, the observed evidence, and the limitation. For example, a planning phase may be described as behaviorally consistent with Plan-and-Solve because a plan precedes execution, while implementation identity remains UNKNOWN because no implementation record is available."
+          ]
+        },
+        {
+          "id": "avoid-overclaiming",
+          "title": "Avoid common mapping errors",
+          "paragraphs": [
+            "Do not map by vocabulary alone. A field or log message containing the word plan does not establish a separate planning phase. Inspect when the artifact is created and whether later execution uses it.",
+            "Do not treat every action loop as ReAct. Look for observations that affect later action selection. Do not treat every retry as Reflexion. Look for generated feedback that is retained and reused. Do not treat every multistep response as Plan-and-Solve. Look for a distinct plan before execution.",
+            "Do not force one label onto a composite workflow. Named patterns can describe different phases, and a phase can only partially resemble a framework. Preserve these distinctions so that the mapping remains useful for design review and comparison.",
+            "To complete an estate-specific mapping, obtain representative traces, orchestration design descriptions, and evidence showing which artifacts are passed between attempts. Without those materials, the estate-specific result remains UNKNOWN."
+          ]
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "mapping-our-orchestration-patterns-onto-named-frameworks-q1",
+            "prompt": "A trace repeatedly selects an external action, receives an observation, and uses that observation before selecting the next action. Which framework is the strongest behavioral match?",
+            "choices": [
+              "ReAct",
+              "Plan-and-Solve",
+              "Reflexion",
+              "No named pattern can ever be considered"
+            ],
+            "answerIndex": 0,
+            "explanation": "ReAct is characterized here by an interleaved cycle of reasoning, actions, and observations in which observations inform later steps."
+          },
+          {
+            "id": "mapping-our-orchestration-patterns-onto-named-frameworks-q2",
+            "prompt": "Which evidence most strongly supports a Plan-and-Solve mapping?",
+            "choices": [
+              "A retry occurs after a transient failure",
+              "A plan is created before a separate execution phase that follows it",
+              "An external action returns an observation",
+              "A framework name appears in a log message"
+            ],
+            "answerIndex": 1,
+            "explanation": "The distinguishing signature presented in the module is separation between explicit planning and subsequent solution execution."
+          },
+          {
+            "id": "mapping-our-orchestration-patterns-onto-named-frameworks-q3",
+            "prompt": "A failed attempt is evaluated, a textual reflection is generated, and that reflection is included in the next attempt. Which framework is the strongest behavioral match?",
+            "choices": [
+              "Plan-and-Solve",
+              "ReAct",
+              "Reflexion",
+              "None, because all retries are identical"
+            ],
+            "answerIndex": 2,
+            "explanation": "Reflexion is distinguished from an ordinary retry by generating linguistic feedback and reusing it in a later attempt."
+          },
+          {
+            "id": "mapping-our-orchestration-patterns-onto-named-frameworks-q4",
+            "prompt": "A log shows repeated actions but omits observations, plans, and feedback artifacts. What is the most defensible mapping?",
+            "choices": [
+              "ReAct, because every repeated action proves an observation loop",
+              "Reflexion, because every repetition proves reflection",
+              "Plan-and-Solve, because every multistep process begins with a plan",
+              "UNKNOWN until fuller evidence establishes the missing control flow"
+            ],
+            "answerIndex": 3,
+            "explanation": "The visible log does not establish the defining behavior of any of the three frameworks. Incomplete evidence should produce an UNKNOWN result rather than a forced label."
+          },
+          {
+            "id": "mapping-our-orchestration-patterns-onto-named-frameworks-q5",
+            "prompt": "What does a behavioral match to a named framework establish?",
+            "choices": [
+              "The implementation must import that framework",
+              "The implementation was definitely inspired by the framework's paper",
+              "The observed control flow is consistent with the framework within the stated evidence limits",
+              "Every phase of the workflow uses the same pattern"
+            ],
+            "answerIndex": 2,
+            "explanation": "Behavioral mapping compares observable control flow. It does not by itself prove implementation identity, historical influence, or that every phase follows the same pattern."
+          }
+        ]
+      },
+      "reviewCadenceDays": 180,
+      "lastVerified": "2026-08-20",
+      "sources": [
+        {
+          "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+          "url": "https://arxiv.org/abs/2210.03629",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Plan-and-Solve Prompting: Improving Zero-Shot Chain-of-Thought Reasoning by Large Language Models",
+          "url": "https://arxiv.org/abs/2305.04091",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Reflexion: Language Agents with Verbal Reinforcement Learning",
+          "url": "https://arxiv.org/abs/2303.11366",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        }
+      ]
+    },
+    {
+      "id": "model-context-protocol-tool-interoperability",
+      "title": "Model Context Protocol and Tool Interoperability",
+      "summary": "This intermediate module teaches you to reason about Model Context Protocol roles, capability discovery, and interoperable tool use. After completing it, you can trace a tool request across an MCP integration, distinguish protocol compatibility from semantic compatibility, and identify essential validation and authorization controls.",
+      "level": "intermediate",
+      "providers": [
+        "provider-neutral"
+      ],
+      "estimatedMinutes": 35,
+      "objectives": [
+        "Explain the responsibilities of an MCP host, client, and server.",
+        "Distinguish tools from resources and prompts.",
+        "Trace capability discovery and a tool request through an MCP integration.",
+        "Assess whether two components are merely protocol-compatible or meaningfully interoperable.",
+        "Apply validation, authorization, consent, and least-privilege checks to an MCP tool workflow."
+      ],
+      "prerequisites": [],
+      "sections": [
+        {
+          "id": "level-and-outcome",
+          "title": "Level and learning outcome",
+          "paragraphs": [
+            "This is an intermediate-level module. It assumes that you understand basic request and response interactions, structured data, and the difference between reading information and performing an action. It does not assume prior experience implementing Model Context Protocol.",
+            "Before this module, you may know that an AI application can connect to external capabilities without being able to explain the roles, negotiation process, or safety boundaries involved. After this module, you will be able to trace an MCP tool request, evaluate whether an integration is genuinely interoperable, and identify where validation and authorization must occur."
+          ]
+        },
+        {
+          "id": "why-a-shared-protocol-matters",
+          "title": "Why a shared protocol matters",
+          "paragraphs": [
+            "Model Context Protocol, commonly abbreviated MCP, defines a shared way for an AI application to exchange context and capability information with external servers. A shared protocol reduces the need for every application and server pairing to invent a separate interaction format.",
+            "Protocol compatibility is only the first layer of interoperability. Two components can exchange valid protocol messages while still disagreeing about the meaning of a field, the units expected by an operation, or the consequences of an action. Meaningful interoperability therefore requires both protocol conformance and clear capability descriptions.",
+            "MCP does not make every connected server interchangeable. Servers can expose different capabilities, use different input shapes, and produce different results. An application must inspect what a particular server advertises instead of assuming that every connection offers the same operations."
+          ],
+          "callout": "A shared message format enables communication, but clear semantics and safe behavior make the communication useful."
+        },
+        {
+          "id": "host-client-server-roles",
+          "title": "Host, client, and server roles",
+          "paragraphs": [
+            "The host is the application that manages the overall user experience and integration. It decides when external context or actions are appropriate, manages user-facing approval, and applies application security policy.",
+            "An MCP client is the host-side protocol participant that maintains a connection with one MCP server. A host can manage multiple clients when it needs to communicate with multiple servers. Keeping each client associated with one server gives the host a clear boundary for routing messages and isolating server interactions.",
+            "An MCP server advertises capabilities and handles requests related to those capabilities. A server can provide context, reusable interaction patterns, or callable actions. The server defines what it offers, while the host remains responsible for deciding what the application and user are allowed to use.",
+            "These roles are logical responsibilities. Understanding them helps locate failures: connection and routing concerns involve the client relationship, capability behavior involves the server, and user authorization or overall policy belongs with the host."
+          ]
+        },
+        {
+          "id": "core-server-primitives",
+          "title": "Tools, resources, and prompts",
+          "paragraphs": [
+            "A tool represents an operation that can be invoked with structured input. A tool may retrieve information, perform computation, or cause an external action. Because some tools can change external state, discovering a tool is not the same as receiving permission to invoke it.",
+            "A resource provides context that can be read by the application. Resources are appropriate for information that the application may inspect or include as context without treating the read itself as a general-purpose action.",
+            "A prompt provides a reusable message template or interaction pattern. It helps package an established way of asking for or organizing work, but it does not replace authorization for any tool that the resulting interaction may invoke.",
+            "The distinction matters when designing policy. Reading a resource, selecting a prompt, and invoking a state-changing tool can carry different risks even when the same server exposes all three."
+          ]
+        },
+        {
+          "id": "discovery-and-negotiation",
+          "title": "Discovery and capability negotiation",
+          "paragraphs": [
+            "An MCP interaction begins by establishing the client-server relationship and exchanging initialization information. During this stage, each side communicates the protocol features it supports. Later behavior should be based on the capabilities actually negotiated, not on assumptions about what every implementation supports.",
+            "After initialization, the client can discover the capabilities advertised by the server. For tools, discovery gives the host information such as the operation description and the structured input expected by that operation. The host can use this information to decide whether an invocation is appropriate and to construct valid input.",
+            "Capability declarations support interoperability by allowing components to adapt to what is available. They are not authorization grants. A server saying that an operation exists does not establish that a particular user, model, or application may run it.",
+            "A robust client treats unsupported capabilities as unavailable. It should not send an operation merely because another server supported it in an earlier connection."
+          ],
+          "callout": "Negotiate first, discover second, authorize third, and invoke only after validation."
+        },
+        {
+          "id": "tracing-a-tool-request",
+          "title": "Tracing an interoperable tool request",
+          "paragraphs": [
+            "First, the server advertises a tool and describes its expected input. The client relays that description within the host, where the application can determine whether the tool is relevant to the user's goal.",
+            "Second, the host checks policy and authorization. If the action is consequential or exceeds an existing approval, the host should obtain informed user confirmation before allowing the request to proceed.",
+            "Third, the host constructs input that matches the advertised structure. It should validate types, required values, ranges, and any application-specific restrictions before sending the request through the client.",
+            "Fourth, the server validates the request again and performs only the operation it is authorized to perform. Validation on the host does not remove the server's responsibility to distrust incoming requests.",
+            "Fifth, the result returns through the client to the host. The host should treat returned content as untrusted, check whether it has the expected form, and decide how much of it to expose to the model or user.",
+            "Finally, the host presents the outcome and any relevant error in a way the user can understand. This trace separates protocol transport from policy decisions and makes it easier to identify where an unsafe or incompatible interaction occurred."
+          ]
+        },
+        {
+          "id": "evaluating-interoperability",
+          "title": "Evaluating interoperability",
+          "paragraphs": [
+            "Begin with protocol compatibility. Confirm that both sides can establish the relationship, negotiate supported capabilities, and exchange the required request and result messages.",
+            "Next examine structural compatibility. A client must be able to interpret the server's capability descriptions, construct inputs matching the advertised shapes, and process successful and unsuccessful results.",
+            "Then examine semantic compatibility. Names and valid structures are insufficient if the parties disagree about meaning. Descriptions should make the operation's purpose, required inputs, possible effects, and returned information clear enough for the host to make a safe decision.",
+            "Finally examine operational compatibility. The integration should handle unavailable capabilities, rejected requests, server errors, and connection loss without silently pretending that the requested action succeeded.",
+            "An interoperable design therefore combines negotiation, discovery, clear descriptions, validation, explicit error handling, and policy enforcement. Passing only the message-format layer does not establish that the overall workflow is correct."
+          ]
+        },
+        {
+          "id": "security-boundaries",
+          "title": "Security boundaries for tool use",
+          "paragraphs": [
+            "Treat server descriptions, resource contents, tool results, and error text as untrusted input. Content received from a server can be inaccurate or malicious even when the protocol exchange itself is valid.",
+            "Apply least privilege. Give each server and tool access only to the information and actions required for its purpose. Avoid treating connection to a server as blanket permission to use everything it advertises.",
+            "Keep authorization separate from capability discovery. The host should check user identity, application policy, action sensitivity, and current consent before allowing an invocation. The server should independently enforce the permissions relevant to the external system it controls.",
+            "Validate in both directions. Validate requested inputs before invocation, and validate returned content before using it as trusted context or presenting it as a confirmed result.",
+            "Preserve a clear user boundary for consequential actions. A model proposing a tool call is not equivalent to a user approving its effects. The host should provide enough information for informed confirmation when confirmation is required."
+          ],
+          "callout": "Capability means an operation is available. Authorization means this requester may use it. Consent means the user has agreed to the relevant effect."
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "model-context-protocol-tool-interoperability-q1",
+            "prompt": "Which component manages the overall user experience and applies application-level authorization policy?",
+            "choices": [
+              "The host",
+              "The server",
+              "The resource",
+              "The prompt"
+            ],
+            "answerIndex": 0,
+            "explanation": "The host manages the overall integration, user-facing approval, and application security policy."
+          },
+          {
+            "id": "model-context-protocol-tool-interoperability-q2",
+            "prompt": "What does a tool represent in this module?",
+            "choices": [
+              "A reusable message template only",
+              "A readable source of context only",
+              "An operation invoked with structured input",
+              "A guarantee that an action is authorized"
+            ],
+            "answerIndex": 2,
+            "explanation": "A tool is an operation that can be invoked with structured input. Advertising a tool does not grant permission to invoke it."
+          },
+          {
+            "id": "model-context-protocol-tool-interoperability-q3",
+            "prompt": "What should determine whether a client uses an optional protocol feature?",
+            "choices": [
+              "Whether another server supported it previously",
+              "Whether it was negotiated for the current relationship",
+              "Whether its name sounds familiar",
+              "Whether the model requests it"
+            ],
+            "answerIndex": 1,
+            "explanation": "Behavior should follow the capabilities negotiated for the current client-server relationship rather than assumptions based on other connections."
+          },
+          {
+            "id": "model-context-protocol-tool-interoperability-q4",
+            "prompt": "Two components exchange structurally valid messages but disagree about the units expected by a tool input. Which interoperability layer is missing?",
+            "choices": [
+              "Semantic compatibility",
+              "Connection routing",
+              "User interface styling",
+              "Capability discovery"
+            ],
+            "answerIndex": 0,
+            "explanation": "The message structure is valid, but the parties disagree about meaning. That is a semantic compatibility failure."
+          },
+          {
+            "id": "model-context-protocol-tool-interoperability-q5",
+            "prompt": "Which statement correctly distinguishes capability from authorization?",
+            "choices": [
+              "If a server advertises a tool, every connected user may invoke it.",
+              "Authorization is established automatically during capability discovery.",
+              "Capability says an operation is available, while authorization decides whether a requester may use it.",
+              "Capability and authorization are two names for the same decision."
+            ],
+            "answerIndex": 2,
+            "explanation": "Discovery establishes availability, not permission. The host and server must apply the relevant authorization policies separately."
+          }
+        ]
+      },
+      "reviewCadenceDays": 90,
+      "lastVerified": "2026-08-20",
+      "sources": [
+        {
+          "title": "Model Context Protocol Documentation",
+          "url": "https://modelcontextprotocol.io/docs",
+          "publisher": "Model Context Protocol",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Model Context Protocol Specification Repository",
+          "url": "https://github.com/modelcontextprotocol/specification",
+          "publisher": "Model Context Protocol",
+          "lastVerified": "2026-08-20"
+        }
+      ]
+    },
+    {
+      "id": "p42-create-01a01d34-715c-7e21-8090-3d123eb470f0",
+      "title": "Microsoft Foundry, from provisioning to model deployment",
+      "summary": "This intermediate-level module teaches you to plan and provision a Microsoft Foundry project, select a suitable model, create a deployment, validate its behavior, and prepare it for application use. After completing it, you can follow a controlled path from an approved cloud scope to a tested model endpoint.",
+      "level": "intermediate",
+      "providers": [
+        "provider-neutral"
+      ],
+      "estimatedMinutes": 40,
+      "objectives": [
+        "Explain the roles of a Foundry resource, a project, a model, and a deployment.",
+        "Perform a preflight review of access, region, capacity, governance, and model requirements before provisioning.",
+        "Provision a project within an approved organizational and billing scope.",
+        "Evaluate an available model against task, licensing, interface, and capacity requirements.",
+        "Create and validate a model deployment without exposing its credentials.",
+        "Record the information an application team needs to consume, monitor, replace, or retire a deployment."
+      ],
+      "prerequisites": [],
+      "sections": [
+        {
+          "id": "level-and-assumed-knowledge",
+          "title": "Level and assumed knowledge",
+          "paragraphs": [
+            "This is an intermediate-level module. It assumes that you understand basic cloud concepts such as regions, access permissions, billing scopes, resource containers, network requests, and model inference. It does not assume that you have previously provisioned Microsoft Foundry or deployed a model there.",
+            "The outcome is practical. Before this module, you might recognize Foundry as a place to work with models. After it, you can plan the required boundaries, provision a project, select an appropriate model, deploy it, validate the resulting endpoint, and prepare an operational handoff."
+          ]
+        },
+        {
+          "id": "understand-the-resource-chain",
+          "title": "Understand the resource chain",
+          "paragraphs": [
+            "Keep four concepts separate. A Foundry resource supplies the cloud context and governance boundary used by Foundry. A project is the workspace in which a team organizes its model work. A model is the selected inference capability. A deployment is a configured, callable instance of that model.",
+            "Provisioning and deployment are therefore different operations. Provisioning establishes the resource and project in an approved location and administrative scope. Deployment selects a model and makes it available for inference under a deployment-specific endpoint or connection.",
+            "This distinction helps with troubleshooting. If a project cannot be created, investigate scope, region, permissions, and policy. If the project exists but a model cannot be deployed, investigate model availability, capacity, deployment eligibility, and the selected region."
+          ],
+          "callout": "Do not treat project creation as proof that every model can be deployed there. Model availability and capacity must be checked separately."
+        },
+        {
+          "id": "perform-the-preflight",
+          "title": "Perform a provisioning preflight",
+          "paragraphs": [
+            "Start with the intended workload rather than the interface. Record the task the model must perform, the expected input and output forms, who may use it, the sensitivity of its data, and how success will be tested. These requirements provide a basis for choosing a model and rejecting unsuitable options.",
+            "Confirm the approved billing scope, resource container, region, and access permissions before creating anything. Also identify the person or team authorized to approve cost, model terms, data handling, and production use. If any of those decisions is unresolved, pause rather than creating an unowned resource.",
+            "Check that the intended model is offered for the selected region and deployment context. Review the model information presented by Foundry, including intended uses, limitations, applicable terms, supported interfaces, and any capacity requirement. Availability in a model list does not by itself establish suitability for the workload.",
+            "Define a simple acceptance test before deployment. Include representative inputs, expected output characteristics, prohibited behavior, and a failure condition. A deployment is technically reachable when it accepts a request, but it is acceptable for use only when it also meets the workload's stated criteria."
+          ]
+        },
+        {
+          "id": "provision-the-project",
+          "title": "Provision the Foundry project",
+          "paragraphs": [
+            "Use the documented project-creation flow to select or create the Foundry resource that will back the project, then create the project within the approved scope. Choose only the region and organizational placement approved during the preflight. Use locally defined naming and tagging conventions if your organization has them.",
+            "After creation, verify the project boundary before adding a deployment. Confirm that you are in the intended project, that its backing resource and region match the approved plan, and that the expected collaborators have only the access required for their roles.",
+            "Record the project owner, purpose, region, billing owner, intended data classification, and review date in the team's operational record. This record is separate from the technical resource. It allows another person to determine why the project exists and who can authorize changes or retirement.",
+            "Do not continue if the project appears in an unexpected scope or region. Creating a model deployment in the wrong project compounds the error and can expose the workload to an unapproved policy, access, or cost boundary."
+          ]
+        },
+        {
+          "id": "select-the-model",
+          "title": "Select a model for the workload",
+          "paragraphs": [
+            "Inspect the models available to the project and compare them with the written workload requirements. Begin with task fit and supported input and output forms. Then review limitations, applicable terms, regional availability, capacity, and the deployment choices Foundry presents for that model.",
+            "Prefer an explicit decision record over a vague statement that one model seemed best. Record the chosen model, the alternatives considered, the acceptance criteria, known limitations, and the reason for selection. This makes a later model replacement reviewable.",
+            "Do not infer that two models are interchangeable because they accept similar prompts. Their output behavior, limitations, terms, capacity needs, and interfaces can differ. Test the exact model and deployment that the application will call."
+          ]
+        },
+        {
+          "id": "create-the-deployment",
+          "title": "Create the model deployment",
+          "paragraphs": [
+            "Open the selected model's deployment flow and choose only an option that Foundry makes available for the current project and region. Review the displayed model, region, capacity implications, and applicable terms before confirming. If required capacity is unavailable, return to planning rather than silently changing the workload requirement.",
+            "Give the deployment an identity that follows the organization's naming convention and distinguishes its purpose or environment. Avoid placing secrets, personal data, or sensitive business information in the deployment identity or descriptive metadata.",
+            "Submit the deployment and wait for its reported state to indicate that it is ready before testing it. A submitted operation is not the same as a usable deployment. If creation fails, preserve the reported error and recheck permissions, availability, capacity, region, and policy rather than repeatedly submitting the same request.",
+            "Once ready, identify the connection information the approved application needs. Treat credentials as secrets. Do not paste them into source code, shared documents, test prompts, or operational notes. Provide them through the organization's approved secret-handling process."
+          ]
+        },
+        {
+          "id": "validate-and-handoff",
+          "title": "Validate and hand off the deployment",
+          "paragraphs": [
+            "First perform a connectivity check with a non-sensitive input. Confirm that the request reaches the intended deployment and produces a response. This proves basic reachability, not model quality or production readiness.",
+            "Next run the acceptance test defined during the preflight. Use representative inputs and compare the outputs with the recorded criteria. Test relevant failure cases, such as malformed or unsupported input, without using confidential data unless the workload and its data handling have been approved for that purpose.",
+            "Record the tested deployment identity, model, project, region, test date, acceptance result, known limitations, owner, and retirement or review trigger. Give the application team only the endpoint details and access path it needs. Do not include secret values in the handoff record.",
+            "Prepare a replacement and recovery plan before production use. Keep the previous acceptable deployment available when organizational policy and cost constraints permit, verify a replacement before directing application traffic to it, and define who can approve the switch. If validation fails, do not promote the new deployment.",
+            "After traffic moves or an experiment ends, review unused deployments and resources for retirement. Confirm dependencies and retention obligations before deletion. Record the decision so that an apparently unused deployment is not removed without an accountable review."
+          ],
+          "callout": "A successful response proves connectivity. Production readiness also requires documented quality, security, governance, ownership, and recovery checks."
+        },
+        {
+          "id": "end-to-end-checklist",
+          "title": "Apply the end-to-end sequence",
+          "paragraphs": [
+            "The complete sequence is to define the workload, confirm governance and regional constraints, define acceptance tests, provision the correct resource and project, verify their boundaries, evaluate available models, create the selected deployment, wait for readiness, test connectivity, run acceptance tests, secure connection information, document ownership, and prepare replacement and retirement procedures.",
+            "Each stage has a distinct completion condition. Provisioning is complete when the intended project exists in the approved boundary and ownership is recorded. Deployment is complete when the selected model has a ready deployment. Validation is complete only when the exact deployment passes the predetermined tests. Handoff is complete when an application team can connect through an approved access path and operators know how to review, replace, or retire the deployment."
+          ]
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "p42-create-01a01d34-715c-7e21-8090-3d123eb470f0-q1",
+            "prompt": "Which statement correctly distinguishes provisioning from model deployment?",
+            "choices": [
+              "Provisioning establishes the resource and project boundary, while deployment creates a callable instance of a selected model.",
+              "Provisioning tests model output quality, while deployment assigns project permissions.",
+              "Provisioning and deployment are two names for the same operation.",
+              "Provisioning begins only after an application has entered production."
+            ],
+            "answerIndex": 0,
+            "explanation": "The module defines provisioning as establishing the Foundry resource and project context. Deployment selects and configures a model so that it can be called for inference."
+          },
+          {
+            "id": "p42-create-01a01d34-715c-7e21-8090-3d123eb470f0-q2",
+            "prompt": "What should happen before resources are created?",
+            "choices": [
+              "The team should select whichever model appears first.",
+              "The team should confirm workload requirements, scope, region, permissions, governance ownership, and acceptance criteria.",
+              "The team should distribute credentials to all collaborators.",
+              "The team should assume that every listed model is available in every project."
+            ],
+            "answerIndex": 1,
+            "explanation": "The preflight establishes the workload, approved boundary, access, ownership, model constraints, and tests before provisioning begins."
+          },
+          {
+            "id": "p42-create-01a01d34-715c-7e21-8090-3d123eb470f0-q3",
+            "prompt": "A new deployment returns a response to a test request. What has this established?",
+            "choices": [
+              "The deployment is ready for every production workload.",
+              "The model has no limitations.",
+              "Basic connectivity works, but quality and production-readiness checks are still required.",
+              "The deployment can safely process every data classification."
+            ],
+            "answerIndex": 2,
+            "explanation": "A successful request proves basic reachability. The module requires separate acceptance, governance, security, ownership, and recovery checks."
+          },
+          {
+            "id": "p42-create-01a01d34-715c-7e21-8090-3d123eb470f0-q4",
+            "prompt": "How should deployment credentials be handled during handoff?",
+            "choices": [
+              "Place them directly in application source code.",
+              "Include them in the shared operational record.",
+              "Send them as part of a test prompt.",
+              "Provide them through the organization's approved secret-handling process."
+            ],
+            "answerIndex": 3,
+            "explanation": "The module says to treat credentials as secrets and to keep secret values out of source code, shared documents, prompts, and operational notes."
+          },
+          {
+            "id": "p42-create-01a01d34-715c-7e21-8090-3d123eb470f0-q5",
+            "prompt": "What is the correct response when a replacement deployment fails its acceptance test?",
+            "choices": [
+              "Promote it because it is technically reachable.",
+              "Do not promote it, preserve the evidence, and investigate the failed criteria.",
+              "Delete every previous deployment immediately.",
+              "Change the acceptance criteria after seeing the output."
+            ],
+            "answerIndex": 1,
+            "explanation": "The module states that a new deployment must pass predetermined acceptance tests before promotion. A failure should be investigated rather than hidden by changing the criteria."
+          }
+        ]
+      },
+      "reviewCadenceDays": 90,
+      "lastVerified": "2026-08-20",
+      "sources": [
+        {
+          "title": "Create a project in Microsoft Foundry",
+          "url": "https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/create-projects",
+          "publisher": "Microsoft",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Model catalog and collections in Microsoft Foundry",
+          "url": "https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/model-catalog-overview",
+          "publisher": "Microsoft",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Deploy models from the model catalog in Microsoft Foundry",
+          "url": "https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/deploy-models-from-catalog",
+          "publisher": "Microsoft",
+          "lastVerified": "2026-08-20"
+        }
+      ]
+    },
+    {
+      "id": "agent-orchestration-and-multi-agent-patterns",
+      "title": "Agent orchestration and multi-agent patterns",
+      "summary": "This intermediate module teaches you to design, trace, and evaluate workflows in which multiple agents coordinate through explicit roles, messages, state, and stopping rules. After completing it, you can choose an orchestration pattern for a task and specify the controls needed to operate it safely.",
+      "level": "intermediate",
+      "providers": [
+        "provider-neutral"
+      ],
+      "estimatedMinutes": 45,
+      "objectives": [
+        "Distinguish an agent from the orchestration logic that coordinates agents.",
+        "Map a task to sequential, parallel, supervisor-worker, shared-workspace, or debate-and-critique patterns.",
+        "Define agent roles, message contracts, state ownership, completion conditions, and failure handling.",
+        "Trace a multi-agent run and identify duplicated work, unsafe actions, missing evidence, and unresolved disagreement.",
+        "Design bounded workflows with explicit permissions, budgets, validation steps, and escalation paths."
+      ],
+      "prerequisites": [],
+      "sections": [
+        {
+          "id": "level-and-scope",
+          "title": "Level and scope",
+          "paragraphs": [
+            "This is an intermediate module. It assumes that you understand basic model requests and responses, structured data, conditional control flow, and the difference between instructions and generated output. No previous multi-agent experience is assumed.",
+            "An agent is a bounded participant that receives context, performs reasoning or actions allowed by its role, and returns a result. Orchestration is the control logic that decides which agent acts, what context it receives, where its output goes, and when the workflow stops. A multi-agent system uses more than one such participant, but adding participants does not automatically improve a result.",
+            "The practical goal is not to imitate a human organization. It is to divide work only when the division creates a useful boundary, such as a distinct capability, independent review, restricted permission, or parallel task."
+          ],
+          "callout": "Treat orchestration as a controlled workflow, not as an unrestricted conversation."
+        },
+        {
+          "id": "core-design-elements",
+          "title": "Core design elements",
+          "paragraphs": [
+            "A role definition states an agent's responsibility, permitted inputs, permitted actions, expected output, and conditions for returning control. Narrow roles make routing and evaluation easier. Labels such as researcher or reviewer are insufficient unless their permissions and output obligations are also defined.",
+            "A message contract specifies the structure and meaning of information exchanged between participants. It should distinguish claims, evidence, unresolved questions, requested actions, and status. Validate a message before another participant or an external system relies on it. Generated text remains untrusted input even when it comes from another agent.",
+            "State records what the workflow currently knows and what has happened. Private state belongs to one participant. Shared state is visible to several participants. Durable run state supports recovery and auditing. State ownership must be explicit so that concurrent participants do not silently overwrite one another.",
+            "A stopping rule defines success, failure, or escalation. Useful signals include acceptance by a validator, completion of all required tasks, exhaustion of a declared budget, detection of repeated states, or a request for human review. A request to continue is not itself evidence that continued work will help."
+          ]
+        },
+        {
+          "id": "orchestration-loop",
+          "title": "The orchestration loop",
+          "paragraphs": [
+            "A controlled run begins by converting the user's request into a task record with a goal, constraints, required evidence, allowed actions, and completion criteria. The orchestrator then selects an eligible participant, supplies only the necessary context, validates the response, updates state, and chooses the next transition.",
+            "Separate generation from control. A participant may propose a next action, but the orchestrator should determine whether that action is permitted and whether its arguments satisfy the required contract. This separation limits the effect of an erroneous or manipulated proposal.",
+            "Record each transition with the acting participant, input reference, output reference, validation result, action result, and reason for the next routing decision. A trace should make it possible to reconstruct why the workflow reached its final state without relying on hidden conversational context.",
+            "Before returning a result, apply a final acceptance check against the original goal and constraints. Completion means that the stated criteria have been met, not merely that no participant has another suggestion."
+          ]
+        },
+        {
+          "id": "sequential-pattern",
+          "title": "Sequential handoff",
+          "paragraphs": [
+            "In a sequential handoff, one participant's validated output becomes the next participant's input. This pattern fits work with a real dependency order, such as producing a draft before reviewing it and revising only after review.",
+            "The main design risk is error propagation. Later participants may treat an earlier claim as established simply because it appears in the shared context. Preserve evidence references and uncertainty markers at every handoff, and require downstream participants to reject inputs that fail their contracts.",
+            "Use sequential handoff when each stage transforms or checks the result of the preceding stage. Do not use it merely to make several participants restate the same task."
+          ]
+        },
+        {
+          "id": "parallel-pattern",
+          "title": "Parallel fan-out and fan-in",
+          "paragraphs": [
+            "In parallel fan-out, the orchestrator sends independent subtasks or alternative approaches to multiple participants. A fan-in stage then validates and combines their results. This pattern can reduce elapsed time when subtasks are genuinely independent, although it increases coordination work and does not guarantee a better answer.",
+            "The fan-in rule must be defined before execution. It may require all mandatory subtasks, select a result that passes a validator, merge non-overlapping fields, or escalate incompatible findings. A simple majority is not an evidence check because several participants can repeat the same unsupported claim.",
+            "Parallel work is unsuitable when participants must repeatedly edit the same state or when one task depends on an unfinished result from another. In those cases, explicit dependencies or sequential transitions are safer."
+          ]
+        },
+        {
+          "id": "supervisor-worker-pattern",
+          "title": "Supervisor-worker delegation",
+          "paragraphs": [
+            "In a supervisor-worker pattern, a coordinating participant decomposes a goal and proposes assignments to specialized workers. The orchestrator still enforces permissions, validates assignments, and applies stopping rules. The supervisor is a planner within the workflow, not an authority outside its controls.",
+            "Each assignment should contain a bounded objective, relevant context, allowed actions, expected output, and a return condition. The supervisor should receive summaries and evidence references rather than every intermediate token unless full detail is required.",
+            "This pattern is useful when decomposition depends on information discovered during the run. Its risks include unnecessary delegation, recursive task creation, duplicated assignments, and a supervisor accepting plausible but unsupported reports. Limit delegation depth, track task identities, and validate worker outputs before closing tasks."
+          ]
+        },
+        {
+          "id": "shared-workspace-pattern",
+          "title": "Shared workspace",
+          "paragraphs": [
+            "In a shared-workspace pattern, participants contribute records to a common state and read contributions made by others. This can support tasks where partial findings need to accumulate without a fixed handoff order.",
+            "Shared state needs a schema, ownership rules, provenance, and conflict handling. Append-only observations are easier to audit than silent replacement. If an item can change, store its author, status, evidence, and revision history so that disagreement remains visible.",
+            "Do not place secrets or unrestricted action authority in shared state merely for convenience. Give each participant the least context and permission needed for its assignment."
+          ]
+        },
+        {
+          "id": "debate-and-critique-pattern",
+          "title": "Debate and critique",
+          "paragraphs": [
+            "A debate-and-critique pattern asks participants to produce competing proposals, inspect one another's reasoning, or challenge specific claims. Research has investigated multi-agent debate as a way to improve reasoning and factuality in selected evaluations, but that does not establish that debate improves every task.",
+            "A useful critique identifies a claim, explains the defect, and requests evidence or a correction. Repeated disagreement without a decision rule creates cost without resolution. The workflow therefore needs an adjudication rule, such as evidence validation, an independent rubric, or human escalation.",
+            "Keep diversity of evidence separate from the number of voices. Several outputs derived from the same context can share the same error. The final decision should depend on validated support and task criteria rather than confidence, verbosity, or voting alone."
+          ]
+        },
+        {
+          "id": "choosing-a-pattern",
+          "title": "Choosing a pattern",
+          "paragraphs": [
+            "Start with the simplest workflow that meets the task's needs. Choose sequential handoff for true dependencies, parallel fan-out for independent work, supervisor-worker delegation for adaptive decomposition, a shared workspace for accumulating contributions, and debate or critique for structured challenge.",
+            "Patterns can be composed. For example, a supervisor may create independent assignments, workers may run in parallel, and a validator may inspect the combined result. Each composition adds transitions and failure modes, so every added participant should have a stated purpose.",
+            "Ask five questions before adding an agent: What distinct responsibility does it have? What information may it receive? What actions may it take? How is its output validated? What condition returns control? If these questions have no clear answers, a separate agent boundary is probably not yet justified."
+          ]
+        },
+        {
+          "id": "reliability-and-safety",
+          "title": "Reliability and safety controls",
+          "paragraphs": [
+            "Bound the workflow with limits on work, time, delegated tasks, retries, and allowed actions. The specific limits depend on the application and must be chosen from operational requirements rather than copied from an unrelated system.",
+            "Use idempotent action handling where practical so that retrying a recorded request does not unintentionally repeat an external effect. Before a consequential action, check authorization, validate arguments, detect whether the action already succeeded, and record the outcome.",
+            "Treat content from users, external data, and other participants as untrusted. Instructions found inside retrieved content should not silently replace the workflow's governing rules. Restrict context and action permissions at each boundary.",
+            "Define failure handling for malformed messages, unavailable capabilities, timeouts, contradictory state, failed actions, and exhausted budgets. Recovery may retry a safe operation, choose another path, restore a checkpoint, return a partial result with limitations, or escalate to a person.",
+            "Human review is most valuable at explicit decision points, especially when evidence is insufficient, policy interpretation is required, effects are difficult to reverse, or participants remain in material disagreement."
+          ]
+        },
+        {
+          "id": "evaluation-and-debugging",
+          "title": "Evaluation and debugging",
+          "paragraphs": [
+            "Evaluate both the final result and the process. Result measures can cover correctness, evidence quality, completeness, and adherence to constraints. Process measures can cover unnecessary transitions, duplicated tasks, invalid messages, failed actions, unresolved conflicts, and escalation behavior.",
+            "Test individual roles with fixed inputs before testing the full workflow. Then test transitions, shared-state updates, permission checks, stopping rules, retries, and recovery paths. Include adversarial cases in which a participant proposes a prohibited action, supplies malformed output, repeats an earlier state, or asserts completion without meeting the acceptance criteria.",
+            "When a run fails, inspect the first transition where state diverged from the intended contract. A poor final answer may originate in task decomposition, omitted context, invalid routing, weak validation, an unsafe action, or an incorrect stopping decision. Changing a participant's instructions will not repair every class of orchestration failure."
+          ]
+        },
+        {
+          "id": "design-walkthrough",
+          "title": "Design walkthrough",
+          "paragraphs": [
+            "Consider a task that requires collecting independent findings, drafting a response, and checking every factual claim. A suitable design can fan out bounded research assignments, store findings with evidence references, pass only validated findings to a drafting participant, and send the draft to a reviewer.",
+            "The reviewer returns structured findings rather than silently rewriting the draft. Each finding identifies the affected claim, the evidence issue, and the requested correction. The orchestrator routes accepted corrections back to the drafting stage and stops only when the acceptance check passes or a declared limit requires escalation.",
+            "This design gives every participant a distinct responsibility. It also preserves evidence through handoffs, prevents the reviewer from bypassing validation, and creates a trace of why the final response was accepted. After this module, you can produce the same kind of pattern selection, role contract, transition plan, and control checklist for your own task."
+          ]
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "agent-orchestration-and-multi-agent-patterns-q1",
+            "prompt": "Which responsibility belongs to orchestration rather than to an individual agent role?",
+            "choices": [
+              "Deciding which eligible participant acts next and when the workflow stops",
+              "Writing the content assigned to a drafting role",
+              "Finding evidence assigned to a research role",
+              "Explaining a defect assigned to a critique role"
+            ],
+            "answerIndex": 0,
+            "explanation": "Orchestration controls routing, state transitions, validation, and stopping. The other choices are responsibilities that can be assigned to bounded participant roles."
+          },
+          {
+            "id": "agent-orchestration-and-multi-agent-patterns-q2",
+            "prompt": "A task contains several independent subtasks whose results must all be validated and combined. Which pattern is the best initial match?",
+            "choices": [
+              "An unrestricted conversation",
+              "Parallel fan-out followed by fan-in",
+              "A sequential handoff with no validation",
+              "Repeated debate with no adjudication rule"
+            ],
+            "answerIndex": 1,
+            "explanation": "Parallel fan-out fits genuinely independent work, and fan-in supplies the required validation and combination step."
+          },
+          {
+            "id": "agent-orchestration-and-multi-agent-patterns-q3",
+            "prompt": "Why is a majority vote among agents not sufficient evidence that a claim is correct?",
+            "choices": [
+              "Agents are unable to return structured messages",
+              "Agents cannot work in parallel",
+              "Several participants can repeat the same unsupported claim",
+              "Voting always violates a stopping rule"
+            ],
+            "answerIndex": 2,
+            "explanation": "Multiple outputs may share the same unsupported assumption or source. Claims should be judged through validated evidence and task criteria, not vote count alone."
+          },
+          {
+            "id": "agent-orchestration-and-multi-agent-patterns-q4",
+            "prompt": "Which assignment is best bounded for a worker?",
+            "choices": [
+              "Help with the project however you think best",
+              "Keep creating tasks until nothing else can be imagined",
+              "Complete the entire goal and use any action you want",
+              "Investigate the specified subquestion using the supplied context, return claims with evidence references, and take no external action"
+            ],
+            "answerIndex": 3,
+            "explanation": "The correct assignment has a specific objective, bounded context, an expected output, and explicit action limits."
+          },
+          {
+            "id": "agent-orchestration-and-multi-agent-patterns-q5",
+            "prompt": "What should completion mean in a controlled multi-agent workflow?",
+            "choices": [
+              "The workflow's stated acceptance criteria have been met",
+              "The last participant produced a confident answer",
+              "Every participant agrees, regardless of evidence",
+              "No participant has requested another message"
+            ],
+            "answerIndex": 0,
+            "explanation": "The module defines completion against the original goal and constraints. Confidence, agreement, or conversational silence does not establish success."
+          }
+        ]
+      },
+      "reviewCadenceDays": 180,
+      "lastVerified": "2026-08-20",
+      "sources": [
+        {
+          "title": "A Survey on Large Language Model based Autonomous Agents",
+          "url": "https://arxiv.org/abs/2308.11432",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Improving Factuality and Reasoning in Language Models through Multiagent Debate",
+          "url": "https://arxiv.org/abs/2305.14325",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+          "url": "https://arxiv.org/abs/2210.03629",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Generative Agents: Interactive Simulacra of Human Behavior",
+          "url": "https://arxiv.org/abs/2304.03442",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        }
+      ]
+    },
+    {
+      "id": "p42-create-01a01d34-7009-7adc-8379-9f42f9e47ffa",
+      "title": "Retrieval-augmented generation, embeddings, and vector search",
+      "summary": "This intermediate module teaches you to design and evaluate a retrieval-augmented generation pipeline. After completing it, you can explain how embeddings and vector search connect a question to relevant source text, choose between exact and approximate search, and diagnose retrieval separately from answer generation.",
+      "level": "intermediate",
+      "providers": [
+        "provider-neutral"
+      ],
+      "estimatedMinutes": 35,
+      "objectives": [
+        "Describe the indexing, retrieval, and generation stages of a retrieval-augmented generation pipeline.",
+        "Explain how compatible document and query embeddings make semantic vector search possible.",
+        "Compare dot-product, cosine-similarity, and Euclidean-distance scoring at a conceptual level.",
+        "Choose between exact and approximate nearest-neighbor search based on measured retrieval quality and resource constraints.",
+        "Evaluate retrieval and answer generation separately so that failures can be traced to the correct stage."
+      ],
+      "prerequisites": [],
+      "sections": [
+        {
+          "id": "level-and-outcomes",
+          "title": "Level and learning outcome",
+          "paragraphs": [
+            "This is an intermediate-level module. It defines its retrieval terminology and assumes only a basic understanding that a language model accepts text as input and produces text as output. It does not assume experience with a particular product, hosted service, vector index, or embedding implementation.",
+            "Before this module, you may know that external documents can help a language model answer questions. After it, you will be able to map that idea into an indexing, retrieval, and generation pipeline; reason about similarity scoring; and test whether a weak answer was caused by retrieval or by generation."
+          ]
+        },
+        {
+          "id": "rag-mental-model",
+          "title": "The retrieval-augmented generation mental model",
+          "paragraphs": [
+            "Retrieval-augmented generation, commonly shortened to RAG, combines a generator with a retrievable collection of external text. The Retrieval-Augmented Generation paper describes this as combining parametric memory in a language model with non-parametric memory represented by a dense vector index. In practical terms, the system searches an external collection at question time and supplies selected text to the generator.",
+            "A basic RAG pipeline has two paths. The offline indexing path prepares source documents, divides them into retrievable passages, computes vector representations, and records the relationship between each vector and its source text. The online path embeds a user's question, searches for nearby passage vectors, obtains the corresponding text, and gives the question plus that text to the generator.",
+            "The retrieved text is context, not proof that the final answer is correct. Retrieval can return an irrelevant passage, omit a necessary passage, or return outdated material. A generator can also produce a statement that the retrieved text does not support. RAG therefore creates a way to use external evidence, but it does not guarantee a supported answer."
+          ],
+          "callout": "Keep the stages separate: indexing prepares searchable material, retrieval selects material for a question, and generation produces the response."
+        },
+        {
+          "id": "embeddings-and-shared-space",
+          "title": "Embeddings and compatible vector spaces",
+          "paragraphs": [
+            "An embedding is a fixed-length numeric vector used to represent an input such as a passage or a question. Dense retrieval compares these vectors rather than requiring an exact match between every word in the question and every word in a passage. The Dense Passage Retrieval paper demonstrates retrieval with dense passage and question representations.",
+            "The query and document representations must be compatible for their similarity scores to be meaningful. They may be produced by one shared mapping or by separate query and passage mappings trained to place related inputs in a compatible vector space. A vector from an unrelated embedding space must not be compared as though it belonged to the indexed space.",
+            "An indexed record needs more than a vector. It also needs a stable link back to the passage and its source information. Without that link, the search stage can identify a nearby vector but cannot recover the text that the generator needs.",
+            "Passage boundaries are a design decision rather than a universal constant. A passage must contain enough context to be useful while remaining focused enough for retrieval. The appropriate boundary and amount of overlap should be selected through evaluation on representative questions rather than assumed in advance."
+          ]
+        },
+        {
+          "id": "vector-search-and-scoring",
+          "title": "Vector search and similarity scoring",
+          "paragraphs": [
+            "Vector search ranks indexed vectors in relation to a query vector. With dot-product scoring, a larger dot product indicates a higher ranking. Cosine similarity divides the dot product by the product of the vectors' lengths, so it compares direction rather than raw magnitude. Euclidean distance measures straight-line distance, and a smaller distance indicates a nearer vector.",
+            "If every compared vector has unit length, ranking by cosine similarity is the same as ranking by dot product. For unit-length vectors, squared Euclidean distance also produces the reverse ordering because the squared distance equals two minus twice the dot product. These relationships do not justify switching scoring rules when vectors are not normalized or when the embedding procedure expects a particular rule.",
+            "Exact nearest-neighbor search evaluates the indexed candidates needed to identify the true nearest results under the selected score. Approximate nearest-neighbor search uses an index structure to avoid evaluating every candidate, accepting that it may miss a true nearest result. The Hierarchical Navigable Small World graphs paper presents one graph-based method for approximate nearest-neighbor search.",
+            "The choice between exact and approximate search is an engineering decision that should be measured. Relevant observations include retrieval quality on labeled questions, response time, memory use, and collection size. Approximate search is not automatically the correct choice, and its effect on relevant-passage retrieval should be tested."
+          ]
+        },
+        {
+          "id": "building-the-pipeline",
+          "title": "Building a traceable pipeline",
+          "paragraphs": [
+            "Start by defining the source collection and the questions it is intended to answer. Preserve enough source information to identify where every passage came from. Then divide the source text into passages, compute compatible passage embeddings, and store each vector with a reference to its passage.",
+            "At question time, compute a compatible query embedding and search the passage vectors using the scoring rule expected by the embedding procedure. Select a limited set of highly ranked passages and recover their text. Give the generator the question, the retrieved text, and a clear instruction to distinguish supported information from missing information.",
+            "Keep a trace for evaluation. At minimum, the trace should connect the question to its query representation, ranked passage identifiers, similarity scores, recovered source text, and generated answer. This trace makes it possible to inspect the boundary between retrieval and generation without assuming that the final answer alone reveals the cause of a failure.",
+            "When the collection changes, the searchable records must continue to correspond to the intended source text. A pipeline should therefore define how changed or removed passages are reflected in the index. The appropriate update process depends on the collection and should be validated rather than inferred from a successful initial build."
+          ]
+        },
+        {
+          "id": "evaluation-and-diagnosis",
+          "title": "Evaluating retrieval and generation separately",
+          "paragraphs": [
+            "A useful evaluation set pairs representative questions with passages judged relevant to those questions and with criteria for an acceptable answer. Retrieval can then be measured before the generator is involved. For example, recall at k is the fraction of evaluated questions for which at least one judged-relevant passage appears among the first k retrieved passages.",
+            "Generation should be evaluated with the retrieved text visible. Check whether the answer addresses the question, whether its factual statements are supported by that text, and whether it clearly indicates when the provided material is insufficient. This separates answer behavior from the earlier question of whether the necessary evidence was retrieved.",
+            "Diagnosis follows the stage boundaries. If a relevant passage exists in the collection but does not appear in the retrieved set, investigate passage boundaries, query and passage compatibility, scoring, and search behavior. If the relevant passage is retrieved but the answer contradicts or ignores it, investigate the generation instructions and answer evaluation. If the needed information is absent from the collection, changing similarity search alone cannot supply that missing information.",
+            "Compare pipeline changes on the same evaluation set. A change that improves retrieval recall but reduces answer support is not an unqualified improvement. The goal is a measured end-to-end system in which retrieval supplies useful evidence and generation uses that evidence appropriately."
+          ],
+          "callout": "Do not use answer quality as the only retrieval metric. Inspect whether the required passage was retrieved before judging how the generator used it."
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "p42-create-01a01d34-7009-7adc-8379-9f42f9e47ffa-q1",
+            "prompt": "Which sequence correctly describes the online path of the basic pipeline taught in this module?",
+            "choices": [
+              "Generate an answer, embed the answer, and then divide the sources into passages",
+              "Embed the question, search passage vectors, recover passage text, and generate an answer using that text",
+              "Remove passage identifiers, compare source filenames, and generate an embedding",
+              "Generate new source documents and then search the generated answer"
+            ],
+            "answerIndex": 1,
+            "explanation": "The online path embeds the question, searches the indexed passage vectors, recovers the associated text, and supplies that text with the question to the generator."
+          },
+          {
+            "id": "p42-create-01a01d34-7009-7adc-8379-9f42f9e47ffa-q2",
+            "prompt": "Under which condition does this module say cosine similarity gives the same ranking as dot-product scoring?",
+            "choices": [
+              "Every compared vector has unit length",
+              "Every passage contains the same number of words",
+              "The collection contains only one document",
+              "The generator has already produced an answer"
+            ],
+            "answerIndex": 0,
+            "explanation": "For unit-length vectors, cosine similarity equals the dot product, so both produce the same ranking."
+          },
+          {
+            "id": "p42-create-01a01d34-7009-7adc-8379-9f42f9e47ffa-q3",
+            "prompt": "What distinguishes approximate nearest-neighbor search from exact nearest-neighbor search in this module?",
+            "choices": [
+              "Approximate search guarantees that every returned passage is factually correct",
+              "Approximate search avoids evaluating every candidate but may miss a true nearest result",
+              "Approximate search does not use vectors",
+              "Approximate search generates passages instead of retrieving them"
+            ],
+            "answerIndex": 1,
+            "explanation": "Approximate search reduces candidate evaluation through an index structure, with the stated possibility that a true nearest result may be missed."
+          },
+          {
+            "id": "p42-create-01a01d34-7009-7adc-8379-9f42f9e47ffa-q4",
+            "prompt": "A relevant passage is among the top retrieved results, but the answer contradicts that passage. Which stage should be investigated first?",
+            "choices": [
+              "Generation instructions and answer evaluation",
+              "Whether the source collection contains the passage",
+              "Whether the passage has a stable identifier",
+              "Whether exact search evaluated enough indexed candidates"
+            ],
+            "answerIndex": 0,
+            "explanation": "Because the relevant passage was successfully retrieved, the first investigation should focus on how generation used or ignored that context."
+          },
+          {
+            "id": "p42-create-01a01d34-7009-7adc-8379-9f42f9e47ffa-q5",
+            "prompt": "What does recall at k measure in the evaluation approach described here?",
+            "choices": [
+              "The fraction of evaluated questions with at least one judged-relevant passage in the first k results",
+              "The number of words generated after retrieving k passages",
+              "The fraction of indexed vectors that have unit length",
+              "The time required to divide one document into k passages"
+            ],
+            "answerIndex": 0,
+            "explanation": "The module defines recall at k as the fraction of evaluated questions for which at least one judged-relevant passage appears among the first k retrieved passages."
+          }
+        ]
+      },
+      "reviewCadenceDays": 180,
+      "lastVerified": "2026-08-20",
+      "sources": [
+        {
+          "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+          "url": "https://arxiv.org/abs/2005.11401",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+          "url": "https://arxiv.org/abs/2004.04906",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks",
+          "url": "https://arxiv.org/abs/1908.10084",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs",
+          "url": "https://arxiv.org/abs/1603.09320",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        }
+      ]
+    },
+    {
+      "id": "embeddings-and-vector-stores",
+      "title": "Embeddings and vector stores",
+      "summary": "This intermediate module teaches you to design an embedding-based retrieval workflow, choose between exact and approximate search, and evaluate whether retrieved records are useful. After completing it, you can describe and troubleshoot the path from source content to vectors, stored records, similarity search, and retrieved context.",
+      "level": "intermediate",
+      "providers": [
+        "provider-neutral"
+      ],
+      "estimatedMinutes": 40,
+      "objectives": [
+        "Explain how an embedding represents an input as a numeric vector for similarity comparison.",
+        "Design a vector-store record that connects an embedding to its source content and provenance.",
+        "Trace a query through embedding, similarity search, filtering, and content retrieval.",
+        "Choose between exact and approximate nearest-neighbor search for a stated retrieval requirement.",
+        "Evaluate retrieval with labeled queries and diagnose failures involving segmentation, representation, search, or source content."
+      ],
+      "prerequisites": [],
+      "sections": [
+        {
+          "id": "level-and-outcomes",
+          "title": "Level and learning outcomes",
+          "paragraphs": [
+            "This is an intermediate-level module. It assumes that you understand arrays, records, basic functions, and the difference between stored data and a query. It introduces the vector-search concepts it uses and does not assume prior knowledge of machine-learning training or advanced linear algebra.",
+            "Before this module, you may know that semantic retrieval uses embeddings without being able to design or test the complete workflow. Afterward, you can map source content into retrievable records, explain how similarity search selects candidates, decide whether exact or approximate search fits a requirement, and evaluate retrieval failures systematically."
+          ]
+        },
+        {
+          "id": "embedding-concept",
+          "title": "What an embedding represents",
+          "paragraphs": [
+            "An embedding procedure maps an input, such as text, to a fixed-length numeric vector. Research on distributed representations demonstrates that learned vectors can encode relationships that support similarity comparisons. Sources: Distributed Representations of Words and Phrases and their Compositionality, https://arxiv.org/abs/1310.4546, checked 2026-08-20; Billion-scale similarity search with GPUs, https://arxiv.org/abs/1702.08734, checked 2026-08-20.",
+            "The vector is useful because a retrieval system can compare it with other vectors. Individual coordinates should not be treated as independently authored labels. The useful information is distributed across the representation and interpreted through comparisons in its vector space. Source: Distributed Representations of Words and Phrases and their Compositionality, https://arxiv.org/abs/1310.4546, checked 2026-08-20.",
+            "A query vector and stored vectors must be created by compatible embedding procedures that place them in a shared comparison space. Retrieval-augmented generation research demonstrates this pattern with a query encoder and a dense vector index of documents. Source: Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks, https://arxiv.org/abs/2005.11401, checked 2026-08-20.",
+            "Treat the embedding procedure and the source record as separate parts of the design. The procedure creates a representation for comparison, while the source record supplies the content, identifier, and provenance that an application needs after retrieval."
+          ],
+          "callout": "An embedding is a representation used for comparison. It is not the original content, a citation, or proof that the content is correct."
+        },
+        {
+          "id": "vector-store-records",
+          "title": "What the vector store must retain",
+          "paragraphs": [
+            "In this module, a vector store means a data system that retains vectors and enough associated information to find the corresponding source records. A practical record design contains a stable record identifier, the vector, the retrievable content or a resolvable content locator, and provenance such as a source identifier.",
+            "The vector supports candidate selection, but the identifier or locator reconnects a candidate to usable content. Dense retrieval research follows this separation by searching a vector index and then using the retrieved documents as non-parametric memory. Source: Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks, https://arxiv.org/abs/2005.11401, checked 2026-08-20.",
+            "Metadata can be retained for application rules such as access scope, document type, language, or publication state. Decide which fields are required before indexing, because a vector alone does not contain the source record or its operational provenance.",
+            "When source content changes, use a defined update process for both the source record and its vector. This is a design rule: the stored representation and the content returned for that record should refer to the same indexed state."
+          ]
+        },
+        {
+          "id": "segmentation-and-indexing",
+          "title": "Preparing content for indexing",
+          "paragraphs": [
+            "Long source material is commonly divided into retrieval units before embedding. Retrieval-augmented generation research demonstrates retrieval over document passages held in a dense vector index. Source: Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks, https://arxiv.org/abs/2005.11401, checked 2026-08-20.",
+            "Segmentation defines what one search result can return. A very broad unit may mix several subjects, while a narrow unit may omit context needed to interpret the passage. These are possible failure modes to test rather than universal size rules.",
+            "For each unit, preserve a stable link to its parent source and enough location information to recover context. Then create its embedding and store the vector with the record identifier and provenance. Do not claim one universally correct unit size. Select segmentation rules with representative queries and evaluate the resulting retrieval."
+          ]
+        },
+        {
+          "id": "similarity-search",
+          "title": "Similarity and nearest-neighbor search",
+          "paragraphs": [
+            "Similarity search receives a query vector and looks for stored vectors that are closest according to a chosen comparison rule. Published similarity-search research describes nearest-neighbor retrieval over large vector collections and evaluates both Euclidean-distance and inner-product search settings. Source: Billion-scale similarity search with GPUs, https://arxiv.org/abs/1702.08734, checked 2026-08-20.",
+            "The comparison rule is part of the retrieval design because it determines what closest means. Use the rule intended for the embedding procedure, and keep that rule consistent while comparing evaluation results.",
+            "Exact search examines the collection sufficiently to identify the true nearest results under the selected rule. Approximate nearest-neighbor methods trade a guarantee of exact results for more efficient search over large collections. Research on hierarchical navigable small-world graphs evaluates this trade-off using search performance and recall. Source: Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs, https://arxiv.org/abs/1603.09320, checked 2026-08-20.",
+            "Choose exact search when exact nearest results are required and the workload permits it. Consider approximate search when measured retrieval quality remains acceptable and search efficiency is a binding requirement. This decision must be based on measurements from the intended collection and queries rather than on an assumed universal threshold."
+          ]
+        },
+        {
+          "id": "query-workflow",
+          "title": "Tracing a retrieval request",
+          "paragraphs": [
+            "A retrieval request can be traced through five conceptual stages. First, validate the query and any application constraints. Second, create a query embedding with a procedure compatible with the indexed vectors. Third, search for nearby vectors under the selected comparison rule. Fourth, apply required record-selection rules at a defined point in the workflow. Fifth, resolve the selected identifiers to source content and return the content with provenance.",
+            "Dense retrieval research supports the central sequence of encoding a query, searching a dense vector index, and retrieving documents for downstream use. Source: Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks, https://arxiv.org/abs/2005.11401, checked 2026-08-20.",
+            "Record-selection rules and vector similarity answer different questions. Similarity ranks candidates under the vector comparison, while a selection rule decides whether a record is eligible for the request. Document whether eligibility is enforced before or after candidate generation so that missing results can be diagnosed.",
+            "Keep the retrieved identifier, source location, and similarity output available during testing. They let you distinguish a poor candidate ranking from a failure to resolve the correct source record."
+          ]
+        },
+        {
+          "id": "evaluation-and-diagnosis",
+          "title": "Evaluating retrieval quality",
+          "paragraphs": [
+            "Build a test set of representative queries with judgments identifying acceptable source records. For a selected result count, mark a query successful when at least one acceptable record appears in the returned set. Report the number of successful queries divided by the number of evaluated queries, and retain the individual failures for inspection.",
+            "Approximate nearest-neighbor research uses recall to measure how well approximate results reproduce desired neighbors, demonstrating that retrieval quality and search performance should be measured together. Source: Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs, https://arxiv.org/abs/1603.09320, checked 2026-08-20.",
+            "Diagnose a failed query in stages. Check whether the needed content exists in the indexed sources, whether segmentation produced a useful retrieval unit, whether the compatible embedding procedure was used, whether record-selection rules excluded the target, whether approximate search missed a desired neighbor, and whether the chosen result count was sufficient.",
+            "A nearby vector is not automatically a correct answer. It is a candidate selected under the embedding representation and comparison rule. Downstream use should preserve source provenance and apply any separate checks required by the application."
+          ],
+          "callout": "Evaluate retrieval separately from any downstream answer-generation step. Otherwise, a fluent answer can hide a missing or irrelevant retrieval result."
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 75,
+        "questions": [
+          {
+            "id": "embeddings-and-vector-stores-q1",
+            "prompt": "Which record design best supports returning usable source content after a similarity search?",
+            "choices": [
+              "Store only the vector because its coordinates contain the complete source record.",
+              "Store the vector with a stable record identifier and source content or a resolvable content locator.",
+              "Store only the query that was used to create the vector.",
+              "Store a similarity score permanently without retaining source provenance."
+            ],
+            "answerIndex": 1,
+            "explanation": "The module specifies that the vector selects candidates, while an identifier, content field, or resolvable locator reconnects each candidate to usable source content and provenance."
+          },
+          {
+            "id": "embeddings-and-vector-stores-q2",
+            "prompt": "Why must query vectors and stored vectors be created by compatible embedding procedures?",
+            "choices": [
+              "So they occupy a shared comparison space in which similarity search is meaningful.",
+              "So every source record has identical text.",
+              "So record identifiers can be removed.",
+              "So approximate search always returns exact results."
+            ],
+            "answerIndex": 0,
+            "explanation": "The module states that query and stored vectors need compatible embedding procedures that place them in a shared comparison space."
+          },
+          {
+            "id": "embeddings-and-vector-stores-q3",
+            "prompt": "When is approximate nearest-neighbor search an appropriate choice according to this module?",
+            "choices": [
+              "Whenever no retrieval evaluation is available.",
+              "When exact results are mandatory regardless of workload.",
+              "When measured retrieval quality is acceptable and search efficiency is a binding requirement.",
+              "When the source content has no stable identifiers."
+            ],
+            "answerIndex": 2,
+            "explanation": "The module recommends considering approximate search only when its measured retrieval quality remains acceptable and efficiency is a binding requirement."
+          },
+          {
+            "id": "embeddings-and-vector-stores-q4",
+            "prompt": "A relevant source exists, but no acceptable record is retrieved. Which diagnostic sequence best follows the module?",
+            "choices": [
+              "Inspect segmentation, embedding compatibility, selection rules, approximate-search behavior, and the selected result count.",
+              "Assume that a nearby vector must contain the correct answer.",
+              "Remove provenance fields and repeat the same request.",
+              "Judge retrieval only by the fluency of a downstream generated answer."
+            ],
+            "answerIndex": 0,
+            "explanation": "The module directs the learner to inspect the retrieval pipeline in stages, including segmentation, representation, eligibility rules, search behavior, and result count."
+          }
+        ]
+      },
+      "reviewCadenceDays": 180,
+      "lastVerified": "2026-08-20",
+      "sources": [
+        {
+          "title": "Distributed Representations of Words and Phrases and their Compositionality",
+          "url": "https://arxiv.org/abs/1310.4546",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Billion-scale similarity search with GPUs",
+          "url": "https://arxiv.org/abs/1702.08734",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs",
+          "url": "https://arxiv.org/abs/1603.09320",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+          "url": "https://arxiv.org/abs/2005.11401",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        }
+      ]
+    },
+    {
+      "id": "voice-agents-virtual-instructors-accessible-media",
+      "title": "Voice agents, virtual instructors, and accessible media",
+      "summary": "This intermediate module enables learners to design a provider-neutral conversational learning experience that coordinates voice interaction, instructional dialogue, accessible media alternatives, recovery paths, and human review. After completing it, learners can turn a learning objective into an interaction flow and evaluate whether that flow remains usable when speech recognition, generated responses, or media access fails.",
+      "level": "intermediate",
+      "providers": [
+        "provider-neutral"
+      ],
+      "estimatedMinutes": 50,
+      "objectives": [
+        "Map a voice interaction into input, interpretation, dialogue, response, output, and recovery stages.",
+        "Design a virtual instructor around a measurable learning objective rather than unrestricted conversation.",
+        "Select captions, transcripts, audio descriptions, and non-voice controls for different access needs.",
+        "Create confirmation, correction, fallback, and human-escalation paths for consequential interactions.",
+        "Plan an evaluation that measures task completion, instructional progress, accessibility, failures, and recovery.",
+        "Identify privacy and safety decisions that must be settled before collecting or retaining voice interaction data."
+      ],
+      "prerequisites": [],
+      "sections": [
+        {
+          "id": "scope-and-assumed-knowledge",
+          "title": "Scope and assumed knowledge",
+          "paragraphs": [
+            "This is an intermediate-level module. It assumes basic familiarity with conversational interfaces, digital media playback, learning objectives, and user testing. It does not assume programming knowledge, knowledge of a named provider, or experience with a particular implementation.",
+            "A voice agent accepts spoken input and can return a spoken or non-spoken response. A virtual instructor is the instructional role played by a conversational system. The two concepts overlap, but they are not identical: a virtual instructor can use text, and a voice agent can perform tasks that have no teaching purpose.",
+            "Accessible media provides equivalent or complementary ways to obtain information presented through sound or images. The appropriate alternative depends on what the original medium communicates. Captions represent speech and relevant audio in synchronized text, transcripts provide a text record, and audio descriptions communicate important visual information that the main audio does not convey. Sources 2, 3, and 4 document these distinctions.",
+            "After this module, the learner should be able to move from a broad idea such as creating a speaking tutor to a reviewable interaction design with explicit instructional goals, media alternatives, failure recovery, and evaluation criteria."
+          ]
+        },
+        {
+          "id": "interaction-pipeline",
+          "title": "Model the complete voice interaction",
+          "paragraphs": [
+            "Treat voice interaction as a sequence rather than a single act. A useful provider-neutral model contains input capture, recognition of spoken input, interpretation of the request, selection or generation of a response, production of spoken output, and recovery. Dialogue-system literature describes comparable modular and end-to-end approaches, as summarized in Source 1.",
+            "At each stage, record the expected input, expected output, uncertainty that can arise, and available recovery action. Background noise may affect captured input, recognition may produce the wrong words, interpretation may assign the wrong intent, and a generated response may be irrelevant or unsupported. The design should not hide these possibilities behind a fluent voice.",
+            "A visible or spoken confirmation is appropriate when a mistaken interpretation could materially affect the learner. Confirmation can repeat the interpreted request and offer correction before an action proceeds. For low-consequence turns, repeated confirmation can obstruct the interaction, so the design decision should follow the consequence of an error rather than a universal rule.",
+            "Recovery paths can include asking the learner to repeat or rephrase, showing the recognized text for editing, offering a small set of choices, switching to text input, returning to the previous step, or requesting human assistance. A fallback is part of the primary design, not an exception to be added after deployment."
+          ]
+        },
+        {
+          "id": "instructional-dialogue",
+          "title": "Design the virtual instructor as a teaching system",
+          "paragraphs": [
+            "Begin with a measurable learning objective. Then define the evidence that would demonstrate progress, such as a correct explanation, a completed procedure, or an accurate choice with reasoning. Conversation is the delivery mechanism, not the objective.",
+            "A bounded instructional turn can present a task, collect the learner's response, check it against known criteria, provide feedback, offer a hint, and decide whether to continue, retry, review prerequisite material, or escalate. This structure makes the instructional decision observable and testable.",
+            "Separate feedback from unsupported judgment. When the system has an established answer or rubric, it can compare a response with those criteria and explain the comparison. When it lacks sufficient evidence, it should state that it cannot determine correctness rather than inventing certainty. No claim is made here that conversational delivery automatically improves learning outcomes.",
+            "Give learners control over pace and modality. They should be able to pause, repeat, skip where instruction permits, inspect text, correct recognized input, and leave the interaction. For an important assessment or high-consequence decision, define when a person reviews the result instead of allowing the conversational system to be the final authority."
+          ]
+        },
+        {
+          "id": "accessible-media",
+          "title": "Provide access beyond the spoken channel",
+          "paragraphs": [
+            "Voice should not be the only route to information or control. Provide a text path for entering requests and reading responses when the interaction permits it. Controls needed to operate the experience should also be available without requiring speech.",
+            "Captions are synchronized with media and should include dialogue plus relevant non-speech audio needed to understand the content. A transcript is a separate text representation that can support reading, searching, review, and access when synchronized playback is unnecessary. Source 2 explains captions, and Source 3 explains transcripts.",
+            "Audio description communicates visual information that is important for understanding but absent from the main audio, such as meaningful actions, changes of scene, or information shown only on screen. Source 4 explains this purpose. A transcript of dialogue alone does not replace missing visual information.",
+            "Alternatives require review for equivalence. Compare the spoken response, displayed text, captions, transcript, and visual presentation to check that they communicate the same instructions, warnings, choices, and corrections. Also test timing, speaker identification, reading order, control labels, focus movement, and operation without voice.",
+            "Do not assume that one alternative serves every learner. Include people who use the relevant access methods in evaluation, document barriers they encounter, and revise both the main interaction and its alternatives."
+          ]
+        },
+        {
+          "id": "privacy-safety-and-boundaries",
+          "title": "Set privacy, safety, and role boundaries",
+          "paragraphs": [
+            "Before collecting voice data, identify what is captured, why it is needed, whether derived text is retained, who can access it, how long it is retained, and how a learner can request correction or deletion where applicable. Exact legal duties and retention periods are UNKNOWN without a stated jurisdiction and organizational policy, so this module does not prescribe them.",
+            "Make the system's role clear. Learners should be able to distinguish an automated instructor from a person and should know when a person will review their interaction. Avoid implying expertise or authority that the system has not been assigned and evaluated to provide.",
+            "Risk decisions should consider the context, affected people, severity of a possible error, and ability to detect and recover from that error. Source 5 provides official guidance for managing risks associated with artificial intelligence systems.",
+            "Define escalation triggers before testing. Examples include repeated inability to understand the learner, a request outside the instructional scope, inaccessible content, conflicting assessment evidence, or a potentially harmful response. The escalation route must lead somewhere real; a label without an available recipient is not a recovery mechanism."
+          ]
+        },
+        {
+          "id": "evaluation-plan",
+          "title": "Evaluate performance, learning, and access separately",
+          "paragraphs": [
+            "Use separate measures for interaction performance, instructional progress, accessibility, and safety. A system can recognize speech accurately yet teach poorly, or provide correct instruction through controls that some learners cannot operate.",
+            "Interaction measures can include task completion, turns requiring correction, abandoned sessions, response delay, successful use of fallback paths, and successful escalation. Instructional measures can compare performance on the stated objective before and after the interaction or examine whether the learner can independently complete the target task.",
+            "Accessibility evaluation should cover voice and non-voice input, readable response text, captions, transcripts, audio description where visual information matters, keyboard operation, correction of recognized text, and recovery without speech. Test complete scenarios rather than checking isolated components only.",
+            "Numerical acceptance thresholds are UNKNOWN because the supplied requirements do not establish a use context, learner population, risk tolerance, or performance baseline. Establish thresholds with representative users and stakeholders before release, then record failures by pipeline stage so revisions target the actual problem.",
+            "A release review should answer five questions: Can the learner complete the target task, can the learner demonstrate the intended knowledge or skill, can the experience be operated through an alternative to voice, can mistakes be detected and corrected, and can unresolved cases reach a person or another valid channel?"
+          ]
+        }
+      ],
+      "knowledgeCheck": {
+        "passPercent": 80,
+        "questions": [
+          {
+            "id": "voice-agents-virtual-instructors-accessible-media-q1",
+            "prompt": "Which design begins a virtual instructor with an instructional purpose rather than conversation for its own sake?",
+            "choices": [
+              "Start with a measurable learning objective and define evidence of progress.",
+              "Start with an unrestricted conversation and decide the objective after release.",
+              "Measure only whether the spoken response sounds fluent.",
+              "Remove retry paths so every learner follows one route."
+            ],
+            "answerIndex": 0,
+            "explanation": "The module says to begin with a measurable learning objective and define the evidence that would demonstrate progress."
+          },
+          {
+            "id": "voice-agents-virtual-instructors-accessible-media-q2",
+            "prompt": "What should happen before a consequential action when the interpreted spoken request may be wrong?",
+            "choices": [
+              "Proceed because spoken output sounds confident.",
+              "Confirm the interpreted request and offer a correction path.",
+              "Delete the learner's input without explanation.",
+              "Replace the learning objective with a different one."
+            ],
+            "answerIndex": 1,
+            "explanation": "The interaction-pipeline section recommends confirmation and correction when a mistaken interpretation could materially affect the learner."
+          },
+          {
+            "id": "voice-agents-virtual-instructors-accessible-media-q3",
+            "prompt": "Which media alternative communicates important visual information that is absent from the main audio?",
+            "choices": [
+              "Audio description",
+              "Speech recognition",
+              "Input confirmation",
+              "Dialogue management"
+            ],
+            "answerIndex": 0,
+            "explanation": "The accessible-media section defines audio description as communication of important visual information not conveyed by the main audio."
+          },
+          {
+            "id": "voice-agents-virtual-instructors-accessible-media-q4",
+            "prompt": "Why should interaction performance and instructional progress be measured separately?",
+            "choices": [
+              "A system may handle speech accurately while failing to help learners achieve the objective.",
+              "Instructional progress can always be inferred from response speed.",
+              "Accurate speech recognition proves that an answer is educationally correct.",
+              "Separate measures remove the need for accessibility evaluation."
+            ],
+            "answerIndex": 0,
+            "explanation": "The module explains that successful speech handling does not establish successful teaching, so each outcome requires its own evidence."
+          },
+          {
+            "id": "voice-agents-virtual-instructors-accessible-media-q5",
+            "prompt": "Which option is a valid recovery path after repeated speech-recognition difficulty?",
+            "choices": [
+              "Offer editable recognized text or a text-input route.",
+              "Hide the recognized input from the learner.",
+              "Continue using the same interpretation without confirmation.",
+              "Declare that the learner completed the objective."
+            ],
+            "answerIndex": 0,
+            "explanation": "The module identifies editable recognized text and switching to text input as recovery paths."
+          },
+          {
+            "id": "voice-agents-virtual-instructors-accessible-media-q6",
+            "prompt": "What does the module say about numerical acceptance thresholds?",
+            "choices": [
+              "They are UNKNOWN until the use context, learner population, risk tolerance, and baseline are established.",
+              "One universal threshold applies to every voice and learning context.",
+              "Thresholds are unnecessary if the response is fluent.",
+              "Thresholds should be selected without representative users."
+            ],
+            "answerIndex": 0,
+            "explanation": "The evaluation section marks numerical thresholds UNKNOWN because the necessary contextual evidence was not supplied."
+          }
+        ]
+      },
+      "reviewCadenceDays": 180,
+      "lastVerified": "2026-08-20",
+      "sources": [
+        {
+          "title": "A Survey on Dialogue Systems: Recent Advances and New Frontiers",
+          "url": "https://arxiv.org/abs/1711.01731",
+          "publisher": "arXiv",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Captions",
+          "url": "https://www.w3.org/WAI/media/av/captions/",
+          "publisher": "World Wide Web Consortium",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Transcripts",
+          "url": "https://www.w3.org/WAI/media/av/transcripts/",
+          "publisher": "World Wide Web Consortium",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Audio Description",
+          "url": "https://www.w3.org/WAI/media/av/description/",
+          "publisher": "World Wide Web Consortium",
+          "lastVerified": "2026-08-20"
+        },
+        {
+          "title": "Artificial Intelligence Risk Management Framework",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "publisher": "National Institute of Standards and Technology",
+          "lastVerified": "2026-08-20"
         }
       ]
     }
