@@ -4,6 +4,23 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.80.0] - 2026-08-20
+
+### Added
+
+- `content/modules/discovery/cost.json`
+- `content/modules/discovery/evaluation.json`
+- `content/modules/discovery/executive.json`
+- `content/modules/discovery/langchain.json`
+- `content/modules/discovery/mcp.json`
+- `content/modules/discovery/microsoft-foundry.json`
+- `content/modules/discovery/orchestration.json`
+- `content/modules/discovery/voice-agent.json`
+
+### Changed
+
+- `content/catalog.json`
+
 ## [0.79.0] - 2026-08-20
 
 ### Added
