@@ -216,7 +216,9 @@
       "summary": "Modules proposed by the monthly discovery run and approved by the owner, gathered here as each one is published.",
       "audience": "Learners who want emerging tools, protocols, and practice covered as they appear, before they settle into a curated path.",
       "level": "intermediate",
-      "moduleIds": [],
+      "moduleIds": [
+        "embeddings-and-vector-stores"
+      ],
       "badge": {
         "id": "badge-discovery",
         "name": "Emerging Practice",
