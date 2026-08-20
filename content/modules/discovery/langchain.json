@@ -1,0 +1,175 @@
+{
+  "id": "mapping-our-orchestration-patterns-onto-named-frameworks",
+  "title": "Mapping our orchestration patterns onto named frameworks",
+  "summary": "This intermediate module teaches you to compare observable orchestration behavior with ReAct, Plan-and-Solve, and Reflexion without claiming unsupported implementation equivalence. After completing it, you can produce an evidence-based mapping, identify partial matches, and leave an estate-specific classification UNKNOWN when the required evidence is absent.",
+  "level": "intermediate",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 30,
+  "objectives": [
+    "Describe the observable characteristics of ReAct, Plan-and-Solve, and Reflexion.",
+    "Map an orchestration trace to a named framework using control flow, generated artifacts, feedback, and reuse as evidence.",
+    "Distinguish a behavioral resemblance from proof that an implementation uses a particular framework.",
+    "Record a partial or UNKNOWN mapping instead of forcing an unsupported classification.",
+    "State what additional evidence would resolve an uncertain mapping."
+  ],
+  "prerequisites": [],
+  "sections": [
+    {
+      "id": "level-and-scope",
+      "title": "Level and scope",
+      "paragraphs": [
+        "This is an intermediate module. It assumes that you can read a sequence of model requests, external actions, observations, and retries. It does not assume prior knowledge of any named orchestration framework, access to hidden model reasoning, or familiarity with a particular provider.",
+        "In this module, orchestration means the observable control flow that coordinates model calls, actions, observations, plans, feedback, and repeated attempts. A mapping compares that observable flow with a documented framework. It does not prove that the implementation imports, copies, or was inspired by the framework.",
+        "No trace, design document, or pattern inventory for the estate was supplied with this module. The estate's actual framework mapping is therefore UNKNOWN and is not asserted here. The method below enables a learner to perform that mapping when evidence becomes available."
+      ],
+      "callout": "A responsible mapping names the evidence and its limits. Similar behavior is not proof of implementation identity."
+    },
+    {
+      "id": "evidence-first-workflow",
+      "title": "Use an evidence-first mapping workflow",
+      "paragraphs": [
+        "Begin with an observable trace or design description. Record the order of events without assigning a framework name. Useful events include creating a plan, selecting an action, receiving an observation, revising a plan, generating feedback after an attempt, and reusing that feedback in a later attempt.",
+        "Next, identify the unit being classified. A complete workflow can contain several patterns. For example, one phase might plan before execution while another phase repeatedly alternates actions and observations. Classifying each phase separately prevents a broad workflow label from hiding meaningful differences.",
+        "Compare each phase with the defining behavior of a named framework. Record a match only for characteristics visible in the evidence. Also record contradictions and missing evidence. A missing feature is not automatically a contradiction because logging may be incomplete.",
+        "Assign a result of match, partial match, no match, or UNKNOWN. Use match when the defining behavior is present, partial match when only some defining behavior is present, no match when evidence contradicts the defining behavior, and UNKNOWN when the available material cannot support a decision.",
+        "Finish by stating the scope of the conclusion. A suitable conclusion says that an observed phase is behaviorally consistent with a named framework. It should not say that the estate uses that framework unless implementation records establish that stronger claim."
+      ]
+    },
+    {
+      "id": "react-pattern",
+      "title": "Recognize the ReAct pattern",
+      "paragraphs": [
+        "The ReAct paper presents an approach in which reasoning and actions are interleaved. Actions produce observations, and those observations inform subsequent reasoning and actions. For mapping purposes, the important signature is a repeated cycle rather than a single plan followed by uninterrupted execution.",
+        "Evidence consistent with ReAct includes a trace that selects an action, receives an external observation, and then uses that observation before selecting another action. One action alone is insufficient to establish the repeated pattern. A simple request followed by a single response is also insufficient.",
+        "Do not require access to hidden model reasoning. If only observable orchestration records are available, classify the visible action and observation loop and state that unobserved reasoning cannot be evaluated. This keeps the conclusion within the available evidence."
+      ]
+    },
+    {
+      "id": "plan-and-solve-pattern",
+      "title": "Recognize the Plan-and-Solve pattern",
+      "paragraphs": [
+        "The Plan-and-Solve paper describes separating planning from solution execution. Its mapping signature is an explicit plan produced before the system carries out the solution steps.",
+        "Evidence consistent with Plan-and-Solve includes a plan artifact that decomposes a task and a later execution phase that follows or refers to that plan. Merely performing several steps is not enough because a multistep trace may emerge without a distinct planning phase.",
+        "If a system repeatedly replans after every external observation, parts of its behavior may resemble both planning and an interleaved action-observation loop. In that case, classify the phases separately or report a partial match instead of selecting one label for the entire workflow."
+      ]
+    },
+    {
+      "id": "reflexion-pattern",
+      "title": "Recognize the Reflexion pattern",
+      "paragraphs": [
+        "The Reflexion paper describes agents that use linguistic feedback from prior attempts to improve later attempts. Its mapping signature is not merely retrying. The distinguishing evidence is a textual reflection or feedback artifact that is retained and supplied to a subsequent attempt.",
+        "Evidence consistent with Reflexion includes an attempt, an evaluation or feedback stage, a generated reflection about what should change, and reuse of that reflection in another attempt. A retry caused only by a transient failure does not establish this pattern.",
+        "When a trace shows evaluation but does not show whether feedback is retained or reused, the Reflexion mapping is UNKNOWN or partial, depending on what is visible. Inspecting the inputs to the next attempt would establish whether the reflection was actually reused."
+      ]
+    },
+    {
+      "id": "mapping-examples",
+      "title": "Apply the distinctions",
+      "paragraphs": [
+        "Consider a phase that creates a three-step plan and then executes those steps in order. That phase is behaviorally consistent with Plan-and-Solve because planning is separated from execution. If execution later begins alternating actions with observations, that later phase can separately be consistent with ReAct.",
+        "Consider a workflow that attempts a task, receives an evaluation, writes a textual account of the failure, and includes that account in the next attempt. That workflow is behaviorally consistent with Reflexion. If the evaluation only triggers the same request again and no reflection is created or reused, the Reflexion label is unsupported.",
+        "Consider a log containing repeated external actions but no recorded observations, plans, or feedback artifacts. Several explanations remain possible, including incomplete logging. The correct mapping is UNKNOWN until a fuller trace or design description establishes the missing control flow.",
+        "A useful mapping statement has four parts: the phase being classified, the proposed framework, the observed evidence, and the limitation. For example, a planning phase may be described as behaviorally consistent with Plan-and-Solve because a plan precedes execution, while implementation identity remains UNKNOWN because no implementation record is available."
+      ]
+    },
+    {
+      "id": "avoid-overclaiming",
+      "title": "Avoid common mapping errors",
+      "paragraphs": [
+        "Do not map by vocabulary alone. A field or log message containing the word plan does not establish a separate planning phase. Inspect when the artifact is created and whether later execution uses it.",
+        "Do not treat every action loop as ReAct. Look for observations that affect later action selection. Do not treat every retry as Reflexion. Look for generated feedback that is retained and reused. Do not treat every multistep response as Plan-and-Solve. Look for a distinct plan before execution.",
+        "Do not force one label onto a composite workflow. Named patterns can describe different phases, and a phase can only partially resemble a framework. Preserve these distinctions so that the mapping remains useful for design review and comparison.",
+        "To complete an estate-specific mapping, obtain representative traces, orchestration design descriptions, and evidence showing which artifacts are passed between attempts. Without those materials, the estate-specific result remains UNKNOWN."
+      ]
+    }
+  ],
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "mapping-our-orchestration-patterns-onto-named-frameworks-q1",
+        "prompt": "A trace repeatedly selects an external action, receives an observation, and uses that observation before selecting the next action. Which framework is the strongest behavioral match?",
+        "choices": [
+          "ReAct",
+          "Plan-and-Solve",
+          "Reflexion",
+          "No named pattern can ever be considered"
+        ],
+        "answerIndex": 0,
+        "explanation": "ReAct is characterized here by an interleaved cycle of reasoning, actions, and observations in which observations inform later steps."
+      },
+      {
+        "id": "mapping-our-orchestration-patterns-onto-named-frameworks-q2",
+        "prompt": "Which evidence most strongly supports a Plan-and-Solve mapping?",
+        "choices": [
+          "A retry occurs after a transient failure",
+          "A plan is created before a separate execution phase that follows it",
+          "An external action returns an observation",
+          "A framework name appears in a log message"
+        ],
+        "answerIndex": 1,
+        "explanation": "The distinguishing signature presented in the module is separation between explicit planning and subsequent solution execution."
+      },
+      {
+        "id": "mapping-our-orchestration-patterns-onto-named-frameworks-q3",
+        "prompt": "A failed attempt is evaluated, a textual reflection is generated, and that reflection is included in the next attempt. Which framework is the strongest behavioral match?",
+        "choices": [
+          "Plan-and-Solve",
+          "ReAct",
+          "Reflexion",
+          "None, because all retries are identical"
+        ],
+        "answerIndex": 2,
+        "explanation": "Reflexion is distinguished from an ordinary retry by generating linguistic feedback and reusing it in a later attempt."
+      },
+      {
+        "id": "mapping-our-orchestration-patterns-onto-named-frameworks-q4",
+        "prompt": "A log shows repeated actions but omits observations, plans, and feedback artifacts. What is the most defensible mapping?",
+        "choices": [
+          "ReAct, because every repeated action proves an observation loop",
+          "Reflexion, because every repetition proves reflection",
+          "Plan-and-Solve, because every multistep process begins with a plan",
+          "UNKNOWN until fuller evidence establishes the missing control flow"
+        ],
+        "answerIndex": 3,
+        "explanation": "The visible log does not establish the defining behavior of any of the three frameworks. Incomplete evidence should produce an UNKNOWN result rather than a forced label."
+      },
+      {
+        "id": "mapping-our-orchestration-patterns-onto-named-frameworks-q5",
+        "prompt": "What does a behavioral match to a named framework establish?",
+        "choices": [
+          "The implementation must import that framework",
+          "The implementation was definitely inspired by the framework's paper",
+          "The observed control flow is consistent with the framework within the stated evidence limits",
+          "Every phase of the workflow uses the same pattern"
+        ],
+        "answerIndex": 2,
+        "explanation": "Behavioral mapping compares observable control flow. It does not by itself prove implementation identity, historical influence, or that every phase follows the same pattern."
+      }
+    ]
+  },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-20",
+  "sources": [
+    {
+      "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+      "url": "https://arxiv.org/abs/2210.03629",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-20"
+    },
+    {
+      "title": "Plan-and-Solve Prompting: Improving Zero-Shot Chain-of-Thought Reasoning by Large Language Models",
+      "url": "https://arxiv.org/abs/2305.04091",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-20"
+    },
+    {
+      "title": "Reflexion: Language Agents with Verbal Reinforcement Learning",
+      "url": "https://arxiv.org/abs/2303.11366",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-20"
+    }
+  ]
+}
