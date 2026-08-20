@@ -1,3 +1,33 @@
+# Project 42 platform v0.78.0
+
+Version 0.78.0 was cut by the Orchard release role from everything merged into `main` since v0.77.0. It exists so that content already merged into the platform repository reaches the sites that consume the platform package.
+
+## Content
+
+Changed:
+
+
+
+- `content/training/ai-foundations/what-ai-does/alternatives/en-US-reduced-motion.md`
+- `content/training/ai-foundations/what-ai-does/alternatives/en-US-text-only.md`
+- `content/training/ai-foundations/what-ai-does/transcripts/en-US.md`
+
+## Migrations
+
+No file under `migrations/` was added or changed since v0.77.0.
+
+## Breaking changes
+
+Orchard does not classify breaking changes. Review the file list above, and the diff for this tag, before approving the release environment.
+
+## Known limitations
+
+None are recorded by the automation that cut this release. It reports what changed; it does not assess it.
+
+## Rollback
+
+Revert consuming sites to v0.77.0.
+
 # Project 42 platform v0.77.0
 
 Version 0.77.0 was cut by the Orchard release role from everything merged into `main` since v0.76.0. It exists so that content already merged into the platform repository reaches the sites that consume the platform package.
