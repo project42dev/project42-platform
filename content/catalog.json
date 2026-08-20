@@ -218,7 +218,8 @@
       "level": "intermediate",
       "moduleIds": [
         "embeddings-and-vector-stores",
-        "p42-create-01a01d34-70d2-7389-9c19-4358fc25c0cf"
+        "p42-create-01a01d34-70d2-7389-9c19-4358fc25c0cf",
+        "p42-create-01a01d34-7143-772b-8799-fcceb0c7a408"
       ],
       "badge": {
         "id": "badge-discovery",
