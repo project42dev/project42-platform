@@ -32,6 +32,7 @@ export interface CodeExample {
   language: string;
   label: string;
   code: string;
+  content?: string;
 }
 
 export interface LessonSection {
