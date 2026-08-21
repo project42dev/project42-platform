@@ -1,300 +1,156 @@
 {
   "id": "claude-evaluation-and-observability",
-  "title": "Evaluate and Observe Claude Workflows",
-  "summary": "Measure Claude outcomes, safety, trajectories, latency, cost, and drift with versioned cases, calibrated graders, production signals, and release gates.",
-  "level": "advanced",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-25",
+  "title": "Claude Evaluation and Observability",
+  "summary": "This intermediate module enables learners to define evaluation criteria for Claude, assemble representative test cases, and use recorded production observations to identify regressions. After completing it, learners can turn a loosely stated quality goal into a repeatable evaluation workflow.",
+  "level": "intermediate",
   "providers": [
     "anthropic"
   ],
-  "estimatedMinutes": 56,
+  "estimatedMinutes": 30,
   "objectives": [
-    "Define measurable, multidimensional success criteria before changing prompts or models.",
-    "Build representative, edge, adversarial, and regression evaluation cases.",
-    "Combine deterministic, human, and calibrated model grading.",
-    "Connect privacy-reviewed production evidence to release gates and rollback decisions."
+    "Define measurable success criteria for a Claude use case.",
+    "Create representative test cases that include normal, difficult, and unacceptable outcomes.",
+    "Select human review, rule-based grading, model-based grading, or a documented combination for each criterion.",
+    "Connect production observations to an evaluation set without treating isolated examples as conclusive.",
+    "Compare a proposed change with a baseline and make a documented release decision."
   ],
-  "prerequisites": [
-    "claude-safety-and-trust-boundaries"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "define-a-measurable-claim",
-      "title": "Define a measurable claim",
+      "id": "source-correction",
+      "title": "Source correction",
       "paragraphs": [
-        "Name the workflow, target users, required behavior, forbidden behavior, quality rubric, latency and cost budgets, safety thresholds, and must-not-regress slices before running a candidate. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Use several criteria because an average quality score can conceal a critical safety, permission, accessibility, or minority-language failure. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "The source record supplied for the prior module pointed to the module's own catalogue path, named an unregistered publisher, and had never been verified. That record was replaced with two official Anthropic documentation pages: one on defining success criteria and one on developing test cases.",
+        "This correction affects source attribution and review currency. It does not change the module's instructional scope: defining success, constructing evaluations, examining observed behavior, and comparing changes with a baseline."
       ],
-      "code": {
-        "language": "typescript",
-        "label": "Define a measurable claim (Code Implementation)",
-        "code": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });\n\nconst response = await client.messages.create({\n  model: \"claude-3-7-sonnet-20250219\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Analyze the operational boundary and output constraints.\" }]\n});\nconsole.log(response.content[0].text);"
-      }
+      "callout": "The previous catalogue path was not retained as a source because it was not a resolvable HTTPS reference from an authoritative publisher."
     },
     {
-      "id": "build-versioned-cases",
-      "title": "Build versioned cases from real work",
+      "id": "level-and-prior-knowledge",
+      "title": "Level and prior knowledge",
       "paragraphs": [
-        "Cover common tasks, important user segments, boundary conditions, ambiguous inputs, prompt injection, missing tools, tool failures, and prior incidents. Preserve a holdout set to detect overfitting. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Synthetic cases can expand coverage, but reviewers must confirm they represent the product. Version inputs, expected outcomes, allowed trajectories, forbidden behavior, and data-handling approval. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Build versioned cases from real work (Code Implementation)",
-        "code": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });\n\nconst response = await client.messages.create({\n  model: \"claude-3-7-sonnet-20250219\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Analyze the operational boundary and output constraints.\" }]\n});\nconsole.log(response.content[0].text);"
-      }
+        "This is an intermediate module. It assumes basic experience writing prompts for Claude and manually reviewing responses. It does not assume prior experience with formal evaluation systems or observability infrastructure.",
+        "In this module, an evaluation is a repeatable process that applies stated criteria to test cases. Observability means retaining permitted evidence about actual behavior, such as the input context, output, outcome, error state, and timing, so that failures can be investigated and useful cases can be added to later evaluations."
+      ]
     },
     {
-      "id": "use-the-right-graders",
-      "title": "Use the right graders",
+      "id": "define-success",
+      "title": "Define success before testing",
       "paragraphs": [
-        "Prefer deterministic checks for schema, calculations, required fields, permissions, postconditions, latency, and cost. Use blinded human review for consequential judgment and calibrated model graders for scalable rubric signals. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "A model grader is not ground truth. Compare it with labeled cases, measure disagreement and bias, version the grader prompt and model, and route uncertain or high-impact cases to people. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "Begin with the behavior the application must produce, not with a preferred prompt. Convert broad goals such as good quality into criteria that a reviewer or grader can apply consistently. A criterion should identify the behavior being judged, the evidence used to judge it, and the condition that counts as acceptable.",
+        "Separate criteria when they represent different risks. Factual correctness, instruction following, appropriate refusal, output structure, and response time may require different evidence and grading methods. Record which criteria are mandatory and which are preferences before comparing alternatives.",
+        "Choose a grading method for each criterion. Human review is useful when judgment depends on context or nuance. Rule-based grading is useful when a requirement can be checked directly. Model-based grading can help scale qualitative review, but its instructions and outputs must also be validated against examples reviewed by people."
       ],
-      "code": {
-        "language": "typescript",
-        "label": "Use the right graders (Code Implementation)",
-        "code": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });\n\nconst response = await client.messages.create({\n  model: \"claude-3-7-sonnet-20250219\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Analyze the operational boundary and output constraints.\" }]\n});\nconsole.log(response.content[0].text);"
-      }
+      "callout": "Do not define success after seeing the candidate results. Doing so makes the comparison easier to bias."
     },
     {
-      "id": "compare-and-gate",
-      "title": "Compare on identical conditions",
+      "id": "build-test-cases",
+      "title": "Build representative test cases",
       "paragraphs": [
-        "Run baseline and candidate with the same cases, prompt and tool contracts, budgets, environment, and grading definitions. Report per-slice results, critical failures, distributions, uncertainty, latency, and cost. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Write ship, hold, and rollback rules before seeing results. The Claude Console Evaluation tool can support case sets, side-by-side prompt comparison, quality grading, and prompt versions, while production release policy remains your responsibility. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "callout": "A higher global score does not override a failed must-not-regress safety or authority case.",
-      "code": {
-        "language": "typescript",
-        "label": "Compare on identical conditions (Code Implementation)",
-        "code": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });\n\nconst response = await client.messages.create({\n  model: \"claude-3-7-sonnet-20250219\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Analyze the operational boundary and output constraints.\" }]\n});\nconsole.log(response.content[0].text);"
-      }
+        "A test case contains an input, any relevant context, and the expected behavior or grading criteria. Include ordinary cases that reflect the intended use, difficult cases near known boundaries, and cases representing outcomes the application must avoid.",
+        "Use realistic variation rather than repeating one template. Vary phrasing, context length, ambiguity, and other conditions that matter to the use case. Keep a separate set of cases for final comparison when repeatedly revising prompts against a development set, because repeated exposure can make performance on familiar cases look more general than it is.",
+        "When a production failure reveals a distinct and relevant behavior, remove or transform sensitive information as required, document why the case matters, and add an appropriate version to the evaluation set. Preserve the original criterion unless the product requirement itself has changed."
+      ]
     },
     {
-      "id": "close-the-production-loop",
-      "title": "Close the production evidence loop",
+      "id": "connect-observations",
+      "title": "Connect observations to evaluation",
       "paragraphs": [
-        "Observe correlation and version identifiers, stop reasons, tool trajectories, authorization failures, validation results, latency, usage, cost, user feedback, escalation, and rollback signals without collecting unrestricted sensitive content. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Privacy-review and sanitize representative failures, then add them to the offline regression suite. Detect distribution or capability drift and preserve enough provenance to reproduce and roll back a release. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "Evaluation asks whether behavior meets predefined criteria. Observability supplies evidence about what happened during actual use. The two practices reinforce each other: evaluation detects known failure patterns before release, while observed failures can reveal missing cases or criteria.",
+        "For each permitted record, retain enough context to reproduce or classify the outcome. Useful categories can include the use-case identifier, input characteristics, output, grader result, human-review result, error state, and timing. Record only information the application is authorized to retain, and apply the application's privacy and retention requirements.",
+        "Do not treat one successful example as proof of general quality or one failure as proof that every similar case will fail. Classify the observation, find related test cases, and run the relevant evaluation before drawing a broader conclusion."
+      ]
+    },
+    {
+      "id": "compare-and-decide",
+      "title": "Compare changes with a baseline",
+      "paragraphs": [
+        "Run the same evaluation set and grading criteria against the existing baseline and the proposed change. Compare results by criterion and by meaningful case category, not only as one combined result. A combined result can conceal a serious regression in a smaller but important category.",
+        "Investigate disagreements between grading methods. If a rule passes a response that human reviewers reject, determine whether the rule, the criterion, or the response is at fault. Document any grading change and rerun the affected comparison so that the baseline and candidate remain comparable.",
+        "Make the release decision using the acceptance conditions defined before testing. Save the evaluation inputs, criteria, grading instructions, results, and decision rationale that policy permits. This creates a reviewable link between the proposed change, the observed evidence, and the decision."
       ],
-      "code": {
-        "language": "typescript",
-        "label": "Close the production evidence loop (Code Implementation)",
-        "code": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });\n\nconst response = await client.messages.create({\n  model: \"claude-3-7-sonnet-20250219\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Analyze the operational boundary and output constraints.\" }]\n});\nconsole.log(response.content[0].text);"
-      }
+      "callout": "A repeatable evaluation workflow consists of predefined criteria, representative cases, documented grading, a stable comparison, and a recorded decision."
     }
   ],
-  "activity": {
-    "id": "activity-claude-release-eval",
-    "title": "Run a Claude release evaluation",
-    "instructions": [
-      "Write multidimensional success criteria and predeclared ship, hold, and rollback thresholds for one Claude workflow.",
-      "Build twelve versioned cases: five representative, two edge, two adversarial, two prior failures, and one holdout.",
-      "Score a baseline and candidate with deterministic checks, a rubric, and blinded review; calibrate any model grader on labeled cases.",
-      "Report results by slice with latency, cost, disagreement, critical failures, provenance, and a signed release decision."
-    ],
-    "evidence": [
-      "A versioned twelve-case suite, multidimensional rubric, grader definitions, thresholds, and privacy/data approval.",
-      "A reproducible baseline-versus-candidate report with slice metrics, critical trajectories, grader disagreement, and release decision."
-    ],
-    "reflectionPrompt": "Which aggregate result initially hid a failure that should block the release?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 1680,
-    "cues": [
-      {
-        "id": "cue-claude-eval-claim",
-        "kind": "narration",
-        "sectionId": "define-a-measurable-claim",
-        "text": "Define multidimensional success, forbidden behavior, budgets, slices, and release thresholds before evaluating a candidate."
-      },
-      {
-        "id": "cue-claude-eval-cases",
-        "kind": "narration",
-        "sectionId": "build-versioned-cases",
-        "text": "Version representative, edge, adversarial, incident, and holdout cases with expected outcomes and allowed trajectories."
-      },
-      {
-        "id": "cue-claude-eval-graders",
-        "kind": "narration",
-        "sectionId": "use-the-right-graders",
-        "text": "Combine deterministic checks, blinded human judgment, and calibrated model graders while measuring disagreement."
-      },
-      {
-        "id": "cue-claude-eval-gate",
-        "kind": "narration",
-        "sectionId": "compare-and-gate",
-        "text": "Compare baseline and candidate under identical conditions and honor predeclared must-not-regress gates."
-      },
-      {
-        "id": "cue-claude-eval-production",
-        "kind": "narration",
-        "sectionId": "close-the-production-loop",
-        "text": "Turn privacy-reviewed production failures into reproducible regression cases with complete version and rollback provenance."
-      },
-      {
-        "id": "cue-claude-eval-visual",
-        "kind": "visual",
-        "sectionId": "compare-and-gate",
-        "text": "Compare baseline and candidate across quality, safety, trajectory, latency, cost, and critical-slice lanes.",
-        "accessibilityAlternative": "A static comparison table shows baseline and candidate metrics, thresholds, uncertainty, and gate status for each lane."
-      },
-      {
-        "id": "cue-claude-eval-prompt",
-        "kind": "learner-prompt",
-        "sectionId": "use-the-right-graders",
-        "text": "Ask learners which criterion needs deterministic, human, or calibrated model grading and why."
-      },
-      {
-        "id": "cue-claude-eval-pause",
-        "kind": "pause",
-        "sectionId": "compare-and-gate",
-        "text": "Allow three minutes to define one must-not-regress slice before seeing results."
-      },
-      {
-        "id": "cue-claude-eval-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "close-the-production-loop",
-        "text": "Check that every score identifies cases, workflow, prompt, model, tools, graders, environment, and date."
-      },
-      {
-        "id": "cue-claude-eval-activity",
-        "kind": "learner-prompt",
-        "text": "Guide criteria, twelve cases, graders, controlled comparison, slice report, and release decision."
-      },
-      {
-        "id": "cue-claude-eval-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can defend coverage, grading, gates, observability, and provenance."
-      }
-    ],
-    "transcript": "Define multidimensional success, forbidden behavior, budgets, slices, and release thresholds before evaluating a candidate. Version representative, edge, adversarial, incident, and holdout cases with expected outcomes and allowed trajectories. Combine deterministic checks, blinded human judgment, and calibrated model graders while measuring disagreement. Compare baseline and candidate under identical conditions and honor predeclared must-not-regress gates. Turn privacy-reviewed production failures into reproducible regression cases with complete version and rollback provenance.",
-    "captions": [
-      {
-        "cueId": "cue-claude-eval-claim",
-        "startSeconds": 0,
-        "endSeconds": 300,
-        "text": "Define multidimensional success, forbidden behavior, budgets, slices, and release thresholds before evaluating a candidate."
-      },
-      {
-        "cueId": "cue-claude-eval-cases",
-        "startSeconds": 330,
-        "endSeconds": 630,
-        "text": "Version representative, edge, adversarial, incident, and holdout cases with expected outcomes and allowed trajectories."
-      },
-      {
-        "cueId": "cue-claude-eval-graders",
-        "startSeconds": 660,
-        "endSeconds": 960,
-        "text": "Combine deterministic checks, blinded human judgment, and calibrated model graders while measuring disagreement."
-      },
-      {
-        "cueId": "cue-claude-eval-gate",
-        "startSeconds": 990,
-        "endSeconds": 1290,
-        "text": "Compare baseline and candidate under identical conditions and honor predeclared must-not-regress gates."
-      },
-      {
-        "cueId": "cue-claude-eval-production",
-        "startSeconds": 1320,
-        "endSeconds": 1650,
-        "text": "Turn privacy-reviewed production failures into reproducible regression cases with complete version and rollback provenance."
-      }
-    ],
-    "reducedMotionAlternative": "Use static evaluation-contract, slice-comparison, and production-feedback tables with focus highlighting."
-  },
   "knowledgeCheck": {
     "passPercent": 80,
     "questions": [
       {
-        "id": "q-claude-eval-1",
-        "prompt": "When should release thresholds be written?",
+        "id": "claude-evaluation-and-observability-q1",
+        "prompt": "When should acceptance criteria be defined for a comparison?",
         "choices": [
-          "After seeing results",
-          "Before running the comparison",
-          "After an incident only",
-          "Never"
+          "After reviewing the candidate results",
+          "Before comparing the baseline and candidate",
+          "Only after a production failure",
+          "Whenever the preferred candidate performs poorly"
         ],
         "answerIndex": 1,
-        "explanation": "Predeclared thresholds reduce post-hoc rationalization."
+        "explanation": "The module says to define success and acceptance conditions before comparing alternatives so that observed results do not bias the criteria."
       },
       {
-        "id": "q-claude-eval-2",
-        "prompt": "Which grader best checks a required JSON field?",
+        "id": "claude-evaluation-and-observability-q2",
+        "prompt": "Which test set best follows the module's guidance?",
         "choices": [
-          "A deterministic schema check",
-          "An uncalibrated model opinion",
-          "A popularity vote",
-          "No grader"
-        ],
-        "answerIndex": 0,
-        "explanation": "Deterministic checks are reliable for exact structural rules."
-      },
-      {
-        "id": "q-claude-eval-3",
-        "prompt": "What is the safest role for a model grader?",
-        "choices": [
-          "Ground truth",
-          "A replacement for cases",
-          "A calibrated, versioned signal with disagreement review",
-          "An invisible production dependency"
+          "Many copies of one easy prompt",
+          "Only cases on which the current prompt succeeds",
+          "Ordinary, difficult, and unacceptable-outcome cases with realistic variation",
+          "A single production example selected after release"
         ],
         "answerIndex": 2,
-        "explanation": "Model graders need calibration, provenance, and escalation."
+        "explanation": "Representative evaluation requires ordinary cases, difficult boundary cases, unacceptable outcomes, and realistic variation."
       },
       {
-        "id": "q-claude-eval-4",
-        "prompt": "A candidate improves average quality but violates a permission case. What should happen?",
+        "id": "claude-evaluation-and-observability-q3",
+        "prompt": "What is the recommended response to a distinct and relevant production failure?",
         "choices": [
-          "Ship on average",
-          "Delete the case",
-          "Lower the threshold afterward",
-          "Honor the critical gate and hold or fix"
+          "Treat it as proof that all similar requests fail",
+          "Ignore it because it was not in the original evaluation",
+          "Replace every existing test case with the failure",
+          "Classify it, protect sensitive information, and add an appropriate version to the evaluation set"
         ],
         "answerIndex": 3,
-        "explanation": "Critical must-not-regress slices override averages."
+        "explanation": "The module directs learners to classify observed failures, apply privacy requirements, and turn relevant failures into evaluation cases."
       },
       {
-        "id": "q-claude-eval-5",
-        "prompt": "What makes a result reproducible?",
+        "id": "claude-evaluation-and-observability-q4",
+        "prompt": "Why should results be compared by criterion and meaningful case category?",
         "choices": [
-          "A screenshot",
-          "Versioned cases, workflow, prompts, models, tools, graders, environment, and results",
-          "Only a percentage",
-          "The provider name"
+          "A combined result can hide a serious regression in a smaller category",
+          "Categories eliminate the need for predefined criteria",
+          "Category results make a baseline unnecessary",
+          "Every category must use a different prompt"
         ],
-        "answerIndex": 1,
-        "explanation": "All material inputs and decision rules need provenance."
+        "answerIndex": 0,
+        "explanation": "The module warns that one combined result can conceal regressions affecting a smaller but important category."
+      },
+      {
+        "id": "claude-evaluation-and-observability-q5",
+        "prompt": "What should happen when a rule-based grade passes a response that human reviewers reject?",
+        "choices": [
+          "Discard the human reviews automatically",
+          "Release the candidate because the rule passed",
+          "Investigate the disagreement, document any grading change, and rerun the affected comparison",
+          "Change the acceptance criteria without recording the change"
+        ],
+        "answerIndex": 2,
+        "explanation": "Disagreements must be investigated, and any grading change must be documented and applied to a rerun so the comparison remains valid."
       }
     ]
   },
+  "reviewCadenceDays": 90,
+  "lastVerified": "2026-08-21",
   "sources": [
     {
       "title": "Define success criteria and build evaluations",
-      "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests",
+      "url": "https://docs.anthropic.com/en/docs/test-and-evaluate/define-success",
       "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
+      "lastVerified": "2026-08-21"
     },
     {
-      "title": "Using the Evaluation Tool",
-      "url": "https://platform.claude.com/docs/en/test-and-evaluate/eval-tool",
+      "title": "Develop test cases",
+      "url": "https://docs.anthropic.com/en/docs/test-and-evaluate/develop-tests",
       "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Mitigate jailbreaks and prompt injections",
-      "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Claude API errors",
-      "url": "https://platform.claude.com/docs/en/api/errors",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
+      "lastVerified": "2026-08-21"
     }
   ]
 }
