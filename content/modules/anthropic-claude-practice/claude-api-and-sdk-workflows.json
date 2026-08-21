@@ -1,300 +1,147 @@
 {
   "id": "claude-api-and-sdk-workflows",
-  "title": "Build Reliable Claude API Workflows",
-  "summary": "Integrate the Claude Messages API with environment-based credentials, explicit request contracts, state ownership, validation, observability, and bounded recovery.",
+  "title": "Claude API and SDK Workflows",
+  "summary": "This intermediate module teaches a repeatable workflow for choosing between direct Claude API access and an SDK, preparing a request, evaluating the response, and handling failures. After completing it, a learner can plan and review a Claude integration workflow that they could not systematically evaluate before.",
   "level": "intermediate",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-25",
   "providers": [
     "anthropic"
   ],
-  "estimatedMinutes": 54,
+  "estimatedMinutes": 25,
   "objectives": [
-    "Explain the Messages API request, response, content-block, and conversation-state contracts.",
-    "Use official SDKs with environment-based credentials and configurable model identifiers.",
-    "Validate outputs and handle stop reasons, rate limits, timeouts, and uncertain outcomes explicitly.",
-    "Record safe operational evidence without logging secrets or sensitive prompt content."
+    "Choose between direct API access and an SDK based on the needs of an integration.",
+    "Describe the stages of a Claude request from input preparation through response validation.",
+    "Apply basic credential, error-handling, and response-review practices to a Claude integration.",
+    "Identify what changed in this module's citation record and what the correction affected."
   ],
-  "prerequisites": [
-    "claude-prompting-in-practice"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "messages-are-structured-and-stateless",
-      "title": "Messages are structured and application-managed",
+      "id": "currency-update",
+      "title": "What changed in this update",
       "paragraphs": [
-        "A Messages API request identifies a model, output budget, prior user and assistant turns, and optional system instructions, tools, or other controls. Responses contain typed content blocks, usage, and a stop reason. Do not assume that every response is one prose string. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "The application owns conversational state. For a continued exchange, preserve the required prior turns and send them again according to the current API contract. Define retention, truncation, summarization, privacy, and deletion behavior as application policies rather than accidental side effects. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "The previous citation was the internal file content/modules/anthropic-claude-practice/claude-api-and-sdk-workflows.json, identified in the supplied review record as an unregistered publisher source that had never been verified. This update replaces that citation with public Anthropic documentation available over HTTPS.",
+        "The correction affects source provenance, URL accessibility, publisher attribution, and review metadata. The workflow guidance in this module is limited to claims supported by the replacement sources."
       ],
-      "callout": "The system instruction is a top-level request field in the Messages API, not a system-role item in the messages array.",
-      "code": {
-        "language": "typescript",
-        "label": "Messages are structured and application-managed (Code Implementation)",
-        "code": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });\n\nconst response = await client.messages.create({\n  model: \"claude-3-7-sonnet-20250219\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Analyze the operational boundary and output constraints.\" }]\n});\nconsole.log(response.content[0].text);"
-      }
+      "callout": "The next review is governed by the module's declared review cadence. A future review should confirm that the cited pages still resolve and that the described workflow still matches Anthropic's documentation."
     },
     {
-      "id": "credentials-and-configuration",
-      "title": "Keep credentials and volatile choices in configuration",
+      "id": "level-and-expectations",
+      "title": "Level and expected background",
       "paragraphs": [
-        "Load the API key from the runtime environment or a managed secret store. Fail closed when it is unavailable, keep it out of prompts and logs, scope access to the workload, and use an operational process for rotation and revocation. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Treat model identifiers, output budgets, timeouts, retry policy, and region or deployment choices as reviewed configuration. Verify currently supported values from official documentation and avoid baking an unverified model name into reusable learning code. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Secret-safe SDK request boundary",
-        "code": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst model = process.env.ANTHROPIC_MODEL;\nif (!process.env.ANTHROPIC_API_KEY || !model) {\n  throw new Error(\"Claude API configuration is incomplete\");\n}\n\nconst client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });\nconst response = await client.messages.create({\n  model,\n  max_tokens: 800,\n  system: \"Return a concise, evidence-linked risk summary.\",\n  messages: [{ role: \"user\", content: approvedInput }],\n});\n\nswitch (response.stop_reason) {\n  case \"end_turn\":\n    await handleValidatedAnswer(response.content);\n    break;\n  case \"tool_use\":\n    await handleAuthorizedToolRequests(response.content);\n    break;\n  default:\n    throw new Error(`Unhandled stop reason: ${response.stop_reason}`);\n}"
-      }
+        "This is an intermediate module. It assumes that the learner already understands the general client-server pattern in which software sends a request and receives a response.",
+        "It also assumes familiarity with structured request data, authentication credentials, and ordinary application error handling. No catalogue prerequisite is declared because no specific existing module was established by the supplied material."
+      ]
     },
     {
-      "id": "validate-the-response-contract",
-      "title": "Validate the response contract",
+      "id": "choose-an-interface",
+      "title": "Choose direct API access or an SDK",
       "paragraphs": [
-        "Inspect content-block types and stop reasons before consuming output. A normal end turn, output-budget stop, tool request, refusal, pause, and transport failure imply different next actions. Never concatenate unknown blocks into trusted application data. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Validate required fields, allowed values, lengths, citations, and business rules at the application boundary. When downstream code needs structured intent, use an explicit structured interface and schema rather than recovering a decision from free-form prose. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Validate the response contract (Code Implementation)",
-        "code": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });\n\nconst response = await client.messages.create({\n  model: \"claude-3-7-sonnet-20250219\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Analyze the operational boundary and output constraints.\" }]\n});\nconsole.log(response.content[0].text);"
-      }
+        "Direct API access gives an application explicit responsibility for constructing requests, supplying authentication, transmitting data, and interpreting responses. This can be appropriate when an application needs close control over its transport and request handling.",
+        "An SDK provides a language-oriented client interface around API operations. It can reduce repetitive request and response handling, while the application remains responsible for supplying valid inputs, protecting credentials, interpreting results, and responding to failures.",
+        "Choose deliberately. Prefer direct access when transport-level control is important. Prefer an SDK when its supported client interface fits the application and reduces unnecessary integration work."
+      ]
     },
     {
-      "id": "recover-with-bounds",
-      "title": "Recover with bounds and reconciliation",
+      "id": "request-workflow",
+      "title": "Use a repeatable request workflow",
       "paragraphs": [
-        "Classify failures before retrying. A transient availability or rate-limit response may be retried with provider guidance, jitter, a maximum attempt count, and an end-to-end deadline. Authentication, authorization, malformed requests, and validation failures require correction rather than unchanged retry. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "A timed-out read-only request can often be retried safely. A timeout surrounding an external side effect has an unknown outcome until the system of record is reconciled. Use idempotency or operation identifiers in your own workflow and verify postconditions before repeating an action. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "Begin by defining the task and the response your application needs. Prepare the input with enough context and instruction for that task, then select either direct API access or an SDK as the delivery path.",
+        "Supply the required authentication through the chosen interface without embedding a secret in material intended for publication or source control. Send the request, retain the operational context needed to diagnose a failure, and distinguish a successful response from an error before consuming returned content.",
+        "After a successful response, validate that the returned content is suitable for the application's next step. A technically successful request does not by itself establish that the content is accurate, complete, safe, or appropriate for the intended use."
       ],
-      "code": {
-        "language": "typescript",
-        "label": "Recover with bounds and reconciliation (Code Implementation)",
-        "code": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });\n\nconst response = await client.messages.create({\n  model: \"claude-3-7-sonnet-20250219\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Analyze the operational boundary and output constraints.\" }]\n});\nconsole.log(response.content[0].text);"
-      }
+      "callout": "Treat model output as input to be reviewed and validated, not as automatically trusted application data."
     },
     {
-      "id": "observe-without-leaking",
-      "title": "Observe the workflow without leaking data",
+      "id": "failure-handling",
+      "title": "Handle failures deliberately",
       "paragraphs": [
-        "Record a request or trace identifier, application and prompt version, configured model reference, latency, usage, stop reason, retry count, validation result, and final workflow state. These fields support evaluation, cost analysis, incident response, and rollback decisions. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Do not log API keys, authorization headers, raw secrets, or unrestricted prompt and response bodies. Use data classification, redaction, access control, retention limits, and sampled or derived metrics appropriate to the workload. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Observe the workflow without leaking data (Code Implementation)",
-        "code": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });\n\nconst response = await client.messages.create({\n  model: \"claude-3-7-sonnet-20250219\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Analyze the operational boundary and output constraints.\" }]\n});\nconsole.log(response.content[0].text);"
-      }
+        "When a request fails, preserve the available error details and determine whether the problem concerns the request, authentication, service availability, or application handling. Correct a request or authentication problem before repeating the same operation.",
+        "Do not repeat every failed request without classification. Repetition cannot repair invalid input or missing authorization, and uncontrolled repetition can make an incident harder to diagnose.",
+        "Keep integration logic separated into preparation, submission, error classification, and response validation stages. This separation makes it easier to locate a fault and to change the delivery interface without confusing transport behavior with task design."
+      ]
+    },
+    {
+      "id": "workflow-review",
+      "title": "Review the complete workflow",
+      "paragraphs": [
+        "A reviewable Claude workflow has a defined task, an intentional interface choice, protected authentication, a clear request path, explicit success and failure handling, and validation before returned content affects another system or a user.",
+        "A learner completing this module can now trace those stages, explain why each exists, and identify where an integration needs stronger handling. Exact implementation details should be taken from the cited Anthropic documentation when the workflow is implemented."
+      ]
     }
   ],
-  "activity": {
-    "id": "activity-claude-api-client",
-    "title": "Design a production-shaped Claude API client",
-    "instructions": [
-      "Define a request contract with configurable model reference, output budget, system instruction, messages, timeout, and trace identifier; load credentials only from an environment or managed secret boundary.",
-      "Define handlers for text and non-text content blocks plus end-turn, output-budget, tool-use, refusal or pause, rate-limit, authentication, validation, timeout, and server-failure outcomes.",
-      "Create deterministic tests with synthetic responses for a successful answer, truncated output, malformed block, retryable failure, non-retryable failure, and uncertain side-effect outcome.",
-      "Write a telemetry allowlist and redaction policy, then demonstrate one trace that proves behavior without exposing prompt content or credentials."
-    ],
-    "evidence": [
-      "A secret-free client design or implementation with typed request and response handling, bounded retries, reconciliation, and deterministic tests.",
-      "A telemetry example and policy showing request correlation, versions, latency, usage, stop reason, validation, retry, and terminal state without sensitive values."
-    ],
-    "reflectionPrompt": "Which failure in your client requires reconciliation rather than retry, and what evidence proves the real outcome?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 1680,
-    "cues": [
-      {
-        "id": "cue-claude-api-messages",
-        "kind": "narration",
-        "sectionId": "messages-are-structured-and-stateless",
-        "text": "Treat Messages requests and responses as typed contracts while your application deliberately owns conversation state and retention."
-      },
-      {
-        "id": "cue-claude-api-config",
-        "kind": "narration",
-        "sectionId": "credentials-and-configuration",
-        "text": "Load secrets from an operational boundary and keep model references, budgets, timeouts, and retry policies in reviewed configuration."
-      },
-      {
-        "id": "cue-claude-api-validate",
-        "kind": "narration",
-        "sectionId": "validate-the-response-contract",
-        "text": "Inspect every content-block type and stop reason, then validate structure and business rules before downstream use."
-      },
-      {
-        "id": "cue-claude-api-recover",
-        "kind": "narration",
-        "sectionId": "recover-with-bounds",
-        "text": "Retry only transient failures within a budget and reconcile unknown side effects before any repeated action."
-      },
-      {
-        "id": "cue-claude-api-observe",
-        "kind": "narration",
-        "sectionId": "observe-without-leaking",
-        "text": "Capture correlation, versions, latency, usage, stop reasons, retries, validation, and terminal state without logging secrets or unrestricted content."
-      },
-      {
-        "id": "cue-claude-api-visual",
-        "kind": "visual",
-        "sectionId": "validate-the-response-contract",
-        "text": "Move one request through configuration, send, typed response parsing, validation, recovery decision, and terminal evidence.",
-        "accessibilityAlternative": "A static state table lists configuration, send, parse, validate, recover, and terminal-evidence stages with inputs and allowed outcomes."
-      },
-      {
-        "id": "cue-claude-api-prompt",
-        "kind": "learner-prompt",
-        "sectionId": "recover-with-bounds",
-        "text": "Ask learners why an authentication failure and a rate-limit response require different handling."
-      },
-      {
-        "id": "cue-claude-api-pause",
-        "kind": "pause",
-        "sectionId": "observe-without-leaking",
-        "text": "Allow three minutes to remove sensitive fields from a sample log while preserving diagnostic value."
-      },
-      {
-        "id": "cue-claude-api-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "observe-without-leaking",
-        "text": "Check that every terminal path is bounded, observable, validated, and free of credential values."
-      },
-      {
-        "id": "cue-claude-api-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the client contract, outcome handlers, deterministic fixtures, telemetry allowlist, and reconciliation evidence."
-      },
-      {
-        "id": "cue-claude-api-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can explain state, validation, retries, reconciliation, and safe telemetry."
-      }
-    ],
-    "transcript": "Treat Messages requests and responses as typed contracts while your application deliberately owns conversation state and retention. Load secrets from an operational boundary and keep model references, budgets, timeouts, and retry policies in reviewed configuration. Inspect every content-block type and stop reason, then validate structure and business rules before downstream use. Retry only transient failures within a budget and reconcile unknown side effects before any repeated action. Capture correlation, versions, latency, usage, stop reasons, retries, validation, and terminal state without logging secrets or unrestricted content.",
-    "captions": [
-      {
-        "cueId": "cue-claude-api-messages",
-        "startSeconds": 0,
-        "endSeconds": 300,
-        "text": "Treat Messages requests and responses as typed contracts while your application deliberately owns conversation state and retention."
-      },
-      {
-        "cueId": "cue-claude-api-config",
-        "startSeconds": 330,
-        "endSeconds": 630,
-        "text": "Load secrets from an operational boundary and keep model references, budgets, timeouts, and retry policies in reviewed configuration."
-      },
-      {
-        "cueId": "cue-claude-api-validate",
-        "startSeconds": 660,
-        "endSeconds": 990,
-        "text": "Inspect every content-block type and stop reason, then validate structure and business rules before downstream use."
-      },
-      {
-        "cueId": "cue-claude-api-recover",
-        "startSeconds": 1020,
-        "endSeconds": 1320,
-        "text": "Retry only transient failures within a budget and reconcile unknown side effects before any repeated action."
-      },
-      {
-        "cueId": "cue-claude-api-observe",
-        "startSeconds": 1350,
-        "endSeconds": 1650,
-        "text": "Capture correlation, versions, latency, usage, stop reasons, retries, validation, and terminal state without logging secrets or unrestricted content."
-      }
-    ],
-    "reducedMotionAlternative": "Use a static API lifecycle table with outcome and recovery columns instead of animated request transitions."
-  },
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 75,
     "questions": [
       {
-        "id": "q-claude-api-1",
-        "prompt": "Who owns multi-turn conversation state for a Messages API workflow?",
+        "id": "claude-api-and-sdk-workflows-interface-choice",
+        "prompt": "Which consideration best supports choosing an SDK in the workflow described by this module?",
         "choices": [
-          "The application using the API",
-          "The model name",
-          "The user's browser cache in every deployment",
-          "No component"
+          "Its supported client interface fits the application and reduces repetitive integration work.",
+          "It makes response validation unnecessary.",
+          "It allows authentication credentials to be published safely.",
+          "It guarantees that returned content is accurate."
         ],
         "answerIndex": 0,
-        "explanation": "The application deliberately preserves, transforms, retains, and resends the conversation state required by its workflow."
+        "explanation": "The module says an SDK can reduce repetitive request and response handling when its client interface fits the application. It does not remove authentication, validation, or review responsibilities."
       },
       {
-        "id": "q-claude-api-2",
-        "prompt": "Where should a reusable application obtain its model identifier?",
+        "id": "claude-api-and-sdk-workflows-response-validation",
+        "prompt": "What should happen before returned content affects another system or a user?",
         "choices": [
-          "From a hard-coded tutorial value forever",
-          "From the API key",
-          "From reviewed configuration verified against current official documentation",
-          "From the response text"
+          "The content should be validated for the intended use.",
+          "The same request should always be sent again.",
+          "The authentication credential should be added to the output.",
+          "All error details should be discarded."
         ],
-        "answerIndex": 2,
-        "explanation": "Model identifiers and support are volatile and should be configurable and source-verified."
+        "answerIndex": 0,
+        "explanation": "The module requires validation before returned content is used by another system or presented to a user."
       },
       {
-        "id": "q-claude-api-3",
-        "prompt": "What should happen when the response has an unhandled stop reason?",
+        "id": "claude-api-and-sdk-workflows-failure-response",
+        "prompt": "According to the module, what is the first useful response to a failed request?",
         "choices": [
-          "Treat it as a successful end turn",
-          "Enter an explicit non-success path and preserve diagnostic evidence",
-          "Discard the response and retry forever",
-          "Concatenate every block into trusted text"
+          "Classify the problem using the available error details.",
+          "Repeat the request indefinitely.",
+          "Assume the returned content is valid.",
+          "Publish the authentication credential for diagnosis."
         ],
-        "answerIndex": 1,
-        "explanation": "Each stop reason is part of the response contract and needs deliberate handling."
+        "answerIndex": 0,
+        "explanation": "The failure-handling section says to preserve error details and determine whether the problem concerns the request, authentication, service availability, or application handling."
       },
       {
-        "id": "q-claude-api-4",
-        "prompt": "Which failure should not be retried unchanged?",
+        "id": "claude-api-and-sdk-workflows-source-change",
+        "prompt": "What did the citation correction in this update affect?",
         "choices": [
-          "A transient provider failure within the retry budget",
-          "A provider-directed rate limit with retry guidance",
-          "A connection reset before a read-only response",
-          "An authentication or request-validation failure"
+          "Source provenance, URL accessibility, publisher attribution, and review metadata.",
+          "A newly asserted version requirement.",
+          "A newly asserted configuration key.",
+          "A guarantee that model output is accurate."
         ],
-        "answerIndex": 3,
-        "explanation": "Deterministic authentication and validation errors require corrected authority or input."
-      },
-      {
-        "id": "q-claude-api-5",
-        "prompt": "Which telemetry set is safest and most useful by default?",
-        "choices": [
-          "API keys and full authorization headers",
-          "Every raw prompt and response with indefinite retention",
-          "Correlation, versions, latency, usage, stop reason, retry, validation, and terminal state under an allowlist",
-          "No telemetry for any production workflow"
-        ],
-        "answerIndex": 2,
-        "explanation": "Allowlisted operational metadata supports diagnosis while avoiding secrets and unrestricted content."
+        "answerIndex": 0,
+        "explanation": "The update section explicitly identifies provenance, accessibility, attribution, and review metadata as the effects of replacing the unverified internal citation with public Anthropic documentation."
       }
     ]
   },
+  "reviewCadenceDays": 90,
+  "lastVerified": "2026-08-21",
   "sources": [
     {
-      "title": "Create a Message",
-      "url": "https://platform.claude.com/docs/en/api/messages/create",
+      "title": "Anthropic API overview",
+      "url": "https://platform.claude.com/docs/en/api/overview",
       "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
+      "lastVerified": "2026-08-21"
     },
     {
-      "title": "Get started with Claude",
-      "url": "https://platform.claude.com/docs/en/get-started",
+      "title": "Anthropic client SDKs",
+      "url": "https://platform.claude.com/docs/en/api/client-sdks",
       "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
+      "lastVerified": "2026-08-21"
     },
     {
-      "title": "CLI, SDKs, and libraries",
-      "url": "https://platform.claude.com/docs/en/cli-sdks-libraries/overview",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Claude API errors",
+      "title": "Anthropic API errors",
       "url": "https://platform.claude.com/docs/en/api/errors",
       "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
+      "lastVerified": "2026-08-21"
     }
   ]
 }
