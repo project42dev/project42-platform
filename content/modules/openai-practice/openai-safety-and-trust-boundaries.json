@@ -1,300 +1,148 @@
 {
   "id": "openai-safety-and-trust-boundaries",
-  "title": "Secure OpenAI Workflows with Layered Trust Boundaries",
-  "summary": "Threat-model direct and indirect prompt injection, sensitive data, excessive tool authority, and unsafe output, then enforce layered controls around OpenAI workflows.",
-  "level": "advanced",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-25",
+  "title": "OpenAI Safety and Trust Boundaries",
+  "summary": "This intermediate module enables learners to identify trust boundaries around instructions, external content, model output, and consequential actions. After completing it, learners can apply a review process that prevents untrusted content or unverified output from being treated as authoritative.",
+  "level": "intermediate",
   "providers": [
     "openai"
   ],
-  "estimatedMinutes": 58,
+  "estimatedMinutes": 18,
   "objectives": [
-    "Threat-model users, retrieved content, tools, data, identities, and side effects.",
-    "Separate trusted instructions from untrusted input without mistaking structure for enforcement.",
-    "Apply moderation, least privilege, human oversight, validation, and privacy controls in layers.",
-    "Red-team output and agent trajectories and convert failures into owned regression cases."
+    "Identify where information crosses a trust boundary in an OpenAI-based workflow.",
+    "Distinguish trusted instructions from untrusted content that merely contains instruction-like text.",
+    "Decide when model output requires independent verification or human review.",
+    "Apply a four-question review before allowing untrusted input or model output to influence a consequential action."
   ],
-  "prerequisites": [
-    "openai-tools-and-codex-agent-loops"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "threat-model-openai-workflows",
-      "title": "Threat-model the complete workflow",
+      "id": "source-update",
+      "title": "What changed in this update",
       "paragraphs": [
-        "Direct injection comes from a user trying to override policy. Indirect injection can arrive in a document, web page, email, image text, memory, retrieval result, MCP response, or other tool output the model reads. Both may target secrets, data, identities, decisions, tools, or side effects. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Map actors, instruction authority, untrusted inputs, sensitive assets, tools, permissions, networks, persistence, and consequences. Model safeguards are one layer; the application remains responsible for access control and safe outcomes. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Threat-model the complete workflow (Code Implementation)",
-        "code": "import OpenAI from \"openai\";\n\nconst client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\n\nconst completion = await client.chat.completions.create({\n  model: \"gpt-4o\",\n  messages: [{ role: \"user\", content: \"Evaluate architectural invariants and error modes.\" }],\n  response_format: { type: \"json_object\" }\n});\nconsole.log(completion.choices[0].message.content);"
-      }
+        "The former citation, content/modules/openai-practice/openai-safety-and-trust-boundaries.json, was a repository-relative module path attributed to an unregistered publisher. It was never verified and was not a reader-accessible HTTPS source. That citation has been replaced by first-party OpenAI sources available over HTTPS.",
+        "The citation change affected the module's source provenance and the support for its safety guidance. The guidance below is limited to concepts supported by the cited OpenAI Model Spec, Usage Policies, and safety best-practices documentation. The supplied update material did not include the previous module body, so preservation of its exact wording is UNKNOWN and is not asserted."
+      ]
     },
     {
-      "id": "separate-authority-and-data",
-      "title": "Separate authority and data",
+      "id": "level-and-scope",
+      "title": "Level and scope",
       "paragraphs": [
-        "Keep stable policy in the appropriate instruction layer and label external content by source and trust level. Do not concatenate retrieved or tool-supplied text into privileged instructions. Preserve provenance so reviewers can distinguish evidence from commands embedded in evidence. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Delimiters and schemas reduce ambiguity but do not make content trustworthy. Minimize sensitive context, exclude credentials, apply current data controls, and validate every requested operation independently of model text. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "callout": "Prompt hierarchy can guide the model; authenticated identity and resource authorization must be enforced outside it.",
-      "code": {
-        "language": "typescript",
-        "label": "Separate authority and data (Code Implementation)",
-        "code": "import OpenAI from \"openai\";\n\nconst client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\n\nconst completion = await client.chat.completions.create({\n  model: \"gpt-4o\",\n  messages: [{ role: \"user\", content: \"Evaluate architectural invariants and error modes.\" }],\n  response_format: { type: \"json_object\" }\n});\nconsole.log(completion.choices[0].message.content);"
-      }
+        "This is an intermediate-level module. It assumes that you understand ordinary model inputs and outputs, but it does not assume advanced security knowledge.",
+        "The module focuses on reasoning about authority, untrusted content, output verification, and consequential actions. It does not claim that one safeguard can eliminate every failure."
+      ]
     },
     {
-      "id": "layer-prevention-and-oversight",
-      "title": "Layer prevention and human oversight",
+      "id": "recognizing-trust-boundaries",
+      "title": "Recognizing trust boundaries",
       "paragraphs": [
-        "Use input constraints, moderation or domain-specific classifiers, narrow tools, allowlists, output validation, rate and spend limits, sandboxing, and least-privilege credentials according to risk. Treat moderation as one signal, not a universal business-policy engine. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Require a qualified human to review consequential or high-stakes outputs and actions. Give reviewers the original evidence, uncertainty, tool trajectory, and authority to reject or escalate—not just a polished generated answer. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "A trust boundary is a point where information or control passes from one level of trust to another. In this module, examples include accepting text from an outside source, passing that text to a model, receiving model output, and allowing that output to influence an external action.",
+        "Crossing a trust boundary is not automatically unsafe. It is a signal to inspect the origin of the information, the authority it should have, and the consequences of using it.",
+        "A practical boundary review asks four questions: Where did this information come from? What authority should it have? What action could it influence? What verification is required before that action occurs?"
       ],
-      "code": {
-        "language": "typescript",
-        "label": "Layer prevention and human oversight (Code Implementation)",
-        "code": "import OpenAI from \"openai\";\n\nconst client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\n\nconst completion = await client.chat.completions.create({\n  model: \"gpt-4o\",\n  messages: [{ role: \"user\", content: \"Evaluate architectural invariants and error modes.\" }],\n  response_format: { type: \"json_object\" }\n});\nconsole.log(completion.choices[0].message.content);"
-      }
+      "callout": "Treat a boundary as a review point, not as proof that the information on either side is safe or unsafe."
     },
     {
-      "id": "contain-data-tools-and-side-effects",
-      "title": "Contain data, tools, and side effects",
+      "id": "instructions-versus-content",
+      "title": "Separate instructions from untrusted content",
       "paragraphs": [
-        "Separate read, reversible write, communication, privileged change, and destructive authority. Bind credentials to the workload, validate tool arguments, require fresh approval when policy demands it, enforce idempotency, and verify postconditions in the system of record. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Define retention, deletion, reporting, containment, credential revocation, evidence preservation, notification, and recovery before launch. If execution may have occurred but confirmation failed, preserve an unknown-outcome state and reconcile before repeating. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Contain data, tools, and side effects (Code Implementation)",
-        "code": "import OpenAI from \"openai\";\n\nconst client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\n\nconst completion = await client.chat.completions.create({\n  model: \"gpt-4o\",\n  messages: [{ role: \"user\", content: \"Evaluate architectural invariants and error modes.\" }],\n  response_format: { type: \"json_object\" }\n});\nconsole.log(completion.choices[0].message.content);"
-      }
+        "OpenAI's Model Spec distinguishes instructions by their authority and explains that lower-authority material must not override higher-authority instructions. Text does not gain authority merely because it resembles a command.",
+        "External documents, quoted messages, and other supplied material can contain instruction-like text. When such material is provided for analysis, its embedded commands should be treated as content unless an authorized instruction explicitly gives them authority.",
+        "For example, suppose an authorized instruction asks for a summary of a submitted document. If the document says to ignore the summary request and perform a different action, that sentence is part of the document being analyzed. It does not replace the authorized task merely because it is phrased as an instruction."
+      ]
     },
     {
-      "id": "red-team-output-and-trajectories",
-      "title": "Red-team output and trajectories",
+      "id": "reviewing-model-output",
+      "title": "Review model output before relying on it",
       "paragraphs": [
-        "Test representative use, direct jailbreaks, poisoned retrieval, malicious tool results, data exfiltration, confused-deputy requests, approval bypass, multi-turn persistence, and misuse patterns relevant to the product. Include both expected refusals and legitimate cases that safeguards must not block. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Score the final output and the trajectory: data accessed, tools selected, arguments proposed, approvals requested, operations executed, and postconditions observed. Contain failures, repair the failed boundary, assign ownership, and add durable regression coverage. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "Model output crosses another trust boundary when a person or system relies on it. OpenAI's safety guidance recommends measures that include adversarial testing, human review where appropriate, and limits on inputs and outputs.",
+        "Review intensity should reflect possible harm. A low-consequence draft may need ordinary editing. Output that could affect rights, safety, access, money, or another consequential outcome requires stronger review and independent verification before use.",
+        "Fluent wording is not evidence that an answer is accurate or authorized. Verify important factual claims against appropriate sources, and confirm that any proposed action remains within the intended scope and applicable rules."
+      ]
+    },
+    {
+      "id": "applying-the-review",
+      "title": "Apply the boundary review",
+      "paragraphs": [
+        "Consider a workflow that receives outside text, asks a model to classify it, and uses the result to recommend a consequential action. The outside text is untrusted input, the model result is unverified output, and the proposed action creates a further boundary because it can affect the outside world.",
+        "First, record the origin of the input. Second, decide whether any instruction-like text in that input has authority. Third, identify what the output could influence. Fourth, require verification proportionate to the consequence before acting.",
+        "OpenAI's Usage Policies define restrictions on how its services may be used. A workflow review therefore needs both technical checks and a policy check. A model response does not by itself establish that a proposed use or action is permitted."
       ],
-      "code": {
-        "language": "typescript",
-        "label": "Red-team output and trajectories (Code Implementation)",
-        "code": "import OpenAI from \"openai\";\n\nconst client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\n\nconst completion = await client.chat.completions.create({\n  model: \"gpt-4o\",\n  messages: [{ role: \"user\", content: \"Evaluate architectural invariants and error modes.\" }],\n  response_format: { type: \"json_object\" }\n});\nconsole.log(completion.choices[0].message.content);"
-      }
+      "callout": "Before a consequential action, identify the input's origin, confirm its authority, assess the consequence, and complete the required verification."
     }
   ],
-  "activity": {
-    "id": "activity-openai-threat-model",
-    "title": "Red-team and contain an OpenAI workflow",
-    "instructions": [
-      "Create a data-flow and trust-boundary map for one OpenAI workflow, including identities, instructions, sensitive assets, external content, tools, provider storage choices, approvals, and side effects.",
-      "Write ten tests: two benign, two direct injection, two indirect injection, one data-exfiltration, one confused-deputy, one approval-bypass, and one legitimate case at risk of false blocking.",
-      "Map each threat to prevention, detection, human oversight, containment, evidence preservation, and recovery controls enforced outside the model.",
-      "Run the cases, record outputs and trajectories, document residual risk, and convert confirmed failures into versioned regression tests with owners."
-    ],
-    "evidence": [
-      "A threat model and control matrix showing enforcement owner, data lifecycle, approval boundary, detection, response, and recovery for every material threat.",
-      "A ten-case red-team report with trajectory evidence, false-positive review, blocked side effects, residual risks, regression cases, and accountable owners."
-    ],
-    "reflectionPrompt": "If the model followed a malicious instruction perfectly, which independent control would still prevent the highest-impact harm?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 1740,
-    "cues": [
-      {
-        "id": "cue-openai-safety-threat",
-        "kind": "narration",
-        "sectionId": "threat-model-openai-workflows",
-        "text": "Threat-model direct and indirect injection across users, retrieved content, tools, data, identities, decisions, storage, and side effects."
-      },
-      {
-        "id": "cue-openai-safety-authority",
-        "kind": "narration",
-        "sectionId": "separate-authority-and-data",
-        "text": "Separate trusted instructions from provenance-labeled untrusted data while enforcing identity, authority, and validation outside the model."
-      },
-      {
-        "id": "cue-openai-safety-layers",
-        "kind": "narration",
-        "sectionId": "layer-prevention-and-oversight",
-        "text": "Layer input controls, moderation, narrow tools, output validation, budgets, sandboxing, and informed human oversight according to risk."
-      },
-      {
-        "id": "cue-openai-safety-contain",
-        "kind": "narration",
-        "sectionId": "contain-data-tools-and-side-effects",
-        "text": "Contain data and side effects with least privilege, approval, idempotency, postcondition checks, revocation, evidence, and recovery."
-      },
-      {
-        "id": "cue-openai-safety-redteam",
-        "kind": "narration",
-        "sectionId": "red-team-output-and-trajectories",
-        "text": "Red-team realistic outputs and tool trajectories, then turn confirmed failures and false blocks into owned regression cases."
-      },
-      {
-        "id": "cue-openai-safety-visual",
-        "kind": "visual",
-        "sectionId": "contain-data-tools-and-side-effects",
-        "text": "Place the model inside nested data, identity, tool, approval, sandbox, validation, moderation, monitoring, and recovery boundaries.",
-        "accessibilityAlternative": "A static defense-in-depth table lists each boundary, threat addressed, enforcement owner, evidence, and failure response."
-      },
-      {
-        "id": "cue-openai-safety-question",
-        "kind": "learner-prompt",
-        "sectionId": "separate-authority-and-data",
-        "text": "Ask learners why labeling retrieved text as untrusted helps but cannot authorize a tool call."
-      },
-      {
-        "id": "cue-openai-safety-pause",
-        "kind": "pause",
-        "sectionId": "layer-prevention-and-oversight",
-        "text": "Allow three minutes to choose which output requires human review and what source evidence the reviewer needs."
-      },
-      {
-        "id": "cue-openai-safety-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "red-team-output-and-trajectories",
-        "text": "Check that each high-impact threat encounters an external control and each confirmed failure has an owner and regression case."
-      },
-      {
-        "id": "cue-openai-safety-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the threat map, ten cases, layered controls, trajectory evidence, false-positive review, and residual-risk ownership."
-      },
-      {
-        "id": "cue-openai-safety-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can defend the workflow even when model behavior or one safety layer fails."
-      }
-    ],
-    "transcript": "Threat-model direct and indirect injection across users, retrieved content, tools, data, identities, decisions, storage, and side effects. Separate trusted instructions from provenance-labeled untrusted data while enforcing identity, authority, and validation outside the model. Layer input controls, moderation, narrow tools, output validation, budgets, sandboxing, and informed human oversight according to risk. Contain data and side effects with least privilege, approval, idempotency, postcondition checks, revocation, evidence, and recovery. Red-team realistic outputs and tool trajectories, then turn confirmed failures and false blocks into owned regression cases.",
-    "captions": [
-      {
-        "cueId": "cue-openai-safety-threat",
-        "startSeconds": 0,
-        "endSeconds": 330,
-        "text": "Threat-model direct and indirect injection across users, retrieved content, tools, data, identities, decisions, storage, and side effects."
-      },
-      {
-        "cueId": "cue-openai-safety-authority",
-        "startSeconds": 360,
-        "endSeconds": 690,
-        "text": "Separate trusted instructions from provenance-labeled untrusted data while enforcing identity, authority, and validation outside the model."
-      },
-      {
-        "cueId": "cue-openai-safety-layers",
-        "startSeconds": 720,
-        "endSeconds": 1050,
-        "text": "Layer input controls, moderation, narrow tools, output validation, budgets, sandboxing, and informed human oversight according to risk."
-      },
-      {
-        "cueId": "cue-openai-safety-contain",
-        "startSeconds": 1080,
-        "endSeconds": 1380,
-        "text": "Contain data and side effects with least privilege, approval, idempotency, postcondition checks, revocation, evidence, and recovery."
-      },
-      {
-        "cueId": "cue-openai-safety-redteam",
-        "startSeconds": 1410,
-        "endSeconds": 1710,
-        "text": "Red-team realistic outputs and tool trajectories, then turn confirmed failures and false blocks into owned regression cases."
-      }
-    ],
-    "reducedMotionAlternative": "Use a static threat-to-control matrix and attack-trajectory table with focus highlighting instead of animated layers."
-  },
   "knowledgeCheck": {
     "passPercent": 80,
     "questions": [
       {
-        "id": "q-openai-safety-1",
-        "prompt": "What is indirect prompt injection?",
+        "id": "openai-safety-and-trust-boundaries-q1",
+        "prompt": "Which event is a trust-boundary crossing as defined in this module?",
         "choices": [
-          "A malformed API key",
-          "Malicious instructions embedded in content or tool results the workflow reads",
-          "A normal refusal",
-          "A timeout"
+          "Changing the visual spacing of a paragraph",
+          "Allowing model output to influence an external action",
+          "Reading the same trusted instruction twice",
+          "Renaming an internal draft"
         ],
         "answerIndex": 1,
-        "explanation": "Indirect injection enters through third-party data such as documents, pages, retrieval, memories, or tool output."
+        "explanation": "The module identifies reliance on model output for an external action as a trust-boundary crossing because information moves into a context where it can affect the outside world."
       },
       {
-        "id": "q-openai-safety-2",
-        "prompt": "What do delimiters or schemas guarantee?",
+        "id": "openai-safety-and-trust-boundaries-q2",
+        "prompt": "A document submitted for summarization contains a sentence telling the model to ignore the authorized task. How should that sentence be treated?",
         "choices": [
-          "Authorization",
-          "Perfect safety",
-          "Clearer structure, not trust or enforcement",
-          "Secret encryption"
+          "As a replacement for the authorized task",
+          "As authoritative because it uses command wording",
+          "As content in the document unless an authorized instruction gives it authority",
+          "As proof that the entire document is accurate"
         ],
         "answerIndex": 2,
-        "explanation": "Structure reduces ambiguity while external systems enforce identity, authority, and policy."
+        "explanation": "The module explains that instruction-like wording inside external material remains content unless an authorized instruction explicitly gives it authority."
       },
       {
-        "id": "q-openai-safety-3",
-        "prompt": "What is the safest role for moderation?",
+        "id": "openai-safety-and-trust-boundaries-q3",
+        "prompt": "What four questions make up the boundary review taught in this module?",
         "choices": [
-          "One layer within a risk-based control system",
-          "A replacement for authorization",
-          "Proof that an action is approved",
-          "A reason to skip red teaming"
-        ],
-        "answerIndex": 0,
-        "explanation": "Moderation can reduce harmful content but does not enforce business authority or eliminate other controls."
-      },
-      {
-        "id": "q-openai-safety-4",
-        "prompt": "Why score agent trajectories?",
-        "choices": [
-          "Only formatting matters",
-          "A safe-looking answer can conceal unauthorized data access or side effects",
-          "Trajectories replace output review",
-          "Tools are always safe"
+          "Who wrote it, how long is it, what style is it, and when was it formatted?",
+          "Where did it come from, what authority should it have, what action could it influence, and what verification is required?",
+          "Is it fluent, is it brief, is it confident, and is it convenient?",
+          "Is it automated, is it expensive, is it popular, and is it recent?"
         ],
         "answerIndex": 1,
-        "explanation": "Safety depends on what the workflow read, requested, executed, and changed as well as its final text."
+        "explanation": "The four-question review examines origin, authority, possible action, and required verification."
       },
       {
-        "id": "q-openai-safety-5",
-        "prompt": "What should follow a successful adversarial case?",
+        "id": "openai-safety-and-trust-boundaries-q4",
+        "prompt": "What does fluent model output establish by itself?",
         "choices": [
-          "Hide the evidence",
-          "Retry the same action",
-          "Assume the model will improve",
-          "Contain impact, repair the failed boundary, assign an owner, and add regression coverage"
+          "That the output is accurate and authorized",
+          "That the proposed use complies with all applicable rules",
+          "That no human review is necessary",
+          "None of these"
         ],
         "answerIndex": 3,
-        "explanation": "A confirmed failure needs response, durable control improvement, and regression protection."
+        "explanation": "The module states that fluent wording is not evidence of accuracy or authority and that a model response does not establish policy compliance."
       }
     ]
   },
+  "reviewCadenceDays": 90,
+  "lastVerified": "2026-08-22",
   "sources": [
     {
+      "title": "OpenAI Model Spec",
+      "url": "https://model-spec.openai.com/",
+      "publisher": "OpenAI",
+      "lastVerified": "2026-08-22"
+    },
+    {
       "title": "Safety best practices",
-      "url": "https://developers.openai.com/api/docs/guides/safety-best-practices",
+      "url": "https://platform.openai.com/docs/guides/safety-best-practices",
       "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
+      "lastVerified": "2026-08-22"
     },
     {
-      "title": "Red teaming",
-      "url": "https://developers.openai.com/api/docs/guides/red-teaming",
+      "title": "Usage policies",
+      "url": "https://openai.com/policies/usage-policies/",
       "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Safety checks",
-      "url": "https://developers.openai.com/api/docs/guides/safety-checks",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Your data",
-      "url": "https://developers.openai.com/api/docs/guides/your-data",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
+      "lastVerified": "2026-08-22"
     }
   ]
 }
