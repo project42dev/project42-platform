@@ -1,300 +1,140 @@
 {
   "id": "agent-evaluation",
-  "title": "Evaluate Agent Behavior with Evidence",
-  "summary": "Build representative, adversarial, and regression evaluation sets that measure outcomes, trajectories, safety, cost, and latency before agent changes reach production.",
+  "title": "Agent Evaluation",
+  "summary": "This intermediate module teaches you to design and interpret structured evaluations of agent behavior. After completing it, you can define observable success criteria, examine action traces, compare repeated trials, and report limitations that an outcome-only review could miss.",
   "level": "intermediate",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-25",
   "providers": [
     "provider-neutral"
   ],
-  "estimatedMinutes": 54,
+  "estimatedMinutes": 25,
   "objectives": [
-    "Turn product requirements and failure history into versioned evaluation cases.",
-    "Score final outcomes, tool trajectories, policy compliance, cost, and latency with explicit rubrics.",
-    "Combine deterministic checks, human review, and model graders without treating any grader as ground truth.",
-    "Compare a candidate with a baseline and make a documented release decision."
+    "Define an agent evaluation task with observable success criteria and failure conditions.",
+    "Assess both the final outcome and the sequence of actions that produced it.",
+    "Use repeated, comparable trials to identify behavior that may not be consistent.",
+    "Report evaluation findings without generalizing beyond the tasks and conditions tested."
   ],
-  "prerequisites": [
-    "multi-agent-handoffs"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "evaluation-contract",
-      "title": "Begin with a claim the evaluation can test",
+      "id": "source-correction",
+      "title": "What changed in this update",
       "paragraphs": [
-        "An evaluation is a repeatable experiment, not a demo. Name the workflow version, target population, expected behavior, unacceptable behavior, scoring rule, sample, environment, and release threshold before seeing candidate results. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Separate task success from style, safety, policy, efficiency, and user experience. A single average can hide a severe regression in one critical slice. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "The previous citation was the local repository path content/modules/reliable-agent-workflows/agent-evaluation.json. It had an unregistered publisher and had never been verified, so it could not serve as a public, resolvable source.",
+        "This update replaces that citation with a canonical research-paper URL and official risk-management guidance. The change affects the source record and the explanation of why evaluations should use documented measurements, realistic tasks, and stated limits. The instructional focus on task outcomes, action traces, repeated trials, and bounded conclusions is otherwise unchanged."
       ],
-      "code": {
-        "language": "text",
-        "label": "Evaluation case contract",
-        "code": "caseId: [STABLE ID]\nslice: [NORMAL | EDGE | ADVERSARIAL | INCIDENT]\ninput: [VERSIONED FIXTURE]\nexpectedOutcome: [OBSERVABLE RESULT]\nallowedTrajectory: [TOOLS + BOUNDS]\nforbidden: [POLICY OR SAFETY FAILURE]\nrubric: [CRITERIA + SCALE + EVIDENCE]\nbudget: [LATENCY + COST + TURNS]"
-      }
+      "callout": "Source correction: the unverified local citation was removed and replaced with public HTTPS sources listed at the end of this module."
     },
     {
-      "id": "representative-and-adversarial-set",
-      "title": "Cover reality, boundaries, and prior failures",
+      "id": "level-and-scope",
+      "title": "Level and scope",
       "paragraphs": [
-        "Sample common tasks, important user groups, difficult long-tail cases, languages and modalities you support, and the data distributions the application will actually see. Preserve a holdout set so repeated prompt editing does not overfit every known case. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Add prompt injection, ambiguous intent, missing permissions, stale retrieval, tool timeout, conflicting evidence, unsafe requests, and every confirmed production incident. Synthetic cases can expand coverage, but a human should review whether they represent the product risk. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Cover reality, boundaries, and prior failures (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "This is an intermediate module. It assumes that you understand the basic idea of an agent as a system that pursues a goal through a sequence of observations and actions. It does not assume advanced statistical knowledge or familiarity with any named evaluation product.",
+        "Agent evaluation asks whether an agent completes a defined task under stated conditions and whether its behavior remains acceptable while doing so. A useful evaluation therefore examines more than the final answer. It also records relevant actions, intermediate results, failures, and evaluation conditions."
+      ]
     },
     {
-      "id": "score-outcome-and-trajectory",
-      "title": "Score what happened and how it happened",
+      "id": "define-the-evaluation",
+      "title": "Define the evaluation before running it",
       "paragraphs": [
-        "Use deterministic graders for schema, exact constraints, calculations, tool permissions, postconditions, and latency or cost budgets. Use a rubric and blinded human review when quality depends on judgment. Calibrate model graders against human-labeled examples and monitor disagreement. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "For agents, final-answer quality is insufficient. Inspect whether the correct tools were selected, arguments and approvals were valid, retries were bounded, evidence was preserved, and the run stopped in the right terminal state. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "callout": "A polished answer can conceal an unsafe trajectory; an imperfect answer can follow a recoverable safe path.",
-      "code": {
-        "language": "json",
-        "label": "Score what happened and how it happened (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "Begin with a task that has a clear starting state and an observable completion condition. Write the success criteria before examining the agent's result. This reduces the temptation to reinterpret an unexpected result as success after the trial.",
+        "Also define failure conditions. These can include an incorrect outcome, an unfinished task, an action outside the permitted scope, or a result that cannot be supported by the recorded evidence. Keep the conditions relevant to the task rather than adding measurements that do not help answer the evaluation question.",
+        "Record the conditions needed to interpret the trial, such as the task instructions, available information, permitted actions, and stopping rule. Comparisons are meaningful only when the evaluator knows which conditions were held constant and which were intentionally changed."
+      ]
     },
     {
-      "id": "compare-and-gate",
-      "title": "Compare candidates on identical cases",
+      "id": "inspect-outcomes-and-traces",
+      "title": "Inspect outcomes and action traces",
       "paragraphs": [
-        "Run the baseline and candidate against the same versioned cases, environment, budgets, and grader definitions. Report per-slice pass rates, critical failures, score distributions, latency percentiles, cost, and uncertainty instead of only a global mean. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Define must-not-regress slices and minimum practical improvement before the run. Investigate changed cases individually and require human sign-off when a candidate alters safety, permissions, or high-impact behavior. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Compare candidates on identical cases (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "Score the final outcome against the criteria defined before the trial. Then inspect the action trace, meaning the recorded sequence of observations, decisions, actions, and intermediate results that led to that outcome.",
+        "Outcome and trace evidence answer different questions. The outcome shows whether the task was completed. The trace can reveal unsupported reasoning, unnecessary actions, recovery from an error, or behavior that violated a stated limit even when the final result appeared correct.",
+        "A correct outcome does not automatically establish an acceptable process. Likewise, a failed outcome may contain a useful trace showing exactly where the behavior diverged from the expected path. Report both kinds of evidence rather than collapsing them into a single unexplained label."
+      ]
     },
     {
-      "id": "continuous-evaluation",
-      "title": "Turn production evidence into the next offline suite",
+      "id": "repeat-and-compare",
+      "title": "Repeat comparable trials",
       "paragraphs": [
-        "Sample privacy-reviewed production traces, explicit user feedback, escalations, and incidents into a governed failure corpus. Remove or transform sensitive content, preserve the behavior that caused the failure, and obtain the required consent and retention controls. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Version cases, fixtures, rubrics, graders, model and tool configurations, and results. A score without those inputs cannot support reproducibility or a rollback decision. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Turn production evidence into the next offline suite (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "When behavior can vary between runs, one successful trial does not establish consistent performance. Repeat the task under the same documented conditions and record each result. If you change a condition, label that trial separately so the comparison remains interpretable.",
+        "Compare the frequency and type of observed successes and failures without claiming that the results apply to tasks you did not test. A narrow evaluation can provide useful evidence about its defined tasks, but it does not by itself establish general reliability.",
+        "When reporting findings, identify the tested tasks, success criteria, relevant conditions, observed limitations, and evidence source. This gives another evaluator enough context to understand what the result supports and what remains untested."
+      ]
+    },
+    {
+      "id": "practical-workflow",
+      "title": "A practical evaluation workflow",
+      "paragraphs": [
+        "First, state the task and starting conditions. Second, define observable success and failure criteria. Third, run the task while preserving relevant outcome and trace evidence. Fourth, score the result using the prewritten criteria. Fifth, repeat comparable trials when behavior can vary. Finally, report the findings with their scope and limitations.",
+        "After this module, you can perform this workflow instead of relying on an informal impression from one final answer. You can also explain why a result is supported, which behavior caused a failure, and which conclusions remain outside the evidence collected."
+      ]
     }
   ],
-  "activity": {
-    "id": "activity-agent-evaluation-suite",
-    "title": "Build and run an agent release evaluation",
-    "instructions": [
-      "Choose one agent workflow and write ten versioned cases: four representative, two boundary, two adversarial, and two prior-failure or incident cases.",
-      "Create a 100-point rubric plus deterministic checks for schema, permissions, postconditions, turns, latency, and cost.",
-      "Blind-score a baseline and candidate, record grader disagreement, and report results by slice rather than only average.",
-      "Make ship, hold, or rollback decisions using thresholds written before the comparison, then add one failed case to the regression set."
-    ],
-    "evidence": [
-      "A ten-case evaluation set, 100-point rubric, deterministic grader definitions, and version manifest.",
-      "A baseline-versus-candidate report with slice metrics, critical failures, grader disagreement, cost and latency, and a signed release decision."
-    ],
-    "reflectionPrompt": "Which aggregate score initially hid the failure that mattered most to the release decision?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 1620,
-    "cues": [
-      {
-        "id": "cue-eval-contract",
-        "kind": "narration",
-        "sectionId": "evaluation-contract",
-        "text": "Write the behavior claim, cases, scoring rules, budgets, and release threshold before comparing candidates."
-      },
-      {
-        "id": "cue-eval-coverage",
-        "kind": "narration",
-        "sectionId": "representative-and-adversarial-set",
-        "text": "Cover common tasks, important slices, difficult boundaries, adversarial inputs, and every confirmed failure."
-      },
-      {
-        "id": "cue-eval-score",
-        "kind": "narration",
-        "sectionId": "score-outcome-and-trajectory",
-        "text": "Combine deterministic checks, calibrated judgment, and trajectory review instead of trusting one grader or final answer."
-      },
-      {
-        "id": "cue-eval-visual",
-        "kind": "visual",
-        "sectionId": "score-outcome-and-trajectory",
-        "text": "Score one run across outcome, trajectory, policy, safety, latency, and cost lanes.",
-        "accessibilityAlternative": "A static rubric table lists outcome, trajectory, policy, safety, latency, and cost criteria with evidence and points. Reduced-motion mode shows all rows."
-      },
-      {
-        "id": "cue-eval-compare",
-        "kind": "narration",
-        "sectionId": "compare-and-gate",
-        "text": "Run baseline and candidate on identical versioned inputs and inspect every critical regression by slice."
-      },
-      {
-        "id": "cue-eval-continuous",
-        "kind": "narration",
-        "sectionId": "continuous-evaluation",
-        "text": "Convert privacy-reviewed production failures into reproducible regression cases with complete version provenance."
-      },
-      {
-        "id": "cue-eval-prompt",
-        "kind": "learner-prompt",
-        "sectionId": "score-outcome-and-trajectory",
-        "text": "Ask learners how a correct final answer could still fail the trajectory rubric."
-      },
-      {
-        "id": "cue-eval-pause",
-        "kind": "pause",
-        "sectionId": "compare-and-gate",
-        "text": "Allow three minutes to define one must-not-regress slice and its release threshold."
-      },
-      {
-        "id": "cue-eval-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "continuous-evaluation",
-        "text": "Check that every reported score identifies the case, fixture, rubric, grader, and workflow versions."
-      },
-      {
-        "id": "cue-eval-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the ten cases, rubric, blind comparison, disagreement review, and release decision."
-      },
-      {
-        "id": "cue-eval-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can defend coverage, scoring, thresholds, and provenance."
-      }
-    ],
-    "transcript": "Write the behavior claim, cases, scoring rules, budgets, and release threshold before comparing candidates. Cover common tasks, important slices, difficult boundaries, adversarial inputs, and every confirmed failure. Combine deterministic checks, calibrated judgment, and trajectory review instead of trusting one grader or final answer. Run baseline and candidate on identical versioned inputs and inspect every critical regression by slice. Convert privacy-reviewed production failures into reproducible regression cases with complete version provenance.",
-    "captions": [
-      {
-        "cueId": "cue-eval-contract",
-        "startSeconds": 0,
-        "endSeconds": 300,
-        "text": "Write the behavior claim, cases, scoring rules, budgets, and release threshold before comparing candidates."
-      },
-      {
-        "cueId": "cue-eval-coverage",
-        "startSeconds": 330,
-        "endSeconds": 630,
-        "text": "Cover common tasks, important slices, difficult boundaries, adversarial inputs, and every confirmed failure."
-      },
-      {
-        "cueId": "cue-eval-score",
-        "startSeconds": 660,
-        "endSeconds": 960,
-        "text": "Combine deterministic checks, calibrated judgment, and trajectory review instead of trusting one grader or final answer."
-      },
-      {
-        "cueId": "cue-eval-compare",
-        "startSeconds": 990,
-        "endSeconds": 1260,
-        "text": "Run baseline and candidate on identical versioned inputs and inspect every critical regression by slice."
-      },
-      {
-        "cueId": "cue-eval-continuous",
-        "startSeconds": 1290,
-        "endSeconds": 1560,
-        "text": "Convert privacy-reviewed production failures into reproducible regression cases with complete version provenance."
-      }
-    ],
-    "reducedMotionAlternative": "Use static case, rubric, and baseline-comparison tables with focus highlighting instead of animated score changes."
-  },
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 75,
     "questions": [
       {
-        "id": "q-agent-evaluation-1",
-        "prompt": "When should release thresholds be defined?",
+        "id": "agent-evaluation-define-criteria",
+        "prompt": "When should success criteria be written for an agent evaluation?",
         "choices": [
-          "After seeing the candidate score",
-          "Before running the baseline and candidate comparison",
-          "Only after an incident",
-          "They are unnecessary"
-        ],
-        "answerIndex": 1,
-        "explanation": "Predeclared thresholds reduce post-hoc rationalization and make release decisions auditable."
-      },
-      {
-        "id": "q-agent-evaluation-2",
-        "prompt": "Why score an agent trajectory as well as its final answer?",
-        "choices": [
-          "A correct answer may have used unsafe tools or exceeded authority",
-          "Trajectories never affect risk",
-          "Only model names matter",
-          "It removes the need for postconditions"
+          "Before examining the agent's result",
+          "After deciding whether the result looks useful",
+          "Only after every repeated trial is complete",
+          "Only when the first trial fails"
         ],
         "answerIndex": 0,
-        "explanation": "Tool selection, approvals, retries, evidence, and terminal state are part of agent correctness."
+        "explanation": "The module instructs evaluators to define success criteria before examining the result so an unexpected outcome is not reinterpreted as success after the trial."
       },
       {
-        "id": "q-agent-evaluation-3",
-        "prompt": "What is the safest role for a model grader?",
+        "id": "agent-evaluation-outcome-and-trace",
+        "prompt": "Why should an evaluator inspect both the final outcome and the action trace?",
         "choices": [
-          "Unquestioned ground truth",
-          "A calibrated signal compared with deterministic and human evidence",
-          "A replacement for test cases",
-          "A way to hide rubric changes"
+          "The trace replaces the need for success criteria",
+          "The outcome and trace provide evidence about different aspects of performance",
+          "A correct outcome proves that every action was acceptable",
+          "A failed outcome makes the trace irrelevant"
         ],
         "answerIndex": 1,
-        "explanation": "Model graders can be useful but require calibration, versioning, and disagreement review."
+        "explanation": "The outcome shows whether the task was completed, while the trace can reveal errors, unnecessary actions, recovery behavior, or violations of stated limits."
       },
       {
-        "id": "q-agent-evaluation-4",
-        "prompt": "A candidate improves the average but fails a critical permission case. What should the release gate do?",
+        "id": "agent-evaluation-repeat-trials",
+        "prompt": "What is the appropriate response when agent behavior can vary between runs?",
         "choices": [
-          "Ship based on the average",
-          "Delete the case",
-          "Honor the must-not-regress slice and hold or fix the release",
-          "Increase the score weight after the run"
+          "Treat the first successful run as proof of consistent performance",
+          "Change several conditions without recording them",
+          "Repeat the task under documented, comparable conditions",
+          "Discard failed trials and report only successful ones"
         ],
         "answerIndex": 2,
-        "explanation": "Critical slice gates prevent an aggregate improvement from masking unacceptable harm."
+        "explanation": "The module recommends repeated trials under the same documented conditions when behavior can vary. Changed conditions should be labeled separately."
       },
       {
-        "id": "q-agent-evaluation-5",
-        "prompt": "What makes an evaluation result reproducible?",
+        "id": "agent-evaluation-bound-conclusions",
+        "prompt": "Which conclusion is supported by a narrow evaluation?",
         "choices": [
-          "A screenshot of one answer",
-          "Versioned cases, fixtures, rubric, graders, workflow configuration, and results",
-          "A provider leaderboard",
-          "Only the final percentage"
+          "The agent is reliable for every possible task",
+          "The observed results describe performance on the tested tasks under the stated conditions",
+          "No further evaluation is necessary",
+          "Any untested behavior can be inferred from one successful trial"
         ],
         "answerIndex": 1,
-        "explanation": "Every input and decision rule that produced the result must be identifiable."
+        "explanation": "The module states that conclusions must remain bounded by the tasks and conditions tested. A narrow evaluation does not establish general reliability."
       }
     ]
   },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-21",
   "sources": [
     {
-      "title": "Evaluation best practices",
-      "url": "https://developers.openai.com/api/docs/guides/evaluation-best-practices",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Using the Evaluation Tool",
-      "url": "https://platform.claude.com/docs/en/test-and-evaluate/eval-tool",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Why evaluate agents",
-      "url": "https://google.github.io/adk-docs/evaluate/",
-      "publisher": "Google",
-      "lastVerified": "2026-07-25"
+      "title": "Evaluating Language-Model Agents on Realistic Autonomous Tasks",
+      "url": "https://arxiv.org/abs/2312.11671",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-21"
     },
     {
       "title": "Artificial Intelligence Risk Management Framework",
-      "url": "https://www.nist.gov/itl/ai-risk-management-framework",
-      "publisher": "NIST",
-      "lastVerified": "2026-07-25"
+      "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+      "publisher": "National Institute of Standards and Technology",
+      "lastVerified": "2026-08-21"
     }
   ]
 }
