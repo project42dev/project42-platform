@@ -3,7 +3,7 @@ import test from "node:test";
 import { resolve } from "node:path";
 import { loadDynamicCatalog, mergeCatalogs, loadCatalogFromPath } from "../dist/content-sync.js";
 
-const contentRepoRoot = resolve(import.meta.dirname, "../../project42-content");
+const contentRepoRoot = resolve(import.meta.dirname, "../content");
 
 test("loads dynamic catalog from extracted project42-content repository", async () => {
   const catalog = await loadCatalogFromPath(contentRepoRoot);
