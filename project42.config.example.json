@@ -1,0 +1,34 @@
+{
+  "$schema": "./schemas/portal-config.schema.json",
+  "branding": {
+    "organizationName": "Acme Global Solutions",
+    "portalTitle": "Acme AI Academy",
+    "portalTagline": "Master Agentic AI & Modern Cloud Systems",
+    "logoUrl": "/assets/branding/acme-logo.svg",
+    "faviconUrl": "/assets/branding/acme-favicon.ico",
+    "copyright": "© 2026 Acme Global Solutions Inc. All rights reserved.",
+    "supportUrl": "https://helpdesk.acme.corp",
+    "privacyPolicyUrl": "/privacy",
+    "termsUrl": "/terms"
+  },
+  "theme": {
+    "colorMode": "system",
+    "primaryColor": "#0F62FE",
+    "accentColor": "#0043CE",
+    "headerBackground": "#161616",
+    "fontFamily": "Inter, -apple-system, BlinkMacSystemFont, sans-serif"
+  },
+  "features": {
+    "enableFieldGuide": true,
+    "enableVisualGuides": true,
+    "enableKnowledgeChecks": true,
+    "enableBadges": true,
+    "enableTranscripts": true,
+    "enableFeedback": false
+  },
+  "content": {
+    "upstreamRepo": "https://github.com/project42dev/project42-content.git",
+    "upstreamBranch": "main",
+    "customContentDir": "./custom-content"
+  }
+}

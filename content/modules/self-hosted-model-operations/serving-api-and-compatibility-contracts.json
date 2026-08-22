@@ -136,5 +136,102 @@
       "publisher": "RFC Editor",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-serving-api-and-compatibility-contracts",
+    "title": "Serving API and Compatibility Contracts Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Serving API and Compatibility Contracts improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-serving-api-and-compatibility-contracts-sec-0",
+        "kind": "narration",
+        "sectionId": "source-update",
+        "text": "Reviewing Source update: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-serving-api-and-compatibility-contracts-sec-1",
+        "kind": "narration",
+        "sectionId": "level-and-scope",
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-serving-api-and-compatibility-contracts-sec-2",
+        "kind": "narration",
+        "sectionId": "observable-contract",
+        "text": "Reviewing Define the observable contract: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-serving-api-and-compatibility-contracts-sec-3",
+        "kind": "narration",
+        "sectionId": "compatibility-reasoning",
+        "text": "Reviewing Reason about compatibility: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-serving-api-and-compatibility-contracts-sec-4",
+        "kind": "narration",
+        "sectionId": "structured-errors",
+        "text": "Reviewing Keep error behavior within the contract: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-serving-api-and-compatibility-contracts-sec-5",
+        "kind": "learner-prompt",
+        "sectionId": "compatibility-check",
+        "text": "Reviewing Build a compatibility check: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Serving API and Compatibility Contracts. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-serving-api-and-compatibility-contracts-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Source update: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-serving-api-and-compatibility-contracts-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-serving-api-and-compatibility-contracts-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Define the observable contract: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-serving-api-and-compatibility-contracts-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Reason about compatibility: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-serving-api-and-compatibility-contracts-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Keep error behavior within the contract: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-serving-api-and-compatibility-contracts-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Build a compatibility check: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Serving API and Compatibility Contracts architecture diagram and walkthrough."
+  }
 }

@@ -131,5 +131,102 @@
       "publisher": "Model Context Protocol",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-mcp-trust-and-security",
+    "title": "MCP Trust and Security Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of MCP Trust and Security improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-mcp-trust-and-security-sec-0",
+        "kind": "narration",
+        "sectionId": "source-correction",
+        "text": "Reviewing Source correction: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-mcp-trust-and-security-sec-1",
+        "kind": "narration",
+        "sectionId": "level-and-scope",
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-mcp-trust-and-security-sec-2",
+        "kind": "narration",
+        "sectionId": "map-trust-boundaries",
+        "text": "Reviewing Map trust boundaries: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-mcp-trust-and-security-sec-3",
+        "kind": "narration",
+        "sectionId": "consent-and-authorization",
+        "text": "Reviewing Consent and authorization: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-mcp-trust-and-security-sec-4",
+        "kind": "narration",
+        "sectionId": "credentials-and-untrusted-input",
+        "text": "Reviewing Protect credentials and process untrusted input: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-mcp-trust-and-security-sec-5",
+        "kind": "learner-prompt",
+        "sectionId": "review-and-audit",
+        "text": "Reviewing Review and audit a workflow: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to MCP Trust and Security. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-mcp-trust-and-security-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Source correction: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-mcp-trust-and-security-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-mcp-trust-and-security-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Map trust boundaries: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-mcp-trust-and-security-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Consent and authorization: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-mcp-trust-and-security-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Protect credentials and process untrusted input: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-mcp-trust-and-security-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Review and audit a workflow: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "MCP Trust and Security architecture diagram and walkthrough."
+  }
 }

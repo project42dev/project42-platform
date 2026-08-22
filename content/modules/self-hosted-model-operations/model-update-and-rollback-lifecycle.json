@@ -157,5 +157,114 @@
       "publisher": "National Institute of Standards and Technology",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-model-update-and-rollback-lifecycle",
+    "title": "Model Update and Rollback Lifecycle Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Model Update and Rollback Lifecycle improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-model-update-and-rollback-lifecycle-sec-0",
+        "kind": "narration",
+        "sectionId": "source-correction",
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-update-and-rollback-lifecycle-sec-1",
+        "kind": "narration",
+        "sectionId": "intermediate-scope",
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-update-and-rollback-lifecycle-sec-2",
+        "kind": "narration",
+        "sectionId": "define-release-unit",
+        "text": "Reviewing Define the baseline and release unit: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-update-and-rollback-lifecycle-sec-3",
+        "kind": "narration",
+        "sectionId": "prepare-acceptance-evidence",
+        "text": "Reviewing Prepare acceptance evidence: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-update-and-rollback-lifecycle-sec-4",
+        "kind": "narration",
+        "sectionId": "control-and-observe-release",
+        "text": "Reviewing Control and observe the release: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-update-and-rollback-lifecycle-sec-5",
+        "kind": "narration",
+        "sectionId": "rollback-and-recovery",
+        "text": "Reviewing Roll back and verify recovery: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-update-and-rollback-lifecycle-sec-6",
+        "kind": "learner-prompt",
+        "sectionId": "close-the-lifecycle",
+        "text": "Reviewing Close the lifecycle: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Model Update and Rollback Lifecycle. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-model-update-and-rollback-lifecycle-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-update-and-rollback-lifecycle-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-update-and-rollback-lifecycle-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Define the baseline and release unit: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-update-and-rollback-lifecycle-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Prepare acceptance evidence: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-update-and-rollback-lifecycle-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Control and observe the release: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-update-and-rollback-lifecycle-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Roll back and verify recovery: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-update-and-rollback-lifecycle-sec-6",
+        "startSeconds": 180,
+        "endSeconds": 210,
+        "text": "Reviewing Close the lifecycle: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Model Update and Rollback Lifecycle architecture diagram and walkthrough."
+  }
 }

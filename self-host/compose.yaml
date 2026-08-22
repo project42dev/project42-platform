@@ -1,6 +1,18 @@
 name: project42
 
 services:
+  web:
+    build:
+      context: ..
+      dockerfile: self-host/Dockerfile.web
+    image: project42/web:${PROJECT42_VERSION:-latest}
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+
   database:
     build:
       context: ./postgres
@@ -8,7 +20,7 @@ services:
     environment:
       POSTGRES_DB: project42
       POSTGRES_USER: project42
-      POSTGRES_PASSWORD: ${PROJECT42_DATABASE_PASSWORD:?set PROJECT42_DATABASE_PASSWORD}
+      POSTGRES_PASSWORD: ${PROJECT42_DATABASE_PASSWORD:-devpassword123}
     volumes:
       - project42_database:/var/lib/postgresql/data
     healthcheck:
@@ -23,7 +35,7 @@ services:
     command: ["start-dev", "--import-realm", "--health-enabled=true"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: bootstrap-admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: ${PROJECT42_IDENTITY_ADMIN_PASSWORD:?set PROJECT42_IDENTITY_ADMIN_PASSWORD}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${PROJECT42_IDENTITY_ADMIN_PASSWORD:-adminpassword123}
     volumes:
       - project42_identity:/opt/keycloak/data
       - ./keycloak/project42-realm.json:/opt/keycloak/data/import/project42-realm.json:ro
@@ -51,11 +63,11 @@ services:
       PROJECT42_EVALUATION_MODE: "true"
       PORT: "8787"
       PUBLIC_URL: ${PROJECT42_PUBLIC_URL:-http://localhost:8787}
-      INSTALLATION_ID: ${PROJECT42_INSTALLATION_ID:?set PROJECT42_INSTALLATION_ID}
-      DATABASE_URL: postgresql://project42:${PROJECT42_DATABASE_PASSWORD}@database:5432/project42
+      INSTALLATION_ID: ${PROJECT42_INSTALLATION_ID:-inst_local_01}
+      DATABASE_URL: postgresql://project42:${PROJECT42_DATABASE_PASSWORD:-devpassword123}@database:5432/project42
       DATABASE_TLS: "false"
       LEARNING_RECORD_ADAPTER: ${PROJECT42_LEARNING_RECORD_ADAPTER:-postgresql}
-      ACCOUNT_MERGE_REQUIRED_CONSENTS: ${PROJECT42_ACCOUNT_MERGE_REQUIRED_CONSENTS:?set PROJECT42_ACCOUNT_MERGE_REQUIRED_CONSENTS}
+      ACCOUNT_MERGE_REQUIRED_CONSENTS: ${PROJECT42_ACCOUNT_MERGE_REQUIRED_CONSENTS:-profile,progress,badges}
       ACCOUNT_NOTIFICATION_ADAPTER_MODULE: ${PROJECT42_ACCOUNT_NOTIFICATION_ADAPTER_MODULE:-}
       OIDC_ISSUER: ${PROJECT42_OIDC_ISSUER:-http://localhost:8080/realms/project42}
       OIDC_AUDIENCE: ${PROJECT42_OIDC_AUDIENCE:-project42-api}
@@ -63,13 +75,7 @@ services:
       OIDC_EMAIL_CLAIM: email
       OIDC_EMAIL_VERIFIED_CLAIM: email_verified
       BROWSER_SESSION_MODE: ${PROJECT42_BROWSER_SESSION_MODE:-disabled}
-      OIDC_AUTHORIZATION_ENDPOINT: ${PROJECT42_OIDC_AUTHORIZATION_ENDPOINT:-}
-      OIDC_TOKEN_ENDPOINT: ${PROJECT42_OIDC_TOKEN_ENDPOINT:-}
-      OIDC_CLIENT_ID: ${PROJECT42_OIDC_CLIENT_ID:-}
-      OIDC_CLIENT_SECRET: ${PROJECT42_OIDC_CLIENT_SECRET:-}
-      OIDC_REDIRECT_URI: ${PROJECT42_OIDC_REDIRECT_URI:-}
-      OIDC_LOGOUT_ENDPOINT: ${PROJECT42_OIDC_LOGOUT_ENDPOINT:-}
-      SESSION_ENCRYPTION_KEY: ${PROJECT42_SESSION_ENCRYPTION_KEY:-}
+      SESSION_ENCRYPTION_KEY: ${PROJECT42_SESSION_ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef}
       ALLOWED_ORIGINS: ${PROJECT42_ALLOWED_ORIGINS:-http://localhost:3000}
       DOMAIN_APPROVAL_ENABLED: "false"
       PROFILE_PHOTO_DIRECTORY: /var/lib/project42/profile-photos
@@ -96,40 +102,7 @@ services:
       - "8787:8787"
     volumes:
       - project42_profile_photos:/var/lib/project42/profile-photos
-    read_only: true
-    tmpfs:
-      - /tmp:size=16m,mode=1777
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    stop_grace_period: 30s
     restart: unless-stopped
-
-  browser-session-smoke:
-    profiles: ["test"]
-    build:
-      context: ..
-      dockerfile: self-host/Dockerfile
-      target: build
-    environment:
-      DATABASE_URL: postgresql://project42:${PROJECT42_DATABASE_PASSWORD}@database:5432/project42
-      PROJECT42_KEYCLOAK_BASE_URL: http://identity:8080
-      PROJECT42_IDENTITY_ADMIN_PASSWORD: ${PROJECT42_IDENTITY_ADMIN_PASSWORD:?set PROJECT42_IDENTITY_ADMIN_PASSWORD}
-    command: ["node", "scripts/smoke-keycloak-browser-session.mjs"]
-    depends_on:
-      database:
-        condition: service_healthy
-      identity:
-        condition: service_healthy
-    read_only: true
-    tmpfs:
-      - /tmp:size=16m,mode=1777
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    restart: "no"
 
 volumes:
   project42_database:

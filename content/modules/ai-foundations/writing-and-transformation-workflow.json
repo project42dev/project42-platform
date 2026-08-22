@@ -152,5 +152,114 @@
       "publisher": "National Institute of Standards and Technology",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-writing-and-transformation-workflow",
+    "title": "Writing and Transformation Workflow Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Writing and Transformation Workflow improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-writing-and-transformation-workflow-sec-0",
+        "kind": "narration",
+        "sectionId": "update-scope",
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-writing-and-transformation-workflow-sec-1",
+        "kind": "narration",
+        "sectionId": "level-and-terms",
+        "text": "Reviewing Level and key terms: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-writing-and-transformation-workflow-sec-2",
+        "kind": "narration",
+        "sectionId": "define-the-contract",
+        "text": "Reviewing Define the transformation contract: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-writing-and-transformation-workflow-sec-3",
+        "kind": "narration",
+        "sectionId": "produce-a-first-pass",
+        "text": "Reviewing Produce a controlled first pass: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-writing-and-transformation-workflow-sec-4",
+        "kind": "narration",
+        "sectionId": "verify-against-source",
+        "text": "Reviewing Verify the transformation: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-writing-and-transformation-workflow-sec-5",
+        "kind": "narration",
+        "sectionId": "revise-minimally",
+        "text": "Reviewing Revise only what failed: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-writing-and-transformation-workflow-sec-6",
+        "kind": "learner-prompt",
+        "sectionId": "reusable-workflow",
+        "text": "Reviewing Use the workflow repeatedly: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Writing and Transformation Workflow. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-writing-and-transformation-workflow-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-writing-and-transformation-workflow-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Level and key terms: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-writing-and-transformation-workflow-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Define the transformation contract: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-writing-and-transformation-workflow-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Produce a controlled first pass: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-writing-and-transformation-workflow-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Verify the transformation: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-writing-and-transformation-workflow-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Revise only what failed: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-writing-and-transformation-workflow-sec-6",
+        "startSeconds": 180,
+        "endSeconds": 210,
+        "text": "Reviewing Use the workflow repeatedly: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Writing and Transformation Workflow architecture diagram and walkthrough."
+  }
 }

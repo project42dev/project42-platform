@@ -148,5 +148,102 @@
       "publisher": "arXiv",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-context-and-evidence-construction",
+    "title": "Context and Evidence Construction Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Context and Evidence Construction improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-context-and-evidence-construction-sec-0",
+        "kind": "narration",
+        "sectionId": "level-and-scope",
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-context-and-evidence-construction-sec-1",
+        "kind": "narration",
+        "sectionId": "source-correction",
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-context-and-evidence-construction-sec-2",
+        "kind": "narration",
+        "sectionId": "separate-packet-parts",
+        "text": "Reviewing Separate the parts of a context packet: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-context-and-evidence-construction-sec-3",
+        "kind": "narration",
+        "sectionId": "build-evidence-records",
+        "text": "Reviewing Build traceable evidence records: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-context-and-evidence-construction-sec-4",
+        "kind": "narration",
+        "sectionId": "arrange-the-context",
+        "text": "Reviewing Arrange evidence for use: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-context-and-evidence-construction-sec-5",
+        "kind": "learner-prompt",
+        "sectionId": "audit-support",
+        "text": "Reviewing Audit the answer against the packet: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Context and Evidence Construction. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-context-and-evidence-construction-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-context-and-evidence-construction-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-context-and-evidence-construction-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Separate the parts of a context packet: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-context-and-evidence-construction-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Build traceable evidence records: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-context-and-evidence-construction-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Arrange evidence for use: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-context-and-evidence-construction-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Audit the answer against the packet: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Context and Evidence Construction architecture diagram and walkthrough."
+  }
 }

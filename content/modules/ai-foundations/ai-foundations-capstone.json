@@ -102,5 +102,66 @@
       "publisher": "Ecma International",
       "lastVerified": "2026-08-21"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-ai-foundations-capstone",
+    "title": "AI Foundations Capstone Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of AI Foundations Capstone improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-ai-foundations-capstone-sec-0",
+        "kind": "narration",
+        "sectionId": "correction-status",
+        "text": "Reviewing Correction status: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-ai-foundations-capstone-sec-1",
+        "kind": "narration",
+        "sectionId": "minimal-change-requirements",
+        "text": "Reviewing Evidence required for a minimal change: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-ai-foundations-capstone-sec-2",
+        "kind": "learner-prompt",
+        "sectionId": "json-validation",
+        "text": "Reviewing JSON validation concepts: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to AI Foundations Capstone. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-ai-foundations-capstone-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Correction status: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-ai-foundations-capstone-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Evidence required for a minimal change: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-ai-foundations-capstone-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing JSON validation concepts: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "AI Foundations Capstone architecture diagram and walkthrough."
+  }
 }

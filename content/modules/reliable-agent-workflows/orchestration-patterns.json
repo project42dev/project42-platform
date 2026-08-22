@@ -170,5 +170,138 @@
       "publisher": "arXiv",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-orchestration-patterns",
+    "title": "Orchestration Patterns for Reliable Agent Workflows Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Orchestration Patterns for Reliable Agent Workflows improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-orchestration-patterns-sec-0",
+        "kind": "narration",
+        "sectionId": "level-and-scope",
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-orchestration-patterns-sec-1",
+        "kind": "narration",
+        "sectionId": "source-update",
+        "text": "Reviewing Source update: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-orchestration-patterns-sec-2",
+        "kind": "narration",
+        "sectionId": "start-with-task-structure",
+        "text": "Reviewing Start with task structure: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-orchestration-patterns-sec-3",
+        "kind": "narration",
+        "sectionId": "sequential-pattern",
+        "text": "Reviewing Sequential pattern: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-orchestration-patterns-sec-4",
+        "kind": "narration",
+        "sectionId": "routing-pattern",
+        "text": "Reviewing Routing pattern: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-orchestration-patterns-sec-5",
+        "kind": "narration",
+        "sectionId": "parallel-pattern",
+        "text": "Reviewing Parallel pattern: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-orchestration-patterns-sec-6",
+        "kind": "narration",
+        "sectionId": "manager-worker-pattern",
+        "text": "Reviewing Manager-worker pattern: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-orchestration-patterns-sec-7",
+        "kind": "narration",
+        "sectionId": "evaluator-revision-pattern",
+        "text": "Reviewing Evaluator-revision pattern: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-orchestration-patterns-sec-8",
+        "kind": "learner-prompt",
+        "sectionId": "select-and-compose",
+        "text": "Reviewing Select and compose patterns: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Orchestration Patterns for Reliable Agent Workflows. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-orchestration-patterns-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-orchestration-patterns-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Source update: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-orchestration-patterns-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Start with task structure: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-orchestration-patterns-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Sequential pattern: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-orchestration-patterns-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Routing pattern: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-orchestration-patterns-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Parallel pattern: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-orchestration-patterns-sec-6",
+        "startSeconds": 180,
+        "endSeconds": 210,
+        "text": "Reviewing Manager-worker pattern: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-orchestration-patterns-sec-7",
+        "startSeconds": 210,
+        "endSeconds": 240,
+        "text": "Reviewing Evaluator-revision pattern: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-orchestration-patterns-sec-8",
+        "startSeconds": 240,
+        "endSeconds": 270,
+        "text": "Reviewing Select and compose patterns: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Orchestration Patterns for Reliable Agent Workflows architecture diagram and walkthrough."
+  }
 }

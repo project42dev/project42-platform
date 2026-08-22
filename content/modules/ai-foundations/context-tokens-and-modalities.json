@@ -129,5 +129,90 @@
       "publisher": "arXiv",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-context-tokens-and-modalities",
+    "title": "Context, Tokens, and Modalities Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Context, Tokens, and Modalities improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-context-tokens-and-modalities-sec-0",
+        "kind": "narration",
+        "sectionId": "source-correction",
+        "text": "Reviewing Source correction: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-context-tokens-and-modalities-sec-1",
+        "kind": "narration",
+        "sectionId": "level-and-scope",
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-context-tokens-and-modalities-sec-2",
+        "kind": "narration",
+        "sectionId": "tokens-and-context",
+        "text": "Reviewing Tokens and context: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-context-tokens-and-modalities-sec-3",
+        "kind": "narration",
+        "sectionId": "modalities",
+        "text": "Reviewing Modalities: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-context-tokens-and-modalities-sec-4",
+        "kind": "learner-prompt",
+        "sectionId": "analysis-workflow",
+        "text": "Reviewing A provider-neutral analysis workflow: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Context, Tokens, and Modalities. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-context-tokens-and-modalities-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Source correction: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-context-tokens-and-modalities-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-context-tokens-and-modalities-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Tokens and context: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-context-tokens-and-modalities-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Modalities: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-context-tokens-and-modalities-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing A provider-neutral analysis workflow: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Context, Tokens, and Modalities architecture diagram and walkthrough."
+  }
 }

@@ -1,1 +1,255 @@
-{"id":"mcp-architecture","title":"Understanding MCP Architecture","summary":"This intermediate module teaches you to identify the architectural roles in the Model Context Protocol, trace a connection through its lifecycle, and distinguish the capabilities a server can expose. After completing it, you can diagram an MCP interaction and explain where coordination, communication, and capability boundaries belong.","level":"intermediate","providers":["provider-neutral"],"estimatedMinutes":35,"objectives":["Identify the responsibilities of an MCP host, client, and server.","Trace an MCP connection from initialization and capability negotiation through normal operation and shutdown.","Distinguish tools, resources, and prompts by the function each provides.","Separate the protocol's data layer from its transport layer when analyzing an implementation.","Evaluate an MCP architecture without assuming that connection or capability discovery establishes trust."],"prerequisites":[],"sections":[{"id":"level-and-foundations","title":"Level and assumed foundations","paragraphs":["This is an intermediate-level module. It assumes that you already understand basic client-server communication, application programming interfaces, and the difference between sending a request and receiving a response. No knowledge of a particular provider, programming language, or implementation product is assumed.","Model Context Protocol, abbreviated MCP, defines a standard way for an application to exchange context and capabilities with external servers. The architecture separates application coordination from the protocol connection and from the implementation that supplies data or operations. This separation helps you reason about ownership and trust boundaries before examining implementation details."]},{"id":"architectural-roles","title":"Host, client, and server roles","paragraphs":["The host is the application that coordinates the overall experience. It creates and manages protocol clients, decides which servers may participate, and combines information returned through those connections with the rest of the application. User interaction and application-level policy therefore belong at the host level rather than inside an external server.","A client is the protocol component that maintains a connection to one server. The client conducts the protocol lifecycle, sends requests, receives responses or notifications, and keeps track of the capabilities negotiated for that connection. If a host connects to multiple servers, it uses a separate client connection for each server.","A server provides capabilities through the protocol. Depending on what it implements, a server can expose tools, resources, prompts, or a subset of them. The word server describes a protocol role, not necessarily a separate physical computer. Architectural role and deployment location are different questions.","A useful diagram places the host around its clients, with each client linked to one server. This makes two boundaries visible: the host coordinates the application, while each client-server pair owns an individual protocol session."],"callout":"Do not treat host and client as synonyms. The host owns the application experience, while a client manages one protocol connection on the host's behalf."},{"id":"layers-and-message-flow","title":"Data and transport layers","paragraphs":["MCP can be analyzed as a data layer operating over a transport layer. The data layer defines protocol messages, lifecycle behavior, capability negotiation, and the primitives exchanged by participants. The transport layer carries those messages between a client and a server.","Keeping these layers conceptually separate makes an architecture easier to evaluate. Changing how messages travel should not change which participant is the host, client, or server. Likewise, understanding a tool or resource does not require assuming a particular transport.","A typical flow begins when the host creates a client for a selected server. The client and server perform initialization, exchange information about the capabilities they support, and then enter normal operation. During operation, they exchange only messages allowed by the negotiated capabilities. When the session is no longer needed, the connection is closed.","Capability negotiation is not merely descriptive. A participant must not assume that the other side supports every optional protocol feature. Architecture reviews should therefore ask where negotiated capabilities are recorded and how later operations are limited to those capabilities."]},{"id":"server-capabilities","title":"Tools, resources, and prompts","paragraphs":["Tools represent operations that can be invoked through a server. A tool has a described purpose and an expected input shape. Because an operation can affect external state, discovering that a tool exists is not the same as deciding that it is safe or appropriate to invoke.","Resources provide context or data that a client can retrieve from a server. They are appropriate when the main result is content to be read and supplied to the application rather than an operation whose primary purpose is to perform an action.","Prompts provide reusable, parameterized message templates or workflows. They let a server publish structured starting points that a host can present or use within its experience.","These primitives are complementary rather than interchangeable. When classifying a capability, ask what the consumer is meant to do with it. Invocation points toward a tool, retrieval of context points toward a resource, and reuse of a message template points toward a prompt. A server does not have to expose all three categories."]},{"id":"boundaries-and-trust","title":"Capability boundaries are not trust decisions","paragraphs":["The protocol architecture identifies where capabilities are advertised and invoked, but an architectural connection does not by itself establish that a server or capability should be trusted. Capability negotiation answers what participants report that they can do. Authorization and user approval answer whether a particular action should be permitted.","The host is positioned to apply application policy because it coordinates clients and the user experience. A sound design can present relevant information before a consequential operation, restrict which servers receive sensitive context, and reject operations that policy does not allow. The exact policy is an implementation decision rather than a universal property of every MCP connection.","Isolation between client-server sessions also supports clearer reasoning about information flow. Connecting one host to several servers does not require treating those servers as one shared trust domain. An architecture review should identify what information crosses each connection instead of assuming that all connected servers may see the same context."]},{"id":"architecture-review","title":"A repeatable architecture review","paragraphs":["Begin by drawing the host, every client, and every server as separate roles. Connect each client to only the server whose session it manages. Then label which participant creates connections, presents user interactions, and applies application policy.","Next, classify each exposed capability as a tool, resource, or prompt. Record which capabilities are learned during initialization and negotiation. For every later operation, verify that it depends only on capabilities negotiated for that specific client-server session.","Finally, trace information and authority across each boundary. Ask what context is sent, what result returns, whether an operation can change external state, and where permission is evaluated. After this module, you can perform this review and explain why transport choice, advertised capability, and trust are separate architectural concerns."]}],"knowledgeCheck":{"passPercent":80,"questions":[{"id":"mcp-architecture-role-client","prompt":"Which component maintains an individual protocol connection to one server?","choices":["The host","The client","The resource","The prompt"],"answerIndex":1,"explanation":"A client manages one protocol connection to one server. The host coordinates the broader application and can manage multiple clients."},{"id":"mcp-architecture-host-responsibility","prompt":"Which responsibility belongs primarily at the host level in the architecture described by this module?","choices":["Coordinating the application experience and managing clients","Acting as every connected server","Replacing capability negotiation","Defining every server's internal implementation"],"answerIndex":0,"explanation":"The host coordinates the application experience, creates and manages clients, and applies application-level policy."},{"id":"mcp-architecture-layers","prompt":"What does separating the data layer from the transport layer help an architect do?","choices":["Assume every transport provides the same trust decision","Reason about protocol behavior independently from how messages are carried","Eliminate the need for clients","Treat tools and resources as identical"],"answerIndex":1,"explanation":"The data layer defines messages, lifecycle behavior, capabilities, and primitives, while the transport layer carries messages."},{"id":"mcp-architecture-primitives","prompt":"A server publishes retrievable context whose primary purpose is to be read by an application. Which primitive best fits that capability?","choices":["Tool","Resource","Prompt","Host"],"answerIndex":1,"explanation":"A resource provides retrievable context or data. A tool represents an invocable operation, while a prompt provides a reusable message template or workflow."},{"id":"mcp-architecture-trust","prompt":"What does successful capability negotiation establish?","choices":["That every advertised operation is authorized","That the server is trusted with all host context","Which protocol capabilities the participants report supporting","That all connected servers share one trust domain"],"answerIndex":2,"explanation":"Negotiation establishes supported capabilities for the session. Trust, authorization, user approval, and information-sharing policy remain separate decisions."}]},"reviewCadenceDays":180,"lastVerified":"2026-08-22","sources":[{"title":"Architecture overview","url":"https://modelcontextprotocol.io/docs/learn/architecture","publisher":"Model Context Protocol","lastVerified":"2026-08-22"},{"title":"Model Context Protocol specification repository","url":"https://github.com/modelcontextprotocol/specification","publisher":"Model Context Protocol","lastVerified":"2026-08-22"}]}
+{
+  "id": "mcp-architecture",
+  "title": "Understanding MCP Architecture",
+  "summary": "This intermediate module teaches you to identify the architectural roles in the Model Context Protocol, trace a connection through its lifecycle, and distinguish the capabilities a server can expose. After completing it, you can diagram an MCP interaction and explain where coordination, communication, and capability boundaries belong.",
+  "level": "intermediate",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 35,
+  "objectives": [
+    "Identify the responsibilities of an MCP host, client, and server.",
+    "Trace an MCP connection from initialization and capability negotiation through normal operation and shutdown.",
+    "Distinguish tools, resources, and prompts by the function each provides.",
+    "Separate the protocol's data layer from its transport layer when analyzing an implementation.",
+    "Evaluate an MCP architecture without assuming that connection or capability discovery establishes trust."
+  ],
+  "prerequisites": [],
+  "sections": [
+    {
+      "id": "level-and-foundations",
+      "title": "Level and assumed foundations",
+      "paragraphs": [
+        "This is an intermediate-level module. It assumes that you already understand basic client-server communication, application programming interfaces, and the difference between sending a request and receiving a response. No knowledge of a particular provider, programming language, or implementation product is assumed.",
+        "Model Context Protocol, abbreviated MCP, defines a standard way for an application to exchange context and capabilities with external servers. The architecture separates application coordination from the protocol connection and from the implementation that supplies data or operations. This separation helps you reason about ownership and trust boundaries before examining implementation details."
+      ]
+    },
+    {
+      "id": "architectural-roles",
+      "title": "Host, client, and server roles",
+      "paragraphs": [
+        "The host is the application that coordinates the overall experience. It creates and manages protocol clients, decides which servers may participate, and combines information returned through those connections with the rest of the application. User interaction and application-level policy therefore belong at the host level rather than inside an external server.",
+        "A client is the protocol component that maintains a connection to one server. The client conducts the protocol lifecycle, sends requests, receives responses or notifications, and keeps track of the capabilities negotiated for that connection. If a host connects to multiple servers, it uses a separate client connection for each server.",
+        "A server provides capabilities through the protocol. Depending on what it implements, a server can expose tools, resources, prompts, or a subset of them. The word server describes a protocol role, not necessarily a separate physical computer. Architectural role and deployment location are different questions.",
+        "A useful diagram places the host around its clients, with each client linked to one server. This makes two boundaries visible: the host coordinates the application, while each client-server pair owns an individual protocol session."
+      ],
+      "callout": "Do not treat host and client as synonyms. The host owns the application experience, while a client manages one protocol connection on the host's behalf."
+    },
+    {
+      "id": "layers-and-message-flow",
+      "title": "Data and transport layers",
+      "paragraphs": [
+        "MCP can be analyzed as a data layer operating over a transport layer. The data layer defines protocol messages, lifecycle behavior, capability negotiation, and the primitives exchanged by participants. The transport layer carries those messages between a client and a server.",
+        "Keeping these layers conceptually separate makes an architecture easier to evaluate. Changing how messages travel should not change which participant is the host, client, or server. Likewise, understanding a tool or resource does not require assuming a particular transport.",
+        "A typical flow begins when the host creates a client for a selected server. The client and server perform initialization, exchange information about the capabilities they support, and then enter normal operation. During operation, they exchange only messages allowed by the negotiated capabilities. When the session is no longer needed, the connection is closed.",
+        "Capability negotiation is not merely descriptive. A participant must not assume that the other side supports every optional protocol feature. Architecture reviews should therefore ask where negotiated capabilities are recorded and how later operations are limited to those capabilities."
+      ]
+    },
+    {
+      "id": "server-capabilities",
+      "title": "Tools, resources, and prompts",
+      "paragraphs": [
+        "Tools represent operations that can be invoked through a server. A tool has a described purpose and an expected input shape. Because an operation can affect external state, discovering that a tool exists is not the same as deciding that it is safe or appropriate to invoke.",
+        "Resources provide context or data that a client can retrieve from a server. They are appropriate when the main result is content to be read and supplied to the application rather than an operation whose primary purpose is to perform an action.",
+        "Prompts provide reusable, parameterized message templates or workflows. They let a server publish structured starting points that a host can present or use within its experience.",
+        "These primitives are complementary rather than interchangeable. When classifying a capability, ask what the consumer is meant to do with it. Invocation points toward a tool, retrieval of context points toward a resource, and reuse of a message template points toward a prompt. A server does not have to expose all three categories."
+      ]
+    },
+    {
+      "id": "boundaries-and-trust",
+      "title": "Capability boundaries are not trust decisions",
+      "paragraphs": [
+        "The protocol architecture identifies where capabilities are advertised and invoked, but an architectural connection does not by itself establish that a server or capability should be trusted. Capability negotiation answers what participants report that they can do. Authorization and user approval answer whether a particular action should be permitted.",
+        "The host is positioned to apply application policy because it coordinates clients and the user experience. A sound design can present relevant information before a consequential operation, restrict which servers receive sensitive context, and reject operations that policy does not allow. The exact policy is an implementation decision rather than a universal property of every MCP connection.",
+        "Isolation between client-server sessions also supports clearer reasoning about information flow. Connecting one host to several servers does not require treating those servers as one shared trust domain. An architecture review should identify what information crosses each connection instead of assuming that all connected servers may see the same context."
+      ]
+    },
+    {
+      "id": "architecture-review",
+      "title": "A repeatable architecture review",
+      "paragraphs": [
+        "Begin by drawing the host, every client, and every server as separate roles. Connect each client to only the server whose session it manages. Then label which participant creates connections, presents user interactions, and applies application policy.",
+        "Next, classify each exposed capability as a tool, resource, or prompt. Record which capabilities are learned during initialization and negotiation. For every later operation, verify that it depends only on capabilities negotiated for that specific client-server session.",
+        "Finally, trace information and authority across each boundary. Ask what context is sent, what result returns, whether an operation can change external state, and where permission is evaluated. After this module, you can perform this review and explain why transport choice, advertised capability, and trust are separate architectural concerns."
+      ]
+    }
+  ],
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "mcp-architecture-role-client",
+        "prompt": "Which component maintains an individual protocol connection to one server?",
+        "choices": [
+          "The host",
+          "The client",
+          "The resource",
+          "The prompt"
+        ],
+        "answerIndex": 1,
+        "explanation": "A client manages one protocol connection to one server. The host coordinates the broader application and can manage multiple clients."
+      },
+      {
+        "id": "mcp-architecture-host-responsibility",
+        "prompt": "Which responsibility belongs primarily at the host level in the architecture described by this module?",
+        "choices": [
+          "Coordinating the application experience and managing clients",
+          "Acting as every connected server",
+          "Replacing capability negotiation",
+          "Defining every server's internal implementation"
+        ],
+        "answerIndex": 0,
+        "explanation": "The host coordinates the application experience, creates and manages clients, and applies application-level policy."
+      },
+      {
+        "id": "mcp-architecture-layers",
+        "prompt": "What does separating the data layer from the transport layer help an architect do?",
+        "choices": [
+          "Assume every transport provides the same trust decision",
+          "Reason about protocol behavior independently from how messages are carried",
+          "Eliminate the need for clients",
+          "Treat tools and resources as identical"
+        ],
+        "answerIndex": 1,
+        "explanation": "The data layer defines messages, lifecycle behavior, capabilities, and primitives, while the transport layer carries messages."
+      },
+      {
+        "id": "mcp-architecture-primitives",
+        "prompt": "A server publishes retrievable context whose primary purpose is to be read by an application. Which primitive best fits that capability?",
+        "choices": [
+          "Tool",
+          "Resource",
+          "Prompt",
+          "Host"
+        ],
+        "answerIndex": 1,
+        "explanation": "A resource provides retrievable context or data. A tool represents an invocable operation, while a prompt provides a reusable message template or workflow."
+      },
+      {
+        "id": "mcp-architecture-trust",
+        "prompt": "What does successful capability negotiation establish?",
+        "choices": [
+          "That every advertised operation is authorized",
+          "That the server is trusted with all host context",
+          "Which protocol capabilities the participants report supporting",
+          "That all connected servers share one trust domain"
+        ],
+        "answerIndex": 2,
+        "explanation": "Negotiation establishes supported capabilities for the session. Trust, authorization, user approval, and information-sharing policy remain separate decisions."
+      }
+    ]
+  },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-22",
+  "sources": [
+    {
+      "title": "Architecture overview",
+      "url": "https://modelcontextprotocol.io/docs/learn/architecture",
+      "publisher": "Model Context Protocol",
+      "lastVerified": "2026-08-22"
+    },
+    {
+      "title": "Model Context Protocol specification repository",
+      "url": "https://github.com/modelcontextprotocol/specification",
+      "publisher": "Model Context Protocol",
+      "lastVerified": "2026-08-22"
+    }
+  ],
+  "activity": {
+    "id": "activity-mcp-architecture",
+    "title": "Understanding MCP Architecture Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Understanding MCP Architecture improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-mcp-architecture-sec-0",
+        "kind": "narration",
+        "sectionId": "level-and-foundations",
+        "text": "Reviewing Level and assumed foundations: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-mcp-architecture-sec-1",
+        "kind": "narration",
+        "sectionId": "architectural-roles",
+        "text": "Reviewing Host, client, and server roles: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-mcp-architecture-sec-2",
+        "kind": "narration",
+        "sectionId": "layers-and-message-flow",
+        "text": "Reviewing Data and transport layers: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-mcp-architecture-sec-3",
+        "kind": "narration",
+        "sectionId": "server-capabilities",
+        "text": "Reviewing Tools, resources, and prompts: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-mcp-architecture-sec-4",
+        "kind": "narration",
+        "sectionId": "boundaries-and-trust",
+        "text": "Reviewing Capability boundaries are not trust decisions: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-mcp-architecture-sec-5",
+        "kind": "learner-prompt",
+        "sectionId": "architecture-review",
+        "text": "Reviewing A repeatable architecture review: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Understanding MCP Architecture. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-mcp-architecture-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Level and assumed foundations: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-mcp-architecture-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Host, client, and server roles: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-mcp-architecture-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Data and transport layers: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-mcp-architecture-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Tools, resources, and prompts: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-mcp-architecture-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Capability boundaries are not trust decisions: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-mcp-architecture-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing A repeatable architecture review: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Understanding MCP Architecture architecture diagram and walkthrough."
+  }
+}

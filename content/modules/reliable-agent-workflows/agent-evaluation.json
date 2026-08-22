@@ -136,5 +136,52 @@
       "publisher": "National Institute of Standards and Technology",
       "lastVerified": "2026-08-21"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-agent-evaluation",
+    "title": "Agent Evaluation Suite Practical Lab",
+    "instructions": [
+      "Review the evaluation parameters and define success assertions.",
+      "Execute repeated trial runs against test cases.",
+      "Inspect the execution traces for divergence.",
+      "Record outcome scores and report findings."
+    ],
+    "evidence": [
+      "Evaluation execution output log",
+      "Trace comparison artifact"
+    ],
+    "reflectionPrompt": "How does structured trace inspection uncover behavioral failures that outcome-only scoring misses?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 480,
+    "cues": [
+      {
+        "id": "cue-agent-evaluation-intro",
+        "kind": "narration",
+        "text": "Welcome to Agent Evaluation. In this module, we explore how to design and interpret structured evaluations."
+      },
+      {
+        "id": "cue-agent-evaluation-lab",
+        "kind": "learner-prompt",
+        "text": "Now, open your lab environment and configure the evaluation criteria."
+      }
+    ],
+    "transcript": "Welcome to Agent Evaluation. In this module, we explore how to design and interpret structured evaluations. Now, open your lab environment and configure the evaluation criteria.",
+    "captions": [
+      {
+        "cueId": "cue-agent-evaluation-intro",
+        "startSeconds": 0,
+        "endSeconds": 15,
+        "text": "Welcome to Agent Evaluation. In this module, we explore how to design and interpret structured evaluations."
+      },
+      {
+        "cueId": "cue-agent-evaluation-lab",
+        "startSeconds": 16,
+        "endSeconds": 480,
+        "text": "Now, open your lab environment and configure the evaluation criteria."
+      }
+    ],
+    "reducedMotionAlternative": "Agent evaluation workflow diagram and trace analysis session."
+  }
 }

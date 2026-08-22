@@ -103,5 +103,90 @@
       "publisher": "Internet Engineering Task Force",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-memory-boundaries",
+    "title": "Memory Boundaries: Correction Status Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Memory Boundaries: Correction Status improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-memory-boundaries-sec-0",
+        "kind": "narration",
+        "sectionId": "declared-scope",
+        "text": "Reviewing Declared scope and level: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-memory-boundaries-sec-1",
+        "kind": "narration",
+        "sectionId": "source-change-status",
+        "text": "Reviewing Source change status: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-memory-boundaries-sec-2",
+        "kind": "narration",
+        "sectionId": "preserving-reviewed-material",
+        "text": "Reviewing Preserving reviewed material: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-memory-boundaries-sec-3",
+        "kind": "narration",
+        "sectionId": "evidence-needed",
+        "text": "Reviewing Evidence needed to complete the correction: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-memory-boundaries-sec-4",
+        "kind": "learner-prompt",
+        "sectionId": "json-delivery-boundary",
+        "text": "Reviewing JSON delivery boundary: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Memory Boundaries: Correction Status. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-memory-boundaries-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Declared scope and level: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-memory-boundaries-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Source change status: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-memory-boundaries-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Preserving reviewed material: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-memory-boundaries-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Evidence needed to complete the correction: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-memory-boundaries-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing JSON delivery boundary: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Memory Boundaries: Correction Status architecture diagram and walkthrough."
+  }
 }

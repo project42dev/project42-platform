@@ -122,5 +122,90 @@
       "publisher": "arXiv",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-multi-agent-handoffs",
+    "title": "Reliable Multi-Agent Handoffs Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Reliable Multi-Agent Handoffs improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-multi-agent-handoffs-sec-0",
+        "kind": "narration",
+        "sectionId": "level-and-scope",
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-multi-agent-handoffs-sec-1",
+        "kind": "narration",
+        "sectionId": "source-correction",
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-multi-agent-handoffs-sec-2",
+        "kind": "narration",
+        "sectionId": "handoff-contract",
+        "text": "Reviewing Build a handoff contract: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-multi-agent-handoffs-sec-3",
+        "kind": "narration",
+        "sectionId": "acceptance-and-validation",
+        "text": "Reviewing Confirm acceptance and validate the result: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-multi-agent-handoffs-sec-4",
+        "kind": "learner-prompt",
+        "sectionId": "recovery",
+        "text": "Reviewing Recover from a failed handoff: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Reliable Multi-Agent Handoffs. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-multi-agent-handoffs-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-multi-agent-handoffs-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-multi-agent-handoffs-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Build a handoff contract: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-multi-agent-handoffs-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Confirm acceptance and validate the result: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-multi-agent-handoffs-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Recover from a failed handoff: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Reliable Multi-Agent Handoffs architecture diagram and walkthrough."
+  }
 }

@@ -104,5 +104,78 @@
       "publisher": "Ecma International",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-deployment-shape-and-operating-model",
+    "title": "Deployment Shape and Operating Model Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Deployment Shape and Operating Model improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-deployment-shape-and-operating-model-sec-0",
+        "kind": "narration",
+        "sectionId": "correction-status",
+        "text": "Reviewing Correction status: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-deployment-shape-and-operating-model-sec-1",
+        "kind": "narration",
+        "sectionId": "minimal-update-requirements",
+        "text": "Reviewing Requirements for a minimal update: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-deployment-shape-and-operating-model-sec-2",
+        "kind": "narration",
+        "sectionId": "subject-scope",
+        "text": "Reviewing Subject scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-deployment-shape-and-operating-model-sec-3",
+        "kind": "learner-prompt",
+        "sectionId": "serialization-requirement",
+        "text": "Reviewing Serialization requirement: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Deployment Shape and Operating Model. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-deployment-shape-and-operating-model-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Correction status: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-deployment-shape-and-operating-model-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Requirements for a minimal update: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-deployment-shape-and-operating-model-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Subject scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-deployment-shape-and-operating-model-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Serialization requirement: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Deployment Shape and Operating Model architecture diagram and walkthrough."
+  }
 }

@@ -126,5 +126,90 @@
       "publisher": "arXiv",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-prompt-anatomy-and-success-criteria",
+    "title": "Prompt Anatomy and Success Criteria Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Prompt Anatomy and Success Criteria improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-prompt-anatomy-and-success-criteria-sec-0",
+        "kind": "narration",
+        "sectionId": "level-and-scope",
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-prompt-anatomy-and-success-criteria-sec-1",
+        "kind": "narration",
+        "sectionId": "currency-correction",
+        "text": "Reviewing Source correction: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-prompt-anatomy-and-success-criteria-sec-2",
+        "kind": "narration",
+        "sectionId": "components-of-a-prompt",
+        "text": "Reviewing Components of a prompt: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-prompt-anatomy-and-success-criteria-sec-3",
+        "kind": "narration",
+        "sectionId": "from-request-to-testable-prompt",
+        "text": "Reviewing From a request to a testable prompt: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-prompt-anatomy-and-success-criteria-sec-4",
+        "kind": "learner-prompt",
+        "sectionId": "diagnosing-results",
+        "text": "Reviewing Diagnosing results: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Prompt Anatomy and Success Criteria. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-prompt-anatomy-and-success-criteria-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-prompt-anatomy-and-success-criteria-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Source correction: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-prompt-anatomy-and-success-criteria-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Components of a prompt: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-prompt-anatomy-and-success-criteria-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing From a request to a testable prompt: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-prompt-anatomy-and-success-criteria-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Diagnosing results: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Prompt Anatomy and Success Criteria architecture diagram and walkthrough."
+  }
 }

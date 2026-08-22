@@ -131,5 +131,102 @@
       "publisher": "arXiv",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-verification-and-iterative-improvement",
+    "title": "Verification and Iterative Improvement Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Verification and Iterative Improvement improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-verification-and-iterative-improvement-sec-0",
+        "kind": "narration",
+        "sectionId": "source-correction",
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-verification-and-iterative-improvement-sec-1",
+        "kind": "narration",
+        "sectionId": "level-and-foundation",
+        "text": "Reviewing Intermediate-level foundation: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-verification-and-iterative-improvement-sec-2",
+        "kind": "narration",
+        "sectionId": "define-verifiable-criteria",
+        "text": "Reviewing Define verifiable criteria: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-verification-and-iterative-improvement-sec-3",
+        "kind": "narration",
+        "sectionId": "record-evidence",
+        "text": "Reviewing Record verification evidence: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-verification-and-iterative-improvement-sec-4",
+        "kind": "narration",
+        "sectionId": "revise-with-control",
+        "text": "Reviewing Revise only what the evidence identifies: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-verification-and-iterative-improvement-sec-5",
+        "kind": "learner-prompt",
+        "sectionId": "verify-again-and-stop",
+        "text": "Reviewing Verify again and apply a stopping condition: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Verification and Iterative Improvement. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-verification-and-iterative-improvement-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-verification-and-iterative-improvement-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Intermediate-level foundation: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-verification-and-iterative-improvement-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Define verifiable criteria: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-verification-and-iterative-improvement-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Record verification evidence: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-verification-and-iterative-improvement-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Revise only what the evidence identifies: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-verification-and-iterative-improvement-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Verify again and apply a stopping condition: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Verification and Iterative Improvement architecture diagram and walkthrough."
+  }
 }

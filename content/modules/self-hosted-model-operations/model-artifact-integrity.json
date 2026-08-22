@@ -150,5 +150,102 @@
       "publisher": "arXiv",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-model-artifact-integrity",
+    "title": "Model Artifact Integrity Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Model Artifact Integrity improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-model-artifact-integrity-sec-0",
+        "kind": "narration",
+        "sectionId": "currency-update",
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-artifact-integrity-sec-1",
+        "kind": "narration",
+        "sectionId": "artifact-and-integrity",
+        "text": "Reviewing What artifact integrity means: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-artifact-integrity-sec-2",
+        "kind": "narration",
+        "sectionId": "origin-and-authentication",
+        "text": "Reviewing Check origin separately: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-artifact-integrity-sec-3",
+        "kind": "narration",
+        "sectionId": "documentation-review",
+        "text": "Reviewing Review the accompanying documentation: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-artifact-integrity-sec-4",
+        "kind": "narration",
+        "sectionId": "acceptance-procedure",
+        "text": "Reviewing Apply a repeatable acceptance procedure: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-artifact-integrity-sec-5",
+        "kind": "learner-prompt",
+        "sectionId": "intermediate-scope",
+        "text": "Reviewing Intermediate-level scope: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Model Artifact Integrity. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-model-artifact-integrity-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-artifact-integrity-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing What artifact integrity means: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-artifact-integrity-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Check origin separately: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-artifact-integrity-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Review the accompanying documentation: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-artifact-integrity-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Apply a repeatable acceptance procedure: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-artifact-integrity-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Intermediate-level scope: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Model Artifact Integrity architecture diagram and walkthrough."
+  }
 }

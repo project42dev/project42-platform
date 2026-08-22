@@ -138,5 +138,102 @@
       "publisher": "arXiv",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-model-identity-license-and-provenance",
+    "title": "Verify Model Identity, License, and Provenance Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Verify Model Identity, License, and Provenance improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-model-identity-license-and-provenance-sec-0",
+        "kind": "narration",
+        "sectionId": "level-and-scope",
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-identity-license-and-provenance-sec-1",
+        "kind": "narration",
+        "sectionId": "source-correction",
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-identity-license-and-provenance-sec-2",
+        "kind": "narration",
+        "sectionId": "three-separate-claims",
+        "text": "Reviewing Treat identity, license, and provenance as separate claims: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-identity-license-and-provenance-sec-3",
+        "kind": "narration",
+        "sectionId": "documentation-evidence",
+        "text": "Reviewing Use documentation as evidence: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-identity-license-and-provenance-sec-4",
+        "kind": "narration",
+        "sectionId": "verification-workflow",
+        "text": "Reviewing Build a traceable verification record: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-identity-license-and-provenance-sec-5",
+        "kind": "learner-prompt",
+        "sectionId": "review-result",
+        "text": "Reviewing Decide whether the record is complete: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Verify Model Identity, License, and Provenance. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-model-identity-license-and-provenance-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-identity-license-and-provenance-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-identity-license-and-provenance-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Treat identity, license, and provenance as separate claims: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-identity-license-and-provenance-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Use documentation as evidence: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-identity-license-and-provenance-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Build a traceable verification record: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-identity-license-and-provenance-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Decide whether the record is complete: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Verify Model Identity, License, and Provenance architecture diagram and walkthrough."
+  }
 }

@@ -155,5 +155,114 @@
       "publisher": "arXiv",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-research-with-evidence",
+    "title": "Research with Evidence Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Research with Evidence improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-research-with-evidence-sec-0",
+        "kind": "narration",
+        "sectionId": "update-note",
+        "text": "Reviewing Source correction: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-research-with-evidence-sec-1",
+        "kind": "narration",
+        "sectionId": "level-and-outcome",
+        "text": "Reviewing Level and learning outcome: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-research-with-evidence-sec-2",
+        "kind": "narration",
+        "sectionId": "claims-evidence-and-inference",
+        "text": "Reviewing Separate claims, evidence, and inference: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-research-with-evidence-sec-3",
+        "kind": "narration",
+        "sectionId": "match-source-to-claim",
+        "text": "Reviewing Match the source to the claim: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-research-with-evidence-sec-4",
+        "kind": "narration",
+        "sectionId": "build-an-evidence-record",
+        "text": "Reviewing Build an auditable evidence record: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-research-with-evidence-sec-5",
+        "kind": "narration",
+        "sectionId": "test-the-reasoning",
+        "text": "Reviewing Test the reasoning: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-research-with-evidence-sec-6",
+        "kind": "learner-prompt",
+        "sectionId": "research-workflow",
+        "text": "Reviewing Use a repeatable workflow: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Research with Evidence. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-research-with-evidence-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Source correction: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-research-with-evidence-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Level and learning outcome: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-research-with-evidence-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Separate claims, evidence, and inference: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-research-with-evidence-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Match the source to the claim: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-research-with-evidence-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Build an auditable evidence record: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-research-with-evidence-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Test the reasoning: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-research-with-evidence-sec-6",
+        "startSeconds": 180,
+        "endSeconds": 210,
+        "text": "Reviewing Use a repeatable workflow: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Research with Evidence architecture diagram and walkthrough."
+  }
 }

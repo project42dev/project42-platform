@@ -137,5 +137,114 @@
       "publisher": "National Institute of Standards and Technology",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-safe-tool-use-workflow",
+    "title": "Safe Tool Use Workflow Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Safe Tool Use Workflow improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-safe-tool-use-workflow-sec-0",
+        "kind": "narration",
+        "sectionId": "currency-update",
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-safe-tool-use-workflow-sec-1",
+        "kind": "narration",
+        "sectionId": "level-and-scope",
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-safe-tool-use-workflow-sec-2",
+        "kind": "narration",
+        "sectionId": "define-the-boundary",
+        "text": "Reviewing Define the intended boundary: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-safe-tool-use-workflow-sec-3",
+        "kind": "narration",
+        "sectionId": "inspect-before-authorization",
+        "text": "Reviewing Inspect before authorization: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-safe-tool-use-workflow-sec-4",
+        "kind": "narration",
+        "sectionId": "execute-with-stop-conditions",
+        "text": "Reviewing Execute with stop conditions: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-safe-tool-use-workflow-sec-5",
+        "kind": "narration",
+        "sectionId": "verify-and-record",
+        "text": "Reviewing Verify and record the result: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-safe-tool-use-workflow-sec-6",
+        "kind": "learner-prompt",
+        "sectionId": "workflow-recap",
+        "text": "Reviewing Workflow recap: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Safe Tool Use Workflow. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-safe-tool-use-workflow-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-safe-tool-use-workflow-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-safe-tool-use-workflow-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Define the intended boundary: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-safe-tool-use-workflow-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Inspect before authorization: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-safe-tool-use-workflow-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Execute with stop conditions: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-safe-tool-use-workflow-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Verify and record the result: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-safe-tool-use-workflow-sec-6",
+        "startSeconds": 180,
+        "endSeconds": 210,
+        "text": "Reviewing Workflow recap: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Safe Tool Use Workflow architecture diagram and walkthrough."
+  }
 }

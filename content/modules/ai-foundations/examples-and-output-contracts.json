@@ -102,5 +102,78 @@
       "publisher": "Ecma International",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-examples-and-output-contracts",
+    "title": "Examples and Output Contracts Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Examples and Output Contracts improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-examples-and-output-contracts-sec-0",
+        "kind": "narration",
+        "sectionId": "update-record",
+        "text": "Reviewing Source correction: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-examples-and-output-contracts-sec-1",
+        "kind": "narration",
+        "sectionId": "level-and-scope",
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-examples-and-output-contracts-sec-2",
+        "kind": "narration",
+        "sectionId": "example-versus-contract",
+        "text": "Reviewing Separate the illustration from the requirements: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-examples-and-output-contracts-sec-3",
+        "kind": "learner-prompt",
+        "sectionId": "parse-then-validate",
+        "text": "Reviewing Parse first, then validate the contract: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Examples and Output Contracts. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-examples-and-output-contracts-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Source correction: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-examples-and-output-contracts-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-examples-and-output-contracts-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Separate the illustration from the requirements: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-examples-and-output-contracts-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Parse first, then validate the contract: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Examples and Output Contracts architecture diagram and walkthrough."
+  }
 }

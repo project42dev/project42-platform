@@ -153,5 +153,102 @@
       "publisher": "National Institute of Standards and Technology",
       "lastVerified": "2026-08-21"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-ai-systems-and-use-cases",
+    "title": "AI Systems and Use Cases Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of AI Systems and Use Cases improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-ai-systems-and-use-cases-sec-0",
+        "kind": "narration",
+        "sectionId": "currency-update",
+        "text": "Reviewing Currency update: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-ai-systems-and-use-cases-sec-1",
+        "kind": "narration",
+        "sectionId": "level-and-scope",
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-ai-systems-and-use-cases-sec-2",
+        "kind": "narration",
+        "sectionId": "capability-system-and-use-case",
+        "text": "Reviewing Capability, system, and use case: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-ai-systems-and-use-cases-sec-3",
+        "kind": "narration",
+        "sectionId": "trace-the-workflow",
+        "text": "Reviewing Trace the complete workflow: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-ai-systems-and-use-cases-sec-4",
+        "kind": "narration",
+        "sectionId": "match-evaluation-to-context",
+        "text": "Reviewing Match evaluation to context: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-ai-systems-and-use-cases-sec-5",
+        "kind": "learner-prompt",
+        "sectionId": "use-case-record",
+        "text": "Reviewing Build a reviewable use-case record: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to AI Systems and Use Cases. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-ai-systems-and-use-cases-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Currency update: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-ai-systems-and-use-cases-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-ai-systems-and-use-cases-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Capability, system, and use case: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-ai-systems-and-use-cases-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Trace the complete workflow: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-ai-systems-and-use-cases-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Match evaluation to context: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-ai-systems-and-use-cases-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Build a reviewable use-case record: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "AI Systems and Use Cases architecture diagram and walkthrough."
+  }
 }

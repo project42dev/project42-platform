@@ -125,5 +125,90 @@
       "publisher": "World Wide Web Consortium",
       "lastVerified": "2026-08-21"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-agent-observability-trace",
+    "title": "Agent Observability & Trace Reconstruction Lab",
+    "instructions": [
+      "Instrument the workflow steps with correlated trace identifiers.",
+      "Execute the multi-step agent workflow and capture structured event logs.",
+      "Reconstruct the timeline of events from start to completion.",
+      "Isolate the failing step using recorded latency and status codes."
+    ],
+    "evidence": [
+      "Correlated trace event log file",
+      "Reconstructed timeline diagram"
+    ],
+    "reflectionPrompt": "Why is preserving parent step relationships critical when diagnosing concurrent branch failures?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-obs-scope",
+        "kind": "narration",
+        "sectionId": "level-and-scope",
+        "text": "Welcome to Observability for Agent Workflows. In this module, we examine how structured records provide visibility into autonomous execution."
+      },
+      {
+        "id": "cue-obs-events",
+        "kind": "narration",
+        "sectionId": "record-useful-events",
+        "text": "Record significant workflow steps as structured events preserving both execution identity and parent step references."
+      },
+      {
+        "id": "cue-obs-correlate",
+        "kind": "narration",
+        "sectionId": "correlate-work",
+        "text": "Use shared trace identity and parent links to correlate work across process boundaries."
+      },
+      {
+        "id": "cue-obs-diagnose",
+        "kind": "narration",
+        "sectionId": "reconstruct-and-diagnose",
+        "text": "Reconstruct execution sequences to locate failures, retries, and timing bottlenecks."
+      },
+      {
+        "id": "cue-obs-lab",
+        "kind": "learner-prompt",
+        "sectionId": "reconstruct-and-diagnose",
+        "text": "Now, open your terminal and trace the sample agent execution."
+      }
+    ],
+    "transcript": "Welcome to Observability for Agent Workflows. In this module, we examine how structured records provide visibility into autonomous execution. Record significant workflow steps as structured events preserving both execution identity and parent step references. Use shared trace identity and parent links to correlate work across process boundaries. Reconstruct execution sequences to locate failures, retries, and timing bottlenecks. Now, open your terminal and trace the sample agent execution.",
+    "captions": [
+      {
+        "cueId": "cue-obs-scope",
+        "startSeconds": 0,
+        "endSeconds": 15,
+        "text": "Welcome to Observability for Agent Workflows. In this module, we examine how structured records provide visibility into autonomous execution."
+      },
+      {
+        "cueId": "cue-obs-events",
+        "startSeconds": 16,
+        "endSeconds": 30,
+        "text": "Record significant workflow steps as structured events preserving both execution identity and parent step references."
+      },
+      {
+        "cueId": "cue-obs-correlate",
+        "startSeconds": 31,
+        "endSeconds": 45,
+        "text": "Use shared trace identity and parent links to correlate work across process boundaries."
+      },
+      {
+        "cueId": "cue-obs-diagnose",
+        "startSeconds": 46,
+        "endSeconds": 60,
+        "text": "Reconstruct execution sequences to locate failures, retries, and timing bottlenecks."
+      },
+      {
+        "cueId": "cue-obs-lab",
+        "startSeconds": 61,
+        "endSeconds": 600,
+        "text": "Now, open your terminal and trace the sample agent execution."
+      }
+    ],
+    "reducedMotionAlternative": "Agent observability architecture diagram and terminal session."
+  }
 }

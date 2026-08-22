@@ -132,5 +132,102 @@
       "publisher": "arXiv",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-prompt-with-purpose",
+    "title": "Prompt with Purpose Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Prompt with Purpose improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-prompt-with-purpose-sec-0",
+        "kind": "narration",
+        "sectionId": "source-correction",
+        "text": "Reviewing Source correction: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-prompt-with-purpose-sec-1",
+        "kind": "narration",
+        "sectionId": "level-and-outcome",
+        "text": "Reviewing Intermediate level and learning outcome: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-prompt-with-purpose-sec-2",
+        "kind": "narration",
+        "sectionId": "define-the-purpose",
+        "text": "Reviewing Define the purpose first: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-prompt-with-purpose-sec-3",
+        "kind": "narration",
+        "sectionId": "assemble-the-prompt",
+        "text": "Reviewing Assemble the prompt: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-prompt-with-purpose-sec-4",
+        "kind": "narration",
+        "sectionId": "worked-example",
+        "text": "Reviewing Turn a vague request into a purposeful prompt: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-prompt-with-purpose-sec-5",
+        "kind": "learner-prompt",
+        "sectionId": "test-and-revise",
+        "text": "Reviewing Test and revise systematically: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Prompt with Purpose. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-prompt-with-purpose-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Source correction: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-prompt-with-purpose-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Intermediate level and learning outcome: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-prompt-with-purpose-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Define the purpose first: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-prompt-with-purpose-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Assemble the prompt: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-prompt-with-purpose-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Turn a vague request into a purposeful prompt: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-prompt-with-purpose-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Test and revise systematically: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Prompt with Purpose architecture diagram and walkthrough."
+  }
 }

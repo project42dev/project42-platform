@@ -131,5 +131,102 @@
     }
   ],
   "reviewCadenceDays": 180,
-  "lastVerified": "2026-08-22"
+  "lastVerified": "2026-08-22",
+  "activity": {
+    "id": "activity-reliable-agent-capstone",
+    "title": "Reliable Agent Workflow Capstone Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Reliable Agent Workflow Capstone improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-reliable-agent-capstone-sec-0",
+        "kind": "narration",
+        "sectionId": "currency-update",
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-reliable-agent-capstone-sec-1",
+        "kind": "narration",
+        "sectionId": "level-and-scope",
+        "text": "Reviewing Intermediate scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-reliable-agent-capstone-sec-2",
+        "kind": "narration",
+        "sectionId": "task-contract",
+        "text": "Reviewing Define the task contract: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-reliable-agent-capstone-sec-3",
+        "kind": "narration",
+        "sectionId": "action-observation-cycle",
+        "text": "Reviewing Keep actions and observations separate: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-reliable-agent-capstone-sec-4",
+        "kind": "narration",
+        "sectionId": "validation-and-recovery",
+        "text": "Reviewing Validate and recover safely: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-reliable-agent-capstone-sec-5",
+        "kind": "learner-prompt",
+        "sectionId": "capstone-evaluation",
+        "text": "Reviewing Evaluate the completed workflow: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Reliable Agent Workflow Capstone. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-reliable-agent-capstone-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-reliable-agent-capstone-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Intermediate scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-reliable-agent-capstone-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Define the task contract: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-reliable-agent-capstone-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Keep actions and observations separate: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-reliable-agent-capstone-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Validate and recover safely: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-reliable-agent-capstone-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Evaluate the completed workflow: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Reliable Agent Workflow Capstone architecture diagram and walkthrough."
+  }
 }

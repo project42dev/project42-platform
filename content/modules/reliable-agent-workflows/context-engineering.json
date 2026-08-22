@@ -136,5 +136,90 @@
       "publisher": "arXiv",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-context-engineering",
+    "title": "Context Engineering for Reliable Agent Workflows Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Context Engineering for Reliable Agent Workflows improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-context-engineering-sec-0",
+        "kind": "narration",
+        "sectionId": "source-correction",
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-context-engineering-sec-1",
+        "kind": "narration",
+        "sectionId": "working-definition",
+        "text": "Reviewing A working definition of context engineering: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-context-engineering-sec-2",
+        "kind": "narration",
+        "sectionId": "context-pipeline",
+        "text": "Reviewing Build a context pipeline: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-context-engineering-sec-3",
+        "kind": "narration",
+        "sectionId": "failure-diagnosis",
+        "text": "Reviewing Diagnose context failures: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-context-engineering-sec-4",
+        "kind": "learner-prompt",
+        "sectionId": "review-procedure",
+        "text": "Reviewing Apply a repeatable review procedure: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Context Engineering for Reliable Agent Workflows. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-context-engineering-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-context-engineering-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing A working definition of context engineering: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-context-engineering-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Build a context pipeline: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-context-engineering-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Diagnose context failures: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-context-engineering-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Apply a repeatable review procedure: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Context Engineering for Reliable Agent Workflows architecture diagram and walkthrough."
+  }
 }

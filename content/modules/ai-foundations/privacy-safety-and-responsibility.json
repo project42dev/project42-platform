@@ -130,5 +130,90 @@
     }
   ],
   "reviewCadenceDays": 180,
-  "lastVerified": "2026-08-22"
+  "lastVerified": "2026-08-22",
+  "activity": {
+    "id": "activity-privacy-safety-and-responsibility",
+    "title": "Privacy, Safety, and Responsibility Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Privacy, Safety, and Responsibility improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-privacy-safety-and-responsibility-sec-0",
+        "kind": "narration",
+        "sectionId": "update-note",
+        "text": "Reviewing Source correction and scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-privacy-safety-and-responsibility-sec-1",
+        "kind": "narration",
+        "sectionId": "level-and-scope",
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-privacy-safety-and-responsibility-sec-2",
+        "kind": "narration",
+        "sectionId": "three-concerns",
+        "text": "Reviewing Separate privacy, safety, and responsibility: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-privacy-safety-and-responsibility-sec-3",
+        "kind": "narration",
+        "sectionId": "review-before-use",
+        "text": "Reviewing Review the task before use: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-privacy-safety-and-responsibility-sec-4",
+        "kind": "learner-prompt",
+        "sectionId": "responsible-follow-through",
+        "text": "Reviewing Document and follow through: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Privacy, Safety, and Responsibility. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-privacy-safety-and-responsibility-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Source correction and scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-privacy-safety-and-responsibility-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-privacy-safety-and-responsibility-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Separate privacy, safety, and responsibility: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-privacy-safety-and-responsibility-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Review the task before use: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-privacy-safety-and-responsibility-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Document and follow through: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Privacy, Safety, and Responsibility architecture diagram and walkthrough."
+  }
 }

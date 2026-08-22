@@ -123,5 +123,90 @@
       "publisher": "Open Container Initiative",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-evaluate-the-exact-serving-build",
+    "title": "Evaluate the Exact Serving Build Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Evaluate the Exact Serving Build improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-evaluate-the-exact-serving-build-sec-0",
+        "kind": "narration",
+        "sectionId": "currency-correction",
+        "text": "Reviewing Currency correction: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-sec-1",
+        "kind": "narration",
+        "sectionId": "intermediate-scope",
+        "text": "Reviewing Intermediate scope and terms: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-sec-2",
+        "kind": "narration",
+        "sectionId": "compare-identifiers",
+        "text": "Reviewing Compare immutable artifact identifiers: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-sec-3",
+        "kind": "narration",
+        "sectionId": "separate-identity-and-behavior",
+        "text": "Reviewing Separate identity evidence from behavior evidence: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-sec-4",
+        "kind": "learner-prompt",
+        "sectionId": "record-the-decision",
+        "text": "Reviewing Record the decision: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Evaluate the Exact Serving Build. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Currency correction: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Intermediate scope and terms: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Compare immutable artifact identifiers: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Separate identity evidence from behavior evidence: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Record the decision: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Evaluate the Exact Serving Build architecture diagram and walkthrough."
+  }
 }

@@ -136,5 +136,102 @@
       "publisher": "Google",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-scaling-failure-and-capacity-controls",
+    "title": "Scaling Failure and Capacity Controls Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Scaling Failure and Capacity Controls improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-scaling-failure-and-capacity-controls-sec-0",
+        "kind": "narration",
+        "sectionId": "update-note",
+        "text": "Reviewing Source correction: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-scaling-failure-and-capacity-controls-sec-1",
+        "kind": "narration",
+        "sectionId": "level-and-foundations",
+        "text": "Reviewing Level and foundations: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-scaling-failure-and-capacity-controls-sec-2",
+        "kind": "narration",
+        "sectionId": "from-overload-to-cascade",
+        "text": "Reviewing From overload to cascading failure: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-scaling-failure-and-capacity-controls-sec-3",
+        "kind": "narration",
+        "sectionId": "capacity-controls",
+        "text": "Reviewing Capacity controls: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-scaling-failure-and-capacity-controls-sec-4",
+        "kind": "narration",
+        "sectionId": "selecting-controls",
+        "text": "Reviewing Selecting and combining controls: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-scaling-failure-and-capacity-controls-sec-5",
+        "kind": "learner-prompt",
+        "sectionId": "evaluation",
+        "text": "Reviewing Evaluating the response: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Scaling Failure and Capacity Controls. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-scaling-failure-and-capacity-controls-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing Source correction: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-scaling-failure-and-capacity-controls-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Level and foundations: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-scaling-failure-and-capacity-controls-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing From overload to cascading failure: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-scaling-failure-and-capacity-controls-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Capacity controls: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-scaling-failure-and-capacity-controls-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Selecting and combining controls: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-scaling-failure-and-capacity-controls-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Evaluating the response: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Scaling Failure and Capacity Controls architecture diagram and walkthrough."
+  }
 }

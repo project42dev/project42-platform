@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Project 42 Portal Configuration Schema",
+  "description": "Declarative white-label branding and customization configuration for Project 42 Open-Source Platform.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "branding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "organizationName",
+        "portalTitle"
+      ],
+      "properties": {
+        "organizationName": {
+          "type": "string"
+        },
+        "portalTitle": {
+          "type": "string"
+        },
+        "portalTagline": {
+          "type": "string"
+        },
+        "logoUrl": {
+          "type": "string"
+        },
+        "faviconUrl": {
+          "type": "string"
+        },
+        "copyright": {
+          "type": "string"
+        },
+        "supportUrl": {
+          "type": "string"
+        },
+        "privacyPolicyUrl": {
+          "type": "string"
+        },
+        "termsUrl": {
+          "type": "string"
+        }
+      }
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "colorMode": {
+          "type": "string",
+          "enum": [
+            "system",
+            "dark",
+            "light"
+          ],
+          "default": "system"
+        },
+        "primaryColor": {
+          "type": "string",
+          "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
+          "default": "#0F62FE"
+        },
+        "accentColor": {
+          "type": "string",
+          "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
+          "default": "#0043CE"
+        },
+        "headerBackground": {
+          "type": "string",
+          "default": "#161616"
+        },
+        "fontFamily": {
+          "type": "string",
+          "default": "Inter, -apple-system, BlinkMacSystemFont, sans-serif"
+        }
+      }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enableFieldGuide": {
+          "type": "boolean",
+          "default": true
+        },
+        "enableVisualGuides": {
+          "type": "boolean",
+          "default": true
+        },
+        "enableKnowledgeChecks": {
+          "type": "boolean",
+          "default": true
+        },
+        "enableBadges": {
+          "type": "boolean",
+          "default": true
+        },
+        "enableTranscripts": {
+          "type": "boolean",
+          "default": true
+        },
+        "enableFeedback": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "upstreamRepo": {
+          "type": "string",
+          "default": "https://github.com/project42dev/project42-content.git"
+        },
+        "upstreamBranch": {
+          "type": "string",
+          "default": "main"
+        },
+        "customContentDir": {
+          "type": "string",
+          "default": "./custom-content"
+        }
+      }
+    }
+  }
+}

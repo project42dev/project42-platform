@@ -155,5 +155,102 @@
       "publisher": "National Institute of Standards and Technology",
       "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "activity": {
+    "id": "activity-model-incident-response-and-recovery",
+    "title": "Model Incident Response and Recovery Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Model Incident Response and Recovery improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-model-incident-response-and-recovery-sec-0",
+        "kind": "narration",
+        "sectionId": "currency-update",
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-incident-response-and-recovery-sec-1",
+        "kind": "narration",
+        "sectionId": "recognize-and-declare",
+        "text": "Reviewing Recognize and declare an incident: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-incident-response-and-recovery-sec-2",
+        "kind": "narration",
+        "sectionId": "triage-and-scope",
+        "text": "Reviewing Triage the impact and scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-incident-response-and-recovery-sec-3",
+        "kind": "narration",
+        "sectionId": "contain-the-incident",
+        "text": "Reviewing Contain while preserving options: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-incident-response-and-recovery-sec-4",
+        "kind": "narration",
+        "sectionId": "remove-causes-and-recover",
+        "text": "Reviewing Remove verified causes and recover safely: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-model-incident-response-and-recovery-sec-5",
+        "kind": "learner-prompt",
+        "sectionId": "learn-and-improve",
+        "text": "Reviewing Learn and improve: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Model Incident Response and Recovery. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-model-incident-response-and-recovery-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-incident-response-and-recovery-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Recognize and declare an incident: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-incident-response-and-recovery-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Triage the impact and scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-incident-response-and-recovery-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Contain while preserving options: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-incident-response-and-recovery-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Remove verified causes and recover safely: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-model-incident-response-and-recovery-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Learn and improve: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Model Incident Response and Recovery architecture diagram and walkthrough."
+  }
 }

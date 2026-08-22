@@ -41,7 +41,7 @@
     "generate": "node scripts/generate-catalog.mjs && node scripts/generate-training-packages.mjs",
     "training:generate": "node scripts/generate-training-packages.mjs",
     "training:check": "node scripts/generate-training-packages.mjs --check",
-    "build": "npm run generate && tsc -p tsconfig.json",
+    "build": "npm run generate && tsc -p tsconfig.json && node scripts/build-portal.mjs",
     "api:types": "wrangler types src/worker-configuration.d.ts",
     "api:check": "npm run api:types && wrangler deploy --dry-run",
     "db:migrate:local": "wrangler d1 migrations apply PROJECT42_DB --local",
@@ -58,7 +58,8 @@
     "check": "npm run audit:production && npm run training:check && npm test && npm run learning-records:measure && npm run content:freshness && npm run sources:links && npm run self-host:validate && npm run release:check",
     "audit:production": "npm audit --omit=dev --audit-level=moderate",
     "prepare": "npm run build",
-    "content:sync": "node scripts/sync-content.mjs"
+    "content:sync": "node scripts/sync-content.mjs",
+    "portal:build": "npm run generate && node scripts/build-portal.mjs"
   },
   "engines": {
     "node": ">=22"

@@ -167,5 +167,114 @@
     }
   ],
   "reviewCadenceDays": 180,
-  "lastVerified": "2026-08-21"
+  "lastVerified": "2026-08-21",
+  "activity": {
+    "id": "activity-agents-and-guardrails",
+    "title": "Agents and Guardrails Practical Lab",
+    "instructions": [
+      "Review the scenario requirements and parameters.",
+      "Execute the practical steps in your development environment.",
+      "Validate the output traces against the expected assertions.",
+      "Document conclusions and submit the result."
+    ],
+    "evidence": [
+      "Command execution output log",
+      "Verification trace results"
+    ],
+    "reflectionPrompt": "How do the core principles of Agents and Guardrails improve system predictability?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 600,
+    "cues": [
+      {
+        "id": "cue-agents-and-guardrails-sec-0",
+        "kind": "narration",
+        "sectionId": "currency-update",
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-agents-and-guardrails-sec-1",
+        "kind": "narration",
+        "sectionId": "level-and-scope",
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-agents-and-guardrails-sec-2",
+        "kind": "narration",
+        "sectionId": "agent-loop",
+        "text": "Reviewing Map the agent loop: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-agents-and-guardrails-sec-3",
+        "kind": "narration",
+        "sectionId": "policy-and-enforcement",
+        "text": "Reviewing Separate policy from enforcement: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-agents-and-guardrails-sec-4",
+        "kind": "narration",
+        "sectionId": "guardrail-boundaries",
+        "text": "Reviewing Place guardrails at control boundaries: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-agents-and-guardrails-sec-5",
+        "kind": "narration",
+        "sectionId": "testing-guardrails",
+        "text": "Reviewing Test permitted and denied behavior: Key concepts and architectural guidance."
+      },
+      {
+        "id": "cue-agents-and-guardrails-sec-6",
+        "kind": "learner-prompt",
+        "sectionId": "design-workflow",
+        "text": "Reviewing Apply the method: Key concepts and architectural guidance."
+      }
+    ],
+    "transcript": "Welcome to Agents and Guardrails. In this module, we review key concepts and practical implementations across all sections.",
+    "captions": [
+      {
+        "cueId": "cue-agents-and-guardrails-sec-0",
+        "startSeconds": 0,
+        "endSeconds": 30,
+        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-agents-and-guardrails-sec-1",
+        "startSeconds": 30,
+        "endSeconds": 60,
+        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-agents-and-guardrails-sec-2",
+        "startSeconds": 60,
+        "endSeconds": 90,
+        "text": "Reviewing Map the agent loop: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-agents-and-guardrails-sec-3",
+        "startSeconds": 90,
+        "endSeconds": 120,
+        "text": "Reviewing Separate policy from enforcement: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-agents-and-guardrails-sec-4",
+        "startSeconds": 120,
+        "endSeconds": 150,
+        "text": "Reviewing Place guardrails at control boundaries: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-agents-and-guardrails-sec-5",
+        "startSeconds": 150,
+        "endSeconds": 180,
+        "text": "Reviewing Test permitted and denied behavior: Key concepts and architectural guidance."
+      },
+      {
+        "cueId": "cue-agents-and-guardrails-sec-6",
+        "startSeconds": 180,
+        "endSeconds": 210,
+        "text": "Reviewing Apply the method: Key concepts and architectural guidance."
+      }
+    ],
+    "reducedMotionAlternative": "Agents and Guardrails architecture diagram and walkthrough."
+  }
 }

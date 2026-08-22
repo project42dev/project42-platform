@@ -1,0 +1,35 @@
+stages:
+  - sync
+  - build
+  - deploy
+
+# Scheduled Weekly Content Synchronization
+content_sync:
+  stage: sync
+  image: node:22-alpine
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+  before_script:
+    - apk add --no-cache git
+  script:
+    - npm ci
+    - npm run content:sync
+    - npm test
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+
+pages:
+  stage: deploy
+  image: alpine:latest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  script:
+    - mkdir -p public
+    - cp -r dist/portal/* public/
+  artifacts:
+    paths:
+      - public
