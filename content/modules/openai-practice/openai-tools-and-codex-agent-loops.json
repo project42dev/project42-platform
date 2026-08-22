@@ -1,300 +1,137 @@
 {
   "id": "openai-tools-and-codex-agent-loops",
-  "title": "Build Bounded OpenAI Tool and Codex Agent Loops",
-  "summary": "Connect OpenAI models to built-in and custom tools through narrow schemas, matched call results, enforced authority, explicit budgets, approvals, sandbox boundaries, and verified side effects.",
-  "level": "advanced",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-25",
+  "title": "OpenAI Tools and Codex Agent Loops",
+  "summary": "This intermediate-level module teaches you to structure, supervise, and evaluate a tool-using Codex workflow as a repeatable agent loop. After completing it, you can define boundaries, interpret tool results, decide whether another action is justified, and stop the loop safely.",
+  "level": "intermediate",
   "providers": [
     "openai"
   ],
-  "estimatedMinutes": 62,
+  "estimatedMinutes": 25,
   "objectives": [
-    "Distinguish provider-hosted built-in tools from application-executed function tools.",
-    "Define strict, narrow function schemas and match calls to results with call identifiers.",
-    "Enforce identity, authorization, approval, idempotency, postconditions, and recovery outside the model.",
-    "Bound Codex and other agent loops with sandbox, approval, budget, cancellation, and terminal-state controls."
+    "Describe the roles of objectives, actions, observations, evaluation, and stopping conditions in a supervised agent loop.",
+    "Set explicit boundaries and success criteria before asking Codex to act.",
+    "Evaluate a tool result and decide whether to continue, revise the approach, or stop.",
+    "Distinguish a conceptual supervision model from unsupported claims about Codex implementation details."
   ],
-  "prerequisites": [
-    "openai-responses-api-and-sdk-workflows"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "tools-have-execution-owners",
-      "title": "Tools have execution owners",
+      "id": "source-correction",
+      "title": "Source correction and scope",
       "paragraphs": [
-        "The Responses API can expose built-in tools operated through OpenAI and custom function tools executed by your application. A custom function call is a structured proposal: your code validates, authorizes, runs, and returns the result. The model does not secretly execute your business operation. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Identify the execution owner for every tool. Ownership determines credentials, network access, data handling, billing, failure semantics, audit evidence, and who verifies a side effect. Review current provider behavior before enabling a hosted tool with external access. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Tools have execution owners (Code Implementation)",
-        "code": "import OpenAI from \"openai\";\n\nconst client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\n\nconst completion = await client.chat.completions.create({\n  model: \"gpt-4o\",\n  messages: [{ role: \"user\", content: \"Evaluate architectural invariants and error modes.\" }],\n  response_format: { type: \"json_object\" }\n});\nconsole.log(completion.choices[0].message.content);"
-      }
+        "The cited source changed from the unverified local path content/modules/openai-practice/openai-tools-and-codex-agent-loops.json to the official OpenAI Codex repository listed in the sources field. This change affected the module's citation basis and the scope of its product claims.",
+        "The corrected module identifies Codex as an OpenAI coding agent, consistent with the official repository. Version-specific commands, configuration keys, and undocumented internal implementation details are omitted because the replaced citation did not establish them.",
+        "The loop presented below is a conceptual model for supervising tool-using work. It helps a learner reason about the interaction without claiming that it reproduces Codex's private internal process."
+      ]
     },
     {
-      "id": "define-narrow-strict-functions",
-      "title": "Define narrow, strict functions",
+      "id": "level-and-foundation",
+      "title": "Intermediate-level foundation",
       "paragraphs": [
-        "Give each function one legible purpose, a precise name and description, constrained properties, required fields, and no unrecognized properties. Prefer a small operation-specific function over a generic shell, HTTP, SQL, or arbitrary-command interface. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Strict schema conformance reduces malformed arguments but does not establish user intent or authority. Treat arguments as untrusted, resolve the acting identity server-side, authorize the exact resource and operation, apply business rules, and reject unknown scope before execution. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Narrow Responses API function tool",
-        "code": "{\n  \"type\": \"function\",\n  \"name\": \"set_training_status\",\n  \"description\": \"Set one learner module to an allowed status after authorization.\",\n  \"strict\": true,\n  \"parameters\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"learnerId\": { \"type\": \"string\" },\n      \"moduleId\": { \"type\": \"string\" },\n      \"status\": { \"type\": \"string\", \"enum\": [\"not-started\", \"in-progress\", \"completed\"] },\n      \"operationId\": { \"type\": \"string\" }\n    },\n    \"required\": [\"learnerId\", \"moduleId\", \"status\", \"operationId\"],\n    \"additionalProperties\": false\n  }\n}"
-      }
+        "This is an intermediate-level module. It assumes that you can describe a coding task, read ordinary command or file-operation results, and recognize whether an observed result matches an intended outcome. It does not assume knowledge of agent internals or provider configuration.",
+        "In this module, a tool is an externally executed capability that returns an observable result. An agent loop is a repeated workflow in which an objective guides an action, the action produces an observation, and that observation informs the next decision."
+      ]
     },
     {
-      "id": "match-calls-results-and-state",
-      "title": "Match calls, results, and loop state",
+      "id": "loop-stages",
+      "title": "Stages of a supervised agent loop",
       "paragraphs": [
-        "Inspect response.output for function_call items, parse their arguments as untrusted data, and preserve each call_id. Return a function_call_output with the matching call_id so the next response can associate evidence with the correct request. Handle multiple calls without depending on array position. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Drive the loop through explicit states: model response, validation, authorization, approval, execution, result return, postcondition verification, and terminal outcome. Bound model turns, tool calls, elapsed time, tokens, cost, consecutive failures, and parallel work; include cancellation and human escalation. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "Start with an objective that states the desired outcome. Add boundaries that identify what may be changed, what must remain untouched, and what evidence will count as success. A vague objective makes later observations difficult to evaluate.",
+        "Next, let the agent select a bounded action. The action should advance the objective while remaining within the stated limits. Treat the returned output as an observation rather than as proof that the task is complete.",
+        "Evaluate the observation against the objective and boundaries. If it provides the required evidence and reveals no unresolved failure, stop successfully. If progress is possible but the approach needs adjustment, revise the next action. If a boundary would be crossed or safe progress is no longer possible, stop without continuing.",
+        "The resulting cycle is objective, bounded action, observation, evaluation, and either another action or a stop decision. Human supervision matters at the evaluation point because plausible output can still be incomplete, irrelevant, or inconsistent with the task."
       ],
-      "code": {
-        "language": "typescript",
-        "label": "Match calls, results, and loop state (Code Implementation)",
-        "code": "import OpenAI from \"openai\";\n\nconst client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\n\nconst completion = await client.chat.completions.create({\n  model: \"gpt-4o\",\n  messages: [{ role: \"user\", content: \"Evaluate architectural invariants and error modes.\" }],\n  response_format: { type: \"json_object\" }\n});\nconsole.log(completion.choices[0].message.content);"
-      }
+      "callout": "A completed action is not the same as a completed objective. Stop only when the stated success evidence has been observed."
     },
     {
-      "id": "enforce-tool-side-effect-safety",
-      "title": "Enforce side-effect safety outside the model",
+      "id": "planning-boundaries",
+      "title": "Define boundaries before acting",
       "paragraphs": [
-        "Separate reads, reversible writes, communications, privileged changes, and destructive operations. Require fresh approval where policy demands it, pass the authenticated principal independently of model arguments, use operation identifiers or idempotency keys, and log the authorization decision. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "A handler returning success is not proof that the desired external postcondition holds. Verify the system of record. If a timeout occurs after a write may have been accepted, mark the outcome unknown and reconcile before retrying, compensating, rolling back, or telling the user it completed. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "callout": "Prompt instructions can guide behavior; only the surrounding system can enforce authority and side-effect policy.",
-      "code": {
-        "language": "typescript",
-        "label": "Enforce side-effect safety outside the model (Code Implementation)",
-        "code": "import OpenAI from \"openai\";\n\nconst client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\n\nconst completion = await client.chat.completions.create({\n  model: \"gpt-4o\",\n  messages: [{ role: \"user\", content: \"Evaluate architectural invariants and error modes.\" }],\n  response_format: { type: \"json_object\" }\n});\nconsole.log(completion.choices[0].message.content);"
-      }
+        "A useful task statement names the target outcome, the permitted scope, the evidence required for completion, and conditions that require a pause. For example, a learner might permit inspection of relevant project material while requiring approval before any destructive or out-of-scope action.",
+        "Boundaries reduce ambiguity during evaluation. When an observation shows that the requested outcome would require work outside the permitted scope, the correct response is to pause and request a decision rather than silently expanding the task.",
+        "Success criteria should be observable. Replace a general instruction such as make it work with criteria that can be checked, such as preserving specified behavior and producing evidence that the requested correction is present."
+      ]
     },
     {
-      "id": "bound-codex-and-agent-autonomy",
-      "title": "Bound Codex and agent autonomy",
+      "id": "evaluate-observations",
+      "title": "Evaluate observations and choose the next step",
       "paragraphs": [
-        "For Codex, treat sandbox mode and approval policy as enforceable execution boundaries. Start with the least filesystem, network, credential, and command authority that can complete the task. Review the proposed command and target before expanding access, and never treat a model's confidence as approval. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Use a deterministic workflow when steps and branches are known. Use a bounded agent when observations and tool results make the path impractical to enumerate. Add autonomy only when evaluations justify it, with explicit objectives, allowed tools and scope, budgets, checkpoints, rollback, audit, and terminal states such as completed, needs approval, refused, failed safely, budget exceeded, cancelled, and outcome unknown."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Bound Codex and agent autonomy (Code Implementation)",
-        "code": "import OpenAI from \"openai\";\n\nconst client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\n\nconst completion = await client.chat.completions.create({\n  model: \"gpt-4o\",\n  messages: [{ role: \"user\", content: \"Evaluate architectural invariants and error modes.\" }],\n  response_format: { type: \"json_object\" }\n});\nconsole.log(completion.choices[0].message.content);"
-      }
+        "Classify each observation by asking three questions. Did the action produce evidence relevant to the objective? Did it remain within the boundaries? Does any failure or uncertainty remain unresolved?",
+        "Continue when the observation shows useful but incomplete progress and another bounded action can gather the missing evidence. Revise the approach when the action failed, addressed the wrong target, or produced ambiguous output. Stop when the success criteria are met, when a boundary blocks further work, or when continuing would repeat actions without adding evidence.",
+        "When an observation is unclear, do not convert uncertainty into a claim of success. Record what remains UNKNOWN and seek a bounded way to resolve it. If no supported way exists, stop and report the uncertainty."
+      ]
+    },
+    {
+      "id": "worked-trace",
+      "title": "Trace a loop without assuming hidden internals",
+      "paragraphs": [
+        "Consider a task to correct one documented behavior while leaving unrelated material unchanged. The objective is the specific correction, the boundary is the unchanged surrounding material, and the success evidence is a reviewable result showing only the required correction.",
+        "After the first action, inspect the observation. If it shows that unrelated material also changed, the loop should not declare success. The next decision should restore the boundary or pause if that cannot be done safely.",
+        "If the next observation shows the requested correction, no unrelated changes, and no unresolved failure, the success criteria are satisfied and the loop can stop. This reasoning is available from the visible task and observations, so it does not require access to hidden model reasoning or undocumented Codex internals."
+      ]
     }
   ],
-  "activity": {
-    "id": "activity-openai-bounded-tool-loop",
-    "title": "Implement and attack a bounded OpenAI tool loop",
-    "instructions": [
-      "Define one read function and one reversible write function with strict schemas, authenticated identity, exact resource authorization, operation identifiers, documented result contracts, and no arbitrary execution fields.",
-      "Implement or diagram a Responses API loop that matches every function_call to function_call_output by call_id and reaches explicit completion, approval, refusal, failure, cancellation, budget, or unknown-outcome states.",
-      "Test malformed JSON, excess arguments, unauthorized scope, duplicate operation identifier, rejected approval, mismatched call_id, tool timeout after a possible write, malicious tool output, and maximum-turn exhaustion.",
-      "Compare a deterministic workflow with the bounded agent and defend the release choice using quality, risk, latency, cost, recovery, sandbox, and approval evidence."
-    ],
-    "evidence": [
-      "Two secret-free function contracts plus loop, identity, authorization, approval, idempotency, sandbox, budget, postcondition, and reconciliation implementation or design evidence.",
-      "A passing adversarial report and a workflow-versus-agent decision linked to measurable release requirements and explicit residual risks."
-    ],
-    "reflectionPrompt": "Which control still blocks an unauthorized write if the model chooses the correct tool with convincing but attacker-supplied arguments?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 1860,
-    "cues": [
-      {
-        "id": "cue-openai-tools-owner",
-        "kind": "narration",
-        "sectionId": "tools-have-execution-owners",
-        "text": "Identify whether OpenAI or your application executes each tool because ownership determines credentials, data controls, failures, audit evidence, and side-effect verification."
-      },
-      {
-        "id": "cue-openai-tools-schema",
-        "kind": "narration",
-        "sectionId": "define-narrow-strict-functions",
-        "text": "Use narrow strict function schemas, then independently validate arguments, identity, resource authority, operation, and business rules."
-      },
-      {
-        "id": "cue-openai-tools-loop",
-        "kind": "narration",
-        "sectionId": "match-calls-results-and-state",
-        "text": "Match every function call and output by call identifier while an explicit state machine enforces turns, tools, time, tokens, cost, failures, and cancellation."
-      },
-      {
-        "id": "cue-openai-tools-safety",
-        "kind": "narration",
-        "sectionId": "enforce-tool-side-effect-safety",
-        "text": "Enforce approvals and idempotency outside the model, verify postconditions, and reconcile unknown write outcomes before another action."
-      },
-      {
-        "id": "cue-openai-tools-codex",
-        "kind": "narration",
-        "sectionId": "bound-codex-and-agent-autonomy",
-        "text": "Treat Codex sandbox and approval policy as execution boundaries and add agent autonomy only when evaluation evidence justifies bounded access."
-      },
-      {
-        "id": "cue-openai-tools-visual",
-        "kind": "visual",
-        "sectionId": "match-calls-results-and-state",
-        "text": "Move one call through typed output, parsing, authorization, approval, execution, matched result, postcondition, and bounded terminal states.",
-        "accessibilityAlternative": "A static state table lists typed output, parsing, authorization, approval, execution, call-identifier match, postcondition, and each terminal state with transition conditions."
-      },
-      {
-        "id": "cue-openai-tools-question",
-        "kind": "learner-prompt",
-        "sectionId": "enforce-tool-side-effect-safety",
-        "text": "Ask learners why a strict schema cannot authorize a learner to change another person's transcript."
-      },
-      {
-        "id": "cue-openai-tools-pause",
-        "kind": "pause",
-        "sectionId": "bound-codex-and-agent-autonomy",
-        "text": "Allow three minutes to remove one unnecessary permission and replace one agent decision with a deterministic branch."
-      },
-      {
-        "id": "cue-openai-tools-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "bound-codex-and-agent-autonomy",
-        "text": "Check that no loop is unbounded, no model argument grants authority, and no write is complete without a verified postcondition."
-      },
-      {
-        "id": "cue-openai-tools-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the function contracts, call matching, state machine, adversarial cases, sandbox policy, and release decision."
-      },
-      {
-        "id": "cue-openai-tools-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can defend execution ownership, schemas, authority, call matching, side-effect recovery, and bounded Codex autonomy."
-      }
-    ],
-    "transcript": "Identify whether OpenAI or your application executes each tool because ownership determines credentials, data controls, failures, audit evidence, and side-effect verification. Use narrow strict function schemas, then independently validate arguments, identity, resource authority, operation, and business rules. Match every function call and output by call identifier while an explicit state machine enforces turns, tools, time, tokens, cost, failures, and cancellation. Enforce approvals and idempotency outside the model, verify postconditions, and reconcile unknown write outcomes before another action. Treat Codex sandbox and approval policy as execution boundaries and add agent autonomy only when evaluation evidence justifies bounded access.",
-    "captions": [
-      {
-        "cueId": "cue-openai-tools-owner",
-        "startSeconds": 0,
-        "endSeconds": 340,
-        "text": "Identify whether OpenAI or your application executes each tool because ownership determines credentials, data controls, failures, audit evidence, and side-effect verification."
-      },
-      {
-        "cueId": "cue-openai-tools-schema",
-        "startSeconds": 370,
-        "endSeconds": 710,
-        "text": "Use narrow strict function schemas, then independently validate arguments, identity, resource authority, operation, and business rules."
-      },
-      {
-        "cueId": "cue-openai-tools-loop",
-        "startSeconds": 740,
-        "endSeconds": 1100,
-        "text": "Match every function call and output by call identifier while an explicit state machine enforces turns, tools, time, tokens, cost, failures, and cancellation."
-      },
-      {
-        "cueId": "cue-openai-tools-safety",
-        "startSeconds": 1130,
-        "endSeconds": 1460,
-        "text": "Enforce approvals and idempotency outside the model, verify postconditions, and reconcile unknown write outcomes before another action."
-      },
-      {
-        "cueId": "cue-openai-tools-codex",
-        "startSeconds": 1490,
-        "endSeconds": 1830,
-        "text": "Treat Codex sandbox and approval policy as execution boundaries and add agent autonomy only when evaluation evidence justifies bounded access."
-      }
-    ],
-    "reducedMotionAlternative": "Use a static function-call sequence and sandbox-authority matrix with focus highlighting instead of animated execution."
-  },
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 75,
     "questions": [
       {
-        "id": "q-openai-tools-1",
-        "prompt": "Who executes a custom function tool requested by an OpenAI model?",
+        "id": "openai-tools-and-codex-agent-loops-objective-before-action",
+        "prompt": "What should be established before the first action in the supervised loop described by this module?",
         "choices": [
-          "The application that defined and exposed the function",
-          "The model without application code",
-          "The learner's browser in every deployment",
-          "No execution owner is required"
+          "An objective, boundaries, and observable success criteria",
+          "A guarantee that every action will succeed",
+          "An undocumented account of the agent's internal process",
+          "Permission to expand the task whenever useful"
         ],
         "answerIndex": 0,
-        "explanation": "The model proposes a structured function call; the application validates, authorizes, executes, and returns its result."
+        "explanation": "The module says to begin with an objective, boundaries, and evidence that will count as success."
       },
       {
-        "id": "q-openai-tools-2",
-        "prompt": "What does strict schema conformance prove?",
+        "id": "openai-tools-and-codex-agent-loops-observation-meaning",
+        "prompt": "How should a returned tool result be treated?",
         "choices": [
-          "The caller is authorized",
-          "The arguments conform to the declared shape, not that the action is authorized",
-          "The postcondition succeeded",
-          "A human approved the operation"
+          "As automatic proof that the objective is complete",
+          "As an observation to evaluate against the objective and boundaries",
+          "As permission to ignore the original scope",
+          "As a reason to repeat the same action indefinitely"
         ],
         "answerIndex": 1,
-        "explanation": "Identity, authorization, approval, business rules, and postconditions remain application responsibilities."
+        "explanation": "A completed action produces an observation. The observation must still be evaluated before the loop continues or stops."
       },
       {
-        "id": "q-openai-tools-3",
-        "prompt": "How should the application associate a function result with its request?",
+        "id": "openai-tools-and-codex-agent-loops-boundary-response",
+        "prompt": "What should happen when further progress would require crossing a stated boundary?",
         "choices": [
-          "By array position only",
-          "By model name",
-          "By returning function_call_output with the matching call_id",
-          "By putting the API key in the output"
+          "The agent should silently widen the scope",
+          "The loop should report success immediately",
+          "The work should pause for a decision rather than crossing the boundary",
+          "The same action should be repeated without review"
         ],
         "answerIndex": 2,
-        "explanation": "call_id preserves the explicit relationship even when several calls are present."
+        "explanation": "The module instructs the learner to pause and request a decision when progress would require work outside the permitted scope."
       },
       {
-        "id": "q-openai-tools-4",
-        "prompt": "A write times out after the target may have accepted it. What is the correct next state?",
+        "id": "openai-tools-and-codex-agent-loops-stop-condition",
+        "prompt": "When is a successful stop justified?",
         "choices": [
-          "Completed",
-          "Confirmed failure",
-          "Immediate unchanged retry",
-          "Outcome unknown pending reconciliation"
+          "When any action produces output",
+          "When the success criteria are met and no relevant failure remains unresolved",
+          "When the task description is vague",
+          "When an observation is still UNKNOWN"
         ],
-        "answerIndex": 3,
-        "explanation": "The system of record must be checked before repeat, compensation, rollback, or a completion claim."
-      },
-      {
-        "id": "q-openai-tools-5",
-        "prompt": "What should govern Codex command execution?",
-        "choices": [
-          "The model's confidence",
-          "A friendly prompt only",
-          "Least-authority sandbox and approval policy plus explicit task scope and verification",
-          "Unlimited filesystem and network access by default"
-        ],
-        "answerIndex": 2,
-        "explanation": "Enforceable sandbox and approval boundaries constrain execution independently of model behavior."
+        "answerIndex": 1,
+        "explanation": "The loop stops successfully only after observable evidence satisfies the stated criteria and no relevant unresolved failure remains."
       }
     ]
   },
+  "reviewCadenceDays": 90,
+  "lastVerified": "2026-08-22",
   "sources": [
     {
-      "title": "Function calling",
-      "url": "https://developers.openai.com/api/docs/guides/function-calling",
+      "title": "OpenAI Codex official repository",
+      "url": "https://github.com/openai/codex",
       "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Safety best practices",
-      "url": "https://developers.openai.com/api/docs/guides/safety-best-practices",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Model guidance",
-      "url": "https://developers.openai.com/api/docs/guides/latest-model",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Agent approvals and security",
-      "url": "https://developers.openai.com/codex/agent-approvals-security",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
+      "lastVerified": "2026-08-22"
     }
   ]
 }
