@@ -4,6 +4,48 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.90.0] - 2026-08-22
+
+### Changed
+
+- `content/modules/ai-foundations/agents-and-guardrails.json`
+- `content/modules/ai-foundations/ai-foundations-capstone.json`
+- `content/modules/ai-foundations/ai-systems-and-use-cases.json`
+- `content/modules/ai-foundations/coding-and-analysis-workflow.json`
+- `content/modules/ai-foundations/context-and-evidence-construction.json`
+- `content/modules/ai-foundations/context-tokens-and-modalities.json`
+- `content/modules/ai-foundations/examples-and-output-contracts.json`
+- `content/modules/ai-foundations/language-models-and-generation.json`
+- `content/modules/ai-foundations/privacy-safety-and-responsibility.json`
+- `content/modules/ai-foundations/prompt-anatomy-and-success-criteria.json`
+- `content/modules/ai-foundations/prompt-with-purpose.json`
+- `content/modules/ai-foundations/research-with-evidence.json`
+- `content/modules/ai-foundations/safe-tool-use-workflow.json`
+- `content/modules/ai-foundations/verification-and-iterative-improvement.json`
+- `content/modules/ai-foundations/writing-and-transformation-workflow.json`
+- `content/modules/reliable-agent-workflows/agent-evaluation.json`
+- `content/modules/reliable-agent-workflows/agent-observability.json`
+- `content/modules/reliable-agent-workflows/context-engineering.json`
+- `content/modules/reliable-agent-workflows/mcp-architecture.json`
+- `content/modules/reliable-agent-workflows/mcp-trust-and-security.json`
+- `content/modules/reliable-agent-workflows/memory-boundaries.json`
+- `content/modules/reliable-agent-workflows/multi-agent-handoffs.json`
+- `content/modules/reliable-agent-workflows/orchestration-patterns.json`
+- `content/modules/reliable-agent-workflows/reliable-agent-capstone.json`
+- `content/modules/self-hosted-model-operations/deployment-shape-and-operating-model.json`
+- `content/modules/self-hosted-model-operations/endpoint-identity-network-and-secrets.json`
+- `content/modules/self-hosted-model-operations/evaluate-the-exact-serving-build.json`
+- `content/modules/self-hosted-model-operations/hardware-runtime-and-capacity-planning.json`
+- `content/modules/self-hosted-model-operations/model-artifact-integrity.json`
+- `content/modules/self-hosted-model-operations/model-identity-license-and-provenance.json`
+- `content/modules/self-hosted-model-operations/model-incident-response-and-recovery.json`
+- `content/modules/self-hosted-model-operations/model-update-and-rollback-lifecycle.json`
+- `content/modules/self-hosted-model-operations/observability-cost-and-performance.json`
+- `content/modules/self-hosted-model-operations/scaling-failure-and-capacity-controls.json`
+- `content/modules/self-hosted-model-operations/self-hosted-model-operations-capstone.json`
+- `content/modules/self-hosted-model-operations/serving-api-and-compatibility-contracts.json`
+- `content/training/coverage.json`
+
 ## [0.89.0] - 2026-08-22
 
 ### Changed

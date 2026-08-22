@@ -1,3 +1,67 @@
+# Project 42 platform v0.90.0
+
+Version 0.90.0 was cut by the Orchard release role from everything merged into `main` since v0.89.0. It exists so that content already merged into the platform repository reaches the sites that consume the platform package.
+
+## Content
+
+Changed:
+
+
+
+- `content/modules/ai-foundations/agents-and-guardrails.json`
+- `content/modules/ai-foundations/ai-foundations-capstone.json`
+- `content/modules/ai-foundations/ai-systems-and-use-cases.json`
+- `content/modules/ai-foundations/coding-and-analysis-workflow.json`
+- `content/modules/ai-foundations/context-and-evidence-construction.json`
+- `content/modules/ai-foundations/context-tokens-and-modalities.json`
+- `content/modules/ai-foundations/examples-and-output-contracts.json`
+- `content/modules/ai-foundations/language-models-and-generation.json`
+- `content/modules/ai-foundations/privacy-safety-and-responsibility.json`
+- `content/modules/ai-foundations/prompt-anatomy-and-success-criteria.json`
+- `content/modules/ai-foundations/prompt-with-purpose.json`
+- `content/modules/ai-foundations/research-with-evidence.json`
+- `content/modules/ai-foundations/safe-tool-use-workflow.json`
+- `content/modules/ai-foundations/verification-and-iterative-improvement.json`
+- `content/modules/ai-foundations/writing-and-transformation-workflow.json`
+- `content/modules/reliable-agent-workflows/agent-evaluation.json`
+- `content/modules/reliable-agent-workflows/agent-observability.json`
+- `content/modules/reliable-agent-workflows/context-engineering.json`
+- `content/modules/reliable-agent-workflows/mcp-architecture.json`
+- `content/modules/reliable-agent-workflows/mcp-trust-and-security.json`
+- `content/modules/reliable-agent-workflows/memory-boundaries.json`
+- `content/modules/reliable-agent-workflows/multi-agent-handoffs.json`
+- `content/modules/reliable-agent-workflows/orchestration-patterns.json`
+- `content/modules/reliable-agent-workflows/reliable-agent-capstone.json`
+- `content/modules/self-hosted-model-operations/deployment-shape-and-operating-model.json`
+- `content/modules/self-hosted-model-operations/endpoint-identity-network-and-secrets.json`
+- `content/modules/self-hosted-model-operations/evaluate-the-exact-serving-build.json`
+- `content/modules/self-hosted-model-operations/hardware-runtime-and-capacity-planning.json`
+- `content/modules/self-hosted-model-operations/model-artifact-integrity.json`
+- `content/modules/self-hosted-model-operations/model-identity-license-and-provenance.json`
+- `content/modules/self-hosted-model-operations/model-incident-response-and-recovery.json`
+- `content/modules/self-hosted-model-operations/model-update-and-rollback-lifecycle.json`
+- `content/modules/self-hosted-model-operations/observability-cost-and-performance.json`
+- `content/modules/self-hosted-model-operations/scaling-failure-and-capacity-controls.json`
+- `content/modules/self-hosted-model-operations/self-hosted-model-operations-capstone.json`
+- `content/modules/self-hosted-model-operations/serving-api-and-compatibility-contracts.json`
+- `content/training/coverage.json`
+
+## Migrations
+
+No file under `migrations/` was added or changed since v0.89.0.
+
+## Breaking changes
+
+Orchard does not classify breaking changes. Review the file list above, and the diff for this tag, before approving the release environment.
+
+## Known limitations
+
+None are recorded by the automation that cut this release. It reports what changed; it does not assess it.
+
+## Rollback
+
+Revert consuming sites to v0.89.0.
+
 # Project 42 platform v0.89.0
 
 Version 0.89.0 was cut by the Orchard release role from everything merged into `main` since v0.88.0. It exists so that content already merged into the platform repository reaches the sites that consume the platform package.
