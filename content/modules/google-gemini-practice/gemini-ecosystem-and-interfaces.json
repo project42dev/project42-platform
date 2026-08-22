@@ -1,300 +1,112 @@
 {
   "id": "gemini-ecosystem-and-interfaces",
-  "title": "Navigate the Gemini Ecosystem and Interfaces",
-  "summary": "Distinguish Gemini Apps, Google AI Studio, the Gemini API, models, SDKs, and hosted capabilities so each task begins on the right surface with current evidence.",
+  "title": "Gemini Ecosystem and Interfaces",
+  "summary": "This intermediate-level module enables learners to distinguish an interactive browser workspace from programmatic access to Gemini. After completing it, learners can select an interface that fits experimentation or application integration and explain the resulting workflow.",
   "level": "intermediate",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-25",
   "providers": [
     "google"
   ],
-  "estimatedMinutes": 48,
+  "estimatedMinutes": 20,
   "objectives": [
-    "Distinguish Gemini Apps, Google AI Studio, the Gemini API, models, SDKs, and application code.",
-    "Choose a surface by user, repeatability, integration, data, authority, and evidence needs.",
-    "Verify current model, feature, account, region, and lifecycle claims from official Google sources.",
-    "Move a prototype toward code without copying credentials, hidden state, or untested assumptions."
+    "Distinguish the role of Google AI Studio from the role of the Gemini API.",
+    "Choose an appropriate Gemini interface for interactive experimentation or application integration.",
+    "Describe the basic boundary between an application and the Gemini API without relying on model-specific details.",
+    "Explain what changed in this source-currency update and what instructional material it affected."
   ],
-  "prerequisites": [
-    "ai-foundations-capstone"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "separate-products-interfaces-and-models",
-      "title": "Separate products, interfaces, and models",
+      "id": "level-and-scope",
+      "title": "Level and scope",
       "paragraphs": [
-        "Gemini is used across several Google products and developer surfaces. Gemini Apps provide end-user conversational experiences. Google AI Studio supports prompt and capability experimentation and can produce starter code. The Gemini API and Google Gen AI SDKs let an application send requests under code-controlled contracts. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "A product, interface, API, SDK, and model are different layers. A feature visible in a Gemini App is not automatically an API capability, and an AI Studio experiment is not automatically production code. Record the exact surface, account context, model identifier, configuration, and date when behavior matters. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "callout": "Saying “Gemini supports it” is incomplete until the product, interface, model, account, and date are named.",
-      "code": {
-        "language": "typescript",
-        "label": "Separate products, interfaces, and models (Code Implementation)",
-        "code": "import { GoogleGenAI } from \"@google/genai\";\n\nconst ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\nconst response = await ai.models.generateContent({\n  model: \"gemini-2.5-flash\",\n  contents: \"Demonstrate structured output extraction with schema enforcement.\"\n});\nconsole.log(response.text);"
-      }
+        "This is an intermediate module. It assumes familiarity with writing prompts and with the basic idea that an application can send a request to an external service and receive a response. No catalogue prerequisite is required, and the module explains the relevant interface choices without assuming knowledge of a particular programming language, model, software library, or configuration key.",
+        "In this module, an interface means the point through which a person or an application interacts with Gemini. The interface choice changes how work is tested, integrated, and operated."
+      ]
     },
     {
-      "id": "choose-the-surface-by-outcome",
-      "title": "Choose the surface by outcome",
+      "id": "interactive-interface",
+      "title": "Interactive experimentation",
       "paragraphs": [
-        "Use a Gemini App for interactive end-user work where its product controls meet the task. Use Google AI Studio to explore prompts, settings, and supported capabilities. Use the API when software needs repeatable inputs, structured handling, application-owned validation, integration, or operational evidence. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Choose from the learner's outcome, data classification, audience, accessibility, authentication, connected data, tool authority, repeatability, scale, latency, cost, audit, and recovery requirements—not from a feature checklist alone. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Choose the surface by outcome (Code Implementation)",
-        "code": "import { GoogleGenAI } from \"@google/genai\";\n\nconst ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\nconst response = await ai.models.generateContent({\n  model: \"gemini-2.5-flash\",\n  contents: \"Demonstrate structured output extraction with schema enforcement.\"\n});\nconsole.log(response.text);"
-      }
+        "Google AI Studio is a browser-based environment for experimenting with Gemini. A learner can use it to try instructions and inputs interactively, inspect results, and refine a prompt before deciding how an application should use it.",
+        "This interface is appropriate when the immediate task is exploration. It reduces the need to build an application before testing whether an instruction and its context produce useful results. An interactive result is still evidence from a test, not a guarantee that an integrated application will behave identically under every input."
+      ]
     },
     {
-      "id": "understand-ai-studio-prototypes",
-      "title": "Treat AI Studio as a prototype boundary",
+      "id": "programmatic-interface",
+      "title": "Programmatic access",
       "paragraphs": [
-        "Google AI Studio can run conversational prompts, expose run settings, enable supported tools, and generate starter code. It is useful for learning a request shape and comparing prompt versions, but saved prompts and generated snippets still require review. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Before moving to an application, extract system instructions, messages, model and generation settings, tools, safety settings, expected output, and evaluation cases. Replace embedded keys with an environment or managed-secret boundary and verify error, privacy, retention, and retry behavior. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Treat AI Studio as a prototype boundary (Code Implementation)",
-        "code": "import { GoogleGenAI } from \"@google/genai\";\n\nconst ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\nconst response = await ai.models.generateContent({\n  model: \"gemini-2.5-flash\",\n  contents: \"Demonstrate structured output extraction with schema enforcement.\"\n});\nconsole.log(response.text);"
-      }
+        "The Gemini API is the programmatic interface. An application sends input in a request and receives a response that the application can process. This boundary lets developers place Gemini within a larger workflow, such as accepting user input, applying application logic, handling a response, and presenting or storing an output.",
+        "Programmatic integration adds responsibilities that an isolated interactive test does not settle. The application must determine what input to send, how to handle unsuccessful requests or unsuitable responses, and how the returned material may be used. Specific model choices, software libraries, credential procedures, limits, and configuration details are intentionally omitted because they are not established by the supplied material for this correction."
+      ]
     },
     {
-      "id": "treat-model-choice-as-configuration",
-      "title": "Treat model choice as configuration",
+      "id": "choosing-an-interface",
+      "title": "Choosing an interface",
       "paragraphs": [
-        "Gemini model families, aliases, previews, capabilities, limits, and lifecycle states change. Select a model for measured quality, modalities, tool support, latency, cost, availability, and risk, then keep the identifier and model-specific settings in reviewed configuration. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Verify current status from the official model catalog and the documentation for the exact API surface. Preview or experimental labels require stronger change monitoring and rollback; a consumer-product model name should not be assumed to equal an API model identifier. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "Choose Google AI Studio when the main goal is to explore prompts and inspect results interactively. Choose the Gemini API when software must send requests and use responses as part of an application workflow.",
+        "These interfaces can support different stages of one workflow. Interactive experimentation can help clarify the desired behavior, while programmatic access can place that behavior inside an application. Moving from experimentation to integration requires testing in the application context because application inputs, error handling, and output use are part of the integrated system."
       ],
-      "code": {
-        "language": "typescript",
-        "label": "Treat model choice as configuration (Code Implementation)",
-        "code": "import { GoogleGenAI } from \"@google/genai\";\n\nconst ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\nconst response = await ai.models.generateContent({\n  model: \"gemini-2.5-flash\",\n  contents: \"Demonstrate structured output extraction with schema enforcement.\"\n});\nconsole.log(response.text);"
-      }
+      "callout": "Interface selection is a workflow decision. Interactive experimentation supports exploration, while the Gemini API supports application integration."
     },
     {
-      "id": "start-with-a-reproducible-record",
-      "title": "Start with a reproducible record",
+      "id": "currency-update",
+      "title": "Source currency update",
       "paragraphs": [
-        "For every experiment, record the outcome, surface, account type, model reference, prompt version, inputs, settings, tools, date, output, validation result, latency or usage when available, and source links. Exclude credentials and sensitive content from shared evidence. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "When no Gemini account or paid call is available, learn the same decision skill from official screenshots, documented request fixtures, and a surface-selection worksheet. The objective is a defensible interface contract, not consumption. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Start with a reproducible record (Code Implementation)",
-        "code": "import { GoogleGenAI } from \"@google/genai\";\n\nconst ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\nconst response = await ai.models.generateContent({\n  model: \"gemini-2.5-flash\",\n  contents: \"Demonstrate structured output extraction with schema enforcement.\"\n});\nconsole.log(response.text);"
-      }
+        "The previous cited source was the local path content/modules/google-gemini-practice/gemini-ecosystem-and-interfaces.json. It was identified as an unregistered publisher source that had never been verified. This update replaces that citation with official Google documentation available over HTTPS.",
+        "The source change affects the module's attribution, verification date, and support for the distinction between Google AI Studio and the Gemini API. The correction does not add model names, version numbers, software library names, configuration keys, limits, or other details not established for this update."
+      ]
     }
   ],
-  "activity": {
-    "id": "activity-gemini-surface-decision",
-    "title": "Choose and document a Gemini surface",
-    "instructions": [
-      "Compare Gemini Apps, Google AI Studio, and the Gemini API for three scenarios: an individual explanation, a team prompt prototype, and a repeatable application workflow.",
-      "For each scenario, document user, data, account, integration, authority, repeatability, accessibility, cost, audit, and recovery requirements.",
-      "Use current official sources to record the chosen surface and model-selection method without hard-coding a model name.",
-      "Run one approved no-cost experiment if access permits, or use the supplied conceptual request/response fixture; preserve a secret-free reproducibility record and decision."
-    ],
-    "evidence": [
-      "A three-scenario surface decision matrix with dated official sources, rejected alternatives, assumptions, and residual risks.",
-      "A secret-free experiment or conceptual fixture record containing surface, model configuration method, prompt version, settings, output contract, validation result, and next step."
-    ],
-    "reflectionPrompt": "Which requirement changed your choice from a Gemini App or AI Studio prototype to an API application—or in the other direction?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 1440,
-    "cues": [
-      {
-        "id": "cue-gemini-ecosystem-layers",
-        "kind": "narration",
-        "sectionId": "separate-products-interfaces-and-models",
-        "text": "Separate Gemini Apps, Google AI Studio, the Gemini API, SDKs, application code, and models before making a capability claim."
-      },
-      {
-        "id": "cue-gemini-ecosystem-surface",
-        "kind": "narration",
-        "sectionId": "choose-the-surface-by-outcome",
-        "text": "Choose a surface from the learner, data, integration, authority, repeatability, accessibility, evidence, cost, and recovery needs."
-      },
-      {
-        "id": "cue-gemini-ecosystem-studio",
-        "kind": "narration",
-        "sectionId": "understand-ai-studio-prototypes",
-        "text": "Use AI Studio to explore prompts and capabilities, then extract and review every setting and contract before production code."
-      },
-      {
-        "id": "cue-gemini-ecosystem-model",
-        "kind": "narration",
-        "sectionId": "treat-model-choice-as-configuration",
-        "text": "Keep model identifiers and volatile settings in configuration and verify current capability and lifecycle evidence for the exact API surface."
-      },
-      {
-        "id": "cue-gemini-ecosystem-record",
-        "kind": "narration",
-        "sectionId": "start-with-a-reproducible-record",
-        "text": "Preserve a dated, secret-free reproducibility record or conceptual fixture so learning does not require a paid API call."
-      },
-      {
-        "id": "cue-gemini-ecosystem-visual",
-        "kind": "visual",
-        "sectionId": "choose-the-surface-by-outcome",
-        "text": "Map end-user interaction to Gemini Apps, prompt experimentation to AI Studio, and repeatable integration to the API, with model and policy configuration beneath each.",
-        "accessibilityAlternative": "A static comparison table lists the owner, purpose, state, credentials, evidence, and production responsibility for Gemini Apps, AI Studio, and the Gemini API."
-      },
-      {
-        "id": "cue-gemini-ecosystem-question",
-        "kind": "learner-prompt",
-        "sectionId": "separate-products-interfaces-and-models",
-        "text": "Ask learners which layer changes when the same outcome moves from AI Studio into application code."
-      },
-      {
-        "id": "cue-gemini-ecosystem-pause",
-        "kind": "pause",
-        "sectionId": "treat-model-choice-as-configuration",
-        "text": "Allow three minutes to replace one hard-coded capability claim with a dated source and configuration check."
-      },
-      {
-        "id": "cue-gemini-ecosystem-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "start-with-a-reproducible-record",
-        "text": "Check that each decision names the surface, model configuration method, data boundary, official source, and evidence without a credential."
-      },
-      {
-        "id": "cue-gemini-ecosystem-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the scenario matrix, official-source check, optional experiment or fixture, and documented surface decision."
-      },
-      {
-        "id": "cue-gemini-ecosystem-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can distinguish layers and defend a current, evidence-based surface choice."
-      }
-    ],
-    "transcript": "Separate Gemini Apps, Google AI Studio, the Gemini API, SDKs, application code, and models before making a capability claim. Choose a surface from the learner, data, integration, authority, repeatability, accessibility, evidence, cost, and recovery needs. Use AI Studio to explore prompts and capabilities, then extract and review every setting and contract before production code. Keep model identifiers and volatile settings in configuration and verify current capability and lifecycle evidence for the exact API surface. Preserve a dated, secret-free reproducibility record or conceptual fixture so learning does not require a paid API call.",
-    "captions": [
-      {
-        "cueId": "cue-gemini-ecosystem-layers",
-        "startSeconds": 0,
-        "endSeconds": 270,
-        "text": "Separate Gemini Apps, Google AI Studio, the Gemini API, SDKs, application code, and models before making a capability claim."
-      },
-      {
-        "cueId": "cue-gemini-ecosystem-surface",
-        "startSeconds": 300,
-        "endSeconds": 570,
-        "text": "Choose a surface from the learner, data, integration, authority, repeatability, accessibility, evidence, cost, and recovery needs."
-      },
-      {
-        "cueId": "cue-gemini-ecosystem-studio",
-        "startSeconds": 600,
-        "endSeconds": 870,
-        "text": "Use AI Studio to explore prompts and capabilities, then extract and review every setting and contract before production code."
-      },
-      {
-        "cueId": "cue-gemini-ecosystem-model",
-        "startSeconds": 900,
-        "endSeconds": 1140,
-        "text": "Keep model identifiers and volatile settings in configuration and verify current capability and lifecycle evidence for the exact API surface."
-      },
-      {
-        "cueId": "cue-gemini-ecosystem-record",
-        "startSeconds": 1170,
-        "endSeconds": 1410,
-        "text": "Preserve a dated, secret-free reproducibility record or conceptual fixture so learning does not require a paid API call."
-      }
-    ],
-    "reducedMotionAlternative": "Use a static surface-comparison table and experiment-record template with focus highlighting instead of animated transitions."
-  },
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 100,
     "questions": [
       {
-        "id": "q-gemini-ecosystem-1",
-        "prompt": "Which statement is most accurate?",
+        "id": "gemini-ecosystem-and-interfaces-interface-purpose",
+        "prompt": "Which interface should a learner choose when the immediate goal is to experiment with prompts interactively before building an application?",
         "choices": [
-          "Gemini Apps, AI Studio, API, SDKs, and models are distinct layers",
-          "Every Gemini App feature is an API feature",
-          "AI Studio output is production-ready automatically",
-          "One model name applies to every surface"
+          "Google AI Studio",
+          "The Gemini API"
         ],
         "answerIndex": 0,
-        "explanation": "Capabilities and responsibilities differ across product, interface, API, SDK, application, and model layers."
+        "explanation": "The module identifies Google AI Studio as the browser-based environment for interactive prompt experimentation."
       },
       {
-        "id": "q-gemini-ecosystem-2",
-        "prompt": "When is the Gemini API usually the strongest fit?",
+        "id": "gemini-ecosystem-and-interfaces-application-integration",
+        "prompt": "Which interface is intended for software that must send input and process a returned response as part of an application workflow?",
         "choices": [
-          "When no repeatability is needed",
-          "When application code needs repeatable input, validation, integration, and operational evidence",
-          "Only for creative chat",
-          "Whenever AI Studio opens"
+          "Google AI Studio",
+          "The Gemini API"
         ],
         "answerIndex": 1,
-        "explanation": "The API provides a code-controlled boundary for repeatable integration and handling."
+        "explanation": "The Gemini API is the programmatic interface used by an application to send requests and process responses."
       },
       {
-        "id": "q-gemini-ecosystem-3",
-        "prompt": "What should happen before AI Studio starter code enters an application?",
+        "id": "gemini-ecosystem-and-interfaces-update-effect",
+        "prompt": "What did this currency update change?",
         "choices": [
-          "Publish it unchanged",
-          "Embed the key",
-          "Extract and review configuration, contracts, credentials, errors, data behavior, and tests",
-          "Delete the prompt"
+          "It replaced an unverified local citation with official Google documentation and updated the source-verification basis.",
+          "It introduced specific model versions and configuration keys.",
+          "It changed the module from intermediate to advanced."
         ],
-        "answerIndex": 2,
-        "explanation": "Prototype settings and generated code require explicit production boundaries and verification."
-      },
-      {
-        "id": "q-gemini-ecosystem-4",
-        "prompt": "How should a reusable project select a Gemini model?",
-        "choices": [
-          "Copy a product name forever",
-          "Infer it from the API key",
-          "Use the newest preview without tests",
-          "Use reviewed configuration verified against current official model evidence and evaluations"
-        ],
-        "answerIndex": 3,
-        "explanation": "Model capabilities and lifecycle change and must be source-verified and evaluated."
-      },
-      {
-        "id": "q-gemini-ecosystem-5",
-        "prompt": "How can a learner complete the surface-selection objective without a paid call?",
-        "choices": [
-          "They cannot",
-          "Use official documentation, a decision matrix, and conceptual request/response fixtures",
-          "Invent capability claims",
-          "Share another person's API key"
-        ],
-        "answerIndex": 1,
-        "explanation": "The objective is a defensible interface contract and can be demonstrated with documented fixtures."
+        "answerIndex": 0,
+        "explanation": "The currency-update section says the unverified local citation was replaced by official Google documentation. It also says that model versions and configuration keys were not added."
       }
     ]
   },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-22",
   "sources": [
     {
-      "title": "An overview of the Gemini app",
-      "url": "https://support.google.com/gemini/answer/17216260",
+      "title": "Gemini API documentation",
+      "url": "https://ai.google.dev/gemini-api/docs",
       "publisher": "Google",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Gemini Apps Privacy Hub",
-      "url": "https://support.google.com/gemini/answer/13594961",
-      "publisher": "Google",
-      "lastVerified": "2026-07-25"
+      "lastVerified": "2026-08-22"
     },
     {
       "title": "Google AI Studio quickstart",
       "url": "https://ai.google.dev/gemini-api/docs/ai-studio-quickstart",
       "publisher": "Google",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Gemini models",
-      "url": "https://ai.google.dev/gemini-api/docs/models",
-      "publisher": "Google",
-      "lastVerified": "2026-07-25"
+      "lastVerified": "2026-08-22"
     }
   ]
 }
