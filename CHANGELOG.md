@@ -4,6 +4,12 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.91.0] - 2026-08-22
+
+### Changed
+
+- Release cut by Orchard. No file under `content/` was added or changed since v0.90.0.
+
 ## [0.90.0] - 2026-08-22
 
 ### Changed
