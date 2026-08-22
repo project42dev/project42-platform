@@ -7,6 +7,37 @@ Project 42 is designed for people learning AI for the first time and practitione
 who need trustworthy, current references. This repository contains the reusable
 contracts—not the private PMO records or Project42dev production configuration.
 
+## 🚀 Quick Start: Run the Unified Open-Source Web Portal
+
+Project 42 includes a standalone, host-agnostic, white-label learning portal (Learn + Field Guide + Transcripts + Admin).
+
+### 1. Build and Run Locally (Zero Backend Required)
+```bash
+# Install dependencies
+npm ci
+
+# Build the complete static portal
+npm run portal:build
+
+# Preview with any static web server
+npx serve dist/portal
+```
+Visit `http://localhost:3000` to explore all 12 learning paths, 94 assessed modules, and 83 field guide resources.
+
+### 2. Turnkey Docker Compose Deployment
+```bash
+cd self-host
+docker compose up -d
+```
+- **Web Portal**: `http://localhost:3000`
+- **Platform API**: `http://localhost:8787`
+- **Identity & SSO (Keycloak)**: `http://localhost:8080`
+
+### 3. White-Label Theming & Custom Courses
+Custom branding is configured in `project42.config.json`. See the [Portal Theming & Self-Hosting Guide](docs/self-hosting/portal-and-theming.md).
+
+---
+
 ## Included
 
 - A typed, validated catalog for resources, learning paths, modules, and checks.

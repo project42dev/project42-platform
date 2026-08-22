@@ -13,7 +13,7 @@ is a separate decision.
 | If you want to | Read |
 |---|---|
 | Understand the ideas | [concepts/](concepts/) |
-| Run Project 42 yourself | [self-hosting/](self-hosting/) |
+| Run Project 42 yourself | [self-hosting/](self-hosting/) · [Theming & Portal Guide](self-hosting/portal-and-theming.md) |
 | Choose and wire up models | [models/](models/) |
 | Connect a tool or an editor | [tools/](tools/) |
 | Operate a deployment | [operations/](operations/) |
