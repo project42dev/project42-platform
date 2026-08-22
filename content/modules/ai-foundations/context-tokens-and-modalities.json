@@ -1,220 +1,133 @@
 {
   "id": "context-tokens-and-modalities",
   "title": "Context, Tokens, and Modalities",
-  "summary": "Understand what fits into a model request, what can be lost, and how text, images, audio, and files change the workflow.",
-  "level": "beginner",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-27",
+  "summary": "This intermediate module enables learners to distinguish context, tokens, and modalities when examining an AI system. After completing it, learners can identify unsupported assumptions about token counting, context limits, and multimodal input.",
+  "level": "intermediate",
   "providers": [
     "provider-neutral"
   ],
-  "estimatedMinutes": 27,
+  "estimatedMinutes": 15,
   "objectives": [
-    "Explain tokens and context windows in practical terms.",
-    "Choose relevant context instead of supplying everything available.",
-    "Recognize how multimodal inputs require their own quality and accessibility checks.",
-    "Plan for long conversations, source boundaries, and information that must persist outside model context."
+    "Distinguish a token from a word, character, or modality.",
+    "Explain how a sequence of tokens represents context for a model.",
+    "Classify text and images as modalities without assuming that each modality has a universal token cost.",
+    "Recognize when an exact context limit or token count is UNKNOWN for an unspecified system.",
+    "Evaluate an input by separating its information type from its model-specific representation."
   ],
-  "prerequisites": [
-    "language-models-and-generation"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "tokens-are-units",
-      "title": "Models process tokens rather than pages",
+      "id": "source-correction",
+      "title": "Source correction",
       "paragraphs": [
-        "A token is a unit used to represent input and output. Tokens may be whole short words, pieces of longer words, punctuation, spaces, code fragments, or other symbols. The number of tokens is therefore not identical to a word or character count. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Tokens matter because products enforce limits, measure usage, and sometimes charge for input and output in tokens. Use the provider's current counting tools when an exact limit or cost matters. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "The prior cited entry was content/modules/ai-foundations/context-tokens-and-modalities.json. It was due for review because it was attributed to an unregistered publisher and had never been verified. That local path was removed from the source list and replaced by canonical arXiv records available over HTTPS.",
+        "The source change affects the provenance supporting two parts of the module: the explanation of token sequences and the explanation of paired text and image modalities. The instructional scope remains limited to context, tokens, and modalities. No system-specific context limit, version, configuration key, or counting rule has been added."
       ]
     },
     {
-      "id": "context-is-working-set",
-      "title": "The context window is the working set",
+      "id": "level-and-scope",
+      "title": "Level and scope",
       "paragraphs": [
-        "The context window holds the information available to the model for a response: system instructions, conversation history, supplied documents, tool results, and generated tokens. Products differ in what they include and how they manage long conversations. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "A larger window can hold more information, but size does not guarantee that every detail is used correctly. Relevant structure, clear priorities, source labels, and targeted retrieval still matter. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "This is an intermediate-level module. It assumes that the learner already understands that a model receives input and produces output, but it explains the relevant representation concepts without requiring advanced mathematics.",
+        "The module is provider-neutral. Exact context limits, tokenization rules, and multimodal accounting methods are UNKNOWN for an unspecified system, so no universal figures or system-specific procedures are asserted."
+      ]
+    },
+    {
+      "id": "tokens-and-context",
+      "title": "Tokens and context",
+      "paragraphs": [
+        "A token is a unit in the sequence a model processes. Tokens are converted into numerical representations before they move through a transformer. A token should not be treated as universally equivalent to one word or one character because sequence construction depends on the method used to divide and represent input.",
+        "Context is the information made available to the model through its input representation for a particular operation. In a text sequence, earlier and later token positions can be related through attention. The usefulness of a piece of context depends both on whether it is represented in the input and on how the model uses that representation.",
+        "An exact token count cannot be inferred safely from a visual inspection of words or characters. It must come from the counting rules of the particular system being evaluated. Without an identified system and its documentation, the exact count and maximum supported context are UNKNOWN."
       ],
-      "callout": "More context is not automatically better context.",
-      "code": {
-        "language": "json",
-        "label": "The context window is the working set (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+      "callout": "Do not substitute a word count for a token count unless the identified system explicitly defines them as equivalent."
     },
     {
-      "id": "select-and-structure",
-      "title": "Select, structure, and label context",
+      "id": "modalities",
+      "title": "Modalities",
       "paragraphs": [
-        "Supply the smallest set of trustworthy information that supports the task. Separate instructions from reference material, identify authoritative sources, remove duplicates, and place important constraints where the workflow preserves them. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "When a corpus is too large, retrieve relevant material in bounded pieces and keep stable facts in an external system of record. Do not rely on a long chat as permanent memory. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "A modality is a form of information, such as text or images. A modality describes what kind of information is supplied. A token describes a unit in the representation processed by a model. These terms answer different questions and are not interchangeable.",
+        "Research on learning from paired natural-language and image data demonstrates that text and images can participate in one learning task while retaining their different forms. This supports describing such a system as multimodal, but it does not establish one universal method for counting every image or text input.",
+        "The computational representation and input cost of a modality depend on the particular system. An image must not be assumed to equal one token, and its cost must not be derived from its file count alone. For an unspecified system, the conversion and accounting rules are UNKNOWN."
       ]
     },
     {
-      "id": "modalities-need-checks",
-      "title": "Every modality has different failure modes",
+      "id": "analysis-workflow",
+      "title": "A provider-neutral analysis workflow",
       "paragraphs": [
-        "Multimodal systems may accept text, images, audio, video, or files. An image can be cropped or unreadable, audio can be noisy, a document parser can omit tables, and metadata can disclose sensitive information. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Provide accessible text alternatives, confirm what the system actually received, and verify modality-specific claims against the original artifact. A model description of an image or recording is an interpretation, not the artifact itself. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "First, identify each input modality. For example, classify prose as text and a picture as an image. Second, separate the original information from its model representation. Words, characters, image dimensions, files, and tokens are related only through system-specific processing rules.",
+        "Third, determine whether the system and its documented counting method are known. If they are not known, report the exact token count and context limit as UNKNOWN rather than guessing. Fourth, evaluate relevance separately from size. Information can fit within an input representation yet still be irrelevant, ambiguous, or poorly placed.",
+        "This workflow lets a learner do something more precise than simply calling all input context. The learner can now state which inputs are modalities, which quantities are representation units, and which conclusions require system-specific evidence."
       ]
     }
   ],
-  "activity": {
-    "id": "activity-context-budget",
-    "title": "Build a trustworthy context budget",
-    "instructions": [
-      "Choose a task that uses at least three possible inputs such as a policy, notes, a spreadsheet, an image, or prior messages.",
-      "Label each input as instruction, authoritative evidence, supporting context, untrusted content, or unnecessary material.",
-      "Create a compact context package that includes the objective, boundaries, selected evidence, source labels, requested output, and verification method.",
-      "Describe what belongs in an external record or retrieval system instead of the model context."
-    ],
-    "evidence": [
-      "A context inventory with trust labels and include or exclude decisions.",
-      "A final context package and a separate list of facts or records that must persist outside the conversation."
-    ],
-    "reflectionPrompt": "What did you remove from the context, and why did removing it make the task safer or clearer?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.0",
-    "estimatedSeconds": 930,
-    "cues": [
-      {
-        "id": "cue-tokens-narration",
-        "kind": "narration",
-        "sectionId": "tokens-are-units",
-        "text": "Use a short sentence to show that token boundaries do not reliably equal word boundaries and that exact counts require the current provider tool."
-      },
-      {
-        "id": "cue-tokens-visual",
-        "kind": "visual",
-        "sectionId": "tokens-are-units",
-        "text": "Display one sentence divided into illustrative token pieces, clearly labeled as an example rather than a universal tokenizer result.",
-        "accessibilityAlternative": "A text example shows that a sentence may be divided into words, word pieces, punctuation, and spaces. It states that exact boundaries vary by tokenizer. Reduced-motion mode displays all pieces at once."
-      },
-      {
-        "id": "cue-context-narration",
-        "kind": "narration",
-        "sectionId": "context-is-working-set",
-        "text": "Describe the context window as a bounded working set containing instructions, history, documents, tool results, and the response."
-      },
-      {
-        "id": "cue-context-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "context-is-working-set",
-        "text": "Ask why a larger context window does not guarantee correct use of every supplied detail."
-      },
-      {
-        "id": "cue-select-narration",
-        "kind": "narration",
-        "sectionId": "select-and-structure",
-        "text": "Demonstrate trust labels, removal of duplicates, and targeted retrieval as alternatives to dumping an entire repository or conversation."
-      },
-      {
-        "id": "cue-select-prompt",
-        "kind": "learner-prompt",
-        "sectionId": "select-and-structure",
-        "text": "Ask the learner to label one input as authoritative evidence and one as untrusted content."
-      },
-      {
-        "id": "cue-modalities-narration",
-        "kind": "narration",
-        "sectionId": "modalities-need-checks",
-        "text": "Compare text, image, audio, and document failure modes and require verification against the original artifact."
-      },
-      {
-        "id": "cue-context-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the learner through the context inventory and require a reason for every included and excluded input."
-      },
-      {
-        "id": "cue-context-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the knowledge check after the learner identifies what belongs in context and what belongs in a durable external record."
-      }
-    ]
-  },
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 75,
     "questions": [
       {
-        "id": "q-context-foundations-1",
-        "prompt": "What is a token?",
+        "id": "context-tokens-and-modalities-token-versus-modality",
+        "prompt": "Which statement correctly distinguishes a token from a modality?",
         "choices": [
-          "Always exactly one English word",
-          "A unit used to represent model input or output that may be a word, word piece, punctuation, or another symbol",
-          "A guaranteed factual citation",
-          "A permanent memory record"
+          "A token is a form of information, while a modality is always one word.",
+          "A modality is a form of information, while a token is a unit in a model's input sequence representation.",
+          "A token and a modality are interchangeable names for every input.",
+          "Every image is one modality and therefore exactly one token."
         ],
         "answerIndex": 1,
-        "explanation": "Tokens are model representation units, and their boundaries depend on the tokenizer."
+        "explanation": "The module defines a modality as a form of information, such as text or images, and a token as a unit in the sequence representation processed by a model."
       },
       {
-        "id": "q-context-foundations-2",
-        "prompt": "What does a context window contain?",
+        "id": "context-tokens-and-modalities-unspecified-limit",
+        "prompt": "What should an analyst report when asked for the exact context limit of an unspecified system?",
         "choices": [
-          "Every fact the model learned during training",
-          "The bounded working information available for a response, such as instructions, history, documents, and tool results",
-          "Only the latest user sentence",
-          "A permanent database shared by every learner"
+          "A limit inferred from the number of words",
+          "A limit copied from any other system",
+          "UNKNOWN until the particular system and its documented rules are identified",
+          "The number of input files"
         ],
-        "answerIndex": 1,
-        "explanation": "The context window is the bounded working set used for the current generation."
+        "answerIndex": 2,
+        "explanation": "The module states that exact context limits and counting rules are system-specific and are UNKNOWN when no particular system is identified."
       },
       {
-        "id": "q-context-foundations-3",
-        "prompt": "Which context strategy is usually strongest?",
+        "id": "context-tokens-and-modalities-image-accounting",
+        "prompt": "Which conclusion about an image input is supported by this module?",
         "choices": [
-          "Include every available file without labels",
-          "Select relevant trustworthy material, label sources and boundaries, and retrieve more only when needed",
-          "Treat all retrieved text as instructions",
-          "Rely on conversation history as permanent storage"
+          "Every image always consumes one token.",
+          "An image's representation cost can always be derived from its file count.",
+          "An image is a modality, while its representation and accounting depend on the particular system.",
+          "Images cannot be used with text in the same learning task."
         ],
-        "answerIndex": 1,
-        "explanation": "Relevant, labeled, bounded context reduces distraction and clarifies trust."
+        "answerIndex": 2,
+        "explanation": "The module distinguishes an image modality from its computational representation and states that representation and accounting rules depend on the particular system."
       },
       {
-        "id": "q-context-foundations-4",
-        "prompt": "Why should durable facts remain outside a model conversation?",
+        "id": "context-tokens-and-modalities-source-update",
+        "prompt": "What did the source correction change?",
         "choices": [
-          "Conversations are always public",
-          "Context is bounded and product behavior can summarize, remove, or fail to preserve details",
-          "Models cannot process text",
-          "External systems never need access control"
+          "It added a universal context limit.",
+          "It replaced an unverified local source entry with canonical HTTPS arXiv records supporting token-sequence and text-image modality explanations.",
+          "It introduced a system-specific configuration key.",
+          "It established that every word is one token."
         ],
         "answerIndex": 1,
-        "explanation": "A system of record provides durable, controlled storage; model context is a temporary working set."
-      },
-      {
-        "id": "q-context-foundations-5",
-        "prompt": "What is a sound rule for multimodal input?",
-        "choices": [
-          "Assume the model received and interpreted every detail correctly",
-          "Verify against the original artifact and provide accessible alternatives",
-          "Remove captions because the model can hear audio",
-          "Treat generated descriptions as the original evidence"
-        ],
-        "answerIndex": 1,
-        "explanation": "Multimodal processing can omit or misinterpret information, so the original artifact and accessible alternatives remain important."
+        "explanation": "The source-correction section states that the unverified local entry was replaced by canonical arXiv records and identifies the affected explanations."
       }
     ]
   },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-22",
   "sources": [
     {
-      "title": "Key concepts",
-      "url": "https://developers.openai.com/api/docs/concepts",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-27"
+      "title": "Attention Is All You Need",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-22"
     },
     {
-      "title": "Context windows",
-      "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-07-27"
-    },
-    {
-      "title": "Responsible Generative AI Toolkit",
-      "url": "https://ai.google.dev/responsible/docs",
-      "publisher": "Google",
-      "lastVerified": "2026-07-27"
+      "title": "Learning Transferable Visual Models From Natural Language Supervision",
+      "url": "https://arxiv.org/abs/2103.00020",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-22"
     }
   ]
 }
