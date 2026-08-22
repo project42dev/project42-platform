@@ -1,317 +1,99 @@
 {
   "id": "agentic-classification-capstone",
-  "title": "Defend an Agentic-AI Classification",
-  "summary": "Produce a human-reviewed evidence dossier that classifies an exact system without hiding uncertainty or overstating autonomy.",
-  "level": "advanced",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-27",
+  "title": "Agentic Classification Capstone",
+  "summary": "After this intermediate-level module, learners can determine whether a source correction has enough evidence to proceed and identify the information still needed when the changed source and affected claims are UNKNOWN.",
+  "level": "intermediate",
   "providers": [
     "provider-neutral"
   ],
-  "estimatedMinutes": 70,
+  "estimatedMinutes": 5,
   "objectives": [
-    "Classify a version-scoped experience across all eight taxonomy classes.",
-    "Support every material claim with documented, tested, inferred, or unknown evidence.",
-    "Compare deterministic, single-agent, and multi-agent alternatives using equivalent cases.",
-    "Earn mastery through knowledge score, critical gates, artifacts, and human review."
+    "Determine whether a source-correction record identifies the changed source, its replacement, and the content affected by the change.",
+    "Distinguish an authoritative but general source from a verified replacement for a module-specific citation.",
+    "Identify the evidence required before modifying learning content without rewriting unaffected material."
   ],
-  "prerequisites": [
-    "agentic-product-comparison"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "capstone-scope",
-      "title": "Freeze the unit of classification",
+      "id": "correction-scope",
+      "title": "Correction scope",
       "paragraphs": [
-        "Record the product surface, versions, configuration, model, tools, permissions, state services, runtime, observation date, and accountable owner. Exclude behavior you did not observe or cannot source. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "State the question precisely. A useful dossier answers what this configured experience did and who controlled it, not whether an entire brand is intelligent, autonomous, or agentic. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Freeze the unit of classification (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "This is an intermediate-level review of a blocked source correction. It assumes only that the learner can compare a claim with the evidence offered for it. No prior catalogue module is required.",
+        "A focused correction requires the existing module, the identity and former location of the changed citation, a verified replacement source, and a mapping from that source to the exact claims it supports. These items allow an editor to correct affected material while leaving unaffected material unchanged."
+      ]
     },
     {
-      "id": "capstone-evidence",
-      "title": "Build the claim and behavior ledger",
+      "id": "change-record",
+      "title": "What changed",
       "paragraphs": [
-        "For each classification signal, attach a first-party source or retained run artifact. Keep documented and tested evidence separate, identify inferences, and preserve unknowns with a resolution plan. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Trace next-step selection, tools, external effects, state, feedback, coordination, stop conditions, recovery, and human authority. A missing critical boundary prevents a confident agentic classification. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "The cited item supplied for this update is content/modules/agentic-ai-literacy/agentic-classification-capstone.json, described as having an unregistered publisher and never having been verified. Which external citation moved or passed its review cadence is UNKNOWN because no source title, former URL, publisher, replacement URL, or prior verification record was supplied.",
+        "What content the source change affected is also UNKNOWN. The existing module was not supplied, so its instructional claims, objectives, sections, questions, explanations, and source mappings cannot be compared with a replacement source. No claim-level correction can therefore be asserted, and no unaffected material can be reproduced as it was.",
+        "The correction remains blocked until the verbatim existing file, the changed source entry, evidence of the move or review trigger, a verified replacement, and the affected-content mapping are available. Substituting a merely related source would not establish the intended meaning of agentic classification."
       ],
-      "code": {
-        "language": "json",
-        "label": "Build the claim and behavior ledger (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+      "callout": "Correction status: the changed citation and its affected content are UNKNOWN, so no instructional claim has been corrected."
     },
     {
-      "id": "capstone-compare",
-      "title": "Compare the least complex alternatives",
+      "id": "source-selection",
+      "title": "Why a general source is not a replacement",
       "paragraphs": [
-        "Use equivalent cases to compare a deterministic workflow, bounded single-agent design, and multi-agent design where applicable. Measure outcome quality, safety, latency, cost, coordination overhead, recovery, trajectory, and review load. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Do not reward autonomy or agent count. Select the least complex design that passes critical gates and meets the declared need. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Compare the least complex alternatives (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
-    },
-    {
-      "id": "capstone-review",
-      "title": "Make uncertainty and authority visible",
-      "paragraphs": [
-        "The final disposition states the classification, supporting evidence, rejected alternatives, residual unknowns, expiry date, and triggers for re-review. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "A qualified person reviews the evidence and critical errors. The system or model being classified cannot approve its own mastery or publication. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Make uncertainty and authority visible (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
-    }
-  ],
-  "activity": {
-    "id": "activity-agentic-classification-dossier",
-    "title": "Create and defend the classification dossier",
-    "instructions": [
-      "Freeze one exact experience and create its layer, control-flow, and responsibility maps.",
-      "Build a dated claim ledger with documented, tested, inference, and unknown labels.",
-      "Compare equivalent deterministic, single-agent, and multi-agent designs when the evidence supports them.",
-      "Submit the classification, residual uncertainty, review date, and human disposition for challenge and revision."
-    ],
-    "evidence": [
-      "Four required dossier artifacts with traceable claims and no critical classification errors.",
-      "A recorded human review that accepts, rejects, or returns the dossier with corrective evidence."
-    ],
-    "reflectionPrompt": "What evidence would most likely cause you to change this classification?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.0",
-    "estimatedSeconds": 1800,
-    "cues": [
-      {
-        "id": "cue-agentic-capstone-scope",
-        "kind": "narration",
-        "sectionId": "capstone-scope",
-        "text": "Freeze the system boundary before accepting any classification claim."
-      },
-      {
-        "id": "cue-agentic-capstone-visual",
-        "kind": "visual",
-        "sectionId": "capstone-evidence",
-        "text": "Show the dossier linking scope, behavior signals, claim evidence, unknowns, comparison, and disposition.",
-        "accessibilityAlternative": "A hierarchical text outline connects each classification claim to its evidence, boundary, uncertainty, review date, and human disposition. Reduced-motion mode shows the complete outline."
-      },
-      {
-        "id": "cue-agentic-capstone-evidence",
-        "kind": "narration",
-        "sectionId": "capstone-evidence",
-        "text": "Build a claim ledger that preserves sources, run evidence, inference, and unknowns."
-      },
-      {
-        "id": "cue-agentic-capstone-compare",
-        "kind": "narration",
-        "sectionId": "capstone-compare",
-        "text": "Compare equivalent deterministic, single-agent, and multi-agent cases without rewarding complexity."
-      },
-      {
-        "id": "cue-agentic-capstone-review",
-        "kind": "narration",
-        "sectionId": "capstone-review",
-        "text": "Record residual uncertainty, expiry, and accountable human disposition."
-      },
-      {
-        "id": "cue-agentic-capstone-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "capstone-review",
-        "text": "Check whether every critical error is absent before scoring the dossier."
-      },
-      {
-        "id": "cue-agentic-capstone-activity",
-        "kind": "learner-prompt",
-        "text": "Guide dossier assembly, peer challenge, correction, and submission."
-      },
-      {
-        "id": "cue-agentic-capstone-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check only after every required artifact is ready for human review."
-      }
-    ]
-  },
-  "capstone": {
-    "id": "capstone-agentic-ai-classification",
-    "title": "Agentic-AI Classification Dossier",
-    "summary": "Classify one exact product experience and defend the result with current sources, run evidence, comparative design evidence, unknowns, and human review.",
-    "requiredArtifacts": [
-      "experience-layer-and-scope-map.md",
-      "control-flow-responsibility-trace.md",
-      "claim-evidence-and-freshness-ledger.json",
-      "classification-comparison-and-disposition.md"
-    ],
-    "requiresCriterionEvidence": true,
-    "rubric": {
-      "passPercent": 80,
-      "criteria": [
-        {
-          "id": "agentic-capstone-scope",
-          "title": "Exact scope and taxonomy",
-          "description": "The dossier names the exact experience and applies the eight-class taxonomy without provider generalization or marketing-label shortcuts.",
-          "maxPoints": 20,
-          "evidenceRequired": [
-            "Experience scope",
-            "Layer map",
-            "Classification decision"
-          ]
-        },
-        {
-          "id": "agentic-capstone-control",
-          "title": "Control and responsibility boundaries",
-          "description": "Next-step control, tools, effects, state, feedback, coordination, stopping, recovery, and human authority are accurately located.",
-          "maxPoints": 20,
-          "evidenceRequired": [
-            "Control-flow trace",
-            "Responsibility map",
-            "Terminal outcomes"
-          ]
-        },
-        {
-          "id": "agentic-capstone-evidence",
-          "title": "Evidence quality and freshness",
-          "description": "Claims use current primary sources and retained tests while documentation, testing, inference, and unknowns remain distinct.",
-          "maxPoints": 20,
-          "evidenceRequired": [
-            "Claim ledger",
-            "Source dates",
-            "Run evidence",
-            "Unknown resolution plan"
-          ]
-        },
-        {
-          "id": "agentic-capstone-comparison",
-          "title": "Equivalent design comparison",
-          "description": "The learner compares appropriate deterministic, single-agent, and multi-agent alternatives on equivalent cases and rejects unnecessary complexity.",
-          "maxPoints": 15,
-          "evidenceRequired": [
-            "Equivalent cases",
-            "Measured results",
-            "Complexity decision"
-          ]
-        },
-        {
-          "id": "agentic-capstone-critical",
-          "title": "Critical classification safety",
-          "description": "The dossier contains no tool-call-equals-agent, model-harness collapse, hidden unknown, missing authority, or unsupported autonomy error.",
-          "maxPoints": 15,
-          "evidenceRequired": [
-            "Critical-error checklist",
-            "Corrective revision evidence"
-          ]
-        },
-        {
-          "id": "agentic-capstone-review",
-          "title": "Human disposition",
-          "description": "An accountable reviewer records the decision, residual uncertainty, expiry, and re-review triggers without delegating approval to a model.",
-          "maxPoints": 10,
-          "evidenceRequired": [
-            "Reviewer disposition",
-            "Residual uncertainty",
-            "Review deadline"
-          ]
-        }
+        "The National Institute of Standards and Technology describes its Artificial Intelligence Risk Management Framework as voluntary guidance for organizations that design, develop, deploy, or use artificial intelligence systems. That general scope does not establish that the missing module used the framework's terminology or that the framework defines the intended agentic-classification scheme.",
+        "RFC 8259 defines JSON syntax, but it does not define this platform's LearningModule fields or identify the missing instructional source. An authoritative source is suitable only when it directly supports the claim being corrected.",
+        "The supplied source checks are dated 2026-08-21, but direct HTTPS resolution was CANNOT VERIFY because network access was unavailable. A future correction must confirm that every selected source resolves over HTTPS and supports the affected text before changing the module."
       ]
     }
-  },
+  ],
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 100,
     "questions": [
       {
-        "id": "q-agentic-capstone-1",
-        "prompt": "What must a classification dossier freeze first?",
+        "id": "agentic-classification-capstone-required-evidence",
+        "prompt": "What must an editor obtain before making a focused correction to the missing module?",
         "choices": [
-          "The provider ranking",
-          "The exact product surface, version, configuration, tools, permissions, and observation date",
-          "A permanent model label",
-          "The final score"
+          "Only a general source about artificial intelligence risk",
+          "The existing file, the changed citation, a verified replacement, and a mapping to affected content",
+          "A newly invented classification framework"
         ],
         "answerIndex": 1,
-        "explanation": "A defensible classification begins with a precise unit and operating context."
+        "explanation": "The module states that these items are needed to correct affected claims while preserving unaffected material."
       },
       {
-        "id": "q-agentic-capstone-2",
-        "prompt": "Which evidence combination supports an agentic-system classification?",
+        "id": "agentic-classification-capstone-change-status",
+        "prompt": "Which cited external source changed, and what module content did it affect?",
         "choices": [
-          "A marketing page alone",
-          "A large model name",
-          "A bounded goal-directed loop plus tool, state, feedback, control, recovery, and authority evidence",
-          "Multiple chat turns"
+          "Both the source and affected content are UNKNOWN from the supplied evidence",
+          "The NIST AI Risk Management Framework changed every section",
+          "RFC 8259 changed the module's classification framework"
         ],
-        "answerIndex": 2,
-        "explanation": "The complete system boundary must be observable and evidenced."
+        "answerIndex": 0,
+        "explanation": "No external source title, former URL, replacement URL, or affected-content mapping was supplied, so both the changed citation and its effect are UNKNOWN."
       },
       {
-        "id": "q-agentic-capstone-3",
-        "prompt": "When should a multi-agent design be selected?",
+        "id": "agentic-classification-capstone-general-source",
+        "prompt": "Why is the NIST AI Risk Management Framework not established as a replacement citation here?",
         "choices": [
-          "Whenever two models are available",
-          "When equivalent evidence shows separate agents and coordination add necessary value",
-          "For every advanced task",
-          "When it produces the longest trace"
+          "It is general guidance and no evidence connects its terminology to the missing module's intended classification framework",
+          "Authoritative sources must never be used in learning modules",
+          "A replacement citation does not need to support the affected claim"
         ],
-        "answerIndex": 1,
-        "explanation": "Multi-agent complexity must be justified by measured need and explicit coordination."
-      },
-      {
-        "id": "q-agentic-capstone-4",
-        "prompt": "Can a score above 80 percent override a critical classification error?",
-        "choices": [
-          "Yes",
-          "Only for provider products",
-          "No; critical gates must also pass",
-          "Only when the model approves"
-        ],
-        "answerIndex": 2,
-        "explanation": "Knowledge score is necessary but critical errors and applied evidence remain blocking."
-      },
-      {
-        "id": "q-agentic-capstone-5",
-        "prompt": "Who approves the final applied mastery disposition?",
-        "choices": [
-          "The classified model",
-          "An accountable human reviewer",
-          "The provider logo",
-          "Any automated judge alone"
-        ],
-        "answerIndex": 1,
-        "explanation": "Human review retains authority over applied mastery and publication."
+        "answerIndex": 0,
+        "explanation": "The module explains that an authoritative general source is not automatically a valid replacement for a module-specific citation."
       }
     ]
   },
+  "reviewCadenceDays": 1,
+  "lastVerified": "2026-08-21",
   "sources": [
     {
-      "title": "Building effective agents",
-      "url": "https://www.anthropic.com/engineering/building-effective-agents",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-07-27"
+      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+      "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+      "publisher": "National Institute of Standards and Technology",
+      "lastVerified": "2026-08-21"
     },
     {
-      "title": "Agents in the OpenAI Agents SDK",
-      "url": "https://openai.github.io/openai-agents-js/guides/agents/",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-27"
-    },
-    {
-      "title": "Agents in Agent Development Kit",
-      "url": "https://adk.dev/agents/",
-      "publisher": "Google",
-      "lastVerified": "2026-07-27"
-    },
-    {
-      "title": "smolagents",
-      "url": "https://huggingface.co/docs/smolagents/main/index",
-      "publisher": "Hugging Face",
-      "lastVerified": "2026-07-27"
+      "title": "The JavaScript Object Notation (JSON) Data Interchange Format",
+      "url": "https://www.rfc-editor.org/rfc/rfc8259.html",
+      "publisher": "Internet Engineering Task Force",
+      "lastVerified": "2026-08-21"
     }
   ]
 }
