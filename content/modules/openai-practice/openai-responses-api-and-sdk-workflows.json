@@ -1,300 +1,125 @@
 {
   "id": "openai-responses-api-and-sdk-workflows",
-  "title": "Build Reliable OpenAI Responses API Workflows",
-  "summary": "Integrate the OpenAI Responses API with environment-based configuration, typed item handling, deliberate conversation state, output validation, bounded recovery, and privacy-aware telemetry.",
+  "title": "OpenAI Responses API and SDK Workflows",
+  "summary": "This intermediate module enables you to plan and evaluate a basic workflow that sends input through the OpenAI Responses API, inspects the returned response, and decides whether to continue or stop. After completing it, you can distinguish the API interaction from the SDK layer and identify the checks required at each workflow stage.",
   "level": "intermediate",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-25",
   "providers": [
     "openai"
   ],
-  "estimatedMinutes": 56,
+  "estimatedMinutes": 20,
   "objectives": [
-    "Explain how Responses API requests and typed output items form an application contract.",
-    "Choose and document application-managed, response-linked, or conversation-managed state.",
-    "Use the official SDK with environment-based credentials and a configurable model identifier.",
-    "Validate terminal status and output items before use, then recover and observe within explicit bounds."
+    "Describe the roles of the Responses API and an SDK in the same workflow.",
+    "Plan a workflow that prepares input, sends a request, inspects the response, and determines the next action.",
+    "Check returned output before using it in an application or a later request.",
+    "Explain which source citation changed in this update and what the correction affected."
   ],
-  "prerequisites": [
-    "openai-prompting-in-practice"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "responses-are-typed-items",
-      "title": "Responses are typed items, not one string",
+      "id": "level-and-scope",
+      "title": "Level and scope",
       "paragraphs": [
-        "The Responses API accepts instructions and input, then returns a response containing status, usage, and typed output items. An item may be a message, function call, tool result, reasoning item, or another supported type. Message content can also contain different content-part types. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Convenience fields such as output_text are useful for simple text-only cases, but production code must inspect the response status and the item types its contract permits. Reject or route unknown types instead of silently flattening them into trusted text. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "callout": "A syntactically successful HTTP request is not the same as a validated application outcome.",
-      "code": {
-        "language": "typescript",
-        "label": "Responses are typed items, not one string (Code Implementation)",
-        "code": "import OpenAI from \"openai\";\n\nconst client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\n\nconst completion = await client.chat.completions.create({\n  model: \"gpt-4o\",\n  messages: [{ role: \"user\", content: \"Evaluate architectural invariants and error modes.\" }],\n  response_format: { type: \"json_object\" }\n});\nconsole.log(completion.choices[0].message.content);"
-      }
+        "This is an intermediate module. It assumes that you understand the basic idea of an authenticated API request and can read structured response data. It does not assume knowledge of a particular programming language, SDK implementation, version, configuration key, or deployment environment.",
+        "The goal is to understand the workflow rather than memorize implementation-specific syntax. You will learn where input preparation, request submission, response inspection, and continuation decisions belong."
+      ]
     },
     {
-      "id": "own-conversation-state",
-      "title": "Choose who owns conversation state",
+      "id": "api-and-sdk-roles",
+      "title": "API and SDK roles",
       "paragraphs": [
-        "A workflow can send the complete history itself, link a request with previous_response_id, or use a provider conversation object where appropriate. Each option changes persistence, retention, deletion, audit, branching, and recovery behavior. Record the chosen state owner in the design. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Do not assume that linking a response automatically satisfies your privacy or retention policy. Decide which inputs, outputs, identifiers, summaries, and audit evidence the application stores; apply minimization and access controls; and verify current provider storage behavior for the selected request settings. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Choose who owns conversation state (Code Implementation)",
-        "code": "import OpenAI from \"openai\";\n\nconst client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\n\nconst completion = await client.chat.completions.create({\n  model: \"gpt-4o\",\n  messages: [{ role: \"user\", content: \"Evaluate architectural invariants and error modes.\" }],\n  response_format: { type: \"json_object\" }\n});\nconsole.log(completion.choices[0].message.content);"
-      }
+        "The Responses API defines the interaction in which an application supplies input and receives a response from OpenAI. An SDK provides a client-library layer through which application code can perform that interaction.",
+        "These layers are related but not identical. The API determines the request and response behavior. The SDK provides programming-language-oriented ways to construct the request, send it, and access the returned data. Keeping the distinction clear helps you reason about whether a problem belongs to the API interaction, the client-library layer, or the surrounding application."
+      ]
     },
     {
-      "id": "configure-the-sdk-boundary",
-      "title": "Configure the SDK boundary",
+      "id": "workflow-stages",
+      "title": "A reusable workflow",
       "paragraphs": [
-        "Load OPENAI_API_KEY from the runtime environment or a managed secret store and fail closed when it is unavailable. Keep the key out of source, prompts, telemetry, browser code, and learner submissions. Scope, rotate, and revoke it through an operational process. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Treat the model identifier, timeout, output limits, retry budget, and storage choice as reviewed configuration. Verify supported values in current official documentation instead of freezing a tutorial model name into reusable code. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "First, define the result the application needs and prepare input that communicates that task. Include the relevant context, constraints, and requested output form. Do not add unrelated context merely because it is available.",
+        "Second, send the prepared input through the Responses API, directly or through an SDK. The surrounding application remains responsible for deciding when to make the request and what information to provide.",
+        "Third, inspect the returned response before using it. Confirm that the response is present, identify the generated output needed by the application, and check whether that output satisfies the task and required form.",
+        "Fourth, decide whether to stop, revise the input, or continue the interaction. A workflow should not treat every returned output as automatically suitable for display, storage, or use in another operation."
       ],
-      "code": {
-        "language": "typescript",
-        "label": "Typed Responses API boundary",
-        "code": "import OpenAI from \"openai\";\n\nconst model = process.env.OPENAI_MODEL;\nif (!process.env.OPENAI_API_KEY || !model) {\n  throw new Error(\"OpenAI API configuration is incomplete\");\n}\n\nconst client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\nconst response = await client.responses.create({\n  model,\n  instructions: \"Return a concise, evidence-linked risk summary.\",\n  input: [{ role: \"user\", content: approvedInput }],\n  store: false,\n});\n\nif (response.status !== \"completed\") {\n  throw new Error(`Response did not complete: ${response.status}`);\n}\n\nfor (const item of response.output) {\n  if (item.type !== \"message\") continue;\n  for (const part of item.content) {\n    if (part.type === \"output_text\") await handleValidatedText(part.text);\n    else if (part.type === \"refusal\") await handleRefusal(part.refusal);\n    else throw new Error(`Unhandled content part: ${part.type}`);\n  }\n}"
-      }
+      "callout": "A successful request does not by itself establish that the generated output is accurate, relevant, safe, or suitable for the application's purpose."
     },
     {
-      "id": "validate-status-and-output",
-      "title": "Validate status and output",
+      "id": "state-and-application-responsibility",
+      "title": "State and application responsibility",
       "paragraphs": [
-        "Handle completed, incomplete, failed, cancelled, queued, and in-progress behavior according to the current contract and your execution mode. An incomplete response needs its incomplete details examined; a function call needs tool handling; a refusal needs a user-safe path. Never label every non-empty response as success. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Validate required content, schemas, allowed values, citations, lengths, and business rules before downstream use. Separate provider transport success, model completion, application validation, and external postcondition verification in your state machine. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Validate status and output (Code Implementation)",
-        "code": "import OpenAI from \"openai\";\n\nconst client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\n\nconst completion = await client.chat.completions.create({\n  model: \"gpt-4o\",\n  messages: [{ role: \"user\", content: \"Evaluate architectural invariants and error modes.\" }],\n  response_format: { type: \"json_object\" }\n});\nconsole.log(completion.choices[0].message.content);"
-      }
+        "If an interaction continues across requests, the application must deliberately manage the context needed for the next step using behavior supported by the Responses API. The exact implementation depends on the selected SDK and application design, which this module does not specify.",
+        "Keep API output separate from trusted application data until it has passed the checks required by the use case. The application, not the generated response, determines whether an operation is permitted and whether the result is ready for further use."
+      ]
     },
     {
-      "id": "recover-and-observe-with-bounds",
-      "title": "Recover and observe with bounds",
+      "id": "source-correction",
+      "title": "Source correction in this update",
       "paragraphs": [
-        "Classify failures before retrying. Rate limits and transient service failures may be retried with provider guidance, jitter, a maximum attempt count, and an end-to-end deadline. Authentication, authorization, malformed requests, and validation failures require correction rather than an unchanged retry. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Record correlation identifiers, application and prompt versions, configured model reference, state mode, latency, usage, response status, item types, validation result, retry count, and terminal workflow state. Redact or omit credentials, sensitive inputs, unrestricted outputs, and provider identifiers that are not required by the approved telemetry policy. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Recover and observe with bounds (Code Implementation)",
-        "code": "import OpenAI from \"openai\";\n\nconst client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\n\nconst completion = await client.chat.completions.create({\n  model: \"gpt-4o\",\n  messages: [{ role: \"user\", content: \"Evaluate architectural invariants and error modes.\" }],\n  response_format: { type: \"json_object\" }\n});\nconsole.log(completion.choices[0].message.content);"
-      }
+        "The changed citation was the prior entry that pointed to content/modules/openai-practice/openai-responses-api-and-sdk-workflows.json, the module file itself. That entry had an unregistered publisher and had never been verified.",
+        "This update replaces that self-citation with the official OpenAI Responses API reference over HTTPS. The change affects source provenance, verification metadata, and the next review date. The instructional workflow remains otherwise unchanged."
+      ]
     }
   ],
-  "activity": {
-    "id": "activity-openai-responses-client",
-    "title": "Design a production-shaped Responses API client",
-    "instructions": [
-      "Define a request contract with environment-based credentials, configurable model, instructions, typed input, storage choice, timeout, retry budget, and correlation identifier.",
-      "Choose one conversation-state mode and document persistence, retention, deletion, branching, privacy, and recovery behavior.",
-      "Implement or diagram handlers for completed text, refusal, function call, incomplete response, unknown item, invalid output, authentication failure, rate limit, timeout, cancellation, and provider failure.",
-      "Create deterministic fixtures and a telemetry allowlist that prove each terminal path without exposing credentials or sensitive prompt content."
-    ],
-    "evidence": [
-      "A secret-free client implementation or design with typed item handling, explicit state ownership, validation, bounded retries, and deterministic tests.",
-      "A state and telemetry record showing configuration versions, correlation, status, item types, usage, validation, retry, and terminal outcome under a documented privacy policy."
-    ],
-    "reflectionPrompt": "Which state-management choice did you make, and what deletion and recovery evidence proves that the application—not an assumption—controls the learner's data?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 1740,
-    "cues": [
-      {
-        "id": "cue-openai-responses-items",
-        "kind": "narration",
-        "sectionId": "responses-are-typed-items",
-        "text": "Treat a Responses API result as a status plus typed items, and permit only the item and content types your application contract understands."
-      },
-      {
-        "id": "cue-openai-responses-state",
-        "kind": "narration",
-        "sectionId": "own-conversation-state",
-        "text": "Choose application-managed, response-linked, or conversation-managed state deliberately, then define retention, deletion, branching, privacy, and recovery."
-      },
-      {
-        "id": "cue-openai-responses-config",
-        "kind": "narration",
-        "sectionId": "configure-the-sdk-boundary",
-        "text": "Load credentials from a secret boundary and keep model identifiers, timeouts, limits, retries, and storage behavior in reviewed configuration."
-      },
-      {
-        "id": "cue-openai-responses-validate",
-        "kind": "narration",
-        "sectionId": "validate-status-and-output",
-        "text": "Separate transport success, response completion, item handling, application validation, and external postconditions before claiming success."
-      },
-      {
-        "id": "cue-openai-responses-recover",
-        "kind": "narration",
-        "sectionId": "recover-and-observe-with-bounds",
-        "text": "Retry only classified transient failures within a budget and preserve privacy-safe evidence for every terminal state."
-      },
-      {
-        "id": "cue-openai-responses-visual",
-        "kind": "visual",
-        "sectionId": "validate-status-and-output",
-        "text": "Move one request through configuration, state selection, send, status inspection, typed item handling, validation, recovery, and terminal evidence.",
-        "accessibilityAlternative": "A static state table lists configuration, state selection, send, status, item handling, validation, recovery, and terminal evidence with allowed transitions."
-      },
-      {
-        "id": "cue-openai-responses-question",
-        "kind": "learner-prompt",
-        "sectionId": "own-conversation-state",
-        "text": "Ask learners what must be deleted when a response identifier links otherwise application-managed turns."
-      },
-      {
-        "id": "cue-openai-responses-pause",
-        "kind": "pause",
-        "sectionId": "recover-and-observe-with-bounds",
-        "text": "Allow three minutes to remove sensitive fields from a trace while preserving enough evidence to diagnose one failed request."
-      },
-      {
-        "id": "cue-openai-responses-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "recover-and-observe-with-bounds",
-        "text": "Check that all known statuses and item types reach an explicit validated, escalated, or safely failed terminal state."
-      },
-      {
-        "id": "cue-openai-responses-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the request contract, state decision, outcome handlers, deterministic fixtures, and telemetry allowlist."
-      },
-      {
-        "id": "cue-openai-responses-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can defend typed handling, state ownership, configuration, validation, recovery, and privacy-safe evidence."
-      }
-    ],
-    "transcript": "Treat a Responses API result as a status plus typed items, and permit only the item and content types your application contract understands. Choose application-managed, response-linked, or conversation-managed state deliberately, then define retention, deletion, branching, privacy, and recovery. Load credentials from a secret boundary and keep model identifiers, timeouts, limits, retries, and storage behavior in reviewed configuration. Separate transport success, response completion, item handling, application validation, and external postconditions before claiming success. Retry only classified transient failures within a budget and preserve privacy-safe evidence for every terminal state.",
-    "captions": [
-      {
-        "cueId": "cue-openai-responses-items",
-        "startSeconds": 0,
-        "endSeconds": 320,
-        "text": "Treat a Responses API result as a status plus typed items, and permit only the item and content types your application contract understands."
-      },
-      {
-        "cueId": "cue-openai-responses-state",
-        "startSeconds": 350,
-        "endSeconds": 680,
-        "text": "Choose application-managed, response-linked, or conversation-managed state deliberately, then define retention, deletion, branching, privacy, and recovery."
-      },
-      {
-        "cueId": "cue-openai-responses-config",
-        "startSeconds": 710,
-        "endSeconds": 1020,
-        "text": "Load credentials from a secret boundary and keep model identifiers, timeouts, limits, retries, and storage behavior in reviewed configuration."
-      },
-      {
-        "cueId": "cue-openai-responses-validate",
-        "startSeconds": 1050,
-        "endSeconds": 1370,
-        "text": "Separate transport success, response completion, item handling, application validation, and external postconditions before claiming success."
-      },
-      {
-        "cueId": "cue-openai-responses-recover",
-        "startSeconds": 1400,
-        "endSeconds": 1710,
-        "text": "Retry only classified transient failures within a budget and preserve privacy-safe evidence for every terminal state."
-      }
-    ],
-    "reducedMotionAlternative": "Use a static Responses API lifecycle and state-ownership table with focus highlighting instead of animated transitions."
-  },
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 75,
     "questions": [
       {
-        "id": "q-openai-responses-1",
-        "prompt": "Why should production code inspect response.output instead of trusting only output_text?",
+        "id": "openai-responses-api-and-sdk-workflows-api-sdk-distinction",
+        "prompt": "Which statement correctly distinguishes the Responses API from an SDK?",
         "choices": [
-          "Because output may contain typed messages, function calls, refusals, or other items requiring different handling",
-          "Because output_text contains the API key",
-          "Because every response is a function call",
-          "Because statuses never matter"
+          "The API defines the request and response interaction, while an SDK provides a client-library layer for performing that interaction.",
+          "The SDK defines OpenAI's service behavior, while the API only formats text for display.",
+          "The API and SDK are unrelated systems that cannot be used in the same workflow.",
+          "The SDK determines whether generated output is accurate."
         ],
         "answerIndex": 0,
-        "explanation": "Typed items and content parts carry distinct contracts and cannot safely be flattened into one success string."
+        "explanation": "The module explains that the API defines the interaction and that an SDK provides a programming-language-oriented client layer for carrying it out."
       },
       {
-        "id": "q-openai-responses-2",
-        "prompt": "What must accompany the choice to use previous_response_id?",
+        "id": "openai-responses-api-and-sdk-workflows-response-inspection",
+        "prompt": "What should an application do immediately after receiving a response?",
         "choices": [
-          "An assumption that no state is stored",
-          "A documented persistence, retention, deletion, privacy, branching, and recovery policy",
-          "A hard-coded model name",
-          "Unlimited retries"
+          "Automatically treat every output as approved for any use.",
+          "Inspect the response and check whether its output satisfies the task and required form.",
+          "Discard the response without reading it.",
+          "Assume the SDK has verified every factual statement."
         ],
         "answerIndex": 1,
-        "explanation": "Linked state changes operational and privacy behavior and needs an explicit lifecycle."
+        "explanation": "The workflow requires inspecting the returned response and checking that the needed output satisfies the task before the application uses it."
       },
       {
-        "id": "q-openai-responses-3",
-        "prompt": "Where should a reusable client obtain the model identifier?",
+        "id": "openai-responses-api-and-sdk-workflows-continuation",
+        "prompt": "After inspecting generated output, what decision belongs to the application?",
         "choices": [
-          "From response text",
-          "From a tutorial copied permanently",
-          "From reviewed configuration verified against current official documentation",
-          "From the API key"
+          "Whether to stop, revise the input, or continue the interaction.",
+          "Whether to redefine the Responses API for every request.",
+          "Whether to accept the output without any use-case checks.",
+          "Whether to conceal the output from the application."
         ],
-        "answerIndex": 2,
-        "explanation": "Model support and identifiers change and must remain configurable and source-verified."
+        "answerIndex": 0,
+        "explanation": "The final workflow stage is an application decision to stop, revise the input, or continue based on the inspected result."
       },
       {
-        "id": "q-openai-responses-4",
-        "prompt": "A response status is incomplete. What should the application do?",
+        "id": "openai-responses-api-and-sdk-workflows-source-update",
+        "prompt": "What did the source correction in this update affect?",
         "choices": [
-          "Claim success if any text exists",
-          "Retry forever",
-          "Discard all evidence",
-          "Inspect the incomplete details and enter the explicit recovery or escalation path"
-        ],
-        "answerIndex": 3,
-        "explanation": "Incomplete is a distinct outcome whose cause determines whether recovery is safe."
-      },
-      {
-        "id": "q-openai-responses-5",
-        "prompt": "Which telemetry is appropriate by default?",
-        "choices": [
-          "The API key and complete authorization header",
-          "Correlation, versions, model configuration reference, status, item types, usage, validation, retries, and terminal state under an allowlist",
-          "Every raw input and output forever",
-          "No terminal-state evidence"
+          "It introduced a new SDK version and new configuration keys.",
+          "It replaced an unverified self-citation with the official API reference and updated verification metadata.",
+          "It changed the module from intermediate to beginner.",
+          "It removed the response-inspection stage."
         ],
         "answerIndex": 1,
-        "explanation": "Allowlisted metadata supports operations while sensitive content and credentials remain excluded."
+        "explanation": "The update replaces the module's self-citation with the official OpenAI Responses API reference. It affects provenance and verification metadata, not the instructional workflow."
       }
     ]
   },
+  "reviewCadenceDays": 90,
+  "lastVerified": "2026-08-22",
   "sources": [
     {
-      "title": "Developer quickstart",
-      "url": "https://developers.openai.com/api/docs/quickstart",
+      "title": "OpenAI API Reference: Responses",
+      "url": "https://platform.openai.com/docs/api-reference/responses",
       "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Migrate to the Responses API",
-      "url": "https://developers.openai.com/api/docs/guides/migrate-to-responses",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Conversation state",
-      "url": "https://developers.openai.com/api/docs/guides/conversation-state",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Error codes",
-      "url": "https://developers.openai.com/api/docs/guides/error-codes",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
+      "lastVerified": "2026-08-22"
     }
   ]
 }
