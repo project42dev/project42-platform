@@ -1,257 +1,119 @@
 {
   "id": "observability-cost-and-performance",
-  "title": "Managing Observability Cost and Performance",
-  "summary": "This intermediate-level module teaches learners to estimate observability data volume, evaluate instrumentation overhead, and choose controls that balance diagnostic detail with cost and service performance. After completing it, learners can create and validate a provider-neutral observability budget instead of selecting collection settings without measurement.",
-  "level": "intermediate",
-  "providers": [
-    "provider-neutral"
-  ],
-  "estimatedMinutes": 25,
+  "title": "Observability, Cost, and Performance",
+  "summary": "Instrument model serving with privacy-conscious logs, metrics, traces, alerts, and cost evidence that connect user outcomes to exact model and runtime identities.",
+  "level": "advanced",
+  "reviewCadenceDays": 60,
+  "lastVerified": "2026-07-27",
+  "providers": ["provider-neutral"],
+  "estimatedMinutes": 55,
   "objectives": [
-    "Calculate an estimated observability data volume from measured event rate, average event size, and observation period.",
-    "Compare baseline and instrumented measurements to identify possible observability overhead.",
-    "Select sampling, aggregation, filtering, or retention changes while documenting the diagnostic detail each change removes.",
-    "Explain why a trace sampling indication does not guarantee that complete trace data exists."
+    "Define observable questions and service objectives before selecting telemetry fields or dashboards.",
+    "Correlate requests, model identities, policy outcomes, errors, latency, resource use, and cost without logging unnecessary content or secrets.",
+    "Interpret distributions, queueing, saturation, cardinality, sampling, and missing telemetry correctly.",
+    "Create actionable alerts, investigation views, retention controls, and evidence that supports tuning, capacity, release, and incident decisions."
   ],
-  "prerequisites": [],
+  "prerequisites": ["evaluate-the-exact-serving-build"],
   "sections": [
     {
-      "id": "currency-update",
-      "title": "Source correction and scope",
+      "id": "start-with-questions",
+      "title": "Start with operational questions and objectives",
       "paragraphs": [
-        "The previous citation was the internal path content/modules/self-hosted-model-operations/observability-cost-and-performance.json. The supplied review record identifies that publisher as unregistered and the citation as never verified. This update replaces that citation with directly accessible standards and documentation sources.",
-        "The source correction affects the explanation of distributed trace context and sampling semantics. The corrected wording now distinguishes a sampling indication from a guarantee that complete trace data was recorded. The cost model and controlled measurement procedure are unaffected by that source change."
+        "Write the questions operators must answer: Is the right model serving? Are users receiving valid results? Which slices fail? Where is time spent? What is queued or rejected? Which resource is saturated? Did an update change quality, security, cost, or recovery? Can an incident be scoped and reproduced?",
+        "Define indicators and objectives for availability, successful outcomes, policy outcomes, latency distributions, queue time, throughput, rejection, error, recovery, and budget. A dashboard without a decision or owner becomes decorative telemetry."
       ]
     },
     {
-      "id": "intermediate-scope",
-      "title": "Intermediate scope",
+      "id": "correlate-signals",
+      "title": "Correlate logs, metrics, traces, events, and exact identities",
       "paragraphs": [
-        "This is an intermediate module. It assumes familiarity with requests, latency, throughput, resource use, logs, measurements, and traces. It does not assume knowledge of a particular provider, product, collection system, pricing model, or statistical technique beyond comparing measurements collected under equivalent conditions.",
-        "Exact event rates, event sizes, retention periods, storage prices, latency limits, and acceptable overhead are environment-specific and therefore UNKNOWN until they are measured or supplied by the organization responsible for the service."
+        "Use a request or run identifier to connect gateway, adapter, inference server, runtime, tool, policy, and application events. Record service and instance identity, exact model and runtime bundle, route, operation, status, error category, policy disposition, input and output size measures, queue and processing time, resource observations, and release identifier.",
+        "OpenTelemetry semantic conventions provide shared names and stability metadata for telemetry concepts. Version the convention and application fields you adopt. Do not assume every generative-AI field is stable or available across runtimes; preserve an application-owned core and explicit adapters."
       ]
     },
     {
-      "id": "estimate-data-volume",
-      "title": "Estimate data volume before changing collection",
+      "id": "minimize-sensitive-telemetry",
+      "title": "Minimize sensitive content and control telemetry access",
       "paragraphs": [
-        "Start with measured inputs rather than a guessed monthly total. Estimated data volume equals observed event rate multiplied by average event size and the observation period. Keep units consistent so they cancel correctly. For example, events per second multiplied by bytes per event and seconds produces bytes.",
-        "Apply the calculation separately to materially different data categories when their rates or sizes differ, then add the results. A single average can conceal a high-volume category. Convert estimated volume into monetary cost only after obtaining a valid storage or transfer price for the relevant environment. Without that price, monetary cost is UNKNOWN and should not be asserted.",
-        "The estimate is a planning model, not proof of actual usage. Validate it against measured ingestion and storage totals. A difference signals that an input, an excluded processing step, or the model itself needs investigation."
-      ],
-      "callout": "Record the measurement window, units, and origin of every input so another reviewer can reproduce the estimate."
-    },
-    {
-      "id": "measure-overhead",
-      "title": "Measure performance overhead",
-      "paragraphs": [
-        "To evaluate possible instrumentation overhead, collect a baseline without the proposed change and a comparison with the change enabled. Keep the workload, observation window, service build, and surrounding conditions as equivalent as practical. Compare latency distributions, throughput, resource use, and error behavior rather than relying on a single observation.",
-        "A difference between two runs does not by itself prove causation. Repeat measurements and document uncontrolled differences. If equivalent conditions cannot be established, the overhead attributable to instrumentation remains UNKNOWN.",
-        "Define acceptable limits before reviewing the result. The module does not prescribe universal limits because acceptable cost and performance depend on the service objective, traffic pattern, diagnostic requirements, and available resources."
+        "Default to metadata and derived measurements rather than raw prompts, responses, retrieved documents, credentials, headers, or personal identifiers. If sampled content is necessary for an approved purpose, minimize, redact, encrypt, restrict access, record consent or authority, set short retention, audit use, and test deletion.",
+        "Threat-model telemetry pipelines, collectors, exporters, stores, dashboards, alerts, and support bundles. A secure serving path can still disclose data through verbose errors, traces, exception bodies, labels, exemplars, or high-cardinality identifiers."
       ]
     },
     {
-      "id": "choose-volume-controls",
-      "title": "Choose controls and record tradeoffs",
+      "id": "measure-distributions-and-cost",
+      "title": "Measure distributions, saturation, and attributable cost",
       "paragraphs": [
-        "Sampling records only a selected portion of eligible observations. Filtering excludes observations that match a rule. Aggregation stores summaries instead of every underlying observation. Shorter retention removes data sooner. Each can reduce stored volume, but each also removes diagnostic detail or history.",
-        "Choose a control only after identifying the investigation it must still support. Record what will no longer be available, such as individual low-frequency observations, exact event detail, or older history. Recalculate the volume estimate and repeat the overhead comparison after the change.",
-        "Use reversible changes when practical and monitor for lost diagnostic capability. If no evidence establishes whether a proposed reduction preserves the investigations the service requires, that outcome is UNKNOWN and the change should not be presented as safe."
+        "Record latency and size as distributions with suitable histogram resolution or buckets, not only averages. Prometheus documents that precomputed summary quantiles are generally not aggregatable across replicas, while histograms support later aggregation subject to their representation. Preserve counts, failures, and the population behind every percentile.",
+        "Measure queue time, time to first output, processing and streaming time, throughput, cancellations, retries, cache behavior, accelerator and host utilization, memory headroom, storage and network activity, and energy or cloud charges where available. Attribute costs by bounded tenant, workload, route, model, and release without using unbounded labels."
       ]
     },
     {
-      "id": "trace-sampling-semantics",
-      "title": "Interpret trace sampling carefully",
+      "id": "alert-and-investigate",
+      "title": "Alert on symptoms with actionable context",
       "paragraphs": [
-        "Distributed trace context allows related processing steps to carry shared tracing information across system boundaries. Its sampling indication communicates a recording decision, but it does not guarantee that every processing step recorded data or that a complete trace is available.",
-        "Treat the indication as context for downstream recording behavior, not as proof of completeness. Missing trace data can limit an investigation even when the indication requested recording. This corrected distinction follows the cited trace context standard."
+        "Alert on user-visible objective burn, critical safety or security outcomes, sustained queueing, rejection, errors, memory pressure, unavailable replicas, model-identity mismatch, telemetry loss, cost anomalies, and failed backup or rollback checks. Attach owner, severity, runbook, evidence links, and safe first actions.",
+        "Test alert firing, routing, deduplication, suppression, escalation, and recovery. Preserve baseline and deployment annotations so an operator can compare before and after a change. Missing telemetry is a condition to detect, not evidence that the service is healthy."
       ]
-    },
-    {
-      "id": "validation-workflow",
-      "title": "Validate an observability budget",
-      "paragraphs": [
-        "A defensible workflow begins by measuring event rates and sizes, calculating expected volume, and validating the estimate against observed totals. It then compares baseline and instrumented performance under equivalent conditions.",
-        "If cost or overhead exceeds the locally defined limit, choose a volume control, document the detail it removes, and repeat both validations. Approve the result only when measured cost and performance satisfy the local limits and the remaining data supports the required investigations."
-      ]
-    }
-  ],
-  "knowledgeCheck": {
-    "passPercent": 75,
-    "questions": [
-      {
-        "id": "observability-cost-and-performance-volume-inputs",
-        "prompt": "Which inputs does the module use to estimate observability data volume?",
-        "choices": [
-          "Event rate, average event size, and observation period",
-          "Storage price and error count only",
-          "Latency limit and processor count only",
-          "Retention period and sampling indication only"
-        ],
-        "answerIndex": 0,
-        "explanation": "The module defines estimated data volume as observed event rate multiplied by average event size and the observation period."
-      },
-      {
-        "id": "observability-cost-and-performance-overhead-test",
-        "prompt": "What is the module's recommended way to evaluate possible instrumentation overhead?",
-        "choices": [
-          "Assume all observed differences come from instrumentation",
-          "Compare one latency observation with a universal limit",
-          "Compare baseline and instrumented measurements under equivalent conditions",
-          "Calculate storage volume without running a comparison"
-        ],
-        "answerIndex": 2,
-        "explanation": "The module recommends baseline and instrumented measurements with workload, observation window, service build, and surrounding conditions kept as equivalent as practical."
-      },
-      {
-        "id": "observability-cost-and-performance-sampling-meaning",
-        "prompt": "What does a distributed trace sampling indication guarantee?",
-        "choices": [
-          "Every processing step recorded complete trace data",
-          "The trace will be retained indefinitely",
-          "The trace has no performance cost",
-          "It does not guarantee that complete trace data exists"
-        ],
-        "answerIndex": 3,
-        "explanation": "The trace section explains that a sampling indication communicates a recording decision but does not prove that every step recorded data or that the trace is complete."
-      },
-      {
-        "id": "observability-cost-and-performance-unknown-price",
-        "prompt": "What should a learner report when no valid storage or transfer price is available?",
-        "choices": [
-          "A guessed monetary cost",
-          "A universal default price",
-          "Monetary cost as UNKNOWN",
-          "Zero monetary cost"
-        ],
-        "answerIndex": 2,
-        "explanation": "The module states that monetary cost is UNKNOWN until a valid price for the relevant environment is available."
-      }
-    ]
-  },
-  "reviewCadenceDays": 180,
-  "lastVerified": "2026-08-22",
-  "sources": [
-    {
-      "title": "Trace Context",
-      "url": "https://www.w3.org/TR/trace-context/",
-      "publisher": "World Wide Web Consortium",
-      "lastVerified": "2026-08-22"
-    },
-    {
-      "title": "Monitoring Distributed Systems",
-      "url": "https://sre.google/sre-book/monitoring-distributed-systems/",
-      "publisher": "Google",
-      "lastVerified": "2026-08-22"
     }
   ],
   "activity": {
-    "id": "activity-observability-cost-and-performance",
-    "title": "Managing Observability Cost and Performance Practical Lab",
+    "id": "activity-observability-contract",
+    "title": "Build a privacy-conscious observability contract",
     "instructions": [
-      "Review the scenario requirements and parameters.",
-      "Execute the practical steps in your development environment.",
-      "Validate the output traces against the expected assertions.",
-      "Document conclusions and submit the result."
+      "Write ten operator questions and map each to signals, exact identities, dimensions, owner, decision, and retention.",
+      "Define request, model, release, policy, latency, queue, error, saturation, and cost fields with stability and cardinality limits.",
+      "Classify every proposed field as required metadata, optional sensitive content, prohibited secret, or derived measurement.",
+      "Design latency and size histograms, objective calculations, and cost allocation for three replicas without averaging quantiles.",
+      "Create five alerts and paper-test firing, routing, evidence, runbook, escalation, and recovery."
     ],
     "evidence": [
-      "Command execution output log",
-      "Verification trace results"
+      "An operator-question-to-signal matrix and versioned telemetry field contract.",
+      "A privacy, access, retention, redaction, cardinality, sampling, and deletion review.",
+      "Objective, distribution, cost, dashboard, and alert fixtures with tested-paper incident and recovery links."
     ],
-    "reflectionPrompt": "How do the core principles of Managing Observability Cost and Performance improve system predictability?"
+    "reflectionPrompt": "Which telemetry field is easiest to collect but hardest to justify retaining?"
   },
   "instructorScript": {
     "schemaVersion": "1.1",
-    "estimatedSeconds": 600,
+    "estimatedSeconds": 1590,
     "cues": [
-      {
-        "id": "cue-observability-cost-and-performance-sec-0",
-        "kind": "narration",
-        "sectionId": "currency-update",
-        "text": "Reviewing Source correction and scope: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-observability-cost-and-performance-sec-1",
-        "kind": "narration",
-        "sectionId": "intermediate-scope",
-        "text": "Reviewing Intermediate scope: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-observability-cost-and-performance-sec-2",
-        "kind": "narration",
-        "sectionId": "estimate-data-volume",
-        "text": "Reviewing Estimate data volume before changing collection: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-observability-cost-and-performance-sec-3",
-        "kind": "narration",
-        "sectionId": "measure-overhead",
-        "text": "Reviewing Measure performance overhead: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-observability-cost-and-performance-sec-4",
-        "kind": "narration",
-        "sectionId": "choose-volume-controls",
-        "text": "Reviewing Choose controls and record tradeoffs: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-observability-cost-and-performance-sec-5",
-        "kind": "narration",
-        "sectionId": "trace-sampling-semantics",
-        "text": "Reviewing Interpret trace sampling carefully: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-observability-cost-and-performance-sec-6",
-        "kind": "learner-prompt",
-        "sectionId": "validation-workflow",
-        "text": "Reviewing Validate an observability budget: Key concepts and architectural guidance."
-      }
+      {"id": "cue-observability-questions", "kind": "narration", "sectionId": "start-with-questions", "text": "Begin with user, operator, release, capacity, cost, and incident questions, then define indicators, objectives, owners, and decisions."},
+      {"id": "cue-observability-visual", "kind": "visual", "sectionId": "correlate-signals", "text": "Correlate one request across gateway, adapter, server, runtime, policy, resource, release, and outcome signals.", "accessibilityAlternative": "A static correlation table lists a shared run identifier and the fields emitted by each serving layer."},
+      {"id": "cue-observability-correlate", "kind": "narration", "sectionId": "correlate-signals", "text": "Version an application-owned telemetry core that records exact model and runtime identities while adapting external conventions explicitly."},
+      {"id": "cue-observability-privacy", "kind": "narration", "sectionId": "minimize-sensitive-telemetry", "text": "Prefer metadata and derived measures, prohibit secrets, and tightly govern any approved content sampling, retention, access, and deletion."},
+      {"id": "cue-observability-checkpoint", "kind": "checkpoint", "sectionId": "minimize-sensitive-telemetry", "text": "Ask why a trace can violate the data boundary even when inference transport is encrypted."},
+      {"id": "cue-observability-distributions", "kind": "narration", "sectionId": "measure-distributions-and-cost", "text": "Measure latency, size, queueing, saturation, retries, and cost as attributable distributions with controlled cardinality."},
+      {"id": "cue-observability-alerts", "kind": "narration", "sectionId": "alert-and-investigate", "text": "Alert on user-visible objectives and critical controls with owners, runbooks, evidence, escalation, and tested recovery."},
+      {"id": "cue-observability-activity", "kind": "learner-prompt", "text": "Guide the question matrix, field contract, privacy review, distributions, costs, dashboards, and alert tests."},
+      {"id": "cue-observability-assessment", "kind": "assessment-handoff", "text": "Begin the check after the learner can defend observability usefulness, privacy, distributions, cardinality, cost, and alerts."}
     ],
-    "transcript": "Welcome to Managing Observability Cost and Performance. In this module, we review key concepts and practical implementations across all sections.",
+    "transcript": "Begin with user, operator, release, capacity, cost, and incident questions, then define indicators, objectives, owners, and decisions. A dashboard exists to support action. Version an application-owned telemetry core that records exact model and runtime identities while adapting external conventions explicitly. Correlate gateway, adapter, server, runtime, policy, resource, release, and outcome signals with a bounded identifier. Prefer metadata and derived measures, prohibit secrets, and tightly govern any approved content sampling, retention, access, and deletion. Threat-model collectors, exporters, stores, dashboards, alerts, and support bundles. Measure latency, size, queueing, saturation, retries, and cost as attributable distributions with controlled cardinality. Do not average precomputed quantiles across replicas or omit the population and failures. Alert on user-visible objectives and critical controls with owners, runbooks, evidence, escalation, and tested recovery. Detect telemetry loss and preserve deployment annotations so operators can compare a failing release with its verified baseline.",
     "captions": [
-      {
-        "cueId": "cue-observability-cost-and-performance-sec-0",
-        "startSeconds": 0,
-        "endSeconds": 30,
-        "text": "Reviewing Source correction and scope: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-observability-cost-and-performance-sec-1",
-        "startSeconds": 30,
-        "endSeconds": 60,
-        "text": "Reviewing Intermediate scope: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-observability-cost-and-performance-sec-2",
-        "startSeconds": 60,
-        "endSeconds": 90,
-        "text": "Reviewing Estimate data volume before changing collection: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-observability-cost-and-performance-sec-3",
-        "startSeconds": 90,
-        "endSeconds": 120,
-        "text": "Reviewing Measure performance overhead: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-observability-cost-and-performance-sec-4",
-        "startSeconds": 120,
-        "endSeconds": 150,
-        "text": "Reviewing Choose controls and record tradeoffs: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-observability-cost-and-performance-sec-5",
-        "startSeconds": 150,
-        "endSeconds": 180,
-        "text": "Reviewing Interpret trace sampling carefully: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-observability-cost-and-performance-sec-6",
-        "startSeconds": 180,
-        "endSeconds": 210,
-        "text": "Reviewing Validate an observability budget: Key concepts and architectural guidance."
-      }
+      {"cueId": "cue-observability-questions", "startSeconds": 0, "endSeconds": 270, "text": "Begin with user, operator, release, capacity, cost, and incident questions, then define indicators, objectives, owners, and decisions."},
+      {"cueId": "cue-observability-correlate", "startSeconds": 270, "endSeconds": 570, "text": "Version an application-owned telemetry core that records exact model and runtime identities while adapting external conventions explicitly."},
+      {"cueId": "cue-observability-privacy", "startSeconds": 570, "endSeconds": 870, "text": "Prefer metadata and derived measures, prohibit secrets, and tightly govern any approved content sampling, retention, access, and deletion."},
+      {"cueId": "cue-observability-distributions", "startSeconds": 870, "endSeconds": 1170, "text": "Measure latency, size, queueing, saturation, retries, and cost as attributable distributions with controlled cardinality."},
+      {"cueId": "cue-observability-alerts", "startSeconds": 1170, "endSeconds": 1380, "text": "Alert on user-visible objectives and critical controls with owners, runbooks, evidence, escalation, and tested recovery."},
+      {"cueId": "cue-observability-activity", "startSeconds": 1380, "endSeconds": 1560, "text": "Guide the question matrix, field contract, privacy review, distributions, costs, dashboards, and alert tests."},
+      {"cueId": "cue-observability-assessment", "startSeconds": 1560, "endSeconds": 1590, "text": "Begin the check after the learner can defend observability usefulness, privacy, distributions, cardinality, cost, and alerts."}
     ],
-    "reducedMotionAlternative": "Managing Observability Cost and Performance architecture diagram and walkthrough."
-  }
+    "reducedMotionAlternative": "Use static signal-correlation, field-governance, histogram, cost-allocation, objective, and alert tables. Provide exact values and text summaries for every chart."
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {"id": "q-observability-1", "prompt": "What should come before dashboard design?", "choices": ["Color selection", "Operational questions, indicators, objectives, owners, and decisions", "Raw prompt logging", "Unlimited labels"], "answerIndex": 1, "explanation": "Telemetry should answer owned operational questions and support decisions."},
+      {"id": "q-observability-2", "prompt": "Which identity is essential for release comparison?", "choices": ["Only a friendly model alias", "Only a host name", "Exact model, runtime, configuration, and release identity", "A dashboard title"], "answerIndex": 2, "explanation": "Exact identities connect observed behavior to the build that produced it."},
+      {"id": "q-observability-3", "prompt": "What is the safest default for prompt and response content in telemetry?", "choices": ["Log everything forever", "Use it as metric labels", "Send it to every alert", "Do not collect it unless an approved minimized and governed use requires it"], "answerIndex": 3, "explanation": "Content can contain sensitive data and should not be collected by default."},
+      {"id": "q-observability-4", "prompt": "Why should latency be recorded as a distribution?", "choices": ["Averages hide tails and populations needed for service decisions", "Distributions remove all errors", "They need no counts", "They reduce identity needs"], "answerIndex": 0, "explanation": "Tail behavior and population shape matter for users and capacity."},
+      {"id": "q-observability-5", "prompt": "What is wrong with averaging p95 values from multiple summaries?", "choices": ["Nothing", "Precomputed summary quantiles are generally not aggregatable that way", "It reveals secrets", "It measures throughput"], "answerIndex": 1, "explanation": "Quantiles are not linear values that can generally be averaged across populations."},
+      {"id": "q-observability-6", "prompt": "What makes an alert actionable?", "choices": ["A loud sound", "A screenshot", "User or control symptom, owner, severity, runbook, evidence, escalation, and tested recovery", "Raw content in the title"], "answerIndex": 2, "explanation": "An alert must route a meaningful condition into an owned response."}
+    ]
+  },
+  "sources": [
+    {"title": "OpenTelemetry Semantic Conventions", "url": "https://opentelemetry.io/docs/specs/semconv/", "publisher": "OpenTelemetry", "lastVerified": "2026-07-27"},
+    {"title": "Histograms and summaries", "url": "https://prometheus.io/docs/practices/histograms/", "publisher": "Prometheus", "lastVerified": "2026-07-27"},
+    {"title": "Tools for Monitoring Resources", "url": "https://kubernetes.io/docs/tasks/debug/debug-cluster/resource-usage-monitoring/", "publisher": "Kubernetes", "lastVerified": "2026-07-27"},
+    {"title": "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile", "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence", "publisher": "NIST", "lastVerified": "2026-07-27"}
+  ]
 }

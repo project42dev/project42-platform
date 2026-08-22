@@ -102,7 +102,7 @@ test("non-approved bearer identities have an exhaustive fail-closed self-service
     identities.set(`${state}-token`, identity(`${state}-learner`));
     identities.set(
       `${state}-stale-token`,
-      identity(`${state}-learner`, Math.floor(Date.now() / 1_000) - 16 * 60),
+      identity(`${state}-learner`, Math.floor(Date.now() / 1_000) - 73 * 3_600),
     );
   }
 

@@ -1,126 +1,117 @@
 {
   "id": "claude-safety-and-trust-boundaries",
-  "title": "Claude Safety and Trust Boundaries",
-  "summary": "This intermediate module enables learners to define trust boundaries around Claude and decide where independent validation, authorization, or human review is required. After completing it, learners can distinguish a model response from permission to perform an action.",
-  "level": "intermediate",
-  "providers": [
-    "anthropic"
-  ],
-  "estimatedMinutes": 18,
+  "title": "Secure Claude Workflows with Layered Trust Boundaries",
+  "summary": "Threat-model direct and indirect prompt injection, data exposure, excessive authority, and unsafe side effects, then enforce layered controls around Claude.",
+  "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
+  "providers": ["anthropic"],
+  "estimatedMinutes": 58,
   "objectives": [
-    "Identify where untrusted data crosses a boundary in an application that uses Claude.",
-    "Distinguish model-generated recommendations from authorization to perform consequential actions.",
-    "Choose independent validation or human review appropriate to the consequence of an action.",
-    "Explain why model-level safeguards do not replace application-level controls."
+    "Distinguish direct jailbreaks from indirect prompt injection in documents and tool results.",
+    "Separate trusted instructions from untrusted data and minimize sensitive context.",
+    "Enforce least privilege, sandboxing, approval, validation, and output controls outside the model.",
+    "Red-team and monitor the complete workflow rather than relying on one prompt safeguard."
   ],
-  "prerequisites": [],
+  "prerequisites": ["claude-tools-and-agent-loops"],
   "sections": [
     {
-      "id": "source-update",
-      "title": "Source update",
+      "id": "threat-model-the-workflow",
+      "title": "Threat-model the complete workflow",
       "paragraphs": [
-        "The previous citation was an unverified local publisher record at content/modules/anthropic-claude-practice/claude-safety-and-trust-boundaries.json. During this review, it was replaced with official National Institute of Standards and Technology guidance and Anthropic's official Responsible Scaling Policy.",
-        "This change affects the module's source attribution and the support for its risk-management guidance. The correction also makes clear that the controls described here are application design practices, not claims about undocumented Claude features or internal safeguards. The learning level, trust-boundary method, and emphasis on independent authorization remain unchanged."
+        "Direct injection comes from a user trying to override application policy. Indirect injection arrives inside content Claude reads, such as a document, email, web page, OCR result, memory, or tool response. Both can target data, tools, identity, or decisions.",
+        "List actors, trusted instructions, untrusted inputs, sensitive assets, tools, permissions, side effects, and consequence of failure. Model behavior is one layer; the surrounding system owns enforceable security."
       ]
     },
     {
-      "id": "level-and-scope",
-      "title": "Level and scope",
+      "id": "separate-instructions-and-data",
+      "title": "Separate instructions from data",
       "paragraphs": [
-        "This is an intermediate-level module. It assumes that you understand basic prompts, model responses, and the idea that an application can pass information between components. It does not assume knowledge of security engineering, a particular programming language, or undocumented provider controls.",
-        "A trust boundary is a point where data or a requested action moves between parties or components that should not automatically trust one another. In an application using Claude, boundaries can exist between a user and the application, between retrieved material and a prompt, between Claude's response and application logic, and between the application and a person or system able to cause an external effect."
+        "Keep policy in trusted instruction channels and label the source and trust level of external content. Place third-party tool content in the documented tool-result structure instead of concatenating it into privileged instructions.",
+        "Structure and escaping reduce ambiguity but do not create trust. Screen risky inputs and outputs, minimize proprietary prompt details, and never place secrets in model context unless the exact task requires them and policy permits it."
       ]
     },
     {
-      "id": "separate-content-from-authority",
-      "title": "Separate content from authority",
+      "id": "contain-authority",
+      "title": "Contain authority and blast radius",
       "paragraphs": [
-        "Claude can produce text that looks like an instruction, approval, classification, or decision. The form of that text does not give it authority. Application logic should decide whether an action is permitted by consulting an independent source of authorization rather than treating the model's wording as permission.",
-        "For example, a response recommending that a record be changed can be useful as input to a decision. The response should not, by itself, establish that the requester is allowed to change the record. Authorization belongs outside the model response and should be evaluated at the boundary before the action occurs.",
-        "This distinction lets you use model output while limiting its power. The model supplies content or analysis. A separate control supplies permission."
+        "Give each workload the smallest data scope, tools, credentials, network access, filesystem access, duration, and budget it needs. Separate read, reversible write, communication, privileged change, and destructive authority.",
+        "Sandbox execution, validate every tool proposal, require human confirmation for consequential actions, and verify postconditions. A successful injection should still encounter an external policy boundary."
       ],
-      "callout": "A model response may recommend an action, but it should not be the sole source of authority for that action."
+      "callout": "Instructions can guide Claude; identity, authorization, approval, and sandbox controls must be enforced by systems outside the model."
     },
     {
-      "id": "map-the-boundaries",
-      "title": "Map the boundaries",
+      "id": "layer-detection-and-response",
+      "title": "Layer detection and response",
       "paragraphs": [
-        "Start by tracing information from its origin to its possible effect. Identify who supplied each input, whether external content can influence the prompt, what the model returns, and what could consume that return.",
-        "Mark a boundary whenever information enters from a party that is not already trusted for the intended decision. User text, retrieved documents, and model output should be evaluated according to how they will be used. Data that is acceptable for summarization may not be acceptable as authorization for an external action.",
-        "Then classify the possible consequence. A low-consequence response that a person merely reads may need fewer controls than a response used to disclose information, alter a record, or trigger another consequential action. The control should be chosen according to the consequence, not according to how confident or polished the response sounds."
+        "Combine input checks, trust labels, policy prompts, constrained tools, output validation, approval, rate limits, monitoring, and incident response. No individual prompt or classifier is foolproof.",
+        "Record safe signals for repeated attack patterns, policy refusals, unusual tool selection, authorization failures, and blocked outputs. Define containment, credential revocation, evidence preservation, user communication, and recovery before release."
       ]
     },
     {
-      "id": "place-independent-controls",
-      "title": "Place independent controls",
+      "id": "red-team-real-trajectories",
+      "title": "Red-team real trajectories",
       "paragraphs": [
-        "At each consequential boundary, apply a control that does not depend only on the model agreeing that an action is safe. Examples of control types include checking the requester's authority, validating the structure and allowed range of data, limiting the actions available to the application, and requiring human review before a high-consequence action.",
-        "Independent controls provide defense in depth. If misleading input changes a model response, the next boundary can still reject an unauthorized or invalid action. The purpose is not to assume that every response is wrong. It is to prevent one response from becoming the only barrier between untrusted input and a consequential effect.",
-        "Model-level safety measures and application-level controls address different parts of the risk. A provider may apply safeguards to a model, while the application owner still determines what data the application accepts, what authority a user has, and which effects require additional approval."
-      ]
-    },
-    {
-      "id": "review-method",
-      "title": "Apply the review method",
-      "paragraphs": [
-        "For each path through the application, ask four questions. First, where did the information originate? Second, which component is being asked to trust it? Third, what consequence could follow if it is incorrect or adversarial? Fourth, which independent control stands between that information and the consequence?",
-        "A boundary is incomplete when the answer to the fourth question is only that Claude will decide whether its own output is safe. Improve that boundary by adding a separate authorization check, constrained action scope, validation step, or human decision suited to the consequence.",
-        "After this module, you can create a basic trust-boundary review that follows information from input to effect, separates recommendations from permission, and identifies where an independent control is needed."
+        "Test benign tasks, direct jailbreaks, malicious retrieved documents, poisoned tool results, data-exfiltration attempts, confused-deputy requests, approval bypass, and delayed attacks across multiple turns.",
+        "Score both final output and trajectory: what Claude read, requested, was authorized to execute, and actually changed. Add every confirmed failure to a versioned regression suite and re-run it when models, prompts, tools, or policy change."
       ]
     }
   ],
+  "activity": {
+    "id": "activity-claude-threat-model",
+    "title": "Red-team and contain a Claude workflow",
+    "instructions": [
+      "Create a data-flow and trust-boundary map for one Claude workflow, including identities, sensitive assets, external content, tools, approvals, and side effects.",
+      "Write eight tests: two benign, two direct injection, two indirect injection, one data-exfiltration, and one approval-bypass case.",
+      "Implement or specify layered prevention, detection, containment, and recovery controls outside the model.",
+      "Run the cases, record output and trajectory evidence, and convert failures into regression tests with owners."
+    ],
+    "evidence": [
+      "A threat model and control matrix mapping every material threat to an enforceable prevention, detection, response, or recovery control.",
+      "An eight-case red-team report with trajectories, blocked actions, residual risks, regression cases, and accountable owners."
+    ],
+    "reflectionPrompt": "If Claude followed the malicious instruction perfectly, which external control would still prevent the highest-impact harm?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 1740,
+    "cues": [
+      {"id": "cue-claude-safety-threat", "kind": "narration", "sectionId": "threat-model-the-workflow", "text": "Threat-model direct and indirect injection across users, documents, tools, data, identities, decisions, and side effects."},
+      {"id": "cue-claude-safety-separate", "kind": "narration", "sectionId": "separate-instructions-and-data", "text": "Separate trusted instructions from labeled untrusted data while minimizing secrets and screening risky inputs and outputs."},
+      {"id": "cue-claude-safety-contain", "kind": "narration", "sectionId": "contain-authority", "text": "Contain blast radius with least privilege, sandboxing, validation, approvals, budgets, and verified postconditions outside the model."},
+      {"id": "cue-claude-safety-detect", "kind": "narration", "sectionId": "layer-detection-and-response", "text": "Layer prevention, detection, containment, evidence preservation, revocation, communication, and recovery instead of trusting one safeguard."},
+      {"id": "cue-claude-safety-redteam", "kind": "narration", "sectionId": "red-team-real-trajectories", "text": "Red-team realistic multi-turn trajectories and promote every confirmed failure into versioned regression coverage."},
+      {"id": "cue-claude-safety-visual", "kind": "visual", "sectionId": "contain-authority", "text": "Place model behavior inside nested input, data, tool, identity, approval, sandbox, validation, and monitoring boundaries.", "accessibilityAlternative": "A static defense-in-depth table lists each boundary, threat addressed, enforcement owner, and failure response."},
+      {"id": "cue-claude-safety-prompt", "kind": "learner-prompt", "sectionId": "separate-instructions-and-data", "text": "Ask learners why labeling untrusted content is helpful but insufficient."},
+      {"id": "cue-claude-safety-pause", "kind": "pause", "sectionId": "layer-detection-and-response", "text": "Allow three minutes to name one prevention and one response control for an injected tool result."},
+      {"id": "cue-claude-safety-checkpoint", "kind": "checkpoint", "sectionId": "red-team-real-trajectories", "text": "Check that every high-impact threat meets an external enforcement boundary and has a regression case."},
+      {"id": "cue-claude-safety-activity", "kind": "learner-prompt", "text": "Guide the threat map, eight cases, layered controls, trajectory review, and residual-risk ownership."},
+      {"id": "cue-claude-safety-assessment", "kind": "assessment-handoff", "text": "Begin the check after the learner can defend the workflow even when model behavior fails."}
+    ],
+    "transcript": "Threat-model direct and indirect injection across users, documents, tools, data, identities, decisions, and side effects. Separate trusted instructions from labeled untrusted data while minimizing secrets and screening risky inputs and outputs. Contain blast radius with least privilege, sandboxing, validation, approvals, budgets, and verified postconditions outside the model. Layer prevention, detection, containment, evidence preservation, revocation, communication, and recovery instead of trusting one safeguard. Red-team realistic multi-turn trajectories and promote every confirmed failure into versioned regression coverage.",
+    "captions": [
+      {"cueId": "cue-claude-safety-threat", "startSeconds": 0, "endSeconds": 330, "text": "Threat-model direct and indirect injection across users, documents, tools, data, identities, decisions, and side effects."},
+      {"cueId": "cue-claude-safety-separate", "startSeconds": 360, "endSeconds": 690, "text": "Separate trusted instructions from labeled untrusted data while minimizing secrets and screening risky inputs and outputs."},
+      {"cueId": "cue-claude-safety-contain", "startSeconds": 720, "endSeconds": 1050, "text": "Contain blast radius with least privilege, sandboxing, validation, approvals, budgets, and verified postconditions outside the model."},
+      {"cueId": "cue-claude-safety-detect", "startSeconds": 1080, "endSeconds": 1380, "text": "Layer prevention, detection, containment, evidence preservation, revocation, communication, and recovery instead of trusting one safeguard."},
+      {"cueId": "cue-claude-safety-redteam", "startSeconds": 1410, "endSeconds": 1710, "text": "Red-team realistic multi-turn trajectories and promote every confirmed failure into versioned regression coverage."}
+    ],
+    "reducedMotionAlternative": "Use a static threat-to-control matrix and attack-trajectory table with focus highlighting."
+  },
   "knowledgeCheck": {
-    "passPercent": 100,
+    "passPercent": 80,
     "questions": [
-      {
-        "id": "claude-safety-and-trust-boundaries-q1",
-        "prompt": "Which statement correctly describes the relationship between a Claude response and authorization?",
-        "choices": [
-          "A confident response automatically authorizes the action it recommends.",
-          "A response can inform a decision, but permission should come from an independent authorization control.",
-          "Authorization is unnecessary when the response contains a detailed explanation."
-        ],
-        "answerIndex": 1,
-        "explanation": "The module separates content from authority. Claude may provide analysis or a recommendation, but an independent control should determine whether an action is permitted."
-      },
-      {
-        "id": "claude-safety-and-trust-boundaries-q2",
-        "prompt": "When should an application designer mark a trust boundary?",
-        "choices": [
-          "Whenever information moves from a party or component that is not already trusted for the intended decision.",
-          "Only after the application has produced an incorrect result.",
-          "Only where a person types the first prompt."
-        ],
-        "answerIndex": 0,
-        "explanation": "The module defines a trust boundary as a point where data or a requested action moves between parties or components that should not automatically trust one another."
-      },
-      {
-        "id": "claude-safety-and-trust-boundaries-q3",
-        "prompt": "Why should a consequential action have a control that does not rely only on the model's safety judgment?",
-        "choices": [
-          "Because model responses can never be useful.",
-          "Because every model response must be rejected.",
-          "Because an independent control can still block an invalid or unauthorized action if misleading input affects the response."
-        ],
-        "answerIndex": 2,
-        "explanation": "Independent authorization, validation, constrained action scope, or human review provides defense in depth between model output and a consequential effect."
-      }
+      {"id": "q-claude-safety-1", "prompt": "What is indirect prompt injection?", "choices": ["A typo in a system prompt", "Malicious instructions embedded in content the workflow reads", "A normal refusal", "An expired API key"], "answerIndex": 1, "explanation": "Indirect injection enters through third-party documents, pages, messages, memories, or tool results."},
+      {"id": "q-claude-safety-2", "prompt": "What do XML or JSON boundaries guarantee?", "choices": ["Perfect security", "Authorization", "Clearer structure, but not trust or enforcement", "Secret encryption"], "answerIndex": 2, "explanation": "Structure reduces ambiguity; external controls must enforce trust and authority."},
+      {"id": "q-claude-safety-3", "prompt": "Where should consequential-action approval be enforced?", "choices": ["Only in a prompt", "In the external tool and policy boundary", "In the model name", "In source comments"], "answerIndex": 1, "explanation": "The surrounding system must block unauthorized execution."},
+      {"id": "q-claude-safety-4", "prompt": "What is the safest response to one successful red-team attack?", "choices": ["Hide it", "Change wording and delete evidence", "Assume it will not recur", "Contain impact, repair the failed boundary, and add a regression case"], "answerIndex": 3, "explanation": "Failures need containment, root-boundary repair, ownership, and durable regression coverage."},
+      {"id": "q-claude-safety-5", "prompt": "Why score agent trajectories?", "choices": ["A safe-looking answer may conceal unauthorized actions", "Only formatting matters", "Trajectories cannot be observed", "It replaces output review"], "answerIndex": 0, "explanation": "Safety depends on data accessed, tools requested, approvals, execution, and side effects as well as final output."}
     ]
   },
-  "reviewCadenceDays": 180,
-  "lastVerified": "2026-08-21",
   "sources": [
-    {
-      "title": "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile",
-      "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf",
-      "publisher": "National Institute of Standards and Technology",
-      "lastVerified": "2026-08-21"
-    },
-    {
-      "title": "Responsible Scaling Policy",
-      "url": "https://www.anthropic.com/responsible-scaling-policy",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-08-21"
-    }
+    {"title": "Mitigate jailbreaks and prompt injections", "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks", "publisher": "Anthropic", "lastVerified": "2026-07-25"},
+    {"title": "Reduce prompt leak", "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-prompt-leak", "publisher": "Anthropic", "lastVerified": "2026-07-25"},
+    {"title": "How we contain Claude across products", "url": "https://www.anthropic.com/engineering/how-we-contain-claude", "publisher": "Anthropic", "lastVerified": "2026-07-25"},
+    {"title": "How tool use works", "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/how-tool-use-works", "publisher": "Anthropic", "lastVerified": "2026-07-25"}
   ]
 }

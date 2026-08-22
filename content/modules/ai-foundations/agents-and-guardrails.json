@@ -1,280 +1,236 @@
 {
   "id": "agents-and-guardrails",
-  "title": "Agents and Guardrails",
-  "summary": "After this intermediate module, learners can map an agent loop, place guardrails at its decision and action boundaries, and design tests that verify both permitted and denied behavior. Learners can also distinguish a behavioral policy from the mechanisms that enforce it.",
-  "level": "intermediate",
-  "providers": [
-    "provider-neutral"
-  ],
-  "estimatedMinutes": 30,
+  "title": "Agents, Tools, and Guardrails",
+  "summary": "Recognize agentic behavior, choose the simplest sufficient design, and place enforceable controls around loops that can affect real systems.",
+  "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-27",
+  "providers": ["provider-neutral"],
+  "estimatedMinutes": 42,
   "objectives": [
-    "Identify the observations, decisions, actions, and feedback that form an agent loop.",
-    "Distinguish a behavioral policy from an enforcement mechanism.",
-    "Place preventive, runtime, and post-action guardrails at appropriate boundaries.",
-    "Design tests covering permitted actions, denied actions, ambiguous requests, and attempted bypasses.",
-    "Explain why controls at an action boundary are needed even when outputs are checked."
+    "Distinguish a model response, deterministic workflow, and agentic loop.",
+    "Define goals, state, tools, exit conditions, budgets, and human handoffs.",
+    "Place enforceable guardrails around permissions, inputs, outputs, actions, and state.",
+    "Evaluate and recover from looping, drift, unsafe actions, and incomplete handoffs."
   ],
-  "prerequisites": [],
+  "prerequisites": ["safe-tool-use-workflow"],
   "sections": [
     {
-      "id": "currency-update",
-      "title": "What changed in this update",
+      "id": "agents-prepare",
+      "title": "Choose the simplest sufficient system",
       "paragraphs": [
-        "The previously cited source was content/modules/ai-foundations/agents-and-guardrails.json. That internal path had an unregistered publisher, had never been verified, and was not a directly resolvable HTTPS source.",
-        "This update replaces that citation with canonical arXiv records for the ReAct, Constitutional AI, and ToolEmu papers. The change affects source provenance, the support for the agent-loop and guardrail material, and the module's verification metadata. It does not introduce a provider-specific implementation, product configuration, or version-dependent instruction."
-      ]
-    },
-    {
-      "id": "level-and-scope",
-      "title": "Level and scope",
-      "paragraphs": [
-        "This is an intermediate-level module. It assumes that a learner understands the basic idea of a model receiving input and producing output. It does not assume experience with a particular provider, programming library, agent framework, or security product.",
-        "The module uses tool as a generic term for an external capability an agent can request, such as retrieving a record or submitting a change. It focuses on reasoning about control boundaries rather than configuring a named implementation."
-      ]
-    },
-    {
-      "id": "agent-loop",
-      "title": "Map the agent loop",
-      "paragraphs": [
-        "A useful agent-loop model has four stages: observe the current state, decide what to do next, request an action, and inspect the resulting observation before continuing or stopping. The ReAct paper describes an approach that interleaves reasoning traces with actions and incorporates observations from those actions.",
-        "This loop differs from treating a model response as the final result. An agent can use an observation from one action to select a later action. That repeated interaction creates additional control boundaries because an action can affect an external system before the agent produces its final response.",
-        "To map a workflow, write down the information the agent can observe, the actions it may request, the conditions under which each action is allowed, the result returned after an action, and the conditions that end or escalate the loop."
+        "A model call produces an output. A deterministic workflow follows code-defined steps. An agentic loop lets a model choose among tools or actions, observe results, update state, and continue toward a goal. Products such as chat assistants and copilots may contain agentic features, but a product name alone does not prove that every interaction is agentic.",
+        "Use an agent only when model-directed adaptation adds value beyond a fixed workflow. Define the user goal, permitted scope, observable completion criteria, unavailable actions, maximum turns, time and cost budgets, and conditions that return control to a person."
       ],
-      "callout": "A model's proposed action is not the same as an authorized action. Treat proposal and execution as separate steps."
+      "code": {
+        "language": "text",
+        "label": "Agent run contract",
+        "code": "Goal: [BOUNDED OUTCOME]\nState: [INPUTS, MEMORY, ARTIFACTS]\nTools: [READ AND ACTION TOOLS]\nAuthority: [PERMISSIONS AND APPROVALS]\nChecks: [STEP AND FINAL POSTCONDITIONS]\nBudgets: [TURNS, TIME, COST, CALLS]\nExit: [SUCCESS, STOP, FAILURE, HANDOFF]\nRecovery: [RESUME, ROLLBACK, ESCALATE]"
+      }
     },
     {
-      "id": "policy-and-enforcement",
-      "title": "Separate policy from enforcement",
+      "id": "agents-execute",
+      "title": "Run a visible observe, decide, act, and check loop",
       "paragraphs": [
-        "A policy states the intended behavior, including what actions are permitted, prohibited, or require review. An enforcement mechanism checks or limits behavior at a specific boundary. Keeping these concepts separate makes it possible to test whether an implementation actually enforces its stated policy.",
-        "The Constitutional AI paper describes the use of written principles to guide critique and revision. For an agent workflow, written principles can help express expected behavior, but a statement of principles alone does not authorize or block an external action.",
-        "For example, a policy might say that an agent may read a calendar but must not modify it without approval. An enforcement mechanism would check the requested operation and approval state before allowing a calendar-writing action to execute."
+        "Each step should expose the current goal, relevant state, selected tool, resolved target, expected effect, and next stopping test. The surrounding application validates tool calls and permissions before execution; the model does not grant itself authority.",
+        "Start with one agent and the smallest useful tool set. Add routing, specialist agents, or handoffs only when measured failures show that a simpler design cannot reliably handle the task. Every handoff needs a versioned state contract and a clear owner of the next decision."
       ]
     },
     {
-      "id": "guardrail-boundaries",
-      "title": "Place guardrails at control boundaries",
+      "id": "agents-verify",
+      "title": "Evaluate trajectories and final outcomes",
       "paragraphs": [
-        "Before the loop begins, input checks can reject an unsupported request or route an ambiguous request for clarification. At the decision boundary, the system can restrict the set of actions available for the current task. At the action boundary, it can validate the proposed action, its arguments, and the required authorization before execution.",
-        "During the loop, runtime checks can stop repeated failures, unexpected action sequences, or requests outside the declared task. After an action, the returned observation can be checked before it is used in another decision. Before a final response is delivered, an output check can detect content that should be withheld or escalated.",
-        "The ToolEmu paper studies risks arising when language-model agents interact with tools and evaluates risky behavior in an emulated environment. Its focus on action-related risk supports testing the interaction loop rather than evaluating only the final text.",
-        "A final-output check cannot reverse an external action that has already occurred. When an action can change external state, the allow-or-deny decision belongs before execution. Post-action checks remain useful for detecting problems, stopping further steps, recording the event, and escalating review."
+        "A plausible final answer can hide unsafe or wasteful steps. Review the trajectory: tool selection, targets, arguments, state changes, approvals, retries, handoffs, and stop decisions. Verify final postconditions in the affected system.",
+        "Build evaluations from representative success, boundary, adversarial, and recovery cases. Measure task completion, policy compliance, tool accuracy, duplicate effects, unnecessary steps, latency, cost, escalation quality, and whether the evidence supports the agent's claimed result."
       ]
     },
     {
-      "id": "testing-guardrails",
-      "title": "Test permitted and denied behavior",
+      "id": "agents-recover",
+      "title": "Stop and recover from drift or partial execution",
       "paragraphs": [
-        "Begin with a policy statement and turn each rule into observable test cases. Include a permitted case that should complete, a prohibited case that should be denied, a case missing required information that should request clarification, and a case requiring review that should pause before execution.",
-        "Test the boundary where enforcement occurs. For an action requiring approval, verify that the action is not executed without approval, that valid approval permits only the intended action, and that changing the action after approval causes another check.",
-        "Include attempted bypasses, such as placing conflicting instructions inside retrieved content or asking for the same prohibited effect through a different action sequence. The expected result should identify whether the request is denied, clarified, or escalated. A test is incomplete when it records only the final wording and does not determine whether an external action occurred.",
-        "Record the initial request, relevant observations, proposed actions, authorization decisions, executed actions, returned results, stop reason, and test outcome. These records let a reviewer locate the boundary at which expected and observed behavior diverged."
+        "Bounded agents stop on achieved goals, denied authority, invalid state, repeated non-progress, exceeded budgets, unsafe requests, uncertain outcomes, or failed checks. Continuing is not success when the loop has lost a reliable path to the goal.",
+        "Persist a resumable checkpoint without secrets, reconcile real side effects, and classify completed, failed, unknown, and unattempted steps. Resume only from verified state. Compensate, roll back, disable a tool, or transfer control when recovery requires different authority."
       ]
     },
     {
-      "id": "design-workflow",
-      "title": "Apply the method",
+      "id": "agents-safety",
+      "title": "Enforce guardrails outside the model",
       "paragraphs": [
-        "First, draw the agent loop and list every point where information enters, an action is proposed, an action is executed, or a result returns. Second, state the policy for each action in plain language. Third, assign an enforcement mechanism to the boundary that can prevent the disallowed effect.",
-        "Fourth, define what should happen when a check fails: deny the action, request clarification, stop the loop, or escalate for review. Fifth, create paired tests for allowed and disallowed behavior. Finally, inspect both the final response and the action record.",
-        "After completing this process, a learner can move from a general instruction such as act safely to a reviewable control plan that specifies what is checked, where it is checked, and how correct enforcement is demonstrated."
-      ]
+        "Use scoped credentials, tool allowlists, typed validation, exact-target approval, data minimization, content and policy checks, rate and cost limits, sandboxing, audit records, postcondition verification, and human handoffs. Treat retrieved content and inter-agent messages as untrusted data.",
+        "Layer guardrails because no single prompt, classifier, model, or reviewer covers every failure. Test bypass attempts and fail closed when identity, target, permission, or outcome is uncertain. Guardrails should make safe completion easier while stopping consequences outside the run contract."
+      ],
+      "callout": "The model can recommend a safeguard; the surrounding system must enforce it."
     }
   ],
+  "activity": {
+    "id": "activity-bounded-agent-loop",
+    "title": "Design and challenge a bounded agent loop",
+    "instructions": [
+      "Choose a task that may benefit from adaptation and compare a model call, deterministic workflow, and agentic loop. Justify the simplest sufficient option.",
+      "Complete the run contract with goal, state, tools, authority, checks, budgets, exits, handoff, and recovery.",
+      "Trace one successful trajectory and record every tool, target, state change, approval, postcondition, and stop decision.",
+      "Challenge the design with repeated non-progress, an untrusted tool result, and a timeout after an external write; record the stop and recovery behavior."
+    ],
+    "evidence": [
+      "A design comparison and complete run contract tied to an observable goal.",
+      "One successful trajectory and three failure trajectories with postcondition, audit, handoff, and recovery evidence."
+    ],
+    "reflectionPrompt": "Which part of your task became safer or simpler when you removed autonomy?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.0",
+    "estimatedSeconds": 1380,
+    "cues": [
+      {
+        "id": "cue-agents-prepare",
+        "kind": "narration",
+        "sectionId": "agents-prepare",
+        "text": "Distinguish model calls, deterministic workflows, and agentic loops, then choose the simplest sufficient design."
+      },
+      {
+        "id": "cue-agent-loop-visual",
+        "kind": "visual",
+        "sectionId": "agents-prepare",
+        "text": "Show goal, state, observe, decide, validate, act, verify, and stop or continue as a bounded loop.",
+        "accessibilityAlternative": "A text loop lists goal and state, observation, decision, deterministic validation, tool action, postcondition check, and stop, continue, or handoff. Reduced-motion mode displays all steps."
+      },
+      {
+        "id": "cue-agents-execute",
+        "kind": "narration",
+        "sectionId": "agents-execute",
+        "text": "Demonstrate a visible single-agent trajectory and reject an unmeasured multi-agent expansion."
+      },
+      {
+        "id": "cue-agents-prompt",
+        "kind": "learner-prompt",
+        "sectionId": "agents-execute",
+        "text": "Ask learners to name one stop condition and one action requiring human approval."
+      },
+      {
+        "id": "cue-agents-pause",
+        "kind": "pause",
+        "sectionId": "agents-execute",
+        "text": "Allow two minutes to define budgets, exits, and handoff."
+      },
+      {
+        "id": "cue-agents-verify",
+        "kind": "narration",
+        "sectionId": "agents-verify",
+        "text": "Evaluate both the trajectory and independently verified final state."
+      },
+      {
+        "id": "cue-agents-recover",
+        "kind": "narration",
+        "sectionId": "agents-recover",
+        "text": "Stop repeated non-progress, reconcile side effects, and resume only from verified state."
+      },
+      {
+        "id": "cue-agents-safety",
+        "kind": "narration",
+        "sectionId": "agents-safety",
+        "text": "Place layered identity, permission, validation, limit, audit, verification, and human controls outside the model."
+      },
+      {
+        "id": "cue-agents-checkpoint",
+        "kind": "checkpoint",
+        "sectionId": "agents-safety",
+        "text": "Check whether the learner can classify a looping assistant and select the enforceable stop response."
+      },
+      {
+        "id": "cue-agents-activity",
+        "kind": "learner-prompt",
+        "text": "Guide the design comparison, run contract, successful trajectory, and three failure challenges."
+      },
+      {
+        "id": "cue-agents-assessment",
+        "kind": "assessment-handoff",
+        "text": "Begin the check after the learner can classify, bound, verify, stop, and recover an agentic run."
+      }
+    ]
+  },
   "knowledgeCheck": {
     "passPercent": 80,
     "questions": [
       {
-        "id": "agents-and-guardrails-agent-loop",
-        "prompt": "What feature of the workflow makes the agent loop different from treating one model response as the final result?",
+        "id": "q-agent-1",
+        "prompt": "What most clearly makes an AI workflow agentic?",
         "choices": [
-          "It can use an observation from one action to select a later action.",
-          "It always executes every available action.",
-          "It removes the need for an explicit stopping condition.",
-          "It guarantees that proposed actions are authorized."
+          "It uses a large model",
+          "The model can choose tools or actions and continue in a feedback loop toward a goal",
+          "It returns formatted text",
+          "It has a product name containing assistant"
+        ],
+        "answerIndex": 1,
+        "explanation": "Agentic behavior comes from model-directed workflow execution with tools, state, feedback, and continuation—not branding or model size."
+      },
+      {
+        "id": "q-agent-2",
+        "prompt": "When is a deterministic workflow preferable to an agent?",
+        "choices": [
+          "When fixed steps can reliably satisfy the goal with less cost and uncertainty",
+          "Never",
+          "Only when no model exists",
+          "Whenever the task has more than one step"
         ],
         "answerIndex": 0,
-        "explanation": "The module defines the loop as observing, deciding, requesting an action, and using the resulting observation before continuing or stopping."
+        "explanation": "Use the simplest system that meets the requirement; autonomy adds operational uncertainty and should earn its complexity."
       },
       {
-        "id": "agents-and-guardrails-policy-versus-enforcement",
-        "prompt": "Which option is an enforcement mechanism rather than a policy statement?",
+        "id": "q-agent-3",
+        "prompt": "Where should permission for an irreversible action be enforced?",
         "choices": [
-          "The agent should avoid unauthorized changes.",
-          "Calendar changes require approval.",
-          "A check blocks a calendar-writing action when approval is absent.",
-          "The agent should behave safely."
+          "Only in the prompt",
+          "In the model name",
+          "In the surrounding identity, approval, tool, and authorization system",
+          "Inside retrieved content"
         ],
         "answerIndex": 2,
-        "explanation": "A policy states intended behavior. The check is an enforcement mechanism because it evaluates the approval state and blocks execution at the action boundary."
+        "explanation": "Prompts can guide behavior, but external controls must enforce identity, target, permission, and approval."
       },
       {
-        "id": "agents-and-guardrails-action-boundary",
-        "prompt": "Where should a guardrail decide whether to allow an action that can change external state?",
+        "id": "q-agent-4",
+        "prompt": "An agent repeats similar tool calls without making progress. What is the safest response?",
         "choices": [
-          "Only after the final response is delivered.",
-          "Before the action is executed.",
-          "Only after the changed state is observed.",
-          "After every action in the loop has finished."
+          "Increase the turn limit automatically",
+          "Stop on the non-progress condition, preserve state, reconcile effects, and hand off or recover",
+          "Add more tools during the run",
+          "Assume persistence will eventually succeed"
         ],
         "answerIndex": 1,
-        "explanation": "The module explains that a final-output check cannot reverse an external action that has already occurred, so the allow-or-deny decision belongs before execution."
+        "explanation": "Repeated non-progress is a stop condition; verified state and bounded recovery come before more execution."
       },
       {
-        "id": "agents-and-guardrails-denial-test",
-        "prompt": "Which test best verifies a rule that an action requires approval?",
+        "id": "q-agent-5",
+        "prompt": "Why should an agent evaluation inspect the trajectory as well as the final answer?",
         "choices": [
-          "Confirm that the final response sounds cautious.",
-          "Confirm that the action executes both with and without approval.",
-          "Confirm that the action is blocked without approval and permitted with valid approval for the intended action.",
-          "Confirm only that the agent can describe the approval rule."
+          "To expose unsafe targets, unnecessary actions, hidden failures, and policy violations behind a plausible result",
+          "To reveal private reasoning",
+          "To reward the longest run",
+          "To avoid checking the real target system"
         ],
-        "answerIndex": 2,
-        "explanation": "The test must observe enforcement at the action boundary, including denial without approval and permission only when approval matches the intended action."
-      },
-      {
-        "id": "agents-and-guardrails-source-update",
-        "prompt": "What did the citation update affect?",
-        "choices": [
-          "It added instructions for a named provider.",
-          "It changed source provenance, support for the material, and verification metadata.",
-          "It introduced a product configuration key.",
-          "It converted the module to an advanced level."
-        ],
-        "answerIndex": 1,
-        "explanation": "The update section states that the unverified internal citation was replaced with canonical arXiv records, affecting provenance, support, and verification metadata."
+        "answerIndex": 0,
+        "explanation": "A final answer can look correct even when the run used unsafe or wasteful actions; trajectory and postcondition evidence reveal that."
       }
     ]
   },
   "sources": [
     {
-      "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
-      "url": "https://arxiv.org/abs/2210.03629",
-      "publisher": "arXiv",
-      "lastVerified": "2026-08-21"
+      "title": "Building effective agents",
+      "url": "https://www.anthropic.com/engineering/building-effective-agents",
+      "publisher": "Anthropic",
+      "lastVerified": "2026-07-27"
     },
     {
-      "title": "Constitutional AI: Harmlessness from AI Feedback",
-      "url": "https://arxiv.org/abs/2212.08073",
-      "publisher": "arXiv",
-      "lastVerified": "2026-08-21"
+      "title": "A practical guide to building agents",
+      "url": "https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/",
+      "publisher": "OpenAI",
+      "lastVerified": "2026-07-27"
     },
     {
-      "title": "ToolEmu: Identifying the Risks of LM Agents with an LM-Emulated Sandbox",
-      "url": "https://arxiv.org/abs/2309.15817",
-      "publisher": "arXiv",
-      "lastVerified": "2026-08-21"
+      "title": "Agents",
+      "url": "https://adk.dev/agents/",
+      "publisher": "Google",
+      "lastVerified": "2026-07-27"
     }
-  ],
-  "reviewCadenceDays": 180,
-  "lastVerified": "2026-08-21",
-  "activity": {
-    "id": "activity-agents-and-guardrails",
-    "title": "Agents and Guardrails Practical Lab",
-    "instructions": [
-      "Review the scenario requirements and parameters.",
-      "Execute the practical steps in your development environment.",
-      "Validate the output traces against the expected assertions.",
-      "Document conclusions and submit the result."
-    ],
-    "evidence": [
-      "Command execution output log",
-      "Verification trace results"
-    ],
-    "reflectionPrompt": "How do the core principles of Agents and Guardrails improve system predictability?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 600,
-    "cues": [
-      {
-        "id": "cue-agents-and-guardrails-sec-0",
-        "kind": "narration",
-        "sectionId": "currency-update",
-        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-agents-and-guardrails-sec-1",
-        "kind": "narration",
-        "sectionId": "level-and-scope",
-        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-agents-and-guardrails-sec-2",
-        "kind": "narration",
-        "sectionId": "agent-loop",
-        "text": "Reviewing Map the agent loop: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-agents-and-guardrails-sec-3",
-        "kind": "narration",
-        "sectionId": "policy-and-enforcement",
-        "text": "Reviewing Separate policy from enforcement: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-agents-and-guardrails-sec-4",
-        "kind": "narration",
-        "sectionId": "guardrail-boundaries",
-        "text": "Reviewing Place guardrails at control boundaries: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-agents-and-guardrails-sec-5",
-        "kind": "narration",
-        "sectionId": "testing-guardrails",
-        "text": "Reviewing Test permitted and denied behavior: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-agents-and-guardrails-sec-6",
-        "kind": "learner-prompt",
-        "sectionId": "design-workflow",
-        "text": "Reviewing Apply the method: Key concepts and architectural guidance."
-      }
-    ],
-    "transcript": "Welcome to Agents and Guardrails. In this module, we review key concepts and practical implementations across all sections.",
-    "captions": [
-      {
-        "cueId": "cue-agents-and-guardrails-sec-0",
-        "startSeconds": 0,
-        "endSeconds": 30,
-        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-agents-and-guardrails-sec-1",
-        "startSeconds": 30,
-        "endSeconds": 60,
-        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-agents-and-guardrails-sec-2",
-        "startSeconds": 60,
-        "endSeconds": 90,
-        "text": "Reviewing Map the agent loop: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-agents-and-guardrails-sec-3",
-        "startSeconds": 90,
-        "endSeconds": 120,
-        "text": "Reviewing Separate policy from enforcement: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-agents-and-guardrails-sec-4",
-        "startSeconds": 120,
-        "endSeconds": 150,
-        "text": "Reviewing Place guardrails at control boundaries: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-agents-and-guardrails-sec-5",
-        "startSeconds": 150,
-        "endSeconds": 180,
-        "text": "Reviewing Test permitted and denied behavior: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-agents-and-guardrails-sec-6",
-        "startSeconds": 180,
-        "endSeconds": 210,
-        "text": "Reviewing Apply the method: Key concepts and architectural guidance."
-      }
-    ],
-    "reducedMotionAlternative": "Agents and Guardrails architecture diagram and walkthrough."
-  }
+  ]
 }

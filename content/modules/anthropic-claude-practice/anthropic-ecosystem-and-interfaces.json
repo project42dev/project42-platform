@@ -1,132 +1,276 @@
 {
   "id": "anthropic-ecosystem-and-interfaces",
-  "title": "Anthropic Ecosystem and Interfaces",
-  "summary": "This intermediate module enables learners to evaluate whether the available evidence supports claims about Anthropic's ecosystem and interfaces. Learners can identify unresolved citation problems and determine what must be verified before ecosystem-specific claims are published.",
+  "title": "Navigate the Claude Ecosystem",
+  "summary": "Choose deliberately among Claude's conversational workspace, developer platform, API, and coding-agent surfaces without confusing their controls or operating models.",
   "level": "intermediate",
-  "providers": [
-    "anthropic"
-  ],
-  "estimatedMinutes": 10,
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
+  "providers": ["anthropic"],
+  "estimatedMinutes": 42,
   "objectives": [
-    "Identify why a repository-relative path cannot replace a required HTTPS source URL.",
-    "Distinguish established information from information that must remain UNKNOWN.",
-    "Describe the evidence required to correct the affected content without changing unrelated material.",
-    "Recognize why syntactically valid JSON and evidence verification are separate publishing requirements."
+    "Distinguish interactive Claude workspaces from API-integrated and coding-agent workflows.",
+    "Select a Claude surface from user, control, data, automation, and operational requirements.",
+    "Verify volatile product capabilities against current Anthropic sources before promising them.",
+    "Document the identity, credential, data, tool, and review boundaries for a Claude workflow."
   ],
-  "prerequisites": [],
+  "prerequisites": ["ai-foundations-capstone"],
   "sections": [
     {
-      "id": "level-and-scope",
-      "title": "Level and scope",
+      "id": "one-ecosystem-different-surfaces",
+      "title": "One ecosystem has different operating surfaces",
       "paragraphs": [
-        "This is an intermediate module. It assumes that the learner can read structured records and compare a claim with its cited evidence. It does not assume prior knowledge of any specific Anthropic product, interface, model, tool, version, workflow, or configuration key.",
-        "The supplied evidence does not establish which products or technical interfaces the existing module covered. Those details are therefore UNKNOWN and are omitted rather than inferred."
-      ]
-    },
-    {
-      "id": "citation-condition-change",
-      "title": "What changed",
-      "paragraphs": [
-        "The cited source whose condition changed is content/modules/anthropic-claude-practice/anthropic-ecosystem-and-interfaces.json. It was reported as an unregistered publisher record that had never been verified. It is a repository-relative path rather than an HTTPS source URL, so it cannot remain in the corrected sources array under the stated source requirements.",
-        "No moved external citation, replacement URL, redirect record, or source-to-claim mapping was supplied. The identity of any external source that moved is therefore UNKNOWN.",
-        "The established effect is limited to the evidence trail: the repository-relative citation cannot support publication as an HTTPS source. Its effect on individual ecosystem claims, objectives, explanations, and assessment questions is UNKNOWN because the previous module text was not supplied."
+        "Claude can support direct knowledge work in a conversational product, reusable project workspaces with instructions and knowledge, application integrations through the Claude API, and repository work through coding-agent tools. These surfaces may share model capabilities, but they do not share the same user experience, authentication, billing, data controls, tools, or deployment responsibilities.",
+        "Begin with the job rather than a model name. An individual drafting from supplied documents needs a different operating boundary from a production application serving many users or an agent authorized to edit a repository."
       ],
-      "callout": "Do not interpret an unavailable baseline as evidence that its claims are false. It means that their support and correction scope cannot yet be verified."
+      "callout": "A provider is not a single product surface. Name the surface whenever you describe a capability or control."
     },
     {
-      "id": "evidence-safe-correction",
-      "title": "How to make an evidence-safe correction",
+      "id": "match-surface-to-work",
+      "title": "Match the surface to the work",
       "paragraphs": [
-        "A minimal correction requires the verbatim previous module, its source records, and evidence identifying the replacement for the changed citation. A reviewer must map the changed source to the claims that depend on it, update only those claims and source records, and preserve all unaffected text.",
-        "A first-party HTTPS source must be opened and checked before its verification date is recorded. If access, relevance, or the replacement location cannot be confirmed, the corresponding provider-specific claim remains UNKNOWN and must be omitted.",
-        "The available evidence does not establish the previous wording, review cadence, estimated time, questions, or source-to-claim relationships. Consequently, preservation of the historical diff cannot be demonstrated from the supplied material alone."
+        "Use a conversational workspace for supervised exploration, drafting, analysis, and reusable project context. Use the API when software must provide inputs, enforce contracts, select tools, validate outputs, observe failures, or serve a repeatable workflow. Use a coding-agent surface when the task requires repository context, commands, file changes, tests, and source-control evidence.",
+        "The same task can move between surfaces. A person might explore the requirement in Claude, prototype an instruction in the Console, integrate it through the API, and later delegate bounded repository work to a coding agent. Record what changes at each transition."
       ]
     },
     {
-      "id": "json-and-evidence",
-      "title": "JSON validity and evidence validity",
+      "id": "controls-follow-the-surface",
+      "title": "Controls follow the surface",
       "paragraphs": [
-        "ECMA-404 defines JSON as a text syntax containing structured values such as objects and arrays. The ECMAScript specification states that JSON.parse parses JSON text and throws a SyntaxError when the text does not conform to the required grammar.",
-        "Successful parsing establishes only that the record is syntactically valid JSON. It does not establish that a citation resolves, that a claim is current, or that an update preserved unaffected material. Those questions require the missing baseline and a successful review of each relevant first-party source.",
-        "After completing this module, a learner can separate these two checks: first determine whether the file is valid structured data, then determine whether its subject claims are supported by verified evidence."
+        "For every workflow, identify the acting user or service, credential type, data source, retention arrangement, available tools, permission boundary, budget, logs, and required human review. Do not infer API data handling from a consumer product setting or assume that an interactive feature exists in an API.",
+        "Keep API secrets outside prompts, examples, repositories, and learning evidence. Applications should load credentials from their runtime environment or a managed secret store, scope access to the workload, and rotate or revoke credentials through an operational process."
+      ],
+      "code": {
+        "language": "text",
+        "label": "Claude surface decision record",
+        "code": "outcome: [USER-VISIBLE RESULT]\nsurface: [CLAUDE WORKSPACE | CONSOLE | API | CODING AGENT]\nactor: [PERSON OR SERVICE]\nidentityAndCredential: [CONTROLLED REFERENCE, NEVER SECRET VALUE]\ntrustedData: [SOURCES + CLASSIFICATION]\ntoolsAndPermissions: [ALLOWLIST + LIMITS]\nvalidation: [OUTPUT + POSTCONDITION CHECKS]\nhumanReview: [WHEN + BY WHOM]\ncurrentSource: [OFFICIAL URL + VERIFIED DATE]"
+      }
+    },
+    {
+      "id": "separate-stable-from-volatile",
+      "title": "Separate stable concepts from volatile facts",
+      "paragraphs": [
+        "The need to authenticate, define data boundaries, validate results, and observe a production workflow is stable. Product names, model identifiers, limits, pricing, plan eligibility, supported regions, and feature availability are volatile.",
+        "Teach stable decision patterns in the lesson and link volatile details to the current official page with a verification date. Before procurement, release, or user-facing commitments, recheck the official source in the relevant account, plan, region, and deployment environment."
       ]
     },
     {
-      "id": "unresolved-requirements",
-      "title": "What remains UNKNOWN",
+      "id": "build-a-surface-map",
+      "title": "Build a surface map before implementation",
       "paragraphs": [
-        "The previous module contents, the external citation alleged to have moved, the replacement source, the affected provider-specific claims, and the prior review cadence are UNKNOWN.",
-        "A complete subject-matter correction requires the existing JSON object, its revision history, the review alert or redirect record, the catalogue identifier registry, and successful HTTPS access to every retained or replacement source. Until that evidence is available, no specific Anthropic product, interface, tool, version, configuration key, or workflow can be responsibly introduced."
+        "A useful surface map connects each user journey to its Claude interface, identity, input sources, output consumer, tools, approvals, evidence, and failure owner. It also names what the workflow does not do.",
+        "Review the map with product, security, data, and operations stakeholders. If a requirement depends on a plan-specific or newly released capability, attach the official evidence and a revalidation date rather than relying on memory."
       ]
     }
   ],
+  "activity": {
+    "id": "activity-anthropic-surface-map",
+    "title": "Design a Claude surface map",
+    "instructions": [
+      "Choose one realistic workflow and write its user, outcome, inputs, sensitivity, frequency, integration needs, and consequence of failure.",
+      "Compare a conversational workspace, the Claude API, and a coding-agent surface against those requirements; mark unsupported or unverified assumptions.",
+      "Select one surface and complete the identity, credential, data, tool, validation, logging, review, and failure-owner fields.",
+      "Attach at least two current official Anthropic sources and record the verification date for each volatile claim."
+    ],
+    "evidence": [
+      "A three-surface comparison with a justified selection and explicit rejected alternatives.",
+      "A completed control map that contains no credential value and links every volatile capability claim to dated official evidence."
+    ],
+    "reflectionPrompt": "Which requirement changed your choice of surface, and which fact must be rechecked before implementation?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 1440,
+    "cues": [
+      {
+        "id": "cue-anthropic-ecosystem-surfaces",
+        "kind": "narration",
+        "sectionId": "one-ecosystem-different-surfaces",
+        "text": "Treat Claude as an ecosystem of conversational, developer, API, and coding-agent surfaces with different controls and responsibilities."
+      },
+      {
+        "id": "cue-anthropic-ecosystem-match",
+        "kind": "narration",
+        "sectionId": "match-surface-to-work",
+        "text": "Choose the operating surface from the user journey, automation, integration, supervision, and evidence the work requires."
+      },
+      {
+        "id": "cue-anthropic-ecosystem-controls",
+        "kind": "narration",
+        "sectionId": "controls-follow-the-surface",
+        "text": "Map identity, credentials, data, tools, permissions, validation, logs, budgets, and human review for the selected surface."
+      },
+      {
+        "id": "cue-anthropic-ecosystem-volatile",
+        "kind": "narration",
+        "sectionId": "separate-stable-from-volatile",
+        "text": "Keep stable operating principles in the lesson and verify changing models, limits, plans, regions, pricing, and features at the official source."
+      },
+      {
+        "id": "cue-anthropic-ecosystem-map",
+        "kind": "narration",
+        "sectionId": "build-a-surface-map",
+        "text": "Turn the selection into a reviewable surface map that names owners, evidence, exclusions, and every assumption that can expire."
+      },
+      {
+        "id": "cue-anthropic-ecosystem-visual",
+        "kind": "visual",
+        "sectionId": "match-surface-to-work",
+        "text": "Place workspace, API, and coding-agent options beside columns for user, control, automation, data, tools, and operations.",
+        "accessibilityAlternative": "A static comparison table lists workspace, API, and coding-agent rows against user, control, automation, data, tools, and operations columns."
+      },
+      {
+        "id": "cue-anthropic-ecosystem-prompt",
+        "kind": "learner-prompt",
+        "sectionId": "controls-follow-the-surface",
+        "text": "Ask learners which control is lost when a supervised chat prototype becomes an unattended application."
+      },
+      {
+        "id": "cue-anthropic-ecosystem-pause",
+        "kind": "pause",
+        "sectionId": "separate-stable-from-volatile",
+        "text": "Allow two minutes to label three requirements as stable principles or volatile product facts."
+      },
+      {
+        "id": "cue-anthropic-ecosystem-checkpoint",
+        "kind": "checkpoint",
+        "sectionId": "build-a-surface-map",
+        "text": "Check that the selected surface is justified and every volatile assumption has official evidence and a verification date."
+      },
+      {
+        "id": "cue-anthropic-ecosystem-activity",
+        "kind": "learner-prompt",
+        "text": "Guide the learner through the comparison, selection, control map, and source verification."
+      },
+      {
+        "id": "cue-anthropic-ecosystem-assessment",
+        "kind": "assessment-handoff",
+        "text": "Begin the check after the learner can distinguish surfaces without transferring controls or capabilities between them."
+      }
+    ],
+    "transcript": "Treat Claude as an ecosystem of conversational, developer, API, and coding-agent surfaces with different controls and responsibilities. Choose the operating surface from the user journey, automation, integration, supervision, and evidence the work requires. Map identity, credentials, data, tools, permissions, validation, logs, budgets, and human review for the selected surface. Keep stable operating principles in the lesson and verify changing models, limits, plans, regions, pricing, and features at the official source. Turn the selection into a reviewable surface map that names owners, evidence, exclusions, and every assumption that can expire.",
+    "captions": [
+      {
+        "cueId": "cue-anthropic-ecosystem-surfaces",
+        "startSeconds": 0,
+        "endSeconds": 270,
+        "text": "Treat Claude as an ecosystem of conversational, developer, API, and coding-agent surfaces with different controls and responsibilities."
+      },
+      {
+        "cueId": "cue-anthropic-ecosystem-match",
+        "startSeconds": 300,
+        "endSeconds": 570,
+        "text": "Choose the operating surface from the user journey, automation, integration, supervision, and evidence the work requires."
+      },
+      {
+        "cueId": "cue-anthropic-ecosystem-controls",
+        "startSeconds": 600,
+        "endSeconds": 870,
+        "text": "Map identity, credentials, data, tools, permissions, validation, logs, budgets, and human review for the selected surface."
+      },
+      {
+        "cueId": "cue-anthropic-ecosystem-volatile",
+        "startSeconds": 900,
+        "endSeconds": 1140,
+        "text": "Keep stable operating principles in the lesson and verify changing models, limits, plans, regions, pricing, and features at the official source."
+      },
+      {
+        "cueId": "cue-anthropic-ecosystem-map",
+        "startSeconds": 1170,
+        "endSeconds": 1410,
+        "text": "Turn the selection into a reviewable surface map that names owners, evidence, exclusions, and every assumption that can expire."
+      }
+    ],
+    "reducedMotionAlternative": "Use a static surface comparison and control-map worksheet with focus highlighting instead of animated transitions."
+  },
   "knowledgeCheck": {
-    "passPercent": 75,
+    "passPercent": 80,
     "questions": [
       {
-        "id": "anthropic-ecosystem-and-interfaces-source-record",
-        "prompt": "What established problem affects the existing cited source?",
+        "id": "q-anthropic-ecosystem-1",
+        "prompt": "What should determine the choice between a Claude workspace, API, and coding-agent surface?",
         "choices": [
-          "It is a repository-relative path rather than a required HTTPS source URL.",
-          "It documents a confirmed deprecated interface.",
-          "It identifies a verified replacement URL.",
-          "It proves that every existing ecosystem claim is false."
-        ],
-        "answerIndex": 0,
-        "explanation": "The module states that the recorded citation is a repository-relative path from an unregistered publisher and was never verified. No deprecated interface, replacement URL, or false subject claim was established."
-      },
-      {
-        "id": "anthropic-ecosystem-and-interfaces-unknown-impact",
-        "prompt": "Why is the effect on individual ecosystem claims marked UNKNOWN?",
-        "choices": [
-          "JSON cannot contain instructional paragraphs.",
-          "The previous module text and source-to-claim mapping were not supplied.",
-          "Intermediate modules cannot discuss providers.",
-          "Repository paths always identify moved external sources."
+          "The newest model name",
+          "The required user journey, controls, integration, supervision, and evidence",
+          "One permanent default for every workflow",
+          "The longest available context window"
         ],
         "answerIndex": 1,
-        "explanation": "Without the previous text and a mapping between its claims and citations, a reviewer cannot determine which claims depended on the changed source."
+        "explanation": "The operating requirements determine the surface; a model name or one capability cannot represent the complete workflow."
       },
       {
-        "id": "anthropic-ecosystem-and-interfaces-minimal-correction",
-        "prompt": "Which process best supports a minimal correction?",
+        "id": "q-anthropic-ecosystem-2",
+        "prompt": "Which statement correctly handles product data controls?",
         "choices": [
-          "Infer current products from the module title and rewrite every section.",
-          "Delete all citations and retain every claim.",
-          "Obtain the previous module, identify claims dependent on the changed source, verify a replacement, and edit only affected material.",
-          "Treat successful JSON parsing as proof that every citation is current."
+          "A consumer setting automatically applies to every API deployment",
+          "All Claude surfaces have identical retention behavior",
+          "Verify the data arrangement for the exact product surface and deployment",
+          "Data controls can be inferred from the model family"
         ],
         "answerIndex": 2,
-        "explanation": "A minimal correction requires a baseline, a source-to-claim analysis, a verified replacement, and changes limited to the affected material."
+        "explanation": "Controls differ by product and deployment arrangement and must be verified for the actual surface."
       },
       {
-        "id": "anthropic-ecosystem-and-interfaces-json-limit",
-        "prompt": "What does successful JSON parsing establish?",
+        "id": "q-anthropic-ecosystem-3",
+        "prompt": "Where should an application keep its Claude API credential?",
         "choices": [
-          "The text conforms to JSON syntax.",
-          "Every source resolves over HTTPS.",
-          "All provider-specific claims are current.",
-          "The update preserved every unaffected sentence."
+          "In a runtime environment or managed secret store",
+          "Inside the prompt template",
+          "In a committed example file",
+          "In learner evidence"
         ],
         "answerIndex": 0,
-        "explanation": "Parsing establishes syntactic validity. Source resolution, claim currency, and minimal-diff preservation require separate evidence checks."
+        "explanation": "Credentials belong in an operational secret boundary, never in prompts, repositories, examples, or evidence."
+      },
+      {
+        "id": "q-anthropic-ecosystem-4",
+        "prompt": "Which item is most likely to require frequent official-source revalidation?",
+        "choices": [
+          "The need to authenticate an API",
+          "The need to validate consequential output",
+          "The principle of least privilege",
+          "A current plan's feature eligibility and limits"
+        ],
+        "answerIndex": 3,
+        "explanation": "Plan eligibility, limits, prices, regions, features, and model identifiers are volatile product facts."
+      },
+      {
+        "id": "q-anthropic-ecosystem-5",
+        "prompt": "What makes a Claude surface map implementation-ready?",
+        "choices": [
+          "It lists only the preferred model",
+          "It records identity, data, tools, permissions, validation, review, evidence, exclusions, and failure ownership",
+          "It assumes the prototype's controls will transfer",
+          "It avoids naming unsupported requirements"
+        ],
+        "answerIndex": 1,
+        "explanation": "An implementation-ready map identifies the workflow boundaries, evidence, and owners needed to operate the selected surface."
       }
     ]
   },
-  "reviewCadenceDays": 1,
-  "lastVerified": "2026-08-21",
   "sources": [
     {
-      "title": "ECMA-404: The JSON Data Interchange Syntax",
-      "url": "https://ecma-international.org/publications-and-standards/standards/ecma-404/",
-      "publisher": "Ecma International",
-      "lastVerified": "2026-08-21"
+      "title": "Get started with Claude",
+      "url": "https://platform.claude.com/docs/en/get-started",
+      "publisher": "Anthropic",
+      "lastVerified": "2026-07-25"
     },
     {
-      "title": "ECMAScript Language Specification: JSON.parse",
-      "url": "https://tc39.es/ecma262/#sec-json.parse",
-      "publisher": "Ecma International",
-      "lastVerified": "2026-08-21"
+      "title": "What are projects?",
+      "url": "https://support.claude.com/en/articles/9517075-what-are-projects",
+      "publisher": "Anthropic",
+      "lastVerified": "2026-07-25"
+    },
+    {
+      "title": "What are artifacts and how do I use them?",
+      "url": "https://support.claude.com/en/articles/9487310-what-are-artifacts-and-how-do-i-use-them",
+      "publisher": "Anthropic",
+      "lastVerified": "2026-07-25"
+    },
+    {
+      "title": "API and data retention",
+      "url": "https://platform.claude.com/docs/en/manage-claude/api-and-data-retention",
+      "publisher": "Anthropic",
+      "lastVerified": "2026-07-25"
     }
   ]
 }

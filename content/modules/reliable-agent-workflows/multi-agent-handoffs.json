@@ -1,211 +1,152 @@
 {
   "id": "multi-agent-handoffs",
-  "title": "Reliable Multi-Agent Handoffs",
-  "summary": "This intermediate module enables learners to design a clear handoff between agents, evaluate whether the receiving agent accepted it, and recover when required information is missing. After completing it, learners can turn an informal transfer of work into a reviewable handoff contract.",
+  "title": "Build Auditable Multi-Agent Handoffs",
+  "summary": "Transfer control, context, authority, and evidence between specialized agents without losing user intent or creating hidden permission expansion.",
   "level": "intermediate",
-  "providers": [
-    "provider-neutral"
-  ],
-  "estimatedMinutes": 20,
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
+  "providers": ["provider-neutral"],
+  "estimatedMinutes": 50,
   "objectives": [
-    "Create a handoff contract that identifies the task, relevant context, constraints, expected output, and success criteria.",
-    "Check whether a receiving agent has accepted a handoff and has enough information to proceed.",
-    "Recognize an incomplete or ambiguous handoff and select an appropriate recovery action.",
-    "Separate information needed for the next task from unrelated conversation history."
+    "Define when delegation or full control transfer is justified.",
+    "Create a versioned handoff packet with intent, evidence, authority, budgets, and return conditions.",
+    "Filter context and permissions for the receiving agent rather than copying everything.",
+    "Test misrouting, rejection, timeout, recursion, and unsafe output across agent boundaries."
   ],
-  "prerequisites": [],
+  "prerequisites": ["orchestration-patterns"],
   "sections": [
     {
-      "id": "level-and-scope",
-      "title": "Level and scope",
+      "id": "delegate-or-transfer",
+      "title": "Distinguish a bounded subtask from a transfer of control",
       "paragraphs": [
-        "This is an intermediate-level module. It assumes that you understand the basic idea of an agent as a software role that receives information, performs a task, and produces a result. No knowledge of a particular provider, product, programming language, or configuration format is required.",
-        "A multi-agent workflow divides work among multiple roles. Communication between those roles is part of the workflow design described in the cited survey. This module focuses on one communication event: transferring responsibility for a task from one agent to another."
+        "Delegation keeps the parent agent responsible for the final result. The specialist returns a typed artifact that the parent validates and synthesizes. A handoff transfers active control so the specialist continues the interaction under its own instructions.",
+        "Choose deliberately. Use delegation for research, classification, review, or generation that should remain behind a coordinator. Use a handoff when a specialist must own the next user-facing phase and the user can understand that transition."
       ]
     },
     {
-      "id": "source-correction",
-      "title": "What changed in this update",
+      "id": "handoff-packet",
+      "title": "Transfer a contract, not a conversation dump",
       "paragraphs": [
-        "The previous citation, content/modules/reliable-agent-workflows/multi-agent-handoffs.json, changed because it was an unverified repository path rather than a reader-resolvable HTTPS source. It has been replaced by the canonical arXiv record for A Survey on Large Language Model based Autonomous Agents.",
-        "This correction affects the source record and the evidentiary boundary of the module. Claims attributed only to the previous unverified path are UNKNOWN and are omitted. The revised material remains provider-neutral and does not introduce tool-specific instructions, version requirements, or configuration keys."
+        "A handoff packet should name the run and parent, user goal, reason for routing, accepted facts with provenance, unresolved questions, completed actions and idempotency keys, current artifacts, allowed tools, denied actions, budget, success criteria, and return or escalation conditions.",
+        "Version the packet schema and bind it to a specific recipient role. The receiving agent validates required fields and can reject an incomplete, stale, misrouted, or over-privileged transfer."
       ],
-      "callout": "The source correction supports the general discussion of communication among agents. The handoff contract below is a teaching framework used by this module, not a claim that every multi-agent system uses one mandatory format."
-    },
-    {
-      "id": "handoff-contract",
-      "title": "Build a handoff contract",
-      "paragraphs": [
-        "For this module, a handoff contract is the information the sending agent provides so that the receiving agent can understand the assigned work and determine whether it can proceed. Use five parts: the task, relevant context, constraints, expected output, and success criteria.",
-        "The task states what the receiving agent is responsible for doing. Relevant context includes only information needed to perform that task. Constraints state boundaries the receiver must respect. The expected output describes what the receiver should return. Success criteria explain how the result will be judged.",
-        "A handoff should be specific enough to review. For example, replace a vague task such as continue the work with a concrete task such as review the supplied draft for unsupported factual claims. The second form identifies an action and gives the receiving agent a basis for reporting completion."
-      ]
-    },
-    {
-      "id": "acceptance-and-validation",
-      "title": "Confirm acceptance and validate the result",
-      "paragraphs": [
-        "A sent handoff is not automatically an accepted handoff. The receiving agent should indicate whether it understands the task, has the required context, and can follow the constraints. If any required element is missing or contradictory, the receiver should request clarification rather than silently inventing an answer.",
-        "After the receiver returns a result, compare that result with the expected output and success criteria in the handoff contract. A fluent response is not enough by itself. The result must address the assigned task and respect the stated constraints.",
-        "Keep the acceptance check distinct from the final result check. Acceptance asks whether the receiver can begin responsibly. Validation asks whether the completed result satisfies the contract."
-      ]
-    },
-    {
-      "id": "recovery",
-      "title": "Recover from a failed handoff",
-      "paragraphs": [
-        "When a handoff is incomplete, first identify the missing or conflicting element. Ask for the smallest clarification that resolves the problem, then issue a corrected handoff and seek acceptance again.",
-        "When the receiving agent cannot perform the task under the stated constraints, do not treat that response as successful completion. Return responsibility to the sending role, revise the task or constraints, or choose a different receiving role.",
-        "Preserve enough of the handoff and response to explain what was requested, what was accepted, and why a correction occurred. Avoid transferring unrelated conversation history when a concise statement of relevant context is sufficient."
-      ]
-    }
-  ],
-  "knowledgeCheck": {
-    "passPercent": 75,
-    "questions": [
-      {
-        "id": "multi-agent-handoffs-contract-elements",
-        "prompt": "Which option contains all five parts of the handoff contract taught in this module?",
-        "choices": [
-          "Task, relevant context, constraints, expected output, and success criteria",
-          "Task, full conversation history, provider name, version number, and success criteria",
-          "Agent name, task, product key, retry count, and expected output",
-          "Relevant context, informal suggestion, tool version, hidden reasoning, and deadline"
-        ],
-        "answerIndex": 0,
-        "explanation": "The module defines its handoff contract using the task, relevant context, constraints, expected output, and success criteria."
-      },
-      {
-        "id": "multi-agent-handoffs-acceptance-check",
-        "prompt": "What should happen when the receiving agent finds that required context is missing?",
-        "choices": [
-          "It should invent the missing context and continue.",
-          "It should request clarification before proceeding.",
-          "It should report successful completion immediately.",
-          "It should ignore the handoff constraints."
-        ],
-        "answerIndex": 1,
-        "explanation": "The acceptance process requires the receiver to request clarification when a required element is missing or contradictory."
-      },
-      {
-        "id": "multi-agent-handoffs-validation",
-        "prompt": "How should a returned result be validated?",
-        "choices": [
-          "Check only whether the response is fluent.",
-          "Check whether the receiving agent used a particular provider.",
-          "Compare the result with the expected output and success criteria.",
-          "Accept every result once the handoff has been sent."
-        ],
-        "answerIndex": 2,
-        "explanation": "The module instructs the learner to compare the returned result with the contract's expected output and success criteria."
-      },
-      {
-        "id": "multi-agent-handoffs-source-change",
-        "prompt": "What did the cited-source correction affect?",
-        "choices": [
-          "It introduced mandatory configuration keys.",
-          "It changed the module to a provider-specific lesson.",
-          "It affected the source record and the module's evidentiary boundary.",
-          "It established that every system uses one mandatory handoff format."
-        ],
-        "answerIndex": 2,
-        "explanation": "The update replaces an unverified repository path with a canonical HTTPS source and omits claims that depended only on the previous path."
+      "code": {
+        "language": "json",
+        "label": "Handoff packet",
+        "code": "{\n  \"schemaVersion\": \"1.0\",\n  \"runId\": \"run_42\",\n  \"from\": \"triage\",\n  \"to\": \"curriculum-reviewer\",\n  \"reason\": \"verify-source-support\",\n  \"goal\": \"Review four claims\",\n  \"facts\": [{\"claim\": \"...\", \"sourceRef\": \"src_7\"}],\n  \"artifacts\": [\"draft/module.json\"],\n  \"allowedActions\": [\"read\", \"comment\"],\n  \"deniedActions\": [\"publish\", \"delete\"],\n  \"budget\": {\"turns\": 3},\n  \"returnWhen\": [\"review-complete\", \"evidence-missing\", \"policy-blocked\"]\n}"
       }
-    ]
-  },
-  "reviewCadenceDays": 180,
-  "lastVerified": "2026-08-22",
-  "sources": [
+    },
     {
-      "title": "A Survey on Large Language Model based Autonomous Agents",
-      "url": "https://arxiv.org/abs/2308.11432",
-      "publisher": "arXiv",
-      "lastVerified": "2026-08-22"
+      "id": "filter-and-reauthorize",
+      "title": "Minimize context and re-evaluate authority",
+      "paragraphs": [
+        "Do not forward the full conversation, hidden chain of thought, unrelated personal data, secrets, or every prior tool result. Select only what the specialist needs, preserve source labels, and clearly separate instructions from untrusted material.",
+        "Permissions do not automatically flow downhill. Resolve the recipient's identity and tenant, issue scoped credentials where needed, and require fresh approval if the specialist proposes a target or side effect outside the original grant."
+      ],
+      "callout": "A handoff can narrow authority; it must never silently widen it."
+    },
+    {
+      "id": "accept-return-and-escalate",
+      "title": "Make both sides acknowledge the transfer",
+      "paragraphs": [
+        "The receiver should accept or reject the packet with a reason. On acceptance, record the active agent and transfer time. On return, provide a typed outcome, changed artifacts, evidence, tool actions, remaining uncertainty, and the requested next decision.",
+        "Bound recursive delegation, repeated bounce-backs, and revision loops. If no eligible recipient accepts, required evidence is unavailable, or permissions conflict, escalate with the packet and failure history rather than guessing."
+      ]
+    },
+    {
+      "id": "provider-mappings-and-tests",
+      "title": "Map framework features without losing the portable contract",
+      "paragraphs": [
+        "OpenAI's Agents SDK represents handoffs as tools and supports typed handoff input and history filtering. Google ADK supports agent-team and workflow structures. Anthropic describes orchestrator-worker and evaluator-optimizer patterns. These examples solve related problems but do not promise identical lifecycle or guardrail behavior.",
+        "Test the product contract independently of the framework: right recipient, minimal context, unchanged authority, trace continuity, bounded recursion, deterministic failure, and verified return artifact. Then add adapter tests for each selected provider implementation."
+      ]
     }
   ],
   "activity": {
-    "id": "activity-multi-agent-handoffs",
-    "title": "Reliable Multi-Agent Handoffs Practical Lab",
+    "id": "activity-handoff-contract",
+    "title": "Create and break a multi-agent handoff",
     "instructions": [
-      "Review the scenario requirements and parameters.",
-      "Execute the practical steps in your development environment.",
-      "Validate the output traces against the expected assertions.",
-      "Document conclusions and submit the result."
+      "Define triage, specialist, reviewer, and human roles for one workflow, including the exact reasons each may receive control.",
+      "Create the handoff packet schema, context filter, permission mapping, acceptance response, and return result.",
+      "Run scenarios for a correct transfer, wrong recipient, missing provenance, excessive permission, poisoned context, timeout, recursive bounce, and rejected handoff.",
+      "Prove that the original goal, user constraints, completed side effects, and trace ID survive every accepted transition."
     ],
     "evidence": [
-      "Command execution output log",
-      "Verification trace results"
+      "A versioned handoff and return contract with recipient validation, context filtering, authority, budgets, and escalation.",
+      "Eight scenario traces showing acceptance, rejection, containment, bounded retry, and human escalation."
     ],
-    "reflectionPrompt": "How do the core principles of Reliable Multi-Agent Handoffs improve system predictability?"
+    "reflectionPrompt": "What information was safe and useful for the parent but unnecessary or risky for the specialist?"
   },
   "instructorScript": {
     "schemaVersion": "1.1",
-    "estimatedSeconds": 600,
+    "estimatedSeconds": 1500,
     "cues": [
-      {
-        "id": "cue-multi-agent-handoffs-sec-0",
-        "kind": "narration",
-        "sectionId": "level-and-scope",
-        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-multi-agent-handoffs-sec-1",
-        "kind": "narration",
-        "sectionId": "source-correction",
-        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-multi-agent-handoffs-sec-2",
-        "kind": "narration",
-        "sectionId": "handoff-contract",
-        "text": "Reviewing Build a handoff contract: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-multi-agent-handoffs-sec-3",
-        "kind": "narration",
-        "sectionId": "acceptance-and-validation",
-        "text": "Reviewing Confirm acceptance and validate the result: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-multi-agent-handoffs-sec-4",
-        "kind": "learner-prompt",
-        "sectionId": "recovery",
-        "text": "Reviewing Recover from a failed handoff: Key concepts and architectural guidance."
-      }
+      {"id": "cue-handoff-mode", "kind": "narration", "sectionId": "delegate-or-transfer", "text": "Choose delegation when a parent retains responsibility and handoff when a specialist must own the next phase."},
+      {"id": "cue-handoff-packet", "kind": "narration", "sectionId": "handoff-packet", "text": "Transfer a versioned contract containing intent, evidence, artifacts, authority, budget, and return conditions."},
+      {"id": "cue-handoff-filter", "kind": "narration", "sectionId": "filter-and-reauthorize", "text": "Filter context to the recipient's need and re-evaluate permissions instead of forwarding everything."},
+      {"id": "cue-handoff-visual", "kind": "visual", "sectionId": "filter-and-reauthorize", "text": "Move one handoff packet through filter, authorize, accept, work, return, and verify states.", "accessibilityAlternative": "A static state table lists the packet fields and validation result at filter, authorize, accept, work, return, and verify. Reduced-motion mode shows every state at once."},
+      {"id": "cue-handoff-ack", "kind": "narration", "sectionId": "accept-return-and-escalate", "text": "Require explicit acceptance and a typed return while bounding rejection, timeout, recursion, and revision."},
+      {"id": "cue-handoff-provider", "kind": "narration", "sectionId": "provider-mappings-and-tests", "text": "Test one portable handoff contract across provider adapters without assuming identical framework behavior."},
+      {"id": "cue-handoff-prompt", "kind": "learner-prompt", "sectionId": "filter-and-reauthorize", "text": "Ask learners which parent permissions must be removed before the specialist receives the packet."},
+      {"id": "cue-handoff-pause", "kind": "pause", "sectionId": "handoff-packet", "text": "Allow three minutes to add one rejection reason and one return condition to the packet."},
+      {"id": "cue-handoff-checkpoint", "kind": "checkpoint", "sectionId": "accept-return-and-escalate", "text": "Check that a rejected or timed-out handoff cannot silently continue under broader authority."},
+      {"id": "cue-handoff-activity", "kind": "learner-prompt", "text": "Guide role definition, packet design, eight failure cases, and trace-continuity proof."},
+      {"id": "cue-handoff-assessment", "kind": "assessment-handoff", "text": "Begin the check after the learner can prove intent, authority, evidence, and trace continuity."}
     ],
-    "transcript": "Welcome to Reliable Multi-Agent Handoffs. In this module, we review key concepts and practical implementations across all sections.",
+    "transcript": "Choose delegation when a parent retains responsibility and handoff when a specialist must own the next phase. Transfer a versioned contract containing intent, evidence, artifacts, authority, budget, and return conditions. Filter context to the recipient's need and re-evaluate permissions instead of forwarding everything. Require explicit acceptance and a typed return while bounding rejection, timeout, recursion, and revision. Test one portable handoff contract across provider adapters without assuming identical framework behavior.",
     "captions": [
-      {
-        "cueId": "cue-multi-agent-handoffs-sec-0",
-        "startSeconds": 0,
-        "endSeconds": 30,
-        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-multi-agent-handoffs-sec-1",
-        "startSeconds": 30,
-        "endSeconds": 60,
-        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-multi-agent-handoffs-sec-2",
-        "startSeconds": 60,
-        "endSeconds": 90,
-        "text": "Reviewing Build a handoff contract: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-multi-agent-handoffs-sec-3",
-        "startSeconds": 90,
-        "endSeconds": 120,
-        "text": "Reviewing Confirm acceptance and validate the result: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-multi-agent-handoffs-sec-4",
-        "startSeconds": 120,
-        "endSeconds": 150,
-        "text": "Reviewing Recover from a failed handoff: Key concepts and architectural guidance."
-      }
+      {"cueId": "cue-handoff-mode", "startSeconds": 0, "endSeconds": 270, "text": "Choose delegation when a parent retains responsibility and handoff when a specialist must own the next phase."},
+      {"cueId": "cue-handoff-packet", "startSeconds": 300, "endSeconds": 570, "text": "Transfer a versioned contract containing intent, evidence, artifacts, authority, budget, and return conditions."},
+      {"cueId": "cue-handoff-filter", "startSeconds": 600, "endSeconds": 870, "text": "Filter context to the recipient's need and re-evaluate permissions instead of forwarding everything."},
+      {"cueId": "cue-handoff-ack", "startSeconds": 900, "endSeconds": 1170, "text": "Require explicit acceptance and a typed return while bounding rejection, timeout, recursion, and revision."},
+      {"cueId": "cue-handoff-provider", "startSeconds": 1200, "endSeconds": 1440, "text": "Test one portable handoff contract across provider adapters without assuming identical framework behavior."}
     ],
-    "reducedMotionAlternative": "Reliable Multi-Agent Handoffs architecture diagram and walkthrough."
-  }
+    "reducedMotionAlternative": "Use a static handoff state table and context-permission diff with focus indicators rather than animation."
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "q-handoff-1",
+        "prompt": "When should a specialist be used as a delegated worker instead of receiving a handoff?",
+        "choices": ["When the parent must retain synthesis and final responsibility", "When the specialist should take over the conversation", "When all permissions should expand", "When no output contract exists"],
+        "answerIndex": 0,
+        "explanation": "Delegation returns a bounded artifact to the parent, which remains accountable."
+      },
+      {
+        "id": "q-handoff-2",
+        "prompt": "What is missing from a packet that contains only a conversation summary?",
+        "choices": ["A longer model name", "Explicit authority, evidence, artifacts, budgets, and return conditions", "More hidden reasoning", "Unlimited recursion"],
+        "answerIndex": 1,
+        "explanation": "A safe handoff transfers a validated work contract, not merely prose history."
+      },
+      {
+        "id": "q-handoff-3",
+        "prompt": "The parent can publish, but the reviewer only needs to comment. What authority should the reviewer receive?",
+        "choices": ["Publish and delete", "Every parent credential", "Read and comment only", "No identity checks"],
+        "answerIndex": 2,
+        "explanation": "Authority should be re-evaluated and minimized for the recipient's task."
+      },
+      {
+        "id": "q-handoff-4",
+        "prompt": "A specialist rejects a handoff because provenance is missing. What should happen?",
+        "choices": ["Proceed as if accepted", "Record the rejection and repair or escalate the packet within bounded retries", "Grant more tools", "Delete the trace"],
+        "answerIndex": 1,
+        "explanation": "Rejection is an explicit state that requires repair or escalation, not silent continuation."
+      },
+      {
+        "id": "q-handoff-5",
+        "prompt": "Which invariant should hold across different provider frameworks?",
+        "choices": ["Identical SDK syntax", "The same model name", "Intent, minimal context, authority, trace, bounded failure, and verified return", "The same beta header"],
+        "answerIndex": 2,
+        "explanation": "Product-level handoff guarantees should survive adapter differences."
+      }
+    ]
+  },
+  "sources": [
+    {"title": "Handoffs", "url": "https://openai.github.io/openai-agents-js/guides/handoffs/", "publisher": "OpenAI", "lastVerified": "2026-07-25"},
+    {"title": "Agent orchestration", "url": "https://openai.github.io/openai-agents-js/guides/multi-agent/", "publisher": "OpenAI", "lastVerified": "2026-07-25"},
+    {"title": "Building effective agents", "url": "https://www.anthropic.com/engineering/building-effective-agents", "publisher": "Anthropic", "lastVerified": "2026-07-25"},
+    {"title": "Template agent workflows", "url": "https://google.github.io/adk-docs/agents/workflow-agents/", "publisher": "Google", "lastVerified": "2026-07-25"}
+  ]
 }

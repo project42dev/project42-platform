@@ -1,166 +1,122 @@
 {
   "id": "openai-prompting-in-practice",
-  "title": "OpenAI Prompting in Practice",
-  "summary": "This intermediate module teaches you to turn a vague request into a clear, structured prompt for OpenAI systems. After completing it, you can specify a goal, provide relevant context, state constraints, request an output format, and improve a prompt through controlled revision.",
+  "title": "Prompt OpenAI Models with Evaluated Contracts",
+  "summary": "Design clear, versioned prompts for ChatGPT and API workflows, separate instruction authority from variable input, and improve behavior with controlled evaluations.",
   "level": "intermediate",
-  "providers": [
-    "openai"
-  ],
-  "estimatedMinutes": 25,
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
+  "providers": ["openai"],
+  "estimatedMinutes": 50,
   "objectives": [
-    "Rewrite an ambiguous request as a prompt with a specific goal, relevant context, and explicit constraints.",
-    "Request an output format that makes a response easier to evaluate and use.",
-    "Separate instructions from supporting material so their roles are clear.",
-    "Revise one prompt element at a time and compare the resulting responses against stated criteria."
+    "Define success criteria and representative evaluation cases before tuning a prompt.",
+    "Structure goals, authoritative instructions, context, examples, variable input, output contracts, and verification.",
+    "Adapt prompting to the selected model and surface without hard-coding volatile guidance.",
+    "Classify failures across prompt, context, model, tool, policy, and application boundaries."
   ],
-  "prerequisites": [],
+  "prerequisites": ["openai-ecosystem-and-interfaces"],
   "sections": [
     {
-      "id": "level-and-scope",
-      "title": "Level and scope",
+      "id": "start-from-success-evidence",
+      "title": "Start from success evidence",
       "paragraphs": [
-        "This is an intermediate-level module. It assumes that you have already entered basic prompts and read the resulting responses, but it does not assume knowledge of programming, model internals, or provider configuration.",
-        "Before this module, you may be able to ask for a response without making the success criteria explicit. After this module, you can construct and revise a prompt whose goal, context, constraints, and expected output are clear enough to evaluate."
-      ]
-    },
-    {
-      "id": "update-record",
-      "title": "What changed in this update",
-      "paragraphs": [
-        "The prior cited source was content/modules/openai-practice/openai-prompting-in-practice.json, which was identified as having an unregistered publisher and as never having been verified. This update replaces that citation with OpenAI's official Prompt engineering guide at the HTTPS address listed in the sources field.",
-        "The change affects source attribution, verification metadata, and the support for the prompting recommendations in this module. The practical focus remains constructing clear prompts, separating supporting material, specifying the desired output, and revising prompts systematically."
-      ]
-    },
-    {
-      "id": "build-a-clear-request",
-      "title": "Build a clear request",
-      "paragraphs": [
-        "Begin with the task the response must perform. Replace broad instructions such as \"Help me with this report\" with an observable goal such as \"Summarize the report for a reader who has not seen it.\" A concrete goal gives you a direct basis for deciding whether the response succeeded.",
-        "Add only the context needed to perform that task. Useful context can identify the intended audience, the purpose of the response, definitions that matter, or source material that must be used. Context should inform the task rather than hide it.",
-        "State constraints explicitly when they matter. A constraint can limit scope, establish tone, identify information that must be included, or prohibit unsupported additions. Do not rely on the system to infer a requirement that you can state directly."
+        "Write the required outcome, target users, unacceptable behavior, output contract, representative cases, rubric, and pass threshold before changing prompt wording. Compare candidates against the same cases and configuration.",
+        "Prompt engineering cannot repair unavailable facts, missing permissions, a broken tool, unsuitable latency, or absent application validation. Classify the failed boundary before editing."
       ],
-      "callout": "A practical prompt can be organized as goal, context, constraints, and output format. Not every request needs all four parts, but each omitted part should be omitted deliberately."
+      "callout": "A response that sounds better is not evidence of a better prompt."
     },
     {
-      "id": "separate-instructions-and-material",
-      "title": "Separate instructions from supporting material",
+      "id": "state-the-contract-once",
+      "title": "State the contract clearly and once",
       "paragraphs": [
-        "When a prompt includes text to summarize, classify, transform, or analyze, distinguish that material from the instructions. Clear labels or delimiters help show where the task description ends and the supporting material begins.",
-        "For example, a prompt can first state the instruction, then label a passage as source text, and finally state what the response must contain. This structure is especially useful when the source text contains sentences that resemble instructions but are only material to be analyzed.",
-        "The separation does not guarantee a correct response. It makes the intended roles of the prompt's parts clearer and gives you a more precise structure to inspect when revising the request."
+        "Describe the outcome, audience, authoritative context, hard constraints, allowed actions, approval boundaries, required evidence, output shape, and stopping condition. Use ordered steps only when order or completeness is a real requirement.",
+        "Avoid duplicated or conflicting instructions. Keep stable policy in the appropriate higher-authority instruction layer and put task-specific requests in the user input."
       ]
     },
     {
-      "id": "specify-the-output",
-      "title": "Specify the output you need",
+      "id": "separate-context-and-input",
+      "title": "Separate context, examples, and untrusted input",
       "paragraphs": [
-        "Describe the shape of a useful response. You can request a short paragraph, a table with named columns, a numbered procedure, or another explicit structure. Include required fields or ordering when downstream use depends on them.",
-        "Match the requested format to the task. A table can help compare repeated attributes, while a short paragraph can be more suitable for a concise explanation. Avoid adding formatting requirements that do not help you judge or use the result.",
-        "If style matters, describe it in concrete terms connected to the audience and purpose. For example, ask for plain language for a non-specialist reader rather than relying only on a vague instruction to make the response better."
-      ]
-    },
-    {
-      "id": "use-examples-carefully",
-      "title": "Use examples when description is not enough",
-      "paragraphs": [
-        "An example can demonstrate a pattern that is difficult to express as a rule. A useful example pairs a representative input with the kind of output you want, while remaining consistent with the written instructions.",
-        "Examples should clarify the task rather than replace its definition. If an example conflicts with an instruction, revise the prompt so both communicate the same requirement. Use examples that represent the behavior you actually want repeated.",
-        "Do not assume that one example covers every case. Evaluate the resulting prompt with more than one relevant input, especially when the inputs can vary in length, wording, or subject."
-      ]
-    },
-    {
-      "id": "revise-systematically",
-      "title": "Revise systematically",
-      "paragraphs": [
-        "Prompt improvement is easier to evaluate when you change one meaningful element at a time. You might first clarify the goal, then add missing context, then tighten a constraint, and finally refine the output format. If you change everything at once, it becomes harder to identify which revision helped.",
-        "Before comparing responses, write down the criteria that matter. Criteria can include factual grounding in supplied material, inclusion of required points, adherence to scope, suitability for the audience, and compliance with the requested format.",
-        "Keep the input and evaluation criteria stable while comparing prompt revisions. Select a revision because it performs better against those criteria, not merely because its response is longer or sounds more confident."
+        "Label authoritative references, examples, and variable user or retrieved content. Use clear delimiters or structured fields, and tell the workflow which evidence may support claims.",
+        "Prompt structure does not create security. Treat external text as untrusted data, enforce authorization outside the model, validate outputs, and never include secrets merely to make them available."
       ],
-      "callout": "A longer prompt is not automatically a better prompt. Include details that define the task or help evaluate success, and remove details that create ambiguity or conflict."
+      "code": {
+        "language": "text",
+        "label": "Evaluated prompt contract",
+        "code": "Goal: [OBSERVABLE OUTCOME]\nAuthoritative instructions: [POLICY + HARD CONSTRAINTS]\nTrusted context: [APPROVED SOURCES]\nVariable input (untrusted): [USER OR RETRIEVED DATA]\nExamples: [RELEVANT, DIVERSE, SECRET-FREE]\nOutput contract: [SCHEMA OR REQUIRED HEADINGS]\nVerify: [CLAIMS, CONSTRAINTS, POSTCONDITIONS]\nStop or escalate when: [BOUNDARY]"
+      }
     },
     {
-      "id": "worked-revision",
-      "title": "Worked revision",
+      "id": "adapt-with-current-guidance",
+      "title": "Adapt with current model guidance",
       "paragraphs": [
-        "Consider the vague request \"Summarize this.\" It does not identify the audience, purpose, source boundaries, required coverage, or response format.",
-        "A clearer revision is: \"Summarize the source text for a non-specialist reader. Explain the main conclusion and two supporting points. Use only information in the labeled source text. Return one paragraph followed by two numbered points.\" The revision supplies an audience, required content, a grounding constraint, and an output structure.",
-        "You can evaluate the revised response by checking four questions: Is the main conclusion present? Are there exactly two supporting points? Does every claim come from the source text? Does the response follow the requested paragraph and numbered-point structure? These checks turn a subjective impression into explicit criteria."
+        "Model families can differ in reasoning controls, verbosity, tool behavior, and recommended prompt patterns. Use the current official model guidance for the configured model and evaluate changes rather than copying a static recipe.",
+        "Keep model identifiers and model-specific settings in reviewed configuration. Change one meaningful hypothesis at a time where practical and preserve the baseline for rollback."
+      ]
+    },
+    {
+      "id": "iterate-and-version",
+      "title": "Iterate and version from evidence",
+      "paragraphs": [
+        "Run baseline and candidate across typical, edge, adversarial, and prior-failure cases. Record per-case rubric results, critical failures, latency, usage, cost, model, prompt, tools, and reviewer disagreement.",
+        "Classify each miss as instruction ambiguity, missing context, misleading example, output violation, model limitation, tool failure, policy boundary, or application defect. Add repaired failures to regression coverage."
       ]
     }
   ],
+  "activity": {
+    "id": "activity-openai-prompt-contract",
+    "title": "Build and evaluate an OpenAI prompt contract",
+    "instructions": [
+      "Choose a recurring task and define at least four success criteria, one forbidden outcome, and an 80 percent pass threshold.",
+      "Create six cases: three typical, one edge, one adversarial instruction-conflict case, and one prior failure.",
+      "Write a prompt that separates authoritative instructions, trusted context, untrusted variable input, examples, output contract, verification, and escalation.",
+      "Compare a baseline and candidate under identical settings, classify every failure boundary, and make a ship, revise, or reject decision."
+    ],
+    "evidence": [
+      "A secret-free versioned prompt, rubric, and six-case suite with explicit trust and approval boundaries.",
+      "A baseline-versus-candidate report with scores, failures, versions, latency and usage evidence, and a release decision."
+    ],
+    "reflectionPrompt": "Which failed case required a system change rather than another prompt instruction?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 1560,
+    "cues": [
+      {"id": "cue-openai-prompt-success", "kind": "narration", "sectionId": "start-from-success-evidence", "text": "Define outcomes, forbidden behavior, cases, rubric, and thresholds before deciding whether an OpenAI prompt improved."},
+      {"id": "cue-openai-prompt-contract", "kind": "narration", "sectionId": "state-the-contract-once", "text": "State the outcome, authority, constraints, actions, approvals, evidence, output, and stopping condition clearly and without duplication."},
+      {"id": "cue-openai-prompt-context", "kind": "narration", "sectionId": "separate-context-and-input", "text": "Separate trusted context, examples, and untrusted variable input while enforcing security and validation outside the prompt."},
+      {"id": "cue-openai-prompt-current", "kind": "narration", "sectionId": "adapt-with-current-guidance", "text": "Apply current guidance for the configured model and verify model-specific changes on representative cases."},
+      {"id": "cue-openai-prompt-iterate", "kind": "narration", "sectionId": "iterate-and-version", "text": "Compare versioned prompts under identical conditions, classify every failed boundary, and preserve regression and rollback evidence."},
+      {"id": "cue-openai-prompt-visual", "kind": "visual", "sectionId": "separate-context-and-input", "text": "Stack authority, trusted context, untrusted input, examples, output contract, verification, and escalation as labeled blocks.", "accessibilityAlternative": "A static ordered list shows each prompt block, its trust level, owner, and validation boundary."},
+      {"id": "cue-openai-prompt-question", "kind": "learner-prompt", "sectionId": "adapt-with-current-guidance", "text": "Ask learners which guidance belongs in configuration and which belongs in the stable task contract."},
+      {"id": "cue-openai-prompt-pause", "kind": "pause", "sectionId": "iterate-and-version", "text": "Allow three minutes to classify one miss as prompt, context, model, tool, policy, or application failure."},
+      {"id": "cue-openai-prompt-checkpoint", "kind": "checkpoint", "sectionId": "iterate-and-version", "text": "Check that baseline and candidate share cases, rubric, model configuration, tools, and budgets."},
+      {"id": "cue-openai-prompt-activity", "kind": "learner-prompt", "text": "Guide success criteria, six cases, prompt structure, controlled comparison, classification, and release decision."},
+      {"id": "cue-openai-prompt-assessment", "kind": "assessment-handoff", "text": "Begin the check after the learner can improve behavior from evidence without treating every failure as wording."}
+    ],
+    "transcript": "Define outcomes, forbidden behavior, cases, rubric, and thresholds before deciding whether an OpenAI prompt improved. State the outcome, authority, constraints, actions, approvals, evidence, output, and stopping condition clearly and without duplication. Separate trusted context, examples, and untrusted variable input while enforcing security and validation outside the prompt. Apply current guidance for the configured model and verify model-specific changes on representative cases. Compare versioned prompts under identical conditions, classify every failed boundary, and preserve regression and rollback evidence.",
+    "captions": [
+      {"cueId": "cue-openai-prompt-success", "startSeconds": 0, "endSeconds": 300, "text": "Define outcomes, forbidden behavior, cases, rubric, and thresholds before deciding whether an OpenAI prompt improved."},
+      {"cueId": "cue-openai-prompt-contract", "startSeconds": 330, "endSeconds": 630, "text": "State the outcome, authority, constraints, actions, approvals, evidence, output, and stopping condition clearly and without duplication."},
+      {"cueId": "cue-openai-prompt-context", "startSeconds": 660, "endSeconds": 960, "text": "Separate trusted context, examples, and untrusted variable input while enforcing security and validation outside the prompt."},
+      {"cueId": "cue-openai-prompt-current", "startSeconds": 990, "endSeconds": 1230, "text": "Apply current guidance for the configured model and verify model-specific changes on representative cases."},
+      {"cueId": "cue-openai-prompt-iterate", "startSeconds": 1260, "endSeconds": 1530, "text": "Compare versioned prompts under identical conditions, classify every failed boundary, and preserve regression and rollback evidence."}
+    ],
+    "reducedMotionAlternative": "Use a static prompt-contract diagram and baseline comparison table with focus highlighting."
+  },
   "knowledgeCheck": {
-    "passPercent": 75,
+    "passPercent": 80,
     "questions": [
-      {
-        "id": "openai-prompting-in-practice-clear-goal",
-        "prompt": "Which revision most clearly defines an observable goal?",
-        "choices": [
-          "Make this much better.",
-          "Summarize the source text for a reader who has not seen it, including the main conclusion and two supporting points.",
-          "Think carefully about the text.",
-          "Write whatever seems useful."
-        ],
-        "answerIndex": 1,
-        "explanation": "The correct choice names the task, audience, and required content. The other choices do not provide clear success criteria."
-      },
-      {
-        "id": "openai-prompting-in-practice-delimiters",
-        "prompt": "Why should instructions be separated from source material in a prompt?",
-        "choices": [
-          "To make the intended role of each part clearer.",
-          "To guarantee that every response is correct.",
-          "To remove the need for a task instruction.",
-          "To make every prompt longer."
-        ],
-        "answerIndex": 0,
-        "explanation": "The module explains that labels or delimiters clarify where instructions end and supporting material begins. It also states that this separation does not guarantee correctness."
-      },
-      {
-        "id": "openai-prompting-in-practice-output-format",
-        "prompt": "When is an explicit output format most useful?",
-        "choices": [
-          "When the structure helps you evaluate or use the response.",
-          "Whenever it makes the prompt contain more words.",
-          "Only when no source material is provided.",
-          "When you want to avoid stating the task."
-        ],
-        "answerIndex": 0,
-        "explanation": "The module recommends requesting a format that supports evaluation or downstream use, rather than adding structure that serves no purpose."
-      },
-      {
-        "id": "openai-prompting-in-practice-controlled-revision",
-        "prompt": "What is the recommended way to compare prompt revisions?",
-        "choices": [
-          "Change several unrelated elements and select the longest response.",
-          "Change one meaningful element at a time while keeping the input and evaluation criteria stable.",
-          "Choose the response that sounds most confident without checking it.",
-          "Remove the success criteria before making a comparison."
-        ],
-        "answerIndex": 1,
-        "explanation": "Changing one meaningful element at a time and keeping the comparison conditions stable makes it easier to identify which revision affected the result."
-      },
-      {
-        "id": "openai-prompting-in-practice-source-update",
-        "prompt": "What source change does this update record?",
-        "choices": [
-          "An unverified local citation was replaced with OpenAI's official Prompt engineering guide.",
-          "The module added a prerequisite from another catalogue entry.",
-          "The module adopted a new configuration key.",
-          "The module replaced OpenAI with a provider-neutral subject."
-        ],
-        "answerIndex": 0,
-        "explanation": "The update record states that the prior local citation had an unregistered publisher and had never been verified, so it was replaced with the official OpenAI guide."
-      }
+      {"id": "q-openai-prompt-1", "prompt": "What should exist before prompt tuning?", "choices": ["A preferred tone only", "The latest model alias", "Success criteria, cases, rubric, and threshold", "A very long instruction"], "answerIndex": 2, "explanation": "Predeclared evidence makes improvement measurable."},
+      {"id": "q-openai-prompt-2", "prompt": "Where should stable policy live?", "choices": ["In the appropriate higher-authority instruction layer", "Inside untrusted retrieved text", "Only in an example", "In the API key"], "answerIndex": 0, "explanation": "Instruction authority should match the policy's ownership and stability."},
+      {"id": "q-openai-prompt-3", "prompt": "What does prompt delimiting guarantee?", "choices": ["Authorization", "Factual accuracy", "Secret protection", "Clearer structure, not trust or enforcement"], "answerIndex": 3, "explanation": "External systems must enforce security, authority, and validation."},
+      {"id": "q-openai-prompt-4", "prompt": "How should model-specific guidance be applied?", "choices": ["Hard-code it forever", "Verify current official guidance and evaluate it on the configured model", "Ignore model differences", "Use it without a baseline"], "answerIndex": 1, "explanation": "Model behavior and recommendations change and require controlled evaluation."},
+      {"id": "q-openai-prompt-5", "prompt": "A result lacks data the workflow never supplied. What failed first?", "choices": ["Tone", "Missing context or retrieval", "Always the model", "Answer length"], "answerIndex": 1, "explanation": "Prompt wording cannot recover authoritative data that is unavailable."}
     ]
   },
-  "reviewCadenceDays": 90,
-  "lastVerified": "2026-08-22",
   "sources": [
-    {
-      "title": "Prompt engineering",
-      "url": "https://platform.openai.com/docs/guides/prompt-engineering",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-08-22"
-    }
+    {"title": "Prompt engineering", "url": "https://developers.openai.com/api/docs/guides/prompt-engineering", "publisher": "OpenAI", "lastVerified": "2026-07-25"},
+    {"title": "Model guidance", "url": "https://developers.openai.com/api/docs/guides/latest-model", "publisher": "OpenAI", "lastVerified": "2026-07-25"},
+    {"title": "Evaluation best practices", "url": "https://developers.openai.com/api/docs/guides/evaluation-best-practices", "publisher": "OpenAI", "lastVerified": "2026-07-25"},
+    {"title": "Developer quickstart", "url": "https://developers.openai.com/api/docs/quickstart", "publisher": "OpenAI", "lastVerified": "2026-07-25"}
   ]
 }

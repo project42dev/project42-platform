@@ -54,8 +54,8 @@ const evaluationEnvironment = {
 };
 
 function composeServiceBlock(compose, name) {
-  const normalizedCompose = compose.replace(/\r\n/g, "\n");
-  const marker = `  ${name}:\n`;
+  const normalizedCompose = `\n${compose.replace(/\r\n/g, "\n")}`;
+  const marker = `\n  ${name}:\n`;
   const start = normalizedCompose.indexOf(marker);
   assert.notEqual(start, -1, `Compose service ${name} must exist`);
   const remainder = normalizedCompose.slice(start + marker.length);

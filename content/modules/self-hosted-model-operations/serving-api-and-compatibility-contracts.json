@@ -1,237 +1,120 @@
 {
   "id": "serving-api-and-compatibility-contracts",
-  "title": "Serving API and Compatibility Contracts",
-  "summary": "This intermediate module enables learners to define a provider-neutral serving API contract and evaluate whether a proposed change preserves behavior expected by existing clients. After completing it, learners can identify request, response, and error changes that require compatibility testing.",
-  "level": "intermediate",
-  "providers": [
-    "provider-neutral"
-  ],
-  "estimatedMinutes": 25,
+  "title": "Model Serving and API Compatibility Contracts",
+  "summary": "Expose a bounded model endpoint with explicit health, identity, request, response, streaming, error, authentication, and compatibility contracts.",
+  "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-27",
+  "providers": ["provider-neutral"],
+  "estimatedMinutes": 55,
   "objectives": [
-    "Describe a serving API contract in terms of observable request, response, and error behavior.",
-    "Classify a proposed API change as compatible, incompatible, or requiring additional evidence.",
-    "Design compatibility checks that exercise interactions accepted by the existing contract.",
-    "Explain how a change in meaning can break compatibility even when the data shape remains unchanged."
+    "Separate the model runtime, inference server, gateway, application adapter, and public endpoint trust boundaries.",
+    "Define liveness, readiness, model identity, inference, streaming, cancellation, timeout, error, and overload contracts.",
+    "Treat OpenAI-compatible and other compatibility claims as tested subsets rather than universal equivalence.",
+    "Publish a versioned conformance suite and migration boundary that preserves application behavior across runtimes."
   ],
-  "prerequisites": [],
+  "prerequisites": ["hardware-runtime-and-capacity-planning"],
   "sections": [
     {
-      "id": "source-update",
-      "title": "Source update",
+      "id": "separate-serving-layers",
+      "title": "Separate runtime, server, gateway, and application contracts",
       "paragraphs": [
-        "The prior citation entry named content/modules/self-hosted-model-operations/serving-api-and-compatibility-contracts.json was an unregistered local path and had never been verified. It was not retained as a source because it is not a directly resolvable HTTPS reference.",
-        "That citation has been replaced by the RFC Editor documents for HTTP semantics and HTTP API problem details. The correction affects the attribution supporting this module's descriptions of request and response semantics and structured error responses. Provider-specific and implementation-specific claims unsupported by those sources are omitted."
+        "The model runtime loads and executes the artifact. An inference server turns runtime operations into a network protocol. A gateway can enforce identity, authorization, limits, routing, policy, audit, and stable external names. An application adapter maps product-owned requests and outcomes to the selected serving protocol. Keep these layers explicit so a runtime replacement does not silently rewrite policy or learner-facing behavior.",
+        "Bind the served model name to the immutable model and runtime bundle behind it. A friendly alias can support controlled replacement, but responses, telemetry, evaluation, and rollback evidence must retain the exact underlying identity."
       ]
     },
     {
-      "id": "level-and-scope",
-      "title": "Level and scope",
+      "id": "define-health-and-identity",
+      "title": "Define liveness, readiness, and model identity separately",
       "paragraphs": [
-        "This is an intermediate-level module. It assumes that the learner can already recognize an API request, an API response, headers, and a structured message body. It does not assume knowledge of any particular provider, serving product, deployment system, or client library.",
-        "The focus is the compatibility boundary visible to a client. Internal server organization is outside that boundary unless it changes an observable request, response, or error."
+        "Liveness asks whether the server process can respond and should not require every downstream dependency to be healthy. Readiness asks whether this instance should receive inference traffic. Model readiness confirms that the intended model and version are loaded and able to serve. Model metadata should identify the served contract without exposing secrets, internal paths, or unnecessary infrastructure details.",
+        "KServe's Open Inference Protocol V2 defines distinct server liveness, server readiness, model readiness, model metadata, and inference endpoints. Whether using that protocol or another, test transition behavior during startup, load, unload, pressure, failed dependencies, update, and rollback. A process that returns HTTP 200 while the wrong model is loaded is not ready."
       ]
     },
     {
-      "id": "observable-contract",
-      "title": "Define the observable contract",
+      "id": "own-inference-contract",
+      "title": "Own the inference and failure contract",
       "paragraphs": [
-        "An HTTP serving contract should identify the request method, target, representation metadata, body meaning, response status, response metadata, response-body meaning, and error behavior that a client may rely on. HTTP Semantics defines the roles of methods, status codes, fields, and message content in an HTTP interaction.",
-        "A useful contract states both structure and meaning. Structure describes what a client sends or receives. Meaning describes how the server interprets a request and what a response communicates. Preserving structure while changing meaning does not preserve the same contract.",
-        "Write requirements from the client's perspective. For each accepted request, state what makes it valid, which parts are optional, and what response categories the client must be prepared to handle. For each response, state which information is guaranteed and which information may vary."
+        "Version the allowed request fields, roles or input parts, modalities, encoding, context and output limits, sampling controls, stop rules, tools if any, response schema, model identity, usage accounting, finish reasons, safety or policy outcomes, and extension fields. Reject unsupported or ambiguous inputs instead of silently ignoring them.",
+        "Define authentication and authorization outside model prompts. Specify request identifiers, idempotency expectations, maximum body size, timeouts, cancellation, streaming event order, disconnect behavior, queue and rate limits, overload responses, retryability, error codes, observability identifiers, and redaction. Bound retries so one overloaded request does not multiply load."
       ]
     },
     {
-      "id": "compatibility-reasoning",
-      "title": "Reason about compatibility",
+      "id": "test-compatibility-subset",
+      "title": "Treat compatibility as a tested subset",
       "paragraphs": [
-        "Evaluate a proposed change against interactions permitted by the existing contract. First ask whether a request that was previously valid is still accepted with the same meaning. Then ask whether an existing client can interpret the resulting response without changing the meaning it observes. Finally, apply the same questions to error responses.",
-        "A change is incompatible when it invalidates behavior that the existing contract allowed or alters a guarantee on which an existing client may rely. Examples include rejecting a previously valid request, removing guaranteed response information, or assigning a different meaning to an existing value.",
-        "A change cannot be declared compatible merely because one example succeeds. Compatibility evidence should cover representative valid requests, boundary cases described by the contract, successful responses, and documented error paths. If the existing contract does not establish how clients handle a proposed addition, the compatibility result requires additional evidence rather than an assumption."
-      ]
+        "An OpenAI-compatible server may implement selected paths and fields while differing in model discovery, roles, tools, structured output, streaming chunks, token accounting, errors, limits, extensions, or unsupported parameters. vLLM documents an OpenAI-compatible server, but application compatibility still depends on the exact version, endpoint, model, configuration, and features used.",
+        "Write a conformance matrix for the application-owned subset. Include positive, boundary, invalid, unauthorized, overloaded, timeout, cancellation, streaming, and restart cases. Record required, transformed, ignored, emulated, rejected, and unavailable behavior. Never infer full protocol or behavioral equivalence from one successful chat request."
+      ],
+      "callout": "Compatible with a named subset is testable. Drop-in replacement without a versioned suite is an assumption."
     },
     {
-      "id": "structured-errors",
-      "title": "Keep error behavior within the contract",
+      "id": "preserve-portable-adapter",
+      "title": "Preserve a portable adapter and reversible cutover",
       "paragraphs": [
-        "Errors are part of the client-visible contract. A client may depend on the response status, the representation metadata, and stable machine-readable information in the response body.",
-        "Problem Details for HTTP APIs defines a structured format for communicating machine-readable details about an HTTP API problem. When a contract adopts such a format, compatibility review must consider both the HTTP response and the documented meaning of the structured problem information.",
-        "Changing an error from one documented meaning to another can affect retry logic, user messages, or corrective client behavior even if the response body remains syntactically valid. Error-path tests should therefore assert meaning as well as parseability."
+        "Keep user outcomes, application schemas, authorization policy, evaluation cases, trace fields, postconditions, error categories, and recovery rules above the runtime adapter. Put protocol-specific field names, streaming events, tool formats, and server extensions behind the adapter. Avoid a lowest-common-denominator contract that hides capabilities or safety differences.",
+        "For a runtime change, run the same conformance and evaluation suites against baseline and candidate, compare performance and failure behavior, canary a bounded route, preserve exact telemetry, and retain the last verified adapter and serving bundle. Roll back on critical contract, quality, security, latency, capacity, or observability regression."
       ]
-    },
-    {
-      "id": "compatibility-check",
-      "title": "Build a compatibility check",
-      "paragraphs": [
-        "Start with examples that are valid under the existing contract. Submit those interactions to the proposed implementation and compare the observable results with the original guarantees. Check acceptance, response category, required information, and documented meaning.",
-        "Separate a parse check from a semantic check. A parse check asks whether the client can read the response. A semantic check asks whether the response still communicates what the contract promised. Passing only the parse check is insufficient when a field or error has changed meaning.",
-        "Record the contract rule exercised by each check. This makes a failure traceable to a specific compatibility promise and prevents an implementation detail from being mistaken for a public guarantee."
-      ]
-    }
-  ],
-  "knowledgeCheck": {
-    "passPercent": 100,
-    "questions": [
-      {
-        "id": "serving-api-and-compatibility-contracts-observable-boundary",
-        "prompt": "Which information belongs in the client-visible serving API contract described in this module?",
-        "choices": [
-          "Only the server's internal component layout",
-          "Request, response, and error behavior observable by a client",
-          "Only whether the response body can be parsed",
-          "Undocumented implementation details"
-        ],
-        "answerIndex": 1,
-        "explanation": "The module defines the compatibility boundary through observable request, response, and error behavior. Internal organization is outside that boundary unless it changes observable behavior."
-      },
-      {
-        "id": "serving-api-and-compatibility-contracts-semantic-change",
-        "prompt": "A response keeps the same data shape, but an existing value is assigned a different documented meaning. How should that change be evaluated?",
-        "choices": [
-          "It is automatically compatible because the shape is unchanged",
-          "It is irrelevant because clients only observe syntax",
-          "It is incompatible when it alters a guarantee on which an existing client may rely",
-          "It requires no testing if the response can be parsed"
-        ],
-        "answerIndex": 2,
-        "explanation": "The module states that preserving structure while changing meaning does not preserve the same contract. Changing a documented meaning can alter a client-visible guarantee."
-      },
-      {
-        "id": "serving-api-and-compatibility-contracts-test-evidence",
-        "prompt": "What is the appropriate starting point for a compatibility check?",
-        "choices": [
-          "Interactions that are valid under the existing contract",
-          "Only newly invented requests that the old contract did not permit",
-          "The proposed server's internal source layout",
-          "A single successful parse with no semantic assertions"
-        ],
-        "answerIndex": 0,
-        "explanation": "The module instructs learners to start with interactions valid under the existing contract and compare their observable results with the original guarantees."
-      },
-      {
-        "id": "serving-api-and-compatibility-contracts-source-correction",
-        "prompt": "What did the source correction in this update affect?",
-        "choices": [
-          "It added provider-specific serving instructions",
-          "It changed the module to an advanced level",
-          "It replaced an unverified local citation and corrected attribution for HTTP semantics and structured error behavior",
-          "It introduced claims about an unnamed deployment product"
-        ],
-        "answerIndex": 2,
-        "explanation": "The source-update section states that the unverified local path was replaced by resolvable RFC Editor sources supporting request, response, and structured error descriptions."
-      }
-    ]
-  },
-  "reviewCadenceDays": 180,
-  "lastVerified": "2026-08-22",
-  "sources": [
-    {
-      "title": "HTTP Semantics",
-      "url": "https://www.rfc-editor.org/rfc/rfc9110.html",
-      "publisher": "RFC Editor",
-      "lastVerified": "2026-08-22"
-    },
-    {
-      "title": "Problem Details for HTTP APIs",
-      "url": "https://www.rfc-editor.org/rfc/rfc9457.html",
-      "publisher": "RFC Editor",
-      "lastVerified": "2026-08-22"
     }
   ],
   "activity": {
-    "id": "activity-serving-api-and-compatibility-contracts",
-    "title": "Serving API and Compatibility Contracts Practical Lab",
+    "id": "activity-serving-conformance-suite",
+    "title": "Design a portable serving conformance suite",
     "instructions": [
-      "Review the scenario requirements and parameters.",
-      "Execute the practical steps in your development environment.",
-      "Validate the output traces against the expected assertions.",
-      "Document conclusions and submit the result."
+      "Define synthetic liveness, readiness, model-readiness, identity, inference, streaming, cancellation, timeout, invalid-input, unauthorized, rate-limit, and overload contracts.",
+      "Choose a small application-owned request and response schema and map it to two hypothetical runtime adapters.",
+      "Create a field matrix labeling each behavior required, transformed, ignored, emulated, rejected, or unavailable.",
+      "Write deterministic cases for normal, boundary, failure, restart, and recovery behavior with expected status, body, events, and telemetry.",
+      "Design a baseline-candidate cutover and rollback decision that fails closed on critical contract or safety regressions."
     ],
     "evidence": [
-      "Command execution output log",
-      "Verification trace results"
+      "A versioned endpoint and error contract with separate health, readiness, identity, and inference semantics.",
+      "A two-adapter compatibility matrix and deterministic conformance fixture set.",
+      "A cutover record with comparison thresholds, canary scope, exact model identities, stop conditions, and rollback evidence."
     ],
-    "reflectionPrompt": "How do the core principles of Serving API and Compatibility Contracts improve system predictability?"
+    "reflectionPrompt": "Which behavior in your application would break even if both servers accept the same request path?"
   },
   "instructorScript": {
     "schemaVersion": "1.1",
-    "estimatedSeconds": 600,
+    "estimatedSeconds": 1560,
     "cues": [
-      {
-        "id": "cue-serving-api-and-compatibility-contracts-sec-0",
-        "kind": "narration",
-        "sectionId": "source-update",
-        "text": "Reviewing Source update: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-serving-api-and-compatibility-contracts-sec-1",
-        "kind": "narration",
-        "sectionId": "level-and-scope",
-        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-serving-api-and-compatibility-contracts-sec-2",
-        "kind": "narration",
-        "sectionId": "observable-contract",
-        "text": "Reviewing Define the observable contract: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-serving-api-and-compatibility-contracts-sec-3",
-        "kind": "narration",
-        "sectionId": "compatibility-reasoning",
-        "text": "Reviewing Reason about compatibility: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-serving-api-and-compatibility-contracts-sec-4",
-        "kind": "narration",
-        "sectionId": "structured-errors",
-        "text": "Reviewing Keep error behavior within the contract: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-serving-api-and-compatibility-contracts-sec-5",
-        "kind": "learner-prompt",
-        "sectionId": "compatibility-check",
-        "text": "Reviewing Build a compatibility check: Key concepts and architectural guidance."
-      }
+      {"id": "cue-serving-layers", "kind": "narration", "sectionId": "separate-serving-layers", "text": "Separate the model runtime, inference server, gateway, application adapter, and public contract so each has one visible responsibility."},
+      {"id": "cue-serving-visual", "kind": "visual", "sectionId": "separate-serving-layers", "text": "Draw five bounded layers and annotate identity, policy, protocol, model execution, and evidence ownership.", "accessibilityAlternative": "A static five-row table maps the public contract, adapter, gateway, inference server, and runtime to responsibilities and forbidden responsibilities."},
+      {"id": "cue-serving-health", "kind": "narration", "sectionId": "define-health-and-identity", "text": "Distinguish liveness, instance readiness, model readiness, and exact served-model identity across startup, pressure, update, and rollback."},
+      {"id": "cue-serving-contract", "kind": "narration", "sectionId": "own-inference-contract", "text": "Define inputs, outputs, streaming, errors, identity, authorization, limits, cancellation, retryability, telemetry, and overload before exposing traffic."},
+      {"id": "cue-serving-checkpoint", "kind": "checkpoint", "sectionId": "define-health-and-identity", "text": "Ask whether a live process serving the wrong model should be marked ready."},
+      {"id": "cue-serving-compatibility", "kind": "narration", "sectionId": "test-compatibility-subset", "text": "Describe compatibility as a versioned tested subset with required, transformed, ignored, emulated, rejected, and unavailable behavior."},
+      {"id": "cue-serving-cutover", "kind": "narration", "sectionId": "preserve-portable-adapter", "text": "Compare baseline and candidate through the same conformance and evaluation suites, canary narrowly, and preserve tested rollback."},
+      {"id": "cue-serving-activity", "kind": "learner-prompt", "text": "Guide the endpoint contract, adapter mappings, conformance cases, cutover thresholds, and rollback decision."},
+      {"id": "cue-serving-assessment", "kind": "assessment-handoff", "text": "Begin the check after the learner can defend health, identity, compatibility, failure, and migration contracts."}
     ],
-    "transcript": "Welcome to Serving API and Compatibility Contracts. In this module, we review key concepts and practical implementations across all sections.",
+    "transcript": "Separate the model runtime, inference server, gateway, application adapter, and public contract so each has one visible responsibility. Bind friendly served names to exact immutable model and runtime identities in responses, telemetry, evaluation, and rollback evidence. Distinguish liveness, instance readiness, model readiness, and exact served-model identity across startup, pressure, update, and rollback. A live process with the wrong model is not ready. Define inputs, outputs, streaming, errors, identity, authorization, limits, cancellation, retryability, telemetry, and overload before exposing traffic. Reject unsupported fields rather than ignoring them silently. Describe compatibility as a versioned tested subset with required, transformed, ignored, emulated, rejected, and unavailable behavior. One successful request does not establish full equivalence. Compare baseline and candidate through the same conformance and evaluation suites, canary narrowly, and preserve tested rollback. Keep product-owned outcomes and safety policy above adapters so runtime changes remain observable and reversible.",
     "captions": [
-      {
-        "cueId": "cue-serving-api-and-compatibility-contracts-sec-0",
-        "startSeconds": 0,
-        "endSeconds": 30,
-        "text": "Reviewing Source update: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-serving-api-and-compatibility-contracts-sec-1",
-        "startSeconds": 30,
-        "endSeconds": 60,
-        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-serving-api-and-compatibility-contracts-sec-2",
-        "startSeconds": 60,
-        "endSeconds": 90,
-        "text": "Reviewing Define the observable contract: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-serving-api-and-compatibility-contracts-sec-3",
-        "startSeconds": 90,
-        "endSeconds": 120,
-        "text": "Reviewing Reason about compatibility: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-serving-api-and-compatibility-contracts-sec-4",
-        "startSeconds": 120,
-        "endSeconds": 150,
-        "text": "Reviewing Keep error behavior within the contract: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-serving-api-and-compatibility-contracts-sec-5",
-        "startSeconds": 150,
-        "endSeconds": 180,
-        "text": "Reviewing Build a compatibility check: Key concepts and architectural guidance."
-      }
+      {"cueId": "cue-serving-layers", "startSeconds": 0, "endSeconds": 270, "text": "Separate the model runtime, inference server, gateway, application adapter, and public contract so each has one visible responsibility."},
+      {"cueId": "cue-serving-health", "startSeconds": 270, "endSeconds": 540, "text": "Distinguish liveness, instance readiness, model readiness, and exact served-model identity across startup, pressure, update, and rollback."},
+      {"cueId": "cue-serving-contract", "startSeconds": 540, "endSeconds": 870, "text": "Define inputs, outputs, streaming, errors, identity, authorization, limits, cancellation, retryability, telemetry, and overload before exposing traffic."},
+      {"cueId": "cue-serving-compatibility", "startSeconds": 870, "endSeconds": 1140, "text": "Describe compatibility as a versioned tested subset with required, transformed, ignored, emulated, rejected, and unavailable behavior."},
+      {"cueId": "cue-serving-cutover", "startSeconds": 1140, "endSeconds": 1350, "text": "Compare baseline and candidate through the same conformance and evaluation suites, canary narrowly, and preserve tested rollback."},
+      {"cueId": "cue-serving-activity", "startSeconds": 1350, "endSeconds": 1530, "text": "Guide the endpoint contract, adapter mappings, conformance cases, cutover thresholds, and rollback decision."},
+      {"cueId": "cue-serving-assessment", "startSeconds": 1530, "endSeconds": 1560, "text": "Begin the check after the learner can defend health, identity, compatibility, failure, and migration contracts."}
     ],
-    "reducedMotionAlternative": "Serving API and Compatibility Contracts architecture diagram and walkthrough."
-  }
+    "reducedMotionAlternative": "Use static layer, state-transition, endpoint, error, and compatibility tables. Present streaming as an ordered text event list rather than animation."
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {"id": "q-serving-contract-1", "prompt": "Which layer should translate a stable application schema to a runtime-specific protocol?", "choices": ["Model weights", "Application adapter", "DNS only", "Tokenizer vocabulary"], "answerIndex": 1, "explanation": "The adapter contains protocol differences while application outcomes remain stable."},
+      {"id": "q-serving-contract-2", "prompt": "What is the difference between liveness and readiness?", "choices": ["There is none", "Liveness proves model quality", "Liveness asks whether the process should be restarted; readiness asks whether it should receive traffic", "Readiness proves licensing"], "answerIndex": 2, "explanation": "The probes serve different control-plane decisions."},
+      {"id": "q-serving-contract-3", "prompt": "What does an OpenAI-compatible label safely establish?", "choices": ["Only the subset demonstrated by current documentation and conformance tests for the exact server configuration", "Full behavioral equivalence", "Identical tool and streaming behavior", "Identical safety policy"], "answerIndex": 0, "explanation": "Compatibility is bounded by version, endpoints, fields, model, configuration, and tested behavior."},
+      {"id": "q-serving-contract-4", "prompt": "How should unsupported request fields be handled?", "choices": ["Silently ignore all of them", "Guess the user's intent", "Forward them into the prompt", "Reject or explicitly transform them according to the versioned contract"], "answerIndex": 3, "explanation": "Silent omission creates hidden behavioral differences and unsafe assumptions."},
+      {"id": "q-serving-contract-5", "prompt": "Which case belongs in a conformance suite?", "choices": ["Only a successful short response", "Normal, boundary, invalid, unauthorized, streaming, timeout, overload, restart, and recovery behavior", "Only a health check", "Only vendor examples"], "answerIndex": 1, "explanation": "The suite must cover the application contract and important failures."},
+      {"id": "q-serving-contract-6", "prompt": "What supports a safe runtime cutover?", "choices": ["Changing every client directly", "Reusing a friendly alias without telemetry", "The same conformance and evaluation suites, bounded canary, exact identities, thresholds, and tested rollback", "Deleting the prior adapter"], "answerIndex": 2, "explanation": "A controlled comparison and retained rollback make the change reviewable and reversible."}
+    ]
+  },
+  "sources": [
+    {"title": "Inference Protocol V2", "url": "https://kserve.github.io/website/docs/concepts/architecture/data-plane/v2-protocol", "publisher": "KServe", "lastVerified": "2026-07-27"},
+    {"title": "OpenAI-Compatible Server", "url": "https://docs.vllm.ai/en/latest/serving/openai_compatible_server/", "publisher": "vLLM", "lastVerified": "2026-07-27"},
+    {"title": "Configure Liveness, Readiness and Startup Probes", "url": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/", "publisher": "Kubernetes", "lastVerified": "2026-07-27"},
+    {"title": "Chat Completions API Reference", "url": "https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create", "publisher": "OpenAI", "lastVerified": "2026-07-27"}
+  ]
 }

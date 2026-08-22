@@ -1,268 +1,112 @@
 {
   "id": "research-with-evidence",
   "title": "Research with Evidence",
-  "summary": "After this intermediate module, learners can turn a research question into a scoped claim, connect that claim to appropriate evidence, and communicate conclusions without overstating what the evidence supports. Learners will also be able to create an evidence record that another person can audit.",
-  "level": "intermediate",
-  "providers": [
-    "provider-neutral"
-  ],
-  "estimatedMinutes": 30,
+  "summary": "Plan, execute, verify, and recover a bounded AI-assisted research workflow.",
+  "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
+  "providers": ["provider-neutral"],
+  "estimatedMinutes": 38,
   "objectives": [
-    "Distinguish a source's reported evidence from an inference drawn from that evidence.",
-    "Select evidence that matches the subject, conditions, and scope of a claim.",
-    "Record a claim, its supporting evidence, its source, its scope, and its limitations.",
-    "Revise an unsupported or overly broad conclusion into a claim that the cited evidence supports.",
-    "Explain which source changed in this update and which parts of the module the correction affected."
+    "Turn a research need into bounded questions and evidence requirements.",
+    "Use AI to organize sources without treating generation as a source.",
+    "Verify claim-to-source mappings and report disagreement or missing evidence.",
+    "Recover from weak searches, inaccessible sources, and unsupported synthesis."
   ],
-  "prerequisites": [],
+  "prerequisites": ["verification-and-iterative-improvement"],
   "sections": [
     {
-      "id": "update-note",
-      "title": "Source correction",
+      "id": "research-prepare",
+      "title": "Prepare the question and evidence plan",
       "paragraphs": [
-        "The prior source entry was content/modules/ai-foundations/research-with-evidence.json. The update record identifies it as an internal path from an unregistered publisher that had never been verified. It did not provide the required resolvable HTTPS source.",
-        "That source entry has been removed and replaced by canonical arXiv records for Model Cards for Model Reporting, Datasheets for Datasets, and Holistic Evaluation of Language Models. This change affects the module's source provenance and the guidance about documenting context, datasets, evaluation conditions, and limitations. Material unrelated to that correction is unchanged."
-      ]
-    },
-    {
-      "id": "level-and-outcome",
-      "title": "Level and learning outcome",
-      "paragraphs": [
-        "This is an intermediate-level module. It assumes basic familiarity with reading technical prose and identifying a document's main conclusion. It does not assume prior knowledge of research methodology, statistical testing, or any named AI system.",
-        "Before this module, a learner may have treated a citation as sufficient support for a statement. After completing it, the learner can inspect what a source actually reports, separate that evidence from later interpretation, test whether the evidence matches the claim, and write a conclusion with an explicit scope."
-      ]
-    },
-    {
-      "id": "claims-evidence-and-inference",
-      "title": "Separate claims, evidence, and inference",
-      "paragraphs": [
-        "A claim is a statement that could be supported, qualified, or contradicted. Evidence is the relevant material a source reports, such as a described method, dataset, observation, or evaluation result. An inference is the reasoning used to move from that evidence to a conclusion.",
-        "Keep these elements separate in your notes. For example, a paper may report results under named evaluation conditions. The reported results are evidence. A conclusion that the same performance will occur under different conditions is an additional inference, not another result from the paper.",
-        "A citation identifies a source, but it does not by itself demonstrate that the source supports every part of the surrounding sentence. The researcher must compare the sentence with the source's subject, method, conditions, and stated limitations."
+        "State the decision the research supports, the questions that must be answered, the allowed time period, and the evidence strong enough for each claim. Separate facts, comparisons, estimates, and judgment.",
+        "Choose permitted data before searching. Do not upload confidential, personal, licensed, or organization-restricted material to a tool unless policy and authorization allow it."
       ],
-      "callout": "Use the narrowest claim that the available evidence supports. Broaden it only when additional evidence supports the broader scope."
-    },
-    {
-      "id": "match-source-to-claim",
-      "title": "Match the source to the claim",
-      "paragraphs": [
-        "Begin with the exact claim you want to support. Identify its subject, asserted outcome, conditions, and scope. Then inspect the original paper or report rather than relying only on a summary of it.",
-        "Model Cards for Model Reporting proposes documentation that includes intended uses, evaluation information, relevant factors, and limitations. This supports asking whether evidence was produced for the use and conditions named in a claim.",
-        "Datasheets for Datasets proposes documenting matters such as a dataset's motivation, composition, collection process, uses, and maintenance. This supports checking whether conclusions about data account for how the data was created and what it represents.",
-        "Holistic Evaluation of Language Models describes evaluation across multiple scenarios and metrics. This supports checking whether a broad performance claim rests on evidence that covers the relevant conditions and measures rather than on one isolated result."
-      ]
-    },
-    {
-      "id": "build-an-evidence-record",
-      "title": "Build an auditable evidence record",
-      "paragraphs": [
-        "For each important conclusion, record five elements in plain language: the claim, the evidence, the source, the supported scope, and the limitations. The claim is your proposed statement. The evidence is what the source directly reports. The source is the document containing that evidence. The scope states where the evidence applies. The limitations identify boundaries or unanswered questions.",
-        "Include a precise location when the source provides one, such as a section, table, or figure. Preserve enough context to determine what was measured and under which conditions. Do not copy a number into a new claim without also recording what that number describes.",
-        "If the source does not establish a required part of the claim, omit that part from the conclusion. Do not replace missing evidence with confident wording."
-      ]
-    },
-    {
-      "id": "test-the-reasoning",
-      "title": "Test the reasoning",
-      "paragraphs": [
-        "First, test relevance. Ask whether the evidence concerns the same subject and outcome as the claim. Second, test scope. Ask whether the evaluated conditions cover the conditions named in the claim. Third, test sufficiency. Ask whether the evidence supports the entire conclusion or only a narrower statement.",
-        "Next, look for alternative explanations and documented limitations. A result associated with one factor does not by itself establish that the factor caused the result. Likewise, evidence from one dataset, scenario, or metric does not automatically support a conclusion about every dataset, scenario, or metric.",
-        "When evidence supports only a narrower conclusion, revise the wording. Name the evaluated conditions and avoid universal terms such as always, all, or every unless the evidence actually establishes that scope."
-      ]
-    },
-    {
-      "id": "research-workflow",
-      "title": "Use a repeatable workflow",
-      "paragraphs": [
-        "Write the proposed claim before searching. Break it into subject, outcome, conditions, and scope. Decide what evidence would support each part.",
-        "Open the original source and identify what it directly reports. Record the method or evaluation context, the relevant result, and any limitation that changes how the result should be interpreted.",
-        "Compare the proposed claim with the evidence record. Remove unsupported details, narrow unsupported scope, and distinguish the source's findings from your own inference. If an important part remains unsupported, do not assert it.",
-        "Finish by checking that every important factual claim points to a source that readers can open, that the source addresses the claim, and that your wording preserves the source's conditions and limitations."
-      ]
-    }
-  ],
-  "knowledgeCheck": {
-    "passPercent": 75,
-    "questions": [
-      {
-        "id": "research-with-evidence-q1",
-        "prompt": "A source reports a result under one named evaluation condition. Which conclusion is supported without additional evidence?",
-        "choices": [
-          "The result applies under the reported evaluation condition.",
-          "The result applies under every possible condition.",
-          "The result proves that the evaluated system is suitable for every use.",
-          "The result makes the source's limitations irrelevant."
-        ],
-        "answerIndex": 0,
-        "explanation": "The module explains that evidence supports the conditions under which it was produced. Extending the result to every condition or use requires additional evidence."
-      },
-      {
-        "id": "research-with-evidence-q2",
-        "prompt": "Which item is an inference rather than directly reported evidence?",
-        "choices": [
-          "A paper describes the dataset used in an evaluation.",
-          "A table reports a result for a named metric.",
-          "A researcher concludes that the reported result will also occur under different, unevaluated conditions.",
-          "A source states a limitation of its evaluation."
-        ],
-        "answerIndex": 2,
-        "explanation": "Extending a reported result to unevaluated conditions is reasoning beyond what the source directly reports, so it is an inference."
-      },
-      {
-        "id": "research-with-evidence-q3",
-        "prompt": "Which evidence record follows the method taught in this module?",
-        "choices": [
-          "A citation with no explanation of what it supports.",
-          "A claim, the reported evidence, the source, the supported scope, and the limitations.",
-          "A conclusion and a list of unrelated sources.",
-          "A copied result with its conditions removed."
-        ],
-        "answerIndex": 1,
-        "explanation": "The module defines an auditable evidence record as the claim, evidence, source, supported scope, and limitations."
-      },
-      {
-        "id": "research-with-evidence-q4",
-        "prompt": "What source change triggered this correction?",
-        "choices": [
-          "An unverified internal path was removed and replaced with canonical HTTPS arXiv records.",
-          "A named software configuration was changed.",
-          "A new prerequisite module was added.",
-          "A performance figure was estimated and inserted."
-        ],
-        "answerIndex": 0,
-        "explanation": "The update note states that the unverified internal path was removed because it was not a resolvable HTTPS source, and canonical arXiv records now support the affected guidance."
+      "code": {
+        "language": "text",
+        "label": "Research brief",
+        "code": "Decision: [WHAT THIS RESEARCH SUPPORTS]\nQuestions: [BOUNDED QUESTIONS]\nScope: [TIME, REGION, PRODUCT, AUDIENCE]\nEvidence required: [PRIMARY SOURCES, TESTS, DATA]\nAllowed data: [CLASSIFICATION AND PERMISSION]\nStop conditions: [ENOUGH EVIDENCE OR ESCALATION]"
       }
-    ]
-  },
-  "reviewCadenceDays": 180,
-  "lastVerified": "2026-08-22",
-  "sources": [
-    {
-      "title": "Model Cards for Model Reporting",
-      "url": "https://arxiv.org/abs/1810.03993",
-      "publisher": "arXiv",
-      "lastVerified": "2026-08-22"
     },
     {
-      "title": "Datasheets for Datasets",
-      "url": "https://arxiv.org/abs/1803.09010",
-      "publisher": "arXiv",
-      "lastVerified": "2026-08-22"
+      "id": "research-execute",
+      "title": "Execute with a source ledger",
+      "paragraphs": [
+        "Search for primary sources, record canonical links and review dates, and note what each source can and cannot support. Use AI to extract candidate claims, organize themes, or identify gaps while keeping the original sources available.",
+        "Label generated suggestions as leads until verified. A model response, search snippet, or citation-shaped string is not evidence by itself."
+      ]
     },
     {
-      "title": "Holistic Evaluation of Language Models",
-      "url": "https://arxiv.org/abs/2211.09110",
-      "publisher": "arXiv",
-      "lastVerified": "2026-08-22"
+      "id": "research-verify",
+      "title": "Verify every material claim",
+      "paragraphs": [
+        "Open each cited source and compare the exact claim with the supporting passage, table, test, or record. Check publication scope, version, date, and whether the source is authoritative for the claim.",
+        "For consequential conclusions, seek independent evidence or review. Report disagreements and uncertainty instead of averaging incompatible claims into false certainty."
+      ]
+    },
+    {
+      "id": "research-recover",
+      "title": "Recover from evidence failure",
+      "paragraphs": [
+        "If a source is unavailable, stale, circular, or unsupported, mark the affected claim and search for a stronger source. Narrow the question when the evidence cannot support the original scope.",
+        "When the evidence remains insufficient, deliver a gap report: what is known, what is disputed, what is missing, and the next safe action."
+      ]
+    },
+    {
+      "id": "research-safety",
+      "title": "Protect data and preserve provenance",
+      "paragraphs": [
+        "Minimize copied data, redact unnecessary identifiers, and preserve license and attribution requirements. Store source metadata separately from generated prose so a reviewer can reconstruct the reasoning.",
+        "Before sharing, check that citations resolve, sensitive information is absent, and the conclusion does not exceed the evidence."
+      ],
+      "callout": "A trustworthy synthesis is reproducible from its source ledger."
     }
   ],
   "activity": {
-    "id": "activity-research-with-evidence",
-    "title": "Research with Evidence Practical Lab",
+    "id": "activity-evidence-led-research",
+    "title": "Produce a one-page evidence-led research brief",
     "instructions": [
-      "Review the scenario requirements and parameters.",
-      "Execute the practical steps in your development environment.",
-      "Validate the output traces against the expected assertions.",
-      "Document conclusions and submit the result."
+      "Choose a current, low-risk question and define its decision, scope, evidence requirements, allowed data, and stop conditions.",
+      "Build a ledger with at least three primary sources, supported claims, limitations, and review dates.",
+      "Draft a synthesis that maps each material claim to the ledger and labels uncertainty or disagreement.",
+      "Remove one source, identify what no longer holds, and write the recovery action."
     ],
     "evidence": [
-      "Command execution output log",
-      "Verification trace results"
+      "A research brief, source ledger, and one-page synthesis with claim-to-source mappings.",
+      "A gap-and-recovery note showing the effect of the removed source."
     ],
-    "reflectionPrompt": "How do the core principles of Research with Evidence improve system predictability?"
+    "reflectionPrompt": "Which conclusion changed most when you tested whether its source actually supported its scope?"
   },
   "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 600,
+    "schemaVersion": "1.0",
+    "estimatedSeconds": 1260,
     "cues": [
-      {
-        "id": "cue-research-with-evidence-sec-0",
-        "kind": "narration",
-        "sectionId": "update-note",
-        "text": "Reviewing Source correction: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-research-with-evidence-sec-1",
-        "kind": "narration",
-        "sectionId": "level-and-outcome",
-        "text": "Reviewing Level and learning outcome: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-research-with-evidence-sec-2",
-        "kind": "narration",
-        "sectionId": "claims-evidence-and-inference",
-        "text": "Reviewing Separate claims, evidence, and inference: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-research-with-evidence-sec-3",
-        "kind": "narration",
-        "sectionId": "match-source-to-claim",
-        "text": "Reviewing Match the source to the claim: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-research-with-evidence-sec-4",
-        "kind": "narration",
-        "sectionId": "build-an-evidence-record",
-        "text": "Reviewing Build an auditable evidence record: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-research-with-evidence-sec-5",
-        "kind": "narration",
-        "sectionId": "test-the-reasoning",
-        "text": "Reviewing Test the reasoning: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-research-with-evidence-sec-6",
-        "kind": "learner-prompt",
-        "sectionId": "research-workflow",
-        "text": "Reviewing Use a repeatable workflow: Key concepts and architectural guidance."
-      }
-    ],
-    "transcript": "Welcome to Research with Evidence. In this module, we review key concepts and practical implementations across all sections.",
-    "captions": [
-      {
-        "cueId": "cue-research-with-evidence-sec-0",
-        "startSeconds": 0,
-        "endSeconds": 30,
-        "text": "Reviewing Source correction: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-research-with-evidence-sec-1",
-        "startSeconds": 30,
-        "endSeconds": 60,
-        "text": "Reviewing Level and learning outcome: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-research-with-evidence-sec-2",
-        "startSeconds": 60,
-        "endSeconds": 90,
-        "text": "Reviewing Separate claims, evidence, and inference: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-research-with-evidence-sec-3",
-        "startSeconds": 90,
-        "endSeconds": 120,
-        "text": "Reviewing Match the source to the claim: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-research-with-evidence-sec-4",
-        "startSeconds": 120,
-        "endSeconds": 150,
-        "text": "Reviewing Build an auditable evidence record: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-research-with-evidence-sec-5",
-        "startSeconds": 150,
-        "endSeconds": 180,
-        "text": "Reviewing Test the reasoning: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-research-with-evidence-sec-6",
-        "startSeconds": 180,
-        "endSeconds": 210,
-        "text": "Reviewing Use a repeatable workflow: Key concepts and architectural guidance."
-      }
-    ],
-    "reducedMotionAlternative": "Research with Evidence architecture diagram and walkthrough."
-  }
+      {"id": "cue-research-prepare", "kind": "narration", "sectionId": "research-prepare", "text": "Build a research brief from decision, bounded questions, evidence, allowed data, and stop conditions."},
+      {"id": "cue-research-ledger-visual", "kind": "visual", "sectionId": "research-prepare", "text": "Show questions flowing into a source ledger and then into supported claims.", "accessibilityAlternative": "A text flow reads: decision, bounded questions, evidence requirements, source ledger, supported claims. Reduced-motion mode shows the entire flow."},
+      {"id": "cue-research-execute", "kind": "narration", "sectionId": "research-execute", "text": "Separate AI-generated research leads from opened and qualified primary sources."},
+      {"id": "cue-research-source-prompt", "kind": "learner-prompt", "sectionId": "research-execute", "text": "Ask learners to mark one candidate claim as verified, disputed, or unsupported."},
+      {"id": "cue-research-pause", "kind": "pause", "sectionId": "research-execute", "text": "Allow two minutes to complete one source-ledger row."},
+      {"id": "cue-research-verify", "kind": "narration", "sectionId": "research-verify", "text": "Demonstrate opening a source and checking passage, scope, version, date, and authority."},
+      {"id": "cue-research-recover", "kind": "narration", "sectionId": "research-recover", "text": "Turn a failed citation into a narrower claim, stronger search, or explicit evidence gap."},
+      {"id": "cue-research-safety", "kind": "narration", "sectionId": "research-safety", "text": "Review data minimization, attribution, provenance, and a final sensitive-data check."},
+      {"id": "cue-research-checkpoint", "kind": "checkpoint", "sectionId": "research-safety", "text": "Check that the learner can reconstruct one claim from the source ledger."},
+      {"id": "cue-research-activity", "kind": "learner-prompt", "text": "Guide the learner through the brief, ledger, synthesis, and removed-source recovery test."},
+      {"id": "cue-research-assessment", "kind": "assessment-handoff", "text": "Begin the check after every material claim is supported, disputed, or visibly marked as a gap."}
+    ]
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {"id": "q-research-workflow-1", "prompt": "What should be defined before an AI-assisted search begins?", "choices": ["Only the desired answer", "The decision, bounded questions, scope, evidence requirements, allowed data, and stop conditions", "A request for many citations", "The longest possible context"], "answerIndex": 1, "explanation": "A bounded brief makes the research goal, evidence, safety, and completion conditions reviewable."},
+      {"id": "q-research-workflow-2", "prompt": "How should an AI-generated source suggestion be treated?", "choices": ["As a lead to verify", "As a primary source", "As proof of the claim", "As private data"], "answerIndex": 0, "explanation": "The original authoritative source must be opened and qualified before the suggestion becomes evidence."},
+      {"id": "q-research-workflow-3", "prompt": "Two authoritative sources disagree within the task's scope. What is the strongest response?", "choices": ["Choose the more confident wording", "Average the claims", "Report the disagreement, scope, and evidence and seek resolution or review", "Remove both citations"], "answerIndex": 2, "explanation": "Visible disagreement preserves evidence and avoids manufactured certainty."},
+      {"id": "q-research-workflow-4", "prompt": "What should a synthesis do when evidence cannot support the requested scope?", "choices": ["Invent a broader conclusion", "Hide the limitation", "Repeat the search snippet", "Narrow the claim or deliver an explicit gap report"], "answerIndex": 3, "explanation": "A narrower supported claim or gap report is more trustworthy than unsupported completion."},
+      {"id": "q-research-workflow-5", "prompt": "What makes a research synthesis reproducible?", "choices": ["A confident summary", "A source ledger that maps claims to qualified evidence and records limitations", "Many unreviewed links", "A hidden chain of thought"], "answerIndex": 1, "explanation": "The ledger lets another reviewer reconstruct and challenge the synthesis."}
+    ]
+  },
+  "sources": [
+    {"title": "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile", "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence", "publisher": "NIST", "lastVerified": "2026-07-25"},
+    {"title": "Prompt engineering", "url": "https://developers.openai.com/api/docs/guides/prompt-engineering", "publisher": "OpenAI", "lastVerified": "2026-07-25"},
+    {"title": "Prompting best practices", "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices", "publisher": "Anthropic", "lastVerified": "2026-07-25"}
+  ]
 }

@@ -1,165 +1,96 @@
 {
   "id": "agentic-ai-layers",
-  "title": "Understanding the Layers of an Agentic AI System",
-  "summary": "This intermediate module enables learners to distinguish workflows from agents and analyze an agentic AI system as interacting reasoning, capability, coordination, and assurance layers. After completing it, learners can identify each layer's responsibility and diagnose where a described behavior originates.",
-  "level": "intermediate",
-  "providers": [
-    "provider-neutral"
-  ],
-  "estimatedMinutes": 20,
+  "title": "Name the Layers in an AI Experience",
+  "summary": "Separate the model from the interface, context, retrieval, memory, tools, policy, and runtime around it.",
+  "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-27",
+  "providers": ["provider-neutral"],
+  "estimatedMinutes": 35,
   "objectives": [
-    "Distinguish a workflow with predefined execution paths from an agent that dynamically directs its own process.",
-    "Classify system components into reasoning, capability, coordination, and assurance layers.",
-    "Trace a task through the layers and identify which layer is responsible for a failure or decision.",
-    "Explain why evaluation and risk management apply to the complete system rather than only to its language model."
+    "Distinguish a model from a chatbot, assistant, and copilot experience.",
+    "Attribute observed behavior to the responsible product or runtime layer.",
+    "Replace brand-wide claims with exact, version-scoped statements.",
+    "Record unknown behavior instead of guessing."
   ],
-  "prerequisites": [],
+  "prerequisites": ["what-ai-does"],
   "sections": [
     {
-      "id": "level-and-scope",
-      "title": "Level and scope",
+      "id": "layers-model",
+      "title": "A model generates; a product surrounds it",
       "paragraphs": [
-        "This is an intermediate module. It assumes that you understand basic language-model concepts such as prompts and generated responses. It does not assume experience with a particular provider, programming interface, or configuration system.",
-        "The four-layer model used here is a teaching framework, not a claim that every source or system uses standardized layer names. It separates responsibilities so that a learner can inspect how an agentic system reasons, obtains capabilities, coordinates work, and manages risk."
+        "A model maps supplied input and context to generated output. A product can add an interface, instructions, retrieval, memory, tools, identity, policy, deterministic code, and an execution environment.",
+        "When a product searches, remembers, edits, or sends something, identify the component that performed that behavior. Do not transfer every product capability to the model name."
       ]
     },
     {
-      "id": "source-correction",
-      "title": "What changed in this update",
+      "id": "layers-product-terms",
+      "title": "Chatbot, assistant, and copilot describe different experiences",
       "paragraphs": [
-        "The previous source record, content/modules/agentic-ai-literacy/agentic-ai-layers.json, was a repository-local path attributed to an unregistered publisher and had never been verified. It was not an independently accessible supporting source.",
-        "That source record was replaced with directly accessible sources from Anthropic, arXiv, and the United States National Institute of Standards and Technology. The correction affects the module's source provenance, the distinction between workflows and agents, the description of interleaved reasoning and action, and the treatment of system-level risk management."
+        "A chatbot is organized around conversational turns. An assistant helps a person complete tasks. A copilot is embedded in a work surface while a person remains responsible for direction and consequential decisions.",
+        "Any of these experiences can contain a deterministic workflow or agentic mode. The label alone does not prove who chooses the next step, executes tools, stores state, or approves effects."
+      ]
+    },
+    {
+      "id": "layers-evidence",
+      "title": "Describe the exact experience",
+      "paragraphs": [
+        "Name the product surface, version or observation date, configuration, enabled tools, permissions, and journey. Then label each claim documented, tested, inferred, or unknown.",
+        "A provider family can contain a model endpoint, consumer assistant, coding agent, framework, and managed agent service with different classifications."
       ],
-      "callout": "This update does not treat the former repository path as evidence for any factual claim."
+      "callout": "Classify the observed experience—not the logo."
     },
     {
-      "id": "workflow-or-agent",
-      "title": "First identify the coordination pattern",
+      "id": "layers-unknown",
+      "title": "Unknown is an honest result",
       "paragraphs": [
-        "A workflow and an agent can both combine a language model with external capabilities, but they coordinate work differently. In a workflow, predefined code paths determine the sequence or routing of operations. In an agent, the model dynamically directs its process and decides how to proceed.",
-        "This distinction concerns control, not the number of steps. A long predefined sequence is still a workflow. A system becomes agentic in this sense when the model has responsibility for choosing subsequent actions or directing how the task will be completed.",
-        "Before analyzing layers, ask who selects the next step. If a fixed path selects it, classify the coordination as a workflow. If the model selects it from available actions while pursuing a goal, classify it as agent-directed coordination."
-      ]
-    },
-    {
-      "id": "reasoning-layer",
-      "title": "Reasoning layer",
-      "paragraphs": [
-        "The reasoning layer interprets the current task and available information, then produces a proposed response, decision, or next action. In an agent-directed system, it may also revise its approach after receiving the result of an earlier action.",
-        "The ReAct paper demonstrates a method that interleaves reasoning traces with actions. Actions obtain new information from an external environment, and that information can inform later reasoning. The important architectural lesson is that reasoning and acting can form a repeated loop rather than a single prompt followed by a final response.",
-        "A reasoning failure occurs when the system has adequate information and capability but chooses an unsuitable conclusion or next step. That differs from a capability failure, in which the required information or action was unavailable."
-      ]
-    },
-    {
-      "id": "capability-layer",
-      "title": "Capability layer",
-      "paragraphs": [
-        "The capability layer supplies information or actions beyond what the reasoning component can produce by itself. The cited Anthropic source describes an augmented language model as one enhanced with capabilities such as retrieval, tools, and memory.",
-        "Retrieval can provide task-relevant information. A tool can perform an external operation or obtain an observation. Memory can preserve information that the system is designed to reuse. These are capability categories, not requirements that every system must implement.",
-        "A capability does not decide when it should be used. In a predefined workflow, code makes that decision. In an agent-directed arrangement, the reasoning and coordination process selects among available actions. Keeping this distinction clear helps determine whether a problem arose from an unavailable capability or from an incorrect decision to use it."
-      ]
-    },
-    {
-      "id": "coordination-layer",
-      "title": "Coordination layer",
-      "paragraphs": [
-        "The coordination layer determines how work moves among reasoning steps and capabilities. It defines whether operations follow a fixed sequence, branch according to predefined rules, run in parallel, or are selected dynamically by an agent.",
-        "The cited Anthropic source presents prompt chaining, routing, parallelization, orchestrator-worker arrangements, and evaluator-optimizer arrangements as composable patterns. These patterns differ in how they divide work and choose subsequent steps.",
-        "To analyze coordination, trace one task from its initial request to completion. Record which component chooses each next step, what information that choice uses, and what result returns to the process. This trace reveals whether control is predefined, model-directed, or a combination of both."
-      ]
-    },
-    {
-      "id": "assurance-layer",
-      "title": "Assurance layer",
-      "paragraphs": [
-        "The assurance layer covers the controls and evaluation practices used to identify and manage system risk. It surrounds the other layers because harmful or unreliable behavior can result from reasoning, capabilities, coordination, or their interaction.",
-        "The National Institute of Standards and Technology AI Risk Management Framework organizes risk-management work into the functions Govern, Map, Measure, and Manage. Applied as an analysis lens, these functions prompt teams to establish responsibilities, understand the operating context, assess behavior, and respond to identified risks.",
-        "Evaluation should therefore examine complete task traces and outcomes, not only isolated model responses. For example, a plausible reasoning step can still lead to an unacceptable outcome if coordination invokes an unsuitable capability. Conversely, a capability can operate correctly while the reasoning layer misinterprets its result."
-      ]
-    },
-    {
-      "id": "layered-diagnosis",
-      "title": "Diagnosing a layered system",
-      "paragraphs": [
-        "Begin by describing the intended outcome. Then identify the reasoning component, the information and actions available through the capability layer, the mechanism that selects each next step, and the assurance measures applied to the resulting behavior.",
-        "Suppose a system receives sufficient information but selects an irrelevant action. Inspect reasoning and coordination. Suppose the selected action is appropriate but cannot obtain required information. Inspect the capability layer. Suppose all operational steps complete but an unacceptable outcome is neither detected nor handled. Inspect the assurance layer.",
-        "Layer boundaries are analytical rather than absolute. One implementation component may serve more than one responsibility. The purpose of the framework is to make responsibilities and failure locations explicit, not to require a particular implementation."
+        "Missing documentation does not prove capability or absence. An untested feature is not tested evidence, and a marketing claim is not a runtime trace.",
+        "Record what would resolve the unknown: a first-party contract, controlled run, permission inspection, tool trace, state record, or accountable review."
       ]
     }
   ],
-  "knowledgeCheck": {
-    "passPercent": 75,
-    "questions": [
-      {
-        "id": "agentic-ai-layers-workflow-agent-distinction",
-        "prompt": "Which feature distinguishes an agent from a workflow in this module?",
-        "choices": [
-          "An agent always performs more steps.",
-          "An agent dynamically directs its process, while a workflow follows predefined execution paths.",
-          "An agent cannot use external capabilities.",
-          "A workflow must produce only one response."
-        ],
-        "answerIndex": 1,
-        "explanation": "The module defines the distinction in terms of control. Workflows use predefined paths, while agents dynamically direct how they proceed."
-      },
-      {
-        "id": "agentic-ai-layers-capability-responsibility",
-        "prompt": "A required source of information is unavailable to the system. Which layer should be inspected first?",
-        "choices": [
-          "Capability layer",
-          "Reasoning layer",
-          "Coordination layer",
-          "Assurance layer"
-        ],
-        "answerIndex": 0,
-        "explanation": "The capability layer provides external information and actions. Missing access to required information is therefore a capability issue."
-      },
-      {
-        "id": "agentic-ai-layers-coordination-question",
-        "prompt": "What question most directly reveals whether coordination is predefined or agent-directed?",
-        "choices": [
-          "How many words are in the final response?",
-          "Who or what selects the next step?",
-          "How long is the initial request?",
-          "How many learners use the system?"
-        ],
-        "answerIndex": 1,
-        "explanation": "Tracing who or what selects each next step reveals whether control follows a fixed path or is directed dynamically by the model."
-      },
-      {
-        "id": "agentic-ai-layers-assurance-scope",
-        "prompt": "Why does the assurance layer examine complete task traces rather than only isolated model responses?",
-        "choices": [
-          "Because only coordination can create risk.",
-          "Because reasoning, capabilities, coordination, and their interactions can all contribute to an outcome.",
-          "Because model responses contain no useful information.",
-          "Because every system must use the same implementation."
-        ],
-        "answerIndex": 1,
-        "explanation": "The module explains that unacceptable outcomes can arise from any layer or from interactions among layers, so assurance must consider the complete system behavior."
-      }
+  "activity": {
+    "id": "activity-agentic-layer-map",
+    "title": "Map one familiar AI experience",
+    "instructions": [
+      "Choose one exact AI product experience and record its surface, observation date, configuration, and enabled capabilities.",
+      "Map the model, interface, context, retrieval, memory, tools, policy, deterministic code, and runtime.",
+      "For each claimed behavior, record responsible layer, evidence kind, source, and unknowns.",
+      "Rewrite one provider-wide or marketing-led statement as an observable scoped statement."
+    ],
+    "evidence": [
+      "A complete layer map with no behavior attributed only to a provider name.",
+      "A claim table that separates documented, tested, inferred, and unknown evidence."
+    ],
+    "reflectionPrompt": "Which capability did you initially assign to the model but later locate in the surrounding product?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.0",
+    "estimatedSeconds": 1200,
+    "cues": [
+      {"id":"cue-agentic-layers-model","kind":"narration","sectionId":"layers-model","text":"Separate the generative model from every product and runtime layer around it."},
+      {"id":"cue-agentic-layers-visual","kind":"visual","sectionId":"layers-model","text":"Show the model nested inside interface, context, retrieval, memory, tools, policy, and runtime layers.","accessibilityAlternative":"An ordered text list names each layer, its owner, and the behavior it contributes. Reduced-motion mode shows all layers at once."},
+      {"id":"cue-agentic-layers-terms","kind":"narration","sectionId":"layers-product-terms","text":"Compare chatbot, assistant, and copilot as experience terms rather than autonomy guarantees."},
+      {"id":"cue-agentic-layers-evidence","kind":"narration","sectionId":"layers-evidence","text":"Demonstrate an exact, dated, configuration-scoped claim."},
+      {"id":"cue-agentic-layers-unknown","kind":"narration","sectionId":"layers-unknown","text":"Model how to preserve an unknown and name the evidence needed to resolve it."},
+      {"id":"cue-agentic-layers-checkpoint","kind":"checkpoint","sectionId":"layers-unknown","text":"Check whether the learner can move one unsupported behavior claim to unknown."},
+      {"id":"cue-agentic-layers-activity","kind":"learner-prompt","text":"Guide learners through the layer map and scoped-claim rewrite."},
+      {"id":"cue-agentic-layers-assessment","kind":"assessment-handoff","text":"Begin the check after the learner can attribute behavior without using a provider name as proof."}
     ]
   },
-  "reviewCadenceDays": 180,
-  "lastVerified": "2026-08-21",
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {"id":"q-agentic-layers-1","prompt":"What does a model classification establish?","choices":["The component maps supplied input and context to generated output","The product can safely execute every proposed tool","The provider is agentic","The user approved all side effects"],"answerIndex":0,"explanation":"A model is the generative component; execution, authority, state, and product behavior require separate evidence."},
+      {"id":"q-agentic-layers-2","prompt":"A product is called a copilot. What can you conclude from the name alone?","choices":["It is autonomous","It is multi-agent","It is positioned as embedded assistance; runtime behavior still needs evidence","It has no tools"],"answerIndex":2,"explanation":"Copilot is a product term, not proof of a particular control loop or authority boundary."},
+      {"id":"q-agentic-layers-3","prompt":"Which statement is properly scoped?","choices":["Every product from this provider is agentic","This dated product mode used a documented search tool under the tested configuration","Large models are always assistants","A tool-capable API executes every tool itself"],"answerIndex":1,"explanation":"The statement identifies the exact mode, date, evidence, and configuration."},
+      {"id":"q-agentic-layers-4","prompt":"What should happen when documentation does not resolve who stores state?","choices":["Assume the model stores it","Mark the behavior unknown and identify needed evidence","Treat the product name as proof","Ignore state"],"answerIndex":1,"explanation":"Unknown preserves the gap without inventing capability or absence."},
+      {"id":"q-agentic-layers-5","prompt":"Why separate a model from its harness?","choices":["To locate execution, policy, state, and authority accurately","To avoid recording sources","Because models never generate tool calls","Because every harness is deterministic"],"answerIndex":0,"explanation":"The harness owns important runtime behavior that the model name alone cannot establish."}
+    ]
+  },
   "sources": [
-    {
-      "title": "Building effective agents",
-      "url": "https://www.anthropic.com/research/building-effective-agents",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-08-21"
-    },
-    {
-      "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
-      "url": "https://arxiv.org/abs/2210.03629",
-      "publisher": "arXiv",
-      "lastVerified": "2026-08-21"
-    },
-    {
-      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
-      "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
-      "publisher": "National Institute of Standards and Technology",
-      "lastVerified": "2026-08-21"
-    }
+    {"title":"Building effective agents","url":"https://www.anthropic.com/engineering/building-effective-agents","publisher":"Anthropic","lastVerified":"2026-07-27"},
+    {"title":"Agents in the OpenAI Agents SDK","url":"https://openai.github.io/openai-agents-js/guides/agents/","publisher":"OpenAI","lastVerified":"2026-07-27"},
+    {"title":"Agents in Agent Development Kit","url":"https://adk.dev/agents/","publisher":"Google","lastVerified":"2026-07-27"}
   ]
 }

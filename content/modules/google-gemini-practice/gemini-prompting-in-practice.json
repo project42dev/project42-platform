@@ -1,154 +1,122 @@
 {
   "id": "gemini-prompting-in-practice",
-  "title": "Gemini Prompting in Practice",
-  "summary": "This intermediate module enables learners to write, evaluate, and revise structured prompts for Gemini. After completing it, learners can turn a loosely stated task into a prompt with explicit instructions, relevant context, a defined output format, and examples when needed.",
+  "title": "Prompt Gemini with Evaluated Contracts",
+  "summary": "Design clear, versioned Gemini prompts, separate instruction authority from variable and multimodal input, choose structured output when appropriate, and improve behavior through controlled evaluation.",
   "level": "intermediate",
-  "providers": [
-    "google"
-  ],
-  "estimatedMinutes": 25,
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
+  "providers": ["google"],
+  "estimatedMinutes": 52,
   "objectives": [
-    "Write a Gemini prompt that states the task, relevant context, output format, and success criteria explicitly.",
-    "Use examples to demonstrate a desired response pattern when instructions alone are insufficient.",
-    "Break a complex prompting task into smaller steps.",
-    "Evaluate a response against stated criteria and revise the prompt to address a specific problem."
+    "Define success criteria, cases, rubric, and thresholds before tuning a Gemini prompt.",
+    "Separate system instruction, task, trusted context, untrusted input, examples, modalities, and output contract.",
+    "Choose prompt formatting or structured output according to the application contract.",
+    "Apply current model-specific guidance as a tested hypothesis rather than a permanent recipe."
   ],
-  "prerequisites": [],
+  "prerequisites": ["gemini-ecosystem-and-interfaces"],
   "sections": [
     {
-      "id": "currency-update",
-      "title": "What changed in this update",
+      "id": "define-success-before-prompting",
+      "title": "Define success before prompting",
       "paragraphs": [
-        "The source record associated with content/modules/google-gemini-practice/gemini-prompting-in-practice.json was listed as an unregistered publisher and had never been verified. It has been replaced by Google's official Prompt design strategies documentation.",
-        "This correction affects the source URL, publisher attribution, verification date, and the support for the prompting guidance in this module. The instructional scope remains focused on practical prompt construction and revision."
+        "Write the observable outcome, intended user, required evidence, forbidden behavior, output contract, representative cases, rubric, and pass threshold before changing prompt wording. Compare candidates with the same model configuration, cases, and graders.",
+        "Prompt design cannot repair missing authoritative context, unavailable tools, unsuitable permissions, a broken integration, or absent validation. Classify the failed boundary before editing the prompt."
       ],
-      "callout": "The module is scheduled for another source review after the declared review cadence."
+      "callout": "A more persuasive response is not evidence of a better prompt."
     },
     {
-      "id": "level-and-scope",
-      "title": "Level and scope",
+      "id": "structure-the-gemini-contract",
+      "title": "Structure the Gemini contract",
       "paragraphs": [
-        "This is an intermediate module. It assumes that you can already write a basic natural-language prompt and inspect the resulting response. It does not assume programming knowledge or knowledge of advanced model configuration.",
-        "The goal is to move beyond a one-line request. You will learn to express the task, supply relevant context, define the expected form of the response, and revise the prompt when the response does not satisfy your criteria."
+        "State the outcome, audience, authoritative instructions, context, hard constraints, allowed actions, approval boundaries, required evidence, output shape, and stopping condition clearly. Use examples when evaluation shows they improve consistency, and keep examples representative and secret-free.",
+        "In an API workflow, put stable behavioral direction in the supported system-instruction field and task-specific input in the user content. Do not duplicate or conflict across layers. Verify the exact request contract for the configured SDK and model."
       ]
     },
     {
-      "id": "make-the-task-explicit",
-      "title": "Make the task explicit",
+      "id": "separate-context-modalities-and-input",
+      "title": "Separate context, modalities, and untrusted input",
       "paragraphs": [
-        "Begin by stating what Gemini should do. Prefer a direct instruction such as asking it to summarize, compare, classify, explain, or transform supplied material. Include the intended audience or purpose when that information changes what a useful response looks like.",
-        "State observable success criteria rather than relying on a vague request for a better response. Criteria can identify the required coverage, the desired degree of detail, or constraints the response must follow.",
-        "Define the output format when structure matters. For example, request a short paragraph followed by three questions if that is the form you need. A format instruction gives you a concrete feature to check in the response."
-      ]
-    },
-    {
-      "id": "supply-relevant-context",
-      "title": "Supply relevant context",
-      "paragraphs": [
-        "Include information that Gemini needs in order to complete the task. Relevant context may include source text, definitions, audience needs, or boundaries on what material the response should use.",
-        "Separate instructions from supplied material so their roles are clear. Introduce the material with plain labels such as Instructions and Source text. This helps distinguish what Gemini should do from the content it should process.",
-        "Do not add unrelated context merely to make the prompt longer. Each included detail should help determine the task, the expected response, or the criteria used to evaluate it."
-      ]
-    },
-    {
-      "id": "show-the-pattern",
-      "title": "Use examples when a pattern is hard to describe",
-      "paragraphs": [
-        "Examples can demonstrate the relationship between an input and the response you want. They are useful when tone, classification boundaries, or formatting rules would be difficult to communicate with instructions alone.",
-        "Keep examples consistent with one another and with the written instructions. If an example contradicts a rule, the prompt presents competing signals and becomes harder to evaluate.",
-        "An example should demonstrate the desired pattern rather than provide unrelated content. After the examples, present the new input clearly so it is distinguishable from the demonstrations."
-      ]
-    },
-    {
-      "id": "divide-complex-work",
-      "title": "Divide complex work into smaller steps",
-      "paragraphs": [
-        "When a task contains several distinct operations, separate them into ordered steps. For example, a prompt can first ask for the important claims in supplied text and then ask for a summary based on those claims.",
-        "Breaking work into steps makes each requirement easier to inspect. It also helps you identify which instruction needs revision when the final response does not meet the stated criteria.",
-        "A step should contribute directly to the requested result. Remove steps that do not affect the final output or its evaluation."
-      ]
-    },
-    {
-      "id": "evaluate-and-revise",
-      "title": "Evaluate and revise",
-      "paragraphs": [
-        "Evaluate the response against the criteria written in the prompt. Check whether it performed the requested task, used the relevant context, followed the output format, and matched any demonstrated pattern.",
-        "If the response fails a criterion, revise the part of the prompt connected to that failure. Clarify an ambiguous instruction, add missing context, correct an inconsistent example, or make the required format more explicit.",
-        "Change one meaningful part at a time when diagnosing a problem. Compare the next response with the same criteria so you can determine whether the revision addressed the identified issue."
+        "Label trusted references, examples, and variable user or retrieved data. When text, images, audio, video, or files are used, tell the workflow which part supports which question and what evidence is allowed. Preserve source and modality provenance.",
+        "Tags, Markdown, and structured fields can improve clarity but do not create trust. Treat external content as untrusted, minimize sensitive data, enforce authorization outside the model, and validate outputs and tool proposals."
       ],
-      "callout": "A practical prompt includes enough information to perform and evaluate the task, not merely more words."
+      "code": {
+        "language": "text",
+        "label": "Evaluated Gemini prompt contract",
+        "code": "Outcome: [OBSERVABLE RESULT]\nAuthoritative instruction: [POLICY + HARD CONSTRAINTS]\nTrusted context and modalities: [SOURCES + PURPOSE]\nVariable input (untrusted): [USER OR RETRIEVED DATA]\nExamples: [REPRESENTATIVE, DIVERSE, SECRET-FREE]\nOutput contract: [SCHEMA OR REQUIRED SECTIONS]\nVerify: [CLAIMS, CONSTRAINTS, POSTCONDITIONS]\nStop or escalate when: [BOUNDARY]"
+      }
     },
     {
-      "id": "reusable-workflow",
-      "title": "A reusable prompting workflow",
+      "id": "choose-output-and-model-controls",
+      "title": "Choose output and model controls deliberately",
       "paragraphs": [
-        "First, write a direct task instruction. Second, add only the context needed for that task. Third, state the required output format and success criteria. Fourth, add consistent examples if the desired pattern remains difficult to describe. Fifth, divide the work into steps if it contains multiple operations.",
-        "After receiving a response, compare it with the success criteria. Identify one specific failure, revise the corresponding part of the prompt, and evaluate the next response using the same criteria.",
-        "Following this workflow enables you to turn an underspecified request into a prompt whose instructions and results can be inspected systematically."
+        "For prose, a clear format instruction may be enough. When application code requires a supported structured shape, use the current structured-output feature and a schema, then validate the returned data against business rules. A schema constrains shape, not truth or authorization.",
+        "Model-specific prompt, reasoning, safety, and generation guidance changes. Keep model and settings in reviewed configuration, start from current official defaults and guidance, and vary one meaningful hypothesis at a time where practical. Do not assume a lower temperature or copied recipe always improves a current model."
+      ]
+    },
+    {
+      "id": "iterate-with-controlled-evidence",
+      "title": "Iterate with controlled evidence",
+      "paragraphs": [
+        "Run baseline and candidate across typical, edge, multimodal, adversarial, and prior-failure cases. Record per-case rubric results, critical failures, latency or usage when available, surface, model, prompt, tools, settings, and reviewer disagreement.",
+        "Classify misses as instruction ambiguity, missing context, modality mismatch, misleading example, output violation, model limitation, safety boundary, tool failure, or application defect. Preserve the baseline for rollback and add repaired failures to regression coverage."
       ]
     }
   ],
+  "activity": {
+    "id": "activity-gemini-prompt-contract",
+    "title": "Build and evaluate a Gemini prompt contract",
+    "instructions": [
+      "Choose a recurring task and define at least four success criteria, one forbidden outcome, a required output contract, and an 80 percent pass threshold.",
+      "Create six secret-free cases: two typical, one edge, one multimodal or documented modality fixture, one adversarial instruction-conflict case, and one prior failure.",
+      "Write a prompt that separates authoritative instruction, trusted context and modalities, untrusted input, examples, output contract, verification, and escalation.",
+      "Compare baseline and candidate in AI Studio if approved access exists, or evaluate supplied response fixtures; classify every failure and make a ship, revise, or reject decision."
+    ],
+    "evidence": [
+      "A versioned prompt, rubric, six-case suite, modality provenance, output contract, and explicit trust and approval boundaries.",
+      "A baseline-versus-candidate or fixture report with scores, failures, configuration, official guidance, validation results, and a release decision."
+    ],
+    "reflectionPrompt": "Which failed case required context, tool, safety, or application work rather than another prompt instruction?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 1560,
+    "cues": [
+      {"id": "cue-gemini-prompt-success", "kind": "narration", "sectionId": "define-success-before-prompting", "text": "Define outcomes, forbidden behavior, representative cases, rubrics, and thresholds before deciding whether a Gemini prompt improved."},
+      {"id": "cue-gemini-prompt-contract", "kind": "narration", "sectionId": "structure-the-gemini-contract", "text": "State authority, outcome, context, constraints, actions, approvals, evidence, output, and stopping conditions clearly and without conflict."},
+      {"id": "cue-gemini-prompt-context", "kind": "narration", "sectionId": "separate-context-modalities-and-input", "text": "Separate trusted context and modalities from untrusted input while preserving provenance and enforcing security outside the prompt."},
+      {"id": "cue-gemini-prompt-controls", "kind": "narration", "sectionId": "choose-output-and-model-controls", "text": "Use structured output for supported schema contracts and treat current model controls as configuration and evaluated hypotheses."},
+      {"id": "cue-gemini-prompt-iterate", "kind": "narration", "sectionId": "iterate-with-controlled-evidence", "text": "Compare versioned prompts under identical conditions, classify failed boundaries, and preserve regression and rollback evidence."},
+      {"id": "cue-gemini-prompt-visual", "kind": "visual", "sectionId": "separate-context-modalities-and-input", "text": "Stack authority, trusted multimodal context, untrusted input, examples, output contract, verification, and escalation as labeled blocks.", "accessibilityAlternative": "A static prompt-contract table lists each block, modality, trust level, owner, provenance, and validation boundary."},
+      {"id": "cue-gemini-prompt-question", "kind": "learner-prompt", "sectionId": "choose-output-and-model-controls", "text": "Ask learners which requirement belongs in a prompt, schema, application validator, or authorization policy."},
+      {"id": "cue-gemini-prompt-pause", "kind": "pause", "sectionId": "iterate-with-controlled-evidence", "text": "Allow three minutes to classify one miss as prompt, context, modality, model, tool, safety, or application failure."},
+      {"id": "cue-gemini-prompt-checkpoint", "kind": "checkpoint", "sectionId": "iterate-with-controlled-evidence", "text": "Check that baseline and candidate share cases, rubric, model configuration, tools, settings, and validation rules."},
+      {"id": "cue-gemini-prompt-activity", "kind": "learner-prompt", "text": "Guide success criteria, six cases, prompt structure, fixture or live comparison, failure classification, and release decision."},
+      {"id": "cue-gemini-prompt-assessment", "kind": "assessment-handoff", "text": "Begin the check after the learner can improve Gemini behavior from evidence without treating every failure as wording."}
+    ],
+    "transcript": "Define outcomes, forbidden behavior, representative cases, rubrics, and thresholds before deciding whether a Gemini prompt improved. State authority, outcome, context, constraints, actions, approvals, evidence, output, and stopping conditions clearly and without conflict. Separate trusted context and modalities from untrusted input while preserving provenance and enforcing security outside the prompt. Use structured output for supported schema contracts and treat current model controls as configuration and evaluated hypotheses. Compare versioned prompts under identical conditions, classify failed boundaries, and preserve regression and rollback evidence.",
+    "captions": [
+      {"cueId": "cue-gemini-prompt-success", "startSeconds": 0, "endSeconds": 300, "text": "Define outcomes, forbidden behavior, representative cases, rubrics, and thresholds before deciding whether a Gemini prompt improved."},
+      {"cueId": "cue-gemini-prompt-contract", "startSeconds": 330, "endSeconds": 630, "text": "State authority, outcome, context, constraints, actions, approvals, evidence, output, and stopping conditions clearly and without conflict."},
+      {"cueId": "cue-gemini-prompt-context", "startSeconds": 660, "endSeconds": 960, "text": "Separate trusted context and modalities from untrusted input while preserving provenance and enforcing security outside the prompt."},
+      {"cueId": "cue-gemini-prompt-controls", "startSeconds": 990, "endSeconds": 1230, "text": "Use structured output for supported schema contracts and treat current model controls as configuration and evaluated hypotheses."},
+      {"cueId": "cue-gemini-prompt-iterate", "startSeconds": 1260, "endSeconds": 1530, "text": "Compare versioned prompts under identical conditions, classify failed boundaries, and preserve regression and rollback evidence."}
+    ],
+    "reducedMotionAlternative": "Use a static prompt-contract diagram and baseline comparison table with modality and trust columns."
+  },
   "knowledgeCheck": {
-    "passPercent": 75,
+    "passPercent": 80,
     "questions": [
-      {
-        "id": "gemini-prompting-in-practice-task-components",
-        "prompt": "Which prompt most clearly defines both a task and an output format?",
-        "choices": [
-          "Write something useful about the source text.",
-          "Summarize the supplied source text for a general audience in one paragraph, followed by three review questions.",
-          "Read the source text carefully.",
-          "Make the response better."
-        ],
-        "answerIndex": 1,
-        "explanation": "The correct prompt states the task, identifies the audience, and specifies a response format that can be checked."
-      },
-      {
-        "id": "gemini-prompting-in-practice-example-consistency",
-        "prompt": "What should you do when using examples to demonstrate a desired response pattern?",
-        "choices": [
-          "Make the examples inconsistent so that Gemini can choose among them.",
-          "Use examples only as unrelated background information.",
-          "Keep the examples consistent with one another and with the written instructions.",
-          "Replace every task instruction with an example."
-        ],
-        "answerIndex": 2,
-        "explanation": "The module states that examples should be consistent with each other and with the written instructions so they demonstrate one clear pattern."
-      },
-      {
-        "id": "gemini-prompting-in-practice-complex-task",
-        "prompt": "How should you handle a task containing several distinct operations?",
-        "choices": [
-          "Remove all success criteria.",
-          "Combine every operation into one vague instruction.",
-          "Add unrelated context.",
-          "Separate the operations into ordered steps."
-        ],
-        "answerIndex": 3,
-        "explanation": "The module recommends separating distinct operations into ordered steps so each requirement is easier to perform and inspect."
-      },
-      {
-        "id": "gemini-prompting-in-practice-revision",
-        "prompt": "A response uses the source text correctly but ignores the requested response structure. Which revision best follows the module's workflow?",
-        "choices": [
-          "Make the required output format more explicit.",
-          "Delete the source text.",
-          "Add unrelated examples.",
-          "Remove the task instruction."
-        ],
-        "answerIndex": 0,
-        "explanation": "The failure concerns structure, so the revision should clarify the output-format instruction connected to that failure."
-      }
+      {"id": "q-gemini-prompt-1", "prompt": "What should exist before Gemini prompt tuning?", "choices": ["A preferred tone only", "The newest model name", "Success criteria, cases, rubric, output contract, and threshold", "A very long prompt"], "answerIndex": 2, "explanation": "Predeclared evidence makes improvement measurable."},
+      {"id": "q-gemini-prompt-2", "prompt": "Where should stable behavioral direction live in a supported API request?", "choices": ["In the supported system-instruction field", "Inside untrusted retrieved text", "In the API key", "Only in a response example"], "answerIndex": 0, "explanation": "Instruction authority should match its ownership and stability while task input remains separate."},
+      {"id": "q-gemini-prompt-3", "prompt": "What does a structured-output schema guarantee?", "choices": ["Factual truth", "User authorization", "A supported output shape, not truth or business validity", "Safe tool execution"], "answerIndex": 2, "explanation": "Application validation and authorization remain necessary."},
+      {"id": "q-gemini-prompt-4", "prompt": "How should model-specific prompting guidance be applied?", "choices": ["Hard-code it forever", "Verify current official guidance and evaluate it on the configured model", "Ignore model differences", "Use it without a baseline"], "answerIndex": 1, "explanation": "Guidance and model behavior change and require controlled testing."},
+      {"id": "q-gemini-prompt-5", "prompt": "A response lacks evidence the workflow never supplied. What failed first?", "choices": ["Tone", "Missing context or retrieval", "Always the model", "Answer length"], "answerIndex": 1, "explanation": "Prompt wording cannot recover authoritative evidence that was unavailable."}
     ]
   },
-  "reviewCadenceDays": 90,
-  "lastVerified": "2026-08-22",
   "sources": [
-    {
-      "title": "Prompt design strategies",
-      "url": "https://ai.google.dev/gemini-api/docs/prompting-strategies",
-      "publisher": "Google",
-      "lastVerified": "2026-08-22"
-    }
+    {"title": "Prompt design strategies", "url": "https://ai.google.dev/gemini-api/docs/prompting-strategies", "publisher": "Google", "lastVerified": "2026-07-25"},
+    {"title": "Google AI Studio quickstart", "url": "https://ai.google.dev/gemini-api/docs/ai-studio-quickstart", "publisher": "Google", "lastVerified": "2026-07-25"},
+    {"title": "Structured output", "url": "https://ai.google.dev/gemini-api/docs/structured-output", "publisher": "Google", "lastVerified": "2026-07-25"},
+    {"title": "Using the latest Gemini models", "url": "https://ai.google.dev/gemini-api/docs/latest-model", "publisher": "Google", "lastVerified": "2026-07-25"}
   ]
 }

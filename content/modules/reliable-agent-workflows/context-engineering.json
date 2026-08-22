@@ -1,225 +1,151 @@
 {
   "id": "context-engineering",
-  "title": "Context Engineering for Reliable Agent Workflows",
-  "summary": "This intermediate-level module teaches you to assemble, order, inspect, and revise the information supplied to an agent workflow. After completing it, you can diagnose context-related failures and design a context pipeline that keeps instructions, retrieved evidence, working state, and observations distinguishable.",
+  "title": "Engineer Context for Reliable Decisions",
+  "summary": "Select, structure, budget, and refresh the information an agent needs while preserving provenance and trust boundaries.",
   "level": "intermediate",
-  "providers": [
-    "provider-neutral"
-  ],
-  "estimatedMinutes": 35,
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
+  "providers": ["provider-neutral"],
+  "estimatedMinutes": 44,
   "objectives": [
-    "Construct a context pipeline that selects and organizes instructions, evidence, working state, and observations.",
-    "Diagnose whether a workflow failure came from missing, irrelevant, poorly positioned, or stale context.",
-    "Choose when to retrieve source material instead of placing all potentially useful material into every request.",
-    "Preserve enough provenance to trace an output back to the context that supported it."
+    "Separate instructions, current state, evidence, examples, tool results, and memory by role and trust.",
+    "Select the smallest sufficient context for the current decision.",
+    "Compress or remove stale context without losing required provenance.",
+    "Test context packages for injection, contradiction, omission, and age."
   ],
-  "prerequisites": [],
+  "prerequisites": ["control-agent-actions"],
   "sections": [
     {
-      "id": "source-correction",
-      "title": "What changed in this update",
+      "id": "context-is-a-decision-input",
+      "title": "Context is a designed decision input",
       "paragraphs": [
-        "The previous citation was the repository path content/modules/reliable-agent-workflows/context-engineering.json. It had an unregistered publisher and had never been verified, and it was not a directly accessible HTTPS research source.",
-        "This update replaces that citation record with canonical HTTPS records for research on retrieval-augmented generation, the use of information within long contexts, and workflows that interleave reasoning with actions. The change affects source provenance, verification dates, and the evidence supporting the guidance about retrieval, context position, and action observations. The module remains provider-neutral and introduces no named tool, version, or configuration key."
-      ]
-    },
-    {
-      "id": "working-definition",
-      "title": "A working definition of context engineering",
-      "paragraphs": [
-        "In this module, context engineering means deliberately selecting, organizing, and maintaining the information available to a model during a workflow. Context can include task instructions, retrieved source passages, user input, intermediate state, action observations, and prior messages.",
-        "An agent workflow is a process in which model outputs can guide later operations and the resulting observations can become input to another model step. Research on interleaving reasoning and actions provides an example of this structure. Reliable context engineering therefore covers both the initial input and the information carried forward after each operation.",
-        "This is an intermediate-level module. It assumes basic familiarity with prompts, model inputs and outputs, and multi-step workflows. It does not assume knowledge of a particular provider, product, programming language, or context limit."
-      ]
-    },
-    {
-      "id": "context-pipeline",
-      "title": "Build a context pipeline",
-      "paragraphs": [
-        "Begin by identifying the information required for the current decision. Separate binding task instructions from supporting evidence, current working state, and observations produced by earlier operations. This separation makes it easier to detect conflicts and to determine why a later output used a particular fact.",
-        "Select context according to the current step rather than carrying every available item into every request. Retrieval-augmented generation research shows a pattern in which relevant external passages are retrieved and supplied for generation. For workflow design, the practical lesson is to retrieve evidence when it becomes relevant and retain its source identity.",
-        "Order the selected material deliberately. Research on long contexts found that performance can depend on where relevant information appears, with information in the middle sometimes used less effectively than information near the beginning or end. Do not assume that inclusion alone guarantees use. Place critical instructions and directly relevant evidence where their roles are explicit, and test the ordering with representative tasks.",
-        "After an operation, add its observation to the working state only if a later step needs it. Record what produced the observation and distinguish it from instructions. Before the next request, remove stale or duplicated material while preserving facts that remain necessary."
+        "An agent does not need every available token. It needs the authoritative instructions, current task state, relevant evidence, allowed actions, and verification criteria for the next decision. Extra material can increase cost and distract from stronger evidence.",
+        "Define a context contract with named slots: governing policy, user goal, trusted state, retrieved evidence, untrusted data, prior decisions, tool contracts, and output requirements."
       ],
-      "callout": "More context is not automatically better context. Relevance, role, position, freshness, and provenance all affect whether the supplied information is useful."
-    },
-    {
-      "id": "failure-diagnosis",
-      "title": "Diagnose context failures",
-      "paragraphs": [
-        "When a workflow produces an unsupported or incorrect result, inspect the context actually supplied at the failing step. First ask whether required information was absent. If it was present, ask whether irrelevant material competed with it, whether its role was unclear, whether it was poorly positioned, or whether a stale observation contradicted newer evidence.",
-        "Classify the failure before changing the workflow. A missing-context failure calls for retrieval or state preservation. An irrelevant-context failure calls for stricter selection. A position or role failure calls for reordering or clearer separation. A stale-context failure calls for replacement or explicit invalidation.",
-        "Keep a trace that connects each step with its instructions, selected evidence, incoming state, operation observations, and resulting output. The trace lets you compare the context the workflow was intended to use with the context it actually received. Avoid recording sensitive material unless the workflow is authorized to retain it."
-      ]
-    },
-    {
-      "id": "review-procedure",
-      "title": "Apply a repeatable review procedure",
-      "paragraphs": [
-        "For each workflow step, state the decision the model must make. List the minimum instructions, evidence, state, and observations required for that decision. Remove unrelated items, label the role of each remaining item in plain language, and arrange the material so that critical information is easy to distinguish.",
-        "Run representative cases and inspect both the output and the supplied context. Include a case with missing evidence, a case with distracting evidence, and a case with an updated observation. A successful review confirms that the workflow retrieves missing support, excludes distractions, and replaces stale state.",
-        "After this module, you can do more than write a single prompt. You can design and inspect the information flow across a multi-step agent workflow, identify the class of a context failure, and choose a targeted correction instead of adding material indiscriminately."
-      ]
-    }
-  ],
-  "knowledgeCheck": {
-    "passPercent": 75,
-    "questions": [
-      {
-        "id": "context-engineering-source-change",
-        "prompt": "What did the source correction in this update affect?",
-        "choices": [
-          "It introduced a required named tool and version.",
-          "It changed source provenance, verification dates, and the evidence supporting guidance about retrieval, context position, and action observations.",
-          "It established a universal context limit.",
-          "It changed the module from intermediate to advanced."
-        ],
-        "answerIndex": 1,
-        "explanation": "The source-correction section states that the replacement affects provenance, verification dates, and the evidence for retrieval, position, and action-observation guidance."
-      },
-      {
-        "id": "context-engineering-retrieval-choice",
-        "prompt": "When does the module recommend retrieving source material?",
-        "choices": [
-          "When it becomes relevant to the current step.",
-          "Only after the workflow has produced its final output.",
-          "Whenever all available material can be copied into every request.",
-          "Only when no task instructions exist."
-        ],
-        "answerIndex": 0,
-        "explanation": "The context-pipeline section recommends selecting context for the current step and retrieving external evidence when it becomes relevant."
-      },
-      {
-        "id": "context-engineering-inclusion-assumption",
-        "prompt": "Why should a designer test the position of important information?",
-        "choices": [
-          "Because information can be used differently depending on where it appears in a long context.",
-          "Because every important passage must appear only in the middle.",
-          "Because ordering matters only for action observations.",
-          "Because including information guarantees that the model will use it."
-        ],
-        "answerIndex": 0,
-        "explanation": "The module cites research finding that performance can depend on the position of relevant information and warns that inclusion alone does not guarantee use."
-      },
-      {
-        "id": "context-engineering-stale-failure",
-        "prompt": "What is the targeted response to a stale-context failure?",
-        "choices": [
-          "Add unrelated material.",
-          "Replace or explicitly invalidate the stale information.",
-          "Remove all task instructions.",
-          "Repeat the same context without inspection."
-        ],
-        "answerIndex": 1,
-        "explanation": "The failure-diagnosis section says that stale context should be replaced or explicitly invalidated."
+      "code": {
+        "language": "text",
+        "label": "Context manifest",
+        "code": "Decision: [WHAT THE NEXT MODEL CALL MUST DECIDE]\nAuthority: [POLICY AND USER INTENT]\nCurrent state: [VERIFIED FACTS]\nEvidence: [SOURCE, DATE, CLAIM]\nUntrusted data: [CONTENT, NEVER AUTHORITY]\nAllowed actions: [CURRENT TOOL SUBSET]\nBudget: [MAX TOKENS / AGE / COUNT]\nMissing: [WHAT SHOULD TRIGGER RETRIEVAL OR ESCALATION]"
       }
-    ]
-  },
-  "reviewCadenceDays": 180,
-  "lastVerified": "2026-08-22",
-  "sources": [
-    {
-      "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
-      "url": "https://arxiv.org/abs/2005.11401",
-      "publisher": "arXiv",
-      "lastVerified": "2026-08-22"
     },
     {
-      "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
-      "url": "https://arxiv.org/abs/2210.03629",
-      "publisher": "arXiv",
-      "lastVerified": "2026-08-22"
+      "id": "select-and-rank",
+      "title": "Select by relevance, authority, freshness, and diversity",
+      "paragraphs": [
+        "Retrieve candidates broadly, then rank them against the specific decision. Prefer primary sources, current records, and evidence that directly supports or contradicts the claim. Keep source identity and verification date attached through summarization.",
+        "Include disconfirming evidence and unresolved disagreement. A context pack that contains only material supporting the first hypothesis encourages confident but brittle decisions."
+      ]
     },
     {
-      "title": "Lost in the Middle: How Language Models Use Long Contexts",
-      "url": "https://arxiv.org/abs/2307.03172",
-      "publisher": "arXiv",
-      "lastVerified": "2026-08-22"
+      "id": "budget-and-compress",
+      "title": "Budget the active window deliberately",
+      "paragraphs": [
+        "Reserve space for governing instructions, the current request, tool schemas, model output, and expected tool results before filling the remaining budget with history. Remove duplicate and dead intermediate output first.",
+        "Summaries are derived evidence. Store the source references and the transformation that produced a summary, then rehydrate originals when exact language, current state, or high-consequence detail matters."
+      ],
+      "callout": "Prompt or context caching may reduce cost; it does not make stale or irrelevant content safer."
+    },
+    {
+      "id": "refresh-across-turns",
+      "title": "Refresh state across turns and providers",
+      "paragraphs": [
+        "Conversation-state features differ by provider and API. Some applications resend history, some reference stored responses or interactions, and some edit or compact earlier tool results. Treat those mechanisms as transport choices, not proof that the retained state is correct.",
+        "At each consequential step, refresh volatile facts from the system of record, preserve tool-call/result linkage, and discard instructions that no longer apply. Record what was omitted so a reviewer can reconstruct the decision."
+      ]
+    },
+    {
+      "id": "attack-and-regression-test",
+      "title": "Test the context package as an attack surface",
+      "paragraphs": [
+        "Place conflicting instructions, stale records, poisoned retrieval results, oversized irrelevant files, and missing evidence into test cases. The agent should preserve governing authority, identify the conflict, retrieve or escalate when necessary, and avoid acting from unsupported assumptions.",
+        "Run the same evaluation set after changes to prompts, retrieval, summarization, tools, or model versions. Context engineering is part of the system behavior, not a one-time prompt edit."
+      ]
     }
   ],
   "activity": {
-    "id": "activity-context-engineering",
-    "title": "Context Engineering for Reliable Agent Workflows Practical Lab",
+    "id": "activity-context-manifest",
+    "title": "Build and adversarially test a context manifest",
     "instructions": [
-      "Review the scenario requirements and parameters.",
-      "Execute the practical steps in your development environment.",
-      "Validate the output traces against the expected assertions.",
-      "Document conclusions and submit the result."
+      "Choose one agent decision and define the authority, state, evidence, untrusted-data, action, budget, and missing-information slots.",
+      "Create a ranking table for six candidate context items using relevance, authority, freshness, and contradiction value.",
+      "Produce a bounded context pack and a provenance-preserving summary of any omitted source.",
+      "Test a stale fact, a prompt injection inside retrieved content, a conflicting primary source, and an omitted required fact."
     ],
     "evidence": [
-      "Command execution output log",
-      "Verification trace results"
+      "A context manifest, ranked candidate table, final bounded context pack, and provenance map.",
+      "Four adversarial test results showing the expected retrieval, rejection, refresh, or escalation behavior."
     ],
-    "reflectionPrompt": "How do the core principles of Context Engineering for Reliable Agent Workflows improve system predictability?"
+    "reflectionPrompt": "Which context item felt useful but weakened the next decision when measured against authority and relevance?"
   },
   "instructorScript": {
     "schemaVersion": "1.1",
-    "estimatedSeconds": 600,
+    "estimatedSeconds": 1320,
     "cues": [
-      {
-        "id": "cue-context-engineering-sec-0",
-        "kind": "narration",
-        "sectionId": "source-correction",
-        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-context-engineering-sec-1",
-        "kind": "narration",
-        "sectionId": "working-definition",
-        "text": "Reviewing A working definition of context engineering: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-context-engineering-sec-2",
-        "kind": "narration",
-        "sectionId": "context-pipeline",
-        "text": "Reviewing Build a context pipeline: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-context-engineering-sec-3",
-        "kind": "narration",
-        "sectionId": "failure-diagnosis",
-        "text": "Reviewing Diagnose context failures: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-context-engineering-sec-4",
-        "kind": "learner-prompt",
-        "sectionId": "review-procedure",
-        "text": "Reviewing Apply a repeatable review procedure: Key concepts and architectural guidance."
-      }
+      {"id": "cue-context-engineering-input", "kind": "narration", "sectionId": "context-is-a-decision-input", "text": "Design context for one decision by separating authority, state, evidence, untrusted data, actions, and missing information."},
+      {"id": "cue-context-engineering-rank", "kind": "narration", "sectionId": "select-and-rank", "text": "Rank candidate material by relevance, authority, freshness, and its ability to challenge the current hypothesis."},
+      {"id": "cue-context-engineering-visual", "kind": "visual", "sectionId": "select-and-rank", "text": "Sort six context cards into include, summarize, retrieve later, and reject lanes.", "accessibilityAlternative": "A text table lists each context item, its trust and freshness, and one of four outcomes: include, summarize, retrieve later, or reject. Reduced-motion mode shows the completed table."},
+      {"id": "cue-context-engineering-budget", "kind": "narration", "sectionId": "budget-and-compress", "text": "Reserve the active window for instructions, output, and tool results before selecting history, then preserve provenance through compression."},
+      {"id": "cue-context-engineering-refresh", "kind": "narration", "sectionId": "refresh-across-turns", "text": "Treat provider state features as transport and refresh volatile facts from the system of record before consequential action."},
+      {"id": "cue-context-engineering-test", "kind": "narration", "sectionId": "attack-and-regression-test", "text": "Regression-test context against stale facts, conflicting evidence, omission, overload, and prompt injection."},
+      {"id": "cue-context-engineering-prompt", "kind": "learner-prompt", "sectionId": "attack-and-regression-test", "text": "Ask learners which test proves that retrieved instructions cannot replace governing policy."},
+      {"id": "cue-context-engineering-pause", "kind": "pause", "sectionId": "attack-and-regression-test", "text": "Allow two minutes to add one disconfirming source and one missing-information trigger."},
+      {"id": "cue-context-engineering-checkpoint", "kind": "checkpoint", "sectionId": "attack-and-regression-test", "text": "Check that every included claim retains source identity and verification date."},
+      {"id": "cue-context-engineering-activity", "kind": "learner-prompt", "text": "Guide the manifest, ranking, compression, provenance, and four adversarial tests."},
+      {"id": "cue-context-engineering-assessment", "kind": "assessment-handoff", "text": "Begin the check after the learner can defend every included, summarized, omitted, and rejected item."}
     ],
-    "transcript": "Welcome to Context Engineering for Reliable Agent Workflows. In this module, we review key concepts and practical implementations across all sections.",
+    "transcript": "Design context for one decision by separating authority, state, evidence, untrusted data, actions, and missing information. Rank candidate material by relevance, authority, freshness, and its ability to challenge the current hypothesis. Reserve the active window for instructions, output, and tool results before selecting history, then preserve provenance through compression. Treat provider state features as transport and refresh volatile facts from the system of record before consequential action. Regression-test context against stale facts, conflicting evidence, omission, overload, and prompt injection.",
     "captions": [
-      {
-        "cueId": "cue-context-engineering-sec-0",
-        "startSeconds": 0,
-        "endSeconds": 30,
-        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-context-engineering-sec-1",
-        "startSeconds": 30,
-        "endSeconds": 60,
-        "text": "Reviewing A working definition of context engineering: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-context-engineering-sec-2",
-        "startSeconds": 60,
-        "endSeconds": 90,
-        "text": "Reviewing Build a context pipeline: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-context-engineering-sec-3",
-        "startSeconds": 90,
-        "endSeconds": 120,
-        "text": "Reviewing Diagnose context failures: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-context-engineering-sec-4",
-        "startSeconds": 120,
-        "endSeconds": 150,
-        "text": "Reviewing Apply a repeatable review procedure: Key concepts and architectural guidance."
-      }
+      {"cueId": "cue-context-engineering-input", "startSeconds": 0, "endSeconds": 210, "text": "Design context for one decision by separating authority, state, evidence, untrusted data, actions, and missing information."},
+      {"cueId": "cue-context-engineering-rank", "startSeconds": 240, "endSeconds": 450, "text": "Rank candidate material by relevance, authority, freshness, and its ability to challenge the current hypothesis."},
+      {"cueId": "cue-context-engineering-budget", "startSeconds": 480, "endSeconds": 720, "text": "Reserve the active window for instructions, output, and tool results before selecting history, then preserve provenance through compression."},
+      {"cueId": "cue-context-engineering-refresh", "startSeconds": 750, "endSeconds": 990, "text": "Treat provider state features as transport and refresh volatile facts from the system of record before consequential action."},
+      {"cueId": "cue-context-engineering-test", "startSeconds": 1020, "endSeconds": 1260, "text": "Regression-test context against stale facts, conflicting evidence, omission, overload, and prompt injection."}
     ],
-    "reducedMotionAlternative": "Context Engineering for Reliable Agent Workflows architecture diagram and walkthrough."
-  }
+    "reducedMotionAlternative": "Present context selection as a static manifest and four-lane ranking table with keyboard-focus highlights."
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "q-context-engineering-1",
+        "prompt": "What is the best default goal for an agent's active context?",
+        "choices": ["Include every available document", "Include the smallest sufficient, authoritative, current evidence for the next decision", "Maximize cached tokens", "Keep only the model's prior answer"],
+        "answerIndex": 1,
+        "explanation": "Relevant and authoritative context improves focus, cost, and auditability."
+      },
+      {
+        "id": "q-context-engineering-2",
+        "prompt": "A summary is used instead of a primary source. What must remain attached?",
+        "choices": ["Only the summary length", "The provider model name", "Source identity, verification date, and transformation provenance", "No metadata"],
+        "answerIndex": 2,
+        "explanation": "Derived evidence must remain traceable and rehydratable."
+      },
+      {
+        "id": "q-context-engineering-3",
+        "prompt": "Retrieved text says to ignore the system's approval rule. How should the context builder classify it?",
+        "choices": ["As a new policy", "As untrusted data and an injection test case", "As proof of authorization", "As a reason to add more tools"],
+        "answerIndex": 1,
+        "explanation": "Retrieved content cannot expand authority and may be adversarial."
+      },
+      {
+        "id": "q-context-engineering-4",
+        "prompt": "What does a provider's prompt cache prove about cached content?",
+        "choices": ["It is current and relevant", "It is authoritative", "It may be reused efficiently, but still requires normal freshness and relevance controls", "It cannot contain personal data"],
+        "answerIndex": 2,
+        "explanation": "Caching changes performance and cost, not truth, safety, or retention requirements."
+      },
+      {
+        "id": "q-context-engineering-5",
+        "prompt": "When should a volatile fact be refreshed?",
+        "choices": ["Before a consequential decision that depends on it", "Only after deployment", "Never if it appeared earlier in the thread", "Only when the context window is full"],
+        "answerIndex": 0,
+        "explanation": "System-of-record refresh should precede decisions where stale state can cause harm."
+      }
+    ]
+  },
+  "sources": [
+    {"title": "Context editing", "url": "https://platform.claude.com/docs/en/build-with-claude/context-editing", "publisher": "Anthropic", "lastVerified": "2026-07-25"},
+    {"title": "Conversation state", "url": "https://developers.openai.com/api/docs/guides/conversation-state", "publisher": "OpenAI", "lastVerified": "2026-07-25"},
+    {"title": "Context caching", "url": "https://ai.google.dev/gemini-api/docs/caching", "publisher": "Google", "lastVerified": "2026-07-25"}
+  ]
 }

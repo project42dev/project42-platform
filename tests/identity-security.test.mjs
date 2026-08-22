@@ -934,7 +934,7 @@ test("data-rights routes require recent authentication and explicit deletion con
   const staleVerifier = {
     verify: async () => ({
       ...identity,
-      authenticatedAt: issuedAt - 3_600,
+      authenticatedAt: issuedAt - 73 * 3_600,
     }),
   };
   const staleExport = await handleRequest(

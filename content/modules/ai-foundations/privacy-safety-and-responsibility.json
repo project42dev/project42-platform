@@ -1,219 +1,231 @@
 {
   "id": "privacy-safety-and-responsibility",
-  "title": "Privacy, Safety, and Responsibility",
-  "summary": "This intermediate module enables learners to distinguish privacy, safety, and responsibility concerns, assess an AI-enabled task before use, and document an appropriate response. After completing it, learners can apply a provider-neutral review process that they could not apply systematically before.",
-  "level": "intermediate",
-  "providers": [
-    "provider-neutral"
-  ],
+  "title": "Privacy, Safety, and Responsible Use",
+  "summary": "Protect people and data by matching AI use, controls, verification, and accountability to real consequences.",
+  "level": "beginner",
+  "reviewCadenceDays": 90,
+  "lastVerified": "2026-07-25",
+  "providers": ["provider-neutral"],
   "estimatedMinutes": 30,
   "objectives": [
-    "Distinguish privacy concerns from safety concerns and responsibility concerns.",
-    "Identify sensitive or unnecessary data before submitting information to an AI system.",
-    "Assess possible harm, affected people, uncertainty, and available safeguards before acting on an output.",
-    "Decide whether to proceed, reduce the risk, seek review, or stop.",
-    "Document who made a decision, what evidence was considered, and what follow-up is required."
+    "Identify sensitive data and establish an input boundary before using an AI system.",
+    "Scale review and safeguards according to consequence, exposure, and reversibility.",
+    "Recognize concerns involving privacy, security, harmful bias, transparency, and misuse.",
+    "Create a simple responsible-use plan with ownership, verification, monitoring, and recovery."
   ],
-  "prerequisites": [],
+  "prerequisites": ["context-tokens-and-modalities"],
   "sections": [
     {
-      "id": "update-note",
-      "title": "Source correction and scope",
+      "id": "protect-inputs",
+      "title": "Protect data before it becomes model input",
       "paragraphs": [
-        "The prior citation named content/modules/ai-foundations/privacy-safety-and-responsibility.json. The supplied review record identifies that citation as an unregistered publisher source that was never verified. This update removes that citation and replaces it with official, publicly accessible material from the National Institute of Standards and Technology.",
-        "The citation change affects the source list, verification metadata, and the evidentiary basis for the privacy and risk-review guidance. No additional factual correction is asserted. Material unrelated to that citation correction is intended to remain unchanged."
-      ]
-    },
-    {
-      "id": "level-and-scope",
-      "title": "Level and scope",
-      "paragraphs": [
-        "This is an intermediate-level module. It assumes that you can already identify the inputs, outputs, users, and intended purpose of an AI-enabled task. It does not assume legal expertise, security expertise, or familiarity with a particular provider.",
-        "The module presents a practical risk-review method, not legal advice. Whether a particular use complies with a law, contract, organizational policy, or professional duty depends on facts and requirements outside this module. If those requirements are not known, their status is UNKNOWN, and the task should be escalated rather than treated as compliant."
-      ]
-    },
-    {
-      "id": "three-concerns",
-      "title": "Separate privacy, safety, and responsibility",
-      "paragraphs": [
-        "For this module, privacy concerns involve how information about people is collected, exposed, combined, retained, or used. Safety concerns involve possible harm caused by an input, an output, a system failure, or reliance on an incorrect result. Responsibility concerns involve who is authorized to act, who reviews the result, who records the decision, and who responds if harm occurs.",
-        "The categories can overlap. Entering personal information that is not needed creates a privacy concern. Acting on an unsupported recommendation that could affect a person creates a safety concern. Allowing an output to determine an important outcome without an accountable reviewer creates a responsibility concern.",
-        "Separating the categories prevents a narrow review. Removing names may reduce one privacy risk, but it does not establish that the output is accurate, safe to use, authorized, or adequately supervised."
-      ]
-    },
-    {
-      "id": "review-before-use",
-      "title": "Review the task before use",
-      "paragraphs": [
-        "Begin with purpose and necessity. State what the task is meant to accomplish, which information is required, and which information can be omitted. Do not submit sensitive or identifying information merely because it is available. If you cannot determine whether you are authorized to use particular information, authorization is UNKNOWN and the information should be omitted until an appropriate reviewer decides.",
-        "Next, identify affected people and plausible harms. Consider harm from disclosure, inaccurate output, unfair treatment, unsafe instructions, misplaced confidence, and failure to provide a person with appropriate review. Give greater scrutiny to decisions with serious or difficult-to-reverse consequences.",
-        "Then evaluate evidence and uncertainty. Check whether important claims can be supported independently, whether the output addresses the intended task, and whether relevant limitations remain. An output that sounds confident is not evidence that it is correct.",
-        "Finally, choose a response. Proceed only when the remaining risk fits the task and applicable requirements. Otherwise reduce the data, narrow the task, add independent verification, obtain qualified review, or stop. The National Institute of Standards and Technology sources listed below support treating privacy and AI risk as matters that must be identified, assessed, managed, and monitored rather than handled by a single one-time check."
+        "Do not paste information into an AI product until you understand what the information contains, whether you are authorized to use it, what the product retains, who can access it, and what organizational policy permits.",
+        "Sensitive information may include personal data, health or financial records, credentials, private source code, customer material, confidential business plans, regulated data, or combinations of ordinary facts that identify a person.",
+        "Minimize input, redact or substitute where possible, use approved products and accounts, and never enter secrets into prompts or examples."
       ],
-      "callout": "If authorization, applicable requirements, or the severity of a possible consequence cannot be established, mark that point UNKNOWN and escalate it. Do not convert missing information into an assumption of safety or permission."
+      "callout": "Data minimization happens before prompting, not after the response is generated."
     },
     {
-      "id": "responsible-follow-through",
-      "title": "Document and follow through",
+      "id": "risk-follows-consequence",
+      "title": "Risk follows consequence, exposure, and reversibility",
       "paragraphs": [
-        "A responsible decision record should state the task and intended use, the data considered necessary, the people who may be affected, the main privacy and safety concerns, the evidence checked, unresolved uncertainty, the selected safeguards, the decision owner, and any required follow-up.",
-        "Documentation does not make a harmful use acceptable. Its purpose is to make the reasoning reviewable and to clarify ownership. If conditions change, such as the data, intended use, affected population, or possible consequence, review the task again rather than relying automatically on the earlier decision.",
-        "After this module, you can perform a structured review: separate the three concern types, minimize unnecessary data, identify affected people and possible harms, test evidence and uncertainty, select a proportionate response, and record accountable follow-through."
+        "A private brainstorming draft and an automated eligibility decision may use similar language technology but have radically different consequences. Consider who is affected, how widely the output spreads, whether errors can be corrected, and whether the system can take action.",
+        "Increase evidence, testing, human review, access controls, monitoring, and recovery as consequences rise. Some uses should remain prohibited when harm cannot be controlled to an acceptable level."
+      ]
+    },
+    {
+      "id": "responsible-dimensions",
+      "title": "Responsible use has several dimensions",
+      "paragraphs": [
+        "Privacy asks whether data is collected, used, retained, shared, exported, and deleted appropriately. Security addresses unauthorized access, prompt injection, data leakage, malicious tools, and system abuse. Fairness examines whether performance and impact differ unacceptably across people or situations.",
+        "Transparency means people understand when AI is involved, what its role is, what important limitations apply, and how to question or correct an outcome. Accountability assigns owners who can investigate and respond."
+      ]
+    },
+    {
+      "id": "build-controls",
+      "title": "Build controls around the use case",
+      "paragraphs": [
+        "A responsible workflow documents its purpose, approved data, users, expected behavior, evaluation method, permission boundaries, human approvals, monitoring, incident response, and retirement conditions.",
+        "Safeguards can include data filtering, scoped credentials, tool allowlists, output validation, citations, test suites, content policies, rate limits, audit logs, user reporting, manual approval, and rollback. No single safeguard replaces a complete risk-management process."
       ]
     }
   ],
+  "activity": {
+    "id": "activity-responsible-use-plan",
+    "title": "Write a one-page responsible-use plan",
+    "instructions": [
+      "Choose one realistic AI-assisted use case and state its purpose and owner.",
+      "List allowed, restricted, and prohibited input data.",
+      "Identify affected people, plausible failures, severity, exposure, and reversibility.",
+      "Define verification, human approval, permission, monitoring, incident, correction, and retirement controls.",
+      "State one condition that would prevent launch and one metric that would trigger re-evaluation."
+    ],
+    "evidence": [
+      "A one-page plan containing purpose, owner, data boundaries, affected people, risks, controls, launch blocker, and re-evaluation metric.",
+      "A traceable explanation connecting each high-severity risk to at least one preventive and one detective or recovery control."
+    ],
+    "reflectionPrompt": "Which control protects a person after prevention fails, and who is accountable for using it?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.0",
+    "estimatedSeconds": 1020,
+    "cues": [
+      {
+        "id": "cue-protect-inputs-narration",
+        "kind": "narration",
+        "sectionId": "protect-inputs",
+        "text": "Begin with a pause-before-paste habit: identify the data, authorization, product policy, retention, and access before entering anything."
+      },
+      {
+        "id": "cue-protect-inputs-visual",
+        "kind": "visual",
+        "sectionId": "protect-inputs",
+        "text": "Show a boundary with allowed public material, restricted internal material requiring approval, and prohibited credentials or regulated records.",
+        "accessibilityAlternative": "A three-part text table lists allowed public information, restricted internal information requiring policy and approval, and prohibited secrets or unapproved regulated records. Reduced-motion mode shows the full table."
+      },
+      {
+        "id": "cue-risk-narration",
+        "kind": "narration",
+        "sectionId": "risk-follows-consequence",
+        "text": "Compare a private draft with an automated high-impact decision and scale controls by consequence, exposure, and reversibility."
+      },
+      {
+        "id": "cue-risk-checkpoint",
+        "kind": "checkpoint",
+        "sectionId": "risk-follows-consequence",
+        "text": "Ask the learner to name a use case that should remain assistance-only and explain the consequence that drives the decision."
+      },
+      {
+        "id": "cue-dimensions-narration",
+        "kind": "narration",
+        "sectionId": "responsible-dimensions",
+        "text": "Walk through privacy, security, fairness, transparency, and accountability as related but distinct questions."
+      },
+      {
+        "id": "cue-dimensions-prompt",
+        "kind": "learner-prompt",
+        "sectionId": "responsible-dimensions",
+        "text": "Invite the learner to identify which dimension is missing from a workflow that is secure but gives affected people no explanation or correction path."
+      },
+      {
+        "id": "cue-controls-narration",
+        "kind": "narration",
+        "sectionId": "build-controls",
+        "text": "Group safeguards into prevention, detection, response, and recovery, and state that no single filter or prompt is sufficient."
+      },
+      {
+        "id": "cue-responsibility-activity",
+        "kind": "learner-prompt",
+        "text": "Guide the learner through the one-page plan and require a named owner, launch blocker, and post-failure recovery control."
+      },
+      {
+        "id": "cue-responsibility-assessment",
+        "kind": "assessment-handoff",
+        "text": "Transition to the knowledge check after the learner connects each high-severity risk to preventive and recovery controls."
+      }
+    ]
+  },
   "knowledgeCheck": {
     "passPercent": 80,
     "questions": [
       {
-        "id": "privacy-safety-and-responsibility-distinguish-concerns",
-        "prompt": "Which example is primarily a responsibility concern under this module's definitions?",
+        "id": "q-responsible-use-1",
+        "prompt": "When should data minimization occur?",
         "choices": [
-          "Submitting identifying information that the task does not require",
-          "Using an unsupported output in a decision that could cause harm",
-          "Allowing an important outcome without an accountable reviewer",
-          "Removing unnecessary personal information before submission"
+          "Before information is entered into the AI system",
+          "Only after a data leak",
+          "Only when the model refuses the request",
+          "After publishing the response"
         ],
-        "answerIndex": 2,
-        "explanation": "Responsibility concerns include who is authorized to act, who reviews a result, and who is accountable for the decision. The other choices describe a privacy concern, a safety concern, or a privacy safeguard."
+        "answerIndex": 0,
+        "explanation": "The safest unnecessary data is the data never supplied; classify and minimize inputs before prompting."
       },
       {
-        "id": "privacy-safety-and-responsibility-handle-unknown-authorization",
-        "prompt": "What should you do when you cannot determine whether you are authorized to submit particular information?",
+        "id": "q-responsible-use-2",
+        "prompt": "Which factors should increase the strength of safeguards?",
         "choices": [
-          "Assume authorization because the information is available",
-          "Submit it and review authorization afterward",
-          "Mark authorization UNKNOWN, omit the information, and seek an appropriate review",
-          "Treat removing names as proof that submission is authorized"
-        ],
-        "answerIndex": 2,
-        "explanation": "The module directs learners to mark unresolved authorization as UNKNOWN, omit the information until a decision is made, and escalate the question to an appropriate reviewer."
-      },
-      {
-        "id": "privacy-safety-and-responsibility-select-response",
-        "prompt": "Which response follows the module when the remaining risk does not fit the task or applicable requirements?",
-        "choices": [
-          "Proceed because the output appears confident",
-          "Reduce the data, narrow the task, add verification, obtain review, or stop",
-          "Record the risk but proceed without safeguards",
-          "Consider only whether names were removed"
+          "A longer product name",
+          "Greater consequence, wider exposure, and lower reversibility",
+          "A shorter response",
+          "The number of colors in the interface"
         ],
         "answerIndex": 1,
-        "explanation": "The review process calls for reducing exposure or uncertainty, adding safeguards or qualified review, or stopping when the remaining risk is not appropriate."
+        "explanation": "Consequences, exposure, and reversibility determine how much evidence, approval, monitoring, and recovery are required."
       },
       {
-        "id": "privacy-safety-and-responsibility-reassess-change",
-        "prompt": "When should an earlier decision be reviewed again?",
+        "id": "q-responsible-use-3",
+        "prompt": "A system protects against unauthorized access but offers no explanation or correction path. Which responsible-use dimension is especially weak?",
         "choices": [
-          "Only when a different provider is selected",
-          "Only after confirmed harm",
-          "When relevant conditions such as data, intended use, affected people, or possible consequences change",
-          "Never, if the first decision was documented"
+          "Transparency and accountability",
+          "Token counting",
+          "Text formatting",
+          "Model branding"
         ],
-        "answerIndex": 2,
-        "explanation": "The module says that documentation does not eliminate risk and that a task should be reviewed again when relevant conditions change."
+        "answerIndex": 0,
+        "explanation": "Affected people need to understand AI's role and have a path to question or correct important outcomes."
+      },
+      {
+        "id": "q-responsible-use-4",
+        "prompt": "Which is the strongest control set for an AI system that can change important records?",
+        "choices": [
+          "A prompt asking the model to be careful",
+          "Scoped permissions, validated inputs and outputs, human approval, audit logs, monitoring, and rollback",
+          "A larger context window",
+          "A disclaimer hidden in documentation"
+        ],
+        "answerIndex": 1,
+        "explanation": "Enforceable layered controls address prevention, approval, detection, accountability, and recovery."
+      },
+      {
+        "id": "q-responsible-use-5",
+        "prompt": "Who should own the response when an AI-supported workflow harms someone?",
+        "choices": [
+          "The model",
+          "The named people and organization responsible for the workflow",
+          "The affected person",
+          "No one if the process was automated"
+        ],
+        "answerIndex": 1,
+        "explanation": "Accountability remains with the people and organization that selected, deployed, and operated the system."
       }
     ]
   },
   "sources": [
     {
-      "title": "AI Risk Management Framework",
+      "title": "Artificial Intelligence Risk Management Framework",
       "url": "https://www.nist.gov/itl/ai-risk-management-framework",
-      "publisher": "National Institute of Standards and Technology",
-      "lastVerified": "2026-08-22"
+      "publisher": "NIST",
+      "lastVerified": "2026-07-25"
     },
     {
-      "title": "Privacy Framework",
-      "url": "https://www.nist.gov/privacy-framework",
-      "publisher": "National Institute of Standards and Technology",
-      "lastVerified": "2026-08-22"
+      "title": "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile",
+      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
+      "publisher": "NIST",
+      "lastVerified": "2026-07-25"
+    },
+    {
+      "title": "Responsible Generative AI Toolkit",
+      "url": "https://ai.google.dev/responsible/docs",
+      "publisher": "Google",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Design a Responsible Approach",
+      "url": "https://ai.google.dev/responsible/docs/design",
+      "publisher": "Google",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Evaluate Models and Systems for Safety",
+      "url": "https://ai.google.dev/responsible/docs/evaluation",
+      "publisher": "Google",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Safeguard Your Models",
+      "url": "https://ai.google.dev/responsible/docs/safeguards",
+      "publisher": "Google",
+      "lastVerified": "2026-07-27"
     }
-  ],
-  "reviewCadenceDays": 180,
-  "lastVerified": "2026-08-22",
-  "activity": {
-    "id": "activity-privacy-safety-and-responsibility",
-    "title": "Privacy, Safety, and Responsibility Practical Lab",
-    "instructions": [
-      "Review the scenario requirements and parameters.",
-      "Execute the practical steps in your development environment.",
-      "Validate the output traces against the expected assertions.",
-      "Document conclusions and submit the result."
-    ],
-    "evidence": [
-      "Command execution output log",
-      "Verification trace results"
-    ],
-    "reflectionPrompt": "How do the core principles of Privacy, Safety, and Responsibility improve system predictability?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 600,
-    "cues": [
-      {
-        "id": "cue-privacy-safety-and-responsibility-sec-0",
-        "kind": "narration",
-        "sectionId": "update-note",
-        "text": "Reviewing Source correction and scope: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-privacy-safety-and-responsibility-sec-1",
-        "kind": "narration",
-        "sectionId": "level-and-scope",
-        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-privacy-safety-and-responsibility-sec-2",
-        "kind": "narration",
-        "sectionId": "three-concerns",
-        "text": "Reviewing Separate privacy, safety, and responsibility: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-privacy-safety-and-responsibility-sec-3",
-        "kind": "narration",
-        "sectionId": "review-before-use",
-        "text": "Reviewing Review the task before use: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-privacy-safety-and-responsibility-sec-4",
-        "kind": "learner-prompt",
-        "sectionId": "responsible-follow-through",
-        "text": "Reviewing Document and follow through: Key concepts and architectural guidance."
-      }
-    ],
-    "transcript": "Welcome to Privacy, Safety, and Responsibility. In this module, we review key concepts and practical implementations across all sections.",
-    "captions": [
-      {
-        "cueId": "cue-privacy-safety-and-responsibility-sec-0",
-        "startSeconds": 0,
-        "endSeconds": 30,
-        "text": "Reviewing Source correction and scope: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-privacy-safety-and-responsibility-sec-1",
-        "startSeconds": 30,
-        "endSeconds": 60,
-        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-privacy-safety-and-responsibility-sec-2",
-        "startSeconds": 60,
-        "endSeconds": 90,
-        "text": "Reviewing Separate privacy, safety, and responsibility: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-privacy-safety-and-responsibility-sec-3",
-        "startSeconds": 90,
-        "endSeconds": 120,
-        "text": "Reviewing Review the task before use: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-privacy-safety-and-responsibility-sec-4",
-        "startSeconds": 120,
-        "endSeconds": 150,
-        "text": "Reviewing Document and follow through: Key concepts and architectural guidance."
-      }
-    ],
-    "reducedMotionAlternative": "Privacy, Safety, and Responsibility architecture diagram and walkthrough."
-  }
+  ]
 }

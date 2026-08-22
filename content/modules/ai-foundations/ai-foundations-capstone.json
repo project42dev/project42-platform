@@ -1,167 +1,169 @@
 {
   "id": "ai-foundations-capstone",
   "title": "AI Foundations Capstone",
-  "summary": "This intermediate module enables learners to determine whether available evidence supports a source-driven correction and to identify the evidence still needed when the affected learning content is UNKNOWN.",
-  "level": "intermediate",
-  "providers": [
-    "provider-neutral"
-  ],
-  "estimatedMinutes": 10,
+  "summary": "Plan, execute, verify, and explain a complete AI-assisted workflow with evidence that another person can review.",
+  "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
+  "providers": ["provider-neutral"],
+  "estimatedMinutes": 75,
   "objectives": [
-    "Determine whether the supplied evidence establishes that a cited source moved or passed its review cadence.",
-    "Identify the source records and baseline content needed to make a source-driven correction without changing unaffected material.",
-    "Check that knowledge-check answer indexes refer to valid zero-based positions in their choice arrays."
+    "Select a useful, bounded objective and identify data and authority limits.",
+    "Create a reproducible prompt or workflow plan with acceptance criteria.",
+    "Collect source, tool, output, and verification evidence.",
+    "Recover from a meaningful failure or document a tested recovery path.",
+    "Present the result and reflect on correctness, evidence, safety, reproducibility, and communication."
   ],
-  "prerequisites": [],
+  "prerequisites": ["agents-and-guardrails"],
   "sections": [
     {
-      "id": "correction-status",
-      "title": "Correction status",
+      "id": "capstone-objective",
+      "title": "Choose a bounded objective",
       "paragraphs": [
-        "This is an intermediate-level review of the requested source correction. The exact existing module content is absent, including its instructional claims, questions, source records, review cadence, and previous verification date.",
-        "Which cited source changed is UNKNOWN. The supplied record identifies only the target file and describes its publisher as unregistered and its verification status as never verified. It does not provide the previous source URL, a replacement URL, or evidence that a replacement is the authoritative continuation of the previous source.",
-        "What the source change affected is also UNKNOWN. Establishing the effect requires comparing the existing module, the former source, and the current authoritative source. Because those materials are absent, no particular claim, answer, explanation, objective, estimate, or provider declaration can be corrected from the supplied evidence."
+        "Choose a real but low-risk task that produces a reviewable result. State the user, decision, deliverable, acceptance criteria, deadline, and what is out of scope.",
+        "Classify the data before using an AI system. Remove secrets and unnecessary personal information, identify authoritative sources, and list any action that requires human approval."
       ],
-      "callout": "No source-driven content correction can be established until the previous source, the current authoritative source, and the exact baseline module are available."
-    },
-    {
-      "id": "minimal-change-requirements",
-      "title": "Evidence required for a minimal change",
-      "paragraphs": [
-        "A source move can be established by obtaining the previous URL, the replacement URL, and evidence that the replacement is the authoritative continuation of the previous source. A review-cadence trigger can be evaluated only when the prior verification date and review-cadence interval are available.",
-        "Leaving unaffected material unchanged requires the exact committed baseline. Without that baseline, a comparison cannot distinguish an established correction from a rewrite. Catalogue-wide identifier uniqueness and prerequisite resolution also remain UNKNOWN because the catalogue registry was not supplied.",
-        "Direct HTTPS resolution of the sources could not be tested because network retrieval was unavailable on 2026-08-21. Their retrieval status is therefore CANNOT VERIFY, not disproved."
-      ]
-    },
-    {
-      "id": "json-validation",
-      "title": "JSON validation concepts",
-      "paragraphs": [
-        "JSON defines an object as an unordered collection of name-value pairs and an array as an ordered sequence of values. A top-level object is enclosed by opening and closing braces.",
-        "JSON.parse processes a JSON text and returns its represented value. Text that does not follow the JSON grammar produces a syntax error.",
-        "The answerIndex values in this module use zero-based indexing. An answerIndex of 0 selects the first choice, 1 selects the second choice, and 2 selects the third choice."
-      ]
-    }
-  ],
-  "knowledgeCheck": {
-    "passPercent": 100,
-    "questions": [
-      {
-        "id": "ai-foundations-capstone-source-status",
-        "prompt": "What does the supplied evidence establish about which cited source changed and what content it affected?",
-        "choices": [
-          "It establishes both the replacement source and every affected paragraph.",
-          "It establishes that the source passed its review cadence.",
-          "The changed source and its effects are UNKNOWN because the necessary source records and baseline content are absent."
-        ],
-        "answerIndex": 2,
-        "explanation": "The module states that the previous URL, replacement URL, review metadata, authoritative-continuation evidence, and baseline module are absent. The changed source and its effects therefore remain UNKNOWN."
-      },
-      {
-        "id": "ai-foundations-capstone-move-evidence",
-        "prompt": "Which evidence is needed to establish that a source moved?",
-        "choices": [
-          "Only the target module file name.",
-          "The previous URL, the replacement URL, and evidence that the replacement is the authoritative continuation.",
-          "Only a new title for the module."
-        ],
-        "answerIndex": 1,
-        "explanation": "The minimal-change section identifies the previous URL, replacement URL, and authoritative-continuation evidence as the information needed to establish a source move."
-      },
-      {
-        "id": "ai-foundations-capstone-zero-based-index",
-        "prompt": "Which choice does an answerIndex of 0 select?",
-        "choices": [
-          "The first choice.",
-          "The second choice.",
-          "The final choice regardless of array length."
-        ],
-        "answerIndex": 0,
-        "explanation": "The module explains that zero-based indexing assigns position 0 to the first array element."
+      "code": {
+        "language": "text",
+        "label": "Objective brief",
+        "code": "User and need: [WHO / WHY]\nDeliverable: [REVIEWABLE OUTPUT]\nAcceptance criteria: [TESTS]\nData allowed: [CLASSIFICATION / REDACTIONS]\nAuthority: [READ / WRITE / APPROVAL]\nOut of scope: [BOUNDARIES]"
       }
-    ]
-  },
-  "reviewCadenceDays": 1,
-  "lastVerified": "2026-08-21",
-  "sources": [
-    {
-      "title": "The JavaScript Object Notation (JSON) Data Interchange Format",
-      "url": "https://www.rfc-editor.org/rfc/rfc8259.html",
-      "publisher": "Internet Engineering Task Force",
-      "lastVerified": "2026-08-21"
     },
     {
-      "title": "ECMAScript Language Specification: JSON.parse",
-      "url": "https://tc39.es/ecma262/multipage/structured-data.html#sec-json.parse",
-      "publisher": "Ecma International",
-      "lastVerified": "2026-08-21"
+      "id": "capstone-plan",
+      "title": "Build the prompt and workflow plan",
+      "paragraphs": [
+        "Write a prompt or multi-step plan that separates instructions, trusted evidence, untrusted input, constraints, output contract, and verification. Select the provider or tool surface from the work rather than habit.",
+        "Add checkpoints before expensive, external, destructive, or permission-changing actions. Define what the workflow should do when evidence conflicts, a tool fails, or acceptance criteria are not met."
+      ]
     },
     {
-      "title": "ECMAScript Language Specification: Array Objects",
-      "url": "https://tc39.es/ecma262/multipage/indexed-collections.html#sec-array-objects",
-      "publisher": "Ecma International",
-      "lastVerified": "2026-08-21"
+      "id": "capstone-execute",
+      "title": "Execute and preserve evidence",
+      "paragraphs": [
+        "Run the workflow in small observable steps. Save the exact prompt or plan, source references, material tool requests and results, output versions, and timestamps needed for another person to reproduce the work.",
+        "Do not preserve secrets, hidden reasoning, or unnecessary personal data. Evidence should show inputs, decisions, outputs, and checks without expanding the privacy footprint."
+      ]
+    },
+    {
+      "id": "capstone-verify",
+      "title": "Verify and exercise recovery",
+      "paragraphs": [
+        "Check the deliverable against every acceptance criterion. Use authoritative sources, deterministic tests, calculations, or direct inspection of the target system rather than asking the same model whether it succeeded.",
+        "Record one failure encountered and corrected, or safely simulate a likely failure. Show the stop condition, diagnosis, correction, rerun, rollback, or escalation and the evidence that the final state is acceptable."
+      ]
+    },
+    {
+      "id": "capstone-present",
+      "title": "Present, hand off, and reflect",
+      "paragraphs": [
+        "Package the objective, workflow, evidence, deliverable, verification, recovery record, and limitations so a reviewer can trace each claim. Clearly separate facts, model-generated suggestions, unresolved uncertainty, and human decisions.",
+        "Score the work against the rubric, explain each score, and identify the most valuable improvement for a second version. Passing requires both the knowledge check and a capstone score of at least eighty percent."
+      ],
+      "callout": "A polished output is not a capstone until its evidence, safety boundary, and verification are reviewable."
     }
   ],
   "activity": {
     "id": "activity-ai-foundations-capstone",
-    "title": "AI Foundations Capstone Practical Lab",
+    "title": "Complete an evidence-based AI workflow",
     "instructions": [
-      "Review the scenario requirements and parameters.",
-      "Execute the practical steps in your development environment.",
-      "Validate the output traces against the expected assertions.",
-      "Document conclusions and submit the result."
+      "Choose a low-risk research, writing, coding, analysis, or tool-use task and complete the objective brief.",
+      "Create and execute a prompt or workflow plan with source, data, authority, checkpoint, and recovery boundaries.",
+      "Preserve the required artifacts without secrets or unnecessary personal information.",
+      "Verify every acceptance criterion independently and record a real or safely simulated failure-and-recovery cycle.",
+      "Prepare a concise handoff, score each rubric criterion with evidence, and write the reflection."
     ],
     "evidence": [
-      "Command execution output log",
-      "Verification trace results"
+      "Objective and scope brief.",
+      "Prompt or workflow plan.",
+      "Source, tool, and result evidence.",
+      "Verification and recovery record.",
+      "Reflection and reviewer-ready handoff."
     ],
-    "reflectionPrompt": "How do the core principles of AI Foundations Capstone improve system predictability?"
+    "reflectionPrompt": "What changed between your initial plan and the verified result, and what evidence justified that change?"
+  },
+  "capstone": {
+    "id": "capstone-ai-foundations-practical-workflow",
+    "title": "Evidence-based practical AI workflow",
+    "summary": "Demonstrate a complete, safe, reproducible AI-assisted workflow and submit traceable evidence for review.",
+    "requiredArtifacts": [
+      "Objective and scope brief",
+      "Prompt or workflow plan",
+      "Source, tool, and result evidence",
+      "Verification and recovery record",
+      "Reflection and reviewer-ready handoff"
+    ],
+    "rubric": {
+      "passPercent": 80,
+      "criteria": [
+        {
+          "id": "capstone-correctness",
+          "title": "Correctness",
+          "description": "The deliverable satisfies the stated objective and acceptance criteria, with limitations identified.",
+          "maxPoints": 20,
+          "evidenceRequired": ["Acceptance-criteria results", "Final deliverable or stable reference"]
+        },
+        {
+          "id": "capstone-evidence",
+          "title": "Evidence",
+          "description": "Material claims and decisions are traceable to authoritative sources, tool results, or direct observations.",
+          "maxPoints": 20,
+          "evidenceRequired": ["Source references", "Relevant execution and verification records"]
+        },
+        {
+          "id": "capstone-safety",
+          "title": "Safety",
+          "description": "Data, permissions, approvals, and consequential actions stay inside explicit boundaries.",
+          "maxPoints": 20,
+          "evidenceRequired": ["Data classification and redactions", "Authority and approval boundaries"]
+        },
+        {
+          "id": "capstone-reproducibility",
+          "title": "Reproducibility",
+          "description": "Another person can repeat the workflow and understand how failure was detected and recovered.",
+          "maxPoints": 20,
+          "evidenceRequired": ["Prompt or workflow plan", "Verification and recovery record"]
+        },
+        {
+          "id": "capstone-communication",
+          "title": "Communication",
+          "description": "The handoff clearly separates facts, generated suggestions, decisions, uncertainty, and next steps.",
+          "maxPoints": 20,
+          "evidenceRequired": ["Reviewer-ready handoff", "Reflection and improvement"]
+        }
+      ]
+    }
   },
   "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 600,
+    "schemaVersion": "1.0",
+    "estimatedSeconds": 1680,
     "cues": [
-      {
-        "id": "cue-ai-foundations-capstone-sec-0",
-        "kind": "narration",
-        "sectionId": "correction-status",
-        "text": "Reviewing Correction status: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-ai-foundations-capstone-sec-1",
-        "kind": "narration",
-        "sectionId": "minimal-change-requirements",
-        "text": "Reviewing Evidence required for a minimal change: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-ai-foundations-capstone-sec-2",
-        "kind": "learner-prompt",
-        "sectionId": "json-validation",
-        "text": "Reviewing JSON validation concepts: Key concepts and architectural guidance."
-      }
-    ],
-    "transcript": "Welcome to AI Foundations Capstone. In this module, we review key concepts and practical implementations across all sections.",
-    "captions": [
-      {
-        "cueId": "cue-ai-foundations-capstone-sec-0",
-        "startSeconds": 0,
-        "endSeconds": 30,
-        "text": "Reviewing Correction status: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-ai-foundations-capstone-sec-1",
-        "startSeconds": 30,
-        "endSeconds": 60,
-        "text": "Reviewing Evidence required for a minimal change: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-ai-foundations-capstone-sec-2",
-        "startSeconds": 60,
-        "endSeconds": 90,
-        "text": "Reviewing JSON validation concepts: Key concepts and architectural guidance."
-      }
-    ],
-    "reducedMotionAlternative": "AI Foundations Capstone architecture diagram and walkthrough."
-  }
+      {"id": "cue-capstone-objective", "kind": "narration", "sectionId": "capstone-objective", "text": "Introduce the capstone as evidence of a bounded workflow, not a contest for the most impressive output."},
+      {"id": "cue-capstone-objective-visual", "kind": "visual", "sectionId": "capstone-objective", "text": "Reveal the objective brief from user need through acceptance criteria, data boundary, authority, and scope.", "accessibilityAlternative": "A static objective brief lists user and need, deliverable, acceptance criteria, allowed data, authority, and excluded scope. Reduced-motion mode shows the complete list."},
+      {"id": "cue-capstone-plan", "kind": "narration", "sectionId": "capstone-plan", "text": "Connect prompt structure, trusted context, output contracts, checkpoints, and failure behavior into one workflow plan."},
+      {"id": "cue-capstone-plan-prompt", "kind": "learner-prompt", "sectionId": "capstone-plan", "text": "Ask learners to name the first condition that would make them stop their workflow."},
+      {"id": "cue-capstone-plan-pause", "kind": "pause", "sectionId": "capstone-plan", "text": "Allow three minutes to complete scope, data, and authority boundaries."},
+      {"id": "cue-capstone-execute", "kind": "narration", "sectionId": "capstone-execute", "text": "Demonstrate an evidence log that preserves reproducibility without preserving secrets or hidden reasoning."},
+      {"id": "cue-capstone-verify", "kind": "narration", "sectionId": "capstone-verify", "text": "Show independent checks and one failure-and-recovery record tied to acceptance criteria."},
+      {"id": "cue-capstone-present", "kind": "narration", "sectionId": "capstone-present", "text": "Walk through the five-part rubric and show how a reviewer traces each awarded point to evidence."},
+      {"id": "cue-capstone-checkpoint", "kind": "checkpoint", "sectionId": "capstone-present", "text": "Check that every learner can identify five artifacts, five rubric criteria, and the eighty-percent threshold."},
+      {"id": "cue-capstone-activity", "kind": "learner-prompt", "text": "Guide learners through execution, evidence capture, self-review, and preparation for an independent reviewer."},
+      {"id": "cue-capstone-assessment", "kind": "assessment-handoff", "text": "Begin the knowledge check, then collect the scored capstone evidence and reflection."}
+    ]
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {"id": "q-capstone-1", "prompt": "What makes a task suitable for this capstone?", "choices": ["It has the largest possible impact", "It uses the newest model", "It is bounded, low-risk, useful, and produces reviewable evidence", "It cannot fail"], "answerIndex": 2, "explanation": "The capstone assesses a complete workflow, so the task must be safe to execute and possible to verify."},
+      {"id": "q-capstone-2", "prompt": "Which evidence best supports reproducibility?", "choices": ["The exact plan, material inputs, versions, checks, and recovery record", "A statement that the output looked good", "Hidden reasoning", "Only the final screenshot"], "answerIndex": 0, "explanation": "Reproducibility needs a traceable procedure and observable evidence without hidden reasoning or secrets."},
+      {"id": "q-capstone-3", "prompt": "How should a capstone verify an AI-generated factual claim?", "choices": ["Ask the same model again", "Use an authoritative source or direct test appropriate to the claim", "Assume confidence means accuracy", "Remove the acceptance criterion"], "answerIndex": 1, "explanation": "Independent, claim-appropriate evidence is stronger than model self-confirmation."},
+      {"id": "q-capstone-4", "prompt": "What must be included when no real failure occurs?", "choices": ["Nothing", "A fabricated production incident", "A safely simulated likely failure with stop, recovery, and verification behavior", "An automatic passing score"], "answerIndex": 2, "explanation": "A safe simulation can demonstrate recovery competence without creating harmful real-world failure."},
+      {"id": "q-capstone-5", "prompt": "When is the capstone module complete?", "choices": ["After opening the lesson", "After passing only the knowledge check", "After submitting any artifact", "After passing both the knowledge check and the scored capstone rubric"], "answerIndex": 3, "explanation": "Both knowledge and applied evidence are required for completion."}
+    ]
+  },
+  "sources": [
+    {"title": "Artificial Intelligence Risk Management Framework", "url": "https://www.nist.gov/itl/ai-risk-management-framework", "publisher": "NIST", "lastVerified": "2026-07-25"},
+    {"title": "Prompt engineering guide", "url": "https://platform.openai.com/docs/guides/prompt-engineering", "publisher": "OpenAI", "lastVerified": "2026-07-25"},
+    {"title": "Prompt engineering overview", "url": "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview", "publisher": "Anthropic", "lastVerified": "2026-07-25"}
+  ]
 }

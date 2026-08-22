@@ -1,215 +1,223 @@
 {
   "id": "prompt-anatomy-and-success-criteria",
   "title": "Prompt Anatomy and Success Criteria",
-  "summary": "After this intermediate-level module, you can turn an underspecified request into a structured prompt and define observable criteria for evaluating its output. You will also be able to diagnose whether a weak result is more likely related to missing context, unclear constraints, or absent success criteria.",
-  "level": "intermediate",
-  "providers": [
-    "provider-neutral"
-  ],
-  "estimatedMinutes": 20,
+  "summary": "Turn an ambiguous request into a clear, testable working agreement with an AI system.",
+  "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-27",
+  "providers": ["provider-neutral"],
+  "estimatedMinutes": 28,
   "objectives": [
-    "Identify the task, context, constraints, output format, examples, and success criteria in a prompt.",
-    "Rewrite an underspecified request so that its required outcome and relevant context are explicit.",
-    "Define success criteria that can be checked against an output.",
-    "Diagnose common prompt problems by locating missing or conflicting components."
+    "Separate a prompt's purpose, inputs, instructions, constraints, deliverable, and verification.",
+    "Define observable success criteria before generating an answer.",
+    "Distinguish hard requirements from preferences and examples.",
+    "Rewrite an ambiguous request as a reusable prompt template."
   ],
-  "prerequisites": [],
+  "prerequisites": ["prompt-with-purpose"],
   "sections": [
     {
-      "id": "level-and-scope",
-      "title": "Level and scope",
+      "id": "start-with-purpose",
+      "title": "Start with the outcome and its user",
       "paragraphs": [
-        "This is an intermediate-level module. It assumes that you can already write a basic text instruction and inspect the resulting output. It does not assume programming knowledge, familiarity with a named provider, or knowledge above the intermediate level.",
-        "Prompt anatomy is a practical way to examine the information inside a prompt. The labels used here are task, context, constraints, output format, examples, and success criteria. Not every prompt needs every component, but separating them makes omissions and conflicts easier to detect."
-      ]
-    },
-    {
-      "id": "currency-correction",
-      "title": "Source correction",
-      "paragraphs": [
-        "The previous citation was the local path content/modules/ai-foundations/prompt-anatomy-and-success-criteria.json. That source had an unregistered publisher, had never been verified, and was not a resolvable HTTPS reference.",
-        "This update replaces that citation with the canonical arXiv record for The Prompt Report: A Systematic Survey of Prompting Techniques. The change affects the source record and the support for the module's prompt terminology. The provider-neutral scope and the instructional focus on prompt components and checkable success criteria are unaffected."
-      ]
-    },
-    {
-      "id": "components-of-a-prompt",
-      "title": "Components of a prompt",
-      "paragraphs": [
-        "The task states the action to perform. A task such as “summarize this report” names an action, but it may still be underspecified if the intended reader, required coverage, or acceptable length is unknown.",
-        "Context supplies information needed to perform the task appropriately. It can identify the audience, purpose, background, definitions, or source material. Relevant context narrows plausible interpretations of the task.",
-        "Constraints set boundaries. They can limit length, exclude particular material, require the use of supplied evidence, or restrict the response to a defined scope. A constraint should be written so that a reviewer can determine whether it was followed.",
-        "The output format describes the expected organization or representation of the answer. Examples include a paragraph, a table with named columns, or a fixed sequence of fields. Format requirements should not conflict with one another.",
-        "Examples demonstrate a desired input-output relationship or a particular style of response. An example is most useful when it illustrates a requirement that would otherwise be difficult to express precisely.",
-        "Success criteria describe the properties an acceptable output must have. They differ from a general preference because they are observable. “Make it good” is not directly checkable, while “state the recommendation, give two reasons from the supplied text, and remain under 150 words” can be checked."
-      ]
-    },
-    {
-      "id": "from-request-to-testable-prompt",
-      "title": "From a request to a testable prompt",
-      "paragraphs": [
-        "Begin by stating the task as a concrete action. Then add only the context needed to resolve meaningful ambiguity. Specify constraints and the output format separately so that each requirement is easy to inspect.",
-        "Next, convert preferences into success criteria. For each criterion, ask what evidence in the output would show that it was satisfied. If no reviewer could make that determination from the output and the supplied material, revise the criterion.",
-        "For example, the request “Write a useful summary” leaves usefulness undefined. A more testable prompt is: “Summarize the supplied policy for new employees. State its purpose, the three required actions, and the deadline. Use no more than 120 words, and do not add information that is absent from the policy.” The task is to summarize, the context identifies the audience and source, the constraints limit length and unsupported additions, and the success criteria identify required content.",
-        "After drafting, check for conflicts. A prompt that requires a complete explanation while also imposing a length too short to contain the required details has incompatible requirements. Resolve that conflict before evaluating the output."
+        "A prompt is easier to follow when it names the outcome, the person who will use it, and the decision or action it should support. A topic such as “customer feedback” is not yet a task; “group these comments so the support lead can choose three fixes” is.",
+        "Purpose helps the model choose relevant detail, but it also helps the learner decide whether AI is appropriate. If the intended use is high impact, private, or irreversible, the prompt must include stronger evidence and review boundaries."
       ],
-      "callout": "A success criterion should let a reviewer point to evidence in the output or identify a specific missing requirement."
+      "callout": "Describe the useful result, not only the subject."
     },
     {
-      "id": "diagnosing-results",
-      "title": "Diagnosing results",
+      "id": "name-inputs-and-instructions",
+      "title": "Name trusted inputs and explicit instructions",
       "paragraphs": [
-        "When an output is weak, compare it with the prompt component by component. If the response addresses the wrong audience, relevant context may be missing. If it includes unwanted material, a scope constraint may be absent. If its organization varies between attempts, the output format may be underspecified.",
-        "If the output appears fluent but you cannot decide whether it is acceptable, the prompt probably lacks checkable success criteria. Add criteria before merely adding more descriptive language.",
-        "Do not assume that every failure can be corrected through wording alone. If the required information is absent from the supplied material, whether the task can be completed accurately is UNKNOWN. Supply the missing information or narrow the task rather than asking for unsupported content."
-      ]
-    }
-  ],
-  "knowledgeCheck": {
-    "passPercent": 75,
-    "questions": [
-      {
-        "id": "prompt-anatomy-and-success-criteria-identify-success-criterion",
-        "prompt": "Which requirement is a checkable success criterion?",
-        "choices": [
-          "Make the response impressive.",
-          "Write the best answer possible.",
-          "State the recommendation and give two reasons from the supplied text.",
-          "Use good judgment."
-        ],
-        "answerIndex": 2,
-        "explanation": "The requirement to state a recommendation and give two reasons from the supplied text identifies evidence that a reviewer can check."
-      },
-      {
-        "id": "prompt-anatomy-and-success-criteria-add-context",
-        "prompt": "A response is written for specialists, but the intended readers are new employees. Which prompt component most directly needs correction?",
-        "choices": [
-          "Context identifying the audience",
-          "An additional example of punctuation",
-          "A less observable success criterion",
-          "Removal of every constraint"
-        ],
-        "answerIndex": 0,
-        "explanation": "The module explains that context can identify the audience. Stating that the readers are new employees helps resolve the audience mismatch."
-      },
-      {
-        "id": "prompt-anatomy-and-success-criteria-revise-ambiguity",
-        "prompt": "Which revision best turns “Write a useful summary” into a testable prompt?",
-        "choices": [
-          "Write a useful and excellent summary.",
-          "Summarize the supplied policy for new employees, state its purpose and three required actions, and use no more than 120 words.",
-          "Summarize it however you think is best.",
-          "Write something clear."
-        ],
-        "answerIndex": 1,
-        "explanation": "This revision identifies the source and audience, specifies required content, and supplies a measurable length constraint."
-      },
-      {
-        "id": "prompt-anatomy-and-success-criteria-handle-missing-information",
-        "prompt": "What should you do when accurate completion requires information that is absent from the supplied material?",
-        "choices": [
-          "Request or supply the missing information, or narrow the task.",
-          "Add more stylistic adjectives.",
-          "Treat the missing information as established fact.",
-          "Remove all success criteria."
-        ],
-        "answerIndex": 0,
-        "explanation": "The module states that completion is UNKNOWN when required information is absent. The appropriate response is to provide that information or narrow the task."
+        "Identify the material the response may rely on and label its boundaries. Separate instructions from source text, examples, and user-supplied data so quoted material is not mistaken for a command.",
+        "Use ordered steps when sequence matters. State what to do with missing or conflicting inputs rather than allowing the system to silently invent a resolution."
+      ],
+      "code": {
+        "language": "text",
+        "label": "Purpose-first prompt template",
+        "code": "Purpose: [OUTCOME AND USER]\nInputs: [TRUSTED MATERIAL AND BOUNDARIES]\nInstructions:\n1. [FIRST REQUIRED ACTION]\n2. [NEXT REQUIRED ACTION]\nConstraints: [MUST, MUST NOT, PRIVACY, SCOPE]\nDeliverable: [FORMAT AND DETAIL]\nVerify: [CHECKS AND EVIDENCE]\nIf information is missing: [ASK, FLAG, OR STOP]"
       }
-    ]
-  },
-  "reviewCadenceDays": 180,
-  "lastVerified": "2026-08-22",
-  "sources": [
+    },
     {
-      "title": "The Prompt Report: A Systematic Survey of Prompting Techniques",
-      "url": "https://arxiv.org/abs/2406.06608",
-      "publisher": "arXiv",
-      "lastVerified": "2026-08-22"
+      "id": "define-success",
+      "title": "Make success observable",
+      "paragraphs": [
+        "Success criteria describe what a reviewer can inspect: required fields are present, claims map to supplied evidence, calculations reproduce, links resolve, or a stated rubric is satisfied. “Make it excellent” does not identify an observable result.",
+        "Separate hard requirements from preferences. A hard requirement can fail the result; a preference guides style when it does not conflict with the required outcome."
+      ]
+    },
+    {
+      "id": "handle-uncertainty",
+      "title": "Design for missing information and uncertainty",
+      "paragraphs": [
+        "A useful prompt tells the system when to ask a question, state an assumption, identify uncertainty, or stop. This prevents a polished response from hiding an unsupported choice.",
+        "Prompting improves the odds of a useful response, but it does not guarantee truth. The prompt should name the verification that happens after generation."
+      ],
+      "callout": "A good prompt defines how to fail visibly."
     }
   ],
   "activity": {
-    "id": "activity-prompt-anatomy-and-success-criteria",
-    "title": "Prompt Anatomy and Success Criteria Practical Lab",
+    "id": "activity-rewrite-ambiguous-request",
+    "title": "Rewrite an ambiguous request",
     "instructions": [
-      "Review the scenario requirements and parameters.",
-      "Execute the practical steps in your development environment.",
-      "Validate the output traces against the expected assertions.",
-      "Document conclusions and submit the result."
+      "Choose a vague request such as “summarize this,” “make a plan,” or “compare these tools.”",
+      "Identify its user, intended decision, trusted inputs, hard constraints, and observable success criteria.",
+      "Rewrite it with the purpose-first template and include behavior for missing or conflicting information.",
+      "Ask another person to identify anything they would still have to guess."
     ],
     "evidence": [
-      "Command execution output log",
-      "Verification trace results"
+      "The original request and a completed prompt containing purpose, inputs, instructions, constraints, deliverable, verification, and missing-information behavior.",
+      "A short review listing at least one ambiguity removed and one remaining assumption."
     ],
-    "reflectionPrompt": "How do the core principles of Prompt Anatomy and Success Criteria improve system predictability?"
+    "reflectionPrompt": "Which missing detail changed the task most when you made it explicit?"
   },
   "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 600,
+    "schemaVersion": "1.0",
+    "estimatedSeconds": 960,
     "cues": [
       {
-        "id": "cue-prompt-anatomy-and-success-criteria-sec-0",
+        "id": "cue-prompt-anatomy-purpose",
         "kind": "narration",
-        "sectionId": "level-and-scope",
-        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+        "sectionId": "start-with-purpose",
+        "text": "Contrast a topic with an outcome that names the user and decision it supports."
       },
       {
-        "id": "cue-prompt-anatomy-and-success-criteria-sec-1",
-        "kind": "narration",
-        "sectionId": "currency-correction",
-        "text": "Reviewing Source correction: Key concepts and architectural guidance."
+        "id": "cue-prompt-anatomy-purpose-visual",
+        "kind": "visual",
+        "sectionId": "start-with-purpose",
+        "text": "Transform the words customer feedback into outcome, user, and decision cards.",
+        "accessibilityAlternative": "A text sequence expands customer feedback into: outcome—group comments; user—support lead; decision—choose three fixes. Reduced-motion mode shows all cards at once."
       },
       {
-        "id": "cue-prompt-anatomy-and-success-criteria-sec-2",
+        "id": "cue-prompt-anatomy-inputs",
         "kind": "narration",
-        "sectionId": "components-of-a-prompt",
-        "text": "Reviewing Components of a prompt: Key concepts and architectural guidance."
+        "sectionId": "name-inputs-and-instructions",
+        "text": "Explain why instructions, trusted inputs, quoted text, and examples need visible boundaries."
       },
       {
-        "id": "cue-prompt-anatomy-and-success-criteria-sec-3",
-        "kind": "narration",
-        "sectionId": "from-request-to-testable-prompt",
-        "text": "Reviewing From a request to a testable prompt: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-prompt-anatomy-and-success-criteria-sec-4",
+        "id": "cue-prompt-anatomy-template-prompt",
         "kind": "learner-prompt",
-        "sectionId": "diagnosing-results",
-        "text": "Reviewing Diagnosing results: Key concepts and architectural guidance."
+        "sectionId": "name-inputs-and-instructions",
+        "text": "Pause while learners label each field in the purpose-first template with information from a task they know."
+      },
+      {
+        "id": "cue-prompt-anatomy-pause",
+        "kind": "pause",
+        "sectionId": "name-inputs-and-instructions",
+        "text": "Allow ninety seconds for learners to separate source material from instructions."
+      },
+      {
+        "id": "cue-prompt-anatomy-success",
+        "kind": "narration",
+        "sectionId": "define-success",
+        "text": "Replace subjective wishes with evidence a reviewer can observe and distinguish requirements from preferences."
+      },
+      {
+        "id": "cue-prompt-anatomy-uncertainty",
+        "kind": "narration",
+        "sectionId": "handle-uncertainty",
+        "text": "Show how ask, flag, assume, and stop policies make uncertainty visible instead of silently filling gaps."
+      },
+      {
+        "id": "cue-prompt-anatomy-checkpoint",
+        "kind": "checkpoint",
+        "sectionId": "handle-uncertainty",
+        "text": "Check that the learner can name one observable success criterion and one visible failure behavior."
+      },
+      {
+        "id": "cue-prompt-anatomy-activity",
+        "kind": "learner-prompt",
+        "text": "Guide the learner through rewriting their ambiguous request and peer-checking what remains unclear."
+      },
+      {
+        "id": "cue-prompt-anatomy-assessment",
+        "kind": "assessment-handoff",
+        "text": "Invite the learner to take the check after every field in the rewritten prompt is testable or intentionally optional."
       }
-    ],
-    "transcript": "Welcome to Prompt Anatomy and Success Criteria. In this module, we review key concepts and practical implementations across all sections.",
-    "captions": [
+    ]
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
       {
-        "cueId": "cue-prompt-anatomy-and-success-criteria-sec-0",
-        "startSeconds": 0,
-        "endSeconds": 30,
-        "text": "Reviewing Level and scope: Key concepts and architectural guidance."
+        "id": "q-prompt-anatomy-1",
+        "prompt": "Which request states the clearest purpose?",
+        "choices": [
+          "Write about customer feedback",
+          "Group the supplied comments so the support lead can choose three fixes",
+          "Make this better",
+          "Think very carefully"
+        ],
+        "answerIndex": 1,
+        "explanation": "It names the material, user, action, and decision the output supports."
       },
       {
-        "cueId": "cue-prompt-anatomy-and-success-criteria-sec-1",
-        "startSeconds": 30,
-        "endSeconds": 60,
-        "text": "Reviewing Source correction: Key concepts and architectural guidance."
+        "id": "q-prompt-anatomy-2",
+        "prompt": "Why should source text be separated from instructions?",
+        "choices": [
+          "To reduce the chance that quoted or untrusted text is treated as a command",
+          "To make the prompt longer",
+          "To guarantee every claim is true",
+          "To hide the source from the reviewer"
+        ],
+        "answerIndex": 0,
+        "explanation": "Visible boundaries clarify which content directs the task and which content is data to analyze."
       },
       {
-        "cueId": "cue-prompt-anatomy-and-success-criteria-sec-2",
-        "startSeconds": 60,
-        "endSeconds": 90,
-        "text": "Reviewing Components of a prompt: Key concepts and architectural guidance."
+        "id": "q-prompt-anatomy-3",
+        "prompt": "Which is an observable success criterion?",
+        "choices": [
+          "The answer feels brilliant",
+          "The model tries its best",
+          "The answer includes each required field and maps every factual claim to a supplied source",
+          "The response sounds confident"
+        ],
+        "answerIndex": 2,
+        "explanation": "A reviewer can inspect required fields and claim-to-source mappings."
       },
       {
-        "cueId": "cue-prompt-anatomy-and-success-criteria-sec-3",
-        "startSeconds": 90,
-        "endSeconds": 120,
-        "text": "Reviewing From a request to a testable prompt: Key concepts and architectural guidance."
+        "id": "q-prompt-anatomy-4",
+        "prompt": "What should a prompt do when required context is missing?",
+        "choices": [
+          "Always invent a plausible value",
+          "Remove the success criteria",
+          "Treat the missing value as private",
+          "Define whether to ask, flag an assumption, or stop"
+        ],
+        "answerIndex": 3,
+        "explanation": "An explicit missing-information policy prevents silent unsupported choices."
       },
       {
-        "cueId": "cue-prompt-anatomy-and-success-criteria-sec-4",
-        "startSeconds": 120,
-        "endSeconds": 150,
-        "text": "Reviewing Diagnosing results: Key concepts and architectural guidance."
+        "id": "q-prompt-anatomy-5",
+        "prompt": "Which statement about prompting is accurate?",
+        "choices": [
+          "A detailed prompt guarantees factual correctness",
+          "Prompt quality matters, but important outputs still require verification",
+          "Only provider-specific prompts can be evaluated",
+          "Examples eliminate the need for instructions"
+        ],
+        "answerIndex": 1,
+        "explanation": "Clear prompts improve task execution; they do not remove model uncertainty or the need to verify consequential work."
       }
-    ],
-    "reducedMotionAlternative": "Prompt Anatomy and Success Criteria architecture diagram and walkthrough."
-  }
+    ]
+  },
+  "sources": [
+    {
+      "title": "Prompt engineering",
+      "url": "https://developers.openai.com/api/docs/guides/prompt-engineering",
+      "publisher": "OpenAI",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Prompting best practices",
+      "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+      "publisher": "Anthropic",
+      "lastVerified": "2026-07-27"
+    },
+    {
+      "title": "Prompt design strategies",
+      "url": "https://ai.google.dev/gemini-api/docs/prompting-strategies",
+      "publisher": "Google",
+      "lastVerified": "2026-07-27"
+    }
+  ]
 }

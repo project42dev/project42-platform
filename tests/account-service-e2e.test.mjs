@@ -77,7 +77,7 @@ test("account service completes lifecycle, progress, privacy, and audit journeys
       "stale-owner-token",
       {
         ...identity("owner-subject", "owner@example.test"),
-        authenticatedAt: Math.floor(Date.now() / 1_000) - 3_600,
+        authenticatedAt: Math.floor(Date.now() / 1_000) - 73 * 3_600,
       },
     ],
     ["learner-token", identity("learner-subject", "learner@other.example")],

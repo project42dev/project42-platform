@@ -1,127 +1,117 @@
 {
   "id": "gemini-safety-and-trust-boundaries",
-  "title": "Gemini Safety and Trust Boundaries",
-  "summary": "This intermediate module teaches you to distinguish Gemini safety controls from application-level trust decisions. After completing it, you can map trust boundaries, interpret filtered and unfiltered responses appropriately, and identify controls that remain your responsibility.",
-  "level": "intermediate",
-  "providers": [
-    "google"
-  ],
-  "estimatedMinutes": 20,
+  "title": "Secure Gemini Workflows with Layered Trust Boundaries",
+  "summary": "Threat-model prompt injection, unsafe content, sensitive data, excessive tool authority, and factuality failures, then enforce layered controls around Gemini.",
+  "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
+  "providers": ["google"],
+  "estimatedMinutes": 58,
   "objectives": [
-    "Explain why a response that passes Gemini safety controls is not automatically accurate, authorized, or appropriate for an application action.",
-    "Identify the trust boundaries between user input, Gemini, application logic, external systems, and a human decision-maker.",
-    "Assign validation, authorization, and human-review responsibilities to the application side of a trust boundary.",
-    "Describe which cited source changed and how that correction affects the module."
+    "Threat-model direct and indirect injection across users, multimodal content, retrieval, tools, and state.",
+    "Separate instruction authority from untrusted data and minimize sensitive context.",
+    "Use Gemini safety signals as one layer alongside external authorization, validation, oversight, and recovery.",
+    "Red-team output and tool trajectories and convert failures into owned regression cases."
   ],
-  "prerequisites": [],
+  "prerequisites": ["gemini-tools-and-agent-loops"],
   "sections": [
     {
-      "id": "level-and-scope",
-      "title": "Level and scope",
+      "id": "threat-model-the-gemini-system",
+      "title": "Threat-model the complete Gemini system",
       "paragraphs": [
-        "This is an intermediate-level module. It assumes that you already understand prompts, model responses, and the basic idea that an application can send input to Gemini and receive generated output. It does not assume prior knowledge of specific settings, configuration keys, or implementation libraries.",
-        "The goal is to reason about safety and trust boundaries rather than memorize an interface. A trust boundary is a point where information moves between components that have different responsibilities or levels of authority."
+        "Direct injection comes from a user trying to override policy. Indirect injection can arrive in documents, images, audio, video, web results, memory, MCP content, or function responses. Both may target secrets, identity, data, decisions, tools, or side effects.",
+        "Map actors, instruction authority, untrusted inputs, modalities, sensitive assets, tools, credentials, persistence, and consequences. Built-in model protections are one layer; the application owner remains responsible for system safety and factual use."
       ]
     },
     {
-      "id": "source-update",
-      "title": "Source update",
+      "id": "separate-instructions-data-and-modalities",
+      "title": "Separate instructions, data, and modalities",
       "paragraphs": [
-        "The previous citation was an unregistered, self-referential module-file path that had never been verified. It has been replaced with Google's official documentation for Gemini safety settings.",
-        "This change affects the provenance and verification of claims about Gemini safety controls. The corrected source supports the statements that safety settings can influence blocking for documented harm categories and that developers remain responsible for evaluating appropriate safety settings. Unsupported operational details, configuration keys, and version-specific instructions are omitted."
+        "Keep stable policy in the supported system-instruction boundary and label external content by source, modality, and trust level. Preserve provenance and never promote document or tool text into privileged instructions merely because the model can read it.",
+        "Tags and schemas reduce ambiguity but do not create trust. Minimize sensitive content, exclude credentials, apply current data controls, validate claims and tool proposals, and enforce identity and resource authorization outside Gemini."
       ],
-      "callout": "The source correction does not turn provider safety controls into a guarantee that every returned response is true, authorized, or suitable for an application action."
+      "callout": "Prompt structure guides behavior; authenticated identity and authority must be enforced by the surrounding system."
     },
     {
-      "id": "safety-controls",
-      "title": "What Gemini safety controls cover",
+      "id": "use-safety-signals-in-layers",
+      "title": "Use safety signals in layers",
       "paragraphs": [
-        "Google documents safety settings that affect whether content is blocked for documented harm categories. These controls can reduce exposure to some harmful input or output, but they answer a content-safety question rather than every question an application must ask.",
-        "A response being returned means only that it was not blocked under the applicable provider processing and safety settings. It does not establish that the response is factually correct, that the user is authorized to request an action, that referenced data belongs to the user, or that executing a suggested action is acceptable.",
-        "Treat safety filtering as one control within a larger system. Do not use the presence of an unblocked response as evidence of accuracy or permission."
+        "Gemini API safety settings and built-in protections can produce prompt feedback, safety ratings, blocked content, and safety finish outcomes. Configure adjustable settings from a documented use-case policy and current terms, then test both harmful cases and legitimate cases at risk of false blocking.",
+        "Do not treat filter probability as a severity assessment or authorization decision. Combine safety signals with input constraints, domain safeguards, output validation, least privilege, budgets, informed human review, user reporting, monitoring, and incident response."
       ]
     },
     {
-      "id": "map-trust-boundaries",
-      "title": "Map the trust boundaries",
+      "id": "contain-tools-data-and-side-effects",
+      "title": "Contain tools, data, and side effects",
       "paragraphs": [
-        "A typical interaction can cross several boundaries: user input enters the application, the application sends selected information to Gemini, Gemini returns generated content, application logic interprets that content, and the application may present it to a person or use it when interacting with another system.",
-        "At each boundary, ask three questions. What data is crossing? Which component is allowed to make the next decision? What validation is required before that decision is accepted?",
-        "Gemini can generate or classify content, but generated content should be treated as data rather than authority. Application logic must enforce permissions and validate any value that could affect records, accounts, external systems, or other people. A human decision-maker should remain responsible where the application requires judgment or where an error could have significant consequences."
+        "Separate reads, reversible writes, communications, privileged changes, and destructive actions. Use narrow tools, workload-scoped credentials, fresh approval where required, operation identifiers, idempotency, sandboxing, and verified postconditions.",
+        "Define retention, deletion, containment, credential revocation, evidence preservation, notification, and recovery before launch. If a side effect may have occurred but confirmation failed, retain an outcome-unknown state and reconcile before another action."
       ]
     },
     {
-      "id": "apply-the-boundary-rule",
-      "title": "Apply the boundary rule",
+      "id": "red-team-gemini-trajectories",
+      "title": "Red-team outputs and trajectories",
       "paragraphs": [
-        "Suppose a user asks Gemini to recommend an account change. The response may be relevant and may pass safety controls, but it still crosses a trust boundary before it can affect the account. The application must independently confirm the user's identity, authorization, requested scope, and the validity of any proposed values.",
-        "Use the same rule for information shown to a user. If accuracy matters, the application or a qualified person must verify the relevant claims. Safety controls and factual verification address different risks.",
-        "After this module, you can examine a Gemini workflow, draw its component boundaries, and assign content filtering, validation, authorization, factual review, and final approval to the appropriate parts of the system."
-      ],
-      "callout": "Boundary rule: generated output is input to the next decision, not permission to make that decision."
+        "Test representative tasks, direct jailbreaks, poisoned multimodal input, malicious retrieval and function results, data exfiltration, confused-deputy requests, approval bypass, repeated-turn attacks, factuality failures, and legitimate sensitive use cases.",
+        "Score final output and trajectory: inputs consumed, tools proposed, arguments, approvals, operations executed, and postconditions. Contain confirmed failures, repair the failed boundary, assess false positives, assign owners, and add versioned regression coverage."
+      ]
     }
   ],
+  "activity": {
+    "id": "activity-gemini-threat-model",
+    "title": "Red-team and contain a Gemini workflow",
+    "instructions": [
+      "Create a multimodal data-flow and trust-boundary map including identities, instructions, data, model settings, safety signals, tools, approvals, storage, and side effects.",
+      "Create ten synthetic cases: benign, direct and indirect injection, poisoned modality or tool output, exfiltration, confused deputy, approval bypass, factuality failure, and legitimate content at risk of false blocking.",
+      "Map every threat to prevention, detection, informed oversight, containment, evidence, and recovery controls enforced outside the model.",
+      "Run the no-paid-call fixtures, record output and trajectory evidence, document residual risk, and add confirmed failures to regression coverage."
+    ],
+    "evidence": [
+      "A threat and control matrix identifying enforcement owner, data lifecycle, safety-setting rationale, approval boundary, detection, response, and recovery.",
+      "A ten-case fixture report with trajectories, safety signals, false-positive review, blocked side effects, residual risks, regressions, and owners."
+    ],
+    "reflectionPrompt": "If Gemini followed a malicious instruction perfectly, which independent control would still prevent the highest-impact harm?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 1740,
+    "cues": [
+      {"id": "cue-gemini-safety-threat", "kind": "narration", "sectionId": "threat-model-the-gemini-system", "text": "Threat-model direct and indirect injection across users, modalities, retrieval, tools, identities, storage, decisions, and side effects."},
+      {"id": "cue-gemini-safety-separate", "kind": "narration", "sectionId": "separate-instructions-data-and-modalities", "text": "Separate trusted instructions from provenance-labeled untrusted data while enforcing identity, authority, and validation outside Gemini."},
+      {"id": "cue-gemini-safety-layers", "kind": "narration", "sectionId": "use-safety-signals-in-layers", "text": "Use safety settings, ratings, and blocks as one layer alongside least privilege, validation, oversight, reporting, and response."},
+      {"id": "cue-gemini-safety-contain", "kind": "narration", "sectionId": "contain-tools-data-and-side-effects", "text": "Contain tools and data with scoped credentials, approval, idempotency, postconditions, revocation, evidence, and recovery."},
+      {"id": "cue-gemini-safety-redteam", "kind": "narration", "sectionId": "red-team-gemini-trajectories", "text": "Red-team realistic outputs and tool trajectories, then turn confirmed failures and false blocks into owned regression evidence."},
+      {"id": "cue-gemini-safety-visual", "kind": "visual", "sectionId": "contain-tools-data-and-side-effects", "text": "Place Gemini inside nested modality, data, identity, tool, approval, sandbox, validation, safety, monitoring, and recovery boundaries.", "accessibilityAlternative": "A static defense-in-depth table lists each boundary, threat, enforcement owner, evidence, and failure response."},
+      {"id": "cue-gemini-safety-question", "kind": "learner-prompt", "sectionId": "use-safety-signals-in-layers", "text": "Ask learners why a safety probability cannot authorize a write or measure the full severity of harm."},
+      {"id": "cue-gemini-safety-pause", "kind": "pause", "sectionId": "contain-tools-data-and-side-effects", "text": "Allow three minutes to name one prevention and one recovery control for a poisoned function response."},
+      {"id": "cue-gemini-safety-checkpoint", "kind": "checkpoint", "sectionId": "red-team-gemini-trajectories", "text": "Check that every high-impact threat meets an external control and each failure has an owner and regression case."},
+      {"id": "cue-gemini-safety-activity", "kind": "learner-prompt", "text": "Guide the threat map, ten fixtures, layered controls, trajectory review, false-positive analysis, and ownership."},
+      {"id": "cue-gemini-safety-assessment", "kind": "assessment-handoff", "text": "Begin the check after the learner can defend the system even when model behavior or one safety layer fails."}
+    ],
+    "transcript": "Threat-model direct and indirect injection across users, modalities, retrieval, tools, identities, storage, decisions, and side effects. Separate trusted instructions from provenance-labeled untrusted data while enforcing identity, authority, and validation outside Gemini. Use safety settings, ratings, and blocks as one layer alongside least privilege, validation, oversight, reporting, and response. Contain tools and data with scoped credentials, approval, idempotency, postconditions, revocation, evidence, and recovery. Red-team realistic outputs and tool trajectories, then turn confirmed failures and false blocks into owned regression evidence.",
+    "captions": [
+      {"cueId": "cue-gemini-safety-threat", "startSeconds": 0, "endSeconds": 330, "text": "Threat-model direct and indirect injection across users, modalities, retrieval, tools, identities, storage, decisions, and side effects."},
+      {"cueId": "cue-gemini-safety-separate", "startSeconds": 360, "endSeconds": 690, "text": "Separate trusted instructions from provenance-labeled untrusted data while enforcing identity, authority, and validation outside Gemini."},
+      {"cueId": "cue-gemini-safety-layers", "startSeconds": 720, "endSeconds": 1050, "text": "Use safety settings, ratings, and blocks as one layer alongside least privilege, validation, oversight, reporting, and response."},
+      {"cueId": "cue-gemini-safety-contain", "startSeconds": 1080, "endSeconds": 1380, "text": "Contain tools and data with scoped credentials, approval, idempotency, postconditions, revocation, evidence, and recovery."},
+      {"cueId": "cue-gemini-safety-redteam", "startSeconds": 1410, "endSeconds": 1710, "text": "Red-team realistic outputs and tool trajectories, then turn confirmed failures and false blocks into owned regression evidence."}
+    ],
+    "reducedMotionAlternative": "Use a static threat-to-control matrix and attack-trajectory table with modality and safety-signal columns."
+  },
   "knowledgeCheck": {
-    "passPercent": 75,
+    "passPercent": 80,
     "questions": [
-      {
-        "id": "gemini-safety-and-trust-boundaries-q1",
-        "prompt": "What does an unblocked Gemini response establish?",
-        "choices": [
-          "It establishes that every factual claim is correct.",
-          "It establishes that the user is authorized to act on it.",
-          "It establishes only that the response was not blocked under the applicable provider processing and safety settings.",
-          "It establishes that the application may execute any action it describes."
-        ],
-        "answerIndex": 2,
-        "explanation": "The module states that an unblocked response is not proof of accuracy, authorization, or permission to execute an action."
-      },
-      {
-        "id": "gemini-safety-and-trust-boundaries-q2",
-        "prompt": "Which component should enforce permission before a generated recommendation changes an account?",
-        "choices": [
-          "The application logic",
-          "The generated response itself",
-          "The wording of the user's prompt",
-          "The safety filter alone"
-        ],
-        "answerIndex": 0,
-        "explanation": "The application must independently confirm identity, authorization, scope, and proposed values before an account change."
-      },
-      {
-        "id": "gemini-safety-and-trust-boundaries-q3",
-        "prompt": "How should application logic treat generated content when it crosses a trust boundary?",
-        "choices": [
-          "As authoritative permission",
-          "As data that requires appropriate validation",
-          "As guaranteed factual evidence",
-          "As a replacement for access control"
-        ],
-        "answerIndex": 1,
-        "explanation": "The module's boundary rule treats generated output as input to the next decision, not as authority to make that decision."
-      },
-      {
-        "id": "gemini-safety-and-trust-boundaries-q4",
-        "prompt": "What changed in this module's citation update?",
-        "choices": [
-          "An unregistered self-referential file citation was replaced with official Google documentation.",
-          "A new version-specific configuration key was introduced.",
-          "Safety controls were declared sufficient for authorization.",
-          "Human review was removed from consequential decisions."
-        ],
-        "answerIndex": 0,
-        "explanation": "The update replaced the unverified module-file citation with Google's official safety-settings documentation, correcting source provenance and support for the affected safety claims."
-      }
+      {"id": "q-gemini-safety-1", "prompt": "What is indirect prompt injection?", "choices": ["An expired key", "Malicious instructions embedded in content or tool results the workflow reads", "A normal safety block", "A timeout"], "answerIndex": 1, "explanation": "Indirect injection enters through untrusted documents, modalities, retrieval, memory, or tools."},
+      {"id": "q-gemini-safety-2", "prompt": "What do tags and schemas guarantee?", "choices": ["Authorization", "Perfect safety", "Clearer structure, not trust or enforcement", "Secret encryption"], "answerIndex": 2, "explanation": "External systems must enforce identity, authority, and policy."},
+      {"id": "q-gemini-safety-3", "prompt": "How should Gemini safety ratings be used?", "choices": ["As one signal in a layered, use-case-specific control system", "As proof of authorization", "As a full severity score", "As a replacement for testing"], "answerIndex": 0, "explanation": "Safety ratings do not cover every application risk or authority decision."},
+      {"id": "q-gemini-safety-4", "prompt": "Why score tool trajectories?", "choices": ["Only formatting matters", "A safe-looking answer may conceal unauthorized access or side effects", "It replaces output review", "Tools cannot fail"], "answerIndex": 1, "explanation": "Safety depends on what was read, proposed, approved, executed, and changed."},
+      {"id": "q-gemini-safety-5", "prompt": "What follows a successful adversarial case?", "choices": ["Hide it", "Retry unchanged", "Assume future models fix it", "Contain, repair the boundary, assign an owner, and add regression coverage"], "answerIndex": 3, "explanation": "Confirmed failures require response and durable prevention."}
     ]
   },
-  "reviewCadenceDays": 90,
-  "lastVerified": "2026-08-22",
   "sources": [
-    {
-      "title": "Safety settings",
-      "url": "https://ai.google.dev/gemini-api/docs/safety-settings",
-      "publisher": "Google",
-      "lastVerified": "2026-08-22"
-    }
+    {"title": "Safety and factuality guidance", "url": "https://ai.google.dev/gemini-api/docs/safety-guidance", "publisher": "Google", "lastVerified": "2026-07-25"},
+    {"title": "Safety settings", "url": "https://ai.google.dev/gemini-api/docs/safety-settings", "publisher": "Google", "lastVerified": "2026-07-25"},
+    {"title": "Evaluate model and system for safety", "url": "https://ai.google.dev/responsible/docs/evaluation", "publisher": "Google", "lastVerified": "2026-07-25"},
+    {"title": "Computer use", "url": "https://ai.google.dev/gemini-api/docs/computer-use", "publisher": "Google", "lastVerified": "2026-07-25"}
   ]
 }

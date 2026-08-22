@@ -1,150 +1,117 @@
 {
   "id": "migrating-to-and-from-openai",
-  "title": "Migrating to and from OpenAI",
-  "summary": "This intermediate module teaches you to separate provider-specific details from application behavior so you can plan, test, and reverse a migration involving OpenAI. After completing it, you can build a migration checklist, define an adapter boundary, compare observable behavior, and plan a controlled cutover.",
-  "level": "intermediate",
-  "providers": [
-    "openai"
-  ],
-  "estimatedMinutes": 25,
+  "title": "Migrate OpenAI Workflows with Evidence",
+  "summary": "Inventory dependencies, separate portable contracts from OpenAI-specific behavior, compare APIs or providers, canary safely, and preserve rollback through migration and deprecation.",
+  "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
+  "providers": ["openai"],
+  "estimatedMinutes": 56,
   "objectives": [
-    "Identify the application behaviors and provider-specific details that must be recorded before a migration.",
-    "Define an adapter boundary that prevents provider-specific request and response details from spreading through an application.",
-    "Create behavior-based tests for comparing an existing integration with a replacement.",
-    "Plan a staged cutover with explicit acceptance and rollback conditions.",
-    "Apply the same migration process when moving either to OpenAI or away from OpenAI."
+    "Inventory API, model, prompt, item, tool, state, data, evaluation, and operational dependencies.",
+    "Separate portable application contracts from OpenAI-specific capabilities and behavior.",
+    "Use official migration and lifecycle evidence plus controlled evaluation instead of assuming equivalence.",
+    "Migrate with coexistence, canary gates, data reconciliation, rollback, and accountable closeout."
   ],
-  "prerequisites": [],
+  "prerequisites": ["openai-evaluation-and-observability"],
   "sections": [
     {
-      "id": "currency-update",
-      "title": "What changed in this update",
+      "id": "inventory-openai-dependencies",
+      "title": "Inventory before changing",
       "paragraphs": [
-        "The changed citation was content/modules/openai-practice/migrating-to-and-from-openai.json, which the update record identifies as an unregistered publisher source that had never been verified. It has been replaced in the source list by OpenAI's official API reference and official OpenAPI specification repository, both using direct HTTPS URLs.",
-        "This change affects citation provenance and where learners verify current interface details. Only the source correction and the instruction to consult those official references for live request and response details are affected. The provider migration workflow remains focused on inventory, isolation, testing, cutover, and rollback."
+        "Find every API endpoint, SDK, credential path, project permission, model reference, request parameter, instruction, message or item parser, state link, tool schema, function-result protocol, structured-output contract, data control, evaluation, dashboard, alert, runbook, and cost assumption.",
+        "Include ChatGPT or Codex workflows, Responses and legacy API use, hosted tools, batches, caches, stored objects, cloud integrations, and shadow clients. Give each dependency an owner, source, current version, risk, and verification method."
+      ]
+    },
+    {
+      "id": "separate-portable-and-openai-specific",
+      "title": "Separate portable and OpenAI-specific contracts",
+      "paragraphs": [
+        "User outcomes, application schemas, authorization policy, assessment rubrics, telemetry fields, postconditions, and incident rules can often remain portable. Responses items, previous_response_id, hosted tools, function-call protocols, model controls, safety fields, and product integrations may be OpenAI-specific.",
+        "Create an adapter boundary without pretending endpoints, models, or providers are identical. Preserve useful native capability when it matters and expose unsupported behavior explicitly rather than silently weakening safety, quality, or evidence."
+      ]
+    },
+    {
+      "id": "use-current-migration-and-lifecycle-evidence",
+      "title": "Use current migration and lifecycle evidence",
+      "paragraphs": [
+        "For a Chat Completions-to-Responses change, compare request shape, instructions, typed Items, output extraction, tool calls and results, conversation state, storage, streaming events, errors, and usage. Read the current official guide for the exact source and target instead of relying on a copied conversion snippet.",
+        "For a model or provider change, verify current model guidance, supported features, snapshots or aliases, limits, and lifecycle status. Track deprecation dates and replacements from the official deprecation page and assign owners before urgency removes the ability to evaluate safely."
       ],
-      "callout": "Provider interfaces can change between reviews. Verify current request and response details in the cited official sources before implementing a migration."
+      "callout": "Code that compiles after a one-field change can still regress behavior, safety, tool trajectories, latency, cost, or data handling."
     },
     {
-      "id": "level-and-scope",
-      "title": "Level and scope",
+      "id": "evaluate-shadow-and-canary",
+      "title": "Evaluate, shadow, and canary",
       "paragraphs": [
-        "This is an intermediate module. It assumes you can read an API reference, inspect structured requests and responses, and understand the purpose of automated tests. It does not assume prior experience migrating between model providers, and it declares no catalogue prerequisites.",
-        "A provider migration is not only a request-format conversion. The application may depend on observable behavior such as output structure, failure handling, timing expectations, usage reporting, and the interpretation of instructions. A safe migration records those dependencies before changing the integration."
+        "Run baseline and candidate against identical representative, edge, adversarial, incident, and holdout cases. Compare quality, refusals, safety, structured output, state behavior, tool selection and arguments, side effects, latency, usage, and cost by critical slice.",
+        "Use offline replay, shadow traffic, or a small canary only where data policy and operational risk allow it. Define promotion, hold, and rollback thresholds first; isolate candidate telemetry by version and reconcile possible side effects before shifting more traffic."
       ]
     },
     {
-      "id": "inventory-the-contract",
-      "title": "Inventory the existing contract",
+      "id": "migrate-reversibly-and-close",
+      "title": "Migrate reversibly and close deliberately",
       "paragraphs": [
-        "Begin by documenting what the application sends, what it expects to receive, and what it does when a request fails. Separate required behavior from incidental implementation details. Required behavior might include producing parseable structured output, preserving conversation context, or returning enough information for the application to make its next decision.",
-        "Record provider-specific details separately from application requirements. Examples include request shape, response shape, authentication handling, error categories, streaming event interpretation, and usage information. For current OpenAI interface details, use the cited official API reference or official OpenAPI specification repository rather than copying assumptions from an older integration.",
-        "Create representative test cases from real application tasks after removing sensitive information. Include ordinary cases, boundary cases, malformed outputs, refusals or unavailable results, interrupted requests, and retryable failures when those situations matter to the application."
-      ]
-    },
-    {
-      "id": "isolate-provider-details",
-      "title": "Isolate provider-specific details",
-      "paragraphs": [
-        "Place a narrow adapter between the application and each provider interface. The application should send an internal request that represents its actual needs. The adapter translates that request into the provider's current format and translates the provider response back into one internal result.",
-        "Keep provider-specific response parsing inside the adapter. Code elsewhere in the application should not need to know how a particular provider represents content, status information, usage information, or errors. This boundary reduces the amount of code that must change during either direction of migration.",
-        "Do not force unlike behaviors into a misleading common abstraction. If one integration exposes a capability that another does not, represent that difference explicitly and decide whether the application requires it. An adapter should isolate differences, not conceal a missing requirement."
-      ]
-    },
-    {
-      "id": "test-observable-behavior",
-      "title": "Test observable behavior",
-      "paragraphs": [
-        "Compare integrations by the behavior the application needs, not by expecting identical wording. Exact text comparisons are usually too narrow for generated output. Prefer checks such as whether required information is present, whether structured output can be parsed, whether prohibited content is absent, and whether the application can complete its next step.",
-        "Run the same representative cases through the existing adapter and the candidate adapter. Record pass or fail results against acceptance criteria chosen before the comparison. Review failures individually because a single aggregate score can hide a severe regression in an important case.",
-        "Test failure paths as well as successful paths. Confirm that the adapter converts provider-specific failures into the internal categories the application understands and that retry behavior does not create duplicate side effects."
-      ]
-    },
-    {
-      "id": "cutover-and-rollback",
-      "title": "Control the cutover",
-      "paragraphs": [
-        "Define acceptance conditions before routing production work through the candidate adapter. Conditions should cover the behaviors identified in the contract inventory. Also define rollback conditions, the person or process authorized to trigger rollback, and the evidence that will be retained for diagnosis.",
-        "Use a staged cutover when the application permits it. Begin with controlled test traffic, then a limited portion of eligible work, and expand only after reviewing the agreed evidence. Keep the previous adapter available until the rollback period ends and the replacement has satisfied the acceptance conditions.",
-        "A migration away from OpenAI uses the same sequence as a migration to OpenAI: inventory the current contract, isolate provider details, implement the candidate adapter, compare behavior, stage the cutover, and preserve a rollback path. The direction changes which adapter is current and which is the candidate, but it does not remove the need for evidence."
-      ]
-    },
-    {
-      "id": "migration-checklist",
-      "title": "Build the migration checklist",
-      "paragraphs": [
-        "Your checklist should identify the application requirements, current provider-specific assumptions, representative test cases, adapter translation rules, acceptance conditions, rollback conditions, and the official references used to verify interface details.",
-        "After completing this module, you can turn an integration that is coupled to one provider into a documented migration plan. You can identify what must remain stable, confine provider differences to an adapter, evaluate a candidate using application-level evidence, and change traffic without discarding the previous path prematurely."
+        "Use configurable routing, versioned prompts and adapters, backward-compatible record changes, dual-read or dual-run patterns when justified, and a rehearsed rollback. Keep old and new state mappings explicit and avoid irreversible cleanup until the observation window passes.",
+        "Close only after production gates pass, rollback time and data reconciliation are proven, security and privacy review is complete, documentation and runbooks are current, deprecated use is absent or accepted with an owner, and stakeholders acknowledge residual risk. Migration away from OpenAI follows the same evidence discipline."
       ]
     }
   ],
+  "activity": {
+    "id": "activity-openai-migration-rehearsal",
+    "title": "Plan and rehearse an OpenAI migration",
+    "instructions": [
+      "Inventory one workflow across API, model, SDK, credentials, instructions, messages or Items, state, tools, data controls, evaluations, telemetry, operations, and product integrations.",
+      "Create a portable-versus-OpenAI-specific contract table and map every incompatibility to an adapter, redesign, explicit non-support decision, data migration, or operational change.",
+      "Run a baseline/candidate evaluation and write offline, shadow or canary promotion, hold, rollback, data-reconciliation, and deprecation-exit criteria.",
+      "Rehearse a synthetic failed canary and record detection, decision, rollback time, state and side-effect reconciliation, communications, owners, and closeout evidence."
+    ],
+    "evidence": [
+      "A dependency inventory and compatibility matrix linked to current official migration, model, lifecycle, and production sources for the exact change.",
+      "A baseline/candidate report, gated rollout plan, successful rollback and reconciliation rehearsal, and signed closeout checklist."
+    ],
+    "reflectionPrompt": "Which dependency looked portable until evaluation exposed an OpenAI-specific state, tool, safety, or data-handling contract?"
+  },
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 1680,
+    "cues": [
+      {"id": "cue-openai-migrate-inventory", "kind": "narration", "sectionId": "inventory-openai-dependencies", "text": "Inventory every API, model, prompt, item, state, tool, data, evaluation, telemetry, operational, and product dependency before changing."},
+      {"id": "cue-openai-migrate-boundary", "kind": "narration", "sectionId": "separate-portable-and-openai-specific", "text": "Keep outcome and policy contracts portable while representing OpenAI-specific Items, tools, state, controls, and integrations honestly."},
+      {"id": "cue-openai-migrate-current", "kind": "narration", "sectionId": "use-current-migration-and-lifecycle-evidence", "text": "Use current official migration, model, and deprecation evidence for the exact endpoint, model, provider, and deployment."},
+      {"id": "cue-openai-migrate-canary", "kind": "narration", "sectionId": "evaluate-shadow-and-canary", "text": "Compare identical cases and promote only when predeclared quality, safety, state, trajectory, latency, cost, and data gates pass."},
+      {"id": "cue-openai-migrate-close", "kind": "narration", "sectionId": "migrate-reversibly-and-close", "text": "Preserve routing, versioned adapters, reconciled data, monitoring, ownership, and rehearsed rollback until production closeout."},
+      {"id": "cue-openai-migrate-visual", "kind": "visual", "sectionId": "evaluate-shadow-and-canary", "text": "Move a migration through inventory, compatibility, offline evaluation, shadow, canary, promote or rollback, observe, and close.", "accessibilityAlternative": "A static migration-gate table lists required evidence, owners, data reconciliation, and rollback conditions for each stage."},
+      {"id": "cue-openai-migrate-question", "kind": "learner-prompt", "sectionId": "separate-portable-and-openai-specific", "text": "Ask learners to classify one Responses Item or tool behavior as portable contract, adapter concern, or provider-specific capability."},
+      {"id": "cue-openai-migrate-pause", "kind": "pause", "sectionId": "evaluate-shadow-and-canary", "text": "Allow three minutes to write a numeric rollback trigger and one state-reconciliation check before viewing candidate results."},
+      {"id": "cue-openai-migrate-checkpoint", "kind": "checkpoint", "sectionId": "migrate-reversibly-and-close", "text": "Check that rollback was rehearsed and no deprecated dependency, state mapping, or residual risk lacks an owner."},
+      {"id": "cue-openai-migrate-activity", "kind": "learner-prompt", "text": "Guide the inventory, compatibility matrix, evaluation, rollout gates, rollback rehearsal, reconciliation, and closeout evidence."},
+      {"id": "cue-openai-migrate-assessment", "kind": "assessment-handoff", "text": "Begin the check after the learner can migrate without assuming equivalence or sacrificing data safety, evidence, or rollback."}
+    ],
+    "transcript": "Inventory every API, model, prompt, item, state, tool, data, evaluation, telemetry, operational, and product dependency before changing. Keep outcome and policy contracts portable while representing OpenAI-specific Items, tools, state, controls, and integrations honestly. Use current official migration, model, and deprecation evidence for the exact endpoint, model, provider, and deployment. Compare identical cases and promote only when predeclared quality, safety, state, trajectory, latency, cost, and data gates pass. Preserve routing, versioned adapters, reconciled data, monitoring, ownership, and rehearsed rollback until production closeout.",
+    "captions": [
+      {"cueId": "cue-openai-migrate-inventory", "startSeconds": 0, "endSeconds": 310, "text": "Inventory every API, model, prompt, item, state, tool, data, evaluation, telemetry, operational, and product dependency before changing."},
+      {"cueId": "cue-openai-migrate-boundary", "startSeconds": 340, "endSeconds": 650, "text": "Keep outcome and policy contracts portable while representing OpenAI-specific Items, tools, state, controls, and integrations honestly."},
+      {"cueId": "cue-openai-migrate-current", "startSeconds": 680, "endSeconds": 980, "text": "Use current official migration, model, and deprecation evidence for the exact endpoint, model, provider, and deployment."},
+      {"cueId": "cue-openai-migrate-canary", "startSeconds": 1010, "endSeconds": 1320, "text": "Compare identical cases and promote only when predeclared quality, safety, state, trajectory, latency, cost, and data gates pass."},
+      {"cueId": "cue-openai-migrate-close", "startSeconds": 1350, "endSeconds": 1650, "text": "Preserve routing, versioned adapters, reconciled data, monitoring, ownership, and rehearsed rollback until production closeout."}
+    ],
+    "reducedMotionAlternative": "Use a static dependency matrix and gated migration-and-rollback runbook with focus highlighting."
+  },
   "knowledgeCheck": {
-    "passPercent": 75,
+    "passPercent": 80,
     "questions": [
-      {
-        "id": "migrating-to-and-from-openai-contract-inventory",
-        "prompt": "What should happen before provider-specific integration code is changed?",
-        "choices": [
-          "Document the application's required behavior and current provider-specific assumptions.",
-          "Remove the existing adapter so the application can call the candidate directly.",
-          "Route all production work through the candidate integration.",
-          "Require generated responses from both providers to use identical wording."
-        ],
-        "answerIndex": 0,
-        "explanation": "The module directs you to inventory required application behavior and provider-specific dependencies before changing the integration."
-      },
-      {
-        "id": "migrating-to-and-from-openai-adapter-boundary",
-        "prompt": "Where should provider-specific request translation and response parsing be kept?",
-        "choices": [
-          "In every application component that uses generated output.",
-          "Inside a narrow provider adapter.",
-          "Only in the production traffic router.",
-          "Inside the acceptance criteria."
-        ],
-        "answerIndex": 1,
-        "explanation": "A narrow adapter contains provider-specific translation and parsing so the rest of the application can use one internal contract."
-      },
-      {
-        "id": "migrating-to-and-from-openai-behavior-testing",
-        "prompt": "Which comparison best evaluates a migration involving generated output?",
-        "choices": [
-          "Check whether every response uses exactly the same words.",
-          "Check only whether each request completed without an error.",
-          "Check whether each integration satisfies predefined application-level requirements.",
-          "Check whether the candidate adapter contains fewer lines of code."
-        ],
-        "answerIndex": 2,
-        "explanation": "The module recommends predefined behavior checks, such as parseability and required information, rather than exact wording."
-      },
-      {
-        "id": "migrating-to-and-from-openai-controlled-cutover",
-        "prompt": "What must be defined before a staged production cutover?",
-        "choices": [
-          "Acceptance and rollback conditions.",
-          "A requirement to delete the previous adapter immediately.",
-          "A promise that no provider interface will change.",
-          "A rule that only successful requests are tested."
-        ],
-        "answerIndex": 0,
-        "explanation": "The cutover section requires explicit acceptance and rollback conditions before production work is moved."
-      }
+      {"id": "q-openai-migrate-1", "prompt": "What should happen before changing an API or model reference?", "choices": ["Inventory dependencies and current official migration evidence", "Delete rollback", "Assume equivalence", "Remove evaluations"], "answerIndex": 0, "explanation": "A reference participates in broader behavioral, state, data, and operational contracts."},
+      {"id": "q-openai-migrate-2", "prompt": "Which contract is usually most portable?", "choices": ["A Responses function_call item", "A provider model alias", "A user outcome and application validation schema", "A hosted provider tool"], "answerIndex": 2, "explanation": "Application-owned outcomes and validation can remain stable behind explicit adapters."},
+      {"id": "q-openai-migrate-3", "prompt": "What should a Chat Completions-to-Responses migration compare?", "choices": ["Only URL spelling", "Request, Items, tools, state, storage, streaming, errors, usage, and behavior", "Only model price", "Only final text"], "answerIndex": 1, "explanation": "Endpoint migration changes several application contracts and must be evaluated end to end."},
+      {"id": "q-openai-migrate-4", "prompt": "When should canary rollback thresholds be defined?", "choices": ["After promotion", "After an incident", "By the model during execution", "Before the canary begins"], "answerIndex": 3, "explanation": "Predeclared thresholds make promotion and rollback auditable."},
+      {"id": "q-openai-migrate-5", "prompt": "What proves migration closeout?", "choices": ["The code compiles", "Production gates pass, rollback and reconciliation are proven, docs are current, deprecated use is resolved, and owners accept residual risk", "One demo works", "The old path is deleted immediately"], "answerIndex": 1, "explanation": "Closeout requires production, data, operational, and ownership evidence."}
     ]
   },
   "sources": [
-    {
-      "title": "OpenAI API Reference",
-      "url": "https://platform.openai.com/docs/api-reference",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-08-22"
-    },
-    {
-      "title": "OpenAI OpenAPI Specification",
-      "url": "https://github.com/openai/openai-openapi",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-08-22"
-    }
-  ],
-  "reviewCadenceDays": 90,
-  "lastVerified": "2026-08-22"
+    {"title": "Migrate to the Responses API", "url": "https://developers.openai.com/api/docs/guides/migrate-to-responses", "publisher": "OpenAI", "lastVerified": "2026-07-25"},
+    {"title": "Model guidance", "url": "https://developers.openai.com/api/docs/guides/latest-model", "publisher": "OpenAI", "lastVerified": "2026-07-25"},
+    {"title": "Deprecations", "url": "https://developers.openai.com/api/docs/deprecations", "publisher": "OpenAI", "lastVerified": "2026-07-25"},
+    {"title": "Production best practices", "url": "https://developers.openai.com/api/docs/guides/production-best-practices", "publisher": "OpenAI", "lastVerified": "2026-07-25"}
+  ]
 }

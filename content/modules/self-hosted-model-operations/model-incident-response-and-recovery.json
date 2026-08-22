@@ -1,256 +1,119 @@
 {
   "id": "model-incident-response-and-recovery",
   "title": "Model Incident Response and Recovery",
-  "summary": "This intermediate module enables learners to organize a provider-neutral response to an incident involving a deployed model. After completing it, learners can classify evidence, choose containment and recovery actions, define validation gates, and document lessons for future risk management.",
-  "level": "intermediate",
-  "providers": [
-    "provider-neutral"
-  ],
-  "estimatedMinutes": 35,
+  "summary": "Detect, contain, diagnose, recover, communicate, and learn from incidents across self-hosted model artifacts, endpoints, infrastructure, data, policy, and operations.",
+  "level": "advanced",
+  "reviewCadenceDays": 60,
+  "lastVerified": "2026-07-27",
+  "providers": ["provider-neutral"],
+  "estimatedMinutes": 64,
   "objectives": [
-    "Distinguish detection, response, recovery, and post-incident improvement activities.",
-    "Create an incident record that separates observed evidence from unverified explanations.",
-    "Select a containment action based on impact, scope, reversibility, and evidence preservation.",
-    "Define validation gates that must be satisfied before restoring normal model service.",
-    "Produce a post-incident review that assigns corrective actions and feeds lessons into risk management."
+    "Classify self-hosted model incidents by impact and failed system boundary rather than by surface symptom.",
+    "Contain unsafe output, unauthorized access, data exposure, cost, saturation, and bad releases while preserving useful evidence.",
+    "Use a decision-ready runbook to reconcile state, restore service, validate recovery objectives, and communicate responsibly.",
+    "Convert incident evidence into owned evaluation, control, capacity, lifecycle, and runbook improvements."
   ],
-  "prerequisites": [],
+  "prerequisites": ["model-update-and-rollback-lifecycle"],
   "sections": [
     {
-      "id": "currency-update",
-      "title": "What changed in this update",
+      "id": "detect-and-declare",
+      "title": "Detect impact and declare deliberately",
       "paragraphs": [
-        "This is an intermediate-level module. It assumes basic familiarity with deployed models, monitoring records, access controls, and service ownership, but it does not assume experience leading an incident.",
-        "The previous citation was the module's own internal file path, had an unregistered publisher, and had never been verified. Its review cadence had therefore passed without a usable public source. This update replaces that citation with public first-party publications from the National Institute of Standards and Technology.",
-        "The source correction affects the module's incident lifecycle framing. The current guidance treats incident response as part of cybersecurity risk management and connects preparation with detection, response, recovery, and continuous improvement. The model-specific workflow below applies that framing without requiring a named provider or tool."
+        "Signals can begin with failed quality checks, unsafe or unsupported output, access denials, unusual resource use, queue growth, latency, cost, artifact mismatch, telemetry loss, or user reports. Correlate the request, exact serving build, policy decision, infrastructure, and outcome before assuming that every symptom is a model failure.",
+        "Set severity from actual and credible potential impact to people, data, authorization, external actions, service, money, and legal or safety duties. Name an incident lead, evidence owner, technical responders, communications owner, and decision authority. Record confirmed facts separately from hypotheses."
       ]
     },
     {
-      "id": "recognize-and-declare",
-      "title": "Recognize and declare an incident",
+      "id": "contain-and-preserve",
+      "title": "Contain impact while preserving evidence",
       "paragraphs": [
-        "For this module, a model incident is an observed event involving a deployed model that may harm confidentiality, integrity, availability, safety, privacy, or an organizational objective. An unexpected answer is not automatically an incident. It becomes an incident candidate when evidence indicates meaningful impact, policy violation, loss of control, repeated failure, or credible exposure.",
-        "Start an incident record as soon as escalation criteria are met. Record the observation, time, affected service, reporter, known scope, potential impact, and immediate actions. Label explanations that have not been tested as hypotheses. For example, a changed output pattern is evidence, while a claim that a particular component caused it remains a hypothesis until supported.",
-        "Assign an incident lead and identify who can authorize containment, communicate with affected parties, preserve evidence, and approve recovery. Preparation and clearly assigned responsibilities reduce improvisation during response."
-      ],
-      "callout": "Do not convert a plausible explanation into a confirmed cause. Preserve the distinction between observations, hypotheses, and verified findings."
-    },
-    {
-      "id": "triage-and-scope",
-      "title": "Triage the impact and scope",
-      "paragraphs": [
-        "Triage determines what is happening, what may be affected, and how urgently the organization must act. Examine available request and response records, deployment records, access events, monitoring results, reports from affected people, and recent authorized changes. Preserve original records where possible and record who collected each item and when.",
-        "Build a timeline using known timestamps. Identify the earliest confirmed sign, the latest known occurrence, affected users or workflows, affected model deployments, and systems that exchange data with the deployment. Mark gaps as unknown rather than filling them with assumptions.",
-        "Prioritize according to impact and credible exposure, not merely the number of alerts. A narrowly scoped event can still require urgent action if it creates severe consequences. Reassess scope as new evidence arrives because the first estimate may be incomplete."
+        "Contain at the narrowest effective boundary: reject a workload, disable a route or tool, revoke a principal or secret, quarantine an artifact, stop a rollout, reduce concurrency, isolate a node or site, require manual approval, or switch to a separately evaluated fallback. Do not let automatic retries amplify load or repeat uncertain side effects.",
+        "Preserve secret-safe timestamps, correlation identifiers, exact versions, digests, policy decisions, redacted logs, metrics, traces, queue state, deployment history, approvals, and observed postconditions. Follow retention and privacy policy; an incident is not permission to collect prompts, personal data, credentials, or hidden reasoning without necessity."
       ]
     },
     {
-      "id": "contain-the-incident",
-      "title": "Contain while preserving options",
+      "id": "diagnose-by-boundary",
+      "title": "Diagnose the first failed boundary",
       "paragraphs": [
-        "Containment limits additional harm while investigation continues. Possible actions include restricting access, disabling an affected capability, isolating an integration, routing requests away from an affected deployment, or temporarily suspending service. Select an action that is proportionate to the potential impact.",
-        "Evaluate each containment option against four questions: how quickly it reduces harm, what evidence it may alter, whether it is reversible, and what secondary effects it creates. If immediate danger requires action before full evidence collection, document what was changed, who authorized it, and why delay was unacceptable.",
-        "Containment is not proof of recovery. A service can stop producing visible harm while the cause, affected scope, or compromised dependency remains unresolved."
+        "Test artifact integrity and provenance, runtime and driver compatibility, endpoint and adapter contracts, identity and authorization, network and secret access, evaluation behavior, data and prompt inputs, capacity and scheduling, dependencies, telemetry, and recent change history. More than one boundary may fail, and a fluent response can conceal a serious control failure.",
+        "For unknown outcomes, reconcile the system of record before retrying or compensating. Use evidence to distinguish transient, deterministic, policy, authorization, corrupt-state, capacity, and incompatible-release failures because each allows different recovery actions."
       ]
     },
     {
-      "id": "remove-causes-and-recover",
-      "title": "Remove verified causes and recover safely",
+      "id": "recover-and-validate",
+      "title": "Recover to explicit objectives",
       "paragraphs": [
-        "Corrective work should address verified findings. Depending on the evidence, that work may involve restoring an approved model artifact, correcting an affected data flow, removing unauthorized access, repairing an integration, or revising an unsafe operating procedure. Do not select a corrective action solely because it matches the first hypothesis.",
-        "Rollback is one possible recovery action, not an automatic solution. Before using it, confirm that the earlier state is known, approved, compatible with current dependencies, and outside the affected scope. If those conditions are unknown, investigate them before treating rollback as safe.",
-        "Define recovery gates before returning to normal operation. Gates should include tests tied to the observed failure, confirmation that containment remains effective, review of access and dependencies, monitoring for recurrence, and approval by the responsible owner. Restore service gradually when feasible so that the team can detect recurrence before full exposure resumes.",
-        "Continue monitoring after restoration. If the incident pattern returns or a recovery gate fails, pause restoration and return to investigation or containment."
-      ],
-      "callout": "Recovery means that explicit validation gates have been satisfied. Restarting or rolling back a deployment does not by itself establish recovery."
-    },
-    {
-      "id": "learn-and-improve",
-      "title": "Learn and improve",
-      "paragraphs": [
-        "Conduct a post-incident review after urgent response work is stable. Summarize the timeline, impact, evidence, decisions, verified contributing factors, recovery tests, communication outcomes, and unresolved questions. Avoid assigning certainty where the evidence does not support it.",
-        "Turn findings into corrective actions with an owner, expected outcome, and verification method. Actions may update detection coverage, escalation criteria, access controls, testing, documentation, or recovery procedures. Track each action until its result has been verified.",
-        "Feed lessons into continuing risk management. The incident may change assumptions about context, impact, measurement, or treatment of risk. Exercises and later reviews should test whether the revised controls and procedures work as intended.",
-        "After this module, a learner who previously knew only that an abnormal model event should be investigated can now structure an incident record, preserve uncertainty, choose proportionate containment, set recovery gates, and convert verified findings into trackable improvements."
+        "Choose a tested action: remove traffic, restart a bounded component, replace a corrupt artifact, rotate a secret, restore configuration or state, scale within a safe envelope, fail over, roll back the complete serving unit, or keep service unavailable pending human decision. Define recovery-time and recovery-point objectives where durable state is involved.",
+        "Validate exact model and dependency identity, authorization, representative quality and safety cases, endpoint compatibility, capacity, queues, telemetry, alerts, cost, and user-visible postconditions. Restore traffic in bounded stages and watch for recurrence; a green health endpoint alone does not prove recovery."
       ]
-    }
-  ],
-  "knowledgeCheck": {
-    "passPercent": 80,
-    "questions": [
-      {
-        "id": "model-incident-response-and-recovery-evidence-versus-hypothesis",
-        "prompt": "Which incident-record entry is a hypothesis rather than an observation?",
-        "choices": [
-          "The monitoring record shows a changed output pattern at a recorded time.",
-          "A particular component caused the changed output pattern.",
-          "The service owner restricted access after the alert.",
-          "Three affected requests are present in the preserved records."
-        ],
-        "answerIndex": 1,
-        "explanation": "A causal explanation remains a hypothesis until evidence verifies it. The other choices describe recorded observations or actions."
-      },
-      {
-        "id": "model-incident-response-and-recovery-containment-choice",
-        "prompt": "According to the module, which set of factors should be considered when selecting a containment action?",
-        "choices": [
-          "Speed of harm reduction, effect on evidence, reversibility, and secondary effects.",
-          "Alert count alone.",
-          "Whether the action is the easiest one to explain.",
-          "Whether the first reported hypothesis recommends it."
-        ],
-        "answerIndex": 0,
-        "explanation": "The containment section explicitly identifies harm reduction, evidence preservation, reversibility, and secondary effects as the four considerations."
-      },
-      {
-        "id": "model-incident-response-and-recovery-rollback",
-        "prompt": "When may an earlier state be treated as a suitable rollback target?",
-        "choices": [
-          "Whenever rollback is faster than investigation.",
-          "Whenever the current deployment has generated an alert.",
-          "After confirming that the earlier state is known, approved, compatible, and outside the affected scope.",
-          "Only after every unresolved question has been eliminated."
-        ],
-        "answerIndex": 2,
-        "explanation": "The recovery section requires confirmation that the earlier state is known, approved, compatible with current dependencies, and not within the affected scope."
-      },
-      {
-        "id": "model-incident-response-and-recovery-restoration",
-        "prompt": "What establishes that a model service is ready to return to normal operation?",
-        "choices": [
-          "The service restarts without an immediate error.",
-          "The incident lead has an untested explanation.",
-          "The alert count falls for a short period.",
-          "The defined recovery gates are satisfied and the responsible owner approves restoration."
-        ],
-        "answerIndex": 3,
-        "explanation": "The module defines recovery through explicit validation gates and responsible approval, not through a restart or a temporary absence of alerts."
-      },
-      {
-        "id": "model-incident-response-and-recovery-post-incident",
-        "prompt": "What should happen to a corrective action identified during a post-incident review?",
-        "choices": [
-          "It should receive an owner, expected outcome, and verification method, then remain tracked until verified.",
-          "It should be closed when the review meeting ends.",
-          "It should be recorded only if it proves a single root cause.",
-          "It should replace the incident timeline."
-        ],
-        "answerIndex": 0,
-        "explanation": "The learning section requires owned, testable corrective actions that remain tracked until their results are verified."
-      }
-    ]
-  },
-  "reviewCadenceDays": 180,
-  "lastVerified": "2026-08-22",
-  "sources": [
-    {
-      "title": "Incident Response Recommendations and Considerations for Cybersecurity Risk Management: A CSF 2.0 Community Profile",
-      "url": "https://csrc.nist.gov/pubs/sp/800/61/r3/final",
-      "publisher": "National Institute of Standards and Technology",
-      "lastVerified": "2026-08-22"
     },
     {
-      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
-      "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
-      "publisher": "National Institute of Standards and Technology",
-      "lastVerified": "2026-08-22"
+      "id": "communicate-close-and-learn",
+      "title": "Communicate, close, and improve",
+      "paragraphs": [
+        "Updates state time, scope, impact, confirmed facts, current containment, service status, next decision, and expected update cadence. Follow organizational privacy, legal, customer, and regulatory obligations. Avoid unsupported root-cause claims and never expose sensitive operational evidence.",
+        "Close only after impact has stopped, recovery evidence passes, stakeholders receive required communication, temporary access is removed, and follow-up work has owners and dates. Build a blameless timeline, identify contributing conditions, add reproducing cases, improve controls, rehearse the revised runbook, and measure recurrence."
+      ]
     }
   ],
   "activity": {
-    "id": "activity-model-incident-response-and-recovery",
-    "title": "Model Incident Response and Recovery Practical Lab",
+    "id": "activity-model-incident-recovery",
+    "title": "Run a self-hosted model incident exercise",
     "instructions": [
-      "Review the scenario requirements and parameters.",
-      "Execute the practical steps in your development environment.",
-      "Validate the output traces against the expected assertions.",
-      "Document conclusions and submit the result."
+      "Use a scenario combining a bad model release, elevated queue delay, an artifact identity mismatch, and an uncertain user-visible outcome.",
+      "Declare severity, roles, communication cadence, containment actions, and evidence-preservation boundaries.",
+      "Build a boundary-by-boundary diagnostic table and reconcile every unknown outcome before retry, rollback, or compensation.",
+      "Execute the recovery runbook against stated recovery objectives and verify identity, access, quality, compatibility, capacity, telemetry, cost, and user-visible service.",
+      "Produce the incident timeline, stakeholder update, closure decision, and owned prevention backlog."
     ],
     "evidence": [
-      "Command execution output log",
-      "Verification trace results"
+      "A severity decision, role assignment, containment record, and privacy-conscious evidence ledger.",
+      "A diagnostic and reconciliation matrix tied to exact build and infrastructure identities.",
+      "A recovery-objective validation report, communication record, timeline, and owned improvement plan."
     ],
-    "reflectionPrompt": "How do the core principles of Model Incident Response and Recovery improve system predictability?"
+    "reflectionPrompt": "Which apparently harmless symptom could indicate the largest hidden blast radius in your environment?"
   },
   "instructorScript": {
     "schemaVersion": "1.1",
-    "estimatedSeconds": 600,
+    "estimatedSeconds": 1860,
     "cues": [
-      {
-        "id": "cue-model-incident-response-and-recovery-sec-0",
-        "kind": "narration",
-        "sectionId": "currency-update",
-        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-model-incident-response-and-recovery-sec-1",
-        "kind": "narration",
-        "sectionId": "recognize-and-declare",
-        "text": "Reviewing Recognize and declare an incident: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-model-incident-response-and-recovery-sec-2",
-        "kind": "narration",
-        "sectionId": "triage-and-scope",
-        "text": "Reviewing Triage the impact and scope: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-model-incident-response-and-recovery-sec-3",
-        "kind": "narration",
-        "sectionId": "contain-the-incident",
-        "text": "Reviewing Contain while preserving options: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-model-incident-response-and-recovery-sec-4",
-        "kind": "narration",
-        "sectionId": "remove-causes-and-recover",
-        "text": "Reviewing Remove verified causes and recover safely: Key concepts and architectural guidance."
-      },
-      {
-        "id": "cue-model-incident-response-and-recovery-sec-5",
-        "kind": "learner-prompt",
-        "sectionId": "learn-and-improve",
-        "text": "Reviewing Learn and improve: Key concepts and architectural guidance."
-      }
+      {"id": "cue-incident-detect", "kind": "narration", "sectionId": "detect-and-declare", "text": "Set incident severity from actual and credible impact, name decision roles, and keep confirmed facts separate from hypotheses."},
+      {"id": "cue-incident-visual", "kind": "visual", "sectionId": "detect-and-declare", "text": "Map one symptom across model, artifact, runtime, endpoint, identity, network, data, capacity, dependency, and telemetry boundaries.", "accessibilityAlternative": "A static matrix lists each system boundary, its evidence, possible impact, and the responder responsible for checking it."},
+      {"id": "cue-incident-contain", "kind": "narration", "sectionId": "contain-and-preserve", "text": "Contain at the narrowest effective boundary while preserving secret-safe evidence and stopping retry amplification."},
+      {"id": "cue-incident-diagnose", "kind": "narration", "sectionId": "diagnose-by-boundary", "text": "Diagnose the first failed boundary and reconcile unknown outcomes before choosing retry, compensation, restore, or rollback."},
+      {"id": "cue-incident-checkpoint", "kind": "checkpoint", "sectionId": "diagnose-by-boundary", "text": "Ask why a request timeout does not prove that no user-visible effect occurred."},
+      {"id": "cue-incident-recover", "kind": "narration", "sectionId": "recover-and-validate", "text": "Recover to explicit objectives and validate the complete service contract before restoring traffic in stages."},
+      {"id": "cue-incident-close", "kind": "narration", "sectionId": "communicate-close-and-learn", "text": "Communicate confirmed impact and decisions, then close only with recovery evidence and owned prevention work."},
+      {"id": "cue-incident-activity", "kind": "learner-prompt", "text": "Guide declaration, containment, evidence capture, boundary diagnosis, reconciliation, rollback, validation, communication, and improvement."},
+      {"id": "cue-incident-assessment", "kind": "assessment-handoff", "text": "Begin the check after the learner can operate the runbook without exposing sensitive data or claiming recovery from one health signal."}
     ],
-    "transcript": "Welcome to Model Incident Response and Recovery. In this module, we review key concepts and practical implementations across all sections.",
+    "transcript": "Set incident severity from actual and credible impact, name decision roles, and keep confirmed facts separate from hypotheses. A queue alarm, unsafe answer, artifact mismatch, cost spike, or access denial is a starting signal, not a root cause. Contain at the narrowest effective boundary while preserving secret-safe evidence and stopping retry amplification. Disable only the affected route, identity, artifact, workload, or release when that safely limits impact. Diagnose the first failed boundary and reconcile unknown outcomes before choosing retry, compensation, restore, or rollback. Inspect artifact, runtime, endpoint, identity, network, data, capacity, dependency, telemetry, and recent-change evidence. Recover to explicit objectives and validate the complete service contract before restoring traffic in stages. Prove exact identity, access, quality, compatibility, capacity, queues, telemetry, cost, and user-visible postconditions. Communicate confirmed impact and decisions, then close only with recovery evidence and owned prevention work. Convert the timeline into reproducing evaluations, stronger controls, a rehearsed runbook, and recurrence measures.",
     "captions": [
-      {
-        "cueId": "cue-model-incident-response-and-recovery-sec-0",
-        "startSeconds": 0,
-        "endSeconds": 30,
-        "text": "Reviewing What changed in this update: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-model-incident-response-and-recovery-sec-1",
-        "startSeconds": 30,
-        "endSeconds": 60,
-        "text": "Reviewing Recognize and declare an incident: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-model-incident-response-and-recovery-sec-2",
-        "startSeconds": 60,
-        "endSeconds": 90,
-        "text": "Reviewing Triage the impact and scope: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-model-incident-response-and-recovery-sec-3",
-        "startSeconds": 90,
-        "endSeconds": 120,
-        "text": "Reviewing Contain while preserving options: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-model-incident-response-and-recovery-sec-4",
-        "startSeconds": 120,
-        "endSeconds": 150,
-        "text": "Reviewing Remove verified causes and recover safely: Key concepts and architectural guidance."
-      },
-      {
-        "cueId": "cue-model-incident-response-and-recovery-sec-5",
-        "startSeconds": 150,
-        "endSeconds": 180,
-        "text": "Reviewing Learn and improve: Key concepts and architectural guidance."
-      }
+      {"cueId": "cue-incident-detect", "startSeconds": 0, "endSeconds": 300, "text": "Set incident severity from actual and credible impact, name decision roles, and keep confirmed facts separate from hypotheses."},
+      {"cueId": "cue-incident-contain", "startSeconds": 300, "endSeconds": 600, "text": "Contain at the narrowest effective boundary while preserving secret-safe evidence and stopping retry amplification."},
+      {"cueId": "cue-incident-diagnose", "startSeconds": 600, "endSeconds": 960, "text": "Diagnose the first failed boundary and reconcile unknown outcomes before choosing retry, compensation, restore, or rollback."},
+      {"cueId": "cue-incident-recover", "startSeconds": 960, "endSeconds": 1320, "text": "Recover to explicit objectives and validate the complete service contract before restoring traffic in stages."},
+      {"cueId": "cue-incident-close", "startSeconds": 1320, "endSeconds": 1590, "text": "Communicate confirmed impact and decisions, then close only with recovery evidence and owned prevention work."},
+      {"cueId": "cue-incident-activity", "startSeconds": 1590, "endSeconds": 1830, "text": "Guide declaration, containment, evidence capture, boundary diagnosis, reconciliation, rollback, validation, communication, and improvement."},
+      {"cueId": "cue-incident-assessment", "startSeconds": 1830, "endSeconds": 1860, "text": "Begin the check after the learner can operate the runbook without exposing sensitive data or claiming recovery from one health signal."}
     ],
-    "reducedMotionAlternative": "Model Incident Response and Recovery architecture diagram and walkthrough."
-  }
+    "reducedMotionAlternative": "Present static severity, roles, containment, boundary diagnosis, recovery decision, validation, communication, and closure tables with keyboard-focus emphasis."
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {"id": "q-model-incident-1", "prompt": "What should determine incident severity?", "choices": ["How fluent the output appears", "Actual and credible potential impact to people, data, authorization, service, money, and obligations", "The number of dashboards", "The model parameter count"], "answerIndex": 1, "explanation": "Severity follows impact, not presentation or system size."},
+      {"id": "q-model-incident-2", "prompt": "What is the best first containment?", "choices": ["Delete all evidence", "Restart everything", "The narrowest effective control that stops ongoing impact", "Retry every request"], "answerIndex": 2, "explanation": "Targeted containment limits harm while preserving unaffected service and evidence."},
+      {"id": "q-model-incident-3", "prompt": "A timeout leaves a user-visible action uncertain. What comes next?", "choices": ["Reconcile the system of record and observed postcondition", "Assume failure and retry", "Change the prompt", "Close the incident"], "answerIndex": 0, "explanation": "Unknown outcomes must be reconciled before another side effect."},
+      {"id": "q-model-incident-4", "prompt": "Which evidence policy is appropriate during an incident?", "choices": ["Collect every prompt and secret forever", "Preserve necessary, redacted, policy-governed evidence", "Disable all telemetry before diagnosis", "Publish raw logs"], "answerIndex": 1, "explanation": "Incident response still requires data minimization, privacy, and secret protection."},
+      {"id": "q-model-incident-5", "prompt": "Why is a healthy endpoint insufficient recovery evidence?", "choices": ["It proves every request completed", "It may not prove identity, access, quality, queues, downstream effects, telemetry, or user-visible service", "It replaces evaluation", "It proves rollback"], "answerIndex": 1, "explanation": "Recovery must validate the complete service contract and effects."},
+      {"id": "q-model-incident-6", "prompt": "When should an incident close?", "choices": ["When the first alarm clears", "After one restart", "When the model says it is fixed", "After containment, validated recovery, required communication, access cleanup, and owned follow-up"], "answerIndex": 3, "explanation": "Closure requires evidence and accountable prevention work."}
+    ]
+  },
+  "sources": [
+    {"title": "Incident Response Recommendations and Considerations for Cybersecurity Risk Management", "url": "https://www.nist.gov/publications/incident-response-recommendations-and-considerations-cybersecurity-risk-management-csf", "publisher": "NIST", "lastVerified": "2026-07-27"},
+    {"title": "Cybersecurity Framework", "url": "https://www.nist.gov/cyberframework", "publisher": "NIST", "lastVerified": "2026-07-27"},
+    {"title": "OpenTelemetry Semantic Conventions", "url": "https://opentelemetry.io/docs/specs/semconv/", "publisher": "OpenTelemetry", "lastVerified": "2026-07-27"},
+    {"title": "Deployments", "url": "https://kubernetes.io/docs/concepts/workloads/controllers/deployment/", "publisher": "Kubernetes", "lastVerified": "2026-07-27"}
+  ]
 }
