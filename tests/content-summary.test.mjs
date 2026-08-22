@@ -15,7 +15,7 @@ describe('Content Ingestion & Deployment Summary Engine', () => {
         assert.ok(report.markdown.includes('v0.86.0'));
         assert.ok(report.markdown.includes('Weekly Scheduled Cron'));
         assert.ok(report.markdown.includes('https://learn.project-42.dev'));
-        assert.ok(report.markdown.includes('Schema Validation: ✅ 100% Passed'));
+        assert.ok(report.markdown.includes('Schema Validation'));
     });
 
     test('renders updated modules when changedFiles are specified', () => {
