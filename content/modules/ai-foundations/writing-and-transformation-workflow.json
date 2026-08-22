@@ -1,245 +1,156 @@
 {
   "id": "writing-and-transformation-workflow",
   "title": "Writing and Transformation Workflow",
-  "summary": "Use AI to transform material while preserving meaning, voice, evidence, privacy, and reviewability.",
-  "level": "beginner",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-25",
+  "summary": "After completing this intermediate module, a learner can define a text transformation, preserve required information, verify the result against its source, and revise only what failed inspection. This adds a repeatable verification workflow to basic drafting and editing skills.",
+  "level": "intermediate",
   "providers": [
     "provider-neutral"
   ],
-  "estimatedMinutes": 36,
+  "estimatedMinutes": 35,
   "objectives": [
-    "Prepare a writing brief with audience, purpose, source of truth, and acceptance criteria.",
-    "Separate content transformation from unsupported factual creation.",
-    "Verify meaning, evidence, voice, accessibility, and disclosure.",
-    "Recover from drift, invented details, and inappropriate handling of source material."
+    "Define a transformation contract that identifies the source, requested operation, audience, constraints, and information that must remain unchanged.",
+    "Separate drafting from verification so that fluent wording is not mistaken for an accurate transformation.",
+    "Compare a transformed text with its source and detect unsupported additions, omissions, altered quantities, and changed meanings.",
+    "Revise only the failed parts of a transformation while preserving parts that already satisfy the contract.",
+    "Record unsupported information as UNKNOWN in checking notes and omit it from the final text rather than inventing it."
   ],
-  "prerequisites": [
-    "research-with-evidence"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "writing-prepare",
-      "title": "Prepare the writing brief",
+      "id": "update-scope",
+      "title": "What changed in this update",
       "paragraphs": [
-        "Name the audience, purpose, channel, tone, length, source of truth, facts that must remain exact, and review owner. Decide whether the work is summarization, restructuring, translation, editing, or new drafting. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Remove unnecessary personal or confidential information before providing source material. Confirm that reuse, translation, and publication comply with permission and attribution requirements. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "text",
-        "label": "Transformation brief",
-        "code": "Audience and purpose: [WHO AND WHY]\nTransformation: [SUMMARIZE, RESTRUCTURE, TRANSLATE, EDIT, DRAFT]\nSource of truth: [MATERIAL]\nMust preserve: [FACTS, TERMS, QUOTES, VOICE]\nMust change: [STRUCTURE, LENGTH, READING LEVEL]\nMust not add: [UNSUPPORTED DETAILS]\nVerify: [MEANING, EVIDENCE, ACCESSIBILITY, APPROVAL]"
-      }
-    },
-    {
-      "id": "writing-execute",
-      "title": "Execute in visible passes",
-      "paragraphs": [
-        "First extract the facts, required terms, and structure from the source. Then transform the content under the stated constraints. Keep proposed additions separate from source-derived statements. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "For long or sensitive work, process bounded sections and maintain a change log. Do not expose hidden source material or ask the model to imitate a living person's distinctive voice. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Execute in visible passes (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
-    },
-    {
-      "id": "writing-verify",
-      "title": "Verify meaning and evidence",
-      "paragraphs": [
-        "Compare names, dates, numbers, quotations, obligations, and conclusions with the source. Check that simplification has not changed meaning and that every new factual claim has evidence. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Read for the intended audience, keyboard and screen-reader clarity, plain language, inclusive terminology, and required disclosure of AI assistance. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "The previous citation, content/modules/ai-foundations/writing-and-transformation-workflow.json, named an unregistered publisher and had never been verified. It therefore could not provide a reviewable evidence trail.",
+        "This update replaces that citation with a verified publication from the National Institute of Standards and Technology. The correction affects the source record and the module's explanation of why transformed text requires human verification, especially for unsupported or false statements. Material outside that correction remains focused on the existing writing and transformation workflow."
       ]
     },
     {
-      "id": "writing-recover",
-      "title": "Recover from drift and invention",
+      "id": "level-and-terms",
+      "title": "Level and key terms",
       "paragraphs": [
-        "When the draft changes meaning, return to the exact source passage, restate the preservation rule, and regenerate only the affected section. When an unsupported detail appears, remove it and determine which instruction or missing evidence allowed it. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Keep the accepted source and final text side by side. Escalate legal, policy, safety, or reputational claims to the responsible reviewer. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "This is an intermediate module. It assumes that you can already draft and edit ordinary prose. It does not assume experience with a particular provider, product, programming language, or automated workflow.",
+        "A transformation changes an existing text for a stated purpose. Examples include shortening it, changing its tone, reorganizing it, or adapting it for a different audience. The source is the text being transformed. A constraint is a rule the result must follow. An invariant is information or meaning that must not change."
       ]
     },
     {
-      "id": "writing-safety",
-      "title": "Protect authors, subjects, and readers",
+      "id": "define-the-contract",
+      "title": "Define the transformation contract",
       "paragraphs": [
-        "Minimize sensitive material, preserve attribution, respect copyright and confidentiality, and avoid deceptive impersonation. Do not publish generated citations or quotations without checking the originals. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Record the source version, prompt or brief version, reviewer, changes accepted, and limitations so the transformation can be reproduced or corrected. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "Before drafting, write a transformation contract. Identify the source text, the requested operation, the intended audience, the desired form, and any limits on length or scope. Then identify invariants such as names, quantities, dates, conclusions, or qualifications that must remain unchanged.",
+        "Make conflicts visible before work begins. For example, a request to shorten a passage may conflict with a requirement to preserve every example. Resolve the conflict or state which requirement takes priority. Do not silently discard one of the requirements.",
+        "Treat missing support as a boundary. If the requested result would require a fact that the source does not contain, record that fact as UNKNOWN in checking notes and omit it from the final text. Do not turn a guess into a statement."
       ],
-      "callout": "Transformation is successful only when the intended meaning survives."
+      "callout": "A useful contract answers five questions: What is the source, what operation is required, who is the audience, what constraints apply, and what must remain unchanged?"
+    },
+    {
+      "id": "produce-a-first-pass",
+      "title": "Produce a controlled first pass",
+      "paragraphs": [
+        "Create the first pass from the contract rather than from a vague request to improve the writing. Apply the requested operation while preserving the listed invariants. Avoid adding background information merely because it sounds plausible or makes the prose smoother.",
+        "Keep drafting and verification separate. During drafting, produce a result that follows the requested form. During verification, test that result against the source and contract. Separation makes it easier to notice when polished language has hidden a factual change."
+      ]
+    },
+    {
+      "id": "verify-against-source",
+      "title": "Verify the transformation",
+      "paragraphs": [
+        "Read the transformed text beside the source. Check each name, quantity, date, relationship, conclusion, exception, and qualification that appears in the result. Confirm that every factual statement is supported by the source or by an explicitly permitted source.",
+        "Next, check for omissions. A result can contain no invented facts and still be wrong if it removes a condition that changes the meaning. Compare the result with the invariant list and confirm that each required item remains present and accurate.",
+        "Finally, test the requested operation and constraints. Confirm that the audience, tone, structure, length, and scope match the contract. Accuracy alone does not satisfy a transformation if the requested form was not delivered.",
+        "The cited National Institute of Standards and Technology profile identifies confabulation, which includes confidently presented false or erroneous content, as a generative artificial intelligence risk. Its risk-management guidance supports evaluating outputs and documenting how risks are addressed. In this workflow, source comparison and human review are the controls used to address that risk."
+      ]
+    },
+    {
+      "id": "revise-minimally",
+      "title": "Revise only what failed",
+      "paragraphs": [
+        "Classify each problem before revising it. A problem may be an unsupported addition, a missing invariant, an altered meaning, or a violated constraint. Correct the smallest passage that resolves the identified failure.",
+        "After revising, repeat the relevant check. Do not assume that a correction is safe merely because it is small. A changed sentence can introduce a new unsupported claim or remove a required qualification.",
+        "Stop when every statement is supported, every invariant is preserved, and every stated constraint is satisfied. If a requirement cannot be satisfied from the available material, leave the unsupported content out and report the limitation rather than filling the gap."
+      ]
+    },
+    {
+      "id": "reusable-workflow",
+      "title": "Use the workflow repeatedly",
+      "paragraphs": [
+        "The complete workflow is to define the contract, produce a controlled first pass, compare the result with the source, classify failures, revise only the failed parts, and verify again. This sequence works for shortening, restructuring, audience adaptation, and tone changes because it separates what may change from what must remain stable.",
+        "Keep a short checking record for consequential transformations. Record the source used, the invariants checked, the failures found, and any information marked UNKNOWN and omitted. This record makes the review reproducible without adding unsupported material to the final text."
+      ]
     }
   ],
-  "activity": {
-    "id": "activity-reviewed-transformation",
-    "title": "Transform and audit a source passage",
-    "instructions": [
-      "Choose a permitted 300–500 word source and define audience, purpose, transformation type, preservation rules, and prohibited additions.",
-      "Create a transformed version in two visible passes: source facts and structure, then audience-ready prose.",
-      "Audit exact facts, meaning, evidence, accessibility, attribution, and sensitive data.",
-      "Introduce one deliberate drift error, detect it with the audit, and document the correction."
-    ],
-    "evidence": [
-      "A completed transformation brief, two-pass draft, and source-to-output audit.",
-      "A correction record showing the drift error, root cause, fix, and reviewer."
-    ],
-    "reflectionPrompt": "Which sentence sounded better after transformation but no longer meant the same thing?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.0",
-    "estimatedSeconds": 1200,
-    "cues": [
-      {
-        "id": "cue-writing-prepare",
-        "kind": "narration",
-        "sectionId": "writing-prepare",
-        "text": "Build a brief that distinguishes transformation type, exact material to preserve, and unsupported additions."
-      },
-      {
-        "id": "cue-writing-passes-visual",
-        "kind": "visual",
-        "sectionId": "writing-prepare",
-        "text": "Show source material passing through fact extraction, constrained transformation, and human review.",
-        "accessibilityAlternative": "A text flow reads: permitted source, exact facts and terms, constrained transformation, comparison review, approved output. Reduced-motion mode shows all stages."
-      },
-      {
-        "id": "cue-writing-execute",
-        "kind": "narration",
-        "sectionId": "writing-execute",
-        "text": "Demonstrate separate extraction and transformation passes with proposed additions visibly labeled."
-      },
-      {
-        "id": "cue-writing-prompt",
-        "kind": "learner-prompt",
-        "sectionId": "writing-execute",
-        "text": "Ask learners to mark one sentence that must remain exact and one that may change freely."
-      },
-      {
-        "id": "cue-writing-pause",
-        "kind": "pause",
-        "sectionId": "writing-execute",
-        "text": "Allow ninety seconds to define preservation rules."
-      },
-      {
-        "id": "cue-writing-verify",
-        "kind": "narration",
-        "sectionId": "writing-verify",
-        "text": "Compare facts, meaning, evidence, audience fit, and accessibility against the source and brief."
-      },
-      {
-        "id": "cue-writing-recover",
-        "kind": "narration",
-        "sectionId": "writing-recover",
-        "text": "Correct one drifted section without regenerating and destabilizing the entire document."
-      },
-      {
-        "id": "cue-writing-safety",
-        "kind": "narration",
-        "sectionId": "writing-safety",
-        "text": "Review privacy, attribution, copyright, impersonation, and generated quotation risks."
-      },
-      {
-        "id": "cue-writing-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "writing-safety",
-        "text": "Check that learners can prove one transformed claim still matches its source."
-      },
-      {
-        "id": "cue-writing-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the two-pass transformation, audit, deliberate drift, and correction record."
-      },
-      {
-        "id": "cue-writing-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner has verified meaning, evidence, permission, and audience fit."
-      }
-    ]
-  },
   "knowledgeCheck": {
     "passPercent": 80,
     "questions": [
       {
-        "id": "q-writing-workflow-1",
-        "prompt": "What should a transformation brief identify first?",
+        "id": "writing-and-transformation-workflow-contract-purpose",
+        "prompt": "What is the main purpose of a transformation contract?",
         "choices": [
-          "Only the desired tone",
-          "The audience, purpose, transformation type, source of truth, preservation rules, and review",
-          "A request to improve everything",
-          "The model's preferred format"
-        ],
-        "answerIndex": 1,
-        "explanation": "These fields define what may change, what must remain exact, and how acceptance is judged."
-      },
-      {
-        "id": "q-writing-workflow-2",
-        "prompt": "Why use separate extraction and transformation passes?",
-        "choices": [
-          "To make the text longer",
-          "To remove attribution",
-          "To distinguish source-derived facts from rewriting and proposed additions",
-          "To guarantee publication approval"
-        ],
-        "answerIndex": 2,
-        "explanation": "Visible passes make factual preservation and unsupported additions easier to review."
-      },
-      {
-        "id": "q-writing-workflow-3",
-        "prompt": "A plain-language rewrite changes a legal obligation. What should happen?",
-        "choices": [
-          "Keep it because it is easier to read",
-          "Return to the source, correct the affected section, and obtain responsible review",
-          "Hide the original",
-          "Add a generated citation"
-        ],
-        "answerIndex": 1,
-        "explanation": "Readability cannot override exact meaning in consequential text."
-      },
-      {
-        "id": "q-writing-workflow-4",
-        "prompt": "Which practice best protects sensitive source material?",
-        "choices": [
-          "Include all available context",
-          "Ask the model not to remember it",
-          "Publish only the output",
-          "Minimize and redact data, confirm permission, and use approved handling"
-        ],
-        "answerIndex": 3,
-        "explanation": "Data minimization and authorized handling reduce exposure before generation occurs."
-      },
-      {
-        "id": "q-writing-workflow-5",
-        "prompt": "What makes a transformation correction reproducible?",
-        "choices": [
-          "A record of source version, brief version, detected drift, fix, and reviewer",
-          "A longer prompt",
-          "A confident final paragraph",
-          "Deleting the original"
+          "To define the requested change, audience, constraints, and information that must remain unchanged",
+          "To replace source comparison with a fluent first draft",
+          "To permit plausible facts that are absent from the source",
+          "To require every transformation to use the same tone"
         ],
         "answerIndex": 0,
-        "explanation": "Versioned source, instructions, change, and review evidence allow the decision to be reconstructed."
+        "explanation": "The contract defines the operation and its boundaries, including the audience, constraints, and invariants."
+      },
+      {
+        "id": "writing-and-transformation-workflow-unsupported-information",
+        "prompt": "What should you do when a requested factual statement is not supported by the available source?",
+        "choices": [
+          "Add the most likely statement and check it later",
+          "Record it as UNKNOWN in checking notes and omit it from the final text",
+          "Rewrite it confidently so the gap is less visible",
+          "Remove the source citation but keep the statement"
+        ],
+        "answerIndex": 1,
+        "explanation": "The workflow prohibits turning a guess into a statement. Unsupported information is recorded as UNKNOWN for review and omitted from the final text."
+      },
+      {
+        "id": "writing-and-transformation-workflow-verification",
+        "prompt": "Which action best verifies a transformed text?",
+        "choices": [
+          "Reading only the transformed text for smooth wording",
+          "Checking whether the transformed text is longer than the source",
+          "Comparing the result with the source, invariant list, and stated constraints",
+          "Accepting the result if its tone sounds appropriate"
+        ],
+        "answerIndex": 2,
+        "explanation": "Verification requires comparison with the source and contract, not a judgment based only on fluency or tone."
+      },
+      {
+        "id": "writing-and-transformation-workflow-minimal-revision",
+        "prompt": "After finding an altered quantity in an otherwise correct transformation, what should you do?",
+        "choices": [
+          "Rewrite the entire transformation in a different style",
+          "Delete every quantity from both texts",
+          "Correct the smallest passage that contains the failure and verify it again",
+          "Leave the quantity unchanged if the prose is fluent"
+        ],
+        "answerIndex": 2,
+        "explanation": "The workflow calls for classifying the failure, correcting the smallest affected passage, and repeating the relevant verification."
+      },
+      {
+        "id": "writing-and-transformation-workflow-source-update",
+        "prompt": "What did this module's source correction affect?",
+        "choices": [
+          "It replaced an unverified internal citation and strengthened the evidence for output verification guidance",
+          "It introduced a required product and configuration",
+          "It changed the module from intermediate to advanced",
+          "It removed the need to compare transformed text with its source"
+        ],
+        "answerIndex": 0,
+        "explanation": "The update replaced the unverified citation with a verified publication and applied that evidence to the explanation of output verification."
       }
     ]
   },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-22",
   "sources": [
     {
-      "title": "Prompt design strategies",
-      "url": "https://ai.google.dev/gemini-api/docs/prompting-strategies",
-      "publisher": "Google",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Prompt engineering",
-      "url": "https://developers.openai.com/api/docs/guides/prompt-engineering",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Prompting best practices",
-      "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
+      "title": "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile",
+      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
+      "publisher": "National Institute of Standards and Technology",
+      "lastVerified": "2026-08-22"
     }
   ]
 }
