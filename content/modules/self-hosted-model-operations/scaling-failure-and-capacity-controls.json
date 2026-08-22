@@ -1,313 +1,140 @@
 {
   "id": "scaling-failure-and-capacity-controls",
-  "title": "Scaling, Failure, and Capacity Controls",
-  "summary": "Scale self-hosted inference from measured demand while preserving quality, admission, failure isolation, availability, cost, and recovery evidence.",
-  "level": "advanced",
-  "reviewCadenceDays": 60,
-  "lastVerified": "2026-07-27",
+  "title": "Scaling Failure and Capacity Controls",
+  "summary": "This intermediate module enables learners to diagnose how overload can become a cascading failure and select capacity controls that protect useful work. After completing it, learners can distinguish admission control, bounded queues, load shedding, graceful degradation, and retry control, then combine them into a defensible overload response.",
+  "level": "intermediate",
   "providers": [
     "provider-neutral"
   ],
-  "estimatedMinutes": 58,
+  "estimatedMinutes": 25,
   "objectives": [
-    "Choose vertical, replica, sharded, queued, cached, and routed scaling patterns from measured bottlenecks and failure domains.",
-    "Design admission, backpressure, load shedding, retry, timeout, circuit, and degraded-mode behavior before adding capacity.",
-    "Validate placement, warm-up, draining, autoscaling, shared-resource contention, and failure isolation.",
-    "Issue a scale decision with service, quality, cost, recovery, and rollback gates."
+    "Explain how overload, rising latency, retries, and resource exhaustion can reinforce one another.",
+    "Identify whether admission control, a bounded queue, load shedding, graceful degradation, or retry control addresses a given overload symptom.",
+    "Design a provider-neutral overload response that preserves capacity for selected useful work.",
+    "Evaluate capacity controls by observing latency, errors, queue growth, rejected work, and completed useful work."
   ],
-  "prerequisites": [
-    "observability-cost-and-performance"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "scale-the-bottleneck",
-      "title": "Scale the measured bottleneck, not the diagram",
+      "id": "update-note",
+      "title": "Source correction",
       "paragraphs": [
-        "Use latency distributions, queue time, utilization, memory headroom, bandwidth, cache behavior, request sizes, concurrency, rejection, and cost to identify the limiting resource. Decide whether to use a larger device or host, more replicas, model or tensor parallelism, request batching, a queue, caching, routing by workload, or a smaller evaluated model. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Each option changes failure domains, startup, consistency, quality, latency, utilization, cost, and operating complexity. Scaling compute cannot fix an unbounded queue, slow artifact store, identity outage, bad prompt template, incompatible runtime, or quality regression. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Scale the measured bottleneck, not the diagram (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "The cited source that changed was content/modules/self-hosted-model-operations/scaling-failure-and-capacity-controls.json. It was an unregistered publisher source and had never been verified.",
+        "This correction replaces that citation with two public HTTPS chapters from the Site Reliability Engineering book: Handling Overload and Addressing Cascading Failures. The change affects the source records and the source-dependent explanations of overload, queue management, load shedding, graceful degradation, and retry behavior. No unrelated subject matter is added."
+      ]
     },
     {
-      "id": "control-admission-and-backpressure",
-      "title": "Control admission and backpressure",
+      "id": "level-and-foundations",
+      "title": "Level and foundations",
       "paragraphs": [
-        "Set request body, context, output, concurrency, rate, queue, deadline, and resource limits by workload and priority. Reject early with stable retry guidance when work cannot complete inside its deadline or budget. Propagate cancellation and deadlines through gateway, queue, server, runtime, and dependent tools. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Use bounded retries with jitter only for classified transient failures and only when the request is safe to repeat. Apply circuit breaking and load shedding before saturation cascades across replicas or dependencies. Define degraded modes that remain safe, such as reduced limits, lower-priority rejection, or routing to a separately evaluated fallback. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Control admission and backpressure (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "This is an intermediate-level module. It assumes basic familiarity with requests, latency, error rates, and queues, but it does not assume experience with a particular provider or operational tool.",
+        "Capacity is the amount of work a service can complete while meeting its intended performance and reliability goals. Demand becomes overload when incoming work exceeds the service's available capacity. Scaling failure occurs when the system cannot add or preserve effective capacity quickly enough to handle that demand."
+      ]
     },
     {
-      "id": "place-and-warm-capacity",
-      "title": "Place, warm, drain, and replace capacity deliberately",
+      "id": "from-overload-to-cascade",
+      "title": "From overload to cascading failure",
       "paragraphs": [
-        "Schedule against real device, memory, topology, storage, network, and driver requirements. Kubernetes resource requests influence placement and limits bound use; extended devices cannot be overcommitted in the same way as fractional CPU. Verify the actual scheduler, device plugin, topology, and runtime behavior in the target environment. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Account for artifact download, verification, model load, compilation, cache warm-up, and readiness before adding a replica to service. On removal or update, stop new work, drain bounded in-flight requests, preserve telemetry, and revoke the route before reclaiming resources. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Place, warm, drain, and replace capacity deliberately (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "Overload can form a reinforcing cycle. As available resources become saturated, requests take longer to complete. More work remains in progress or waits in queues, consuming additional resources. Clients may retry failed or slow requests, adding demand while the service is least able to absorb it.",
+        "A cascading failure occurs when overload in one component contributes to overload or failure elsewhere. Merely accepting every request does not guarantee useful progress. Protecting the system requires limiting admitted work and preserving enough capacity to complete selected requests."
+      ]
     },
     {
-      "id": "test-failure-isolation",
-      "title": "Test shared-resource and failure isolation",
+      "id": "capacity-controls",
+      "title": "Capacity controls",
       "paragraphs": [
-        "Inject process crash, out-of-memory termination, device loss, host loss, storage delay, network partition, identity failure, telemetry failure, registry outage, queue pressure, malformed work, and a bad model release. Observe which requests, replicas, nodes, sites, and management functions are affected. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Confirm that health and readiness remove unsafe capacity, retries do not amplify load, queues remain bounded, one workload cannot starve another, exact model identity is preserved, and recovery does not accept stale or unverified artifacts. Multiple replicas are useful only when their shared dependencies and placement match the availability claim. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Test shared-resource and failure isolation (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "Admission control decides whether new work may enter based on available capacity or an explicit limit. Rejecting excess work early can be safer than accepting work that will wait until it times out or consumes resources without completing.",
+        "A bounded queue limits how much work may wait. Once the queue reaches its bound, additional work is rejected or shed according to a defined policy. A bound prevents waiting work from growing without limit and makes overload behavior more predictable.",
+        "Load shedding deliberately rejects some work when capacity is exhausted. A useful shedding policy preserves higher-priority or more critical work rather than treating all requests as equally important.",
+        "Graceful degradation reduces the cost or scope of work while retaining a useful result. This differs from scaling because it lowers demand on constrained resources instead of adding capacity.",
+        "Retry control limits the extra demand caused by repeated attempts. Retries should not be treated as free because every attempt consumes capacity. When failures are caused by overload, unrestricted retries can intensify the condition."
+      ]
     },
     {
-      "id": "gate-autoscaling-and-change",
-      "title": "Gate autoscaling and scale changes",
+      "id": "selecting-controls",
+      "title": "Selecting and combining controls",
       "paragraphs": [
-        "Choose scale signals that lead demand without reacting to noise: queue delay, concurrency, work units, saturation, or a tested combination. CPU or accelerator utilization alone may lag queue growth or encourage thrashing. Set minimum safe capacity, maximum cost and quota, stabilization windows, warm-up allowance, scale-down drain, and alerting. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Compare scale policy against representative steady, burst, ramp, skewed, and failure traffic. Approve only when objectives, quality, resource isolation, cost, startup, recovery, and rollback gates pass. Preserve the prior policy and capacity floor for rapid reversal. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Gate autoscaling and scale changes (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "Choose a control by matching it to the failure mechanism. Use admission control when too much work enters the system, a bounded queue when waiting work accumulates, load shedding when only part of the demand can be served, graceful degradation when cheaper work can still provide value, and retry control when repeated attempts amplify demand.",
+        "These controls are complementary. A service can restrict admission, keep its queue bounded, preserve critical requests through load shedding, offer a reduced response through graceful degradation, and limit retries at the same time.",
+        "A sound policy defines which work is preserved and which work may be rejected before an incident occurs. Without that decision, an overloaded service may spend scarce capacity on low-value work while critical work fails."
+      ]
+    },
+    {
+      "id": "evaluation",
+      "title": "Evaluating the response",
+      "paragraphs": [
+        "Evaluate controls under representative overload conditions rather than considering request acceptance alone. Observe latency, error rates, queue growth, rejected work, and completed useful work. Rejection can be an intended protective outcome when it prevents a larger failure and allows selected requests to finish.",
+        "A successful response keeps resource use and queues within deliberate limits, avoids retry amplification, and preserves the categories of work the policy identifies as most important. If latency and queue depth continue to rise while useful completions fall, the controls are not containing overload."
+      ]
     }
   ],
-  "activity": {
-    "id": "activity-scaling-failure-plan",
-    "title": "Design and challenge a scaling policy",
-    "instructions": [
-      "Use a synthetic load result to identify one measured bottleneck and compare vertical, replica, sharded, batched, queued, cached, routed, and smaller-model options.",
-      "Define per-workload admission, queue, deadline, retry, cancellation, circuit, shedding, and degraded-mode behavior.",
-      "Write placement, artifact warm-up, readiness, draining, replacement, minimum capacity, maximum cost, and stabilization rules.",
-      "Create ten process, device, host, dependency, pressure, and bad-release failure cases with expected blast radius and recovery.",
-      "Compare the candidate scale policy to a baseline under steady, burst, ramp, skewed, and failure traffic, then issue a reversible decision."
-    ],
-    "evidence": [
-      "A bottleneck-to-pattern comparison with quality, latency, failure, cost, and complexity impacts.",
-      "An admission, backpressure, placement, warm-up, drain, autoscale, and degraded-mode policy.",
-      "A failure-isolation report and baseline-candidate scale decision with objectives, cost, recovery, and rollback gates."
-    ],
-    "reflectionPrompt": "Which autoscaling signal would arrive too late for your workload, and what leading signal should accompany it?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 1680,
-    "cues": [
-      {
-        "id": "cue-scaling-bottleneck",
-        "kind": "narration",
-        "sectionId": "scale-the-bottleneck",
-        "text": "Identify the measured bottleneck before choosing vertical, replica, sharded, batched, queued, cached, routed, or smaller-model scaling."
-      },
-      {
-        "id": "cue-scaling-visual",
-        "kind": "visual",
-        "sectionId": "scale-the-bottleneck",
-        "text": "Compare scaling patterns across bottleneck, latency, quality, utilization, failure domains, startup, cost, and complexity.",
-        "accessibilityAlternative": "A static comparison table maps each scaling pattern to the bottleneck it addresses and the new risks it introduces."
-      },
-      {
-        "id": "cue-scaling-admission",
-        "kind": "narration",
-        "sectionId": "control-admission-and-backpressure",
-        "text": "Bound admission, queues, deadlines, cancellation, retries, circuits, shedding, and degraded modes before saturation."
-      },
-      {
-        "id": "cue-scaling-placement",
-        "kind": "narration",
-        "sectionId": "place-and-warm-capacity",
-        "text": "Place capacity on verified resources, complete artifact verification and warm-up before readiness, and drain safely before removal."
-      },
-      {
-        "id": "cue-scaling-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "control-admission-and-backpressure",
-        "text": "Ask how unbounded retries can turn a small overload into a cascading failure."
-      },
-      {
-        "id": "cue-scaling-failures",
-        "kind": "narration",
-        "sectionId": "test-failure-isolation",
-        "text": "Inject process, device, host, storage, network, identity, telemetry, queue, and bad-release failures and measure blast radius."
-      },
-      {
-        "id": "cue-scaling-policy",
-        "kind": "narration",
-        "sectionId": "gate-autoscaling-and-change",
-        "text": "Gate scale signals, floors, ceilings, stabilization, cost, warm-up, drain, objectives, recovery, and rollback under representative traffic."
-      },
-      {
-        "id": "cue-scaling-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the bottleneck analysis, control policy, failure matrix, traffic comparison, scale decision, and reversal plan."
-      },
-      {
-        "id": "cue-scaling-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can defend scaling patterns, backpressure, placement, isolation, autoscaling, and rollback."
-      }
-    ],
-    "transcript": "Identify the measured bottleneck before choosing vertical, replica, sharded, batched, queued, cached, routed, or smaller-model scaling. Every pattern changes latency, quality, utilization, failure domains, startup, cost, and complexity. Bound admission, queues, deadlines, cancellation, retries, circuits, shedding, and degraded modes before saturation. Reject work that cannot finish safely rather than allowing an unbounded queue. Place capacity on verified resources, complete artifact verification and warm-up before readiness, and drain safely before removal. A scheduled process is not useful capacity until the exact model is ready. Inject process, device, host, storage, network, identity, telemetry, queue, and bad-release failures and measure blast radius. Verify that retries, shared dependencies, and placement do not defeat redundancy. Gate scale signals, floors, ceilings, stabilization, cost, warm-up, drain, objectives, recovery, and rollback under representative traffic. Preserve the prior policy and a safe capacity floor so the change can be reversed.",
-    "captions": [
-      {
-        "cueId": "cue-scaling-bottleneck",
-        "startSeconds": 0,
-        "endSeconds": 300,
-        "text": "Identify the measured bottleneck before choosing vertical, replica, sharded, batched, queued, cached, routed, or smaller-model scaling."
-      },
-      {
-        "cueId": "cue-scaling-admission",
-        "startSeconds": 300,
-        "endSeconds": 600,
-        "text": "Bound admission, queues, deadlines, cancellation, retries, circuits, shedding, and degraded modes before saturation."
-      },
-      {
-        "cueId": "cue-scaling-placement",
-        "startSeconds": 600,
-        "endSeconds": 900,
-        "text": "Place capacity on verified resources, complete artifact verification and warm-up before readiness, and drain safely before removal."
-      },
-      {
-        "cueId": "cue-scaling-failures",
-        "startSeconds": 900,
-        "endSeconds": 1200,
-        "text": "Inject process, device, host, storage, network, identity, telemetry, queue, and bad-release failures and measure blast radius."
-      },
-      {
-        "cueId": "cue-scaling-policy",
-        "startSeconds": 1200,
-        "endSeconds": 1470,
-        "text": "Gate scale signals, floors, ceilings, stabilization, cost, warm-up, drain, objectives, recovery, and rollback under representative traffic."
-      },
-      {
-        "cueId": "cue-scaling-activity",
-        "startSeconds": 1470,
-        "endSeconds": 1650,
-        "text": "Guide the bottleneck analysis, control policy, failure matrix, traffic comparison, scale decision, and reversal plan."
-      },
-      {
-        "cueId": "cue-scaling-assessment",
-        "startSeconds": 1650,
-        "endSeconds": 1680,
-        "text": "Begin the check after the learner can defend scaling patterns, backpressure, placement, isolation, autoscaling, and rollback."
-      }
-    ],
-    "reducedMotionAlternative": "Use static bottleneck, scaling-pattern, admission, placement, failure-domain, traffic, and scale-decision tables. Show state transitions as numbered text."
-  },
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 75,
     "questions": [
       {
-        "id": "q-scaling-controls-1",
-        "prompt": "What should drive selection of a scaling pattern?",
+        "id": "scaling-failure-and-capacity-controls-overload-cycle",
+        "prompt": "Which sequence best describes the reinforcing overload cycle presented in this module?",
         "choices": [
-          "A measured bottleneck and service evidence",
-          "The most complex topology",
-          "A vendor diagram",
-          "Replica count alone"
+          "Longer request times increase waiting or in-progress work, and retries add more demand.",
+          "Early rejection always increases queue size, which creates more capacity.",
+          "Graceful degradation adds resources until every request receives the full result.",
+          "A bounded queue accepts unlimited waiting work while reducing latency."
         ],
         "answerIndex": 0,
-        "explanation": "Scaling should address the limiting resource without hiding other failures."
+        "explanation": "The module explains that saturation can increase request duration and accumulated work, while retries add demand during the overload."
       },
       {
-        "id": "q-scaling-controls-2",
-        "prompt": "What is backpressure?",
+        "id": "scaling-failure-and-capacity-controls-bounded-queue",
+        "prompt": "What is the primary purpose of a bounded queue during overload?",
         "choices": [
-          "Adding unlimited work",
-          "A model prompt",
-          "Controls that bound or slow admitted work when downstream capacity is constrained",
-          "Deleting queues"
-        ],
-        "answerIndex": 2,
-        "explanation": "Backpressure prevents upstream demand from overwhelming constrained components."
-      },
-      {
-        "id": "q-scaling-controls-3",
-        "prompt": "When is a new replica ready?",
-        "choices": [
-          "When scheduled",
-          "After exact artifact verification, load, warm-up, and readiness checks pass",
-          "When its port opens",
-          "Before the model loads"
+          "To guarantee that every request is eventually accepted",
+          "To prevent waiting work from growing without limit",
+          "To make every request equally critical",
+          "To replace all admission and retry controls"
         ],
         "answerIndex": 1,
-        "explanation": "Useful capacity must be able to serve the intended verified model contract."
+        "explanation": "A bounded queue caps waiting work and rejects or sheds additional work after reaching that bound."
       },
       {
-        "id": "q-scaling-controls-4",
-        "prompt": "Why can retries worsen an outage?",
+        "id": "scaling-failure-and-capacity-controls-retry-response",
+        "prompt": "A service is overloaded, and repeated attempts are adding substantial demand. Which control directly addresses that amplification?",
         "choices": [
-          "They reduce demand",
-          "They remove queues",
-          "They change licenses",
-          "Unbounded or unsafe retries multiply load and side effects during failure"
-        ],
-        "answerIndex": 3,
-        "explanation": "Retry amplification can turn partial failure into cascading overload."
-      },
-      {
-        "id": "q-scaling-controls-5",
-        "prompt": "What should a failure-isolation test measure?",
-        "choices": [
-          "Blast radius, removal from service, load amplification, state, identity, and recovery",
-          "Only restart count",
-          "Only average latency",
-          "Only cost"
+          "Retry control",
+          "An unbounded queue",
+          "Accepting every request",
+          "Removing request priorities"
         ],
         "answerIndex": 0,
-        "explanation": "Isolation claims require observed impact and controlled recovery."
+        "explanation": "Retry control directly limits the additional demand created by repeated attempts."
       },
       {
-        "id": "q-scaling-controls-6",
-        "prompt": "What makes an autoscaling policy reversible?",
+        "id": "scaling-failure-and-capacity-controls-protective-rejection",
+        "prompt": "When can rejecting work be an intended protective outcome?",
         "choices": [
-          "No limits",
-          "A preserved prior policy, safe floor, tested rollback, and exact change evidence",
-          "Deleting baseline data",
-          "Scaling on one noisy sample"
+          "When rejection prevents a larger failure and preserves capacity for selected useful work",
+          "Only when no request categories have different priorities",
+          "Whenever the queue has no defined bound",
+          "When retries are unrestricted"
         ],
-        "answerIndex": 1,
-        "explanation": "A retained verified baseline and tested rollback support rapid reversal."
+        "answerIndex": 0,
+        "explanation": "The module states that deliberate rejection can protect the service and allow selected requests to complete."
       }
     ]
   },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-22",
   "sources": [
     {
-      "title": "Horizontal Pod Autoscaling",
-      "url": "https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/",
-      "publisher": "Kubernetes",
-      "lastVerified": "2026-07-27"
+      "title": "Site Reliability Engineering: Handling Overload",
+      "url": "https://sre.google/sre-book/handling-overload/",
+      "publisher": "Google",
+      "lastVerified": "2026-08-22"
     },
     {
-      "title": "Resource Management for Pods and Containers",
-      "url": "https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
-      "publisher": "Kubernetes",
-      "lastVerified": "2026-07-27"
-    },
-    {
-      "title": "Resource constraints",
-      "url": "https://docs.docker.com/engine/containers/resource_constraints/",
-      "publisher": "Docker",
-      "lastVerified": "2026-07-27"
-    },
-    {
-      "title": "MLPerf Inference: Datacenter",
-      "url": "https://mlcommons.org/benchmarks/inference-datacenter/",
-      "publisher": "MLCommons",
-      "lastVerified": "2026-07-27"
+      "title": "Site Reliability Engineering: Addressing Cascading Failures",
+      "url": "https://sre.google/sre-book/addressing-cascading-failures/",
+      "publisher": "Google",
+      "lastVerified": "2026-08-22"
     }
   ]
 }
