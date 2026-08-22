@@ -4,6 +4,73 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.86.0] - 2026-08-22
+
+### Changed
+
+- `content/modules/agentic-ai-literacy/agentic-ai-layers.json`
+- `content/modules/agentic-ai-literacy/agentic-classification-capstone.json`
+- `content/modules/agentic-ai-literacy/agentic-control-flow.json`
+- `content/modules/agentic-ai-literacy/agentic-product-comparison.json`
+- `content/modules/agentic-ai-literacy/agentic-tools-state-authority.json`
+- `content/modules/ai-foundations/agents-and-guardrails.json`
+- `content/modules/ai-foundations/ai-foundations-capstone.json`
+- `content/modules/ai-foundations/ai-systems-and-use-cases.json`
+- `content/modules/ai-foundations/coding-and-analysis-workflow.json`
+- `content/modules/ai-foundations/context-and-evidence-construction.json`
+- `content/modules/ai-foundations/context-tokens-and-modalities.json`
+- `content/modules/ai-foundations/examples-and-output-contracts.json`
+- `content/modules/ai-foundations/language-models-and-generation.json`
+- `content/modules/ai-foundations/privacy-safety-and-responsibility.json`
+- `content/modules/ai-foundations/prompt-anatomy-and-success-criteria.json`
+- `content/modules/ai-foundations/prompt-with-purpose.json`
+- `content/modules/ai-foundations/research-with-evidence.json`
+- `content/modules/ai-foundations/safe-tool-use-workflow.json`
+- `content/modules/ai-foundations/verification-and-iterative-improvement.json`
+- `content/modules/ai-foundations/writing-and-transformation-workflow.json`
+- `content/modules/anthropic-claude-practice/anthropic-ecosystem-and-interfaces.json`
+- `content/modules/anthropic-claude-practice/claude-api-and-sdk-workflows.json`
+- `content/modules/anthropic-claude-practice/claude-evaluation-and-observability.json`
+- `content/modules/anthropic-claude-practice/claude-prompting-in-practice.json`
+- `content/modules/anthropic-claude-practice/claude-safety-and-trust-boundaries.json`
+- `content/modules/anthropic-claude-practice/claude-tools-and-agent-loops.json`
+- `content/modules/anthropic-claude-practice/migrating-to-and-from-claude.json`
+- `content/modules/google-gemini-practice/gemini-api-and-sdk-workflows.json`
+- `content/modules/google-gemini-practice/gemini-ecosystem-and-interfaces.json`
+- `content/modules/google-gemini-practice/gemini-evaluation-and-observability.json`
+- `content/modules/google-gemini-practice/gemini-prompting-in-practice.json`
+- `content/modules/google-gemini-practice/gemini-safety-and-trust-boundaries.json`
+- `content/modules/google-gemini-practice/gemini-tools-and-agent-loops.json`
+- `content/modules/google-gemini-practice/migrating-to-and-from-gemini.json`
+- `content/modules/openai-practice/migrating-to-and-from-openai.json`
+- `content/modules/openai-practice/openai-ecosystem-and-interfaces.json`
+- `content/modules/openai-practice/openai-evaluation-and-observability.json`
+- `content/modules/openai-practice/openai-prompting-in-practice.json`
+- `content/modules/openai-practice/openai-responses-api-and-sdk-workflows.json`
+- `content/modules/openai-practice/openai-safety-and-trust-boundaries.json`
+- `content/modules/openai-practice/openai-tools-and-codex-agent-loops.json`
+- `content/modules/reliable-agent-workflows/agent-evaluation.json`
+- `content/modules/reliable-agent-workflows/agent-observability.json`
+- `content/modules/reliable-agent-workflows/context-engineering.json`
+- `content/modules/reliable-agent-workflows/mcp-architecture.json`
+- `content/modules/reliable-agent-workflows/mcp-trust-and-security.json`
+- `content/modules/reliable-agent-workflows/memory-boundaries.json`
+- `content/modules/reliable-agent-workflows/multi-agent-handoffs.json`
+- `content/modules/reliable-agent-workflows/orchestration-patterns.json`
+- `content/modules/reliable-agent-workflows/reliable-agent-capstone.json`
+- `content/modules/self-hosted-model-operations/deployment-shape-and-operating-model.json`
+- `content/modules/self-hosted-model-operations/endpoint-identity-network-and-secrets.json`
+- `content/modules/self-hosted-model-operations/evaluate-the-exact-serving-build.json`
+- `content/modules/self-hosted-model-operations/hardware-runtime-and-capacity-planning.json`
+- `content/modules/self-hosted-model-operations/model-artifact-integrity.json`
+- `content/modules/self-hosted-model-operations/model-identity-license-and-provenance.json`
+- `content/modules/self-hosted-model-operations/model-incident-response-and-recovery.json`
+- `content/modules/self-hosted-model-operations/model-update-and-rollback-lifecycle.json`
+- `content/modules/self-hosted-model-operations/observability-cost-and-performance.json`
+- `content/modules/self-hosted-model-operations/scaling-failure-and-capacity-controls.json`
+- `content/modules/self-hosted-model-operations/self-hosted-model-operations-capstone.json`
+- `content/modules/self-hosted-model-operations/serving-api-and-compatibility-contracts.json`
+
 ## [0.83.0] - 2026-08-21
 
 ### Changed
