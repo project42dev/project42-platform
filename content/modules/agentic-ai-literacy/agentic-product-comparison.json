@@ -1,228 +1,150 @@
 {
   "id": "agentic-product-comparison",
-  "title": "Compare Exact Product Experiences",
-  "summary": "Use dated first-party evidence to compare model endpoints, assistants, developer agents, frameworks, and managed agent services.",
+  "title": "Comparing Agentic AI Products with Evidence",
+  "summary": "After completing this intermediate module, learners can design and apply a provider-neutral comparison of agentic AI products using shared tasks, risk-based criteria, and documented evidence. They can distinguish product claims from observed test results and explain a defensible selection.",
   "level": "intermediate",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-27",
   "providers": [
     "provider-neutral"
   ],
-  "estimatedMinutes": 45,
+  "estimatedMinutes": 25,
   "objectives": [
-    "Compare exact experiences without ranking entire providers.",
-    "Use documented, tested, inference, and unknown evidence correctly.",
-    "Separate model capability from harness behavior within a provider family.",
-    "Apply observation and review dates to volatile claims."
+    "Define a common use case and success criteria for comparing agentic AI products.",
+    "Evaluate candidates using task performance, action control, human oversight, traceability, robustness, and resource-use criteria.",
+    "Separate documented product claims from results observed during testing.",
+    "Apply minimum acceptance gates before calculating an overall comparison result.",
+    "Explain a product selection by connecting evidence to the intended use and its risks."
   ],
-  "prerequisites": [
-    "agentic-tools-state-authority"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "comparison-unit",
-      "title": "The comparison unit is the configured experience",
+      "id": "currency-correction",
+      "title": "Currency correction",
       "paragraphs": [
-        "Compare the surface a learner can actually use: model endpoint, consumer product, developer tool, framework application, managed service, or composed system. Record the version, date, tools, permissions, state, and runtime. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "The same provider can supply both a model and an agentic product. Those are not contradictory classifications because they describe different boundaries. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "The previously cited source, content/modules/agentic-ai-literacy/agentic-product-comparison.json, was an unregistered local publisher path and had never been verified. It was removed and replaced with the official risk-management source listed at the end of this module.",
+        "This source change affects the evidentiary basis for the comparison method. The updated method connects evaluation to intended context, measurement, risk treatment, and governance. Any product-specific conclusion attributed only to the previous source is UNKNOWN and is omitted rather than repeated. No named product, provider ranking, version-specific conclusion, or configuration advice is introduced by this correction."
       ],
-      "code": {
-        "language": "json",
-        "label": "The comparison unit is the configured experience (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+      "callout": "A source path inside a content repository is not independent evidence for the claims made by that same content."
     },
     {
-      "id": "comparison-evidence",
-      "title": "Keep evidence kinds separate",
+      "id": "level-and-scope",
+      "title": "Level and scope",
       "paragraphs": [
-        "Documented means a current first-party source directly describes a contract or behavior. Tested means a controlled run of the exact version and configuration produced retained evidence. Inference is a cited conclusion. Unknown is unresolved. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Documentation about a feature is not proof that a particular account, mode, or run used it. A live test does not establish future behavior after versions or configuration change. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Keep evidence kinds separate (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "This is an intermediate module. It assumes that you can describe an AI task, identify an expected result, and write a basic pass-or-fail test. It does not assume knowledge of any named provider or product.",
+        "For this module, an agentic product is evaluated as a system that can pursue a goal through multiple steps and actions rather than producing only one isolated response. The comparison therefore examines both the final result and how actions are selected, constrained, recorded, and reviewed.",
+        "The official risk-management source organizes AI risk work around governing, mapping, measuring, and managing. A product comparison can follow the same logic: establish responsibilities, describe the intended context, gather measurements, and decide how identified risks will be handled."
+      ]
     },
     {
-      "id": "comparison-families",
-      "title": "Use model-versus-harness pairs",
+      "id": "define-common-test",
+      "title": "Define a common test",
       "paragraphs": [
-        "Pairs make boundaries visible: Claude API and Claude Code; an OpenAI model and Codex; MAI model endpoints and Foundry Agent Service; Gemini API and an ADK application; Kimi or DeepSeek tool-call APIs and the client loops around them. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "For xAI and consumer assistants, qualify the exact mode and enabled connectors. For open-weight deployments, separate access to model artifacts from the agent framework and executor. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Use model-versus-harness pairs (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "Begin with one intended use rather than a broad question about which candidate is best. Describe the user, goal, permitted inputs, permitted actions, prohibited actions, expected output, review process, and consequences of failure. A candidate that fits one use may not fit another.",
+        "Give every candidate equivalent tasks, information, permissions, time limits, and success criteria. If conditions differ, record the difference and do not treat the results as a direct comparison.",
+        "Create several representative cases, including an ordinary case, an ambiguous case, and a case in which the system should stop or request human review. Define the expected behavior before running the tests. This reduces the temptation to change the standard after seeing a preferred result."
+      ]
     },
     {
-      "id": "comparison-freshness",
-      "title": "Volatile claims expire",
+      "id": "comparison-criteria",
+      "title": "Use agentic comparison criteria",
       "paragraphs": [
-        "Every product claim needs an observation date, review date, source owner, affected content, and a rule for downgrade or removal. Recheck sooner after a rename, runtime release, permission change, incident, or documentation revision. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "When a source becomes stale or contradictory, block publication, preserve the old evidence for audit, and mark the current conclusion unknown until reviewed. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Volatile claims expire (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "Task performance asks whether the candidate reaches the defined goal and whether its result satisfies the prewritten success criteria. Record both successful and unsuccessful cases rather than reporting only a favorable example.",
+        "Action control asks whether the candidate stays within permitted actions, respects prohibited actions, and pauses when required information or authority is missing. Human oversight asks whether a reviewer can interrupt, approve, reject, or correct consequential actions at the required points.",
+        "Traceability asks whether the available record lets a reviewer reconstruct important inputs, actions, outputs, approvals, and failures. Robustness asks whether performance remains acceptable when instructions are incomplete, inputs vary, or an action fails.",
+        "Resource use asks what the comparison consumes under the same test conditions. Record only units that can be observed consistently across candidates. Do not invent missing cost, time, or usage figures, and do not combine unlike units as if they were equivalent."
+      ]
+    },
+    {
+      "id": "evidence-and-gates",
+      "title": "Separate evidence and apply gates",
+      "paragraphs": [
+        "Maintain separate records for documented claims and observed results. A documented claim reports what a source says the candidate can do. An observed result reports what happened in the defined test. A claim is not automatically a test result, and one successful run does not establish reliable performance.",
+        "Record each test case, expected behavior, observed behavior, pass-or-fail result, evidence location, and reviewer note. When evidence is missing or cannot be compared fairly, mark that criterion UNKNOWN and omit it from any asserted conclusion.",
+        "Set acceptance gates before assigning preferences. A gate is a condition that must be satisfied regardless of strengths elsewhere. For example, if the intended use requires human approval before a consequential action, a candidate that cannot satisfy that requirement fails the gate. A high result on another criterion must not cancel the failure.",
+        "After applying gates, compare the remaining candidates using criteria tied to the intended use. Explain the selection in terms of the evidence, limitations, and unresolved unknowns. Avoid claiming that the selected candidate is universally best."
+      ]
+    },
+    {
+      "id": "repeatable-workflow",
+      "title": "Follow a repeatable workflow",
+      "paragraphs": [
+        "First, map the intended use, affected people, permissions, failure consequences, and oversight needs. Second, define measurable criteria and mandatory gates. Third, run equivalent test cases and preserve the evidence. Fourth, review failures and unknowns before comparing acceptable candidates. Finally, document the selection, its scope, and the conditions that would require reevaluation.",
+        "This workflow gives you a capability you did not need before the module: you can now turn an informal product preference into a provider-neutral comparison whose conclusion can be traced to a defined use case, common tests, mandatory safeguards, and recorded evidence."
+      ]
     }
   ],
-  "activity": {
-    "id": "activity-agentic-provider-comparison",
-    "title": "Build a dated cross-provider comparison",
-    "instructions": [
-      "Select at least eight exact experiences spanning the eight provider families in the evidence matrix.",
-      "Include at least four within-family model-versus-harness comparisons.",
-      "Record observable behavior, classification, claim evidence kind, source, observation date, review date, boundaries, and unknowns.",
-      "Have another learner challenge one conclusion and revise or defend it using evidence."
-    ],
-    "evidence": [
-      "A dated eight-family comparison with no provider-wide classification.",
-      "A retained challenge and disposition showing how contradictory or missing evidence was handled."
-    ],
-    "reflectionPrompt": "Which classification changed when you narrowed the unit from provider to exact experience?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.0",
-    "estimatedSeconds": 1500,
-    "cues": [
-      {
-        "id": "cue-agentic-comparison-unit",
-        "kind": "narration",
-        "sectionId": "comparison-unit",
-        "text": "Freeze the exact experience, version, configuration, and observation date."
-      },
-      {
-        "id": "cue-agentic-comparison-visual",
-        "kind": "visual",
-        "sectionId": "comparison-families",
-        "text": "Show model-versus-harness pairs across provider families without ranking them.",
-        "accessibilityAlternative": "A text table lists provider family, exact model surface, exact agent or harness surface, observable distinction, evidence kind, and unknowns. Reduced-motion mode shows the complete table."
-      },
-      {
-        "id": "cue-agentic-comparison-evidence",
-        "kind": "narration",
-        "sectionId": "comparison-evidence",
-        "text": "Keep documented, tested, inference, and unknown evidence visibly separate."
-      },
-      {
-        "id": "cue-agentic-comparison-families",
-        "kind": "narration",
-        "sectionId": "comparison-families",
-        "text": "Demonstrate model-versus-harness pairs across several provider families."
-      },
-      {
-        "id": "cue-agentic-comparison-freshness",
-        "kind": "narration",
-        "sectionId": "comparison-freshness",
-        "text": "Show how a stale or contradictory source blocks a claim."
-      },
-      {
-        "id": "cue-agentic-comparison-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "comparison-freshness",
-        "text": "Check whether the learner blocks a stale product claim and preserves its audit evidence."
-      },
-      {
-        "id": "cue-agentic-comparison-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the eight-family comparison and peer challenge."
-      },
-      {
-        "id": "cue-agentic-comparison-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can compare experiences without ranking providers."
-      }
-    ]
-  },
   "knowledgeCheck": {
     "passPercent": 80,
     "questions": [
       {
-        "id": "q-agentic-comparison-1",
-        "prompt": "What is the correct unit for an agentic-AI product comparison?",
+        "id": "agentic-product-comparison-source-change",
+        "prompt": "What did the source correction affect?",
         "choices": [
-          "A provider logo",
-          "An exact version-scoped experience and configuration",
-          "A model family forever",
-          "A marketing category"
+          "It established a ranking of named products.",
+          "It replaced an unverified local source path and updated the evidentiary basis of the comparison method.",
+          "It supplied product-specific configuration advice.",
+          "It proved that every candidate has the same capabilities."
         ],
         "answerIndex": 1,
-        "explanation": "Behavior belongs to a specific product surface, runtime, configuration, and observation period."
+        "explanation": "The correction replaced an unverified local source path with an official risk-management source. Product-specific conclusions unsupported by a verified source remain UNKNOWN and are omitted."
       },
       {
-        "id": "q-agentic-comparison-2",
-        "prompt": "What does documented evidence prove?",
+        "id": "agentic-product-comparison-common-test",
+        "prompt": "Which action is required for a direct comparison between candidates?",
         "choices": [
-          "A first-party source describes the cited contract or behavior",
-          "The exact learner run passed",
-          "The feature is enabled for everyone",
-          "The provider is permanently classified"
+          "Give each candidate equivalent tasks, information, permissions, time limits, and success criteria.",
+          "Change the success criteria after reviewing the first result.",
+          "Use only the most favorable example from each candidate.",
+          "Allow each candidate to perform different tasks without recording the differences."
         ],
         "answerIndex": 0,
-        "explanation": "Documented and tested evidence remain distinct."
+        "explanation": "Equivalent conditions make the results comparable. Any unavoidable difference must be recorded and limits the strength of the comparison."
       },
       {
-        "id": "q-agentic-comparison-3",
-        "prompt": "Why compare a model endpoint with an agent product from the same provider?",
+        "id": "agentic-product-comparison-evidence-types",
+        "prompt": "Why should documented claims and observed results be recorded separately?",
         "choices": [
-          "To show the model and harness have different responsibilities",
-          "To prove one provider is best",
-          "To avoid dates",
-          "To treat all tools as agents"
+          "Because a documented claim is automatically stronger than a test result.",
+          "Because observed results do not require a defined test.",
+          "Because a statement about a capability is not the same as evidence of what occurred in the comparison test.",
+          "Because only documented claims may be used in a comparison."
         ],
-        "answerIndex": 0,
-        "explanation": "Within-family pairs reveal execution, state, control, and authority boundaries."
+        "answerIndex": 2,
+        "explanation": "A documented claim states what a source says, while an observed result records what happened under defined test conditions."
       },
       {
-        "id": "q-agentic-comparison-4",
-        "prompt": "What should stale evidence do?",
+        "id": "agentic-product-comparison-acceptance-gate",
+        "prompt": "A use case requires human approval before a consequential action, but a candidate cannot provide that approval point. What should the evaluator do?",
         "choices": [
-          "Remain published indefinitely",
-          "Block the affected claim until reverification or downgrade",
-          "Become tested evidence",
-          "Be silently deleted"
+          "Ignore the requirement if the candidate performs well on another criterion.",
+          "Change the requirement after testing.",
+          "Treat the missing approval point as a failed mandatory gate.",
+          "Mark every other candidate as failed."
+        ],
+        "answerIndex": 2,
+        "explanation": "A mandatory gate must be satisfied regardless of strengths elsewhere. Performance on another criterion cannot cancel the missing required safeguard."
+      },
+      {
+        "id": "agentic-product-comparison-unknown-evidence",
+        "prompt": "How should the evaluator handle a criterion for which comparable evidence is missing?",
+        "choices": [
+          "Estimate a favorable result.",
+          "Mark it UNKNOWN and omit it from asserted conclusions.",
+          "Copy the result from another criterion.",
+          "Assume all candidates perform equally."
         ],
         "answerIndex": 1,
-        "explanation": "Stale claims require explicit review and an auditable disposition."
-      },
-      {
-        "id": "q-agentic-comparison-5",
-        "prompt": "How should an unresolved product mode be classified?",
-        "choices": [
-          "Use the provider's strongest mode",
-          "Unknown for the unresolved behavior",
-          "Agentic by default",
-          "Non-agentic forever"
-        ],
-        "answerIndex": 1,
-        "explanation": "Unknown prevents unsupported positive or negative claims."
+        "explanation": "The module directs evaluators to mark missing or incomparable evidence as UNKNOWN rather than inventing a result."
       }
     ]
   },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-21",
   "sources": [
     {
-      "title": "What is Microsoft Foundry Agent Service?",
-      "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/overview",
-      "publisher": "Microsoft",
-      "lastVerified": "2026-07-27"
-    },
-    {
-      "title": "xAI tools overview",
-      "url": "https://docs.x.ai/developers/tools/overview",
-      "publisher": "xAI",
-      "lastVerified": "2026-07-27"
-    },
-    {
-      "title": "smolagents",
-      "url": "https://huggingface.co/docs/smolagents/main/index",
-      "publisher": "Hugging Face",
-      "lastVerified": "2026-07-27"
+      "title": "Artificial Intelligence Risk Management Framework",
+      "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+      "publisher": "National Institute of Standards and Technology",
+      "lastVerified": "2026-08-21"
     }
   ]
 }
