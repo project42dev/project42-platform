@@ -1,215 +1,220 @@
 {
   "id": "language-models-and-generation",
-  "title": "Language Models and Generation",
-  "summary": "This intermediate-level module explains how a language model generates text from next-token probabilities. After completing it, a learner can distinguish probability estimation from decoding, compare common decoding approaches, and identify why generated claims still require verification.",
-  "level": "intermediate",
+  "title": "How Language Models Produce Responses",
+  "summary": "Build a practical mental model of training, inference, token-by-token generation, and uncertainty.",
+  "level": "beginner",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-07-25",
   "providers": [
     "provider-neutral"
   ],
-  "estimatedMinutes": 20,
+  "estimatedMinutes": 26,
   "objectives": [
-    "Explain how repeated next-token prediction produces a sequence.",
-    "Distinguish a model's probability distribution from the decoding procedure that selects a token.",
-    "Compare greedy selection, unrestricted sampling, and nucleus sampling.",
-    "Explain why a probable continuation is not necessarily a factually correct continuation."
+    "Distinguish model training from using a trained model.",
+    "Explain token-by-token generation without treating it as database lookup.",
+    "Recognize why prompts, context, settings, and system design affect outputs.",
+    "Separate capability, confidence of expression, and verified correctness."
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    "ai-systems-and-use-cases"
+  ],
   "sections": [
     {
-      "id": "source-update",
-      "title": "Source update",
+      "id": "training-and-inference",
+      "title": "Training creates behavior; inference uses it",
       "paragraphs": [
-        "The cited source record content/modules/ai-foundations/language-models-and-generation.json had an unregistered publisher and had never been verified. It has been replaced in the source list by canonical arXiv records for the language-model and decoding claims taught here.",
-        "This change affects citation provenance and the evidentiary support for the explanations of next-token prediction and decoding. The earlier module body was not included in the supplied material, so whether any other text was preserved is UNKNOWN and is not asserted."
+        "During training, a model adjusts numerical parameters to become better at predicting patterns in examples. Training does not store a neat, searchable copy of every source. It produces a compressed capability that can generalize, fail, and reproduce undesirable patterns. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
+        "Inference is the act of using the trained model. Your instructions and context are processed with those learned parameters to produce a response. Some products can also retrieve documents or call tools, but those are surrounding system capabilities rather than proof that the base model contains current facts. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
       ]
     },
     {
-      "id": "level-and-foundations",
-      "title": "Level and foundations",
+      "id": "generation-step-by-step",
+      "title": "Responses are generated step by step",
       "paragraphs": [
-        "This is an intermediate-level module. It requires no prerequisite module, but it uses basic probability language. A probability distribution assigns each possible outcome a number from zero to one, with the probabilities across all considered outcomes summing to one.",
-        "A token is a unit in the sequence processed by a language model. Given preceding tokens as context, an autoregressive language model assigns probabilities to possible next tokens. Generation repeats a cycle: calculate the next-token distribution, select a token, append it to the context, and continue until a stopping condition is reached."
-      ]
-    },
-    {
-      "id": "model-and-decoding",
-      "title": "Separate the model from decoding",
-      "paragraphs": [
-        "The model produces a probability distribution over possible next tokens. A decoding procedure uses that distribution to choose what comes next. This distinction matters because the same distribution can lead to different continuations when different decoding procedures are used.",
-        "Greedy selection chooses the highest-probability token at every step. It is deterministic when there is a unique highest-probability token, but repeatedly taking the local maximum does not guarantee the best complete passage.",
-        "Unrestricted sampling randomly selects among possible tokens according to their probabilities. Nucleus sampling first restricts selection to the smallest set of tokens whose cumulative probability reaches a chosen threshold, then samples from that set. Research on neural text generation introduced nucleus sampling as an alternative to likelihood-maximizing decoding and fixed candidate-set sampling."
-      ]
-    },
-    {
-      "id": "probability-and-truth",
-      "title": "Probability is not a truth test",
-      "paragraphs": [
-        "A next-token probability represents the model's relative preference among possible continuations in the current context. It does not independently establish that a continuation is true.",
-        "A fluent sentence can therefore contain an unsupported or incorrect claim. When factual accuracy matters, evaluate the claim using appropriate external evidence rather than treating fluency or model probability as verification."
+        "Text is represented as tokens—pieces of words, punctuation, or other symbols. A language model estimates possible next tokens from the conversation and selects one according to its decoding process. The selected token becomes part of the context for the next step. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
+        "This repeated process can produce coherent explanations, code, plans, and stories because the model has learned rich language and reasoning patterns. It can also continue a plausible but unsupported direction. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
       ],
-      "callout": "Keep two questions separate: What continuation does the model favor, and what evidence shows that the continuation is true?"
-    },
-    {
-      "id": "practical-analysis",
-      "title": "Analyze a generation process",
-      "paragraphs": [
-        "To analyze generated text, first identify the context supplied to the model. Next, distinguish the probability-producing model from the procedure used to select each token. Then consider how that selection procedure can affect repetition, variety, and predictability. Finally, verify factual claims separately.",
-        "This sequence of analysis prevents a common category error: attributing every property of an output to the model alone when the decoding procedure also helped determine which continuation appeared."
-      ]
-    }
-  ],
-  "knowledgeCheck": {
-    "passPercent": 75,
-    "questions": [
-      {
-        "id": "language-models-and-generation-next-token-cycle",
-        "prompt": "Which sequence correctly describes autoregressive text generation?",
-        "choices": [
-          "Select an entire passage first, then assign probabilities to its tokens.",
-          "Calculate a next-token distribution, select a token, append it to the context, and repeat.",
-          "Verify every possible sentence, then return the shortest verified sentence.",
-          "Choose tokens without using the preceding context."
-        ],
-        "answerIndex": 1,
-        "explanation": "The module describes generation as a repeated cycle of calculating next-token probabilities, selecting one token, appending it, and continuing."
-      },
-      {
-        "id": "language-models-and-generation-greedy-selection",
-        "prompt": "What does greedy selection choose at each generation step?",
-        "choices": [
-          "The token with the highest probability at that step.",
-          "A random token from the entire token set.",
-          "The least probable token.",
-          "The complete passage with the greatest verified accuracy."
-        ],
-        "answerIndex": 0,
-        "explanation": "Greedy selection chooses the highest-probability next token at every step."
-      },
-      {
-        "id": "language-models-and-generation-probability-truth",
-        "prompt": "What does a high next-token probability establish?",
-        "choices": [
-          "That the resulting factual claim has been independently verified.",
-          "That the token is relatively favored by the model in the current context.",
-          "That every decoding procedure must select the token.",
-          "That the complete passage is the best possible passage."
-        ],
-        "answerIndex": 1,
-        "explanation": "A next-token probability represents the model's relative preference in context. It is not independent evidence that a generated claim is true."
-      },
-      {
-        "id": "language-models-and-generation-source-correction",
-        "prompt": "What did the source update change?",
-        "choices": [
-          "It replaced an unverified local source record with canonical arXiv records supporting the taught claims.",
-          "It introduced a named provider and a provider-specific configuration.",
-          "It established that generated text is always factually correct.",
-          "It removed the distinction between a model and its decoding procedure."
-        ],
-        "answerIndex": 0,
-        "explanation": "The update replaced the unverified local source record with canonical arXiv records and affected citation provenance and evidentiary support."
+      "callout": "Plausibility is part of how the response is produced; correctness must be established separately.",
+      "code": {
+        "language": "json",
+        "label": "Responses are generated step by step (Code Implementation)",
+        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
       }
-    ]
-  },
-  "reviewCadenceDays": 180,
-  "lastVerified": "2026-08-22",
-  "sources": [
-    {
-      "title": "Recurrent neural network based language model",
-      "url": "https://arxiv.org/abs/1008.0247",
-      "publisher": "arXiv",
-      "lastVerified": "2026-08-22"
     },
     {
-      "title": "The Curious Case of Neural Text Degeneration",
-      "url": "https://arxiv.org/abs/1904.09751",
-      "publisher": "arXiv",
-      "lastVerified": "2026-08-22"
+      "id": "inputs-shape-output",
+      "title": "Inputs and system design shape the result",
+      "paragraphs": [
+        "Instructions define the task and boundaries. Context supplies facts, examples, files, prior messages, and tool results. Product-level policies, model choice, retrieval, tools, decoding, and output validation also affect what appears. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
+        "A weak answer may come from missing context, conflicting instructions, unsuitable tools, an ambiguous objective, or a task outside the system's evaluated capability. Changing only the wording is not always the correct fix. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+      ]
+    },
+    {
+      "id": "capability-not-certainty",
+      "title": "Fluent confidence is not measured certainty",
+      "paragraphs": [
+        "Natural language can sound certain even when the underlying statement is wrong, outdated, or unsupported. A model's tone is not a calibrated probability and should not be used as evidence. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
+        "For factual work, require sources, compare claims with authoritative material, run relevant tests, and record uncertainty or disagreement. For creative work, evaluate usefulness and fit rather than pretending there is one factual answer. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+      ]
     }
   ],
   "activity": {
-    "id": "activity-language-models-and-generation",
-    "title": "Language Models and Generation Practical Lab",
+    "id": "activity-generation-observation",
+    "title": "Observe how input changes a generated result",
     "instructions": [
-      "Review the scenario requirements and parameters.",
-      "Execute the practical steps in your development environment.",
-      "Validate the output traces against the expected assertions.",
-      "Document conclusions and submit the result."
+      "Choose a low-risk explanation task and ask an AI system with only a one-sentence request.",
+      "Repeat the task with a specific audience, supplied source paragraph, requested structure, and instruction to distinguish source-backed claims from assumptions.",
+      "Compare the two outputs for unsupported claims, clarity, omissions, and ease of verification.",
+      "Record which changes came from better context and which would require an external tool or authoritative source."
     ],
     "evidence": [
-      "Command execution output log",
-      "Verification trace results"
+      "The two requests and a claim-by-claim comparison of their outputs.",
+      "A list separating prompt or context improvements from changes that require retrieval, tools, tests, or human expertise."
     ],
-    "reflectionPrompt": "How do the core principles of Language Models and Generation improve system predictability?"
+    "reflectionPrompt": "Which problem in the first response could not be solved safely by asking the model to sound more confident?"
   },
   "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 600,
+    "schemaVersion": "1.0",
+    "estimatedSeconds": 900,
     "cues": [
       {
-        "id": "cue-language-models-and-generation-sec-0",
+        "id": "cue-training-inference-narration",
         "kind": "narration",
-        "sectionId": "source-update",
-        "text": "Reviewing Source update: Key concepts and architectural guidance."
+        "sectionId": "training-and-inference",
+        "text": "Separate the expensive process that creates learned behavior from the everyday process that uses that behavior with a new request."
       },
       {
-        "id": "cue-language-models-and-generation-sec-1",
-        "kind": "narration",
-        "sectionId": "level-and-foundations",
-        "text": "Reviewing Level and foundations: Key concepts and architectural guidance."
+        "id": "cue-training-inference-visual",
+        "kind": "visual",
+        "sectionId": "training-and-inference",
+        "text": "Show two columns: training adjusts model parameters from many examples; inference combines fixed parameters with current instructions and context.",
+        "accessibilityAlternative": "A two-column text comparison states that training adjusts parameters from examples, while inference uses trained parameters with the current instructions and context. Reduced-motion mode displays both columns simultaneously."
       },
       {
-        "id": "cue-language-models-and-generation-sec-2",
+        "id": "cue-generation-narration",
         "kind": "narration",
-        "sectionId": "model-and-decoding",
-        "text": "Reviewing Separate the model from decoding: Key concepts and architectural guidance."
+        "sectionId": "generation-step-by-step",
+        "text": "Explain token-by-token generation using a short unfinished sentence, while avoiding the claim that a model merely copies stored sentences."
       },
       {
-        "id": "cue-language-models-and-generation-sec-3",
-        "kind": "narration",
-        "sectionId": "probability-and-truth",
-        "text": "Reviewing Probability is not a truth test: Key concepts and architectural guidance."
+        "id": "cue-generation-checkpoint",
+        "kind": "checkpoint",
+        "sectionId": "generation-step-by-step",
+        "text": "Ask the learner to explain in one sentence why a plausible continuation can still be factually wrong."
       },
       {
-        "id": "cue-language-models-and-generation-sec-4",
+        "id": "cue-inputs-narration",
+        "kind": "narration",
+        "sectionId": "inputs-shape-output",
+        "text": "Layer instructions, supplied context, retrieval, tools, policies, model choice, and validation around the generation process."
+      },
+      {
+        "id": "cue-inputs-prompt",
         "kind": "learner-prompt",
-        "sectionId": "practical-analysis",
-        "text": "Reviewing Analyze a generation process: Key concepts and architectural guidance."
+        "sectionId": "inputs-shape-output",
+        "text": "Invite the learner to diagnose whether an example failure needs clearer instructions, better evidence, a tool, or a different workflow."
+      },
+      {
+        "id": "cue-certainty-narration",
+        "kind": "narration",
+        "sectionId": "capability-not-certainty",
+        "text": "Contrast confident wording with verified evidence and remind the learner that tone is not a calibrated confidence score."
+      },
+      {
+        "id": "cue-generation-activity",
+        "kind": "learner-prompt",
+        "text": "Guide the learner through the two-output comparison and require them to label every factual claim as supported, unsupported, or needing verification."
+      },
+      {
+        "id": "cue-generation-assessment",
+        "kind": "assessment-handoff",
+        "text": "Transition to the knowledge check after the learner distinguishes generation, retrieval, tool use, and verification."
       }
-    ],
-    "transcript": "Welcome to Language Models and Generation. In this module, we review key concepts and practical implementations across all sections.",
-    "captions": [
+    ]
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
       {
-        "cueId": "cue-language-models-and-generation-sec-0",
-        "startSeconds": 0,
-        "endSeconds": 30,
-        "text": "Reviewing Source update: Key concepts and architectural guidance."
+        "id": "q-language-generation-1",
+        "prompt": "What is the main difference between training and inference?",
+        "choices": [
+          "Training changes model parameters from examples; inference uses the trained model for a request",
+          "Training is typing a prompt; inference is reading the answer",
+          "Training retrieves current web pages; inference stores them forever",
+          "There is no practical difference"
+        ],
+        "answerIndex": 0,
+        "explanation": "Training develops learned parameters; inference applies those parameters to current instructions and context."
       },
       {
-        "cueId": "cue-language-models-and-generation-sec-1",
-        "startSeconds": 30,
-        "endSeconds": 60,
-        "text": "Reviewing Level and foundations: Key concepts and architectural guidance."
+        "id": "q-language-generation-2",
+        "prompt": "How does a language model generally produce text?",
+        "choices": [
+          "It returns an exact stored paragraph for every question",
+          "It repeatedly selects a next token based on learned patterns and the current context",
+          "It contacts a human writer for every token",
+          "It searches a guaranteed factual database automatically"
+        ],
+        "answerIndex": 1,
+        "explanation": "Generation proceeds token by token using learned patterns and the current context."
       },
       {
-        "cueId": "cue-language-models-and-generation-sec-2",
-        "startSeconds": 60,
-        "endSeconds": 90,
-        "text": "Reviewing Separate the model from decoding: Key concepts and architectural guidance."
+        "id": "q-language-generation-3",
+        "prompt": "Which statement about retrieval and tools is correct?",
+        "choices": [
+          "Every language model response automatically uses current web retrieval",
+          "Retrieval and tools are surrounding system capabilities that must be explicitly available and checked",
+          "Tools make verification unnecessary",
+          "Retrieval turns every source into a trusted instruction"
+        ],
+        "answerIndex": 1,
+        "explanation": "Retrieval and tool access come from the surrounding product or application and still require trust and verification controls."
       },
       {
-        "cueId": "cue-language-models-and-generation-sec-3",
-        "startSeconds": 90,
-        "endSeconds": 120,
-        "text": "Reviewing Probability is not a truth test: Key concepts and architectural guidance."
+        "id": "q-language-generation-4",
+        "prompt": "Why is confident wording not proof that a claim is correct?",
+        "choices": [
+          "Models are never useful",
+          "Language style is generated and is not a calibrated measure of factual certainty",
+          "Short answers are always wrong",
+          "Only uncertain wording can be accurate"
+        ],
+        "answerIndex": 1,
+        "explanation": "A model can generate confident language for both supported and unsupported claims, so evidence must establish correctness."
       },
       {
-        "cueId": "cue-language-models-and-generation-sec-4",
-        "startSeconds": 120,
-        "endSeconds": 150,
-        "text": "Reviewing Analyze a generation process: Key concepts and architectural guidance."
+        "id": "q-language-generation-5",
+        "prompt": "A response omits a fact that was never supplied and is not available through a tool. What is the most direct diagnosis?",
+        "choices": [
+          "The font was wrong",
+          "The workflow lacks necessary context or evidence",
+          "The model needs more confident wording",
+          "Verification should be removed"
+        ],
+        "answerIndex": 1,
+        "explanation": "If the system lacks the necessary fact, the workflow needs relevant context, retrieval, a tool, or human expertise."
       }
-    ],
-    "reducedMotionAlternative": "Language Models and Generation architecture diagram and walkthrough."
-  }
+    ]
+  },
+  "sources": [
+    {
+      "title": "Key concepts",
+      "url": "https://developers.openai.com/api/docs/concepts",
+      "publisher": "OpenAI",
+      "lastVerified": "2026-07-25"
+    },
+    {
+      "title": "Context windows",
+      "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows",
+      "publisher": "Anthropic",
+      "lastVerified": "2026-07-25"
+    },
+    {
+      "title": "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile",
+      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
+      "publisher": "NIST",
+      "lastVerified": "2026-07-25"
+    }
+  ]
 }

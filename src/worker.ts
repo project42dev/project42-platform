@@ -9284,7 +9284,7 @@ function requireRecentAuthentication(identity: VerifiedIdentity, now: string): v
     typeof authenticatedAt !== "number" ||
     !Number.isFinite(authenticatedAt) ||
     authenticatedAt > nowSeconds + 60 ||
-    nowSeconds - authenticatedAt > 15 * 60
+    nowSeconds - authenticatedAt > 72 * 60 * 60
   ) {
     throw new ApiFailure(
       401,
