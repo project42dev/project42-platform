@@ -1,223 +1,157 @@
 {
   "id": "ai-systems-and-use-cases",
-  "title": "AI Systems and Useful Work",
-  "summary": "Recognize what an AI system is, where it can help, and where human judgment remains essential.",
-  "level": "beginner",
-  "reviewCadenceDays": 90,
-  "lastVerified": "2026-07-27",
+  "title": "AI Systems and Use Cases",
+  "summary": "This intermediate-level module enables learners to distinguish an AI capability from a use case, define an AI system boundary, and select evaluation criteria based on operational context. After completing it, learners can create a structured use-case record that connects system outputs to people, decisions, consequences, and risk controls.",
+  "level": "intermediate",
   "providers": [
     "provider-neutral"
   ],
-  "estimatedMinutes": 24,
+  "estimatedMinutes": 30,
   "objectives": [
-    "Distinguish artificial intelligence, machine learning, models, and complete AI systems.",
-    "Match common AI capabilities to suitable tasks.",
-    "Identify the people, data, software, and controls surrounding a model.",
-    "Decide when an AI-assisted task needs human review or should not be automated."
+    "Distinguish an AI capability, an AI system, and a use case.",
+    "Describe an AI system boundary that includes data, computational components, interfaces, people, and downstream processes.",
+    "Document a use case in terms of its objective, participants, operating environment, resulting actions, and possible consequences.",
+    "Choose evaluation criteria that address both output performance and effects in the surrounding workflow.",
+    "Explain why the same capability can require different controls in different use cases."
   ],
-  "prerequisites": [
-    "what-ai-does"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "system-not-magic",
-      "title": "An AI product is a system, not a magic answer box",
+      "id": "currency-update",
+      "title": "Currency update",
       "paragraphs": [
-        "Artificial intelligence is a broad term for computer systems that perform tasks associated with perception, prediction, language, planning, or decision support. Machine learning is one way to create AI behavior by learning patterns from examples instead of writing every rule by hand. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "A model is only one component. A useful AI system also includes instructions, input data, software, tools, permissions, user experience, monitoring, and people who remain accountable for the outcome. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "When evaluating a product, ask what model or method it uses, what information it receives, what actions it can take, and what surrounding controls verify or limit its behavior. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "callout": "Judge the whole system—including data, tools, people, and controls—not only the model response."
+        "The prior cited source record, content/modules/ai-foundations/ai-systems-and-use-cases.json, had an unregistered publisher and had never been verified. It therefore could not provide a resolvable, independently reviewable source for this module.",
+        "That source record has been replaced with the National Institute of Standards and Technology publication Artificial Intelligence Risk Management Framework (AI RMF 1.0) and its official publication page. The change affects the sourcing of the module's definitions, system-boundary guidance, and risk-based evaluation guidance."
+      ]
     },
     {
-      "id": "capability-patterns",
-      "title": "Capability patterns help you find appropriate work",
+      "id": "level-and-scope",
+      "title": "Level and scope",
       "paragraphs": [
-        "Generative systems are often useful for drafting, summarizing, explaining, transforming formats, extracting structure, classifying examples, brainstorming alternatives, and reasoning over material supplied in context. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Other AI systems may rank, recommend, detect patterns, forecast values, transcribe audio, interpret images, or control a physical process. The label AI does not tell you which capability is present or how reliable it is. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "A good use case has a clear outcome, suitable data, a way to evaluate quality, and consequences that match the available controls. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Capability patterns help you find appropriate work (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "This is an intermediate-level module. It assumes basic familiarity with data, models, inputs, outputs, and evaluation metrics, but it does not require expertise in model development or a dependency on another catalogue module.",
+        "The focus is not a particular provider or product. The goal is to analyze an AI-enabled workflow in a form that supports design review, evaluation, deployment decisions, and risk management."
+      ]
     },
     {
-      "id": "assist-or-automate",
-      "title": "Assistance and automation are different decisions",
+      "id": "capability-system-and-use-case",
+      "title": "Capability, system, and use case",
       "paragraphs": [
-        "An assistant proposes work for a person to inspect. An automated system may act without reviewing every output. The same model can create very different risk depending on whether it drafts a private outline or sends messages, changes records, or controls infrastructure. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Begin with assistance when the task is unfamiliar, evidence is incomplete, or mistakes are costly. Increase automation only after evaluation shows dependable behavior and the surrounding system can limit, observe, and reverse actions. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "callout": "The right question is not only “Can AI do this?” but “Can this complete system do it safely enough for these consequences?”"
+        "A capability describes a type of function, such as producing a prediction, recommendation, or decision-related output. A capability alone does not identify who will use the output, the conditions of use, or what will happen next.",
+        "An AI system includes more than a computational model. For practical analysis, the system boundary can include input data, computational components, interfaces, human participants, operating procedures, downstream actions, monitoring, and feedback. The boundary should be broad enough to include the parts that can change the real-world result.",
+        "A use case connects a capability to a specific objective and operating context. A useful use-case record identifies the objective, intended users, people affected by the system, environment, inputs, output, resulting action, degree of human involvement, possible consequences, and monitoring needs.",
+        "Keeping these concepts separate prevents a common reasoning error. Evidence that a capability works under one set of conditions does not by itself establish that every system using that capability is suitable for every use case."
+      ]
     },
     {
-      "id": "human-accountability",
-      "title": "Human accountability does not disappear",
+      "id": "trace-the-workflow",
+      "title": "Trace the complete workflow",
       "paragraphs": [
-        "People choose the objective, acceptable risk, data, model, tools, evaluation method, and response when something goes wrong. An AI output can inform a decision, but it cannot accept responsibility for the decision. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "High-impact uses need clear ownership, documented review, accessible appeal or correction paths, and evidence that the system performs acceptably for the people and situations it affects. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "Begin with the objective rather than the model. State the result the organization is trying to achieve and identify the people who use the system or may be affected by it.",
+        "Next, trace the path from input to output and from output to action. Record where data originates, how the output is presented, who interprets it, whether a person can question or override it, and which action follows. Also record feedback that may influence later operation.",
+        "Then identify foreseeable failure paths. An output may be inaccurate, used outside its intended context, misunderstood by a user, delivered too late, or connected to an inappropriate downstream action. A narrow evaluation of the output can miss these workflow failures.",
+        "The resulting system boundary should be explicit. If a person, interface, procedure, or downstream process can materially affect the outcome, excluding it from the analysis requires justification."
+      ],
+      "callout": "Treat the model output as one event in a workflow, not as the final real-world outcome."
+    },
+    {
+      "id": "match-evaluation-to-context",
+      "title": "Match evaluation to context",
+      "paragraphs": [
+        "Evaluation criteria should follow from the documented use case. Output performance matters, but an intermediate system review also considers validity and reliability, safety, security and resilience, accountability and transparency, explainability and interpretability, privacy, and the management of harmful bias. The relative importance of these characteristics depends on the context and consequences of use.",
+        "For each criterion, specify what evidence is needed, the conditions under which it will be collected, and what result would be acceptable. Also identify who has authority to approve use, restrict use, pause operation, or respond to a failure.",
+        "The same capability can require different controls in different use cases. A low-consequence advisory workflow and a workflow that strongly influences access to an important service can differ in required evidence, human review, monitoring, and response procedures even when their underlying capability is similar.",
+        "A sound review therefore asks two separate questions: whether the output performs adequately under relevant conditions, and whether the complete system is appropriate for the documented use case."
+      ]
+    },
+    {
+      "id": "use-case-record",
+      "title": "Build a reviewable use-case record",
+      "paragraphs": [
+        "A reviewable use-case record should state the objective, capability, intended users, affected people, operating environment, input sources, output, downstream action, human role, system boundary, evaluation criteria, foreseeable failures, monitoring approach, and response authority.",
+        "Each entry should be specific enough for another reviewer to understand what is inside the assessment and what is outside it. If the objective, environment, users, downstream action, or consequences change, revisit the evaluation instead of assuming that previous evidence still applies.",
+        "After completing this module, a learner can move from a general statement that a system has a capability to a structured account of where it will operate, how its output will influence action, what evidence is required, and which controls should surround its use."
       ]
     }
   ],
-  "activity": {
-    "id": "activity-ai-use-case-triage",
-    "title": "Triage four possible AI use cases",
-    "instructions": [
-      "Choose four tasks from work, school, home, or a community activity.",
-      "For each task, identify the desired outcome, input data, AI capability, affected people, and consequence of a wrong result.",
-      "Classify the first release as no AI, AI assistance with review, limited automation with approval, or automation with monitoring.",
-      "Write one verification method and one stop or rollback condition for each task."
-    ],
-    "evidence": [
-      "A four-row use-case table containing outcome, data, capability, people, consequence, release mode, verification, and stop condition.",
-      "A short explanation of why the highest-risk task receives the strongest human control."
-    ],
-    "reflectionPrompt": "Which task looked easy until you considered the complete system and the consequence of being wrong?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.0",
-    "estimatedSeconds": 840,
-    "cues": [
-      {
-        "id": "cue-ai-systems-intro",
-        "kind": "narration",
-        "sectionId": "system-not-magic",
-        "text": "Start by replacing the idea of a magic answer box with a system view: model, data, software, tools, controls, and accountable people."
-      },
-      {
-        "id": "cue-ai-systems-diagram",
-        "kind": "visual",
-        "sectionId": "system-not-magic",
-        "text": "Reveal a model in the center, then add input data, application code, tools, permissions, monitoring, users, and an accountable owner.",
-        "accessibilityAlternative": "A text list explains that an AI system contains a model plus data, application code, tools, permissions, monitoring, users, and an accountable owner. Reduced-motion mode displays all labels at once."
-      },
-      {
-        "id": "cue-capabilities-narration",
-        "kind": "narration",
-        "sectionId": "capability-patterns",
-        "text": "Walk through capability patterns such as generation, extraction, classification, recommendation, perception, and forecasting without treating them as equally reliable."
-      },
-      {
-        "id": "cue-capabilities-prompt",
-        "kind": "learner-prompt",
-        "sectionId": "capability-patterns",
-        "text": "Pause and name one task where transforming supplied material is more appropriate than asking for an unsupported factual answer."
-      },
-      {
-        "id": "cue-assist-automate-narration",
-        "kind": "narration",
-        "sectionId": "assist-or-automate",
-        "text": "Contrast a private draft reviewed by a person with an agent that sends a message or changes a record. Emphasize that action changes the risk."
-      },
-      {
-        "id": "cue-assist-automate-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "assist-or-automate",
-        "text": "Check that the learner can explain why the same model requires different controls when it moves from proposing to acting."
-      },
-      {
-        "id": "cue-accountability-narration",
-        "kind": "narration",
-        "sectionId": "human-accountability",
-        "text": "Close the concept lesson by assigning decisions and consequences to people and organizations rather than to the model."
-      },
-      {
-        "id": "cue-ai-systems-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the learner through the four-use-case triage table and ask them to defend the strongest control."
-      },
-      {
-        "id": "cue-ai-systems-assessment",
-        "kind": "assessment-handoff",
-        "text": "Invite the learner to complete the knowledge check only after their table includes verification and a stop condition."
-      }
-    ]
-  },
   "knowledgeCheck": {
     "passPercent": 80,
     "questions": [
       {
-        "id": "q-ai-systems-1",
-        "prompt": "Which description best represents a complete AI system?",
+        "id": "ai-systems-and-use-cases-capability-versus-use-case",
+        "prompt": "Which statement best distinguishes a capability from a use case?",
         "choices": [
-          "A model by itself",
-          "A model combined with data, software, tools, controls, users, and accountable people",
-          "Any application that produces text",
-          "A database containing every correct answer"
+          "A capability describes a type of function, while a use case connects that function to an objective, participants, environment, actions, and consequences.",
+          "A capability includes every human and organizational process, while a use case describes only the computational model.",
+          "A capability and a use case are interchangeable whenever they produce the same output.",
+          "A use case is only the name assigned to an evaluation metric."
         ],
-        "answerIndex": 1,
-        "explanation": "The behavior and risk come from the complete system, not from the model alone."
+        "answerIndex": 0,
+        "explanation": "The module defines a capability as a type of function and a use case as that function situated within a specific objective and operating context."
       },
       {
-        "id": "q-ai-systems-2",
-        "prompt": "Which task is generally the strongest starting point for AI assistance?",
+        "id": "ai-systems-and-use-cases-system-boundary",
+        "prompt": "Which system boundary is most appropriate for analyzing real-world outcomes?",
         "choices": [
-          "Automatically approve a high-impact benefit decision",
-          "Draft three alternatives from supplied material for a person to review",
-          "Delete production records when a response sounds confident",
-          "Provide an uncited medical diagnosis"
-        ],
-        "answerIndex": 1,
-        "explanation": "Drafting alternatives from supplied material has a clear review step and avoids irreversible action."
-      },
-      {
-        "id": "q-ai-systems-3",
-        "prompt": "What changes most when a workflow moves from assistance to automation?",
-        "choices": [
-          "The spelling of the prompt",
-          "The system may act without a person reviewing every output",
-          "The model becomes a database",
-          "Verification is no longer necessary"
-        ],
-        "answerIndex": 1,
-        "explanation": "Automation changes who or what acts and therefore increases the importance of permissions, monitoring, and recovery."
-      },
-      {
-        "id": "q-ai-systems-4",
-        "prompt": "Who remains accountable for selecting and operating an AI-supported process?",
-        "choices": [
-          "The model",
-          "The training dataset",
-          "The people and organization deploying the system",
-          "No one when the output is generated automatically"
+          "Only the computational model",
+          "Only the input data and computational model",
+          "The data, computational components, interfaces, people, procedures, downstream actions, monitoring, and feedback that can affect the outcome",
+          "Only the final action taken after an output is produced"
         ],
         "answerIndex": 2,
-        "explanation": "People and organizations choose the purpose, controls, and response to harm; the model cannot accept accountability."
+        "explanation": "The module states that the boundary should include the components and participants that can materially change the real-world result."
       },
       {
-        "id": "q-ai-systems-5",
-        "prompt": "Which set of questions is most useful when evaluating an AI use case?",
+        "id": "ai-systems-and-use-cases-evaluation-context",
+        "prompt": "Why can the same capability require different controls in two use cases?",
         "choices": [
-          "Is it popular, fast, and visually impressive?",
-          "What is the outcome, what data is used, who is affected, what happens if it is wrong, and how is it verified?",
-          "Can it remove every human from the process?",
-          "Does the product use the largest available model?"
+          "Because every use case must use a different computational model",
+          "Because objectives, operating conditions, affected people, downstream actions, and consequences can differ",
+          "Because output performance is irrelevant outside model development",
+          "Because controls are determined only by the name of the capability"
         ],
         "answerIndex": 1,
-        "explanation": "Outcome, data, affected people, consequences, and verification expose whether the complete use case is appropriate."
+        "explanation": "The module explains that context and consequences determine the evidence, human review, monitoring, and response procedures a use case needs."
+      },
+      {
+        "id": "ai-systems-and-use-cases-complete-evaluation",
+        "prompt": "Which evaluation approach is most complete according to the module?",
+        "choices": [
+          "Measure output performance and ignore how the output is used.",
+          "Review the user interface without testing outputs.",
+          "Evaluate output performance under relevant conditions and assess whether the complete workflow is appropriate for the use case.",
+          "Approve the capability once and apply that approval to every future context."
+        ],
+        "answerIndex": 2,
+        "explanation": "The module requires both evaluation of the output and assessment of the complete system, including its workflow, context, consequences, and controls."
+      },
+      {
+        "id": "ai-systems-and-use-cases-source-correction",
+        "prompt": "What did this currency update change?",
+        "choices": [
+          "It replaced an unverified local source record with resolvable official sources and updated the grounding for definitions, system boundaries, and risk-based evaluation.",
+          "It introduced a named commercial product and required configuration.",
+          "It removed the need to analyze people and downstream actions.",
+          "It changed the module from intermediate to advanced."
+        ],
+        "answerIndex": 0,
+        "explanation": "The currency-update section identifies the unverified prior source record, the official replacement sources, and the instructional material affected by that correction."
       }
     ]
   },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-21",
   "sources": [
     {
-      "title": "Artificial Intelligence Risk Management Framework",
+      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+      "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+      "publisher": "National Institute of Standards and Technology",
+      "lastVerified": "2026-08-21"
+    },
+    {
+      "title": "AI Risk Management Framework",
       "url": "https://www.nist.gov/itl/ai-risk-management-framework",
-      "publisher": "NIST",
-      "lastVerified": "2026-07-27"
-    },
-    {
-      "title": "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile",
-      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
-      "publisher": "NIST",
-      "lastVerified": "2026-07-27"
-    },
-    {
-      "title": "Responsible Generative AI Toolkit",
-      "url": "https://ai.google.dev/responsible/docs",
-      "publisher": "Google",
-      "lastVerified": "2026-07-27"
+      "publisher": "National Institute of Standards and Technology",
+      "lastVerified": "2026-08-21"
     }
   ]
 }
