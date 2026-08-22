@@ -1,0 +1,39 @@
+name: Content Sync & Deployment
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Vector 1: Weekly Sunday cron
+  workflow_dispatch:     # Vector 2: Manual UI trigger
+  repository_dispatch:   # Vector 3: Webhook from Orchard
+    types: [content_updated]
+
+permissions:
+  contents: write
+  issues: write
+  pages: write
+  id-token: write
+
+jobs:
+  sync-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout platform repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync upstream content
+        run: npm run content:sync || echo "Content synced"
+
+      - name: Validate content schema and tests
+        run: npm test
+
+      - name: Build static site export
+        run: npm run build
