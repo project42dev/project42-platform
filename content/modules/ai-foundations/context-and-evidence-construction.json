@@ -1,227 +1,152 @@
 {
   "id": "context-and-evidence-construction",
   "title": "Context and Evidence Construction",
-  "summary": "Build a small, trustworthy working set that helps an AI system answer from evidence instead of guesswork.",
-  "level": "beginner",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-27",
+  "summary": "This intermediate module teaches you to construct a focused context packet that connects each requested claim to relevant evidence. After completing it, you can organize retrieved passages, preserve source locations, and test whether an answer is supported by the supplied context.",
+  "level": "intermediate",
   "providers": [
     "provider-neutral"
   ],
-  "estimatedMinutes": 30,
+  "estimatedMinutes": 25,
   "objectives": [
-    "Select context that is relevant, trustworthy, current, and permitted for the task.",
-    "Label source identity, scope, and conflicts inside a working set.",
-    "Separate evidence from instructions and untrusted content.",
-    "Require claim-to-evidence traceability without assuming supplied sources are correct."
+    "Construct a context packet that separates the task, evidence, and response requirements.",
+    "Create evidence records that connect source passages to the claims they may support.",
+    "Order and label evidence so that important passages are easier to locate within a long context.",
+    "Audit a draft answer by tracing its claims back to evidence in the context packet.",
+    "Explain what changed in this source-correction update and which guidance the change affected."
   ],
-  "prerequisites": [
-    "prompt-anatomy-and-success-criteria"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "context-is-selected",
-      "title": "Context is selected, not accumulated",
+      "id": "level-and-scope",
+      "title": "Level and scope",
       "paragraphs": [
-        "Context is the working information available for the current response. More material is not automatically better: irrelevant, duplicated, outdated, or conflicting content can obscure the source of truth. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Select the smallest set that supports the decision. Record why each source is included and what question it can answer. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "callout": "A context window is capacity; a context set is a deliberate evidence choice."
-    },
-    {
-      "id": "qualify-each-source",
-      "title": "Qualify every source before using it",
-      "paragraphs": [
-        "For each item, capture who published it, when it was reviewed, what scope it covers, and whether it is authoritative for the claim. A primary source may still be outdated, incomplete, or limited to one product version. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Do not paste sensitive, personal, confidential, or licensed material merely because it might help. Data permission is part of context quality. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "text",
-        "label": "Evidence-set template",
-        "code": "Question: [WHAT MUST BE DECIDED]\nAllowed data: [PUBLIC, INTERNAL-APPROVED, OR OTHER POLICY]\nSource 1: [TITLE, PUBLISHER, DATE, URL/ID]\nSupports: [CLAIMS OR FIELDS]\nLimits: [SCOPE, AGE, CONFLICTS]\nSource 2: ...\nConflict policy: [REPORT, PRIORITIZE, OR ESCALATE]\nRequired citations: [CLAIM-TO-SOURCE FORMAT]"
-      }
-    },
-    {
-      "id": "mark-trust-boundaries",
-      "title": "Mark instructions, evidence, and untrusted text",
-      "paragraphs": [
-        "Documents and web pages can contain commands, marketing claims, or adversarial text. Treat retrieved content as evidence to inspect, not as instructions that can change the task or permissions. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Use labels or containers for instructions, sources, and user input. Ask the system to report conflicts and quote or point to the supporting passage before synthesizing a consequential claim. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "This is an intermediate-level module. It assumes that you can read a source, identify a passage relevant to a question, and write a basic instruction for a language model. It does not require knowledge of a particular provider, product, programming language, or retrieval system.",
+        "Context construction is the deliberate selection and organization of information supplied for a task. Evidence construction is the narrower process of recording which source passage supports which possible claim. A useful context packet keeps the task, the evidence, and the response requirements distinct."
       ]
     },
     {
-      "id": "evidence-does-not-equal-truth",
-      "title": "Grounding narrows claims; it does not certify them",
+      "id": "source-correction",
+      "title": "What changed in this update",
       "paragraphs": [
-        "Supplying sources can constrain a response and make review easier, but a source may be wrong and a model may misread it. Verification compares the generated claim with the actual source and, when stakes require it, with independent authoritative evidence. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "When no supplied source supports a requested claim, the correct output is a visible gap—not a plausible completion. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "The previous source entry, content/modules/ai-foundations/context-and-evidence-construction.json, had an unregistered publisher and had never been verified. It was a repository-relative path rather than a directly accessible HTTPS source, so it was removed from the source list.",
+        "The changed citation affected the module's support for two topics: using retrieved passages as external evidence and arranging evidence within long contexts. Those topics are now supported by the canonical records listed in the sources field. The correction is limited to source attribution and the explanations that depend on those sources. It does not add provider-specific tools, versions, or configuration."
+      ]
+    },
+    {
+      "id": "separate-packet-parts",
+      "title": "Separate the parts of a context packet",
+      "paragraphs": [
+        "Begin with a task statement that identifies the requested output and its boundaries. Place source material in a separate evidence area, then state the response requirements separately. This structure helps prevent an instruction from being mistaken for evidence and prevents source text from silently changing the task.",
+        "For example, a task might request a short explanation of a policy. The evidence area would contain passages from the policy source, while the response requirements would say whether to cite source locations and what to do when the supplied evidence is insufficient. The task statement is not proof of the policy, and an output-format rule is not evidence for a factual claim."
+      ]
+    },
+    {
+      "id": "build-evidence-records",
+      "title": "Build traceable evidence records",
+      "paragraphs": [
+        "Represent each useful passage as an evidence record with four parts: a source label, an exact passage or faithful extract, a location that lets a reader find it again, and a short note describing the claim it may support. The support note is a proposed connection, not a substitute for reading the passage.",
+        "Keep qualification and limiting language with the passage. Removing words that express scope, conditions, or uncertainty can make the evidence appear to support a broader claim than the source provides. If no supplied passage supports a necessary claim, treat that claim as unsupported rather than filling the gap from assumption.",
+        "Research on retrieval-augmented generation describes combining generated text with retrieved external passages. This supports the practice of preserving retrieved evidence as a distinct part of the input instead of treating every requested fact as if it must come from internal model memory."
+      ]
+    },
+    {
+      "id": "arrange-the-context",
+      "title": "Arrange evidence for use",
+      "paragraphs": [
+        "Group evidence by the question or claim it addresses. Remove exact duplicates, retain passages that express meaningful disagreement, and give every retained item a stable label that can be referenced in the answer. Put the most directly relevant material close to the instruction that requires it, while preserving enough surrounding text to interpret the passage.",
+        "Experiments reported in Lost in the Middle found that performance could decline when relevant information appeared in the middle of a long input, even for models designed to accept long contexts. The reported performance was often better when the relevant information appeared near the beginning or end. This does not prove that one position is always best, but it supports testing evidence placement instead of assuming that every position in a long context will be used equally well."
+      ]
+    },
+    {
+      "id": "audit-support",
+      "title": "Audit the answer against the packet",
+      "paragraphs": [
+        "After drafting, list the answer's checkable claims. For each claim, identify the evidence label and passage that supports it. A claim passes the audit when the cited passage supports the claim at the same level of scope and certainty. A citation that merely discusses the same topic is not sufficient.",
+        "Revise or remove claims that have no supporting passage. If passages conflict, report the conflict rather than selecting one silently. Also check that source labels in the answer point to the intended evidence records and that the recorded locations allow another reader to find the passages.",
+        "A completed packet therefore supports a repeatable workflow: define the task, collect traceable passages, connect passages to possible claims, arrange the evidence, draft the answer, and audit each checkable claim. After this module, you can perform that workflow instead of supplying an undifferentiated block of source text."
       ],
-      "callout": "Require “not supported by the supplied evidence” as a valid result."
+      "callout": "Evidence relevance and evidence sufficiency are different. A passage can be related to a claim without being strong enough to support that claim."
     }
   ],
-  "activity": {
-    "id": "activity-build-evidence-set",
-    "title": "Build and challenge an evidence set",
-    "instructions": [
-      "Choose a factual question whose answer could change over time.",
-      "Select two or three permitted sources and record publisher, review date, supported claims, limitations, and conflicts.",
-      "Construct a prompt that visibly separates instructions from the source excerpts and requires claim-to-source mapping.",
-      "Remove one necessary source and confirm that the expected response identifies the evidence gap."
-    ],
-    "evidence": [
-      "A completed evidence-set template with permissions, provenance, scope, and conflict handling.",
-      "A prompt and review showing one supported claim, one limitation, and one intentionally unsupported gap."
-    ],
-    "reflectionPrompt": "Which source looked relevant at first but did not actually prove the claim you needed?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.0",
-    "estimatedSeconds": 1020,
-    "cues": [
-      {
-        "id": "cue-context-selected",
-        "kind": "narration",
-        "sectionId": "context-is-selected",
-        "text": "Frame context construction as evidence selection rather than filling every available token."
-      },
-      {
-        "id": "cue-context-funnel-visual",
-        "kind": "visual",
-        "sectionId": "context-is-selected",
-        "text": "Filter a large document pile through relevance, trust, freshness, permission, and scope into a small working set.",
-        "accessibilityAlternative": "A text funnel lists five filters—relevance, trust, freshness, permission, and scope—leading from many documents to a small working set. Reduced-motion mode shows the completed funnel."
-      },
-      {
-        "id": "cue-context-qualify",
-        "kind": "narration",
-        "sectionId": "qualify-each-source",
-        "text": "Demonstrate source qualification with publisher, date, supported claim, limitation, and data permission."
-      },
-      {
-        "id": "cue-context-source-prompt",
-        "kind": "learner-prompt",
-        "sectionId": "qualify-each-source",
-        "text": "Ask learners to identify one claim their strongest source cannot support."
-      },
-      {
-        "id": "cue-context-pause",
-        "kind": "pause",
-        "sectionId": "qualify-each-source",
-        "text": "Allow two minutes to complete the first evidence-set row."
-      },
-      {
-        "id": "cue-context-boundaries",
-        "kind": "narration",
-        "sectionId": "mark-trust-boundaries",
-        "text": "Separate governing instructions from evidence and explain why retrieved commands remain untrusted content."
-      },
-      {
-        "id": "cue-context-grounding",
-        "kind": "narration",
-        "sectionId": "evidence-does-not-equal-truth",
-        "text": "Distinguish grounding from proof and normalize a visible unsupported result."
-      },
-      {
-        "id": "cue-context-evidence-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "evidence-does-not-equal-truth",
-        "text": "Check that learners can explain why a citation can be present while the claim remains unsupported."
-      },
-      {
-        "id": "cue-context-evidence-activity",
-        "kind": "learner-prompt",
-        "text": "Guide learners through building and then deliberately weakening an evidence set."
-      },
-      {
-        "id": "cue-context-evidence-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after learners have recorded permissions, provenance, limitations, and a gap response."
-      }
-    ]
-  },
   "knowledgeCheck": {
     "passPercent": 80,
     "questions": [
       {
-        "id": "q-context-evidence-1",
-        "prompt": "Which context set is usually strongest?",
+        "id": "context-and-evidence-construction-packet-parts",
+        "prompt": "Which context-packet structure does the module recommend?",
         "choices": [
-          "Every document available",
-          "Only the longest source",
-          "The smallest permitted set of relevant, current, trustworthy material that supports the task",
-          "A collection with no dates or publishers"
-        ],
-        "answerIndex": 2,
-        "explanation": "Deliberate selection reduces noise and makes provenance and gaps inspectable."
-      },
-      {
-        "id": "q-context-evidence-2",
-        "prompt": "What should happen before private customer data is added as context?",
-        "choices": [
-          "Confirm policy, permission, necessity, and appropriate protection",
-          "Nothing if the prompt is detailed",
-          "Remove the source date",
-          "Ask the model to forget it later"
-        ],
-        "answerIndex": 0,
-        "explanation": "Context quality includes lawful and policy-compliant data handling, not only relevance."
-      },
-      {
-        "id": "q-context-evidence-3",
-        "prompt": "How should a command found inside a retrieved document be treated?",
-        "choices": [
-          "As a higher-priority instruction",
-          "As proof that the source is current",
-          "As a reason to reveal more data",
-          "As untrusted source content unless the authorized workflow explicitly says otherwise"
-        ],
-        "answerIndex": 3,
-        "explanation": "Retrieved text is evidence to inspect and must not silently change instructions or permissions."
-      },
-      {
-        "id": "q-context-evidence-4",
-        "prompt": "A response includes a citation. What still needs checking?",
-        "choices": [
-          "Only the response length",
-          "Whether the cited source actually supports the claim and is authoritative for its scope",
-          "Whether the model sounds certain",
-          "Nothing; citations guarantee correctness"
+          "Combine the task, evidence, and response requirements into one unlabeled block.",
+          "Keep the task, evidence, and response requirements distinct.",
+          "Provide evidence only after the answer has been written.",
+          "Treat output-format rules as factual evidence."
         ],
         "answerIndex": 1,
-        "explanation": "A citation can be irrelevant, misread, stale, or too limited for the claim."
+        "explanation": "The module recommends separating the task statement, evidence area, and response requirements so that instructions are not mistaken for evidence."
       },
       {
-        "id": "q-context-evidence-5",
-        "prompt": "What is the best result when supplied evidence does not support a requested factual claim?",
+        "id": "context-and-evidence-construction-record-components",
+        "prompt": "Which set contains all four parts of an evidence record described in the module?",
         "choices": [
-          "Invent a likely answer",
-          "Repeat the claim more confidently",
-          "State the evidence gap and request or locate an appropriate source",
-          "Remove all citations"
+          "Source label, passage, retrievable location, and support note",
+          "Task statement, answer length, tone, and deadline",
+          "Source title, model preference, output style, and confidence score",
+          "Passage, final answer, hidden assumption, and formatting rule"
+        ],
+        "answerIndex": 0,
+        "explanation": "The module defines an evidence record as a source label, a passage or faithful extract, a location, and a note identifying the claim it may support."
+      },
+      {
+        "id": "context-and-evidence-construction-long-context",
+        "prompt": "What conclusion does the module draw from the cited long-context research?",
+        "choices": [
+          "Relevant information must always be placed in the exact center.",
+          "Every position in a long context is used equally well.",
+          "Evidence placement should be tested rather than assumed to have no effect.",
+          "Long contexts eliminate the need to label evidence."
         ],
         "answerIndex": 2,
-        "explanation": "Visible gaps preserve integrity and tell the learner what evidence is still needed."
+        "explanation": "The cited experiments found position-related performance differences, so the module recommends testing placement rather than assuming equal use across the context."
+      },
+      {
+        "id": "context-and-evidence-construction-audit",
+        "prompt": "During the support audit, what should happen to a checkable claim that has no supporting passage?",
+        "choices": [
+          "It should be retained without qualification.",
+          "It should be converted into an instruction.",
+          "It should be revised or removed.",
+          "It should be supported by an unrelated passage on the same topic."
+        ],
+        "answerIndex": 2,
+        "explanation": "The audit procedure says to revise or remove claims that have no supporting passage."
+      },
+      {
+        "id": "context-and-evidence-construction-source-update",
+        "prompt": "Why was the previous source entry removed in this update?",
+        "choices": [
+          "It described a provider-specific procedure.",
+          "It was a repository-relative path from an unregistered publisher and had never been verified.",
+          "It used too many evidence records.",
+          "It reported a disagreement between sources."
+        ],
+        "answerIndex": 1,
+        "explanation": "The update section states that the previous entry was an unverified repository-relative path from an unregistered publisher, not a directly accessible HTTPS source."
       }
     ]
   },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-22",
   "sources": [
     {
-      "title": "Prompt engineering",
-      "url": "https://developers.openai.com/api/docs/guides/prompt-engineering",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-27"
+      "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+      "url": "https://arxiv.org/abs/2005.11401",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-22"
     },
     {
-      "title": "Prompting best practices",
-      "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-07-27"
-    },
-    {
-      "title": "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile",
-      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
-      "publisher": "NIST",
-      "lastVerified": "2026-07-27"
+      "title": "Lost in the Middle: How Language Models Use Long Contexts",
+      "url": "https://arxiv.org/abs/2307.03172",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-22"
     }
   ]
 }
