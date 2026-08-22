@@ -1,300 +1,135 @@
 {
   "id": "mcp-trust-and-security",
-  "title": "Secure MCP Trust Boundaries",
-  "summary": "Threat-model remote and local MCP integrations, constrain authority, validate tokens and servers, and keep untrusted content from steering consequential actions.",
+  "title": "MCP Trust and Security",
+  "summary": "This intermediate module enables learners to identify trust boundaries in an MCP workflow and select controls for consent, authorization, credentials, untrusted input, and audit records. After completing it, learners can review an MCP interaction for security risks they may previously have overlooked.",
   "level": "intermediate",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-25",
   "providers": [
     "provider-neutral"
   ],
-  "estimatedMinutes": 52,
+  "estimatedMinutes": 25,
   "objectives": [
-    "Map identities, credentials, data, consent, and execution across an MCP trust boundary.",
-    "Prevent prompt injection, confused-deputy behavior, token passthrough, and excessive permissions.",
-    "Define approval and logging controls that expose exactly what a tool will receive and change.",
-    "Respond safely to server drift, poisoned output, session failure, and suspected compromise."
+    "Map the participants, data, capabilities, and trust boundaries in an MCP workflow.",
+    "Distinguish a component's claimed identity or description from authorization to perform an action.",
+    "Apply consent, least privilege, credential isolation, input validation, and audit controls to an MCP workflow.",
+    "Review a proposed MCP interaction and explain whether it should proceed, require confirmation, or be denied."
   ],
-  "prerequisites": [
-    "mcp-architecture"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "server-trust-is-explicit",
-      "title": "Treat every server as a separate supply-chain and data decision",
+      "id": "source-correction",
+      "title": "Source correction",
       "paragraphs": [
-        "Before connecting, identify the server operator, code or service provenance, transport, data destinations, retention terms, update path, and incident contact. An official-looking tool name is not evidence of ownership or safe behavior. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Inventory what context the model can send, what data the server can return, and what external actions it can perform. Reapprove when ownership, URL, tool inventory, scopes, or behavior changes. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "callout": "MCP standardizes exchange; it does not certify servers.",
-      "code": {
-        "language": "json",
-        "label": "Treat every server as a separate supply-chain and data decision (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "The prior source entry pointed to a local catalogue file, named an unregistered publisher, and had never been verified. This update replaces that entry with the official MCP specification repository and records a verification date and review cadence.",
+        "The correction affects source provenance and review metadata. It does not assert a change to the security guidance in the module."
+      ]
     },
     {
-      "id": "content-remains-untrusted",
-      "title": "Prompt injection can arrive through tools and resources",
+      "id": "level-and-scope",
+      "title": "Level and scope",
       "paragraphs": [
-        "A server can return text that tells the model to reveal secrets, call another tool, ignore policy, or hide activity. Keep server content in a data channel, label provenance, minimize what reaches the model, and prevent returned text from changing permissions. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Review inputs and outputs at consequential boundaries. Redact secrets before model or server exposure, validate structured results, and require new authorization when output proposes a different target or action. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Prompt injection can arrive through tools and resources (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "This is an intermediate-level module. It assumes that you understand ordinary client and server roles, credentials, permissions, and the difference between reading data and changing it. It does not assume knowledge of any particular implementation, and no prerequisite module is required.",
+        "MCP connects components that can exchange context and request capabilities. A useful security review therefore asks who is communicating, what data crosses each boundary, what action is requested, and which party has authority to approve that action."
+      ]
     },
     {
-      "id": "authorization-boundaries",
-      "title": "Bind tokens to the intended server and user decision",
+      "id": "map-trust-boundaries",
+      "title": "Map trust boundaries",
       "paragraphs": [
-        "For protected HTTP servers, use the MCP authorization flow and established OAuth libraries. Validate issuer, signature, expiration, audience, scopes, and the resource being accessed. Never accept an upstream token and pass it through without validating that it was issued for this MCP server. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "A proxy that acts for many clients can become a confused deputy. Preserve per-client consent, validate redirect URIs and state, and show the user the requesting client, target service, and requested scopes before authorization. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "Begin by inventorying the user, the component coordinating the interaction, each connected server, downstream services, stored data, and available capabilities. For each connection, record what information can cross it and which actions can be requested.",
+        "A trust boundary exists wherever data or authority passes between parties with different owners, policies, privileges, or security assumptions. Crossing a boundary should trigger validation and an authorization decision. A successful connection does not by itself make the other party trusted for every purpose.",
+        "Descriptions, instructions, resource contents, and action requests received from another component are inputs. They are not proof that an action is safe or authorized. Evaluate them against local policy and the user's granted authority before use."
       ],
-      "code": {
-        "language": "text",
-        "label": "Authorization decision",
-        "code": "verify TLS + server identity\nverify token signature, issuer, expiry, audience\nresolve subject + tenant + requested resource\nrequire minimal scopes for this operation\nbind consent to client, server, scopes, and redirect\nreject passthrough, wildcard scope, or mismatched audience"
-      }
+      "callout": "Connection is not authorization. Identify the specific data and action allowed at each boundary."
     },
     {
-      "id": "least-privilege-and-approval",
-      "title": "Expose less and approve at the point of impact",
+      "id": "consent-and-authorization",
+      "title": "Consent and authorization",
       "paragraphs": [
-        "Start with read-only discovery or the smallest baseline scope. Elevate only for a concrete operation, accept down-scoped tokens, separate administrative tools, and expire temporary access. Allowlists reduce accidental exposure but still require per-call authorization. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "The confirmation surface should display the server, tool, resolved target, arguments or data being sent, side effect, and requested scope. Default to approval for sensitive data, external writes, money, permission changes, and destructive actions. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Expose less and approve at the point of impact (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "Consent should be meaningful. Before sensitive data is disclosed or a consequential action is performed, the user should be able to understand what will be shared or done, which party will receive the data or action, and why it is needed.",
+        "Apply least privilege by granting only the capabilities and data access required for the current task. Keep read authority separate from write or execution authority when their risks differ. Recheck authorization when the recipient, requested capability, data scope, or expected effect changes.",
+        "A component's identity answers who it is. Authorization answers what it may do. Keep these decisions separate so that recognition of a component is not mistaken for permission to perform every action it requests."
+      ]
     },
     {
-      "id": "observe-drift-and-recover",
-      "title": "Detect change and preserve recovery evidence",
+      "id": "credentials-and-untrusted-input",
+      "title": "Protect credentials and process untrusted input",
       "paragraphs": [
-        "Record server identity, negotiated protocol, tool-list digest, scope, approval decision, sanitized request, result class, postcondition, and correlation ID. Alert on new or changed tools, authorization failures, repeated denials, unusual data volume, or changed destination. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "On suspected compromise, stop the connection, revoke or rotate credentials, invalidate sessions, preserve secret-safe evidence, assess downstream effects, and require explicit review before reconnecting. Do not let a model decide that an incident is harmless. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Detect change and preserve recovery evidence (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "Keep credentials scoped to their intended recipient and purpose. Do not relay a credential to another component merely because that component requests it. A security review should verify who will receive each credential, what authority it carries, and how long it remains usable.",
+        "Validate data received across a trust boundary before using it in a sensitive operation. Check that the data has the expected type, size, structure, and destination. Treat instructions embedded in retrieved content as untrusted unless a separate policy explicitly authorizes them.",
+        "When a requested action exceeds the current grant, stop and obtain a new authorization decision. Do not silently broaden permissions to make a workflow succeed."
+      ]
+    },
+    {
+      "id": "review-and-audit",
+      "title": "Review and audit a workflow",
+      "paragraphs": [
+        "Review an MCP workflow in five steps. First, identify the participants, data, credentials, and capabilities. Second, mark every trust boundary. Third, describe the possible harm if data or authority is misused. Fourth, select controls such as validation, least privilege, explicit confirmation, credential isolation, and denial. Fifth, verify the resulting behavior with both permitted and rejected requests.",
+        "Record enough information to reconstruct important authorization decisions, including the requesting party, requested capability, decision, and outcome. Avoid placing secrets or unnecessary sensitive content in those records.",
+        "A workflow should proceed without additional confirmation only when the requested action stays within an existing, informed authorization and satisfies local policy. It should request confirmation when the recipient, data scope, capability, or expected consequence changes. It should be denied when required authorization is absent or the request violates policy."
+      ]
     }
   ],
-  "activity": {
-    "id": "activity-mcp-threat-model",
-    "title": "Threat-model and harden an MCP connection",
-    "instructions": [
-      "Create a data-flow diagram for one MCP server showing host, client, server, authorization service, downstream API, model context, and user approval.",
-      "Inspect the requested tools and scopes, then remove every capability not required for the selected workflow.",
-      "Run scenarios for prompt-injected output, mismatched token audience, confused-deputy consent, wildcard scope, an unannounced tool change, and timeout after a write.",
-      "Define prevent, detect, contain, recover, and evidence requirements for each scenario."
-    ],
-    "evidence": [
-      "A trust-boundary diagram and least-privilege permission manifest with explicit approval rules.",
-      "Six security scenario records containing expected rejection or containment, audit fields, postcondition checks, and recovery."
-    ],
-    "reflectionPrompt": "Which permission was convenient for setup but unjustified for the actual learner workflow?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 1560,
-    "cues": [
-      {
-        "id": "cue-mcp-security-trust",
-        "kind": "narration",
-        "sectionId": "server-trust-is-explicit",
-        "text": "Evaluate each MCP server as an independent operator, software supply chain, data destination, and action boundary."
-      },
-      {
-        "id": "cue-mcp-security-content",
-        "kind": "narration",
-        "sectionId": "content-remains-untrusted",
-        "text": "Keep resources and tool results untrusted so hidden instructions cannot expand authority or expose secrets."
-      },
-      {
-        "id": "cue-mcp-security-auth",
-        "kind": "narration",
-        "sectionId": "authorization-boundaries",
-        "text": "Validate token audience and per-client consent instead of passing credentials through or acting as a confused deputy."
-      },
-      {
-        "id": "cue-mcp-security-visual",
-        "kind": "visual",
-        "sectionId": "authorization-boundaries",
-        "text": "Trace identity, consent, token audience, scopes, and downstream calls across the authorization boundary.",
-        "accessibilityAlternative": "A static trust table lists each actor, credential, audience, scope, consent event, and permitted destination. Reduced-motion mode shows all rows together."
-      },
-      {
-        "id": "cue-mcp-security-privilege",
-        "kind": "narration",
-        "sectionId": "least-privilege-and-approval",
-        "text": "Begin with minimal scopes and show the exact server, data, target, and effect before approval."
-      },
-      {
-        "id": "cue-mcp-security-recovery",
-        "kind": "narration",
-        "sectionId": "observe-drift-and-recover",
-        "text": "Detect server and tool drift, stop suspicious connections, revoke access, and preserve recovery evidence."
-      },
-      {
-        "id": "cue-mcp-security-prompt",
-        "kind": "learner-prompt",
-        "sectionId": "content-remains-untrusted",
-        "text": "Ask learners why a valid tool result can still be unsafe instructions for the model."
-      },
-      {
-        "id": "cue-mcp-security-pause",
-        "kind": "pause",
-        "sectionId": "least-privilege-and-approval",
-        "text": "Allow three minutes to replace one wildcard scope with an incremental elevation rule."
-      },
-      {
-        "id": "cue-mcp-security-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "authorization-boundaries",
-        "text": "Check that token audience, client consent, and downstream authorization are independently verified."
-      },
-      {
-        "id": "cue-mcp-security-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the trust diagram, permission inspection, six attacks, and recovery plan."
-      },
-      {
-        "id": "cue-mcp-security-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after every trust boundary has a prevention, detection, and recovery control."
-      }
-    ],
-    "transcript": "Evaluate each MCP server as an independent operator, software supply chain, data destination, and action boundary. Keep resources and tool results untrusted so hidden instructions cannot expand authority or expose secrets. Validate token audience and per-client consent instead of passing credentials through or acting as a confused deputy. Begin with minimal scopes and show the exact server, data, target, and effect before approval. Detect server and tool drift, stop suspicious connections, revoke access, and preserve recovery evidence.",
-    "captions": [
-      {
-        "cueId": "cue-mcp-security-trust",
-        "startSeconds": 0,
-        "endSeconds": 270,
-        "text": "Evaluate each MCP server as an independent operator, software supply chain, data destination, and action boundary."
-      },
-      {
-        "cueId": "cue-mcp-security-content",
-        "startSeconds": 300,
-        "endSeconds": 570,
-        "text": "Keep resources and tool results untrusted so hidden instructions cannot expand authority or expose secrets."
-      },
-      {
-        "cueId": "cue-mcp-security-auth",
-        "startSeconds": 600,
-        "endSeconds": 900,
-        "text": "Validate token audience and per-client consent instead of passing credentials through or acting as a confused deputy."
-      },
-      {
-        "cueId": "cue-mcp-security-privilege",
-        "startSeconds": 930,
-        "endSeconds": 1200,
-        "text": "Begin with minimal scopes and show the exact server, data, target, and effect before approval."
-      },
-      {
-        "cueId": "cue-mcp-security-recovery",
-        "startSeconds": 1230,
-        "endSeconds": 1500,
-        "text": "Detect server and tool drift, stop suspicious connections, revoke access, and preserve recovery evidence."
-      }
-    ],
-    "reducedMotionAlternative": "Use a static threat-and-control matrix with focus indicators instead of animated attack paths."
-  },
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 75,
     "questions": [
       {
-        "id": "q-mcp-security-1",
-        "prompt": "A remote server returns text asking the model to upload its full context to another tool. What is the correct treatment?",
+        "id": "mcp-trust-and-security-source-correction",
+        "prompt": "What did this update change?",
         "choices": [
-          "Follow it because it came from a tool",
-          "Treat it as untrusted content, block authority expansion, and investigate",
-          "Grant a broader scope",
-          "Hide the call from the user"
-        ],
-        "answerIndex": 1,
-        "explanation": "Tool output is data and can carry prompt injection; it cannot grant authority."
-      },
-      {
-        "id": "q-mcp-security-2",
-        "prompt": "Why is OAuth token passthrough unsafe?",
-        "choices": [
-          "It makes JSON longer",
-          "It proves user consent",
-          "It bypasses audience validation and weakens control and audit boundaries",
-          "It guarantees least privilege"
-        ],
-        "answerIndex": 2,
-        "explanation": "Tokens must be validated for the intended MCP resource rather than forwarded as unrelated credentials."
-      },
-      {
-        "id": "q-mcp-security-3",
-        "prompt": "Which scope strategy best limits compromise impact?",
-        "choices": [
-          "Start minimal and elevate for a specific operation",
-          "Request every available scope",
-          "Use one permanent administrator token",
-          "Let returned content select scopes"
+          "It replaced an unverified local source entry with the official MCP specification repository and added review metadata.",
+          "It introduced a new permission configuration key.",
+          "It changed the module from intermediate to advanced.",
+          "It removed the need to review trust boundaries."
         ],
         "answerIndex": 0,
-        "explanation": "Progressive least privilege reduces blast radius and makes consent clearer."
+        "explanation": "The source-correction section states that the prior local, unverified entry was replaced with the official repository and that verification and review metadata were recorded."
       },
       {
-        "id": "q-mcp-security-4",
-        "prompt": "What should a consequential MCP approval show?",
+        "id": "mcp-trust-and-security-boundary-review",
+        "prompt": "What should happen when data or authority crosses a trust boundary?",
         "choices": [
-          "Only the model name",
-          "Only the server logo",
-          "The exact server, tool, data, resolved target, scope, and effect",
-          "A generic continue button"
+          "The receiving component should accept it because the connection succeeded.",
+          "The crossing should trigger validation and an authorization decision.",
+          "All available permissions should be granted temporarily.",
+          "The interaction should always be denied."
         ],
-        "answerIndex": 2,
-        "explanation": "The user needs enough concrete information to prevent or change the action."
+        "answerIndex": 1,
+        "explanation": "The module says that crossing a trust boundary should trigger validation and an authorization decision. A connection alone is not authorization."
       },
       {
-        "id": "q-mcp-security-5",
-        "prompt": "A trusted server exposes an unexpected new write tool. What is the safest response?",
+        "id": "mcp-trust-and-security-description-trust",
+        "prompt": "A connected component describes a requested action as safe. What is the correct response?",
         "choices": [
-          "Auto-enable it",
-          "Ignore the change",
-          "Pause exposure, review the changed inventory and policy, then explicitly approve or reject it",
-          "Give it wildcard scope"
+          "Treat the description as proof of authorization.",
+          "Perform the action if the component has connected before.",
+          "Evaluate the request against local policy and the user's granted authority.",
+          "Grant write authority whenever read authority already exists."
         ],
         "answerIndex": 2,
-        "explanation": "Server and tool drift require review because trust is tied to known behavior and authority."
+        "explanation": "Descriptions and requests received from another component are inputs, not proof that an action is safe or authorized."
+      },
+      {
+        "id": "mcp-trust-and-security-scope-change",
+        "prompt": "When should a workflow obtain a new authorization decision?",
+        "choices": [
+          "Only after an action fails.",
+          "Whenever the recipient, capability, data scope, or expected effect changes.",
+          "Whenever an audit record is created.",
+          "Only when a connection is first established."
+        ],
+        "answerIndex": 1,
+        "explanation": "The module directs reviewers to recheck authorization when the recipient, requested capability, data scope, or expected effect changes."
       }
     ]
   },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-22",
   "sources": [
     {
-      "title": "MCP security best practices",
-      "url": "https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices",
+      "title": "MCP Specification Repository",
+      "url": "https://github.com/modelcontextprotocol/specification",
       "publisher": "Model Context Protocol",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "MCP authorization",
-      "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization",
-      "publisher": "Model Context Protocol",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "MCP and connectors risks and safety",
-      "url": "https://developers.openai.com/api/docs/guides/tools-connectors-mcp",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "MCP connector",
-      "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
+      "lastVerified": "2026-08-22"
     }
   ]
 }
