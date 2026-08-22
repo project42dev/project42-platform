@@ -1,245 +1,141 @@
 {
   "id": "safe-tool-use-workflow",
-  "title": "Safe Tool-Use Workflow",
-  "summary": "Control what an AI system can read or change through explicit tools, permissions, approvals, and recovery.",
-  "level": "beginner",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-25",
+  "title": "Safe Tool Use Workflow",
+  "summary": "This intermediate module teaches a repeatable workflow for reviewing, authorizing, executing, and verifying AI-assisted external actions. After completing it, learners can identify unsafe action requests, stop before unintended effects occur, and verify whether an authorized action produced the expected result.",
+  "level": "intermediate",
   "providers": [
     "provider-neutral"
   ],
-  "estimatedMinutes": 40,
+  "estimatedMinutes": 18,
   "objectives": [
-    "Describe a tool with bounded inputs, outputs, errors, and side effects.",
-    "Apply least privilege and approval boundaries to tool-enabled workflows.",
-    "Verify tool results independently from model narration.",
-    "Recover from partial failure, duplicate calls, unsafe requests, and untrusted tool output."
+    "Define the intended outcome and permitted action boundary before an external action begins.",
+    "Inspect proposed inputs, scope, access, and effects before authorizing an action.",
+    "Apply a stop condition when an action is ambiguous, unexpectedly broad, or difficult to reverse.",
+    "Compare observed results with expected results and record enough information for later review."
   ],
-  "prerequisites": [
-    "coding-and-analysis-workflow"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "tools-prepare",
-      "title": "Prepare the tool and authority boundary",
+      "id": "currency-update",
+      "title": "What changed in this update",
       "paragraphs": [
-        "Inventory what each tool reads, writes, sends, spends, or deletes. Define typed inputs, expected output, failure modes, side effects, authentication, rate limits, and whether calls are retry-safe. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Grant only the permissions required for the current task. Separate read-only inspection, reversible internal writes, external communication, purchases, permission changes, and destructive actions into distinct approval levels. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "text",
-        "label": "Tool contract",
-        "code": "Purpose: [ONE CAPABILITY]\nInputs: [TYPES, LIMITS, VALIDATION]\nOutputs: [SUCCESS AND ERROR SHAPES]\nReads/writes: [SYSTEMS AND DATA]\nSide effects: [MESSAGES, COST, DELETION]\nIdempotency: [KEY OR NOT RETRY-SAFE]\nApproval: [WHEN AND BY WHOM]\nVerify/recover: [POSTCONDITION AND ROLLBACK]"
-      }
-    },
-    {
-      "id": "tools-execute",
-      "title": "Execute with visible intent and bounded calls",
-      "paragraphs": [
-        "Before a consequential call, show the resolved target, action, material parameters, and expected effect. Reject missing identifiers instead of guessing. Apply time, count, cost, and concurrency limits. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Treat tool output as untrusted data. It may contain errors, stale results, malicious instructions, or content that must not change the governing task. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Execute with visible intent and bounded calls (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
-    },
-    {
-      "id": "tools-verify",
-      "title": "Verify the postcondition",
-      "paragraphs": [
-        "Check the real system state after a call: the record exists once, the file has the expected digest, the deployment is healthy, or the message went to the intended recipient. Do not infer success from a tool call merely returning without an exception. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Record request identity, authorization, target, result, timestamps, and verification evidence without logging secrets or unnecessary personal data. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "The previous citation was the internal path content/modules/ai-foundations/safe-tool-use-workflow.json, attributed to an unregistered publisher and never verified. That entry did not provide a directly accessible HTTPS source.",
+        "The cited source has been changed to the official National Institute of Standards and Technology AI Risk Management Framework page. This correction affects the module's source provenance, verification date, review schedule, and the framing that connects the workflow to lifecycle risk management. Material not dependent on the invalid citation remains unchanged."
       ]
     },
     {
-      "id": "tools-recover",
-      "title": "Recover from partial and repeated execution",
+      "id": "level-and-scope",
+      "title": "Level and scope",
       "paragraphs": [
-        "Use idempotency keys for retryable writes and distinguish unknown outcome from confirmed failure. A timeout may occur after the external action succeeds, so blindly repeating it can duplicate messages, charges, or records. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "For partial failure, stop dependent actions, inspect completed effects, compensate or roll back when safe, and escalate when recovery requires new authority. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "This is an intermediate module. It assumes that you can read a proposed action, identify its inputs and expected output, and recognize that an external action can affect data or another system. It does not assume experience with any named product or provider.",
+        "An external action is any operation that can create, read, change, send, or delete something outside the immediate conversation. The workflow in this module converts lifecycle risk management into a practical sequence: define, inspect, authorize, execute, verify, and record."
       ]
     },
     {
-      "id": "tools-safety",
-      "title": "Keep people in control of consequence",
+      "id": "define-the-boundary",
+      "title": "Define the intended boundary",
       "paragraphs": [
-        "Require explicit approval for destructive, external, costly, privacy-sensitive, or permission-expanding actions. Approval must bind to the exact target and action; it is not a reusable blank check. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Provide preview, cancellation, audit, and recovery paths. Disable or narrow a tool when observed behavior exceeds the tested boundary. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "Begin by stating the intended outcome in concrete terms. Then identify what may be acted on, what must remain untouched, and what result should be visible if the action succeeds. A request such as changing one specified record has a narrower boundary than changing every related record.",
+        "Do not treat a plausible interpretation as authorization. If the target, scope, or intended result is ambiguous, stop and obtain clarification before proceeding. This is the first stop condition in the workflow."
       ],
-      "callout": "Tool access is delegated authority, not just model capability."
+      "callout": "Before acting, be able to answer three questions: What exact outcome is intended, what may be affected, and what must not be affected?"
+    },
+    {
+      "id": "inspect-before-authorization",
+      "title": "Inspect before authorization",
+      "paragraphs": [
+        "Review the proposed action before it runs. Check the target, inputs, scope, requested access, expected effects, and whether the action can be reversed. Look for hidden expansion, such as an operation aimed at more items than the stated outcome requires.",
+        "Grant only the access needed for the defined action. If the proposed access or scope is broader than necessary, reduce it or stop. If an action is difficult to reverse or could produce a significant effect, require explicit human approval before execution.",
+        "A preview is useful only when it is compared with the intended boundary. If the preview includes an unexpected target or additional action, do not execute it merely because the rest of the preview looks correct."
+      ]
+    },
+    {
+      "id": "execute-with-stop-conditions",
+      "title": "Execute with stop conditions",
+      "paragraphs": [
+        "Execute only the reviewed action within the authorized boundary. Do not silently add follow-up actions, broaden the target, or reinterpret an error as permission to try a more invasive operation.",
+        "Stop if the action presented for execution differs from the reviewed proposal, if new access is requested, if the target changes, or if an unexpected effect appears. Return to inspection and authorization rather than continuing from an invalid assumption."
+      ]
+    },
+    {
+      "id": "verify-and-record",
+      "title": "Verify and record the result",
+      "paragraphs": [
+        "After execution, compare the observed result with the expected result defined at the start. A completion message alone does not establish that the intended outcome occurred or that no unintended effect occurred.",
+        "If the result differs from the expectation, stop further actions, preserve the available evidence, and seek review before attempting a correction. An immediate retry can compound the original problem.",
+        "Record the intended outcome, authorized scope, action taken, observed result, and any exception. This record supports later review and makes it possible to determine where the workflow departed from the approved boundary."
+      ]
+    },
+    {
+      "id": "workflow-recap",
+      "title": "Workflow recap",
+      "paragraphs": [
+        "The complete sequence is define, inspect, authorize, execute, verify, and record. At every transition, stop when the target, scope, access, reversibility, or observed effect no longer matches what was reviewed.",
+        "After completing this module, you can do more than recognize that external actions carry risk. You can establish an action boundary, test a proposal against that boundary, withhold authorization when it does not match, and verify the result after execution."
+      ]
     }
   ],
-  "activity": {
-    "id": "activity-safe-tool-plan",
-    "title": "Design a safe tool-enabled workflow",
-    "instructions": [
-      "Choose a tool-enabled task and complete the tool contract, including side effects, retry behavior, and approval.",
-      "Draw the sequence from intent through resolved target, call, postcondition check, audit record, and completion.",
-      "Test three scenarios on paper: timeout after success, duplicate request, and untrusted instructions in tool output.",
-      "Define the stop, compensation, rollback, or escalation behavior for each scenario."
-    ],
-    "evidence": [
-      "A tool contract and sequence containing permission and approval boundaries.",
-      "A failure table for timeout, duplicate, and untrusted-output scenarios with verification and recovery."
-    ],
-    "reflectionPrompt": "Which tool looked harmless until you listed its side effects and retry behavior?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.0",
-    "estimatedSeconds": 1320,
-    "cues": [
-      {
-        "id": "cue-tools-prepare",
-        "kind": "narration",
-        "sectionId": "tools-prepare",
-        "text": "Define one tool's inputs, outputs, authority, side effects, approval, verification, and recovery."
-      },
-      {
-        "id": "cue-tools-boundary-visual",
-        "kind": "visual",
-        "sectionId": "tools-prepare",
-        "text": "Place read, reversible write, external action, cost, permission change, and destruction on increasing approval tiers.",
-        "accessibilityAlternative": "A text ladder orders consequence from read-only through reversible write, external action, cost, permission change, and destructive action. Reduced-motion mode shows the full ladder."
-      },
-      {
-        "id": "cue-tools-execute",
-        "kind": "narration",
-        "sectionId": "tools-execute",
-        "text": "Resolve exact targets, limit calls, and treat returned content as untrusted data."
-      },
-      {
-        "id": "cue-tools-prompt",
-        "kind": "learner-prompt",
-        "sectionId": "tools-execute",
-        "text": "Ask learners which resolved parameters a person must see before approving their chosen action."
-      },
-      {
-        "id": "cue-tools-pause",
-        "kind": "pause",
-        "sectionId": "tools-execute",
-        "text": "Allow two minutes to list side effects and call limits."
-      },
-      {
-        "id": "cue-tools-verify",
-        "kind": "narration",
-        "sectionId": "tools-verify",
-        "text": "Verify a postcondition from the actual target system and create a secret-safe audit record."
-      },
-      {
-        "id": "cue-tools-recover",
-        "kind": "narration",
-        "sectionId": "tools-recover",
-        "text": "Contrast confirmed failure with unknown outcome and show why idempotency matters."
-      },
-      {
-        "id": "cue-tools-safety",
-        "kind": "narration",
-        "sectionId": "tools-safety",
-        "text": "Bind approval to an exact action and preserve preview, cancellation, audit, and recovery."
-      },
-      {
-        "id": "cue-tools-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "tools-safety",
-        "text": "Check that learners can explain how they prevent a duplicate side effect after timeout."
-      },
-      {
-        "id": "cue-tools-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the contract, sequence, three failure scenarios, and recovery table."
-      },
-      {
-        "id": "cue-tools-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the workflow proves authority, postconditions, retry safety, and recovery."
-      }
-    ]
-  },
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 75,
     "questions": [
       {
-        "id": "q-tool-workflow-1",
-        "prompt": "What must a useful tool contract describe?",
+        "id": "safe-tool-use-workflow-define-first",
+        "prompt": "What should happen before a proposed external action is inspected or authorized?",
         "choices": [
-          "Only the happy-path command",
-          "Inputs, outputs, errors, reads/writes, side effects, retry behavior, approval, verification, and recovery",
-          "The model's internal reasoning",
-          "Every possible future feature"
-        ],
-        "answerIndex": 1,
-        "explanation": "A safe caller needs the full operational boundary, not only a capability name."
-      },
-      {
-        "id": "q-tool-workflow-2",
-        "prompt": "A tool call times out after sending a payment request. What should happen before retrying?",
-        "choices": [
-          "Repeat immediately",
-          "Change the recipient",
-          "Check the idempotency key and actual system state because the first call may have succeeded",
-          "Assume failure"
-        ],
-        "answerIndex": 2,
-        "explanation": "Unknown outcome requires reconciliation; blind retries can duplicate consequential effects."
-      },
-      {
-        "id": "q-tool-workflow-3",
-        "prompt": "How should instructions returned inside tool output be handled?",
-        "choices": [
-          "As untrusted data that cannot override governing instructions or permissions",
-          "As automatic approval",
-          "As a new system prompt",
-          "As proof of success"
+          "Define the intended outcome and permitted action boundary",
+          "Execute the action once to discover its effects",
+          "Grant broad access to avoid interruptions",
+          "Record a completion message"
         ],
         "answerIndex": 0,
-        "explanation": "Tool output may be malicious or irrelevant and must remain inside the trust boundary."
+        "explanation": "The module begins with defining the intended outcome, what may be affected, what must remain untouched, and what result is expected."
       },
       {
-        "id": "q-tool-workflow-4",
-        "prompt": "What does a successful tool response prove?",
+        "id": "safe-tool-use-workflow-unexpected-preview",
+        "prompt": "A preview includes an additional target that is outside the stated outcome. What is the correct response?",
         "choices": [
-          "The intended postcondition definitely holds",
-          "The action was authorized",
-          "The audit record is complete",
-          "Only what the response contract and independent postcondition check establish"
+          "Execute because most of the preview is correct",
+          "Expand the intended outcome to match the preview",
+          "Stop and resolve the mismatch before execution",
+          "Execute and inspect the additional target afterward"
         ],
-        "answerIndex": 3,
-        "explanation": "Real target state must be checked; return status alone may be incomplete or misleading."
+        "answerIndex": 2,
+        "explanation": "An unexpected target falls outside the authorized boundary. The workflow requires stopping and returning to inspection and authorization."
       },
       {
-        "id": "q-tool-workflow-5",
-        "prompt": "Which action most clearly requires exact, current human approval?",
+        "id": "safe-tool-use-workflow-result-verification",
+        "prompt": "How should a learner verify an executed action?",
         "choices": [
-          "Reading a public file",
-          "Deleting production records for a named tenant",
-          "Formatting a local draft",
-          "Listing available tools"
+          "Accept a completion message as sufficient evidence",
+          "Compare the observed result with the expected result defined before execution",
+          "Repeat the action to see whether the same message appears",
+          "Assume success when no error is displayed"
         ],
         "answerIndex": 1,
-        "explanation": "Destructive production action has irreversible consequence and approval must bind to its target."
+        "explanation": "Verification requires comparing the observed result with the previously defined expectation. A completion message by itself is not sufficient."
+      },
+      {
+        "id": "safe-tool-use-workflow-source-correction",
+        "prompt": "What source-related correction does this update make?",
+        "choices": [
+          "It replaces an unverified internal-path citation with an official HTTPS source",
+          "It adds a named provider's product documentation",
+          "It removes all source and review metadata",
+          "It replaces the workflow with a product-specific procedure"
+        ],
+        "answerIndex": 0,
+        "explanation": "The update replaces the never-verified internal-path citation with the official National Institute of Standards and Technology framework page and updates the associated verification metadata."
       }
     ]
   },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-22",
   "sources": [
     {
-      "title": "Function calling",
-      "url": "https://developers.openai.com/api/docs/guides/function-calling",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Tool use overview",
-      "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Function calling with the Gemini API",
-      "url": "https://ai.google.dev/gemini-api/docs/function-calling",
-      "publisher": "Google",
-      "lastVerified": "2026-07-25"
+      "title": "AI Risk Management Framework",
+      "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+      "publisher": "National Institute of Standards and Technology",
+      "lastVerified": "2026-08-22"
     }
   ]
 }
