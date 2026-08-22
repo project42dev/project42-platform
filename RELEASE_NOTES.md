@@ -1,3 +1,71 @@
+# Project 42 platform v0.92.0
+
+Version 0.92.0 was cut by the Orchard release role from everything merged into `main` since v0.91.0. It exists so that content already merged into the platform repository reaches the sites that consume the platform package.
+
+## Content
+
+Added:
+
+
+
+- `content/modules/agentic-systems-and-mcp/agent-architecture-spectrum.json`
+- `content/modules/agentic-systems-and-mcp/agent-safety-and-spend-brakes.json`
+- `content/modules/agentic-systems-and-mcp/model-context-protocol-mcp.json`
+- `content/modules/agentic-systems-and-mcp/multi-agent-orchestration.json`
+- `content/modules/ai-literacy-and-mental-models/ai-mental-models.json`
+- `content/modules/ai-literacy-and-mental-models/prompt-architecture.json`
+- `content/modules/ai-literacy-and-mental-models/token-economics-and-limits.json`
+- `content/modules/ai-security-and-governance/ai-compliance-and-crypto-receipts.json`
+- `content/modules/ai-security-and-governance/guardrails-and-sandboxing.json`
+- `content/modules/ai-security-and-governance/owasp-top-10-llm-attacks.json`
+- `content/modules/developer-and-practitioner-ai/function-calling-and-tools.json`
+- `content/modules/developer-and-practitioner-ai/provider-sdk-patterns.json`
+- `content/modules/developer-and-practitioner-ai/structured-outputs-mastery.json`
+- `content/modules/developer-and-practitioner-ai/vector-embeddings-and-pgvector.json`
+- `content/modules/rag-and-fine-tuning-engineering/advanced-rag-and-hybrid-search.json`
+- `content/modules/rag-and-fine-tuning-engineering/dpo-and-model-evaluation.json`
+- `content/modules/rag-and-fine-tuning-engineering/graph-rag-and-knowledge-graphs.json`
+- `content/modules/rag-and-fine-tuning-engineering/lora-qlora-fine-tuning.json`
+- `content/modules/self-hosted-and-aiops/hardware-and-vram-calculator.json`
+- `content/modules/self-hosted-and-aiops/open-weights-and-quantization.json`
+- `content/modules/self-hosted-and-aiops/production-vllm-and-ollama.json`
+- `content/modules/self-hosted-and-aiops/semantic-caching-and-ai-tracing.json`
+
+Changed:
+
+
+
+- `content/catalog.json`
+- `content/modules/ai-foundations/language-models-and-generation.json`
+- `content/modules/discovery/cost.json`
+- `content/modules/discovery/evaluation.json`
+- `content/modules/discovery/executive.json`
+- `content/modules/discovery/fine-tuning.json`
+- `content/modules/discovery/langchain.json`
+- `content/modules/discovery/mcp.json`
+- `content/modules/discovery/microsoft-foundry.json`
+- `content/modules/discovery/orchestration.json`
+- `content/modules/discovery/rag.json`
+- `content/modules/discovery/vector.json`
+- `content/modules/discovery/voice-agent.json`
+- `content/training/coverage.json`
+
+## Migrations
+
+No file under `migrations/` was added or changed since v0.91.0.
+
+## Breaking changes
+
+Orchard does not classify breaking changes. Review the file list above, and the diff for this tag, before approving the release environment.
+
+## Known limitations
+
+None are recorded by the automation that cut this release. It reports what changed; it does not assess it.
+
+## Rollback
+
+Revert consuming sites to v0.91.0.
+
 # Project 42 platform v0.91.0
 
 Version 0.91.0 was cut by the Orchard release role from everything merged into `main` since v0.90.0. It exists so that content already merged into the platform repository reaches the sites that consume the platform package.
