@@ -1,6 +1,6 @@
 {
   "name": "@project42/platform",
-  "version": "0.87.0",
+  "version": "0.88.0",
   "description": "Open-source content, assessment, and learning-record core for Project 42.",
   "type": "module",
   "main": "./dist/index.js",
