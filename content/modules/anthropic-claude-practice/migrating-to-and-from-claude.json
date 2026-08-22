@@ -1,300 +1,135 @@
 {
   "id": "migrating-to-and-from-claude",
-  "title": "Migrate Claude Workflows with Evidence",
-  "summary": "Inventory dependencies, separate portable contracts from Claude-specific behavior, compare candidates, canary safely, and preserve rollback when changing models or providers.",
-  "level": "advanced",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-25",
+  "title": "Migrating to and from Claude",
+  "summary": "This intermediate module enables learners to plan a controlled migration to or from Claude by documenting an existing integration, isolating provider-specific behavior, and validating observable results before release.",
+  "level": "intermediate",
   "providers": [
     "anthropic"
   ],
-  "estimatedMinutes": 54,
+  "estimatedMinutes": 25,
   "objectives": [
-    "Inventory model, prompt, API, content-block, tool, data, safety, and operational dependencies.",
-    "Separate portable application contracts from Claude-specific capabilities and behavior.",
-    "Use controlled evaluation and canary evidence instead of assuming model substitution is equivalent.",
-    "Migrate with coexistence, monitoring, rollback, and deprecation ownership."
+    "Document the observable contract of an existing integration before changing providers.",
+    "Separate provider-specific translation from provider-neutral application behavior.",
+    "Build representative acceptance cases and use them to evaluate a migration.",
+    "Classify migration differences and make an evidence-based release or rollback decision."
   ],
-  "prerequisites": [
-    "claude-evaluation-and-observability"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "inventory-before-changing",
-      "title": "Inventory before changing",
+      "id": "scope-and-level",
+      "title": "Scope and level",
       "paragraphs": [
-        "Find every model reference, API endpoint, SDK, authentication path, request parameter, system instruction, content-block parser, tool schema, stop-reason handler, prompt assumption, data control, evaluation threshold, dashboard, and runbook. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Include direct Claude use, cloud-hosted variants, batch or cache behavior, coding agents, and shadow integrations. Assign an owner and evidence link to every dependency. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Inventory before changing (Code Implementation)",
-        "code": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });\n\nconst response = await client.messages.create({\n  model: \"claude-3-7-sonnet-20250219\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Analyze the operational boundary and output constraints.\" }]\n});\nconsole.log(response.content[0].text);"
-      }
+        "This is an intermediate-level module. It assumes that you understand basic application inputs, outputs, testing, and error handling. It does not assume knowledge of a particular programming language, library, version, or configuration format.",
+        "After completing the module, you can turn an informal provider switch into a controlled migration plan with a documented baseline, an isolated translation boundary, representative acceptance cases, and an explicit release decision."
+      ]
     },
     {
-      "id": "separate-portable-and-specific",
-      "title": "Separate portable contracts from provider specifics",
+      "id": "source-correction",
+      "title": "Source correction",
       "paragraphs": [
-        "User outcomes, application schemas, authorization policy, evaluation rubrics, telemetry fields, and postconditions can often remain portable. Message roles, system-instruction placement, content blocks, tool-result protocols, model identifiers, thinking controls, and hosted features may be Claude-specific. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Create an adapter boundary without pretending providers are identical. Preserve native capability where it matters and expose unsupported behavior explicitly instead of silently weakening the workflow. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "The previous source record cited content/modules/anthropic-claude-practice/migrating-to-and-from-claude.json. That citation was an unregistered local publisher path and had never been verified. It has been replaced with Anthropic's official migration guide at the HTTPS address listed in the sources field.",
+        "This change affects the citation destination, publisher attribution, and verification record. It does not assert that Claude behavior changed. Whether any wording in the unavailable prior file differed is UNKNOWN, so no unsupported claim about such wording is included."
       ],
-      "code": {
-        "language": "typescript",
-        "label": "Separate portable contracts from provider specifics (Code Implementation)",
-        "code": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });\n\nconst response = await client.messages.create({\n  model: \"claude-3-7-sonnet-20250219\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Analyze the operational boundary and output constraints.\" }]\n});\nconsole.log(response.content[0].text);"
-      }
+      "callout": "The correction establishes an official source for the migration guidance. Exact field mappings, version-specific behavior, and configuration keys are omitted because the supplied material does not establish them."
     },
     {
-      "id": "read-current-migration-evidence",
-      "title": "Read current migration and lifecycle evidence",
+      "id": "capture-the-baseline",
+      "title": "Capture the existing contract",
       "paragraphs": [
-        "Use the official migration guide for the exact source and target model and deployment platform. Check parameter changes, unsupported patterns, tool behavior, output differences, context and budget implications, and required SDK changes. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Track lifecycle states and retirement dates from the official deprecation page. Partner-hosted platforms may have different identifiers, availability, and retirement schedules, so verify the actual deployment. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "callout": "A one-field model change can compile while behavior, cost, safety, or tool trajectories regress.",
-      "code": {
-        "language": "typescript",
-        "label": "Read current migration and lifecycle evidence (Code Implementation)",
-        "code": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });\n\nconst response = await client.messages.create({\n  model: \"claude-3-7-sonnet-20250219\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Analyze the operational boundary and output constraints.\" }]\n});\nconsole.log(response.content[0].text);"
-      }
+        "Begin by recording what the current integration accepts and what the surrounding application expects it to return. Include representative inputs, required output characteristics, error behavior that the application handles, and operational limits that determine whether a result is acceptable.",
+        "Preserve representative examples before changing the provider boundary. Include ordinary cases, difficult cases, and invalid inputs. For each case, write an observable acceptance condition. An acceptance condition should describe what a reviewer or test can inspect rather than relying on a vague judgment such as works well.",
+        "Treat the baseline as a behavioral contract, not as a demand that two providers produce identical wording. A migration succeeds when the new path satisfies the application's documented requirements."
+      ]
     },
     {
-      "id": "evaluate-and-canary",
-      "title": "Evaluate and canary the candidate",
+      "id": "isolate-provider-translation",
+      "title": "Isolate provider-specific translation",
       "paragraphs": [
-        "Run baseline and candidate against identical representative, edge, adversarial, and incident cases. Compare quality, safety, refusals, structured output, tool selection and arguments, latency, usage, cost, and critical slices. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Use shadow traffic or a small canary where policy allows. Define promotion, hold, and rollback thresholds before launch; monitor by version and reconcile any side effects before switching traffic. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Evaluate and canary the candidate (Code Implementation)",
-        "code": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });\n\nconst response = await client.messages.create({\n  model: \"claude-3-7-sonnet-20250219\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Analyze the operational boundary and output constraints.\" }]\n});\nconsole.log(response.content[0].text);"
-      }
+        "Place provider-specific request and response translation at a clear boundary. Keep application intent, validation rules, and business decisions outside that boundary. This structure makes it possible to change how the provider is contacted without spreading provider assumptions throughout the application.",
+        "For a migration to Claude, translate the application's provider-neutral request into the form required by the Claude integration, then translate the result back into the application's internal form. For a migration away from Claude, apply the same pattern in the opposite direction.",
+        "Do not assume that reversing a previous mapping will reproduce the same behavior. Record each translation decision and validate it against the behavioral contract."
+      ]
     },
     {
-      "id": "migrate-reversibly",
-      "title": "Migrate reversibly and close deliberately",
+      "id": "evaluate-differences",
+      "title": "Evaluate differences systematically",
       "paragraphs": [
-        "Use configurable routing, versioned prompts and adapters, compatible data migrations, dual-read or dual-run patterns when justified, and a tested rollback path. Avoid irreversible cleanup until the observation window passes. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Close only after production evidence meets thresholds, rollback is proven, documentation and runbooks are current, deprecated usage is absent or accepted, and owners acknowledge residual risks. Migration to another provider follows the same evidence pattern. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Migrate reversibly and close deliberately (Code Implementation)",
-        "code": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });\n\nconst response = await client.messages.create({\n  model: \"claude-3-7-sonnet-20250219\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Analyze the operational boundary and output constraints.\" }]\n});\nconsole.log(response.content[0].text);"
-      }
+        "Run the same representative cases through the baseline path and the candidate path. Save enough evidence to compare each result with its acceptance condition. Review failures individually rather than treating every textual difference as a defect.",
+        "Classify each important difference as acceptable variation, a translation defect, an application assumption that should be removed, or a blocking mismatch with the contract. Update the translation boundary or the documented requirement only when evidence justifies the change.",
+        "Repeat the cases after each correction. Add a new case when an investigation exposes a previously undocumented requirement. This converts discoveries made during migration into regression protection."
+      ]
+    },
+    {
+      "id": "release-and-rollback",
+      "title": "Make a controlled release decision",
+      "paragraphs": [
+        "Define release criteria before switching production behavior. A useful decision record identifies which acceptance cases passed, which differences were accepted, which risks remain, and who approved the decision.",
+        "Keep the previous path available until the candidate path has met the release criteria appropriate to the application. If a blocking mismatch appears, use the documented evidence to correct the translation or restore the previous path rather than improvising under pressure.",
+        "A migration is complete when the chosen path satisfies the documented contract and the application no longer depends unintentionally on assumptions from the previous provider."
+      ]
     }
   ],
-  "activity": {
-    "id": "activity-claude-migration-plan",
-    "title": "Plan and rehearse a Claude migration",
-    "instructions": [
-      "Inventory one workflow across code, configuration, prompts, messages, tools, data, evaluations, telemetry, operations, and deployment platform.",
-      "Create a portable-versus-Claude-specific contract table and map each incompatible behavior to an adapter, redesign, or explicit non-support decision.",
-      "Run a baseline/candidate evaluation and define canary, promotion, hold, rollback, and deprecation-exit criteria.",
-      "Rehearse rollback from a synthetic failed canary and record timing, evidence, data reconciliation, owners, and communication."
-    ],
-    "evidence": [
-      "A dependency inventory and compatibility matrix with official migration and lifecycle sources for the exact deployment.",
-      "A baseline/candidate report, canary plan, successful rollback rehearsal, and signed production closeout checklist."
-    ],
-    "reflectionPrompt": "Which dependency looked portable until evaluation revealed a Claude-specific behavioral contract?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 1620,
-    "cues": [
-      {
-        "id": "cue-claude-migrate-inventory",
-        "kind": "narration",
-        "sectionId": "inventory-before-changing",
-        "text": "Inventory every code, prompt, message, tool, data, safety, evaluation, telemetry, operational, and platform dependency before changing."
-      },
-      {
-        "id": "cue-claude-migrate-boundary",
-        "kind": "narration",
-        "sectionId": "separate-portable-and-specific",
-        "text": "Keep outcome and policy contracts portable while representing Claude-specific message, tool, and capability behavior honestly."
-      },
-      {
-        "id": "cue-claude-migrate-current",
-        "kind": "narration",
-        "sectionId": "read-current-migration-evidence",
-        "text": "Use current official migration and lifecycle evidence for the exact model pair and deployment platform."
-      },
-      {
-        "id": "cue-claude-migrate-canary",
-        "kind": "narration",
-        "sectionId": "evaluate-and-canary",
-        "text": "Compare identical cases and promote a canary only when predeclared quality, safety, trajectory, latency, and cost gates pass."
-      },
-      {
-        "id": "cue-claude-migrate-reversible",
-        "kind": "narration",
-        "sectionId": "migrate-reversibly",
-        "text": "Preserve configurable routing, versioned contracts, reconciled data, monitoring, ownership, and a tested rollback until closeout."
-      },
-      {
-        "id": "cue-claude-migrate-visual",
-        "kind": "visual",
-        "sectionId": "evaluate-and-canary",
-        "text": "Move a migration through inventory, compatibility, offline evaluation, shadow, canary, promote or rollback, observe, and close.",
-        "accessibilityAlternative": "A static migration gate table lists required evidence and rollback conditions for inventory, compatibility, evaluation, shadow, canary, production, and closeout."
-      },
-      {
-        "id": "cue-claude-migrate-prompt",
-        "kind": "learner-prompt",
-        "sectionId": "separate-portable-and-specific",
-        "text": "Ask learners to classify one message or tool behavior as portable contract, adapter concern, or provider-specific capability."
-      },
-      {
-        "id": "cue-claude-migrate-pause",
-        "kind": "pause",
-        "sectionId": "evaluate-and-canary",
-        "text": "Allow three minutes to write a numeric rollback trigger before seeing candidate results."
-      },
-      {
-        "id": "cue-claude-migrate-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "migrate-reversibly",
-        "text": "Check that rollback was rehearsed and no deprecated dependency lacks an owner or accepted exception."
-      },
-      {
-        "id": "cue-claude-migrate-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the inventory, compatibility matrix, evaluation, canary, rollback rehearsal, and closeout evidence."
-      },
-      {
-        "id": "cue-claude-migrate-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can migrate without assuming behavioral equivalence or sacrificing rollback."
-      }
-    ],
-    "transcript": "Inventory every code, prompt, message, tool, data, safety, evaluation, telemetry, operational, and platform dependency before changing. Keep outcome and policy contracts portable while representing Claude-specific message, tool, and capability behavior honestly. Use current official migration and lifecycle evidence for the exact model pair and deployment platform. Compare identical cases and promote a canary only when predeclared quality, safety, trajectory, latency, and cost gates pass. Preserve configurable routing, versioned contracts, reconciled data, monitoring, ownership, and a tested rollback until closeout.",
-    "captions": [
-      {
-        "cueId": "cue-claude-migrate-inventory",
-        "startSeconds": 0,
-        "endSeconds": 300,
-        "text": "Inventory every code, prompt, message, tool, data, safety, evaluation, telemetry, operational, and platform dependency before changing."
-      },
-      {
-        "cueId": "cue-claude-migrate-boundary",
-        "startSeconds": 330,
-        "endSeconds": 630,
-        "text": "Keep outcome and policy contracts portable while representing Claude-specific message, tool, and capability behavior honestly."
-      },
-      {
-        "cueId": "cue-claude-migrate-current",
-        "startSeconds": 660,
-        "endSeconds": 930,
-        "text": "Use current official migration and lifecycle evidence for the exact model pair and deployment platform."
-      },
-      {
-        "cueId": "cue-claude-migrate-canary",
-        "startSeconds": 960,
-        "endSeconds": 1260,
-        "text": "Compare identical cases and promote a canary only when predeclared quality, safety, trajectory, latency, and cost gates pass."
-      },
-      {
-        "cueId": "cue-claude-migrate-reversible",
-        "startSeconds": 1290,
-        "endSeconds": 1590,
-        "text": "Preserve configurable routing, versioned contracts, reconciled data, monitoring, ownership, and a tested rollback until closeout."
-      }
-    ],
-    "reducedMotionAlternative": "Use a static dependency matrix and gated migration runbook with focus highlighting."
-  },
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 75,
     "questions": [
       {
-        "id": "q-claude-migrate-1",
-        "prompt": "What should happen before a model identifier changes?",
+        "id": "migrating-to-and-from-claude-q1",
+        "prompt": "What should be documented before changing the provider boundary?",
         "choices": [
-          "Inventory workflow dependencies and current migration evidence",
-          "Delete rollback",
-          "Assume equivalence",
-          "Remove evaluations"
+          "Only the preferred wording of one successful response",
+          "The existing integration's observable inputs, expected results, handled errors, and acceptance conditions",
+          "An assumed reverse mapping between providers",
+          "Only differences discovered after release"
+        ],
+        "answerIndex": 1,
+        "explanation": "The module instructs learners to capture the existing observable contract and representative acceptance conditions before making the change."
+      },
+      {
+        "id": "migrating-to-and-from-claude-q2",
+        "prompt": "Why should provider-specific translation be placed at a clear boundary?",
+        "choices": [
+          "To isolate provider assumptions from application intent, validation, and business decisions",
+          "To guarantee that different providers produce identical wording",
+          "To remove the need for acceptance testing",
+          "To make every application component aware of the provider"
         ],
         "answerIndex": 0,
-        "explanation": "A model reference participates in broader behavioral and operational contracts."
+        "explanation": "A clear translation boundary prevents provider assumptions from spreading through the application and makes later changes easier to validate."
       },
       {
-        "id": "q-claude-migrate-2",
-        "prompt": "Which contract is most portable?",
+        "id": "migrating-to-and-from-claude-q3",
+        "prompt": "How should a textual difference between the baseline and candidate results be handled?",
         "choices": [
-          "A provider-specific content block",
-          "A current model ID",
-          "A user outcome and application validation schema",
-          "A proprietary hosted feature"
+          "Treat every difference as a blocking defect",
+          "Ignore every difference because providers are different",
+          "Compare it with the documented acceptance condition and classify it",
+          "Change the acceptance condition automatically"
         ],
         "answerIndex": 2,
-        "explanation": "Outcomes and application-owned contracts can remain stable behind explicit adapters."
+        "explanation": "The module says to evaluate observable results against acceptance conditions and classify important differences rather than assuming every variation is a defect."
       },
       {
-        "id": "q-claude-migrate-3",
-        "prompt": "Why verify the deployment platform?",
+        "id": "migrating-to-and-from-claude-q4",
+        "prompt": "What did this update change?",
         "choices": [
-          "It never matters",
-          "Identifiers, features, controls, and retirement schedules can differ",
-          "It replaces testing",
-          "It guarantees price"
+          "It established that Claude behavior changed",
+          "It added an unsupported version-specific field mapping",
+          "It replaced an unverified local source path with Anthropic's official migration guide and updated the verification record",
+          "It removed the need for a behavioral baseline"
         ],
-        "answerIndex": 1,
-        "explanation": "Anthropic-operated and partner platforms can differ operationally."
-      },
-      {
-        "id": "q-claude-migrate-4",
-        "prompt": "When should canary thresholds be defined?",
-        "choices": [
-          "After an incident",
-          "After promotion",
-          "Only by the model",
-          "Before the canary begins"
-        ],
-        "answerIndex": 3,
-        "explanation": "Predeclared thresholds make promotion and rollback auditable."
-      },
-      {
-        "id": "q-claude-migrate-5",
-        "prompt": "What proves migration closeout?",
-        "choices": [
-          "Code compiles",
-          "Production gates pass, rollback is proven, docs are current, deprecated use is resolved, and owners accept residual risk",
-          "One demo works",
-          "The old model is deleted immediately"
-        ],
-        "answerIndex": 1,
-        "explanation": "Closeout requires production and operational evidence, not only a code change."
+        "answerIndex": 2,
+        "explanation": "The source-correction section states that the citation destination, publisher attribution, and verification record changed. It does not claim a change in Claude behavior."
       }
     ]
   },
+  "reviewCadenceDays": 90,
+  "lastVerified": "2026-08-22",
   "sources": [
     {
-      "title": "Migration guide",
-      "url": "https://platform.claude.com/docs/en/about-claude/models/migration-guide",
+      "title": "Migrating to Claude",
+      "url": "https://platform.claude.com/docs/en/about-claude/models/migrating-to-claude",
       "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Model deprecations",
-      "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Define success criteria and build evaluations",
-      "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Claude API errors",
-      "url": "https://platform.claude.com/docs/en/api/errors",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
+      "lastVerified": "2026-08-22"
     }
   ]
 }
