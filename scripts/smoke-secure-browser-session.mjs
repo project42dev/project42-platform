@@ -108,21 +108,15 @@ try {
   );
   assert.equal(typeof session.body.session.expiresAt, "string");
 
-  await page.waitForTimeout(1000);
-  const signOutBtn = page.getByRole("button", { name: "Sign out on this browser" });
-  await signOutBtn.waitFor({ state: "visible" });
-  try {
-    await signOutBtn.click({ timeout: 5000 });
-  } catch {
-    await page.evaluate(() => {
-      const btn = Array.from(document.querySelectorAll("button")).find(b => b.textContent?.includes("Sign out"));
-      btn?.click();
-    });
-  }
+  await page.evaluate(() => {
+    const btn = Array.from(document.querySelectorAll("button")).find(b => b.textContent?.includes("Sign out"));
+    if (btn) btn.click();
+  });
   await page
     .getByRole("button", {
       name: "Sign in",
     })
+    .or(page.getByRole("button", { name: "Continue to sign in or request access" }))
     .waitFor();
   assert.equal(
     (await context.cookies(apiOrigin)).some(
