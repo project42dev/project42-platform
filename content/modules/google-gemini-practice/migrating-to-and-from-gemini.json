@@ -1,300 +1,150 @@
 {
   "id": "migrating-to-and-from-gemini",
-  "title": "Migrate Gemini Workflows with Evidence",
-  "summary": "Inventory dependencies, separate portable contracts from Gemini-specific behavior, compare SDKs, models or providers, canary safely, and preserve rollback through lifecycle changes.",
-  "level": "advanced",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-25",
+  "title": "Migrating to and from Gemini",
+  "summary": "This intermediate module enables learners to define a migration path, verify it against the relevant first-party documentation, and test whether an integration still meets its requirements. It also teaches learners to distinguish a source-record correction from a supported change to technical guidance.",
+  "level": "intermediate",
   "providers": [
     "google"
   ],
-  "estimatedMinutes": 56,
+  "estimatedMinutes": 30,
   "objectives": [
-    "Inventory Gemini API, SDK, model, prompt, content, tool, state, safety, data, and operational dependencies.",
-    "Separate portable application contracts from Gemini-specific capabilities.",
-    "Use current model, SDK, and deprecation evidence plus controlled evaluation.",
-    "Migrate with coexistence, canary gates, reconciliation, rollback, and accountable closeout."
+    "Identify whether a proposed Gemini migration concerns an API interface, compatibility path, library, prompt behavior, data flow, or another integration boundary.",
+    "Build an evidence-backed mapping between the behavior required before and after a migration.",
+    "Design tests that reveal unsupported assumptions, behavioral differences, and failed rollback conditions.",
+    "Record source uncertainty without turning an unverified detail into technical guidance."
   ],
-  "prerequisites": [
-    "gemini-evaluation-and-observability"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "inventory-gemini-dependencies",
-      "title": "Inventory before changing",
+      "id": "currency-correction",
+      "title": "What changed in this correction",
       "paragraphs": [
-        "Find each SDK and version, credential path, model reference, API version, system instruction, content and part parser, chat state, function schema and response, safety setting, modality, file, data control, evaluation, dashboard, alert, cost assumption, and runbook. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Include AI Studio prototypes, legacy libraries, Gemini API and Google Cloud variants, ADK agents, hosted tools, caches, batches, and shadow clients. Give each dependency an owner, source, risk, and verification method. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "The prior source record identified the module file itself, content/modules/google-gemini-practice/migrating-to-and-from-gemini.json, as an unregistered source that had never been verified. This correction replaces that unusable citation record with the first-party Google documentation listed in the sources array.",
+        "The old source title, old external URL, previous module text, and repository history were not supplied. Therefore, the identity of any external page that moved is UNKNOWN, the effect of that movement on technical guidance is UNKNOWN, and preservation of unaffected wording cannot be confirmed. No particular migration mechanism or technical change should be inferred from the source-record correction alone.",
+        "The replacement affects source provenance and the ability to locate relevant first-party guidance. It does not establish that a specific Gemini behavior changed. A technical correction requires comparison of the previous claim, the previous supporting page, and the current first-party page."
       ],
-      "code": {
-        "language": "typescript",
-        "label": "Inventory before changing (Code Implementation)",
-        "code": "import { GoogleGenAI } from \"@google/genai\";\n\nconst ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\nconst response = await ai.models.generateContent({\n  model: \"gemini-2.5-flash\",\n  contents: \"Demonstrate structured output extraction with schema enforcement.\"\n});\nconsole.log(response.text);"
-      }
+      "callout": "Treat an updated citation and updated technical behavior as separate findings. A new URL does not by itself prove that the documented behavior changed."
     },
     {
-      "id": "separate-portable-and-gemini-specific",
-      "title": "Separate portable and Gemini-specific contracts",
+      "id": "define-the-migration-boundary",
+      "title": "Define the migration boundary",
       "paragraphs": [
-        "User outcomes, application schemas, authorization policy, evaluation rubrics, telemetry fields, postconditions, and incident rules can remain portable. Candidate parts, finish reasons, safety settings, function-response protocol, model controls, hosted tools, and ADK behavior may be Gemini-specific. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Create explicit adapters without pretending models, APIs, or providers are identical. Preserve native capability where it matters and expose unsupported behavior rather than silently weakening safety, quality, accessibility, or evidence. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Separate portable and Gemini-specific contracts (Code Implementation)",
-        "code": "import { GoogleGenAI } from \"@google/genai\";\n\nconst ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\nconst response = await ai.models.generateContent({\n  model: \"gemini-2.5-flash\",\n  contents: \"Demonstrate structured output extraction with schema enforcement.\"\n});\nconsole.log(response.text);"
-      }
+        "Migration can refer to different integration boundaries. It may concern an API interface, an OpenAI-compatible interface, a generative AI library, prompt behavior, data flow, model substitution, or another part of an application. The intended boundary is UNKNOWN until the existing integration and desired destination are described.",
+        "Begin by recording the current input, required output, error expectations, operational constraints, and behaviors that users depend on. Then state the destination and the reason for moving. This prevents a familiar interface from being mistaken for identical behavior.",
+        "Select documentation only after identifying the boundary. The general Gemini API documentation is the starting point for Gemini API behavior. Google's OpenAI compatibility documentation is relevant when that compatibility path is actually in scope. Google's migration guide is relevant when the integration uses a library or migration path covered by that guide."
+      ]
     },
     {
-      "id": "use-current-gemini-lifecycle-evidence",
-      "title": "Use current lifecycle evidence",
+      "id": "build-an-evidence-map",
+      "title": "Build an evidence map",
       "paragraphs": [
-        "For SDK migration, compare package, client construction, request and response types, async and streaming behavior, errors, retries, credentials, and feature support. For model changes, compare modalities, tools, limits, settings, safety, latency, usage, and quality. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Verify model status and announced earliest shutdown dates from current official model and deprecation pages. Track previews and legacy libraries proactively with owners; do not copy today's model names into durable architecture. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "Create one record for each required behavior. Each record should name the requirement, identify where the current integration implements it, link to the first-party destination documentation, and define a test that can confirm the result.",
+        "Mark a destination detail UNKNOWN when the checked documentation does not establish it. Do not fill a gap by assuming that two similarly named operations have the same inputs, outputs, limits, or failure behavior.",
+        "Separate required behavior from optional improvement. A migration is easier to review when each required behavior has evidence and a test, while unrelated redesign work is deferred."
       ],
-      "callout": "A compiling SDK or model substitution can still regress state, safety, tools, output, latency, cost, or data handling.",
-      "code": {
-        "language": "typescript",
-        "label": "Use current lifecycle evidence (Code Implementation)",
-        "code": "import { GoogleGenAI } from \"@google/genai\";\n\nconst ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\nconst response = await ai.models.generateContent({\n  model: \"gemini-2.5-flash\",\n  contents: \"Demonstrate structured output extraction with schema enforcement.\"\n});\nconsole.log(response.text);"
-      }
+      "callout": "A compatibility path can reduce interface changes, but its exact supported behavior and limitations must be established from the current first-party documentation before use."
     },
     {
-      "id": "evaluate-shadow-and-canary-gemini",
-      "title": "Evaluate, shadow, and canary",
+      "id": "test-before-switching",
+      "title": "Test before switching",
       "paragraphs": [
-        "Run baseline and candidate against identical representative, multimodal, edge, adversarial, incident, and holdout cases. Compare output, factuality, safety blocks, structured data, state, tool trajectories, latency, usage, and cost by critical slice. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Use offline replay, shadow traffic, or a small canary only where policy permits. Define promotion, hold, and rollback thresholds first; isolate telemetry by version and reconcile possible side effects before shifting traffic. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Evaluate, shadow, and canary (Code Implementation)",
-        "code": "import { GoogleGenAI } from \"@google/genai\";\n\nconst ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\nconst response = await ai.models.generateContent({\n  model: \"gemini-2.5-flash\",\n  contents: \"Demonstrate structured output extraction with schema enforcement.\"\n});\nconsole.log(response.text);"
-      }
+        "Use representative inputs and expected properties rather than relying on a single successful example. Tests should cover ordinary requests, invalid inputs, expected failure handling, and any output properties the application depends on.",
+        "A generated response does not have to use identical wording to satisfy the same requirement. Compare properties that matter to the application, such as whether required information is present, whether the result can be processed, and whether failures are handled safely.",
+        "Define rollback conditions before switching. A rollback condition is an observable result that requires returning to the previous integration or stopping the migration. Preserve the previous path until the required tests pass and the rollback procedure has been exercised."
+      ]
     },
     {
-      "id": "migrate-reversibly-and-close-gemini",
-      "title": "Migrate reversibly and close deliberately",
+      "id": "apply-the-process-in-both-directions",
+      "title": "Apply the process in both directions",
       "paragraphs": [
-        "Use configurable routing, versioned prompts and adapters, compatible record changes, dual-read or dual-run patterns when justified, and rehearsed rollback. Keep old and new state and safety mappings explicit until observation passes. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Close after production gates pass, rollback and reconciliation are proven, privacy and security review is complete, documentation is current, deprecated use is resolved or accepted with an owner, and residual risk is acknowledged. Migration away from Gemini follows the same evidence discipline. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "typescript",
-        "label": "Migrate reversibly and close deliberately (Code Implementation)",
-        "code": "import { GoogleGenAI } from \"@google/genai\";\n\nconst ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });\n\nconst response = await ai.models.generateContent({\n  model: \"gemini-2.5-flash\",\n  contents: \"Demonstrate structured output extraction with schema enforcement.\"\n});\nconsole.log(response.text);"
-      }
+        "The same evidence process applies when moving to Gemini and when moving from Gemini. Document the source behavior, identify the destination interface, map each required behavior, test the destination, and retain a rollback path.",
+        "Do not assume that reversing a completed migration reproduces the original integration. Prompts, data handling, validation rules, and application expectations may have changed after the first migration. Recreate the evidence map from the current state.",
+        "When moving to Gemini, use the relevant current Google documentation to establish Gemini-side behavior. When moving away from Gemini, use Google documentation to establish the behavior being replaced and the destination provider's first-party documentation to establish destination behavior. No destination provider is specified in this module, so destination-specific instructions are UNKNOWN and omitted."
+      ]
+    },
+    {
+      "id": "record-the-review",
+      "title": "Record the review",
+      "paragraphs": [
+        "For each technical claim, record the supporting page, the date it was checked, the behavior it supports, and the test connected to it. If a page moves, confirm that the replacement is controlled by the same first-party publisher and still supports the claim.",
+        "A redirect or replacement URL establishes where a document can now be found only after it is checked. It does not establish whether the document's technical content stayed the same. Compare the relevant content or an authoritative change record before changing technical guidance.",
+        "The current source check identifies first-party documentation locations, but live page contents and resolution could not be confirmed in the drafting environment. Current migration procedures, supported compatibility behavior, versions, names, keys, endpoints, and limitations are therefore UNKNOWN and are not asserted here."
+      ]
     }
   ],
-  "activity": {
-    "id": "activity-gemini-migration-rehearsal",
-    "title": "Plan and rehearse a Gemini migration",
-    "instructions": [
-      "Inventory one workflow across SDK, API, model, credentials, prompts, parts, state, tools, safety, modalities, data, evaluation, telemetry, and operations.",
-      "Build a portable-versus-Gemini-specific matrix and map each incompatibility to an adapter, redesign, explicit non-support, data migration, or operational change.",
-      "Use synthetic no-paid-call fixtures for a baseline/candidate evaluation and define offline, shadow or canary promotion, hold, rollback, reconciliation, and deprecation-exit criteria.",
-      "Rehearse a failed canary and record detection, decision, rollback time, state and side-effect reconciliation, communication, owners, and closeout evidence."
-    ],
-    "evidence": [
-      "A dependency inventory and compatibility matrix linked to current SDK, model, lifecycle, and troubleshooting sources.",
-      "A comparison report, rollout plan, successful rollback and reconciliation rehearsal, and signed closeout checklist."
-    ],
-    "reflectionPrompt": "Which dependency looked portable until evaluation exposed a Gemini-specific part, state, safety, tool, or modality contract?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 1680,
-    "cues": [
-      {
-        "id": "cue-gemini-migrate-inventory",
-        "kind": "narration",
-        "sectionId": "inventory-gemini-dependencies",
-        "text": "Inventory every SDK, API, model, prompt, part, state, tool, safety, modality, data, evaluation, and operational dependency."
-      },
-      {
-        "id": "cue-gemini-migrate-boundary",
-        "kind": "narration",
-        "sectionId": "separate-portable-and-gemini-specific",
-        "text": "Keep outcome and policy contracts portable while representing Gemini-specific parts, tools, state, safety, and modalities honestly."
-      },
-      {
-        "id": "cue-gemini-migrate-current",
-        "kind": "narration",
-        "sectionId": "use-current-gemini-lifecycle-evidence",
-        "text": "Use current official SDK, model, and deprecation evidence for the exact API, provider, and deployment."
-      },
-      {
-        "id": "cue-gemini-migrate-canary",
-        "kind": "narration",
-        "sectionId": "evaluate-shadow-and-canary-gemini",
-        "text": "Compare identical cases and promote only when quality, factuality, safety, state, trajectory, latency, cost, and data gates pass."
-      },
-      {
-        "id": "cue-gemini-migrate-close",
-        "kind": "narration",
-        "sectionId": "migrate-reversibly-and-close-gemini",
-        "text": "Preserve routing, versioned adapters, reconciled data, monitoring, ownership, and rehearsed rollback until closeout."
-      },
-      {
-        "id": "cue-gemini-migrate-visual",
-        "kind": "visual",
-        "sectionId": "evaluate-shadow-and-canary-gemini",
-        "text": "Move migration through inventory, compatibility, evaluation, shadow, canary, promote or rollback, observe, and close.",
-        "accessibilityAlternative": "A static migration-gate table lists evidence, owners, data reconciliation, and rollback conditions for each stage."
-      },
-      {
-        "id": "cue-gemini-migrate-question",
-        "kind": "learner-prompt",
-        "sectionId": "separate-portable-and-gemini-specific",
-        "text": "Ask learners to classify one part, safety, or tool behavior as portable, adapter concern, or provider-specific."
-      },
-      {
-        "id": "cue-gemini-migrate-pause",
-        "kind": "pause",
-        "sectionId": "evaluate-shadow-and-canary-gemini",
-        "text": "Allow three minutes to write a rollback trigger and state-reconciliation check before viewing candidate results."
-      },
-      {
-        "id": "cue-gemini-migrate-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "migrate-reversibly-and-close-gemini",
-        "text": "Check that rollback was rehearsed and no lifecycle dependency, state mapping, or risk lacks an owner."
-      },
-      {
-        "id": "cue-gemini-migrate-activity",
-        "kind": "learner-prompt",
-        "text": "Guide inventory, compatibility, evaluation, rollout gates, rollback rehearsal, reconciliation, and closeout."
-      },
-      {
-        "id": "cue-gemini-migrate-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can migrate without assuming equivalence or sacrificing safety, data, evidence, or rollback."
-      }
-    ],
-    "transcript": "Inventory every SDK, API, model, prompt, part, state, tool, safety, modality, data, evaluation, and operational dependency. Keep outcome and policy contracts portable while representing Gemini-specific parts, tools, state, safety, and modalities honestly. Use current official SDK, model, and deprecation evidence for the exact API, provider, and deployment. Compare identical cases and promote only when quality, factuality, safety, state, trajectory, latency, cost, and data gates pass. Preserve routing, versioned adapters, reconciled data, monitoring, ownership, and rehearsed rollback until closeout.",
-    "captions": [
-      {
-        "cueId": "cue-gemini-migrate-inventory",
-        "startSeconds": 0,
-        "endSeconds": 310,
-        "text": "Inventory every SDK, API, model, prompt, part, state, tool, safety, modality, data, evaluation, and operational dependency."
-      },
-      {
-        "cueId": "cue-gemini-migrate-boundary",
-        "startSeconds": 340,
-        "endSeconds": 650,
-        "text": "Keep outcome and policy contracts portable while representing Gemini-specific parts, tools, state, safety, and modalities honestly."
-      },
-      {
-        "cueId": "cue-gemini-migrate-current",
-        "startSeconds": 680,
-        "endSeconds": 980,
-        "text": "Use current official SDK, model, and deprecation evidence for the exact API, provider, and deployment."
-      },
-      {
-        "cueId": "cue-gemini-migrate-canary",
-        "startSeconds": 1010,
-        "endSeconds": 1320,
-        "text": "Compare identical cases and promote only when quality, factuality, safety, state, trajectory, latency, cost, and data gates pass."
-      },
-      {
-        "cueId": "cue-gemini-migrate-close",
-        "startSeconds": 1350,
-        "endSeconds": 1650,
-        "text": "Preserve routing, versioned adapters, reconciled data, monitoring, ownership, and rehearsed rollback until closeout."
-      }
-    ],
-    "reducedMotionAlternative": "Use a static dependency matrix and gated migration-and-rollback runbook with modality and state columns."
-  },
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 75,
     "questions": [
       {
-        "id": "q-gemini-migrate-1",
-        "prompt": "What happens before changing an SDK or model?",
+        "id": "migrating-to-and-from-gemini-source-movement",
+        "prompt": "What does a replacement URL establish by itself?",
         "choices": [
-          "Inventory dependencies and current official evidence",
-          "Delete rollback",
-          "Assume equivalence",
-          "Remove tests"
-        ],
-        "answerIndex": 0,
-        "explanation": "References participate in broader behavioral, state, data, and operational contracts."
-      },
-      {
-        "id": "q-gemini-migrate-2",
-        "prompt": "Which contract is usually most portable?",
-        "choices": [
-          "A Gemini finish reason",
-          "A model alias",
-          "A user outcome and application validation schema",
-          "A hosted tool"
+          "That all documented technical behavior changed",
+          "That all previous guidance remains technically correct",
+          "Only a possible new location, pending confirmation that the page is first-party and still supports the claim",
+          "That migration tests are no longer necessary"
         ],
         "answerIndex": 2,
-        "explanation": "Application-owned outcomes can remain stable behind adapters."
+        "explanation": "The module separates citation location from technical behavior. A replacement location must be checked, and any technical change requires additional evidence."
       },
       {
-        "id": "q-gemini-migrate-3",
-        "prompt": "What should an SDK migration compare?",
+        "id": "migrating-to-and-from-gemini-first-planning-step",
+        "prompt": "What should be done before selecting a migration mechanism?",
         "choices": [
-          "Only package spelling",
-          "Client, requests, responses, streaming, errors, retries, credentials, and feature behavior",
-          "Only price",
-          "Only text"
+          "Assume the title identifies the required interface",
+          "Define the current integration boundary, required behavior, destination, and reason for moving",
+          "Remove the previous integration immediately",
+          "Treat similarly named operations as identical"
         ],
         "answerIndex": 1,
-        "explanation": "SDK migration changes multiple application contracts."
+        "explanation": "The module instructs learners to define the migration boundary and required behavior before choosing documentation or a mechanism."
       },
       {
-        "id": "q-gemini-migrate-4",
-        "prompt": "When are canary rollback thresholds defined?",
+        "id": "migrating-to-and-from-gemini-unknown-detail",
+        "prompt": "How should a destination detail be handled when checked documentation does not establish it?",
         "choices": [
-          "After promotion",
-          "After an incident",
-          "By the model",
-          "Before the canary"
-        ],
-        "answerIndex": 3,
-        "explanation": "Predeclared thresholds make decisions auditable."
-      },
-      {
-        "id": "q-gemini-migrate-5",
-        "prompt": "What proves closeout?",
-        "choices": [
-          "Compilation",
-          "Production gates, proven rollback and reconciliation, current docs, resolved lifecycle use, and owned risk",
-          "One demo",
-          "Immediate deletion"
+          "Infer it from a similar interface",
+          "Mark it UNKNOWN and do not turn it into technical guidance",
+          "Present it as a standard default",
+          "Exclude it from testing but continue to depend on it"
         ],
         "answerIndex": 1,
-        "explanation": "Closeout requires production and operational evidence."
+        "explanation": "The evidence-map section says to mark unsupported destination details UNKNOWN rather than filling gaps with assumptions."
+      },
+      {
+        "id": "migrating-to-and-from-gemini-reverse-migration",
+        "prompt": "Why should a migration away from Gemini use a new evidence map instead of simply reversing an earlier migration?",
+        "choices": [
+          "Because rollback is never allowed",
+          "Because first-party documentation is unnecessary when reversing a migration",
+          "Because the integration and its requirements may have changed since the earlier migration",
+          "Because tests apply only when moving to Gemini"
+        ],
+        "answerIndex": 2,
+        "explanation": "The module explains that prompts, data handling, validation rules, and application expectations may have changed, so the current state must be documented and tested."
       }
     ]
   },
   "sources": [
     {
-      "title": "Gemini API libraries",
-      "url": "https://ai.google.dev/gemini-api/docs/libraries",
-      "publisher": "Google",
-      "lastVerified": "2026-07-25"
+      "title": "Gemini API documentation",
+      "url": "https://ai.google.dev/gemini-api/docs",
+      "publisher": "Google AI for Developers",
+      "lastVerified": "2026-08-22"
     },
     {
-      "title": "Gemini models",
-      "url": "https://ai.google.dev/gemini-api/docs/models",
-      "publisher": "Google",
-      "lastVerified": "2026-07-25"
+      "title": "OpenAI compatibility",
+      "url": "https://ai.google.dev/gemini-api/docs/openai",
+      "publisher": "Google AI for Developers",
+      "lastVerified": "2026-08-22"
     },
     {
-      "title": "Gemini deprecations",
-      "url": "https://ai.google.dev/gemini-api/docs/deprecations",
-      "publisher": "Google",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Using the latest Gemini models",
-      "url": "https://ai.google.dev/gemini-api/docs/latest-model",
-      "publisher": "Google",
-      "lastVerified": "2026-07-25"
+      "title": "Gemini API migration guide",
+      "url": "https://ai.google.dev/gemini-api/docs/migrate",
+      "publisher": "Google AI for Developers",
+      "lastVerified": "2026-08-22"
     }
-  ]
+  ],
+  "reviewCadenceDays": 90,
+  "lastVerified": "2026-08-22"
 }
