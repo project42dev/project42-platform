@@ -43,8 +43,8 @@ const migrations = (await readdir("self-host/postgres"))
   .sort();
 
 function composeServiceBlock(name) {
-  const normalizedCompose = compose.replace(/\r\n/g, "\n");
-  const marker = `  ${name}:\n`;
+  const normalizedCompose = `\n${compose.replace(/\r\n/g, "\n")}`;
+  const marker = `\n  ${name}:\n`;
   const start = normalizedCompose.indexOf(marker);
   if (start === -1) {
     throw new Error(`Compose service ${name} is missing`);

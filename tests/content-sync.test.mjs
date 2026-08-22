@@ -9,7 +9,7 @@ test("loads dynamic catalog from extracted project42-content repository", async 
   const catalog = await loadCatalogFromPath(contentRepoRoot);
   assert.ok(catalog.paths.length >= 8, "Expected at least 8 learning paths");
   assert.ok(catalog.modules.length >= 70, "Expected at least 70 modules");
-  assert.ok(catalog.paths.some((p) => p.id === "discovery"), "Expected discovery path to be present");
+  assert.ok(catalog.paths.some((p) => p.id === "ai-foundations"), "Expected ai-foundations path to be present");
 });
 
 test("merges custom enterprise organization overlay seamlessly with canonical catalog", () => {
