@@ -1,314 +1,143 @@
 {
   "id": "hardware-runtime-and-capacity-planning",
   "title": "Hardware, Runtime, and Capacity Planning",
-  "summary": "Select a compatible runtime and size compute, accelerator memory, host memory, storage, and concurrency from measurements of the exact serving build.",
-  "level": "advanced",
-  "reviewCadenceDays": 60,
-  "lastVerified": "2026-07-27",
+  "summary": "This intermediate module teaches you to estimate memory demand, design representative runtime measurements, and turn those measurements into a defensible capacity plan. After completing it, you can identify whether model weights, request-dependent state, or observed runtime behavior limits a proposed deployment.",
+  "level": "intermediate",
   "providers": [
     "provider-neutral"
   ],
-  "estimatedMinutes": 58,
+  "estimatedMinutes": 30,
   "objectives": [
-    "Build a compatibility matrix across artifact format, model architecture, runtime, accelerator, drivers, operating system, and deployment target.",
-    "Estimate static model memory, dynamic cache and workspace memory, host memory, storage, bandwidth, and startup needs without treating an estimate as a benchmark.",
-    "Measure latency, throughput, concurrency, saturation, errors, and resource headroom with representative request distributions.",
-    "Produce a capacity decision with resource limits, admission control, overload behavior, cost assumptions, and re-benchmark triggers."
+    "Calculate a lower bound for model-weight memory from parameter count and storage size per parameter.",
+    "Identify persistent, request-dependent, temporary, and runtime-managed memory that a capacity estimate must consider.",
+    "Design a representative measurement that records latency, throughput, and peak memory under stated workload conditions.",
+    "Use measured limits rather than average utilization alone to decide whether a proposed workload fits available capacity."
   ],
-  "prerequisites": [
-    "model-artifact-integrity"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "build-compatibility-matrix",
-      "title": "Prove compatibility across the complete stack",
+      "id": "source-update",
+      "title": "What changed in this update",
       "paragraphs": [
-        "Record the model architecture, artifact and tensor formats, precision or quantization, tokenizer, template, maximum tested context, runtime and version, execution backend, operating system, CPU architecture, accelerator model, accelerator count, driver, compute library, container base, and required extensions. Verify support from current runtime and hardware documentation and then load the exact artifact in quarantine. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "A runtime may support an architecture but not a specific conversion, quantization, kernel, device, platform, or feature combination. Automatic fallback can silently move work to a slower backend or change behavior. Make fallback visible, measured, and either accepted or rejected. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "The previous source entry was a catalogue-relative JSON path attributed to an unregistered publisher and had never been verified. This update replaces that entry with canonical arXiv records for the transformer architecture and memory management during language-model serving.",
+        "The change affects source provenance and the support for claims about attention, autoregressive decoding, and request-dependent memory. The planning method remains provider-neutral and does not introduce a product-specific configuration."
       ],
-      "code": {
-        "language": "json",
-        "label": "Prove compatibility across the complete stack (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+      "callout": "Source verification for this module was recorded on 2026-08-22. The next review is governed by the module's 180-day review cadence."
     },
     {
-      "id": "estimate-memory-and-storage",
-      "title": "Estimate memory and storage before measuring",
+      "id": "level-and-scope",
+      "title": "Level and scope",
       "paragraphs": [
-        "Begin with the exact artifact sizes and a rough weight-memory estimate from parameter count and bits per parameter, then add quantization metadata, embeddings, runtime workspace, graph or kernel caches, temporary buffers, loaded replicas, and safety headroom. Dynamic memory also depends on concurrent sequences, context and output lengths, cache representation, batching, and runtime behavior. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Include host memory for the runtime, tokenizer, request queues, observability, page cache, staging, and failure handling. Include local and remote storage for immutable artifacts, container layers, caches, logs, evaluation data, backups, and rollback bundles. Treat every calculation as a hypothesis to validate on the intended build. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "callout": "A model that fits at startup may still fail under long contexts, concurrency, batching, or recovery.",
-      "code": {
-        "language": "json",
-        "label": "Estimate memory and storage before measuring (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "This is an intermediate-level module. It assumes that you can rearrange a simple multiplication formula, distinguish bytes from bits, and interpret latency as time per response and throughput as completed work per unit of time. It does not assume experience with a particular hardware vendor, runtime, or hosting provider.",
+        "Capacity planning connects a model's static storage requirements with workload-dependent memory and measured runtime behavior. A useful plan separates what can be calculated before deployment from what must be measured in the intended environment."
+      ]
     },
     {
-      "id": "measure-representative-load",
-      "title": "Measure a representative request distribution",
+      "id": "weight-memory-lower-bound",
+      "title": "Calculate the weight-memory lower bound",
       "paragraphs": [
-        "Version a load profile containing warm and cold starts, input and output token distributions, modalities, concurrency steps, bursts, cancellations, timeouts, malformed requests, maximum allowed context, and recovery after pressure. Measure time to ready, time to first output, inter-output latency where applicable, end-to-end latency percentiles, throughput, queue time, error and rejection rates, accelerator and host memory, compute utilization, storage and network behavior, power where relevant, and restart time.",
-        "Hold the artifact, runtime, configuration, hardware, prompt template, and cases constant when comparing builds. Published benchmark results can help frame methods and candidate hardware, but they do not replace measurements of the exact workload, software stack, quality target, and service policy. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Measure a representative request distribution (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "A first estimate for model-weight memory is P × b, where P is the number of stored parameters and b is the number of bytes used to store each parameter. This is a lower bound for the weights themselves, not a complete runtime-memory estimate.",
+        "For example, if a model description supplies P and its storage representation establishes b, multiply them and convert the result into the memory unit used by the target environment. Do not guess either value. If the model description does not establish the parameter count or storage representation, the resulting weight-memory requirement is UNKNOWN and should not be asserted.",
+        "A model can require more memory at runtime than this lower bound because execution may also retain request-dependent state, temporary working data, and memory managed by the runtime. The exact amount is implementation-dependent and must be measured."
+      ]
     },
     {
-      "id": "find-saturation-and-protect-host",
-      "title": "Find saturation and design overload behavior",
+      "id": "request-dependent-memory",
+      "title": "Account for request-dependent memory",
       "paragraphs": [
-        "Increase concurrency and request size gradually until latency, queueing, memory, errors, power, or quality crosses a declared boundary. Record the first limiting resource and the failure mode. Repeat after restarts and with neighboring workloads if resources are shared. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Set container or scheduler requests and limits from evidence, leaving headroom for the host and recovery. Docker documents that containers have no resource constraints by default, and memory pressure can trigger out-of-memory termination. Admission control, bounded queues, maximum context and output limits, rate or concurrency limits, timeouts, load shedding, and clear retry behavior are part of capacity—not afterthoughts. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Find saturation and design overload behavior (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "A transformer decoder generates output while attending to previously available positions. Serving systems can retain key and value data associated with those positions so that later decoding steps can reuse them. This request-dependent state grows with the active sequence data and is not included in the weight-only calculation.",
+        "For planning, classify memory into four categories: model weights that persist while the model is loaded, request-dependent state that changes with active sequences, temporary working memory used during computation, and runtime-managed overhead. This classification prevents the weight estimate from being mistaken for total required capacity.",
+        "Concurrent requests may have different sequence lengths and may finish at different times. Consequently, total request-dependent memory and the amount of reusable free space can vary during a run. A capacity test should therefore include the expected distribution of input lengths, output lengths, and concurrency rather than testing only one short request."
+      ]
     },
     {
-      "id": "issue-capacity-decision",
-      "title": "Issue a capacity and cost decision with expiry",
+      "id": "measure-runtime-behavior",
+      "title": "Measure runtime behavior",
       "paragraphs": [
-        "State supported workload slices, tested concurrency, latency and throughput distributions, quality gates, resource reservations and limits, minimum headroom, overload behavior, replica assumptions, startup and recovery time, storage, power or cloud cost assumptions, monitoring thresholds, and excluded cases. Separate measured facts from extrapolation. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Re-benchmark after changing model revision, quantization, runtime, driver, accelerator, host, operating system, container, context policy, batching, template, feature flags, traffic distribution, telemetry, or service objective. Capacity evidence expires when the workload or stack it measured no longer matches production. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "Record the conditions of every measurement: the model representation, available hardware resources, input-length distribution, requested output-length distribution, concurrency, and the point at which timing begins and ends. Without those conditions, two latency or throughput results may describe different workloads and cannot be compared reliably.",
+        "Measure both latency and throughput because they answer different questions. Latency describes how long an individual request or response stage takes. Throughput describes how much work the system completes over time. Increasing concurrent work can improve throughput while also increasing waiting time, so neither metric substitutes for the other.",
+        "Record peak memory during the representative run, not only memory observed before requests begin or an average over the run. A deployment must survive its relevant peak. The exact peak, sustainable throughput, and latency are UNKNOWN until they are measured in the intended environment."
+      ]
+    },
+    {
+      "id": "build-capacity-plan",
+      "title": "Build the capacity plan",
+      "paragraphs": [
+        "Begin with the calculated weight-memory lower bound. Add the measured peak contribution from request-dependent state, temporary work, and runtime-managed overhead under a representative workload. Compare the resulting peak with usable capacity in the same units.",
+        "Next, run a load test that represents expected request lengths and concurrency. Increase offered work only while recording latency, throughput, failures, and peak memory. The sustainable limit is the highest tested workload that continues to meet the deployment's stated service requirements without exceeding usable capacity.",
+        "Do not select a universal utilization percentage without evidence. Required reserve depends on workload variation, failure handling, runtime behavior, and the consequences of exhausting memory or missing a latency target. Choose reserve from measured variability and documented operational requirements, then record the reasoning so the plan can be reviewed.",
+        "A complete decision states the assumptions, calculated lower bound, test workload, measured peak memory, measured latency and throughput, acceptance thresholds, and reserve. If any required input or measurement is unavailable, mark that part UNKNOWN and do not claim that the deployment fits."
       ],
-      "code": {
-        "language": "json",
-        "label": "Issue a capacity and cost decision with expiry (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+      "callout": "Estimate static demand first, measure dynamic demand second, and approve capacity only against explicit workload and service requirements."
     }
   ],
-  "activity": {
-    "id": "activity-capacity-plan",
-    "title": "Build a measured-paper capacity plan",
-    "instructions": [
-      "Create a synthetic exact-stack compatibility matrix and mark every field as documented, measured, inferred, or unknown.",
-      "Estimate model, dynamic cache, workspace, host, storage, and rollback capacity for three context and concurrency scenarios.",
-      "Design a versioned load profile with warm-up, steady state, burst, maximum context, overload, cancellation, restart, and recovery cases.",
-      "Declare pass thresholds and stop conditions before reviewing synthetic results, then identify the first saturated resource and safe admission policy.",
-      "Write a capacity decision with supported slices, limits, headroom, costs, overload behavior, excluded cases, and re-benchmark triggers."
-    ],
-    "evidence": [
-      "An exact-stack compatibility matrix and calculation sheet with uncertainty labels.",
-      "A versioned load profile, metric contract, threshold table, and synthetic saturation results.",
-      "A dated capacity decision with resource and admission controls, recovery evidence, costs, exclusions, and expiry triggers."
-    ],
-    "reflectionPrompt": "Which capacity assumption would cause the most harm if it were wrong, and what measurement resolves it?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 1680,
-    "cues": [
-      {
-        "id": "cue-capacity-compatibility",
-        "kind": "narration",
-        "sectionId": "build-compatibility-matrix",
-        "text": "Bind the exact artifact, runtime, backend, operating system, accelerator, driver, container, and feature set in one compatibility matrix."
-      },
-      {
-        "id": "cue-capacity-visual",
-        "kind": "visual",
-        "sectionId": "estimate-memory-and-storage",
-        "text": "Stack weights, metadata, workspace, caches, concurrent sequences, replicas, host services, storage, and safety headroom.",
-        "accessibilityAlternative": "A static capacity ledger lists each memory and storage component, its formula or measurement, uncertainty, and owner."
-      },
-      {
-        "id": "cue-capacity-estimate",
-        "kind": "narration",
-        "sectionId": "estimate-memory-and-storage",
-        "text": "Treat memory and storage calculations as hypotheses that include dynamic load and recovery, not proof that the service fits."
-      },
-      {
-        "id": "cue-capacity-load",
-        "kind": "narration",
-        "sectionId": "measure-representative-load",
-        "text": "Measure cold and warm starts, realistic length distributions, concurrency, bursts, cancellations, overload, restarts, and recovery on the exact build."
-      },
-      {
-        "id": "cue-capacity-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "measure-representative-load",
-        "text": "Ask why a published throughput number cannot establish capacity for a different request distribution and quality gate."
-      },
-      {
-        "id": "cue-capacity-saturation",
-        "kind": "narration",
-        "sectionId": "find-saturation-and-protect-host",
-        "text": "Find the first saturated resource, preserve host headroom, and define bounded queues, admission, rejection, and retry behavior."
-      },
-      {
-        "id": "cue-capacity-decision",
-        "kind": "narration",
-        "sectionId": "issue-capacity-decision",
-        "text": "Publish supported slices, distributions, limits, costs, exclusions, recovery, and re-benchmark triggers as a dated capacity decision."
-      },
-      {
-        "id": "cue-capacity-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the compatibility matrix, estimates, load profile, thresholds, saturation analysis, and capacity decision."
-      },
-      {
-        "id": "cue-capacity-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can separate estimates, measurements, extrapolations, and operating limits."
-      }
-    ],
-    "transcript": "Bind the exact artifact, runtime, backend, operating system, accelerator, driver, container, and feature set in one compatibility matrix. Verify documentation and then test the exact combination because architecture support does not prove every format, quantization, kernel, or feature. Treat memory and storage calculations as hypotheses that include dynamic load and recovery, not proof that the service fits. Add weights, metadata, workspace, caches, concurrent sequences, replicas, host services, storage, and headroom. Measure cold and warm starts, realistic length distributions, concurrency, bursts, cancellations, overload, restarts, and recovery on the exact build. Keep the build and cases constant when comparing results. Find the first saturated resource, preserve host headroom, and define bounded queues, admission, rejection, and retry behavior. Protect the host with evidence-based resource reservations and limits. Publish supported slices, distributions, limits, costs, exclusions, recovery, and re-benchmark triggers as a dated capacity decision. Repeat the work whenever a material part of the stack, workload, or service objective changes.",
-    "captions": [
-      {
-        "cueId": "cue-capacity-compatibility",
-        "startSeconds": 0,
-        "endSeconds": 300,
-        "text": "Bind the exact artifact, runtime, backend, operating system, accelerator, driver, container, and feature set in one compatibility matrix."
-      },
-      {
-        "cueId": "cue-capacity-estimate",
-        "startSeconds": 300,
-        "endSeconds": 600,
-        "text": "Treat memory and storage calculations as hypotheses that include dynamic load and recovery, not proof that the service fits."
-      },
-      {
-        "cueId": "cue-capacity-load",
-        "startSeconds": 600,
-        "endSeconds": 960,
-        "text": "Measure cold and warm starts, realistic length distributions, concurrency, bursts, cancellations, overload, restarts, and recovery on the exact build."
-      },
-      {
-        "cueId": "cue-capacity-saturation",
-        "startSeconds": 960,
-        "endSeconds": 1260,
-        "text": "Find the first saturated resource, preserve host headroom, and define bounded queues, admission, rejection, and retry behavior."
-      },
-      {
-        "cueId": "cue-capacity-decision",
-        "startSeconds": 1260,
-        "endSeconds": 1470,
-        "text": "Publish supported slices, distributions, limits, costs, exclusions, recovery, and re-benchmark triggers as a dated capacity decision."
-      },
-      {
-        "cueId": "cue-capacity-activity",
-        "startSeconds": 1470,
-        "endSeconds": 1650,
-        "text": "Guide the compatibility matrix, estimates, load profile, thresholds, saturation analysis, and capacity decision."
-      },
-      {
-        "cueId": "cue-capacity-assessment",
-        "startSeconds": 1650,
-        "endSeconds": 1680,
-        "text": "Begin the check after the learner can separate estimates, measurements, extrapolations, and operating limits."
-      }
-    ],
-    "reducedMotionAlternative": "Use static compatibility, capacity-ledger, load-profile, saturation, and decision tables. Show no animated gauges; provide exact numeric labels and textual thresholds."
-  },
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 75,
     "questions": [
       {
-        "id": "q-capacity-1",
-        "prompt": "What belongs in an exact-stack compatibility record?",
+        "id": "hardware-runtime-and-capacity-planning-weight-lower-bound",
+        "prompt": "Which expression gives the lower bound for memory occupied by model weights?",
         "choices": [
-          "Only model name",
-          "Only accelerator memory",
-          "Artifact, format, quantization, runtime, backend, OS, device, driver, container, and features",
-          "Only a benchmark URL"
-        ],
-        "answerIndex": 2,
-        "explanation": "Compatibility emerges from the complete versioned combination."
-      },
-      {
-        "id": "q-capacity-2",
-        "prompt": "Why is weight memory alone insufficient for sizing?",
-        "choices": [
-          "Dynamic caches, workspace, concurrency, replicas, host services, and headroom also consume resources",
-          "Weights use no memory",
-          "Storage is always remote",
-          "Runtime versions never matter"
+          "Parameter count multiplied by bytes stored per parameter",
+          "Concurrency multiplied by average latency",
+          "Throughput divided by input length",
+          "Peak memory minus parameter count"
         ],
         "answerIndex": 0,
-        "explanation": "Serving includes material static and dynamic memory beyond the weight bytes."
+        "explanation": "The module defines the weight-memory lower bound as P × b, where P is parameter count and b is bytes stored per parameter."
       },
       {
-        "id": "q-capacity-3",
-        "prompt": "Which load profile is most useful?",
+        "id": "hardware-runtime-and-capacity-planning-total-memory",
+        "prompt": "Why is the weight-memory calculation insufficient as a complete runtime-capacity estimate?",
         "choices": [
-          "One short warm request",
-          "Only maximum concurrency",
-          "A provider's unrelated result",
-          "A versioned representative distribution with cold, warm, burst, boundary, overload, restart, and recovery cases"
+          "It excludes request-dependent state, temporary work, and runtime-managed overhead.",
+          "It already includes every possible concurrent request.",
+          "It measures latency rather than memory.",
+          "It can be used only after a deployment fails."
         ],
-        "answerIndex": 3,
-        "explanation": "Capacity must cover the expected distribution and consequential boundaries."
+        "answerIndex": 0,
+        "explanation": "The weight calculation covers stored model parameters only. Total runtime memory can also include request-dependent state, temporary working memory, and runtime-managed overhead."
       },
       {
-        "id": "q-capacity-4",
-        "prompt": "What should happen as a service approaches saturation?",
+        "id": "hardware-runtime-and-capacity-planning-representative-test",
+        "prompt": "Which test best supports a deployment-capacity decision?",
         "choices": [
-          "Accept unlimited work",
-          "Apply declared admission, queue, limit, timeout, shedding, and retry behavior",
-          "Disable metrics",
-          "Increase context silently"
+          "One short request with no record of its conditions",
+          "A representative mix of input lengths, output lengths, and concurrency with latency, throughput, failures, and peak memory recorded",
+          "A weight-memory calculation with no runtime measurement",
+          "An average-memory reading taken before requests begin"
         ],
         "answerIndex": 1,
-        "explanation": "Controlled overload prevents resource exhaustion and ambiguous failure."
+        "explanation": "The module requires representative request lengths and concurrency, together with measurements of latency, throughput, failures, and peak memory."
       },
       {
-        "id": "q-capacity-5",
-        "prompt": "What does a published benchmark establish for your endpoint?",
+        "id": "hardware-runtime-and-capacity-planning-unknown-input",
+        "prompt": "What should a planner do when a required model property or runtime measurement is unavailable?",
         "choices": [
-          "Guaranteed production capacity",
-          "Guaranteed quality",
-          "Useful external evidence about a stated benchmark setup, not a substitute for exact-build measurement",
-          "No information at all"
+          "Use a universal default and present it as measured",
+          "Mark the value UNKNOWN and avoid claiming that the deployment fits",
+          "Ignore the missing value if average utilization is low",
+          "Replace peak memory with model-file size"
         ],
-        "answerIndex": 2,
-        "explanation": "Benchmark scope must not be generalized beyond its workload and configuration."
-      },
-      {
-        "id": "q-capacity-6",
-        "prompt": "When should capacity be re-benchmarked?",
-        "choices": [
-          "After material stack, model, workload, policy, or service-objective changes",
-          "Never after first success",
-          "Only after an outage",
-          "Only when hardware changes"
-        ],
-        "answerIndex": 0,
-        "explanation": "Capacity evidence is tied to the measured stack and request distribution."
+        "answerIndex": 1,
+        "explanation": "The module instructs the planner to mark unavailable required inputs or measurements as UNKNOWN and not assert that capacity is sufficient."
       }
     ]
   },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-22",
   "sources": [
     {
-      "title": "Resource constraints",
-      "url": "https://docs.docker.com/engine/containers/resource_constraints/",
-      "publisher": "Docker",
-      "lastVerified": "2026-07-27"
+      "title": "Attention Is All You Need",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-22"
     },
     {
-      "title": "Resource Management for Pods and Containers",
-      "url": "https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
-      "publisher": "Kubernetes",
-      "lastVerified": "2026-07-27"
-    },
-    {
-      "title": "Execution Providers",
-      "url": "https://onnxruntime.ai/docs/execution-providers/",
-      "publisher": "ONNX Runtime",
-      "lastVerified": "2026-07-27"
-    },
-    {
-      "title": "MLPerf Inference: Datacenter",
-      "url": "https://mlcommons.org/benchmarks/inference-datacenter/",
-      "publisher": "MLCommons",
-      "lastVerified": "2026-07-27"
+      "title": "Efficient Memory Management for Large Language Model Serving with PagedAttention",
+      "url": "https://arxiv.org/abs/2309.06180",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-22"
     }
   ]
 }
