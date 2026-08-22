@@ -1,313 +1,161 @@
 {
   "id": "model-update-and-rollback-lifecycle",
   "title": "Model Update and Rollback Lifecycle",
-  "summary": "Plan, qualify, release, observe, and reverse model-serving changes without losing exact identity, compatibility, learner evidence, or a known-good recovery path.",
-  "level": "advanced",
-  "reviewCadenceDays": 60,
-  "lastVerified": "2026-07-27",
+  "summary": "This intermediate module enables learners to plan a model update as a controlled release and decide when to continue, stop, or roll back. After completing it, learners can define an update baseline, acceptance evidence, rollout observations, and a compatible rollback unit.",
+  "level": "intermediate",
   "providers": [
     "provider-neutral"
   ],
-  "estimatedMinutes": 62,
+  "estimatedMinutes": 30,
   "objectives": [
-    "Inventory every model, runtime, adapter, configuration, infrastructure, policy, and data dependency that can change serving behavior.",
-    "Build a compatibility manifest and qualify the exact candidate stack against quality, safety, security, capacity, cost, and recovery gates.",
-    "Choose a controlled rollout strategy with explicit observation windows, stop conditions, approvals, and immutable evidence.",
-    "Execute and verify rollback to a retained known-good stack, including schema and state compatibility."
+    "Define the baseline, acceptance criteria, and evidence required before releasing a model update.",
+    "Plan a controlled rollout that compares observed results with predetermined acceptance criteria.",
+    "Identify when a rollback is appropriate and specify the complete compatible release unit that must be restored.",
+    "Create a release record that supports later investigation and review."
   ],
-  "prerequisites": [
-    "scaling-failure-and-capacity-controls"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "define-the-change-unit",
-      "title": "Version the entire serving unit",
+      "id": "source-correction",
+      "title": "What changed in this update",
       "paragraphs": [
-        "A model update is rarely only a weights change. Record the immutable model revision and digest together with tokenizer, runtime, accelerator libraries, container image, adapters, prompt templates, safety policy, gateway contract, infrastructure configuration, evaluation set, and telemetry schema. A change to any one of these can alter quality, latency, memory use, security, or compatibility. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Give the assembled candidate one release identity and produce a difference report against the currently approved stack. Separate intentional changes from drift. If the operator cannot reconstruct both versions from retained manifests and artifacts, the proposed release is not reversible. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Version the entire serving unit (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "The previous citation, content/modules/self-hosted-model-operations/model-update-and-rollback-lifecycle.json, was an internal catalogue path attributed to an unregistered publisher and had never been verified. It is not retained as evidence.",
+        "That citation was replaced with public sources covering machine learning production risks, production-readiness testing, release engineering, and ongoing risk management. The correction affects the support for the module's guidance on testing before release, monitoring during release, and preparing a rollback. No provider-specific procedure, tool command, version number, or configuration key has been added."
+      ]
     },
     {
-      "id": "qualify-the-candidate",
-      "title": "Qualify the exact candidate before traffic",
+      "id": "intermediate-scope",
+      "title": "Level and scope",
       "paragraphs": [
-        "Verify artifact provenance, license disposition, signatures or documented alternatives, dependency inventory, vulnerability findings, configuration policy, and environment compatibility. Then run the same representative quality, safety, API compatibility, load, cost, failure, and recovery tests used to approve the current build. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Compare candidate and baseline by case and operational slice rather than accepting one average. Define hard failures, allowed deltas, uncertainty, reviewer roles, and waiver authority before observing results. A newer model name does not override a failed compatibility or safety gate. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Qualify the exact candidate before traffic (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "This is an intermediate-level module. It assumes that the learner already understands the basic meanings of a model, a validation dataset, a metric, and a production deployment. It does not assume experience with any particular provider or operational tool.",
+        "A model update is treated here as an operational change rather than as a model file in isolation. Machine learning systems can accumulate dependencies involving data, interfaces, and surrounding system behavior, so an update plan must account for the parts that need to remain compatible."
+      ]
     },
     {
-      "id": "stage-and-release",
-      "title": "Stage and release with bounded exposure",
+      "id": "define-release-unit",
+      "title": "Define the baseline and release unit",
       "paragraphs": [
-        "Choose a strategy that matches the environment and risk: offline replacement for a workstation, a second container and explicit route switch, rolling replacement, canary traffic, blue-green service, or a shadow comparison that cannot create user-visible effects. Preserve exact request routing and model identity in telemetry. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Define maximum exposure, observation window, success indicators, guardrail indicators, cost ceiling, approver, and automatic or manual stop conditions. Validate readiness and warm-up before admitting traffic, drain old capacity deliberately, and prevent mixed versions from silently invalidating evidence. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Stage and release with bounded exposure (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "Begin by naming the baseline, which is the last accepted release against which the candidate update will be compared. A comparison is meaningful only when the team can identify what is being compared and which evidence will determine acceptance.",
+        "Define the release unit as the model artifact together with the coupled elements required for compatible operation. Depending on the system, those elements can include input and output expectations, preprocessing or postprocessing behavior, and required dependencies. Include an element only when changing or restoring the model without it could break compatibility.",
+        "The rollback target is the last accepted compatible release unit, not automatically the model artifact alone. Record how that unit can be identified and restored before beginning the rollout."
+      ]
     },
     {
-      "id": "rollback-as-a-release",
-      "title": "Treat rollback as a tested release",
+      "id": "prepare-acceptance-evidence",
+      "title": "Prepare acceptance evidence",
       "paragraphs": [
-        "Rollback must restore a complete compatible serving unit, not merely change a model tag. Retain the known-good artifacts, manifests, secrets references, policy, infrastructure configuration, and deployment procedure. Identify forward-only schema or state changes and provide restore, compatibility, or compensating procedures. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Rehearse rollback before production release using the same authorization, artifact verification, readiness, routing, and postcondition checks as an update. After reversal, confirm exact model identity, representative quality, endpoint behavior, queue state, telemetry, cost, and user-visible recovery. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Treat rollback as a tested release (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "Choose acceptance criteria before release. Criteria should cover the model behavior and operational behavior relevant to the system's stated requirements. Each criterion needs a defined observation, an acceptable result, and a decision that follows if the result is unacceptable.",
+        "Run the candidate and baseline through the same applicable checks so that the comparison is not changed by using different evaluation conditions. Production-readiness guidance for machine learning systems emphasizes testing data, model behavior, and serving behavior rather than relying on a single aggregate score.",
+        "Record the candidate identifier, baseline identifier, evaluation conditions, results, known limitations, decision, and responsible reviewer. This record connects the evidence available before release with the later decision to continue or roll back."
+      ]
     },
     {
-      "id": "record-and-improve",
-      "title": "Close the lifecycle with evidence",
+      "id": "control-and-observe-release",
+      "title": "Control and observe the release",
       "paragraphs": [
-        "Record who proposed, reviewed, approved, executed, paused, rolled back, and verified the change; retain timestamps, versions, test outputs, traffic exposure, decisions, and residual risks without storing secrets or unnecessary request content. Link every decision to immutable evidence. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Use release and rollback results to update evaluation cases, thresholds, capacity assumptions, compatibility manifests, and runbooks. Keep failed candidates as evidence with an explicit status so the same unsafe combination is not rediscovered and released later. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "Use a limited initial release when the operating environment supports one. The purpose is to restrict exposure while checking whether the candidate behaves as expected under production conditions. A limited release does not replace pre-release evaluation because it exposes real users or workloads to the candidate.",
+        "Observe the criteria selected before release. Continue only when the evidence satisfies those criteria. Stop expansion when the evidence is missing, ambiguous, or outside an accepted limit. Risk-management guidance treats post-deployment monitoring and documented response plans as continuing parts of system management.",
+        "Do not redefine an unacceptable result as acceptable merely because the rollout has started. If a criterion was poorly chosen, stop the decision process, document the issue, and conduct a new review rather than silently changing the rule."
+      ]
+    },
+    {
+      "id": "rollback-and-recovery",
+      "title": "Roll back and verify recovery",
+      "paragraphs": [
+        "A rollback restores the last accepted compatible release unit after the candidate fails an acceptance criterion or creates an unacceptable operational condition. The decision should use the predetermined criteria and response plan rather than an improvised judgment made after impact is visible.",
+        "Before release, verify that the rollback target is available and that the restoration procedure can be performed. Release-engineering guidance emphasizes repeatable processes and the ability to address release problems predictably.",
+        "After restoration, verify that the system is operating with the intended rollback unit and that the condition that triggered rollback is no longer present. Preserve the observations, decision, and recovery result for investigation. A successful restoration limits exposure, but it does not explain why the candidate failed."
       ],
-      "code": {
-        "language": "json",
-        "label": "Close the lifecycle with evidence (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+      "callout": "Do not assume that restoring only a model artifact completes a rollback. Restore and verify the entire compatible release unit defined before rollout."
+    },
+    {
+      "id": "close-the-lifecycle",
+      "title": "Close the lifecycle",
+      "paragraphs": [
+        "If the candidate is accepted, record the evidence and identify it as the new accepted baseline. If it is rolled back, retain the prior baseline and document the failed criteria, observed impact, restoration result, and required follow-up.",
+        "The lifecycle is complete only when the release decision and its evidence are recorded. This produces a traceable path from candidate evaluation to controlled release, observation, decision, and recovery."
+      ]
     }
   ],
-  "activity": {
-    "id": "activity-model-update-rollback",
-    "title": "Plan and rehearse a reversible model update",
-    "instructions": [
-      "Create baseline and candidate manifests that identify the model, tokenizer, runtime, image, adapters, policies, configuration, evaluation set, and telemetry schema by immutable version.",
-      "Define quality, safety, security, compatibility, capacity, cost, and recovery comparisons with hard gates and authorized reviewers.",
-      "Select a workstation, container, on-premises, edge, or cloud rollout pattern and specify exposure, observation, stop, drain, and approval controls.",
-      "Run a tabletop or isolated rehearsal in which a guardrail fails, execute the rollback, and verify the restored endpoint and evidence.",
-      "Issue a release, reject, or revise decision and record the residual risks and required follow-up."
-    ],
-    "evidence": [
-      "A baseline-to-candidate compatibility manifest and immutable difference report.",
-      "A gated qualification report and bounded rollout plan with human approvals.",
-      "Rollback rehearsal output proving restored identity, behavior, telemetry, and service objectives."
-    ],
-    "reflectionPrompt": "Which dependency outside the model weights is most likely to make your rollback incomplete?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 1800,
-    "cues": [
-      {
-        "id": "cue-lifecycle-unit",
-        "kind": "narration",
-        "sectionId": "define-the-change-unit",
-        "text": "Version the complete serving unit because weights, runtime, adapters, policy, configuration, and infrastructure can all change behavior."
-      },
-      {
-        "id": "cue-lifecycle-visual",
-        "kind": "visual",
-        "sectionId": "define-the-change-unit",
-        "text": "Build a static release manifest around the model artifact, then connect every dependency to one immutable candidate identity.",
-        "accessibilityAlternative": "A text table lists model, tokenizer, runtime, image, adapter, prompt, policy, infrastructure, evaluation, and telemetry versions under one release identity."
-      },
-      {
-        "id": "cue-lifecycle-qualify",
-        "kind": "narration",
-        "sectionId": "qualify-the-candidate",
-        "text": "Compare the exact candidate with the approved baseline across quality, safety, security, compatibility, capacity, cost, and recovery gates."
-      },
-      {
-        "id": "cue-lifecycle-stage",
-        "kind": "narration",
-        "sectionId": "stage-and-release",
-        "text": "Bound traffic exposure, observation, cost, stopping, warm-up, routing, draining, and approval before starting the rollout."
-      },
-      {
-        "id": "cue-lifecycle-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "stage-and-release",
-        "text": "Ask learners why a newer model label cannot compensate for a failed safety or compatibility gate."
-      },
-      {
-        "id": "cue-lifecycle-rollback",
-        "kind": "narration",
-        "sectionId": "rollback-as-a-release",
-        "text": "Rehearse rollback as a complete release and verify identity, behavior, state, telemetry, and user-visible recovery."
-      },
-      {
-        "id": "cue-lifecycle-record",
-        "kind": "narration",
-        "sectionId": "record-and-improve",
-        "text": "Preserve decision evidence and feed release results back into evaluations, thresholds, manifests, and runbooks."
-      },
-      {
-        "id": "cue-lifecycle-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the manifest comparison, qualification gates, bounded rollout, forced rollback, recovery verification, and release disposition."
-      },
-      {
-        "id": "cue-lifecycle-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can prove both the candidate and known-good stack are reproducible and reversible."
-      }
-    ],
-    "transcript": "Version the complete serving unit because weights, runtime, adapters, policy, configuration, and infrastructure can all change behavior. Put the model revision, tokenizer, runtime, image, prompts, safety controls, infrastructure, evaluation set, and telemetry contract under one immutable release identity. Compare the exact candidate with the approved baseline across quality, safety, security, compatibility, capacity, cost, and recovery gates. Define hard failures and reviewer authority before looking at results. Bound traffic exposure, observation, cost, stopping, warm-up, routing, draining, and approval before starting the rollout. Preserve exact routing evidence so mixed versions cannot hide a regression. Rehearse rollback as a complete release and verify identity, behavior, state, telemetry, and user-visible recovery. Restoring a tag without restoring compatible dependencies is not a rollback. Preserve decision evidence and feed release results back into evaluations, thresholds, manifests, and runbooks. A failed candidate remains useful evidence when its status and exact composition are recorded.",
-    "captions": [
-      {
-        "cueId": "cue-lifecycle-unit",
-        "startSeconds": 0,
-        "endSeconds": 300,
-        "text": "Version the complete serving unit because weights, runtime, adapters, policy, configuration, and infrastructure can all change behavior."
-      },
-      {
-        "cueId": "cue-lifecycle-qualify",
-        "startSeconds": 300,
-        "endSeconds": 600,
-        "text": "Compare the exact candidate with the approved baseline across quality, safety, security, compatibility, capacity, cost, and recovery gates."
-      },
-      {
-        "cueId": "cue-lifecycle-stage",
-        "startSeconds": 600,
-        "endSeconds": 900,
-        "text": "Bound traffic exposure, observation, cost, stopping, warm-up, routing, draining, and approval before starting the rollout."
-      },
-      {
-        "cueId": "cue-lifecycle-rollback",
-        "startSeconds": 900,
-        "endSeconds": 1260,
-        "text": "Rehearse rollback as a complete release and verify identity, behavior, state, telemetry, and user-visible recovery."
-      },
-      {
-        "cueId": "cue-lifecycle-record",
-        "startSeconds": 1260,
-        "endSeconds": 1530,
-        "text": "Preserve decision evidence and feed release results back into evaluations, thresholds, manifests, and runbooks."
-      },
-      {
-        "cueId": "cue-lifecycle-activity",
-        "startSeconds": 1530,
-        "endSeconds": 1770,
-        "text": "Guide the manifest comparison, qualification gates, bounded rollout, forced rollback, recovery verification, and release disposition."
-      },
-      {
-        "cueId": "cue-lifecycle-assessment",
-        "startSeconds": 1770,
-        "endSeconds": 1800,
-        "text": "Begin the check after the learner can prove both the candidate and known-good stack are reproducible and reversible."
-      }
-    ],
-    "reducedMotionAlternative": "Use static baseline, candidate, gate, rollout-state, rollback-state, and evidence-ledger tables. Reveal no content through motion alone."
-  },
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 75,
     "questions": [
       {
-        "id": "q-model-lifecycle-1",
-        "prompt": "What belongs in the versioned serving unit?",
+        "id": "model-update-and-rollback-lifecycle-q1",
+        "prompt": "What should be defined before a candidate model begins its rollout?",
         "choices": [
-          "Only the marketing model name",
-          "The model, tokenizer, runtime, image, adapters, policies, configuration, infrastructure, evaluations, and telemetry contract",
-          "Only the container tag",
-          "Only the GPU driver"
+          "Only the candidate model artifact",
+          "The baseline, compatible release unit, acceptance criteria, and rollback target",
+          "New acceptance criteria to be selected after production results appear",
+          "A provider-specific command and configuration key"
         ],
         "answerIndex": 1,
-        "explanation": "Every listed dependency can change behavior or prevent exact reconstruction."
+        "explanation": "The module requires the team to define the baseline, complete compatible release unit, predetermined acceptance criteria, and rollback target before rollout."
       },
       {
-        "id": "q-model-lifecycle-2",
-        "prompt": "What is the strongest candidate qualification comparison?",
+        "id": "model-update-and-rollback-lifecycle-q2",
+        "prompt": "When should rollout expansion stop according to this module?",
         "choices": [
-          "Candidate versus baseline by representative case and operational slice",
-          "One average score without thresholds",
-          "A vendor announcement",
-          "A successful process start"
-        ],
-        "answerIndex": 0,
-        "explanation": "Case- and slice-level comparison exposes regressions hidden by averages."
-      },
-      {
-        "id": "q-model-lifecycle-3",
-        "prompt": "Why preserve exact routing identity during a canary?",
-        "choices": [
-          "To increase prompt length",
-          "To avoid approvals",
-          "To attribute quality and operational outcomes to the actual version served",
-          "To remove telemetry"
+          "Only after the entire rollout is complete",
+          "Whenever the candidate differs from the baseline in any way",
+          "When required evidence is missing, ambiguous, or outside an accepted limit",
+          "Only when the model artifact cannot be found"
         ],
         "answerIndex": 2,
-        "explanation": "A canary is only measurable when requests and outcomes map to an exact build."
+        "explanation": "The controlled-release section says to stop expansion when evidence is missing, ambiguous, or outside a predetermined accepted limit."
       },
       {
-        "id": "q-model-lifecycle-4",
-        "prompt": "Which event should stop a rollout?",
+        "id": "model-update-and-rollback-lifecycle-q3",
+        "prompt": "What is the correct rollback target?",
         "choices": [
-          "An approved hard safety gate fails",
-          "The candidate is newer",
-          "The dashboard color changes",
-          "The old version remains available"
+          "The last accepted compatible release unit",
+          "Any older model artifact",
+          "The candidate with its acceptance criteria removed",
+          "Only the preprocessing behavior"
         ],
         "answerIndex": 0,
-        "explanation": "Predefined hard failures must stop exposure regardless of novelty."
+        "explanation": "The rollback target is the last accepted compatible release unit, which can include the model and any coupled elements required for compatible operation."
       },
       {
-        "id": "q-model-lifecycle-5",
-        "prompt": "What makes rollback complete?",
+        "id": "model-update-and-rollback-lifecycle-q4",
+        "prompt": "What source change prompted this correction?",
         "choices": [
-          "Changing a model alias",
-          "Restarting one process",
-          "Restoring and verifying the complete compatible known-good serving unit and state",
-          "Deleting test evidence"
+          "A provider-specific manual was upgraded to a new version",
+          "An internal, never-verified citation from an unregistered publisher was replaced with public sources",
+          "A configuration key was renamed",
+          "A model benchmark was assigned a new score"
         ],
-        "answerIndex": 2,
-        "explanation": "Rollback must recover the whole compatible system and prove its postconditions."
-      },
-      {
-        "id": "q-model-lifecycle-6",
-        "prompt": "What should happen to evidence from a rejected candidate?",
-        "choices": [
-          "Delete it immediately",
-          "Publish secrets from it",
-          "Treat it as approval",
-          "Retain its exact identity, failed gates, disposition, and follow-up under policy"
-        ],
-        "answerIndex": 3,
-        "explanation": "Retained rejection evidence prevents unsafe combinations from being reconsidered without context."
+        "answerIndex": 1,
+        "explanation": "The source-correction section states that the previous internal citation had never been verified and was replaced with public sources supporting the affected operational guidance."
       }
     ]
   },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-22",
   "sources": [
     {
-      "title": "Deployments",
-      "url": "https://kubernetes.io/docs/concepts/workloads/controllers/deployment/",
-      "publisher": "Kubernetes",
-      "lastVerified": "2026-07-27"
+      "title": "Hidden Technical Debt in Machine Learning Systems",
+      "url": "https://arxiv.org/abs/1506.02619",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-22"
     },
     {
-      "title": "Performing a Rolling Update",
-      "url": "https://kubernetes.io/docs/tutorials/kubernetes-basics/update/update-intro/",
-      "publisher": "Kubernetes",
-      "lastVerified": "2026-07-27"
+      "title": "The ML Test Score: A Rubric for ML Production Readiness and Technical Debt Reduction",
+      "url": "https://arxiv.org/abs/1706.06969",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-22"
     },
     {
-      "title": "SLSA Provenance",
-      "url": "https://slsa.dev/spec/v1.2/provenance",
-      "publisher": "SLSA",
-      "lastVerified": "2026-07-27"
+      "title": "Release Engineering",
+      "url": "https://sre.google/sre-book/release-engineering/",
+      "publisher": "Google",
+      "lastVerified": "2026-08-22"
     },
     {
-      "title": "Artificial Intelligence Risk Management Framework",
-      "url": "https://www.nist.gov/itl/ai-risk-management-framework",
-      "publisher": "NIST",
-      "lastVerified": "2026-07-27"
+      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+      "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+      "publisher": "National Institute of Standards and Technology",
+      "lastVerified": "2026-08-22"
     }
   ]
 }
