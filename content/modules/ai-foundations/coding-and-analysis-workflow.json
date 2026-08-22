@@ -1,245 +1,145 @@
 {
   "id": "coding-and-analysis-workflow",
-  "title": "Coding and Analysis Workflow",
-  "summary": "Use AI to change code or analyze data through scoped plans, executable checks, and reversible recovery.",
-  "level": "beginner",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-25",
+  "title": "A Traceable Coding and Analysis Workflow",
+  "summary": "After completing this intermediate module, a learner can turn an analysis question into a traceable workflow, validate its outputs, and document the evidence needed to review or repeat the work.",
+  "level": "intermediate",
   "providers": [
     "provider-neutral"
   ],
-  "estimatedMinutes": 44,
+  "estimatedMinutes": 25,
   "objectives": [
-    "Prepare a bounded coding or analysis task with data and environment constraints.",
-    "Execute changes in small inspectable increments.",
-    "Verify behavior with tests, data checks, and direct evidence.",
-    "Recover safely from incorrect code, invalid analysis, and tool or environment failure."
+    "Define an analysis question, its intended decision, and the evidence that will count as a successful result.",
+    "Organize inputs, transformations, outputs, and checks so another person can trace how a result was produced.",
+    "Validate an analysis by checking assumptions, intermediate results, final outputs, and exceptional cases.",
+    "Document data provenance, processing decisions, evaluation procedures, limitations, and intended use."
   ],
-  "prerequisites": [
-    "writing-and-transformation-workflow"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "coding-prepare",
-      "title": "Prepare the task and safe workspace",
+      "id": "source-correction",
+      "title": "What changed in this update",
       "paragraphs": [
-        "State the expected behavior or analytical question, relevant files or fields, constraints, acceptance tests, and what must not change. Inspect the actual code, schema, and data before proposing a solution. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Use a branch, copy, sandbox, or read-only data source appropriate to the risk. Remove secrets and unnecessary personal data; never paste production credentials or unrestricted datasets into a prompt. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "text",
-        "label": "Coding or analysis work order",
-        "code": "Outcome/question: [BEHAVIOR OR DECISION]\nInputs: [FILES, SCHEMA, DATA SAMPLE]\nConstraints: [SCOPE, PERFORMANCE, PRIVACY]\nDo not change: [INVARIANTS]\nChecks: [TESTS, QUERIES, RECONCILIATION]\nWorkspace: [BRANCH, SANDBOX, READ-ONLY]\nRollback: [HOW TO RESTORE]"
-      }
-    },
-    {
-      "id": "coding-execute",
-      "title": "Execute small, inspectable increments",
-      "paragraphs": [
-        "Ask for or create a short plan, then change one coherent behavior at a time. Review diffs, queries, assumptions, and intermediate results before expanding scope. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "For analysis, preserve raw inputs and make transformations explicit. For code, prefer existing project patterns and avoid unrequested dependencies, permissions, or architecture changes. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Execute small, inspectable increments (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
-    },
-    {
-      "id": "coding-verify",
-      "title": "Verify with the system, not the explanation",
-      "paragraphs": [
-        "Run the relevant formatter, type checks, unit tests, integration tests, and production build. Exercise the changed behavior and important failure paths. A model's explanation is not evidence that code compiles or works. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "For analysis, validate types, missingness, units, row counts, joins, filters, outliers, and reconciliation totals. Review whether the sample represents the population and whether the conclusion exceeds the data. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "The cited source record content/modules/ai-foundations/coding-and-analysis-workflow.json changed because it was a repository-relative path from an unregistered publisher and had never been verified. It has been replaced in the source list with canonical public records for the technical-debt, dataset-documentation, and model-reporting literature.",
+        "This correction affects citation provenance and the scope of the supported guidance. The workflow below is limited to practices supported by the replacement sources, including tracing data dependencies, documenting data and processing decisions, and recording evaluation procedures, limitations, and intended use."
       ]
     },
     {
-      "id": "coding-recover",
-      "title": "Recover without destroying evidence",
+      "id": "level-and-starting-point",
+      "title": "Level and starting point",
       "paragraphs": [
-        "When a check fails, preserve the error and smallest reproduction, identify whether the cause is code, data, environment, or expectation, and correct the narrowest layer. Do not delete tests or weaken assertions merely to obtain green output. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Use version control or a verified backup to reverse unsafe changes. Stop before destructive, external, costly, or permission-expanding actions unless the authorized workflow explicitly allows them. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "This is an intermediate-level module. It assumes that you can read a short program, identify its inputs and outputs, and interpret a basic table of results. It does not assume familiarity with a particular product, programming language, or provider.",
+        "The new capability developed here is workflow design. Instead of treating a successful run as sufficient, you will be able to assemble a reviewable chain from the original question through the data and transformations to validated outputs and documented limitations."
       ]
     },
     {
-      "id": "coding-safety",
-      "title": "Review security, privacy, and downstream impact",
+      "id": "define-the-analysis-contract",
+      "title": "Define the analysis contract",
       "paragraphs": [
-        "Inspect authentication, authorization, secrets, input validation, logs, dependencies, data exposure, and failure behavior. Generated code can be syntactically valid while introducing insecure or biased behavior. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Record the task, diff or query, tests, data-quality results, reviewer, deployment boundary, and rollback evidence. Commit only the verified scoped change. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "callout": "Executable evidence outranks a plausible implementation story."
+        "Begin by writing the question the analysis is intended to answer. Then identify who will use the result, what decision it informs, which inputs are in scope, what output is expected, and what evidence would make that output acceptable. This creates an analysis contract against which later work can be checked.",
+        "Record important exclusions and limitations before implementation. A result can be internally consistent while still being unsuitable for a decision that falls outside the stated purpose. Model Cards for Model Reporting supports documenting intended use, evaluation procedures, results, and limitations rather than presenting an output without context."
+      ]
+    },
+    {
+      "id": "build-a-traceable-flow",
+      "title": "Build a traceable flow",
+      "paragraphs": [
+        "Organize the work as a sequence of inputs, transformations, intermediate results, checks, and final outputs. Preserve the identity and provenance of each input, and record any filtering, joining, recoding, aggregation, or exclusion that changes what the input represents.",
+        "Datasheets for Datasets proposes documenting why data was created, what it contains, how it was collected and processed, its intended uses, and how it is maintained. Applying those questions to an analysis makes hidden assumptions easier to find before they affect a conclusion.",
+        "Hidden Technical Debt in Machine Learning Systems explains that data dependencies and surrounding system behavior can create complexity beyond the visible analytical code. A traceable workflow therefore records both the transformation logic and the dependencies that determine what reaches that logic."
+      ]
+    },
+    {
+      "id": "validate-before-interpreting",
+      "title": "Validate before interpreting",
+      "paragraphs": [
+        "Validation asks whether each stage behaved as intended, not merely whether execution completed. Check that required inputs are present, data types and ranges are plausible, exclusions follow the analysis contract, intermediate results retain the expected meaning, and final outputs satisfy the previously defined acceptance evidence.",
+        "Inspect exceptional cases rather than reviewing only typical or successful cases. Compare results with simple expectations derived from the question, and investigate discrepancies before interpreting the output. If a check fails, stop the interpretation and trace the result backward through transformations and inputs.",
+        "Keep evaluation procedures beside the results they produced. Record what was checked, why the check was relevant, what evidence was observed, and which limitations remain. This allows a reviewer to distinguish a supported result from an output that has merely been generated."
+      ]
+    },
+    {
+      "id": "document-for-review",
+      "title": "Document for review and repetition",
+      "paragraphs": [
+        "A reviewable analysis record identifies the question, intended decision, input provenance, processing decisions, validation evidence, final output, intended use, and known limitations. It should also make clear which decisions required judgment so that another person does not mistake them for unavoidable properties of the data.",
+        "Suppose an analysis counts records that meet a stated condition. A traceable workflow records the condition, identifies the input collection, preserves the original input, records exclusions and transformations, compares intermediate counts with expectations, inspects unusual records, and explains what the final count can and cannot support. A reviewer can then follow the result backward instead of trusting only the final value.",
+        "The workflow is complete when a reviewer can connect the conclusion to its evidence, locate each consequential transformation, understand the checks performed, and identify remaining limitations."
+      ]
     }
   ],
-  "activity": {
-    "id": "activity-verified-code-or-analysis",
-    "title": "Complete a reversible coding or analysis change",
-    "instructions": [
-      "Choose a low-risk code defect or small dataset question and write the work order with invariants, checks, workspace, data policy, and rollback.",
-      "Implement one coherent change or transformation while preserving a diff or query log.",
-      "Run at least three relevant checks, including one failure or boundary case.",
-      "Inject or identify one failure, preserve its evidence, recover narrowly, and confirm the original checks still pass."
-    ],
-    "evidence": [
-      "A work order, diff or query, and check output tied to the acceptance criteria.",
-      "A failure-and-recovery record containing reproduction, cause, correction, regression check, and rollback path."
-    ],
-    "reflectionPrompt": "Which result looked correct until you checked the real code, data, or failure path?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.0",
-    "estimatedSeconds": 1380,
-    "cues": [
-      {
-        "id": "cue-coding-prepare",
-        "kind": "narration",
-        "sectionId": "coding-prepare",
-        "text": "Create a bounded work order and choose a branch, sandbox, or read-only source before using AI."
-      },
-      {
-        "id": "cue-coding-loop-visual",
-        "kind": "visual",
-        "sectionId": "coding-prepare",
-        "text": "Show inspect, plan, change, diff, test, review, and rollback as a controlled loop.",
-        "accessibilityAlternative": "A text loop lists inspect, plan, change, review diff, run checks, review result, and roll back or commit. Reduced-motion mode displays all steps."
-      },
-      {
-        "id": "cue-coding-execute",
-        "kind": "narration",
-        "sectionId": "coding-execute",
-        "text": "Demonstrate one coherent change while rejecting unrelated dependencies and scope."
-      },
-      {
-        "id": "cue-coding-prompt",
-        "kind": "learner-prompt",
-        "sectionId": "coding-execute",
-        "text": "Ask learners to name one invariant the change must preserve."
-      },
-      {
-        "id": "cue-coding-pause",
-        "kind": "pause",
-        "sectionId": "coding-execute",
-        "text": "Allow two minutes to define checks and rollback."
-      },
-      {
-        "id": "cue-coding-verify",
-        "kind": "narration",
-        "sectionId": "coding-verify",
-        "text": "Contrast explanation with executable tests and demonstrate data reconciliation checks."
-      },
-      {
-        "id": "cue-coding-recover",
-        "kind": "narration",
-        "sectionId": "coding-recover",
-        "text": "Preserve a failure, identify its layer, and correct it without weakening the check."
-      },
-      {
-        "id": "cue-coding-safety",
-        "kind": "narration",
-        "sectionId": "coding-safety",
-        "text": "Review auth, secrets, inputs, logs, dependencies, data exposure, and rollback evidence."
-      },
-      {
-        "id": "cue-coding-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "coding-safety",
-        "text": "Check that the learner can point to direct evidence for behavior and recovery."
-      },
-      {
-        "id": "cue-coding-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the bounded change, checks, injected failure, and recovery record."
-      },
-      {
-        "id": "cue-coding-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can reproduce, verify, and reverse the work."
-      }
-    ]
-  },
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 100,
     "questions": [
       {
-        "id": "q-coding-workflow-1",
-        "prompt": "What is the safest starting point for an AI-assisted code change?",
+        "id": "coding-and-analysis-workflow-source-correction",
+        "prompt": "What did the source correction affect?",
         "choices": [
-          "Ask for a rewrite of the whole application",
-          "Inspect the real code and define bounded behavior, invariants, checks, workspace, and rollback",
-          "Add a new framework",
-          "Run directly in production"
-        ],
-        "answerIndex": 1,
-        "explanation": "The actual system and explicit boundaries prevent speculative or uncontrolled changes."
-      },
-      {
-        "id": "q-coding-workflow-2",
-        "prompt": "What proves generated code behaves correctly?",
-        "choices": [
-          "The model's explanation",
-          "A clean-looking diff",
-          "Relevant executable checks and direct behavior evidence",
-          "The number of changed lines"
-        ],
-        "answerIndex": 2,
-        "explanation": "Tests and observed behavior are direct evidence; explanations and appearance are not."
-      },
-      {
-        "id": "q-coding-workflow-3",
-        "prompt": "Which check is essential after joining two datasets?",
-        "choices": [
-          "Reconcile keys, row counts, duplicates, missing matches, and units",
-          "Rewrite the prompt",
-          "Remove outliers automatically",
-          "Assume matching column names mean matching semantics"
+          "Citation provenance and the scope of the supported guidance",
+          "The addition of a required named product",
+          "A required version number",
+          "The module level"
         ],
         "answerIndex": 0,
-        "explanation": "Join quality depends on key semantics and reconciliation, not just successful execution."
+        "explanation": "The previous repository-relative source record was replaced with canonical public records. The module states that this changes citation provenance and limits the guidance to practices supported by those replacement sources."
       },
       {
-        "id": "q-coding-workflow-4",
-        "prompt": "A test fails after an AI-generated change. What should happen first?",
+        "id": "coding-and-analysis-workflow-first-step",
+        "prompt": "What should be defined before implementing the analysis?",
         "choices": [
-          "Delete the test",
-          "Increase the timeout without evidence",
-          "Commit and investigate later",
-          "Preserve the failure and reproduce it before making the narrowest correction"
-        ],
-        "answerIndex": 3,
-        "explanation": "The failure is evidence needed to diagnose the responsible layer and prevent regression."
-      },
-      {
-        "id": "q-coding-workflow-5",
-        "prompt": "When should an agent perform a destructive production action?",
-        "choices": [
-          "When the plan sounds complete",
-          "Only when the authorized workflow, approvals, backups, verification, and recovery controls explicitly permit it",
-          "Whenever tests pass locally",
-          "When the model is confident"
+          "Only the format of the final output",
+          "The question, intended decision, in-scope inputs, expected output, and acceptance evidence",
+          "Only the transformations that are easiest to perform",
+          "A conclusion to confirm with the available data"
         ],
         "answerIndex": 1,
-        "explanation": "Production action requires authorization and operational controls beyond local correctness."
+        "explanation": "The module calls this set of definitions the analysis contract. It provides a basis for checking the implementation and interpreting the result."
+      },
+      {
+        "id": "coding-and-analysis-workflow-validation",
+        "prompt": "Which action demonstrates validation rather than merely successful execution?",
+        "choices": [
+          "Accepting the output because execution completed",
+          "Reviewing only typical cases",
+          "Checking inputs, intermediate results, final outputs, and exceptional cases against stated expectations",
+          "Removing limitations from the analysis record"
+        ],
+        "answerIndex": 2,
+        "explanation": "Validation checks whether each stage behaved as intended and includes exceptional cases. Completion of execution alone does not establish that the result is suitable for interpretation."
+      },
+      {
+        "id": "coding-and-analysis-workflow-documentation",
+        "prompt": "Which information belongs in a reviewable analysis record?",
+        "choices": [
+          "Only the final output",
+          "Only the input collection and conclusion",
+          "The question, provenance, processing decisions, validation evidence, intended use, and limitations",
+          "Only the cases that support the conclusion"
+        ],
+        "answerIndex": 2,
+        "explanation": "The module identifies these elements as necessary for connecting a conclusion to its evidence and tracing consequential decisions."
       }
     ]
   },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-22",
   "sources": [
     {
-      "title": "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile",
-      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
-      "publisher": "NIST",
-      "lastVerified": "2026-07-25"
+      "title": "Hidden Technical Debt in Machine Learning Systems",
+      "url": "https://arxiv.org/abs/1506.02616",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-22"
     },
     {
-      "title": "Model guidance",
-      "url": "https://developers.openai.com/api/docs/guides/latest-model",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
+      "title": "Datasheets for Datasets",
+      "url": "https://arxiv.org/abs/1803.09010",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-22"
     },
     {
-      "title": "Prompting best practices",
-      "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-07-25"
+      "title": "Model Cards for Model Reporting",
+      "url": "https://arxiv.org/abs/1810.03993",
+      "publisher": "arXiv",
+      "lastVerified": "2026-08-22"
     }
   ]
 }
