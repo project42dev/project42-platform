@@ -1,3 +1,27 @@
+# Project 42 platform v0.87.0
+
+Version 0.87.0 was cut by the Orchard release role from everything merged into `main` since v0.86.0. It exists so that content already merged into the platform repository reaches the sites that consume the platform package.
+
+## Content
+
+No file under `content/` was added or changed since v0.86.0.
+
+## Migrations
+
+No file under `migrations/` was added or changed since v0.86.0.
+
+## Breaking changes
+
+Orchard does not classify breaking changes. Review the file list above, and the diff for this tag, before approving the release environment.
+
+## Known limitations
+
+None are recorded by the automation that cut this release. It reports what changed; it does not assess it.
+
+## Rollback
+
+Revert consuming sites to v0.86.0.
+
 # Project 42 platform v0.86.0
 
 Version 0.86.0 was cut by the Orchard release role from everything merged into `main` since v0.85.0. It exists so that content already merged into the platform repository reaches the sites that consume the platform package.
