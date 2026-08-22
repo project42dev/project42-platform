@@ -1,227 +1,106 @@
 {
   "id": "examples-and-output-contracts",
   "title": "Examples and Output Contracts",
-  "summary": "Use representative examples and explicit output contracts to make responses easier to consume and validate.",
-  "level": "beginner",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-27",
+  "summary": "This intermediate module enables learners to distinguish an illustrative example from an output contract and to check generated JSON in two stages: parsing its syntax and validating its application-specific requirements.",
+  "level": "intermediate",
   "providers": [
     "provider-neutral"
   ],
-  "estimatedMinutes": 32,
+  "estimatedMinutes": 12,
   "objectives": [
-    "Choose examples that demonstrate desired behavior without hiding the governing rule.",
-    "Define a human-readable or machine-readable output contract.",
-    "Distinguish requested formatting, valid JSON, and schema-constrained output.",
-    "Validate content and edge cases after structural parsing succeeds."
+    "Distinguish an example output from a contract that defines required output characteristics.",
+    "Determine whether text can be parsed as JSON before checking its application-specific structure.",
+    "Identify outputs that are valid JSON but do not satisfy a stated output contract."
   ],
-  "prerequisites": [
-    "context-and-evidence-construction"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "examples-teach-patterns",
-      "title": "Examples demonstrate a pattern",
+      "id": "update-record",
+      "title": "Source correction",
       "paragraphs": [
-        "Examples can show tone, classification boundaries, field population, and how unusual inputs should be handled. They work best when the desired rule is also stated explicitly. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Choose relevant and varied examples. Repeating one easy case can teach an accidental pattern and conceal how the task should behave at its boundaries. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "callout": "An example illustrates the rule; it should not be the only place the rule exists."
-    },
-    {
-      "id": "define-output-contract",
-      "title": "Define the output before generating it",
-      "paragraphs": [
-        "An output contract names the fields or sections, allowed values, required evidence, ordering, length, and behavior when data is unknown. This makes the response easier for a person or application to inspect. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "For prose, a heading template or table may be enough. For application data, use a supported structured-output or schema mechanism when the provider offers one instead of relying only on instructions to produce JSON. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "text",
-        "label": "Provider-neutral output-contract template",
-        "code": "Deliverable purpose: [WHO USES IT AND WHY]\nFormat: [PROSE, TABLE, OR NAMED SCHEMA]\nRequired fields/sections: [LIST]\nAllowed values: [ENUMS OR RULES]\nEvidence: [CITATIONS, QUOTES, TESTS, OR NONE]\nUnknown values: [NULL, OMIT, OR EXPLAIN]\nOrdering and limits: [RULES]\nValidation: [PARSER/SCHEMA PLUS CONTENT CHECKS]"
-      }
-    },
-    {
-      "id": "structure-has-levels",
-      "title": "Formatting, valid data, and schema adherence differ",
-      "paragraphs": [
-        "A prompt can request a layout, but the response may still vary. JSON mode or an equivalent feature can require syntactically valid JSON without guaranteeing that every required field and type matches your contract. Schema-constrained output is designed to enforce a supported schema. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Provider capabilities and supported schema subsets vary. Keep the portable contract separate from provider-specific API configuration, and test the exact model and interface you deploy. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "The existing item listed content/modules/ai-foundations/examples-and-output-contracts.json as an unverified source with an unregistered publisher. That relative repository path is not a directly accessible HTTPS publication. This update replaces that source record with the relevant JSON and ECMAScript standards listed at the end of the module.",
+        "The source-record change affects the provenance and verification of claims about JSON syntax and parsing. The supplied update record does not identify a previous external URL, a moved publication, or a substantive instructional claim that changed, so those details are UNKNOWN. The previous module object was not supplied, so whether all unaffected wording and registered identifiers remain unchanged is also UNKNOWN."
       ]
     },
     {
-      "id": "validate-beyond-shape",
-      "title": "A valid shape can still contain a bad answer",
+      "id": "level-and-scope",
+      "title": "Level and scope",
       "paragraphs": [
-        "Parsing proves structure, not factual correctness, completeness, authorization, or usefulness. Validate required business rules, source support, allowed values, cross-field consistency, and downstream consequences. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Handle refusals, incomplete output, missing data, and validation errors explicitly. Never convert a parse failure into fabricated default values that look authoritative. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "callout": "Schema-valid is not truth-valid."
+        "This is an intermediate-level module. It assumes basic familiarity with objects, arrays, strings, and data fields, but it does not assume experience with a particular model provider or product.",
+        "For this module, an example is one illustration of acceptable output. An output contract is the set of application-specific requirements against which an output will be checked. This local definition can include the required top-level value, field names, and field value types."
+      ]
+    },
+    {
+      "id": "example-versus-contract",
+      "title": "Separate the illustration from the requirements",
+      "paragraphs": [
+        "Consider the example output {\"status\":\"ready\",\"items\":[]}. It illustrates one object containing a status string and an items array. By itself, the example does not state whether other fields are permitted, whether status may have other string values, or whether items may contain values.",
+        "A corresponding contract must state the requirements explicitly. For this exercise, the contract is: the complete output must be exactly one JSON object; the object must contain a status field whose value is a string and an items field whose value is an array; and no commentary may appear outside the object. These are application-specific requirements defined by this module, not requirements imposed on every JSON object."
+      ]
+    },
+    {
+      "id": "parse-then-validate",
+      "title": "Parse first, then validate the contract",
+      "paragraphs": [
+        "JSON is a text format for serialized structured data. A JSON object begins with {, ends with }, and contains name-value members. JSON strings use quotation marks and defined escape sequences, and literal control characters are not permitted inside strings.",
+        "JSON.parse converts conforming JSON text into the corresponding ECMAScript value. If parsing fails, it throws a SyntaxError. JSON whitespace may surround the serialized value, but prose or other commentary outside that value does not belong to the JSON text accepted by the parsing grammar.",
+        "Successful parsing establishes that the text follows JSON syntax. It does not establish the application-specific contract defined in the previous section. After parsing, check that the top-level value is an object, that status is present and is a string, and that items is present and is an array.",
+        "For example, {\"status\":3,\"items\":[]} is valid JSON, so it can pass the parsing stage. It fails this module's contract because the status value is a number rather than a string. The text Result: {\"status\":\"ready\",\"items\":[]} fails the parsing stage because Result: is commentary outside the serialized object."
+      ]
     }
   ],
-  "activity": {
-    "id": "activity-design-output-contract",
-    "title": "Design and test an output contract",
-    "instructions": [
-      "Choose a recurring task such as issue triage, meeting-summary extraction, or product comparison.",
-      "Define purpose, required fields, allowed values, evidence, unknown-value behavior, ordering, and validation.",
-      "Create three examples: a normal case, a boundary case, and a case with missing information.",
-      "Review a sample response twice—first for structure, then for factual and business-rule correctness."
-    ],
-    "evidence": [
-      "A completed output contract and three varied input/output examples.",
-      "A two-part validation checklist separating structural checks from content and consequence checks."
-    ],
-    "reflectionPrompt": "What error would pass your structural validation but still make the result unsafe or useless?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.0",
-    "estimatedSeconds": 1080,
-    "cues": [
-      {
-        "id": "cue-output-examples",
-        "kind": "narration",
-        "sectionId": "examples-teach-patterns",
-        "text": "Explain how diverse normal, boundary, and missing-data examples reveal the intended rule."
-      },
-      {
-        "id": "cue-output-example-grid",
-        "kind": "visual",
-        "sectionId": "examples-teach-patterns",
-        "text": "Show a three-column grid for normal, boundary, and missing-data examples, each linked to the rule it demonstrates.",
-        "accessibilityAlternative": "A text table lists three example types—normal, boundary, and missing data—and the rule each is meant to demonstrate. Reduced-motion mode displays the full table."
-      },
-      {
-        "id": "cue-output-contract",
-        "kind": "narration",
-        "sectionId": "define-output-contract",
-        "text": "Build the provider-neutral contract from purpose through validation and distinguish human from application consumers."
-      },
-      {
-        "id": "cue-output-contract-prompt",
-        "kind": "learner-prompt",
-        "sectionId": "define-output-contract",
-        "text": "Ask learners to choose an explicit representation for unknown values instead of allowing silent invention."
-      },
-      {
-        "id": "cue-output-pause",
-        "kind": "pause",
-        "sectionId": "define-output-contract",
-        "text": "Allow two minutes to define required fields and unknown-value behavior."
-      },
-      {
-        "id": "cue-output-levels",
-        "kind": "narration",
-        "sectionId": "structure-has-levels",
-        "text": "Contrast requested formatting, valid JSON, and supported schema adherence without implying that every provider implements them identically."
-      },
-      {
-        "id": "cue-output-validation",
-        "kind": "narration",
-        "sectionId": "validate-beyond-shape",
-        "text": "Separate parser success from factual, business-rule, authorization, and consequence checks."
-      },
-      {
-        "id": "cue-output-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "validate-beyond-shape",
-        "text": "Check that learners can name one schema-valid but factually invalid response."
-      },
-      {
-        "id": "cue-output-activity",
-        "kind": "learner-prompt",
-        "text": "Guide learners through building the contract and reviewing the same output for structure and content separately."
-      },
-      {
-        "id": "cue-output-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the contract handles boundary, missing-data, refusal, and invalid-content cases."
-      }
-    ]
-  },
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 100,
     "questions": [
       {
-        "id": "q-output-contract-1",
-        "prompt": "Which example set teaches a classification boundary most effectively?",
+        "id": "examples-and-output-contracts-example-purpose",
+        "prompt": "What does the example {\"status\":\"ready\",\"items\":[]} establish by itself?",
         "choices": [
-          "Relevant normal, boundary, and missing-information cases tied to an explicit rule",
-          "Three nearly identical easy cases",
-          "One example with no explanation",
-          "Only examples that produce the same label"
+          "It illustrates one possible output but does not define every permitted value or field.",
+          "It proves that status must always equal ready in every application.",
+          "It permits commentary before and after the object."
         ],
         "answerIndex": 0,
-        "explanation": "Varied examples expose boundaries while the explicit rule prevents accidental imitation."
+        "explanation": "The module distinguishes an illustration from explicit requirements. The example shows one possible object, while the contract must separately state required fields, types, and boundaries."
       },
       {
-        "id": "q-output-contract-2",
-        "prompt": "What belongs in an output contract?",
+        "id": "examples-and-output-contracts-parse-first",
+        "prompt": "Under the contract in this module, which output passes JSON parsing but fails the application-specific field requirements?",
         "choices": [
-          "Only a request to be concise",
-          "The model's private reasoning",
-          "Required structure, allowed values, evidence, unknown handling, and validation",
-          "A guarantee that all facts are current"
-        ],
-        "answerIndex": 2,
-        "explanation": "These elements make the deliverable inspectable and consumable."
-      },
-      {
-        "id": "q-output-contract-3",
-        "prompt": "What does syntactically valid JSON prove?",
-        "choices": [
-          "Every field matches the intended schema",
-          "The data can be parsed as JSON, but content and schema still require checking unless separately enforced",
-          "Every factual claim is correct",
-          "The response is authorized for automatic action"
-        ],
-        "answerIndex": 1,
-        "explanation": "Syntax, schema adherence, content correctness, and authorization are distinct checks."
-      },
-      {
-        "id": "q-output-contract-4",
-        "prompt": "What should an application do when a structured response is refused or incomplete?",
-        "choices": [
-          "Invent missing required fields",
-          "Retry forever",
-          "Skip content validation",
-          "Handle the condition explicitly and avoid treating it as validated data"
-        ],
-        "answerIndex": 3,
-        "explanation": "Refusals and incomplete responses are expected branches and must not become fabricated records."
-      },
-      {
-        "id": "q-output-contract-5",
-        "prompt": "A response matches its schema but cites the wrong source. What is true?",
-        "choices": [
-          "The structure passed, but the evidence and factual validation failed",
-          "The response is valid because parsing succeeded",
-          "The schema should be removed",
-          "No review is needed"
+          "{\"status\":3,\"items\":[]}",
+          "{\"status\":\"ready\",\"items\":[]}",
+          "Result: {\"status\":\"ready\",\"items\":[]}"
         ],
         "answerIndex": 0,
-        "explanation": "Schema validation cannot establish that a claim is supported by the cited evidence."
+        "explanation": "The first choice is valid JSON, but status is a number instead of the string required by the contract. The second satisfies both stages. The third contains commentary outside the JSON object and therefore fails parsing."
+      },
+      {
+        "id": "examples-and-output-contracts-two-stage-check",
+        "prompt": "Why should an application check the contract after JSON parsing succeeds?",
+        "choices": [
+          "Parsing checks JSON syntax, while the later check enforces required fields and value types.",
+          "Parsing already guarantees every application-specific requirement.",
+          "The later check converts commentary into valid JSON."
+        ],
+        "answerIndex": 0,
+        "explanation": "The module explains that parsing establishes syntactic validity. Requirements such as a string-valued status field and an array-valued items field must be checked separately."
       }
     ]
   },
+  "reviewCadenceDays": 365,
+  "lastVerified": "2026-08-22",
   "sources": [
     {
-      "title": "Structured model outputs",
-      "url": "https://developers.openai.com/api/docs/guides/structured-outputs",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-27"
+      "title": "The JavaScript Object Notation (JSON) Data Interchange Format",
+      "url": "https://www.rfc-editor.org/rfc/rfc8259.html",
+      "publisher": "Internet Engineering Task Force",
+      "lastVerified": "2026-08-22"
     },
     {
-      "title": "Increase output consistency",
-      "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/increase-consistency",
-      "publisher": "Anthropic",
-      "lastVerified": "2026-07-27"
-    },
-    {
-      "title": "Structured outputs",
-      "url": "https://ai.google.dev/gemini-api/docs/structured-output",
-      "publisher": "Google",
-      "lastVerified": "2026-07-27"
+      "title": "ECMAScript Language Specification: JSON.parse",
+      "url": "https://tc39.es/ecma262/multipage/structured-data.html#sec-json.parse",
+      "publisher": "Ecma International",
+      "lastVerified": "2026-08-22"
     }
   ]
 }
