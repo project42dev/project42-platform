@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.42.0",
-  "substantiveModuleCount": 69,
+  "substantiveModuleCount": 43,
   "classReadyModuleCount": 40,
-  "outlineOnlyModuleCount": 29,
+  "outlineOnlyModuleCount": 3,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -29,52 +29,12 @@
       "classScriptPath": "content/training/reliable-agent-workflows/agent-observability/class-script.json"
     },
     {
-      "moduleId": "agentic-ai-layers",
-      "pathIds": [
-        "agentic-ai-literacy"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.0"
-    },
-    {
-      "moduleId": "agentic-classification-capstone",
-      "pathIds": [
-        "agentic-ai-literacy"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.0"
-    },
-    {
-      "moduleId": "agentic-control-flow",
-      "pathIds": [
-        "agentic-ai-literacy"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.0"
-    },
-    {
-      "moduleId": "agentic-product-comparison",
-      "pathIds": [
-        "agentic-ai-literacy"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.0"
-    },
-    {
-      "moduleId": "agentic-tools-state-authority",
-      "pathIds": [
-        "agentic-ai-literacy"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.0"
-    },
-    {
       "moduleId": "agents-and-guardrails",
       "pathIds": [
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "agents-and-guardrails-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/agents-and-guardrails/class-script.json"
@@ -85,7 +45,7 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "ai-foundations-capstone-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/ai-foundations-capstone/class-script.json"
@@ -96,58 +56,10 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "ai-systems-and-use-cases-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/ai-systems-and-use-cases/class-script.json"
-    },
-    {
-      "moduleId": "anthropic-ecosystem-and-interfaces",
-      "pathIds": [
-        "anthropic-claude-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "claude-api-and-sdk-workflows",
-      "pathIds": [
-        "anthropic-claude-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "claude-evaluation-and-observability",
-      "pathIds": [
-        "anthropic-claude-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "claude-prompting-in-practice",
-      "pathIds": [
-        "anthropic-claude-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "claude-safety-and-trust-boundaries",
-      "pathIds": [
-        "anthropic-claude-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "claude-tools-and-agent-loops",
-      "pathIds": [
-        "anthropic-claude-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
     },
     {
       "moduleId": "coding-and-analysis-workflow",
@@ -155,7 +67,7 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "coding-and-analysis-workflow-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/coding-and-analysis-workflow/class-script.json"
@@ -174,7 +86,7 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "context-and-evidence-construction-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/context-and-evidence-construction/class-script.json"
@@ -196,7 +108,7 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "context-tokens-and-modalities-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/context-tokens-and-modalities/class-script.json"
@@ -251,7 +163,7 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "examples-and-output-contracts-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/examples-and-output-contracts/class-script.json"
@@ -260,54 +172,6 @@
       "moduleId": "execute-cross-provider-cutover",
       "pathIds": [
         "providers-in-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "gemini-api-and-sdk-workflows",
-      "pathIds": [
-        "google-gemini-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "gemini-ecosystem-and-interfaces",
-      "pathIds": [
-        "google-gemini-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "gemini-evaluation-and-observability",
-      "pathIds": [
-        "google-gemini-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "gemini-prompting-in-practice",
-      "pathIds": [
-        "google-gemini-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "gemini-safety-and-trust-boundaries",
-      "pathIds": [
-        "google-gemini-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "gemini-tools-and-agent-loops",
-      "pathIds": [
-        "google-gemini-practice"
       ],
       "status": "outline-only",
       "instructorSchemaVersion": "1.1"
@@ -329,7 +193,7 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "language-models-and-generation-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/language-models-and-generation/class-script.json"
@@ -366,30 +230,6 @@
       "classScriptId": "memory-boundaries-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/reliable-agent-workflows/memory-boundaries/class-script.json"
-    },
-    {
-      "moduleId": "migrating-to-and-from-claude",
-      "pathIds": [
-        "anthropic-claude-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "migrating-to-and-from-gemini",
-      "pathIds": [
-        "google-gemini-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "migrating-to-and-from-openai",
-      "pathIds": [
-        "openai-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
     },
     {
       "moduleId": "model-artifact-integrity",
@@ -458,54 +298,6 @@
       "classScriptPath": "content/training/self-hosted-model-operations/observability-cost-and-performance/class-script.json"
     },
     {
-      "moduleId": "openai-ecosystem-and-interfaces",
-      "pathIds": [
-        "openai-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "openai-evaluation-and-observability",
-      "pathIds": [
-        "openai-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "openai-prompting-in-practice",
-      "pathIds": [
-        "openai-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "openai-responses-api-and-sdk-workflows",
-      "pathIds": [
-        "openai-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "openai-safety-and-trust-boundaries",
-      "pathIds": [
-        "openai-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
-      "moduleId": "openai-tools-and-codex-agent-loops",
-      "pathIds": [
-        "openai-practice"
-      ],
-      "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
-    },
-    {
       "moduleId": "orchestration-patterns",
       "pathIds": [
         "reliable-agent-workflows"
@@ -541,7 +333,7 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "privacy-safety-and-responsibility-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/privacy-safety-and-responsibility/class-script.json"
@@ -552,7 +344,7 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "prompt-anatomy-and-success-criteria-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/prompt-anatomy-and-success-criteria/class-script.json"
@@ -563,7 +355,7 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "prompt-with-purpose-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/prompt-with-purpose/class-script.json"
@@ -585,7 +377,7 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "research-with-evidence-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/research-with-evidence/class-script.json"
@@ -607,7 +399,7 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "safe-tool-use-workflow-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/safe-tool-use-workflow/class-script.json"
@@ -651,7 +443,7 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "verification-and-iterative-improvement-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/verification-and-iterative-improvement/class-script.json"
@@ -673,7 +465,7 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "writing-and-transformation-workflow-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/writing-and-transformation-workflow/class-script.json"
