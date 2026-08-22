@@ -1,300 +1,129 @@
 {
   "id": "agent-observability",
-  "title": "Observe Agent Quality, Cost, and Risk",
-  "summary": "Instrument agent runs with privacy-preserving traces, metrics, logs, and quality signals that support diagnosis without turning telemetry into a sensitive-data archive.",
+  "title": "Observability for Agent Workflows",
+  "summary": "After completing this intermediate module, you can design observable records for an agent workflow and use them to reconstruct execution, distinguish evidence from inference, and locate a failed step. These are capabilities you may not have had before completing the module.",
   "level": "intermediate",
-  "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-25",
   "providers": [
     "provider-neutral"
   ],
-  "estimatedMinutes": 52,
+  "estimatedMinutes": 20,
   "objectives": [
-    "Design traces that connect agent, model, retrieval, tool, approval, handoff, and verification spans.",
-    "Measure quality, safety, reliability, latency, token use, cost, and escalation by meaningful slices.",
-    "Apply data minimization, redaction, access, retention, sampling, and deletion controls to telemetry.",
-    "Use traces to localize failure and route human escalation without exposing hidden reasoning."
+    "Design event records that connect each workflow step to its request and parent step.",
+    "Reconstruct an agent workflow as an ordered sequence of recorded events.",
+    "Use recorded outcomes and timing information to locate failures, retries, and delays.",
+    "Distinguish facts present in observability records from conclusions that require further evidence."
   ],
-  "prerequisites": [
-    "agent-evaluation"
-  ],
+  "prerequisites": [],
   "sections": [
     {
-      "id": "signals-answer-different-questions",
-      "title": "Use traces, metrics, logs, and evaluations together",
+      "id": "level-and-scope",
+      "title": "Level and scope",
       "paragraphs": [
-        "A trace reconstructs one run and its parent-child operations. Metrics reveal trends and service objectives. Logs capture discrete operational events. Evaluations judge behavior against a rubric. None replaces the others. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Start from decisions the team must make: detect a regression, locate a failed boundary, control spend, explain an escalation, or prove a postcondition. Collect only signals that support those decisions. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Use traces, metrics, logs, and evaluations together (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "This is an intermediate module. It assumes you understand that an agent workflow consists of multiple software steps, but it does not assume experience with a particular provider or observability implementation.",
+        "Observability records help an operator examine what a workflow did after or while it ran. The goal is not merely to collect isolated messages. The goal is to preserve enough context to connect events, reconstruct execution, and identify where observed behavior diverged from the expected path."
+      ]
     },
     {
-      "id": "trace-the-agent-graph",
-      "title": "Preserve causal structure across the run",
+      "id": "currency-correction",
+      "title": "What changed in this update",
       "paragraphs": [
-        "Give the workflow a trace ID and each model call, retrieval, tool call, approval, guardrail, handoff, verifier, and recovery step a span with parent linkage and timing. Record stable workflow, agent, prompt, model, tool, policy, and content versions. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Use low-cardinality status and failure labels for aggregation, while keeping detailed evidence behind access-controlled references. Correlation IDs should connect provider requests and external side effects without storing secrets. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "text",
-        "label": "Portable span envelope",
-        "code": "traceId, spanId, parentSpanId\noperation: agent | model | retrieval | tool | approval | handoff | verify\nversionRefs: workflow, prompt, model, tool, policy, content\nstart, end, status, failureClass\nusage: tokens, estimatedCost, retries\nresultRef: redacted evidence or secure pointer"
-      }
+        "The previous cited source, content/modules/reliable-agent-workflows/agent-observability.json, was an unregistered publisher entry and had never been verified. It was not a resolvable HTTPS source, so it was replaced with the official sources listed at the end of this module.",
+        "The source correction affects the support for two parts of the module: managing event records across their lifecycle and correlating related work across process boundaries. The correlation guidance now follows the cited trace-context standard's model of a shared trace identity and a parent relationship. This currency correction does not change the module's provider-neutral scope."
+      ]
     },
     {
-      "id": "measure-service-and-quality",
-      "title": "Measure outcomes, not activity alone",
+      "id": "record-useful-events",
+      "title": "Record useful workflow events",
       "paragraphs": [
-        "Track task success and verified completion alongside policy violations, unsafe attempts, user corrections, escalations, abandonment, tool and retrieval failure, retry rate, latency percentiles, token use, and cost per successful task. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Segment by workflow version, model, tool, user journey, risk class, language, and other supported groups. Alert on error-budget burn, critical policy events, and material quality change rather than raw request volume alone. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "code": {
-        "language": "json",
-        "label": "Measure outcomes, not activity alone (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "Treat each significant workflow step as an event that can be connected to the larger execution. A useful record identifies the workflow execution, identifies the step, states the event type and observed outcome, records when the event occurred, and preserves the relationship to the step that initiated it.",
+        "Record both successful and unsuccessful outcomes. A failure record without the preceding steps may reveal where execution stopped but not how it reached that point. Conversely, success-only records can hide retries, fallback paths, and intermediate failures.",
+        "Event records have a lifecycle. They are generated, transmitted, stored, analyzed, and eventually disposed of. The cited log-management guidance treats these activities as connected responsibilities rather than unrelated tasks."
+      ]
     },
     {
-      "id": "privacy-preserving-telemetry",
-      "title": "Assume model and tool content is sensitive",
+      "id": "correlate-work",
+      "title": "Correlate related work",
       "paragraphs": [
-        "Inputs, outputs, tool arguments, results, retrieval queries, and documents can contain personal data, secrets, customer content, or protected business information. Default to metadata and secure references; capture content only for a documented purpose and permitted population. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Apply redaction before export, tenant isolation, encryption, role-based access, short retention, deletion propagation, regional controls, and audit logging. Sample based on risk and debugging need, not because storage is available. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
-      ],
-      "callout": "Observability that violates the product's data promises is an operational failure.",
-      "code": {
-        "language": "json",
-        "label": "Assume model and tool content is sensitive (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+        "An agent workflow can cross process or service boundaries. Preserve a shared trace identity as work crosses those boundaries so that records from the same execution can be grouped. Preserve parent relationships so that a learner or operator can determine which step initiated another step.",
+        "A shared identity answers which events belong to the same execution. A parent relationship answers how those events are connected. Both are needed when concurrent branches produce events whose timestamps overlap.",
+        "The cited trace-context standard defines a common mechanism for passing trace identity and relationship information between distributed components. This module uses the standard's general correlation model without requiring a particular implementation."
+      ]
     },
     {
-      "id": "trace-review-and-escalation",
-      "title": "Review the first wrong transition",
+      "id": "reconstruct-and-diagnose",
+      "title": "Reconstruct and diagnose execution",
       "paragraphs": [
-        "Begin at the user-visible failure, then walk backward to the first span whose actual state diverged from the expected contract. Classify the failure before changing prompts: model, prompt, tool, retrieval, data, policy, infrastructure, or orchestration. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies.",
-        "Escalate when a trace indicates unsafe action, cross-tenant data, repeated unknown outcomes, policy conflict, or impact beyond automated recovery. Give the human a redacted timeline, affected targets, containment status, evidence, and the decision required. In production environments, engineers must account for token utilization patterns, context window pressure, and deterministic execution boundaries. When system constraints or rate limits are approached, explicit retry strategies with exponential backoff and jitter prevent cascading failures across downstream dependencies."
+        "Begin diagnosis by grouping records that share the same workflow identity. Order the records using their recorded timing and parent relationships, then compare the reconstructed path with the expected sequence of steps.",
+        "Look for a step that started without a recorded completion, an unsuccessful outcome, repeated attempts, or an unusually long recorded duration. These observations locate where further investigation should begin. They do not, by themselves, prove the underlying cause.",
+        "Keep observed facts separate from inferences. For example, a record showing that a step timed out is evidence of the timeout. A conclusion that network congestion caused it is an inference unless additional evidence supports that conclusion."
       ],
-      "code": {
-        "language": "json",
-        "label": "Review the first wrong transition (Code Implementation)",
-        "code": "{\n  \"contractVersion\": \"1.0\",\n  \"executionBoundary\": \"bounded-task\",\n  \"inputValidation\": {\n    \"maxTokens\": 4096,\n    \"allowedModalities\": [\"text\", \"json\"]\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"status\", \"evidence\", \"confidence\"],\n    \"properties\": {\n      \"status\": { \"type\": \"string\", \"enum\": [\"verified\", \"rejected\"] },\n      \"evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"confidence\": { \"type\": \"number\", \"minimum\": 0.0, \"maximum\": 1.0 }\n    }\n  }\n}"
-      }
+      "callout": "Observability can establish only what the recorded evidence supports. Missing records must not be treated as proof that an event did not occur."
+    },
+    {
+      "id": "apply-the-method",
+      "title": "Apply the method",
+      "paragraphs": [
+        "For a new workflow, identify the significant steps and the possible parent-child relationships before deciding what to record. Ensure that each significant event can be associated with one workflow execution and, when applicable, with the step that initiated it.",
+        "For an existing workflow, select one execution and attempt to reconstruct it using only its records. If you cannot determine event membership, ordering, parentage, or outcome, the missing information identifies a concrete observability gap.",
+        "After this module, you can turn a collection of disconnected events into a correlation plan, reconstruct a recorded execution, and state which conclusions are supported by evidence and which remain inferences."
+      ]
     }
   ],
-  "activity": {
-    "id": "activity-agent-trace-review",
-    "title": "Instrument and review an agent trace",
-    "instructions": [
-      "Create a trace schema for one workflow with agent, model, retrieval, tool, approval, handoff, verification, and recovery spans.",
-      "Define quality, safety, reliability, latency, token, cost, and escalation metrics with dimensions and alert thresholds.",
-      "Write the telemetry data policy covering collection purpose, redaction, content capture, sampling, access, retention, deletion, and residency.",
-      "Review one synthetic failed trace, identify the first wrong transition, assign a failure class, and prepare a human-escalation packet."
-    ],
-    "evidence": [
-      "A trace/span schema, metric catalog, service objectives, and alert rules tied to product decisions.",
-      "A privacy policy and trace-review artifact showing causal diagnosis, failure classification, containment status, and escalation evidence."
-    ],
-    "reflectionPrompt": "Which telemetry field was useful for debugging but unjustified to retain in clear text?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 1560,
-    "cues": [
-      {
-        "id": "cue-observe-signals",
-        "kind": "narration",
-        "sectionId": "signals-answer-different-questions",
-        "text": "Combine traces, metrics, logs, and evaluations because each answers a different operational question."
-      },
-      {
-        "id": "cue-observe-trace",
-        "kind": "narration",
-        "sectionId": "trace-the-agent-graph",
-        "text": "Connect model, retrieval, tool, approval, handoff, verification, and recovery spans in one causal trace."
-      },
-      {
-        "id": "cue-observe-measure",
-        "kind": "narration",
-        "sectionId": "measure-service-and-quality",
-        "text": "Measure verified outcomes, safety, reliability, latency, cost, and escalation by meaningful workflow slices."
-      },
-      {
-        "id": "cue-observe-visual",
-        "kind": "visual",
-        "sectionId": "measure-service-and-quality",
-        "text": "Overlay quality, safety, latency, cost, and error-budget signals on a single agent trace.",
-        "accessibilityAlternative": "A static trace table lists every span with quality, safety, latency, cost, and error-budget columns. Reduced-motion mode shows the full table."
-      },
-      {
-        "id": "cue-observe-privacy",
-        "kind": "narration",
-        "sectionId": "privacy-preserving-telemetry",
-        "text": "Minimize and redact sensitive content before export, then enforce access, retention, deletion, and sampling policy."
-      },
-      {
-        "id": "cue-observe-review",
-        "kind": "narration",
-        "sectionId": "trace-review-and-escalation",
-        "text": "Find the first wrong transition, classify its boundary, contain impact, and give a human the decision-ready evidence."
-      },
-      {
-        "id": "cue-observe-prompt",
-        "kind": "learner-prompt",
-        "sectionId": "trace-review-and-escalation",
-        "text": "Ask learners whether the first visible error and the first causal error occur in the same span."
-      },
-      {
-        "id": "cue-observe-pause",
-        "kind": "pause",
-        "sectionId": "privacy-preserving-telemetry",
-        "text": "Allow three minutes to replace one raw-content field with a redacted reference."
-      },
-      {
-        "id": "cue-observe-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "trace-review-and-escalation",
-        "text": "Check that the escalation packet contains no hidden reasoning or unnecessary customer content."
-      },
-      {
-        "id": "cue-observe-activity",
-        "kind": "learner-prompt",
-        "text": "Guide trace design, metric thresholds, privacy policy, causal review, and escalation."
-      },
-      {
-        "id": "cue-observe-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can diagnose a run without over-collecting data."
-      }
-    ],
-    "transcript": "Combine traces, metrics, logs, and evaluations because each answers a different operational question. Connect model, retrieval, tool, approval, handoff, verification, and recovery spans in one causal trace. Measure verified outcomes, safety, reliability, latency, cost, and escalation by meaningful workflow slices. Minimize and redact sensitive content before export, then enforce access, retention, deletion, and sampling policy. Find the first wrong transition, classify its boundary, contain impact, and give a human the decision-ready evidence.",
-    "captions": [
-      {
-        "cueId": "cue-observe-signals",
-        "startSeconds": 0,
-        "endSeconds": 270,
-        "text": "Combine traces, metrics, logs, and evaluations because each answers a different operational question."
-      },
-      {
-        "cueId": "cue-observe-trace",
-        "startSeconds": 300,
-        "endSeconds": 570,
-        "text": "Connect model, retrieval, tool, approval, handoff, verification, and recovery spans in one causal trace."
-      },
-      {
-        "cueId": "cue-observe-measure",
-        "startSeconds": 600,
-        "endSeconds": 900,
-        "text": "Measure verified outcomes, safety, reliability, latency, cost, and escalation by meaningful workflow slices."
-      },
-      {
-        "cueId": "cue-observe-privacy",
-        "startSeconds": 930,
-        "endSeconds": 1200,
-        "text": "Minimize and redact sensitive content before export, then enforce access, retention, deletion, and sampling policy."
-      },
-      {
-        "cueId": "cue-observe-review",
-        "startSeconds": 1230,
-        "endSeconds": 1500,
-        "text": "Find the first wrong transition, classify its boundary, contain impact, and give a human the decision-ready evidence."
-      }
-    ],
-    "reducedMotionAlternative": "Present the trace, metric, and privacy relationships as static tables with focus highlighting."
-  },
   "knowledgeCheck": {
-    "passPercent": 80,
+    "passPercent": 100,
     "questions": [
       {
-        "id": "q-agent-observability-1",
-        "prompt": "Which signal best reconstructs the causal sequence of one agent run?",
+        "id": "agent-observability-q1",
+        "prompt": "Which information best supports reconstruction of parent-child relationships when a workflow crosses process boundaries?",
         "choices": [
-          "A trace with linked spans",
-          "Monthly request count",
-          "A model leaderboard",
-          "One aggregate score"
+          "A shared trace identity together with parent relationships",
+          "A count of all successful workflows",
+          "A list of event messages without workflow identity",
+          "The total storage used by all records"
         ],
         "answerIndex": 0,
-        "explanation": "A trace preserves parent-child operations and timing for an individual run."
+        "explanation": "The module explains that a shared trace identity groups events from one execution, while parent relationships show how its steps are connected."
       },
       {
-        "id": "q-agent-observability-2",
-        "prompt": "What is a better cost metric than total tokens alone?",
+        "id": "agent-observability-q2",
+        "prompt": "Why is recording only a final failure insufficient for reconstructing a workflow?",
         "choices": [
-          "Cost per verified successful task, segmented by workflow",
-          "The longest prompt",
-          "Only cached tokens",
-          "Number of logs"
-        ],
-        "answerIndex": 0,
-        "explanation": "Cost must be related to useful outcomes to guide product decisions."
-      },
-      {
-        "id": "q-agent-observability-3",
-        "prompt": "How should raw model and tool content be handled in telemetry?",
-        "choices": [
-          "Always capture it indefinitely",
-          "Publish it in dashboards",
-          "Default to minimization and secure references; capture only under explicit policy",
-          "Treat it as non-sensitive"
-        ],
-        "answerIndex": 2,
-        "explanation": "Agent content can contain sensitive data and requires purpose, access, retention, and deletion controls."
-      },
-      {
-        "id": "q-agent-observability-4",
-        "prompt": "Where should trace diagnosis begin after a user-visible failure?",
-        "choices": [
-          "Change the prompt immediately",
-          "Walk backward to the first transition that violated its expected contract",
-          "Assume the model failed",
-          "Delete the trace"
+          "It prevents the failure from having a timestamp.",
+          "It may omit the preceding steps and context that led to the failure.",
+          "It proves that no retry occurred.",
+          "It automatically removes the workflow identity."
         ],
         "answerIndex": 1,
-        "explanation": "The first causal divergence may be earlier and at a different system boundary than the visible symptom."
+        "explanation": "The module states that a failure record without preceding steps may show where execution stopped but not how it reached that point."
       },
       {
-        "id": "q-agent-observability-5",
-        "prompt": "What belongs in a human escalation packet?",
+        "id": "agent-observability-q3",
+        "prompt": "A record states that a workflow step timed out. Which conclusion is directly supported by that record alone?",
         "choices": [
-          "Hidden chain of thought",
-          "All customer data",
-          "A redacted timeline, affected targets, containment, evidence, and required decision",
-          "Only an error code"
+          "Network congestion caused the timeout.",
+          "The workflow design is defective.",
+          "The recorded step timed out.",
+          "A parent step supplied invalid data."
         ],
         "answerIndex": 2,
-        "explanation": "The human needs decision-ready evidence without unnecessary sensitive content."
+        "explanation": "The timeout is the observed fact. Claims about its cause remain inferences until additional evidence supports them."
       }
     ]
   },
+  "reviewCadenceDays": 180,
+  "lastVerified": "2026-08-21",
   "sources": [
     {
-      "title": "Tracing",
-      "url": "https://openai.github.io/openai-agents-js/guides/tracing/",
-      "publisher": "OpenAI",
-      "lastVerified": "2026-07-25"
+      "title": "Guide to Computer Security Log Management",
+      "url": "https://csrc.nist.gov/pubs/sp/800/92/final",
+      "publisher": "National Institute of Standards and Technology",
+      "lastVerified": "2026-08-21"
     },
     {
-      "title": "Observability for agents",
-      "url": "https://google.github.io/adk-docs/observability/",
-      "publisher": "Google",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "OpenTelemetry GenAI semantic conventions",
-      "url": "https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/",
-      "publisher": "OpenTelemetry",
-      "lastVerified": "2026-07-25"
-    },
-    {
-      "title": "Artificial Intelligence Risk Management Framework",
-      "url": "https://www.nist.gov/itl/ai-risk-management-framework",
-      "publisher": "NIST",
-      "lastVerified": "2026-07-25"
+      "title": "Trace Context",
+      "url": "https://www.w3.org/TR/trace-context/",
+      "publisher": "World Wide Web Consortium",
+      "lastVerified": "2026-08-21"
     }
   ]
 }
