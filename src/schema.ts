@@ -189,6 +189,13 @@ export interface LearningModule {
   lastVerified?: string;
 }
 
+export interface FocusArea {
+  id: string;
+  number: number;
+  title: string;
+  summary: string;
+}
+
 export interface LearningPath {
   id: string;
   title: string;
@@ -196,6 +203,7 @@ export interface LearningPath {
   audience: string;
   level: Level;
   moduleIds: string[];
+  focusArea?: string;
   badge: {
     id: string;
     name: string;
@@ -232,6 +240,7 @@ export interface CatalogMetadata {
     name: string;
     description: string;
   }>;
+  focusAreas?: FocusArea[];
 }
 
 export interface LearningCatalog extends CatalogMetadata {

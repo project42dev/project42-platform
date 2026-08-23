@@ -54,7 +54,8 @@
         "id": "badge-ai-foundations",
         "name": "AI Foundations",
         "description": "Completed the AI Foundations path and its knowledge checks."
-      }
+      },
+      "focusArea": "ai-literacy-and-foundations"
     },
     {
       "id": "providers-in-practice",
@@ -74,7 +75,8 @@
         "id": "badge-provider-practitioner",
         "name": "Provider Practitioner",
         "description": "Demonstrated practical cross-provider understanding."
-      }
+      },
+      "focusArea": "developer-and-practitioner-ai"
     },
     {
       "id": "anthropic-claude-practice",
@@ -95,7 +97,8 @@
         "id": "badge-anthropic-claude-practitioner",
         "name": "Claude Practitioner",
         "description": "Completed the Claude practice path and its evidence-based activities and checks."
-      }
+      },
+      "focusArea": "developer-and-practitioner-ai"
     },
     {
       "id": "openai-practice",
@@ -116,7 +119,8 @@
         "id": "badge-openai-practitioner",
         "name": "OpenAI Practitioner",
         "description": "Completed the OpenAI practice path and its evidence-based activities and checks."
-      }
+      },
+      "focusArea": "developer-and-practitioner-ai"
     },
     {
       "id": "google-gemini-practice",
@@ -137,7 +141,8 @@
         "id": "badge-google-gemini-practitioner",
         "name": "Gemini Practitioner",
         "description": "Completed the Gemini practice path and its evidence-based activities and checks."
-      }
+      },
+      "focusArea": "developer-and-practitioner-ai"
     },
     {
       "id": "reliable-agent-workflows",
@@ -163,7 +168,8 @@
         "id": "badge-reliable-agent-workflows",
         "name": "Reliable Agent Operator",
         "description": "Completed a safe, evidence-driven agent workflow from task definition through review."
-      }
+      },
+      "focusArea": "frontier-agentic-systems-and-mcp"
     },
     {
       "id": "agentic-ai-literacy",
@@ -182,7 +188,8 @@
         "id": "badge-agentic-ai-literacy",
         "name": "Agentic AI Classifier",
         "description": "Demonstrated evidence-based classification of models, workflows, agents, and agentic systems."
-      }
+      },
+      "focusArea": "ai-literacy-and-foundations"
     },
     {
       "id": "self-hosted-model-operations",
@@ -208,7 +215,8 @@
         "id": "badge-self-hosted-model-operator",
         "name": "Self-Hosted Model Operator",
         "description": "Demonstrated evidence-based operation of a self-hosted model endpoint from artifact decision through recovery."
-      }
+      },
+      "focusArea": "self-hosted-and-aiops"
     }
   ],
   "modules": [
@@ -1591,6 +1599,44 @@
           "lastVerified": "2026-07-23"
         }
       ]
+    }
+  ],
+  "focusAreas": [
+    {
+      "id": "ai-literacy-and-foundations",
+      "number": 1,
+      "title": "AI Literacy & Foundations",
+      "summary": "Core mental models, language model generation, prompt anatomy, context tokens, verification, and privacy without assuming technical experience."
+    },
+    {
+      "id": "developer-and-practitioner-ai",
+      "number": 2,
+      "title": "Developer & Practitioner AI",
+      "summary": "Provider-neutral evaluation, capability comparison, structured outputs, function calling, and hands-on practice across Anthropic, OpenAI, and Google Gemini."
+    },
+    {
+      "id": "frontier-agentic-systems-and-mcp",
+      "number": 3,
+      "title": "Frontier Agentic Systems & MCP",
+      "summary": "Bounded agent loops, tool authority, memory boundaries, Model Context Protocol (MCP) architecture, multi-agent handoffs, and scored capstone."
+    },
+    {
+      "id": "retrieval-rag-and-fine-tuning",
+      "number": 4,
+      "title": "Retrieval, RAG & Fine-Tuning",
+      "summary": "Advanced retrieval architectures, hybrid search, embedding stores, knowledge graphs, and LoRA/QLoRA fine-tuning."
+    },
+    {
+      "id": "self-hosted-and-aiops",
+      "number": 5,
+      "title": "Self-Hosted, Open-Weight & AIOps",
+      "summary": "Open-weight model selection, vLLM/Ollama serving, VRAM calculations, artifact integrity, endpoint security, and disaster recovery."
+    },
+    {
+      "id": "ai-security-and-governance",
+      "number": 6,
+      "title": "AI Security, Red-Teaming & Governance",
+      "summary": "OWASP Top 10 for LLMs, sandboxing, guardrails, compliance frameworks, and cryptographic audit receipts."
     }
   ]
 }
