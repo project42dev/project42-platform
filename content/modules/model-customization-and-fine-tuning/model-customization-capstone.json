@@ -1,0 +1,67 @@
+{
+  "id": "model-customization-capstone",
+  "title": "Model Customization Capstone: Train, Align & Serve",
+  "summary": "End-to-end capstone: Curate instruction dataset, execute QLoRA training, align with DPO, evaluate benchmarks, and deploy an AWQ quantized endpoint.",
+  "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-08-22",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 60,
+  "objectives": [
+    "Deliver an end-to-end custom fine-tuned model pipeline meeting accuracy and latency targets.",
+    "Execute QLoRA fine-tuning and DPO alignment.",
+    "Quantize to AWQ and verify serving endpoint performance."
+  ],
+  "prerequisites": [
+    "fine-tuning-eval-and-quantization"
+  ],
+  "sections": [
+    {
+      "id": "capstone-spec",
+      "title": "Custom Model Capstone Requirements",
+      "paragraphs": [
+        "In this capstone, you will demonstrate full lifecycle model customization: from raw domain data curation and QLoRA fine-tuning, through DPO alignment, automated benchmark validation, and final quantized serving."
+      ]
+    }
+  ],
+  "activity": {
+    "id": "customization-capstone-project",
+    "title": "Deliver Complete Fine-Tuned Domain Model",
+    "instructions": [
+      "Curate 250 domain instruction pairs.",
+      "Execute QLoRA adapter training and DPO alignment.",
+      "Export to AWQ format and verify vLLM serving latency and benchmark accuracy."
+    ],
+    "evidence": [
+      "Training script, loss logs, DPO win-rate evaluation report, and endpoint test receipts."
+    ],
+    "reflectionPrompt": "How do you safeguard against domain catastrophic forgetting when tailoring specialized models?"
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "cust-cap-q1",
+        "prompt": "What is the most reliable safeguard against catastrophic forgetting during domain fine-tuning?",
+        "choices": [
+          "Mixing a percentage of general-domain instruction data into the specialized training corpus.",
+          "Setting the model temperature to 2.0 during training.",
+          "Deleting the attention mechanism from the architecture.",
+          "Running fine-tuning only on CPU nodes."
+        ],
+        "answerIndex": 0,
+        "explanation": "Including a small ratio of general-purpose reasoning and instruction data prevents the model from degrading on foundational cognitive tasks."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "title": "An Overview of Catastrophic Forgetting in Deep Learning",
+      "url": "https://arxiv.org/abs/2305.19230",
+      "publisher": "ArXiv",
+      "lastVerified": "2026-08-22"
+    }
+  ]
+}

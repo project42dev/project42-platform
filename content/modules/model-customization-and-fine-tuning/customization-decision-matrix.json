@@ -1,0 +1,70 @@
+{
+  "id": "customization-decision-matrix",
+  "title": "The AI Customization Decision Matrix",
+  "summary": "Evaluate when to use Prompt Engineering, Few-Shot In-Context Learning, RAG, PEFT/LoRA, or Full Fine-Tuning.",
+  "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-08-22",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 40,
+  "objectives": [
+    "Apply the 4-tier customization framework: Prompting vs RAG vs LoRA vs Continual Pre-training.",
+    "Calculate cost, maintenance overhead, and latency impacts for each customization layer.",
+    "Identify task requirements that necessitate weight modification versus context injection."
+  ],
+  "prerequisites": [],
+  "sections": [
+    {
+      "id": "customization-spectrum",
+      "title": "Knowledge vs Form & Style",
+      "paragraphs": [
+        "Fine-tuning is for modifying style, tone, format, and domain jargon. RAG is for injecting dynamic facts, access-controlled knowledge, and up-to-the-minute data.",
+        "Using fine-tuning to teach a model rapidly changing enterprise facts leads to catastrophic forgetting, high retraining costs, and hallucinated outdated answers."
+      ],
+      "code": {
+        "language": "text",
+        "label": "Customization Selection Framework",
+        "code": "Need Dynamic Facts? -> Use RAG\nNeed Strict Output Format / Domain Tone? -> Use LoRA Fine-Tuning\nNeed Custom Vocabulary / Specialized Language? -> Use Continual Pre-Training\nNeed Task Guidance? -> Use Prompt Engineering & Few-Shot In-Context"
+      }
+    }
+  ],
+  "activity": {
+    "id": "customization-decision-lab",
+    "title": "Architect Customization Strategy for Three Enterprise Scenarios",
+    "instructions": [
+      "Analyze 3 enterprise requirements: Real-time stock ticker analysis, medical diagnostic report formatting, and proprietary code translation.",
+      "Map each scenario to the optimal customization tier with full architectural justification."
+    ],
+    "evidence": [
+      "Architecture decision record (ADR) detailing customization choices and cost estimates."
+    ],
+    "reflectionPrompt": "Why is fine-tuning poorly suited for real-time inventory lookups?"
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "cust-q1",
+        "prompt": "When is LoRA fine-tuning significantly preferred over RAG?",
+        "choices": [
+          "When you need to enforce strict output schemas, tone, or domain syntax without consuming prompt tokens.",
+          "When you need to look up a customer’s real-time account balance.",
+          "When you need to index 10 million public PDF documents.",
+          "When you want to avoid using GPUs completely."
+        ],
+        "answerIndex": 0,
+        "explanation": "Fine-tuning bakes deterministic syntax, formatting, and behavioral tone directly into the model weights, eliminating the need to consume tokens on repeated prompt instructions."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "title": "LoRA: Low-Rank Adaptation of Large Language Models",
+      "url": "https://arxiv.org/abs/2106.09685",
+      "publisher": "ArXiv",
+      "lastVerified": "2026-08-22"
+    }
+  ]
+}

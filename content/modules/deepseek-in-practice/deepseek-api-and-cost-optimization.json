@@ -1,0 +1,72 @@
+{
+  "id": "deepseek-api-and-cost-optimization",
+  "title": "DeepSeek API Workflows, Tool Calling & Cost Optimization",
+  "summary": "Build high-throughput, low-cost applications using the DeepSeek API, prompt caching, and function calling contracts.",
+  "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-08-22",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 45,
+  "objectives": [
+    "Integrate DeepSeek OpenAI-compatible API endpoints in TypeScript and Python.",
+    "Leverage automatic context caching for up to 90% input token cost reduction.",
+    "Build resilient tool-calling workflows with schema validation and retry policies."
+  ],
+  "prerequisites": [
+    "deepseek-reasoning-and-moe-patterns"
+  ],
+  "sections": [
+    {
+      "id": "deepseek-api-integration",
+      "title": "OpenAI-Compatible API with Context Caching",
+      "paragraphs": [
+        "DeepSeek exposes an OpenAI-compatible API, allowing direct reuse of standard SDKs by changing `base_url`. Context caching automatically identifies prefix matches across requests, reducing input token pricing significantly."
+      ],
+      "code": {
+        "language": "python",
+        "label": "DeepSeek Client with Tool Calling",
+        "code": "from openai import OpenAI\n\nclient = OpenAI(\n    api_key=\"your-deepseek-api-key\",\n    base_url=\"https://api.deepseek.com\"\n)\n\nresponse = client.chat.completions.create(\n    model=\"deepseek-chat\",\n    messages=[{\"role\": \"user\", \"content\": \"What is 2+2?\"}],\n    stream=False\n)\nprint(response.choices[0].message.content)"
+      }
+    }
+  ],
+  "activity": {
+    "id": "deepseek-api-lab",
+    "title": "Implement DeepSeek Tool-Calling Agent with Context Caching",
+    "instructions": [
+      "Create an OpenAI-compatible client targeting `https://api.deepseek.com`.",
+      "Define a typed weather tool and execute function calling loop.",
+      "Verify cached token hit rate across 5 sequential requests."
+    ],
+    "evidence": [
+      "API execution receipt showing cached token discounts and tool execution outputs."
+    ],
+    "reflectionPrompt": "How does prompt structure and prefix stability affect context cache hit rates?"
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "ds-api-q1",
+        "prompt": "How do you maximize context cache hit rates on the DeepSeek API?",
+        "choices": [
+          "Place static system prompts and persistent context at the beginning of the message array.",
+          "Change the system prompt randomly on every user request.",
+          "Send prompt requests only between midnight and 4am.",
+          "Use all uppercase letters in user prompts."
+        ],
+        "answerIndex": 0,
+        "explanation": "Context caching relies on identical prefix matches from the beginning of the prompt; placing static system instructions and documentation at the prefix maximizes cache hits."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "title": "DeepSeek API Documentation & Context Caching Pricing",
+      "url": "https://api-docs.deepseek.com/",
+      "publisher": "DeepSeek",
+      "lastVerified": "2026-08-22"
+    }
+  ]
+}

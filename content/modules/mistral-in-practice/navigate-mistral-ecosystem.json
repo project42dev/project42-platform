@@ -1,0 +1,71 @@
+{
+  "id": "navigate-mistral-ecosystem",
+  "title": "Navigate the Mistral Ecosystem & Model Family",
+  "summary": "Explore Mistral Small, Mistral Large, Codestral, Pixtral, Ministral, and open-weight Apache-2.0 distributions.",
+  "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-08-22",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 40,
+  "objectives": [
+    "Map the Mistral model family across commercial endpoints (La Plateforme) and open weights.",
+    "Understand sliding window attention (SWA) and byte-fallback BPE tokenizers.",
+    "Select the right model shape: Ministral for edge, Codestral for IDEs, Mistral Large for reasoning."
+  ],
+  "prerequisites": [],
+  "sections": [
+    {
+      "id": "mistral-family-overview",
+      "title": "The European Frontier: Open Weights & Hosted Endpoints",
+      "paragraphs": [
+        "Mistral AI provides both open-weight models (under Apache 2.0 or Mistral Non-Commercial licenses) and commercial cloud APIs via La Plateforme.",
+        "Key models include Mistral Large (flagship reasoning), Codestral (specialized 80+ programming language support with Fill-in-the-Middle), and Pixtral (multimodal vision reasoning)."
+      ],
+      "code": {
+        "language": "python",
+        "label": "Mistral Client Initialization",
+        "code": "from mistralai import Mistral\nimport os\n\nclient = Mistral(api_key=os.environ[\"MISTRAL_API_KEY\"])\nresponse = client.chat.complete(\n    model=\"mistral-large-latest\",\n    messages=[{\"role\": \"user\", \"content\": \"Explain sliding window attention.\"}]\n)\nprint(response.choices[0].message.content)"
+      }
+    }
+  ],
+  "activity": {
+    "id": "mistral-setup-lab",
+    "title": "Initialize Mistral Client and Compare Model Outputs",
+    "instructions": [
+      "Configure Mistral SDK in TypeScript or Python.",
+      "Execute identical coding prompts against Mistral Small and Codestral.",
+      "Evaluate token generation latency and code accuracy."
+    ],
+    "evidence": [
+      "Execution benchmark comparing Codestral vs Mistral Small output."
+    ],
+    "reflectionPrompt": "When is a domain-specialized code model like Codestral preferred over a general flagship model?"
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "mis-q1",
+        "prompt": "What special capability does Codestral support for IDE code completion?",
+        "choices": [
+          "Fill-in-the-Middle (FIM) prefix and suffix insertion.",
+          "Automatic hardware overclocking.",
+          "Direct binary compilation to x86 assembly without a compiler.",
+          "Deleting git commit history."
+        ],
+        "answerIndex": 0,
+        "explanation": "Codestral natively supports Fill-in-the-Middle (FIM) syntax, enabling insertion of code directly between existing prefix and suffix file content in IDEs."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "title": "Mistral AI Official Documentation & Model Catalogue",
+      "url": "https://docs.mistral.ai/",
+      "publisher": "Mistral AI",
+      "lastVerified": "2026-08-22"
+    }
+  ]
+}

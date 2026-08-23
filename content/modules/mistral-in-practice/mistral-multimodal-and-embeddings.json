@@ -1,0 +1,72 @@
+{
+  "id": "mistral-multimodal-and-embeddings",
+  "title": "Pixtral Vision & Mistral Embeddings",
+  "summary": "Process complex document images, charts, and technical diagrams with Pixtral and index documents with Mistral Embeddings.",
+  "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-08-22",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 45,
+  "objectives": [
+    "Pass image URLs and Base64 payloads to Pixtral 12B / Pixtral Large vision models.",
+    "Extract structured key-value data from complex scanned invoices and engineering diagrams.",
+    "Generate high-dimensional embeddings using `mistral-embed` for semantic search indexing."
+  ],
+  "prerequisites": [
+    "mistral-function-calling-and-codestral"
+  ],
+  "sections": [
+    {
+      "id": "pixtral-vision",
+      "title": "Multimodal Vision with Pixtral",
+      "paragraphs": [
+        "Pixtral is natively trained on arbitrary image resolutions and aspect ratios, avoiding distortion when analyzing widescreen architectural blueprints or tall financial receipts."
+      ],
+      "code": {
+        "language": "python",
+        "label": "Pixtral Image Understanding Call",
+        "code": "from mistralai import Mistral\n\nclient = Mistral(api_key=\"your-api-key\")\nresponse = client.chat.complete(\n    model=\"pixtral-12b-2409\",\n    messages=[\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\"type\": \"text\", \"text\": \"Extract table values from this image.\"},\n                {\"type\": \"image_url\", \"image_url\": \"https://example.com/invoice.png\"}\n            ]\n        }\n    ]\n)"
+      }
+    }
+  ],
+  "activity": {
+    "id": "pixtral-vision-lab",
+    "title": "Extract Structured JSON from an Architecture Diagram",
+    "instructions": [
+      "Pass a technical system diagram image to Pixtral.",
+      "Prompt for strict JSON extracting all services, databases, and network connections.",
+      "Validate extracted JSON against a target schema."
+    ],
+    "evidence": [
+      "JSON extraction output file matching diagram entities."
+    ],
+    "reflectionPrompt": "How does native image aspect ratio handling improve OCR precision on technical schematics?"
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "pix-q1",
+        "prompt": "What advantage does Pixtral offer for processing technical diagrams and invoices?",
+        "choices": [
+          "It natively supports arbitrary image aspect ratios and resolutions without square image distortion.",
+          "It only works with black-and-white 1-bit bitmap images.",
+          "It requires all images to be printed on paper first.",
+          "It replaces the GPU with an optical laser."
+        ],
+        "answerIndex": 0,
+        "explanation": "Pixtral supports flexible native aspect ratios and resolutions, preserving exact line clarity in technical diagrams and complex tables."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "title": "Pixtral 12B Technical Overview",
+      "url": "https://mistral.ai/news/pixtral-12b/",
+      "publisher": "Mistral AI",
+      "lastVerified": "2026-08-22"
+    }
+  ]
+}

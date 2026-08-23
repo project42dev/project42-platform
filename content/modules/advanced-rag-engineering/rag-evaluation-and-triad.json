@@ -1,0 +1,74 @@
+{
+  "id": "rag-evaluation-and-triad",
+  "title": "RAG Evaluation & The RAG Triad",
+  "summary": "Quantify RAG quality using deterministic evaluation metrics: Context Relevance, Groundedness (Faithfulness), and Answer Relevance.",
+  "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-08-22",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 45,
+  "objectives": [
+    "Implement the RAG Triad: Context Relevance, Groundedness, and Answer Relevance.",
+    "Use LLM-as-a-judge patterns with deterministic structured scoring rubrics and logit bias.",
+    "Identify and diagnose retrieval failure modes vs synthesis hallucination failure modes.",
+    "Build automated regression testing CI pipelines for enterprise knowledge updates."
+  ],
+  "prerequisites": [
+    "hybrid-search-and-reranking"
+  ],
+  "sections": [
+    {
+      "id": "rag-triad-metrics",
+      "title": "The Three Core Pillars of RAG Quality",
+      "paragraphs": [
+        "Measuring end-to-end user satisfaction does not tell you why a RAG pipeline failed. The RAG Triad isolates the three failure domains:",
+        "1. Context Relevance: Did the retrieval engine fetch chunks that actually answer the query? 2. Groundedness (Faithfulness): Are all claims in the generated response directly supported by the retrieved context? 3. Answer Relevance: Does the generated response directly address the user inquiry without extraneous drift?"
+      ],
+      "code": {
+        "language": "python",
+        "label": "Groundedness Verification Judge Prompt",
+        "code": "GROUNDEDNESS_JUDGE_PROMPT = \"\"\"You are a rigorous evaluation judge. Evaluate if every statement in the ANSWER is supported by the CONTEXT.\n\nCONTEXT:\n{context}\n\nANSWER:\n{answer}\n\nRespond with strict JSON:\n{{\n  \"unsupported_claims\": [\"list of unsupported statements\"],\n  \"groundedness_score\": 0.0 to 1.0,\n  \"verdict\": \"PASS\" | \"FAIL\"\n}}\"\"\""
+      }
+    }
+  ],
+  "activity": {
+    "id": "rag-triad-eval-lab",
+    "title": "Implement Automated RAG Triad Regression Test",
+    "instructions": [
+      "Create a test fixture with 10 synthetic query-context-answer triples (5 grounded, 5 hallucinated).",
+      "Run an automated evaluation harness computing Groundedness and Answer Relevance scores.",
+      "Assert that ungrounded answers are flagged with 100% precision."
+    ],
+    "evidence": [
+      "Evaluation report JSON with per-metric scores and claim attribution logs."
+    ],
+    "reflectionPrompt": "Why is groundedness scoring critical before deploying automated customer-facing RAG systems?"
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "eval-q1",
+        "prompt": "If a RAG system retrieves irrelevant context but the model hallucinates a correct-sounding response, which metric fails?",
+        "choices": [
+          "Context Relevance and Groundedness fail.",
+          "The system passes all checks because the output looks plausible.",
+          "Only the database port connection check fails.",
+          "The model context window expands automatically."
+        ],
+        "answerIndex": 0,
+        "explanation": "Both Context Relevance (retrieval brought irrelevant data) and Groundedness (the model response is not supported by retrieved context) fail."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "title": "Evaluating RAG Applications: The RAG Triad",
+      "url": "https://www.trulens.org/tru_lens_eval/core_concepts_rag_triad/",
+      "publisher": "TruLens",
+      "lastVerified": "2026-08-22"
+    }
+  ]
+}

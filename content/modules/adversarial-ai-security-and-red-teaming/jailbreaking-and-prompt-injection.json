@@ -1,0 +1,73 @@
+{
+  "id": "jailbreaking-and-prompt-injection",
+  "title": "Jailbreaking, Prompt Injection & Defense in Depth",
+  "summary": "Examine adversarial jailbreak techniques (Crescendo, Base64 encoding, persona simulation) and build robust layered defenses.",
+  "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-08-22",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 50,
+  "objectives": [
+    "Deconstruct advanced jailbreak patterns: multi-turn Crescendo attacks, roleplaying framing, and encoding obfuscation.",
+    "Build layered input sanitization boundaries combining heuristic filters, embedding distance classifiers, and guard models.",
+    "Enforce strict principle of least privilege on tool access and output actions."
+  ],
+  "prerequisites": [
+    "owasp-top-10-for-llms"
+  ],
+  "sections": [
+    {
+      "id": "jailbreak-mechanics",
+      "title": "Multi-Turn and Encoded Jailbreaks",
+      "paragraphs": [
+        "Modern frontier models reject naive direct malicious requests. Attackers employ multi-turn Crescendo techniques (gradually escalating context across turns) or encodings (Base64, ROT13, foreign language cyphers) to bypass superficial alignment filters.",
+        "Defenses must be multi-layered: input classification before the model, runtime guardrails during decoding, and strict deterministic validation on all output tool calls."
+      ],
+      "code": {
+        "language": "python",
+        "label": "Input Sanitization Interceptor",
+        "code": "import re\n\nADVERSARIAL_PATTERNS = [\n    r\"(?i)ignore\\s+(all\\s+)?previous\\s+instructions\",\n    r\"(?i)system\\s+override\",\n    r\"(?i)you\\s+are\\s+now\\s+in\\s+DAN\\s+mode\"\n]\n\ndef sanitize_user_input(text: str) -> tuple[bool, str]:\n    for pattern in ADVERSARIAL_PATTERNS:\n        if re.search(pattern, text):\n            return False, \"Input rejected by security policy filter.\"\n    return True, text"
+      }
+    }
+  ],
+  "activity": {
+    "id": "jailbreak-defense-lab",
+    "title": "Build and Test an Adversarial Input Defense Filter",
+    "instructions": [
+      "Test 5 known jailbreak techniques against an unshielded prompt.",
+      "Deploy an input screening guardrail combining regex and Llama Guard classification.",
+      "Verify that 100% of jailbreaks are intercepted before reaching the target model."
+    ],
+    "evidence": [
+      "Security test run logs showing intercepted injection vectors."
+    ],
+    "reflectionPrompt": "Why can no single prompt or regex rule provide 100% security against prompt injection?"
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "jail-q1",
+        "prompt": "What is a Multi-Turn Crescendo attack in LLM red-teaming?",
+        "choices": [
+          "Gradually nudging the model into violating safety boundaries over multiple cooperative-looking conversation turns.",
+          "Overclocking GPU clocks during model fine-tuning.",
+          "Sending 10,000 HTTP requests in one second to crash an API endpoint.",
+          "Encrypting the hard drive with ransomware."
+        ],
+        "answerIndex": 0,
+        "explanation": "Crescendo attacks start with benign questions and incrementally escalate the conversation context across multiple turns to bypass single-turn safety classifiers."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "title": "Great, Now Write an Article About That: The Crescendo Multi-Turn LLM Jailbreak Attack",
+      "url": "https://arxiv.org/abs/2404.01833",
+      "publisher": "ArXiv",
+      "lastVerified": "2026-08-22"
+    }
+  ]
+}
