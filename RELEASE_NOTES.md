@@ -1,3 +1,57 @@
+# Project 42 platform v0.99.0
+
+Version 0.99.0 was cut by the Orchard release role from everything merged into `main` since v0.98.0. It exists so that content already merged into the platform repository reaches the sites that consume the platform package.
+
+## Content
+
+Added:
+
+
+
+- `content/modules/advanced-rag-engineering/advanced-rag-capstone.json`
+- `content/modules/advanced-rag-engineering/chunking-strategies-in-practice.json`
+- `content/modules/advanced-rag-engineering/graph-rag-and-knowledge-graphs.json`
+- `content/modules/advanced-rag-engineering/hybrid-search-and-reranking.json`
+- `content/modules/advanced-rag-engineering/rag-evaluation-and-triad.json`
+- `content/modules/adversarial-ai-security-and-red-teaming/adversarial-security-capstone.json`
+- `content/modules/adversarial-ai-security-and-red-teaming/jailbreaking-and-prompt-injection.json`
+- `content/modules/adversarial-ai-security-and-red-teaming/llm-red-teaming-methodology.json`
+- `content/modules/adversarial-ai-security-and-red-teaming/owasp-top-10-for-llms.json`
+- `content/modules/deepseek-in-practice/deepseek-api-and-cost-optimization.json`
+- `content/modules/deepseek-in-practice/deepseek-reasoning-and-moe-patterns.json`
+- `content/modules/deepseek-in-practice/navigate-deepseek-ecosystem.json`
+- `content/modules/mistral-in-practice/mistral-function-calling-and-codestral.json`
+- `content/modules/mistral-in-practice/mistral-multimodal-and-embeddings.json`
+- `content/modules/mistral-in-practice/navigate-mistral-ecosystem.json`
+- `content/modules/model-customization-and-fine-tuning/customization-decision-matrix.json`
+- `content/modules/model-customization-and-fine-tuning/dataset-curation-and-dpo.json`
+- `content/modules/model-customization-and-fine-tuning/fine-tuning-eval-and-quantization.json`
+- `content/modules/model-customization-and-fine-tuning/lora-and-qlora-tuning.json`
+- `content/modules/model-customization-and-fine-tuning/model-customization-capstone.json`
+
+Changed:
+
+
+
+- `content/catalog.json`
+- `content/source-registry.json`
+
+## Migrations
+
+No file under `migrations/` was added or changed since v0.98.0.
+
+## Breaking changes
+
+Orchard does not classify breaking changes. Review the file list above, and the diff for this tag, before approving the release environment.
+
+## Known limitations
+
+None are recorded by the automation that cut this release. It reports what changed; it does not assess it.
+
+## Rollback
+
+Revert consuming sites to v0.98.0.
+
 # Project 42 platform v0.98.0
 
 Version 0.98.0 was cut by the Orchard release role from everything merged into `main` since v0.97.1. It exists so that content already merged into the platform repository reaches the sites that consume the platform package.
