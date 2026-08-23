@@ -108,9 +108,11 @@ try {
   );
   assert.equal(typeof session.body.session.expiresAt, "string");
 
-  await page
+  const signOutBtn = page
     .getByRole("button", { name: "Sign out on this browser" })
-    .click({ force: true });
+    .or(page.getByRole("button", { name: /sign out/i }));
+  await signOutBtn.waitFor({ state: "visible", timeout: 15000 });
+  await signOutBtn.click({ force: true });
   await page
     .getByRole("button", { name: "Continue to sign in or request access" })
     .or(page.getByRole("button", { name: "Sign in" }))
