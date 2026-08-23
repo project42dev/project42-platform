@@ -4,6 +4,36 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.99.0] - 2026-08-23
+
+### Added
+
+- `content/modules/advanced-rag-engineering/advanced-rag-capstone.json`
+- `content/modules/advanced-rag-engineering/chunking-strategies-in-practice.json`
+- `content/modules/advanced-rag-engineering/graph-rag-and-knowledge-graphs.json`
+- `content/modules/advanced-rag-engineering/hybrid-search-and-reranking.json`
+- `content/modules/advanced-rag-engineering/rag-evaluation-and-triad.json`
+- `content/modules/adversarial-ai-security-and-red-teaming/adversarial-security-capstone.json`
+- `content/modules/adversarial-ai-security-and-red-teaming/jailbreaking-and-prompt-injection.json`
+- `content/modules/adversarial-ai-security-and-red-teaming/llm-red-teaming-methodology.json`
+- `content/modules/adversarial-ai-security-and-red-teaming/owasp-top-10-for-llms.json`
+- `content/modules/deepseek-in-practice/deepseek-api-and-cost-optimization.json`
+- `content/modules/deepseek-in-practice/deepseek-reasoning-and-moe-patterns.json`
+- `content/modules/deepseek-in-practice/navigate-deepseek-ecosystem.json`
+- `content/modules/mistral-in-practice/mistral-function-calling-and-codestral.json`
+- `content/modules/mistral-in-practice/mistral-multimodal-and-embeddings.json`
+- `content/modules/mistral-in-practice/navigate-mistral-ecosystem.json`
+- `content/modules/model-customization-and-fine-tuning/customization-decision-matrix.json`
+- `content/modules/model-customization-and-fine-tuning/dataset-curation-and-dpo.json`
+- `content/modules/model-customization-and-fine-tuning/fine-tuning-eval-and-quantization.json`
+- `content/modules/model-customization-and-fine-tuning/lora-and-qlora-tuning.json`
+- `content/modules/model-customization-and-fine-tuning/model-customization-capstone.json`
+
+### Changed
+
+- `content/catalog.json`
+- `content/source-registry.json`
+
 ## [0.98.0] - 2026-08-23
 
 ### Changed
