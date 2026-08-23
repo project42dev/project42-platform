@@ -4,7 +4,7 @@
   "summary": "Build tool-enabled workflows with native Mistral function calling and implement Fill-in-the-Middle code generation.",
   "level": "intermediate",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -66,7 +66,7 @@
       "title": "Codestral: Dedicated Code Model by Mistral AI",
       "url": "https://mistral.ai/news/codestral/",
       "publisher": "Mistral AI",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

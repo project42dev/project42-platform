@@ -4,7 +4,7 @@
   "summary": "Quantify RAG quality using deterministic evaluation metrics: Context Relevance, Groundedness (Faithfulness), and Answer Relevance.",
   "level": "intermediate",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -68,7 +68,7 @@
       "title": "Evaluating RAG Applications: The RAG Triad",
       "url": "https://www.trulens.org/tru_lens_eval/core_concepts_rag_triad/",
       "publisher": "TruLens",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

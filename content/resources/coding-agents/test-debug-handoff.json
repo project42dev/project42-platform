@@ -11,7 +11,7 @@
   "prerequisites": ["A failed check, observed defect, or explicitly unverified behavior"],
   "owner": "project42-editorial",
   "reviewCadenceDays": 90,
-  "lastVerified": "2026-07-25",
+  "lastVerified": "2026-08-23",
   "tags": ["coding-agents", "testing", "debugging", "handoff"],
   "sections": [
     {
@@ -48,19 +48,19 @@
       "title": "Secure Software Development Framework",
       "url": "https://csrc.nist.gov/pubs/sp/800/218/final",
       "publisher": "NIST",
-      "lastVerified": "2026-07-25"
+      "lastVerified": "2026-08-23"
     },
     {
       "title": "About pull requests",
       "url": "https://docs.github.com/en/pull-requests/get-started/about-pull-requests",
       "publisher": "GitHub",
-      "lastVerified": "2026-07-25"
+      "lastVerified": "2026-08-23"
     },
     {
       "title": "Tools reference",
       "url": "https://geminicli.com/docs/reference/tools/",
       "publisher": "Google",
-      "lastVerified": "2026-07-25"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

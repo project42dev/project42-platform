@@ -4,7 +4,7 @@
   "summary": "Explore Mistral Small, Mistral Large, Codestral, Pixtral, Ministral, and open-weight Apache-2.0 distributions.",
   "level": "intermediate",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -65,7 +65,7 @@
       "title": "Mistral AI Official Documentation & Model Catalogue",
       "url": "https://docs.mistral.ai/",
       "publisher": "Mistral AI",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

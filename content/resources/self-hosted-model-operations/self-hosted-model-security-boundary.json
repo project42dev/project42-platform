@@ -15,7 +15,7 @@
   ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 45,
-  "lastVerified": "2026-07-27",
+  "lastVerified": "2026-08-23",
   "tags": ["self-hosted", "security", "identity", "network", "secrets", "authorization"],
   "sections": [
     {
@@ -53,25 +53,25 @@
       "title": "Docker Engine security",
       "url": "https://docs.docker.com/engine/security/",
       "publisher": "Docker",
-      "lastVerified": "2026-07-27"
+      "lastVerified": "2026-08-23"
     },
     {
       "title": "OWASP API Security Top 10",
       "url": "https://owasp.org/API-Security/editions/2023/en/0x11-t10/",
       "publisher": "OWASP",
-      "lastVerified": "2026-07-27"
+      "lastVerified": "2026-08-23"
     },
     {
       "title": "NIST Cybersecurity Framework",
       "url": "https://www.nist.gov/cyberframework",
       "publisher": "NIST",
-      "lastVerified": "2026-07-27"
+      "lastVerified": "2026-08-23"
     },
     {
       "title": "SLSA provenance",
       "url": "https://slsa.dev/spec/v1.2/provenance",
       "publisher": "SLSA",
-      "lastVerified": "2026-07-27"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

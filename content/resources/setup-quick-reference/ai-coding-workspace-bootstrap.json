@@ -15,7 +15,7 @@
   ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 60,
-  "lastVerified": "2026-07-26",
+  "lastVerified": "2026-08-23",
   "tags": ["setup", "git", "workspace", "coding-tools"],
   "sections": [
     {
@@ -53,19 +53,19 @@
       "title": "Installing Git",
       "url": "https://git-scm.com/book/en/v2/Getting-Started-Installing-Git",
       "publisher": "Git",
-      "lastVerified": "2026-07-26"
+      "lastVerified": "2026-08-23"
     },
     {
       "title": "First-time Git setup",
       "url": "https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup",
       "publisher": "Git",
-      "lastVerified": "2026-07-26"
+      "lastVerified": "2026-08-23"
     },
     {
       "title": "Ignoring files",
       "url": "https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files",
       "publisher": "GitHub",
-      "lastVerified": "2026-07-26"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

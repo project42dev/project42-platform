@@ -14,7 +14,7 @@
   ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-26",
+  "lastVerified": "2026-08-23",
   "tags": ["coding-tools", "gemini-cli", "sandboxing", "verification"],
   "sections": [
     {
@@ -52,19 +52,19 @@
       "title": "Gemini CLI installation, execution, and releases",
       "url": "https://geminicli.com/docs/get-started/installation/",
       "publisher": "Google",
-      "lastVerified": "2026-07-26"
+      "lastVerified": "2026-08-23"
     },
     {
       "title": "Gemini CLI authentication setup",
       "url": "https://geminicli.com/docs/get-started/authentication/",
       "publisher": "Google",
-      "lastVerified": "2026-07-26"
+      "lastVerified": "2026-08-23"
     },
     {
       "title": "Gemini CLI tools reference",
       "url": "https://geminicli.com/docs/reference/tools/",
       "publisher": "Google",
-      "lastVerified": "2026-07-26"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

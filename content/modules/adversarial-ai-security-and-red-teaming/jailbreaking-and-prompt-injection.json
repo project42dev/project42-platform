@@ -4,7 +4,7 @@
   "summary": "Examine adversarial jailbreak techniques (Crescendo, Base64 encoding, persona simulation) and build robust layered defenses.",
   "level": "advanced",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -67,7 +67,7 @@
       "title": "Great, Now Write an Article About That: The Crescendo Multi-Turn LLM Jailbreak Attack",
       "url": "https://arxiv.org/abs/2404.01833",
       "publisher": "ArXiv",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

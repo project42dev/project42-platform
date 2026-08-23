@@ -4,7 +4,7 @@
   "summary": "Build high-throughput, low-cost applications using the DeepSeek API, prompt caching, and function calling contracts.",
   "level": "intermediate",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -66,7 +66,7 @@
       "title": "DeepSeek API Documentation & Context Caching Pricing",
       "url": "https://api-docs.deepseek.com/",
       "publisher": "DeepSeek",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

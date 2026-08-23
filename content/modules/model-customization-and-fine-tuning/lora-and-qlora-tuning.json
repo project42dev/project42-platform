@@ -4,7 +4,7 @@
   "summary": "Implement Low-Rank Adaptation (LoRA) and 4-bit Quantized LoRA (QLoRA) using Hugging Face PEFT and bitsandbytes.",
   "level": "advanced",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -67,7 +67,7 @@
       "title": "QLoRA: Efficient Finetuning of Quantized LLMs",
       "url": "https://arxiv.org/abs/2305.14314",
       "publisher": "ArXiv",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

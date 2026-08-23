@@ -4,7 +4,7 @@
   "summary": "Extract structured knowledge graphs from unstructured corpora to enable multi-hop reasoning and holistic summary queries across disparate documents.",
   "level": "advanced",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -68,7 +68,7 @@
       "title": "From Local to Global: A Graph RAG Approach to Query-Focused Summarization",
       "url": "https://arxiv.org/abs/2404.16130",
       "publisher": "ArXiv",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

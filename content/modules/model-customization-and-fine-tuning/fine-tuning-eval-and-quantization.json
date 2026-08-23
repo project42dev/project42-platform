@@ -4,7 +4,7 @@
   "summary": "Evaluate fine-tuned model performance against benchmark suites, merge adapters back into base weights, and export to GGUF and AWQ formats.",
   "level": "advanced",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -66,7 +66,7 @@
       "title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
       "url": "https://arxiv.org/abs/2306.00978",
       "publisher": "ArXiv",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

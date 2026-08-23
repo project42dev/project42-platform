@@ -11,7 +11,7 @@
   "prerequisites": ["A supported OpenCode client", "An approved model-provider path", "A version-controlled workspace"],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-26",
+  "lastVerified": "2026-08-23",
   "tags": ["coding-tools", "opencode", "terminal", "permissions", "agents"],
   "sections": [
     {
@@ -45,8 +45,8 @@
     }
   ],
   "sources": [
-    {"title": "OpenCode introduction", "url": "https://opencode.ai/docs/", "publisher": "OpenCode", "lastVerified": "2026-07-26"},
-    {"title": "OpenCode permissions", "url": "https://opencode.ai/docs/permissions", "publisher": "OpenCode", "lastVerified": "2026-07-26"},
-    {"title": "OpenCode agents", "url": "https://opencode.ai/docs/agents/", "publisher": "OpenCode", "lastVerified": "2026-07-26"}
+    {"title": "OpenCode introduction", "url": "https://opencode.ai/docs/", "publisher": "OpenCode", "lastVerified": "2026-08-23"},
+    {"title": "OpenCode permissions", "url": "https://opencode.ai/docs/permissions", "publisher": "OpenCode", "lastVerified": "2026-08-23"},
+    {"title": "OpenCode agents", "url": "https://opencode.ai/docs/agents/", "publisher": "OpenCode", "lastVerified": "2026-08-23"}
   ]
 }

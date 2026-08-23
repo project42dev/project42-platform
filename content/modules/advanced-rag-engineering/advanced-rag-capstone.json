@@ -4,7 +4,7 @@
   "summary": "Architect an end-to-end production RAG system with hybrid search, metadata ACL filtering, cross-encoder reranking, and automated RAG Triad verification.",
   "level": "advanced",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -61,7 +61,7 @@
       "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
       "url": "https://arxiv.org/abs/2005.11401",
       "publisher": "ArXiv",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

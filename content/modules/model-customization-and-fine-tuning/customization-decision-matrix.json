@@ -4,7 +4,7 @@
   "summary": "Evaluate when to use Prompt Engineering, Few-Shot In-Context Learning, RAG, PEFT/LoRA, or Full Fine-Tuning.",
   "level": "intermediate",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -64,7 +64,7 @@
       "title": "LoRA: Low-Rank Adaptation of Large Language Models",
       "url": "https://arxiv.org/abs/2106.09685",
       "publisher": "ArXiv",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

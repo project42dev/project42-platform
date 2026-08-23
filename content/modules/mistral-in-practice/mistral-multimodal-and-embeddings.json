@@ -4,7 +4,7 @@
   "summary": "Process complex document images, charts, and technical diagrams with Pixtral and index documents with Mistral Embeddings.",
   "level": "intermediate",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -66,7 +66,7 @@
       "title": "Pixtral 12B Technical Overview",
       "url": "https://mistral.ai/news/pixtral-12b/",
       "publisher": "Mistral AI",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

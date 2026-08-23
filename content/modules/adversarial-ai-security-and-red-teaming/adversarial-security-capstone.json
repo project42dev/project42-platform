@@ -4,7 +4,7 @@
   "summary": "Audit an enterprise AI agent, execute multi-vector adversarial attacks, implement multi-layered defenses, and verify zero exploit pass rate.",
   "level": "advanced",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -61,7 +61,7 @@
       "title": "NIST AI Risk Management Framework (AI RMF 1.0)",
       "url": "https://www.nist.gov/itl/ai-risk-management-framework",
       "publisher": "NIST",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

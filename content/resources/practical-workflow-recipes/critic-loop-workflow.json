@@ -15,7 +15,7 @@
   ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 90,
-  "lastVerified": "2026-07-26",
+  "lastVerified": "2026-08-23",
   "tags": ["critic", "review", "iteration", "evaluation"],
   "sections": [
     {
@@ -53,19 +53,19 @@
       "title": "OpenAI evaluation best practices",
       "url": "https://developers.openai.com/api/docs/guides/evaluation-best-practices",
       "publisher": "OpenAI",
-      "lastVerified": "2026-07-26"
+      "lastVerified": "2026-08-23"
     },
     {
       "title": "Anthropic develop tests",
       "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests",
       "publisher": "Anthropic",
-      "lastVerified": "2026-07-26"
+      "lastVerified": "2026-08-23"
     },
     {
       "title": "Google responsible AI evaluation",
       "url": "https://ai.google.dev/responsible/docs/evaluation",
       "publisher": "Google",
-      "lastVerified": "2026-07-26"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

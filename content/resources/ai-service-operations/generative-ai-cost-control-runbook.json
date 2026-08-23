@@ -15,7 +15,7 @@
   ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-26",
+  "lastVerified": "2026-08-23",
   "tags": ["cost", "usage", "budgets", "tokens", "operations"],
   "sections": [
     {
@@ -53,25 +53,25 @@
       "title": "Claude pricing",
       "url": "https://platform.claude.com/docs/en/about-claude/pricing",
       "publisher": "Anthropic",
-      "lastVerified": "2026-07-26"
+      "lastVerified": "2026-08-23"
     },
     {
       "title": "Claude Usage and Cost API",
       "url": "https://platform.claude.com/docs/en/manage-claude/usage-cost-api",
       "publisher": "Anthropic",
-      "lastVerified": "2026-07-26"
+      "lastVerified": "2026-08-23"
     },
     {
       "title": "Gemini API pricing",
       "url": "https://ai.google.dev/gemini-api/docs/pricing",
       "publisher": "Google",
-      "lastVerified": "2026-07-26"
+      "lastVerified": "2026-08-23"
     },
     {
       "title": "Cloudflare AI Gateway spend limits",
       "url": "https://developers.cloudflare.com/ai-gateway/features/spend-limits/",
       "publisher": "Cloudflare",
-      "lastVerified": "2026-07-26"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

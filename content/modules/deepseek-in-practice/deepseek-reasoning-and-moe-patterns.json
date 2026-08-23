@@ -4,7 +4,7 @@
   "summary": "Work with DeepSeek R1 deliberate reasoning streams, parse thinking tokens, and integrate structured output verification.",
   "level": "intermediate",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -66,7 +66,7 @@
       "title": "DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning",
       "url": "https://arxiv.org/abs/2501.12948",
       "publisher": "ArXiv",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

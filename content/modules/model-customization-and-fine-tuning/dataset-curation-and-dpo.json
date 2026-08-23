@@ -4,7 +4,7 @@
   "summary": "Curate high-quality instruction datasets, filter contamination, and align model behavior using Direct Preference Optimization.",
   "level": "advanced",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -67,7 +67,7 @@
       "title": "Direct Preference Optimization: Your Language Model is Secretly a Reward Model",
       "url": "https://arxiv.org/abs/2305.18290",
       "publisher": "ArXiv",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

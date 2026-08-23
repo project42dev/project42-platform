@@ -4,7 +4,7 @@
   "summary": "Understand DeepSeek V3/R1 architecture, Multi-head Latent Attention (MLA), DeepSeekMoE, and open-weight availability.",
   "level": "intermediate",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -65,7 +65,7 @@
       "title": "DeepSeek-V3 Technical Report",
       "url": "https://arxiv.org/abs/2412.19437",
       "publisher": "ArXiv",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

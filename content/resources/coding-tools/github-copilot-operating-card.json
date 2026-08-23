@@ -11,7 +11,7 @@
   "prerequisites": ["An approved GitHub Copilot plan and policy", "A version-controlled repository", "Repository review and branch controls"],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-26",
+  "lastVerified": "2026-08-23",
   "tags": ["coding-tools", "github-copilot", "coding-agent", "code-review"],
   "sections": [
     {
@@ -45,8 +45,8 @@
     }
   ],
   "sources": [
-    {"title": "Best practices for Copilot coding agent tasks", "url": "https://docs.github.com/en/copilot/using-github-copilot/using-copilot-coding-agent-to-work-on-tasks/best-practices-for-using-copilot-to-work-on-tasks", "publisher": "GitHub", "lastVerified": "2026-07-26"},
-    {"title": "About GitHub Copilot code review", "url": "https://docs.github.com/en/copilot/concepts/agents/code-review", "publisher": "GitHub", "lastVerified": "2026-07-26"},
-    {"title": "Copilot custom-instruction support", "url": "https://docs.github.com/en/copilot/reference/custom-instructions-support", "publisher": "GitHub", "lastVerified": "2026-07-26"}
+    {"title": "Best practices for Copilot coding agent tasks", "url": "https://docs.github.com/en/copilot/using-github-copilot/using-copilot-coding-agent-to-work-on-tasks/best-practices-for-using-copilot-to-work-on-tasks", "publisher": "GitHub", "lastVerified": "2026-08-23"},
+    {"title": "About GitHub Copilot code review", "url": "https://docs.github.com/en/copilot/concepts/agents/code-review", "publisher": "GitHub", "lastVerified": "2026-08-23"},
+    {"title": "Copilot custom-instruction support", "url": "https://docs.github.com/en/copilot/reference/custom-instructions-support", "publisher": "GitHub", "lastVerified": "2026-08-23"}
   ]
 }

@@ -11,7 +11,7 @@
   "prerequisites": ["An approved Google account", "A GitHub repository connection", "A reviewable target branch"],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-07-26",
+  "lastVerified": "2026-08-23",
   "tags": ["coding-tools", "jules", "cloud-agent", "github"],
   "sections": [
     {
@@ -45,8 +45,8 @@
     }
   ],
   "sources": [
-    {"title": "Jules getting started", "url": "https://jules.google/docs/", "publisher": "Google", "lastVerified": "2026-07-26"},
-    {"title": "Jules environment setup", "url": "https://jules.google/docs/environment/", "publisher": "Google", "lastVerified": "2026-07-26"},
-    {"title": "Jules documentation index", "url": "https://jules.google/docs/llms.txt", "publisher": "Google", "lastVerified": "2026-07-26"}
+    {"title": "Jules getting started", "url": "https://jules.google/docs/", "publisher": "Google", "lastVerified": "2026-08-23"},
+    {"title": "Jules environment setup", "url": "https://jules.google/docs/environment/", "publisher": "Google", "lastVerified": "2026-08-23"},
+    {"title": "Jules documentation index", "url": "https://jules.google/docs/llms.txt", "publisher": "Google", "lastVerified": "2026-08-23"}
   ]
 }

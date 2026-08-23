@@ -4,7 +4,7 @@
   "summary": "Deep-dive into the OWASP Top 10 vulnerabilities: Prompt Injection, Insecure Output Handling, Training Data Poisoning, and Model Denial of Service.",
   "level": "intermediate",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -65,7 +65,7 @@
       "title": "OWASP Top 10 for Large Language Model Applications",
       "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
       "publisher": "OWASP",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

@@ -4,7 +4,7 @@
   "summary": "End-to-end capstone: Curate instruction dataset, execute QLoRA training, align with DPO, evaluate benchmarks, and deploy an AWQ quantized endpoint.",
   "level": "advanced",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -61,7 +61,7 @@
       "title": "An Overview of Catastrophic Forgetting in Deep Learning",
       "url": "https://arxiv.org/abs/2305.19230",
       "publisher": "ArXiv",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }

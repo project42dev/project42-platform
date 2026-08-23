@@ -4,7 +4,7 @@
   "summary": "Combine sparse BM25 keyword search with dense embedding vectors and apply cross-encoder neural rerankers for optimal relevance.",
   "level": "advanced",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-22",
+  "lastVerified": "2026-08-23",
   "providers": [
     "provider-neutral"
   ],
@@ -81,7 +81,7 @@
       "title": "Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Methods",
       "url": "https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf",
       "publisher": "University of Waterloo",
-      "lastVerified": "2026-08-22"
+      "lastVerified": "2026-08-23"
     }
   ]
 }
