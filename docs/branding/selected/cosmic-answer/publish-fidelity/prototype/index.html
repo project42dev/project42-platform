@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Project 42 — Public gateway prototype</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="index.html"><span class="brand-mark">42</span><span>Project <strong>42</strong></span></a>
+      <nav aria-label="Primary navigation">
+        <a href="learn.html">Learn</a><a href="guide.html">Field Guide</a><a href="#">Visual guides</a><a href="#">About</a>
+      </nav>
+      <details class="account-menu">
+        <summary class="header-account" aria-label="Open account menu">
+          <span>Account</span><span class="avatar"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg></span><span class="menu-chevron" aria-hidden="true">⌄</span>
+        </summary>
+        <nav class="account-menu-panel" aria-label="Account menu">
+          <a href="profile.html"><b>Profile &amp; account</b><small>Photo, details, and identity</small></a>
+          <a href="profile.html"><b>My progress</b><small>Paths, scores, and attempts</small></a>
+          <a href="profile.html"><b>Transcript &amp; badges</b><small>Mastery evidence</small></a>
+          <a href="profile.html"><b>Export learner data</b><small>JSON record and CSV transcript</small></a>
+          <a href="#"><b>Owner administration</b><small>Shown only to authorized owners</small></a>
+          <a class="account-menu-signout" href="#"><b>Sign out</b></a>
+        </nav>
+      </details>
+    </div>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="shell hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow">Free, open AI learning</p>
+          <h1>Start curious.<span>Become capable.</span></h1>
+          <p class="hero-lede">Project 42 makes artificial intelligence understandable from your first question to your first reliable agent. Learn at your pace, check what you know, and keep a record of your progress.</p>
+          <div class="button-row">
+            <a class="button button-primary" href="learn.html">Start AI Foundations →</a>
+            <a class="button button-secondary" href="guide.html">Browse the field guide</a>
+            <a class="button button-secondary" href="#">See visual guides</a>
+          </div>
+          <ul class="trust-list"><li>Beginner-friendly</li><li>Provider-neutral</li><li>Evidence-linked</li><li>Open source</li></ul>
+        </div>
+        <div class="hero-universe" aria-hidden="true">
+          <span class="universe-ring universe-ring-one"></span>
+          <span class="universe-ring universe-ring-two"></span>
+          <span class="universe-core"></span>
+          <span class="universe-node universe-node-one"><b class="domain-icon domain-grid">⠿</b><span>Data foundations<small>Core concepts</small></span></span>
+          <span class="universe-node universe-node-two"><b class="domain-icon domain-model">∿</b><span>Models &amp; learning<small>Capabilities and tradeoffs</small></span></span>
+          <span class="universe-node universe-node-three"><b class="domain-icon domain-cube">◇</b><span>Tools &amp; frameworks<small>Build and integrate</small></span></span>
+          <span class="universe-node universe-node-four"><b class="domain-icon domain-agent">⌘</b><span>Agents &amp; systems<small>Plan, act, and recover</small></span></span>
+          <span class="universe-node universe-node-five"><b class="domain-icon domain-target">⊙</b><span>Evaluation<small>Measure what matters</small></span></span>
+          <span class="universe-node universe-node-six"><b class="domain-icon domain-shield">♢</b><span>Ethics &amp; safety<small>Build responsibly</small></span></span>
+        </div>
+      </div>
+    </section>
+    <section class="journey">
+      <div class="shell">
+        <h2>Your learning journey</h2>
+        <div class="journey-track">
+          <div class="journey-step"><span class="step-icon">?</span><strong>First question</strong><small>Start with curiosity. We meet you where you are.</small></div>
+          <div class="journey-step"><span class="step-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-28 12 12)"/></svg></span><strong>Core ideas</strong><small>Build a strong foundation with clear concepts.</small></div>
+          <div class="journey-step"><span class="step-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="8" r="2"/><circle cx="17" cy="6" r="2"/><circle cx="18" cy="17" r="2"/><circle cx="8" cy="18" r="2"/><path d="M8 8l7-1M17 8l1 7M16 17l-6 1M7 16L6 10"/></svg></span><strong>Hands-on practice</strong><small>Learn by doing with projects and guided challenges.</small></div>
+          <div class="journey-step"><span class="step-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.1 6.1L20 10l-5.9 2L12 18l-2.1-6L4 10l5.9-1.9L12 2Z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8L19 17Z"/></svg></span><strong>Reliable agent</strong><small>Design, test, and ship agents you can trust.</small></div>
+        </div>
+      </div>
+    </section>
+    <section class="section shell" aria-labelledby="two-ways">
+      <div class="section-heading"><p class="eyebrow">Two ways to grow</p><h2 id="two-ways">Learn deeply. Find answers quickly.</h2><p>Follow a guided path when you want mastery, or jump into the field guide when you need something useful right now.</p></div>
+      <div class="pillar-grid">
+        <article class="pillar-card cosmic-card"><span class="card-orbit" aria-hidden="true"><i>42</i></span><div class="card-index">Academy / 01</div><h3>Self-paced learning</h3><p>Short modules, plain language, practical examples, and a knowledge check at the end of every major section.</p><ul><li>Structured learning paths</li><li>Assessed modules and exercises</li><li>Badges, transcript, and mastery evidence</li></ul><a href="learn.html">Explore learning paths →</a></article>
+        <article class="pillar-card cosmic-card"><span class="card-orbit card-orbit-gold" aria-hidden="true"><i>↗</i></span><div class="card-index">Field guide / 02</div><h3>Resources for the work</h3><p>Checklists, explainers, provider maps, and decision tools with visible verification dates and sources.</p><ul><li>Practical, searchable references</li><li>Source-first visual guides</li><li>Provider-neutral comparisons</li></ul><a href="guide.html">Open the field guide →</a></article>
+      </div>
+    </section>
+    <section class="section shell">
+      <div class="section-heading section-heading-inline"><div><p class="eyebrow">Choose your starting point</p><h2>Paths with a destination</h2></div><a class="text-link" href="learn.html">View all paths →</a></div>
+      <div class="path-grid">
+        <article class="path-card cosmic-card"><span class="card-orbit card-orbit-small" aria-hidden="true"><i>?</i></span><div class="path-card-top"><span class="level-pill">Beginner</span><span>4 modules</span></div><div class="path-number">01</div><h3>AI Foundations</h3><p>Understand what AI does, where it fails, and how to work with it responsibly.</p><a href="learn.html">See this path →</a></article>
+        <article class="path-card cosmic-card"><span class="card-orbit card-orbit-small card-orbit-gold" aria-hidden="true"><i>✦</i></span><div class="path-card-top"><span class="level-pill">Practitioner</span><span>4 modules</span></div><div class="path-number">02</div><h3>Providers in Practice</h3><p>Compare the concepts and workflows that transfer across providers and models.</p><a href="learn.html">See this path →</a></article>
+      </div>
+    </section>
+    <section class="section shell provider-section">
+      <div><p class="eyebrow">No single-provider tunnel vision</p><h2>Learn the ideas that transfer.</h2></div>
+      <div class="provider-stack">
+        <div class="provider-row"><span class="provider-dot"></span><strong>Provider-neutral</strong><p>Durable concepts before product-specific details.</p></div>
+        <div class="provider-row"><span class="provider-dot"></span><strong>OpenAI</strong><p>Current APIs, tools, models, and operational patterns.</p></div>
+        <div class="provider-row"><span class="provider-dot"></span><strong>Anthropic</strong><p>Claude capabilities, patterns, and responsible use.</p></div>
+        <div class="provider-row"><span class="provider-dot"></span><strong>Google</strong><p>Gemini tools, models, and ecosystem guidance.</p></div>
+        <div class="provider-row"><span class="provider-dot"></span><strong>Open models</strong><p>Self-hosting, provenance, licensing, and operations.</p></div>
+      </div>
+    </section>
+    <section class="cta shell"><p class="eyebrow">Your first checkpoint is 12 minutes away</p><h2>Understanding beats intimidation.</h2><p>Start with one module. We will remember where you left off.</p><a class="button button-primary" href="learn.html">Begin the first module</a></section>
+  </main>
+  <footer class="site-footer"><div class="shell footer-inner"><span>© 2026 Project 42 · Open source AI learning</span><nav><a href="#">About</a><a href="#">Legal</a><a href="#">Privacy</a><a href="#">GitHub</a></nav></div></footer>
+</body>
+</html>

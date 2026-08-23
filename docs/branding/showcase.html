@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Project 42 brand directions</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #e9edf4; color: #111827; }
+    header { padding: 44px max(24px, calc((100vw - 1440px) / 2)); background: #0b1225; color: white; }
+    header p { max-width: 74ch; color: #c8d2e6; line-height: 1.55; }
+    main { width: min(1440px, calc(100% - 32px)); margin: 28px auto 64px; display: grid; gap: 28px; }
+    article { overflow: hidden; border-radius: 24px; background: white; box-shadow: 0 16px 42px #26324c20; }
+    .hero { min-height: 610px; padding: 54px; display: grid; grid-template-columns: minmax(320px, .82fr) minmax(480px, 1.18fr); align-items: center; background-size: cover; background-position: center; }
+    .copy { max-width: 580px; padding: 34px; border-radius: 20px; backdrop-filter: blur(14px); }
+    .markline { display: flex; gap: 16px; align-items: center; margin-bottom: 40px; }
+    .markline img { width: 70px; height: 70px; }
+    .brandname { font-size: 30px; font-weight: 850; letter-spacing: -.05em; }
+    .eyebrow { margin: 0 0 14px; font-size: 14px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    h2 { margin: 0; max-width: 650px; font-size: clamp(45px, 5vw, 80px); line-height: .96; letter-spacing: -.065em; }
+    .lede { max-width: 55ch; margin: 22px 0 28px; font-size: 19px; line-height: 1.5; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .button { display: inline-block; padding: 13px 18px; border-radius: 999px; font-weight: 800; }
+    .system { padding: 26px 32px 32px; display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 22px; }
+    .system h3 { margin: 0 0 8px; font-size: 15px; text-transform: uppercase; letter-spacing: .08em; }
+    .system p { margin: 0; color: #4b5563; line-height: 1.5; }
+    .subbrands { display: flex; gap: 10px; flex-wrap: wrap; }
+    .subbrand { padding: 10px 13px; border: 1px solid #cbd5e1; border-radius: 10px; font-weight: 750; }
+    .swatches { display: flex; gap: 8px; }
+    .swatch { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #ffffff; box-shadow: 0 0 0 1px #aab2c1; }
+    .cosmic .hero { background-image: url("concepts/01-cosmic-answer/hero.png"); color: #fff; }
+    .cosmic .copy { background: #070c26d9; }
+    .cosmic .button { color: #080d2a; background: #ffca68; }
+    .portal .hero { background-image: url("concepts/02-learning-portal/hero.png"); color: #092f54; }
+    .portal .copy { background: #fff6e5e8; }
+    .portal .button { color: #fff; background: #ff5630; }
+    .constellation .hero { background-image: url("concepts/03-model-constellation/hero.png"); color: #fff; }
+    .constellation .copy { background: #090c14df; }
+    .constellation .button { color: #07101f; background: #58e4c2; }
+    .field .hero { background-image: url("concepts/04-field-signal/hero.png"); color: #fff6df; }
+    .field .copy { background: #061d18e8; }
+    .field .button { color: #071f1a; background: #ff9b19; }
+    .orbit .hero { background-image: url("concepts/05-open-orbit/hero.png"); color: #17213b; }
+    .orbit .copy { background: #f8faffeb; }
+    .orbit .button { color: #fff; background: #2054f6; }
+    @media (max-width: 900px) {
+      .hero { min-height: 760px; padding: 24px; grid-template-columns: 1fr; align-items: end; }
+      .copy { margin-top: 260px; }
+      .system { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Project 42 — five brand directions</h1>
+    <p>Private owner-review board for AB#6167–AB#6171. Each direction includes a compact mark, a public-site hero, and a shared parent system for Learn and Field Guide.</p>
+  </header>
+  <main>
+    <article class="cosmic">
+      <div class="hero">
+        <div class="copy">
+          <div class="markline"><img src="concepts/01-cosmic-answer/mark.svg" alt=""><span class="brandname">Project 42</span></div>
+          <p class="eyebrow">01 · Cosmic Answer</p>
+          <h2>Learn to ask better questions of an expanding universe.</h2>
+          <p class="lede">A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers.</p>
+          <div class="actions"><span class="button">Start learning</span><span class="button">Open Field Guide</span></div>
+        </div><div></div>
+      </div>
+      <div class="system">
+        <div><h3>Identity idea</h3><p>An orbital answer aperture becomes the large hero motif; the compact 42 sits inside a simple orbit that survives at favicon scale.</p></div>
+        <div><h3>Sub-brands</h3><div class="subbrands"><span class="subbrand">Project 42 / Learn</span><span class="subbrand">Project 42 / Field Guide</span></div></div>
+        <div><h3>Palette</h3><div class="swatches"><i class="swatch" style="background:#080d2a"></i><i class="swatch" style="background:#754cff"></i><i class="swatch" style="background:#39d8ff"></i><i class="swatch" style="background:#ffca68"></i></div></div>
+      </div>
+    </article>
+
+    <article class="portal">
+      <div class="hero">
+        <div class="copy">
+          <div class="markline"><img src="concepts/02-learning-portal/mark.svg" alt=""><span class="brandname">Project 42</span></div>
+          <p class="eyebrow">02 · Learning Portal</p>
+          <h2>From curious beginner to capable AI practitioner.</h2>
+          <p class="lede">A warm, human education brand built around an open doorway, visible steps, and progress that never feels mysterious.</p>
+          <div class="actions"><span class="button">Choose a path</span><span class="button">Find an answer</span></div>
+        </div><div></div>
+      </div>
+      <div class="system">
+        <div><h3>Identity idea</h3><p>The arch is both a portal and a protected learning space. Steps distinguish structured Learn from the quick-entry Field Guide.</p></div>
+        <div><h3>Sub-brands</h3><div class="subbrands"><span class="subbrand">Project 42 Learn</span><span class="subbrand">Project 42 Field Guide</span></div></div>
+        <div><h3>Palette</h3><div class="swatches"><i class="swatch" style="background:#fff5df"></i><i class="swatch" style="background:#07345f"></i><i class="swatch" style="background:#ff5630"></i><i class="swatch" style="background:#087d79"></i></div></div>
+      </div>
+    </article>
+
+    <article class="constellation">
+      <div class="hero">
+        <div class="copy">
+          <div class="markline"><img src="concepts/03-model-constellation/mark.svg" alt=""><span class="brandname">Project 42</span></div>
+          <p class="eyebrow">03 · Model Constellation</p>
+          <h2>Understand the whole AI landscape—not one vendor.</h2>
+          <p class="lede">A provider-neutral network where models, tools, agents, sources, and fact checks connect into durable learner evidence.</p>
+          <div class="actions"><span class="button">Explore models</span><span class="button">Build your path</span></div>
+        </div><div></div>
+      </div>
+      <div class="system">
+        <div><h3>Identity idea</h3><p>No node dominates. The open center represents a platform that can connect new providers and methods as the field changes.</p></div>
+        <div><h3>Sub-brands</h3><div class="subbrands"><span class="subbrand">42 Learn · path node</span><span class="subbrand">42 Guide · signal node</span></div></div>
+        <div><h3>Palette</h3><div class="swatches"><i class="swatch" style="background:#090c14"></i><i class="swatch" style="background:#58e4c2"></i><i class="swatch" style="background:#8d64ff"></i><i class="swatch" style="background:#4a6fff"></i></div></div>
+      </div>
+    </article>
+
+    <article class="field">
+      <div class="hero">
+        <div class="copy">
+          <div class="markline"><img src="concepts/04-field-signal/mark.svg" alt=""><span class="brandname">Project 42</span></div>
+          <p class="eyebrow">04 · Field Signal</p>
+          <h2>Practical bearings for a fast-changing field.</h2>
+          <p class="lede">A durable operational identity combining a field manual, a navigational beacon, and evidence-marked routes.</p>
+          <div class="actions"><span class="button">Open Field Guide</span><span class="button">Follow a learning route</span></div>
+        </div><div></div>
+      </div>
+      <div class="system">
+        <div><h3>Identity idea</h3><p>The compass-and-signal mark promises orientation rather than omniscience—useful for learning, deployment, and incident response.</p></div>
+        <div><h3>Sub-brands</h3><div class="subbrands"><span class="subbrand">Project 42 · Learn Routes</span><span class="subbrand">Project 42 · Field Guide</span></div></div>
+        <div><h3>Palette</h3><div class="swatches"><i class="swatch" style="background:#071f1a"></i><i class="swatch" style="background:#f6edd9"></i><i class="swatch" style="background:#ff9b19"></i><i class="swatch" style="background:#4bd9d0"></i></div></div>
+      </div>
+    </article>
+
+    <article class="orbit">
+      <div class="hero">
+        <div class="copy">
+          <div class="markline"><img src="concepts/05-open-orbit/mark.svg" alt=""><span class="brandname">Project 42</span></div>
+          <p class="eyebrow">05 · Open Orbit</p>
+          <h2>Learning that stays open, current, and in motion.</h2>
+          <p class="lede">A visibly open review loop connecting research, teaching, practice, fact-checking, and community contribution.</p>
+          <div class="actions"><span class="button">Start a learning loop</span><span class="button">See how content stays current</span></div>
+        </div><div></div>
+      </div>
+      <div class="system">
+        <div><h3>Identity idea</h3><p>The broken orbit avoids a closed system: learners and contributors can enter, branch, review, and improve the shared body of knowledge.</p></div>
+        <div><h3>Sub-brands</h3><div class="subbrands"><span class="subbrand">Project 42 Learn</span><span class="subbrand">Project 42 Field Guide</span></div></div>
+        <div><h3>Palette</h3><div class="swatches"><i class="swatch" style="background:#f4f7ff"></i><i class="swatch" style="background:#2054f6"></i><i class="swatch" style="background:#65c943"></i><i class="swatch" style="background:#f1258e"></i></div></div>
+      </div>
+    </article>
+  </main>
+</body>
+</html>
