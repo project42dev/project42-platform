@@ -108,15 +108,12 @@ try {
   );
   assert.equal(typeof session.body.session.expiresAt, "string");
 
-  await page.evaluate(() => {
-    const btn = Array.from(document.querySelectorAll("button")).find(b => b.textContent?.includes("Sign out"));
-    if (btn) btn.click();
-  });
   await page
-    .getByRole("button", {
-      name: "Sign in",
-    })
-    .or(page.getByRole("button", { name: "Continue to sign in or request access" }))
+    .getByRole("button", { name: "Sign out on this browser" })
+    .click({ force: true });
+  await page
+    .getByRole("button", { name: "Continue to sign in or request access" })
+    .or(page.getByRole("button", { name: "Sign in" }))
     .waitFor();
   assert.equal(
     (await context.cookies(apiOrigin)).some(
