@@ -1,0 +1,67 @@
+{
+  "id": "adversarial-security-capstone",
+  "title": "Adversarial Security Capstone: Audit, Attack & Fortify",
+  "summary": "Audit an enterprise AI agent, execute multi-vector adversarial attacks, implement multi-layered defenses, and verify zero exploit pass rate.",
+  "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-08-22",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 60,
+  "objectives": [
+    "Perform a full black-box and white-box security audit of an AI agent.",
+    "Demonstrate successful exploitation across prompt injection and insecure output channels.",
+    "Fortify the architecture and prove 100% defense validation across regression suites."
+  ],
+  "prerequisites": [
+    "llm-red-teaming-methodology"
+  ],
+  "sections": [
+    {
+      "id": "capstone-spec",
+      "title": "Security Capstone Audit Standard",
+      "paragraphs": [
+        "In this capstone, you will audit a vulnerable enterprise agent, uncover injection and data exfiltration flaws, build multi-layered defense guardrails, and generate an executive penetration testing report."
+      ]
+    }
+  ],
+  "activity": {
+    "id": "security-capstone-project",
+    "title": "Deliver Fortified Agent Security Package",
+    "instructions": [
+      "Audit vulnerable agent codebase.",
+      "Execute 20 attack vectors and document proof-of-concept exploits.",
+      "Implement defense guardrails and verify zero successful exploit rate."
+    ],
+    "evidence": [
+      "Security audit report, exploit PoCs, fortification patch diff, and verification logs."
+    ],
+    "reflectionPrompt": "How do you balance aggressive security filtering with user experience and false-positive rejections?"
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "sec-cap-q1",
+        "prompt": "What architectural design principle prevents a successfully injected prompt from executing destructive backend actions?",
+        "choices": [
+          "Strict principle of least privilege, scoped tool contracts, and explicit human authorization checkpoints.",
+          "Increasing the model maximum context window length.",
+          "Converting all text data to PDF format.",
+          "Running the model on an unmetered cloud subscription."
+        ],
+        "answerIndex": 0,
+        "explanation": "Layered defense with least privilege tool scoping and human-in-the-loop authorization prevents model intent hijacking from causing real-world damage."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "title": "NIST AI Risk Management Framework (AI RMF 1.0)",
+      "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+      "publisher": "NIST",
+      "lastVerified": "2026-08-22"
+    }
+  ]
+}

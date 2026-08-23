@@ -1,0 +1,87 @@
+{
+  "id": "hybrid-search-and-reranking",
+  "title": "Hybrid Search & Cross-Encoder Reranking",
+  "summary": "Combine sparse BM25 keyword search with dense embedding vectors and apply cross-encoder neural rerankers for optimal relevance.",
+  "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-08-22",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 50,
+  "objectives": [
+    "Architect reciprocal rank fusion (RRF) combining sparse BM25 and dense vector search.",
+    "Explain why cross-encoders achieve higher ranking precision than bi-encoder cosine similarity.",
+    "Deploy cross-encoder rerankers (Cohere Rerank, BGE-Reranker) in latency-bounded pipelines.",
+    "Benchmark NDCG@10 and Mean Reciprocal Rank (MRR) improvements across technical vocabularies."
+  ],
+  "prerequisites": [
+    "chunking-strategies-in-practice"
+  ],
+  "sections": [
+    {
+      "id": "sparse-dense-fusion",
+      "title": "Reciprocal Rank Fusion (RRF)",
+      "paragraphs": [
+        "Dense vector embeddings excel at semantic paraphrasing but fail on exact part numbers, product IDs, and domain-specific acronyms. Sparse BM25 algorithms excel at exact keyword matches but fail on conceptual synonyms.",
+        "Reciprocal Rank Fusion combines both ranking lists into a single normalized score without requiring arbitrary score calibration or manual weight tuning."
+      ],
+      "code": {
+        "language": "python",
+        "label": "Reciprocal Rank Fusion (RRF) Implementation",
+        "code": "def reciprocal_rank_fusion(dense_results: list[str], sparse_results: list[str], k: int = 60) -> list[tuple[str, float]]:\n    scores = {}\n    for rank, doc in enumerate(dense_results):\n        scores[doc] = scores.get(doc, 0.0) + 1.0 / (k + rank + 1)\n    for rank, doc in enumerate(sparse_results):\n        scores[doc] = scores.get(doc, 0.0) + 1.0 / (k + rank + 1)\n    return sorted(scores.items(), key=lambda item: item[1], reverse=True)"
+      }
+    },
+    {
+      "id": "cross-encoder-reranking",
+      "title": "Two-Stage Retrieval with Cross-Encoders",
+      "paragraphs": [
+        "Bi-encoders generate document vectors independently, enabling fast index lookups at the cost of ignoring query-document cross-attention.",
+        "Cross-encoders jointly feed the query and candidate chunk through all attention layers, capturing intricate semantic nuances and eliminating false positives before prompt assembly."
+      ],
+      "code": {
+        "language": "text",
+        "label": "Two-Stage Pipeline Architecture",
+        "code": "User Query -> [Stage 1: Sparse (BM25) + Dense (ANN)] -> Top 50 Candidates -> [Stage 2: Cross-Encoder Reranker] -> Top 5 Gold Context Chunks -> LLM Generation"
+      }
+    }
+  ],
+  "activity": {
+    "id": "hybrid-rerank-lab",
+    "title": "Benchmark Hybrid Search Against Dense-Only Search",
+    "instructions": [
+      "Construct a benchmark dataset with 20 technical queries containing exact product SKU numbers.",
+      "Execute dense-only retrieval and measure Recall@5.",
+      "Apply BM25 + Dense RRF fusion and BGE reranking, then measure the improvement in MRR."
+    ],
+    "evidence": [
+      "Benchmark test script and CSV results comparing Dense vs Hybrid vs Reranked MRR."
+    ],
+    "reflectionPrompt": "Under what latency budget is a second-stage cross-encoder justifiable in high-concurrency production systems?"
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "rerank-q1",
+        "prompt": "Why is a cross-encoder more accurate than bi-encoder cosine similarity for reranking?",
+        "choices": [
+          "Cross-encoders compute full joint cross-attention between every query token and document token.",
+          "Cross-encoders only run on quantum computing hardware.",
+          "Cross-encoders completely replace the language model generator.",
+          "Cross-encoders compress embeddings into 1-bit boolean vectors."
+        ],
+        "answerIndex": 0,
+        "explanation": "Cross-encoders pass the query and candidate document together into the transformer attention layers, allowing tokens to directly attend to each other."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "title": "Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Methods",
+      "url": "https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf",
+      "publisher": "University of Waterloo",
+      "lastVerified": "2026-08-22"
+    }
+  ]
+}

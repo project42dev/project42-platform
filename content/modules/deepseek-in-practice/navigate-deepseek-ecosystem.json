@@ -1,0 +1,71 @@
+{
+  "id": "navigate-deepseek-ecosystem",
+  "title": "Navigate the DeepSeek Ecosystem & Architecture",
+  "summary": "Understand DeepSeek V3/R1 architecture, Multi-head Latent Attention (MLA), DeepSeekMoE, and open-weight availability.",
+  "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-08-22",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 40,
+  "objectives": [
+    "Explain Multi-head Latent Attention (MLA) and how it compresses KV cache footprint.",
+    "Understand DeepSeekMoE architecture with fine-grained expert routing and shared experts.",
+    "Compare DeepSeek V3 general capabilities with DeepSeek R1 deliberate reasoning behaviors."
+  ],
+  "prerequisites": [],
+  "sections": [
+    {
+      "id": "mla-and-moe",
+      "title": "Architectural Innovations: MLA & DeepSeekMoE",
+      "paragraphs": [
+        "DeepSeek V3 achieves high efficiency through Multi-head Latent Attention (MLA), which compresses keys and values into low-dimensional latent vectors, drastically reducing GPU memory consumption during inference.",
+        "DeepSeekMoE activates only a subset of specialized experts per token while maintaining dedicated shared experts for common linguistic knowledge."
+      ],
+      "code": {
+        "language": "text",
+        "label": "DeepSeek V3 Architecture Highlights",
+        "code": "Total Parameters: 671B\nActivated Parameters per Token: 37B (256 routed experts + 1 shared expert)\nKV Cache Compression: MLA Low-Rank Projection (93% memory reduction vs standard MHA)"
+      }
+    }
+  ],
+  "activity": {
+    "id": "deepseek-architecture-lab",
+    "title": "Calculate KV Cache Memory Savings with MLA",
+    "instructions": [
+      "Calculate KV cache RAM for 128k context length with standard Multi-Head Attention.",
+      "Compute the equivalent memory footprint using Multi-head Latent Attention (MLA).",
+      "Document hardware concurrency scalability implications."
+    ],
+    "evidence": [
+      "Mathematical comparison spreadsheet of VRAM utilization."
+    ],
+    "reflectionPrompt": "Why is KV cache memory compression critical for serving 128k context windows cost-effectively?"
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "ds-q1",
+        "prompt": "What primary efficiency does Multi-head Latent Attention (MLA) provide during inference?",
+        "choices": [
+          "It compresses key-value states into low-dimensional latent vectors, reducing KV cache VRAM by over 90%.",
+          "It converts text tokens directly into raw binary machine code.",
+          "It eliminates the need for internet connectivity entirely.",
+          "It forces models to output exactly 10 tokens per second."
+        ],
+        "answerIndex": 0,
+        "explanation": "MLA projects keys and values into a compressed latent space during inference, dramatically cutting KV cache memory overhead."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "title": "DeepSeek-V3 Technical Report",
+      "url": "https://arxiv.org/abs/2412.19437",
+      "publisher": "ArXiv",
+      "lastVerified": "2026-08-22"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "deepseek-reasoning-and-moe-patterns",
+  "title": "DeepSeek R1 Reasoning Tokens & Chain-of-Thought",
+  "summary": "Work with DeepSeek R1 deliberate reasoning streams, parse thinking tokens, and integrate structured output verification.",
+  "level": "intermediate",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-08-22",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 45,
+  "objectives": [
+    "Parse and handle DeepSeek R1 reasoning output tokens and final answers.",
+    "Understand reinforcement learning cold-start mechanisms without supervised fine-tuning.",
+    "Implement structured output parsing while handling variable-length reasoning traces."
+  ],
+  "prerequisites": [
+    "navigate-deepseek-ecosystem"
+  ],
+  "sections": [
+    {
+      "id": "r1-reasoning-trace",
+      "title": "Handling the Reasoning Stream",
+      "paragraphs": [
+        "DeepSeek R1 emits an explicit internal reasoning chain (often encapsulated in `<think>...</think>` tags) prior to emitting the final response.",
+        "Application developers can stream thinking traces to user interfaces for transparency or filter them on backend pipelines while validating final structured JSON."
+      ],
+      "code": {
+        "language": "python",
+        "label": "Extract Reasoning Trace and Final Output",
+        "code": "import re\n\ndef parse_r1_response(raw_text: str) -> dict:\n    think_match = re.search(r\"<think>(.*?)</think>\", raw_text, re.DOTALL)\n    reasoning = think_match.group(1).strip() if think_match else \"\"\n    final_answer = re.sub(r\"<think>.*?</think>\", \"\", raw_text, flags=re.DOTALL).strip()\n    return {\"reasoning\": reasoning, \"answer\": final_answer}"
+      }
+    }
+  ],
+  "activity": {
+    "id": "deepseek-r1-eval-lab",
+    "title": "Benchmark DeepSeek R1 on Complex Mathematical Logic Problems",
+    "instructions": [
+      "Submit 10 complex logic puzzles to DeepSeek R1 and DeepSeek V3.",
+      "Record reasoning trace length, token count, and final answer correctness."
+    ],
+    "evidence": [
+      "Benchmarking results table showing accuracy vs thinking token overhead."
+    ],
+    "reflectionPrompt": "When is deliberate multi-step reasoning worth the latency and token cost over immediate greedy decoding?"
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "ds-r1-q1",
+        "prompt": "How does DeepSeek R1 generate step-by-step reasoning verification?",
+        "choices": [
+          "Through large-scale reinforcement learning (RL) incentivizing self-verification traces.",
+          "By querying Google search in the background for every question.",
+          "By executing a Python interpreter on every word.",
+          "By copying text from Wikipedia directly."
+        ],
+        "answerIndex": 0,
+        "explanation": "DeepSeek R1 is trained with large-scale RL that rewards accurate step-by-step reasoning chains, reflection, and self-correction."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "title": "DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning",
+      "url": "https://arxiv.org/abs/2501.12948",
+      "publisher": "ArXiv",
+      "lastVerified": "2026-08-22"
+    }
+  ]
+}

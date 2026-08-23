@@ -1,0 +1,72 @@
+{
+  "id": "fine-tuning-eval-and-quantization",
+  "title": "Evaluation, Merging & GGUF/AWQ Quantization",
+  "summary": "Evaluate fine-tuned model performance against benchmark suites, merge adapters back into base weights, and export to GGUF and AWQ formats.",
+  "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-08-22",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 45,
+  "objectives": [
+    "Run automated evaluation harnesses (lm-evaluation-harness, MMLU, GSM8K).",
+    "Merge LoRA adapters into full float16 weights safely.",
+    "Quantize merged weights to GGUF (for Ollama/llama.cpp) and AWQ (for vLLM)."
+  ],
+  "prerequisites": [
+    "dataset-curation-and-dpo"
+  ],
+  "sections": [
+    {
+      "id": "adapter-merging-and-export",
+      "title": "Merge and Quantize for Production Serving",
+      "paragraphs": [
+        "Running inference with separate LoRA adapters adds overhead during batching. For production deployment, merge adapter matrices directly into base weights and quantize to AWQ or GGUF for low-latency serving."
+      ],
+      "code": {
+        "language": "python",
+        "label": "Merge LoRA Adapter to Base Model",
+        "code": "from peft import PeftModel\nfrom transformers import AutoModelForCausalLM\n\nbase_model = AutoModelForCausalLM.from_pretrained(\"base-model-id\", torch_dtype=\"auto\")\npeft_model = PeftModel.from_pretrained(base_model, \"lora-adapter-id\")\nmerged_model = peft_model.merge_and_unload()\nmerged_model.save_pretrained(\"./merged-production-model\")"
+      }
+    }
+  ],
+  "activity": {
+    "id": "merge-quantize-lab",
+    "title": "Merge LoRA Adapter and Export to GGUF Format",
+    "instructions": [
+      "Merge a trained LoRA adapter with base weights.",
+      "Convert merged model to GGUF 4-bit (Q4_K_M) using llama.cpp.",
+      "Run local benchmark inference and verify output correctness."
+    ],
+    "evidence": [
+      "Conversion log and llama.cpp benchmark throughput metrics."
+    ],
+    "reflectionPrompt": "What precision losses occur when converting FP16 weights to Q4_K_M quantization?"
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "merge-q1",
+        "prompt": "Why should LoRA adapters be merged into base weights before high-concurrency production serving?",
+        "choices": [
+          "To eliminate adapter lookup latency overhead and allow optimized continuous batching.",
+          "Because adapters automatically expire after 24 hours.",
+          "To prevent users from seeing the base model name.",
+          "To convert python code into WebAssembly."
+        ],
+        "answerIndex": 0,
+        "explanation": "Merging adapter weights directly into base layers enables standard vLLM/Ollama tensor parallelism and continuous batching without dynamic adapter overhead."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
+      "url": "https://arxiv.org/abs/2306.00978",
+      "publisher": "ArXiv",
+      "lastVerified": "2026-08-22"
+    }
+  ]
+}

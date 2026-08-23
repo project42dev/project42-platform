@@ -1,0 +1,74 @@
+{
+  "id": "graph-rag-and-knowledge-graphs",
+  "title": "GraphRAG & Multi-Hop Entity Reasoning",
+  "summary": "Extract structured knowledge graphs from unstructured corpora to enable multi-hop reasoning and holistic summary queries across disparate documents.",
+  "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-08-22",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 55,
+  "objectives": [
+    "Explain why standard vector RAG fails on global summarization and multi-hop entity relationships.",
+    "Extract entities, relationships, and claim triples using structured LLM extraction.",
+    "Index and cluster knowledge graphs using hierarchical community detection algorithms (Leiden).",
+    "Execute GraphRAG query workflows combining local entity neighborhoods with global community summaries."
+  ],
+  "prerequisites": [
+    "hybrid-search-and-reranking"
+  ],
+  "sections": [
+    {
+      "id": "vector-rag-limits",
+      "title": "The Multi-Hop and Global Query Blind Spot",
+      "paragraphs": [
+        "Standard vector RAG searches for localized text snippets matching a specific semantic vector. It fails on queries like \"What are the top 5 emerging risks across all 200 audit reports?\" because the answer is distributed across thousands of disjoint chunks.",
+        "GraphRAG extracts an interconnected knowledge graph of entities, relationships, and hierarchical communities, synthesizing global summaries at each community level."
+      ],
+      "code": {
+        "language": "json",
+        "label": "Extracted Entity-Relation Triple Schema",
+        "code": "{\n  \"entities\": [\n    { \"name\": \"Project 42\", \"type\": \"ORGANIZATION\", \"description\": \"Open source AI education platform\" },\n    { \"name\": \"Orchard\", \"type\": \"SYSTEM\", \"description\": \"Autonomous discovery and maintenance pipeline\" }\n  ],\n  \"relationships\": [\n    { \"source\": \"Orchard\", \"target\": \"Project 42\", \"relationship\": \"MAINTAINS_CURRICULUM_FOR\", \"strength\": 0.95 }\n  ]\n}"
+      }
+    }
+  ],
+  "activity": {
+    "id": "graph-rag-extraction-lab",
+    "title": "Extract Entity-Relationship Graph from Unstructured Text",
+    "instructions": [
+      "Process a 5-document incident corpus through an entity extraction prompt.",
+      "Construct an adjacency matrix and query multi-hop relationships.",
+      "Generate a cross-incident root cause summary using community reports."
+    ],
+    "evidence": [
+      "Graph JSON export containing nodes, edges, and community cluster descriptions."
+    ],
+    "reflectionPrompt": "What are the cost and latency trade-offs of building a knowledge graph upfront during ingestion versus querying vector databases on demand?"
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "graph-q1",
+        "prompt": "What type of query benefits most from GraphRAG community summaries over basic vector RAG?",
+        "choices": [
+          "Global dataset-wide summarization and multi-hop entity reasoning queries.",
+          "Single-word keyword spelling lookups.",
+          "Direct SQL SELECT queries against indexed integer primary keys.",
+          "Audio streaming bitrate compression requests."
+        ],
+        "answerIndex": 0,
+        "explanation": "GraphRAG constructs hierarchical community summaries across the entire graph, enabling answering holistic thematic questions that basic localized vector chunks miss."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "title": "From Local to Global: A Graph RAG Approach to Query-Focused Summarization",
+      "url": "https://arxiv.org/abs/2404.16130",
+      "publisher": "ArXiv",
+      "lastVerified": "2026-08-22"
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "id": "lora-and-qlora-tuning",
+  "title": "LoRA & QLoRA Parameter-Efficient Fine-Tuning",
+  "summary": "Implement Low-Rank Adaptation (LoRA) and 4-bit Quantized LoRA (QLoRA) using Hugging Face PEFT and bitsandbytes.",
+  "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-08-22",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 55,
+  "objectives": [
+    "Explain the mathematical foundation of low-rank matrix decomposition: W + B*A.",
+    "Tune LoRA rank (r), alpha scaling factor, and target module matrices (q_proj, v_proj, all-linear).",
+    "Deploy QLoRA with 4-bit NormalFloat (NF4) quantization and double quantization to fit on consumer GPUs."
+  ],
+  "prerequisites": [
+    "customization-decision-matrix"
+  ],
+  "sections": [
+    {
+      "id": "lora-mechanics",
+      "title": "The Mathematics of Low-Rank Decomposition",
+      "paragraphs": [
+        "Full fine-tuning updates all billions of model weights, requiring massive VRAM for optimizer states and gradients. LoRA freezes original base weights W and injects trainable rank decomposition matrices A and B.",
+        "QLoRA quantizes the base model to 4-bit NF4 while computing gradients through 16-bit LoRA adapter matrices, enabling fine-tuning a 70B parameter model on a single 48GB GPU."
+      ],
+      "code": {
+        "language": "python",
+        "label": "PEFT LoraConfig Setup in Python",
+        "code": "from peft import LoraConfig, get_peft_model, TaskType\n\nlora_config = LoraConfig(\n    r=16,\n    lora_alpha=32,\n    target_modules=[\"q_proj\", \"k_proj\", \"v_proj\", \"o_proj\", \"gate_proj\", \"up_proj\", \"down_proj\"],\n    lora_dropout=0.05,\n    bias=\"none\",\n    task_type=TaskType.CAUSAL_LM\n)"
+      }
+    }
+  ],
+  "activity": {
+    "id": "qlora-training-lab",
+    "title": "Train and Export a Domain-Specific LoRA Adapter",
+    "instructions": [
+      "Configure a 4-bit QLoRA training script using PEFT and TRL SFTTrainer.",
+      "Train a rank-16 adapter on a domain dataset for 3 epochs.",
+      "Merge adapter weights and verify loss convergence curve."
+    ],
+    "evidence": [
+      "Training loss curve log and exported adapter safetensors metadata."
+    ],
+    "reflectionPrompt": "How does altering the LoRA alpha / r scaling ratio impact gradient updates during adapter training?"
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "lora-q1",
+        "prompt": "What primary VRAM reduction does QLoRA achieve over standard LoRA?",
+        "choices": [
+          "It quantizes the frozen base model weights into 4-bit NormalFloat (NF4).",
+          "It deletes all transformer attention layers.",
+          "It disables backpropagation entirely.",
+          "It forces the model to run in 8-bit CPU memory only."
+        ],
+        "answerIndex": 0,
+        "explanation": "QLoRA quantizes frozen base weights to 4-bit NF4 while maintaining full precision in the small trainable adapter parameters."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "title": "QLoRA: Efficient Finetuning of Quantized LLMs",
+      "url": "https://arxiv.org/abs/2305.14314",
+      "publisher": "ArXiv",
+      "lastVerified": "2026-08-22"
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "id": "dataset-curation-and-dpo",
+  "title": "Dataset Curation & Direct Preference Optimization (DPO)",
+  "summary": "Curate high-quality instruction datasets, filter contamination, and align model behavior using Direct Preference Optimization.",
+  "level": "advanced",
+  "reviewCadenceDays": 30,
+  "lastVerified": "2026-08-22",
+  "providers": [
+    "provider-neutral"
+  ],
+  "estimatedMinutes": 50,
+  "objectives": [
+    "Generate and filter high-quality synthetic instruction pairs using LLM-in-the-loop validation.",
+    "Construct prompt-chosen-rejected preference datasets for alignment.",
+    "Train with Direct Preference Optimization (DPO) without complex RLHF reward models."
+  ],
+  "prerequisites": [
+    "lora-and-qlora-tuning"
+  ],
+  "sections": [
+    {
+      "id": "dpo-vs-rlhf",
+      "title": "Direct Preference Optimization over RLHF",
+      "paragraphs": [
+        "Reinforcement Learning from Human Feedback (RLHF) requires training a separate reward model and running unstable PPO optimization loops.",
+        "DPO mathematically reformulates preference optimization to directly optimize the policy language model using a closed-form loss over chosen vs rejected response pairs."
+      ],
+      "code": {
+        "language": "json",
+        "label": "DPO Preference Dataset Schema",
+        "code": "{\n  \"prompt\": \"Summarize the incident response protocol for API outages.\",\n  \"chosen\": \"1. Declare severity. 2. Notify on-call engineer via PagerDuty. 3. Update public status page. 4. Initiate rollback.\",\n  \"rejected\": \"Just restart the server and hope the issue goes away on its own.\"\n}"
+      }
+    }
+  ],
+  "activity": {
+    "id": "dpo-alignment-lab",
+    "title": "Format and Execute a DPO Alignment Training Run",
+    "instructions": [
+      "Format 100 prompt-chosen-rejected pairs for a specialized safety policy.",
+      "Run a DPO training step using TRL DPOTrainer.",
+      "Evaluate baseline vs DPO-aligned model win rates."
+    ],
+    "evidence": [
+      "DPO evaluation scorecard showing alignment win rate improvements."
+    ],
+    "reflectionPrompt": "Why does data quality matter exponentially more than data quantity in DPO alignment runs?"
+  },
+  "knowledgeCheck": {
+    "passPercent": 80,
+    "questions": [
+      {
+        "id": "dpo-q1",
+        "prompt": "What advantage does DPO offer over traditional PPO-based RLHF?",
+        "choices": [
+          "It eliminates the need to train and host an independent reward model during optimization.",
+          "It guarantees 100% zero-shot reasoning capabilities.",
+          "It removes the requirement for any training datasets.",
+          "It makes models immune to hardware power failures."
+        ],
+        "answerIndex": 0,
+        "explanation": "DPO optimizes policy model weights directly from pairwise preference data without training a separate reward model or tuning unstable reinforcement learning hyperparameters."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "title": "Direct Preference Optimization: Your Language Model is Secretly a Reward Model",
+      "url": "https://arxiv.org/abs/2305.18290",
+      "publisher": "ArXiv",
+      "lastVerified": "2026-08-22"
+    }
+  ]
+}
