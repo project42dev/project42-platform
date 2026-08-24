@@ -3,193 +3,444 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Project 42 — Brand Directions & Interactive Showcase</title>
+  <title>Project 42 — Master Brand & Theme Showcase</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      background: #090d16;
-      color: #ffffff;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-      padding-bottom: 80px;
+    
+    :root {
+      --p42-bg-canvas: #080d2a;
+      --p42-bg-surface: #0f1538;
+      --p42-bg-surface-elevated: #18204d;
+      --p42-bg-glass: rgba(12, 17, 45, 0.92);
+      --p42-border-subtle: rgba(117, 76, 255, 0.25);
+      --p42-border-glass: rgba(57, 216, 255, 0.35);
+      --p42-text-primary: #ffffff;
+      --p42-text-secondary: #cbd5e1;
+      --p42-text-muted: #8492a6;
+      --p42-color-primary: #39d8ff;
+      --p42-color-secondary: #754cff;
+      --p42-color-tertiary: #ffca68;
+      --p42-color-accent: #39d8ff;
+      --p42-btn-gradient: linear-gradient(135deg, #ffca68, #f59e0b);
+      --p42-btn-text: #080d2a;
+      --p42-hero-img: url('concepts/01-cosmic-answer/hero.png');
+      --p42-mark-img: url('concepts/01-cosmic-answer/mark.svg');
+      --p42-font-headline: 'Outfit', sans-serif;
+      --p42-font-body: 'Inter', sans-serif;
+      --p42-font-mono: 'JetBrains Mono', monospace;
+      --p42-shell: min(1180px, calc(100vw - 40px));
     }
 
-    /* TOP GLOBAL CONTROLS BAR */
+    /* THEME 1: COSMIC ANSWER */
+    [data-theme="cosmic"] {
+      --p42-bg-canvas: #080d2a;
+      --p42-bg-surface: #0f1538;
+      --p42-bg-surface-elevated: #18204d;
+      --p42-bg-glass: rgba(12, 17, 45, 0.92);
+      --p42-border-subtle: rgba(117, 76, 255, 0.25);
+      --p42-border-glass: rgba(57, 216, 255, 0.35);
+      --p42-text-primary: #ffffff;
+      --p42-text-secondary: #cbd5e1;
+      --p42-text-muted: #8492a6;
+      --p42-color-primary: #39d8ff;
+      --p42-color-secondary: #754cff;
+      --p42-color-tertiary: #ffca68;
+      --p42-color-accent: #39d8ff;
+      --p42-btn-gradient: linear-gradient(135deg, #ffca68, #f59e0b);
+      --p42-btn-text: #080d2a;
+      --p42-hero-img: url('concepts/01-cosmic-answer/hero.png');
+      --p42-mark-img: url('concepts/01-cosmic-answer/mark.svg');
+      --p42-font-headline: 'Outfit', sans-serif;
+    }
+
+    /* THEME 2: LEARNING PORTAL */
+    [data-theme="portal"] {
+      --p42-bg-canvas: #fbf7ef;
+      --p42-bg-surface: #ffffff;
+      --p42-bg-surface-elevated: #fff9f0;
+      --p42-bg-glass: rgba(255, 246, 229, 0.96);
+      --p42-border-subtle: rgba(20, 184, 166, 0.2);
+      --p42-border-glass: rgba(234, 88, 12, 0.3);
+      --p42-text-primary: #092f54;
+      --p42-text-secondary: #475569;
+      --p42-text-muted: #78716c;
+      --p42-color-primary: #ea580c;
+      --p42-color-secondary: #0d9488;
+      --p42-color-tertiary: #d97706;
+      --p42-color-accent: #ea580c;
+      --p42-btn-gradient: linear-gradient(135deg, #ea580c, #f97316);
+      --p42-btn-text: #ffffff;
+      --p42-hero-img: url('concepts/02-learning-portal/hero.png');
+      --p42-mark-img: url('concepts/02-learning-portal/mark.svg');
+      --p42-font-headline: 'Inter', sans-serif;
+    }
+
+    /* THEME 3: MODEL CONSTELLATION */
+    [data-theme="constellation"] {
+      --p42-bg-canvas: #080c14;
+      --p42-bg-surface: #0f1726;
+      --p42-bg-surface-elevated: #162238;
+      --p42-bg-glass: rgba(12, 17, 28, 0.92);
+      --p42-border-subtle: rgba(74, 111, 255, 0.25);
+      --p42-border-glass: rgba(88, 228, 194, 0.35);
+      --p42-text-primary: #ffffff;
+      --p42-text-secondary: #cbd5e1;
+      --p42-text-muted: #64748b;
+      --p42-color-primary: #58e4c2;
+      --p42-color-secondary: #8d64ff;
+      --p42-color-tertiary: #ec4899;
+      --p42-color-accent: #58e4c2;
+      --p42-btn-gradient: linear-gradient(135deg, #58e4c2, #06b6d4);
+      --p42-btn-text: #080c14;
+      --p42-hero-img: url('concepts/03-model-constellation/hero.png');
+      --p42-mark-img: url('concepts/03-model-constellation/mark.svg');
+      --p42-font-headline: 'Space Grotesk', sans-serif;
+    }
+
+    /* THEME 4: FIELD SIGNAL */
+    [data-theme="field"] {
+      --p42-bg-canvas: #f1f6f3;
+      --p42-bg-surface: #ffffff;
+      --p42-bg-surface-elevated: #e6f0eb;
+      --p42-bg-glass: rgba(7, 31, 26, 0.94);
+      --p42-border-subtle: rgba(6, 44, 35, 0.15);
+      --p42-border-glass: rgba(5, 150, 105, 0.35);
+      --p42-text-primary: #062c23;
+      --p42-text-secondary: #335c51;
+      --p42-text-muted: #607d75;
+      --p42-color-primary: #059669;
+      --p42-color-secondary: #ff9b19;
+      --p42-color-tertiary: #4bd9d0;
+      --p42-color-accent: #059669;
+      --p42-btn-gradient: linear-gradient(135deg, #ff9b19, #f59e0b);
+      --p42-btn-text: #071f1a;
+      --p42-hero-img: url('concepts/04-field-signal/hero.png');
+      --p42-mark-img: url('concepts/04-field-signal/mark.svg');
+      --p42-font-headline: 'Space Grotesk', sans-serif;
+    }
+
+    /* THEME 5: OPEN ORBIT */
+    [data-theme="orbit"] {
+      --p42-bg-canvas: #f4f7fb;
+      --p42-bg-surface: #ffffff;
+      --p42-bg-surface-elevated: #f8faff;
+      --p42-bg-glass: rgba(255, 255, 255, 0.96);
+      --p42-border-subtle: rgba(15, 23, 42, 0.08);
+      --p42-border-glass: rgba(32, 84, 246, 0.25);
+      --p42-text-primary: #17213b;
+      --p42-text-secondary: #475569;
+      --p42-text-muted: #64748b;
+      --p42-color-primary: #2054f6;
+      --p42-color-secondary: #65c943;
+      --p42-color-tertiary: #f1258e;
+      --p42-color-accent: #2054f6;
+      --p42-btn-gradient: linear-gradient(135deg, #2054f6, #3b82f6);
+      --p42-btn-text: #ffffff;
+      --p42-hero-img: url('concepts/05-open-orbit/hero.png');
+      --p42-mark-img: url('concepts/05-open-orbit/mark.svg');
+      --p42-font-headline: 'Outfit', sans-serif;
+    }
+
+    /* THEME 6: GALACTIC GUIDE */
+    [data-theme="galactic"] {
+      --p42-bg-canvas: #090d16;
+      --p42-bg-surface: #0f182a;
+      --p42-bg-surface-elevated: #17243c;
+      --p42-bg-glass: rgba(13, 20, 36, 0.94);
+      --p42-border-subtle: rgba(16, 185, 129, 0.3);
+      --p42-border-glass: rgba(245, 158, 11, 0.45);
+      --p42-text-primary: #fef3c7;
+      --p42-text-secondary: #e2e8f0;
+      --p42-text-muted: #94a3b8;
+      --p42-color-primary: #f59e0b;
+      --p42-color-secondary: #10b981;
+      --p42-color-tertiary: #06b6d4;
+      --p42-color-accent: #f59e0b;
+      --p42-btn-gradient: linear-gradient(135deg, #f59e0b, #d97706);
+      --p42-btn-text: #090d16;
+      --p42-hero-img: url('concepts/06-galactic-guide/hero.png');
+      --p42-mark-img: url('concepts/06-galactic-guide/mark.svg');
+      --p42-font-headline: 'Bricolage Grotesque', 'Outfit', sans-serif;
+    }
+
+    body {
+      background: var(--p42-bg-canvas);
+      color: var(--p42-text-primary);
+      font-family: var(--p42-font-body);
+      line-height: 1.5;
+      transition: background 0.3s ease, color 0.3s ease;
+      min-height: 100vh;
+    }
+
+    /* TOP MASTER CONTROLS BAR */
     .top-control-bar {
       position: sticky;
       top: 0;
       z-index: 1000;
-      background: rgba(9, 13, 22, 0.94);
+      background: rgba(9, 13, 22, 0.96);
       backdrop-filter: blur(20px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 12px 24px;
+      padding: 10px 24px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 12px;
+      color: #ffffff;
     }
 
     .top-title-group {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .brand-title-badge {
+    .brand-badge {
       font-size: 11px;
       font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 4px 8px;
+      padding: 3px 8px;
       border-radius: 6px;
       background: rgba(56, 189, 248, 0.15);
       color: #38bdf8;
       border: 1px solid rgba(56, 189, 248, 0.3);
     }
 
-    .view-switcher {
+    .theme-selector {
       display: flex;
-      gap: 6px;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 3px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow-x: auto;
+    }
+
+    .theme-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .theme-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .theme-btn.active {
+      background: #ffffff;
+      color: #0b0d17;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .controls-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill-group {
+      display: flex;
+      gap: 4px;
       background: rgba(255, 255, 255, 0.06);
-      padding: 4px;
+      padding: 3px;
       border-radius: 10px;
       border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
-    .view-btn {
+    .pill-btn {
       background: transparent;
       border: none;
       color: #cbd5e1;
-      padding: 6px 14px;
+      padding: 5px 11px;
       border-radius: 8px;
-      font-size: 12px;
-      font-weight: 700;
+      font-size: 11.5px;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
       white-space: nowrap;
     }
 
-    .view-btn:hover {
+    .pill-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
       color: #ffffff;
-      background: rgba(255, 255, 255, 0.08);
     }
 
-    .view-btn.active {
+    .pill-btn.active {
       background: #38bdf8;
       color: #080d2a;
+      font-weight: 700;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
-    /* HEADER BANNER */
-    .showcase-header {
-      max-width: 1140px;
-      margin: 32px auto 28px;
-      padding: 0 20px;
+    /* SHARED SHELL */
+    .shell {
+      margin-inline: auto;
+      width: var(--p42-shell);
     }
 
-    .showcase-header h1 {
-      font-size: 26px;
+    /* SITE HEADER */
+    .site-header {
+      background: var(--p42-bg-glass);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--p42-border-subtle);
+      position: sticky;
+      top: 50px;
+      z-index: 50;
+      margin-bottom: 2rem;
+    }
+
+    .header-inner {
+      align-items: center;
+      display: grid;
+      gap: 2rem;
+      grid-template-columns: auto 1fr auto;
+      min-height: 70px;
+    }
+
+    .brand {
+      align-items: center;
+      display: inline-flex;
+      font-size: 1.1rem;
       font-weight: 800;
-      letter-spacing: -0.03em;
-      color: #ffffff;
-      margin-bottom: 6px;
+      gap: 0.8rem;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      color: var(--p42-text-primary);
+      font-family: var(--p42-font-headline);
     }
 
-    .showcase-header p {
-      font-size: 13.5px;
-      color: #94a3b8;
+    .brand-mark-nav {
+      height: 38px;
+      width: 38px;
+      border-radius: 9px;
     }
 
-    .board-container {
-      max-width: 1140px;
-      margin: 0 auto;
-      padding: 0 20px;
+    .site-header nav {
       display: flex;
-      flex-direction: column;
-      gap: 36px;
+      gap: 1.8rem;
+      justify-content: center;
     }
 
-    /* THE EXACT CARD STRUCTURE FROM SHOWCASE.PNG */
-    .concept-card {
+    .site-header nav a {
+      color: var(--p42-text-secondary);
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .header-action {
+      align-items: center;
+      background: var(--p42-color-primary);
+      border-radius: 999px;
+      color: var(--p42-btn-text);
+      display: inline-flex;
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 0.65rem 1.15rem;
+      text-decoration: none;
+    }
+
+    /* ------------------------------------------------------------- */
+    /* THE EXACT POSTER HERO BLOCK FROM SHOWCASE.PNG                 */
+    /* ------------------------------------------------------------- */
+    .poster-hero-block {
+      position: relative;
+      min-height: 520px;
       border-radius: 24px;
       overflow: hidden;
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-    }
-
-    .concept-hero-block {
-      position: relative;
-      min-height: 480px;
       display: grid;
-      grid-template-columns: minmax(360px, 480px) 1fr;
+      grid-template-columns: minmax(360px, 500px) 1fr;
       align-items: center;
       background-size: cover;
       background-position: center right;
-      padding: 40px;
+      background-image: var(--p42-hero-img);
+      border: 1px solid var(--p42-border-glass);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+      padding: 44px;
+      margin-bottom: 24px;
     }
 
-    .concept-glass-card {
+    .poster-glass-card {
+      background: var(--p42-bg-glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--p42-border-glass);
       border-radius: 20px;
-      padding: 34px 38px;
+      padding: 36px;
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
     }
 
-    .brand-mark-row {
+    .poster-brand-row {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
-    .brand-mark-img {
+    .poster-mark-img {
       width: 44px;
       height: 44px;
       border-radius: 10px;
       flex-shrink: 0;
     }
 
-    .brand-name-text {
+    .poster-brand-title {
       font-size: 22px;
       font-weight: 800;
-      letter-spacing: -0.03em;
+      font-family: var(--p42-font-headline);
+      color: var(--p42-text-primary);
+      letter-spacing: -0.02em;
     }
 
-    .concept-eyebrow {
+    .poster-eyebrow {
       font-size: 11px;
       font-weight: 800;
       letter-spacing: 0.14em;
       text-transform: uppercase;
+      color: var(--p42-color-primary);
       margin-bottom: 12px;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--p42-font-mono);
     }
 
-    .concept-headline {
-      font-size: clamp(30px, 3.4vw, 44px);
+    .poster-headline {
+      font-family: var(--p42-font-headline);
+      font-size: clamp(28px, 3.2vw, 42px);
       font-weight: 900;
-      line-height: 1.02;
+      line-height: 1.05;
       letter-spacing: -0.05em;
-      margin-bottom: 16px;
+      color: var(--p42-text-primary);
+      margin-bottom: 14px;
     }
 
-    .concept-lede {
+    .poster-lede {
       font-size: 14px;
+      color: var(--p42-text-secondary);
       line-height: 1.6;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
 
-    .concept-button-row {
+    .poster-button-row {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
     }
 
-    .concept-btn {
+    .btn {
       font-size: 13px;
       font-weight: 800;
       padding: 10px 20px;
@@ -203,16 +454,33 @@
       transition: transform 0.15s ease;
     }
 
-    .concept-btn:hover {
+    .btn:hover {
       transform: translateY(-2px);
     }
 
-    /* BOTTOM DESIGN SYSTEM BAR FROM SHOWCASE.PNG */
-    .concept-system-bar {
+    .btn-primary {
+      background: var(--p42-btn-gradient);
+      color: var(--p42-btn-text);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--p42-border-glass);
+      color: var(--p42-text-primary);
+    }
+
+    /* THE EXACT DESIGN SYSTEM BAR FROM SHOWCASE.PNG */
+    .system-bar-board {
       display: grid;
       grid-template-columns: 1.4fr 1.1fr 0.9fr;
       gap: 24px;
-      padding: 22px 36px 26px;
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 20px;
+      padding: 24px 36px;
+      margin-bottom: 36px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
       align-items: center;
     }
 
@@ -221,13 +489,15 @@
       font-weight: 800;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      margin-bottom: 8px;
-      font-family: 'JetBrains Mono', monospace;
+      color: var(--p42-color-primary);
+      margin-bottom: 6px;
+      font-family: var(--p42-font-mono);
     }
 
     .system-desc {
       font-size: 13px;
-      line-height: 1.5;
+      color: var(--p42-text-secondary);
+      line-height: 1.55;
     }
 
     .subbrand-pills-row {
@@ -236,12 +506,14 @@
       gap: 8px;
     }
 
-    .subbrand-pill {
+    .subbrand-tag {
       padding: 6px 12px;
+      border: 1px solid var(--p42-border-subtle);
+      background: var(--p42-bg-surface-elevated);
       border-radius: 8px;
       font-size: 12px;
       font-weight: 700;
-      display: inline-block;
+      color: var(--p42-text-primary);
     }
 
     .palette-swatches-row {
@@ -254,448 +526,862 @@
       width: 28px;
       height: 28px;
       border-radius: 50%;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
     /* ------------------------------------------------------------- */
-    /* THEME SPECIFIC STYLING (EXACT TO SHOWCASE.PNG)                */
+    /* LAYOUT 2: FULL PRODUCTION SITE SECTIONS                       */
     /* ------------------------------------------------------------- */
-    
-    /* 01. COSMIC ANSWER */
-    .card-cosmic {
-      background: #080d2a;
+    .progress-strip {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 3.5rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
-    .card-cosmic .concept-hero-block {
-      background-image: url('concepts/01-cosmic-answer/hero.png');
-    }
-    .card-cosmic .concept-glass-card {
-      background: rgba(12, 17, 45, 0.92);
-      border: 1px solid rgba(57, 216, 255, 0.3);
-      color: #ffffff;
-    }
-    .card-cosmic .brand-name-text { color: #ffffff; font-family: 'Outfit', sans-serif; }
-    .card-cosmic .concept-eyebrow { color: #39d8ff; }
-    .card-cosmic .concept-headline { color: #ffffff; font-family: 'Outfit', sans-serif; }
-    .card-cosmic .concept-lede { color: #cbd5e1; }
-    .card-cosmic .btn-primary { background: #ffca68; color: #080d2a; }
-    .card-cosmic .btn-secondary { background: #18204d; color: #ffffff; border: 1px solid rgba(57, 216, 255, 0.3); }
-    .card-cosmic .concept-system-bar { background: #0c1236; border-top: 1px solid rgba(117, 76, 255, 0.2); }
-    .card-cosmic .system-title { color: #39d8ff; }
-    .card-cosmic .system-desc { color: #cbd5e1; }
-    .card-cosmic .subbrand-pill { background: #18204d; color: #ffffff; border: 1px solid rgba(57, 216, 255, 0.25); }
 
-    /* 02. LEARNING PORTAL */
-    .card-portal {
-      background: #fbf7ef;
-      color: #092f54;
+    .progress-strip strong {
+      display: block;
+      font-size: 1rem;
+      color: var(--p42-text-primary);
+      font-family: var(--p42-font-headline);
     }
-    .card-portal .concept-hero-block {
-      background-image: url('concepts/02-learning-portal/hero.png');
-    }
-    .card-portal .concept-glass-card {
-      background: rgba(255, 246, 229, 0.96);
-      border: 1px solid rgba(234, 88, 12, 0.25);
-      color: #092f54;
-    }
-    .card-portal .brand-name-text { color: #092f54; font-family: 'Inter', sans-serif; }
-    .card-portal .concept-eyebrow { color: #ea580c; }
-    .card-portal .concept-headline { color: #092f54; font-family: 'Inter', sans-serif; }
-    .card-portal .concept-lede { color: #475569; }
-    .card-portal .btn-primary { background: #ea580c; color: #ffffff; }
-    .card-portal .btn-secondary { background: #ffffff; color: #092f54; border: 1px solid rgba(9, 47, 84, 0.15); }
-    .card-portal .concept-system-bar { background: #f5eedf; border-top: 1px solid rgba(9, 47, 84, 0.08); color: #092f54; }
-    .card-portal .system-title { color: #ea580c; }
-    .card-portal .system-desc { color: #475569; }
-    .card-portal .subbrand-pill { background: #ffffff; color: #092f54; border: 1px solid rgba(9, 47, 84, 0.15); }
 
-    /* 03. MODEL CONSTELLATION */
-    .card-constellation {
-      background: #080c14;
+    .progress-strip span {
+      font-size: 0.85rem;
+      color: var(--p42-text-secondary);
     }
-    .card-constellation .concept-hero-block {
-      background-image: url('concepts/03-model-constellation/hero.png');
-    }
-    .card-constellation .concept-glass-card {
-      background: rgba(12, 17, 28, 0.92);
-      border: 1px solid rgba(88, 228, 194, 0.3);
-      color: #ffffff;
-    }
-    .card-constellation .brand-name-text { color: #ffffff; font-family: 'Space Grotesk', sans-serif; }
-    .card-constellation .concept-eyebrow { color: #58e4c2; }
-    .card-constellation .concept-headline { color: #ffffff; font-family: 'Space Grotesk', sans-serif; }
-    .card-constellation .concept-lede { color: #cbd5e1; }
-    .card-constellation .btn-primary { background: #58e4c2; color: #080c14; }
-    .card-constellation .btn-secondary { background: #162238; color: #ffffff; border: 1px solid rgba(88, 228, 194, 0.3); }
-    .card-constellation .concept-system-bar { background: #0d1320; border-top: 1px solid rgba(74, 111, 255, 0.25); }
-    .card-constellation .system-title { color: #58e4c2; }
-    .card-constellation .system-desc { color: #cbd5e1; }
-    .card-constellation .subbrand-pill { background: #162238; color: #ffffff; border: 1px solid rgba(88, 228, 194, 0.25); }
 
-    /* 04. FIELD SIGNAL */
-    .card-field {
-      background: #071c17;
+    .pillar-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.8rem;
+      margin-bottom: 3.5rem;
     }
-    .card-field .concept-hero-block {
-      background-image: url('concepts/04-field-signal/hero.png');
-    }
-    .card-field .concept-glass-card {
-      background: rgba(7, 31, 26, 0.94);
-      border: 1px solid rgba(5, 150, 105, 0.35);
-      color: #ffffff;
-    }
-    .card-field .brand-name-text { color: #ffffff; font-family: 'Space Grotesk', sans-serif; }
-    .card-field .concept-eyebrow { color: #ff9b19; }
-    .card-field .concept-headline { color: #ffffff; font-family: 'Space Grotesk', sans-serif; }
-    .card-field .concept-lede { color: #d1fae5; }
-    .card-field .btn-primary { background: #ff9b19; color: #071f1a; }
-    .card-field .btn-secondary { background: #0f3d32; color: #ffffff; border: 1px solid rgba(5, 150, 105, 0.3); }
-    .card-field .concept-system-bar { background: #061814; border-top: 1px solid rgba(5, 150, 105, 0.2); }
-    .card-field .system-title { color: #ff9b19; }
-    .card-field .system-desc { color: #a7f3d0; }
-    .card-field .subbrand-pill { background: #0f3d32; color: #ffffff; border: 1px solid rgba(5, 150, 105, 0.25); }
 
-    /* 05. OPEN ORBIT */
-    .card-orbit {
-      background: #f4f7fb;
-      color: #17213b;
+    .pillar-card {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 20px;
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
-    .card-orbit .concept-hero-block {
-      background-image: url('concepts/05-open-orbit/hero.png');
-    }
-    .card-orbit .concept-glass-card {
-      background: rgba(255, 255, 255, 0.96);
-      border: 1px solid rgba(32, 84, 246, 0.25);
-      color: #17213b;
-    }
-    .card-orbit .brand-name-text { color: #17213b; font-family: 'Outfit', sans-serif; }
-    .card-orbit .concept-eyebrow { color: #2054f6; }
-    .card-orbit .concept-headline { color: #17213b; font-family: 'Outfit', sans-serif; }
-    .card-orbit .concept-lede { color: #475569; }
-    .card-orbit .btn-primary { background: #2054f6; color: #ffffff; }
-    .card-orbit .btn-secondary { background: #f0f4ff; color: #2054f6; border: 1px solid rgba(32, 84, 246, 0.2); }
-    .card-orbit .concept-system-bar { background: #e9eff8; border-top: 1px solid rgba(15, 23, 42, 0.08); color: #17213b; }
-    .card-orbit .system-title { color: #2054f6; }
-    .card-orbit .system-desc { color: #475569; }
-    .card-orbit .subbrand-pill { background: #ffffff; color: #17213b; border: 1px solid rgba(15, 23, 42, 0.12); }
 
-    /* 06. THE GALACTIC GUIDE */
-    .card-galactic {
-      background: #090d16;
-      color: #fef3c7;
+    .card-index {
+      font-family: var(--p42-font-mono);
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--p42-color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
-    .card-galactic .concept-hero-block {
-      background-image: url('concepts/06-galactic-guide/hero.png');
-    }
-    .card-galactic .concept-glass-card {
-      background: rgba(13, 20, 36, 0.94);
-      border: 1px solid rgba(245, 158, 11, 0.45);
-      color: #fef3c7;
-    }
-    .card-galactic .brand-name-text { color: #fef3c7; font-family: 'Bricolage Grotesque', sans-serif; }
-    .card-galactic .concept-eyebrow { color: #f59e0b; }
-    .card-galactic .concept-headline { color: #fef3c7; font-family: 'Bricolage Grotesque', sans-serif; }
-    .card-galactic .concept-lede { color: #e2e8f0; }
-    .card-galactic .btn-primary { background: #f59e0b; color: #090d16; }
-    .card-galactic .btn-secondary { background: #17243c; color: #fef3c7; border: 1px solid rgba(245, 158, 11, 0.35); }
-    .card-galactic .concept-system-bar { background: #0c1220; border-top: 1px solid rgba(245, 158, 11, 0.25); }
-    .card-galactic .system-title { color: #f59e0b; }
-    .card-galactic .system-desc { color: #e2e8f0; }
-    .card-galactic .subbrand-pill { background: #17243c; color: #fef3c7; border: 1px solid rgba(245, 158, 11, 0.35); }
 
-    @media (max-width: 960px) {
-      .concept-hero-block { grid-template-columns: 1fr; }
-      .concept-system-bar { grid-template-columns: 1fr; }
+    .pillar-card h3 {
+      font-family: var(--p42-font-headline);
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--p42-text-primary);
+    }
+
+    .path-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .path-card {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 16px;
+      padding: 1.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .level-pill {
+      background: rgba(0,0,0,0.05);
+      color: var(--p42-color-primary);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-family: var(--p42-font-mono);
+      font-size: 0.72rem;
+    }
+
+    .path-number {
+      font-family: var(--p42-font-headline);
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--p42-color-primary);
+      line-height: 1;
+    }
+
+    .path-card h3 {
+      font-family: var(--p42-font-headline);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--p42-text-primary);
+    }
+
+    .provider-section {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 20px;
+      padding: 2.5rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .provider-stack {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.8rem;
+    }
+
+    .provider-row {
+      border-left: 3px solid var(--p42-color-primary);
+      padding-left: 1rem;
+    }
+
+    .self-host-card {
+      background: var(--p42-bg-surface-elevated);
+      border: 1px solid var(--p42-border-glass);
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      text-align: center;
+      max-width: 860px;
+      margin: 0 auto 3.5rem;
+    }
+
+    .cta-banner {
+      background: var(--p42-color-primary);
+      color: var(--p42-btn-text);
+      border-radius: 24px;
+      padding: 4rem 2rem;
+      text-align: center;
+      margin-bottom: 4rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    /* ------------------------------------------------------------- */
+    /* LAYOUT 3: CENTERED EDITORIAL                                  */
+    /* ------------------------------------------------------------- */
+    .hero-centered-container {
+      position: relative;
+      min-height: 520px;
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 56px 24px;
+      background: radial-gradient(circle at center, var(--p42-border-glass) 0%, transparent 70%), var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-glass);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.08);
+      margin-bottom: 36px;
+    }
+
+    .hero-centered-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+    }
+
+    .code-terminal {
+      position: relative;
+      background: #080d1a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      font-family: var(--p42-font-mono);
+      font-size: 12.5px;
+      color: #38bdf8;
+      overflow-x: auto;
+      margin: 14px 0;
+      line-height: 1.55;
+    }
+
+    /* ------------------------------------------------------------- */
+    /* LEARN PLATFORM & FIELD GUIDE SURFACES                         */
+    /* ------------------------------------------------------------- */
+    .learn-layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 24px;
+      margin-bottom: 3.5rem;
+    }
+
+    .learn-sidebar {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 16px;
+      padding: 20px;
+      height: fit-content;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .path-select-box {
+      background: var(--p42-bg-surface-elevated);
+      border: 1px solid var(--p42-border-subtle);
+      color: var(--p42-text-primary);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      width: 100%;
+      margin-bottom: 16px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .module-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--p42-text-secondary);
+      margin-bottom: 4px;
+      cursor: pointer;
+    }
+
+    .module-item.active {
+      background: var(--p42-bg-surface-elevated);
+      color: var(--p42-color-primary);
+      border: 1px solid var(--p42-border-glass);
+      font-weight: 700;
+    }
+
+    .learn-content-card {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .quiz-card {
+      background: var(--p42-bg-surface-elevated);
+      border: 1px solid var(--p42-border-glass);
+      border-radius: 14px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .quiz-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 13.5px;
+      color: var(--p42-text-secondary);
+    }
+
+    .quiz-option.correct {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--p42-text-primary);
+    }
+
+    .guide-filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .filter-chip {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      color: var(--p42-text-secondary);
+      padding: 8px 16px;
+      border-radius: 9999px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .filter-chip.active {
+      background: var(--p42-color-primary);
+      color: var(--p42-btn-text);
+      border-color: var(--p42-color-primary);
+      font-weight: 700;
+    }
+
+    .matrix-table-card {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    .matrix-table th {
+      background: var(--p42-bg-surface-elevated);
+      color: var(--p42-text-primary);
+      padding: 14px 18px;
+      text-align: left;
+      font-family: var(--p42-font-headline);
+      font-weight: 700;
+      border-bottom: 1px solid var(--p42-border-subtle);
+    }
+
+    .matrix-table td {
+      padding: 14px 18px;
+      color: var(--p42-text-secondary);
+      border-bottom: 1px solid var(--p42-border-subtle);
+    }
+
+    /* VISIBILITY CONTROLS */
+    .surface-view { display: none; }
+    .surface-view.active { display: block; animation: fadeIn 0.2s ease; }
+    .layout-view { display: none; }
+    .layout-view.active { display: block; animation: fadeIn 0.2s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* FOOTER */
+    .site-footer {
+      border-top: 1px solid var(--p42-border-subtle);
+      padding: 3rem 0;
+      color: var(--p42-text-muted);
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 4rem;
+    }
+
+    @media (max-width: 900px) {
+      .poster-hero-block { grid-template-columns: 1fr; padding: 24px; }
+      .system-bar-board { grid-template-columns: 1fr; }
+      .pillar-grid { grid-template-columns: 1fr; }
+      .progress-strip { grid-template-columns: 1fr; }
+      .learn-layout { grid-template-columns: 1fr; }
+      .site-header nav { display: none; }
     }
   </style>
 </head>
-<body>
+<body data-theme="cosmic">
 
   <!-- TOP GLOBAL CONTROLS BAR -->
   <header class="top-control-bar">
     <div class="top-title-group">
-      <span class="brand-title-badge">Master Brand Board</span>
-      <strong style="font-size: 13.5px; color: #ffffff;">Project 42 — Brand Directions Showcase</strong>
+      <span class="brand-badge">Brand Studio</span>
+      <strong style="font-size: 13.5px;">Project 42 — Master Brand & Layout Workbench</strong>
     </div>
 
-    <!-- QUICK JUMP PILLS -->
-    <div class="view-switcher">
-      <a href="#concept-01" class="view-btn">01 Cosmic</a>
-      <a href="#concept-02" class="view-btn">02 Portal</a>
-      <a href="#concept-03" class="view-btn">03 Constellation</a>
-      <a href="#concept-04" class="view-btn">04 Field Signal</a>
-      <a href="#concept-05" class="view-btn">05 Open Orbit</a>
-      <a href="#concept-06" class="view-btn">06 Galactic Guide</a>
+    <!-- 6 BRANDS SELECTOR -->
+    <div class="theme-selector">
+      <button class="theme-btn active" onclick="setTheme('cosmic', this)">
+        <span>🌌</span> 01 Cosmic
+      </button>
+      <button class="theme-btn" onclick="setTheme('portal', this)">
+        <span>🏛️</span> 02 Portal
+      </button>
+      <button class="theme-btn" onclick="setTheme('constellation', this)">
+        <span>🌐</span> 03 Constellation
+      </button>
+      <button class="theme-btn" onclick="setTheme('field', this)">
+        <span>🧭</span> 04 Field Signal
+      </button>
+      <button class="theme-btn" onclick="setTheme('orbit', this)">
+        <span>🪐</span> 05 Open Orbit
+      </button>
+      <button class="theme-btn" onclick="setTheme('galactic', this)">
+        <span>🚀</span> 06 Galactic
+      </button>
+    </div>
+
+    <div class="controls-right">
+      <!-- 3 DISTINCT WEBSITE LAYOUTS -->
+      <div class="pill-group" id="layoutPillGroup">
+        <button class="pill-btn active" onclick="setLayout('poster', this)">
+          1. Concept Poster & System
+        </button>
+        <button class="pill-btn" onclick="setLayout('website', this)">
+          2. Full Production Website
+        </button>
+        <button class="pill-btn" onclick="setLayout('centered', this)">
+          3. Centered Editorial
+        </button>
+      </div>
+
+      <!-- 3 REAL SURFACES -->
+      <div class="pill-group" id="surfacePillGroup">
+        <button class="pill-btn active" onclick="setSurface('gateway', this)">Gateway</button>
+        <button class="pill-btn" onclick="setSurface('learn', this)">Learn</button>
+        <button class="pill-btn" onclick="setSurface('guide', this)">Field Guide</button>
+      </div>
     </div>
   </header>
 
-  <!-- PAGE HEADER EXACT TO SHOWCASE.PNG -->
-  <div class="showcase-header">
-    <h1>Project 42 — Brand Directions</h1>
-    <p>Private owner-review board for AB#6167–AB#6171. Each direction includes a compact mark, a public-site hero, and a shared parent system for Learn and Field Guide.</p>
-  </div>
+  <!-- SITE HEADER -->
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="#">
+        <img src="concepts/01-cosmic-answer/mark.svg" alt="Project 42 Logo" class="brand-mark-nav" id="siteHeaderLogo">
+        <span id="siteHeaderBrandText">Project 42</span>
+      </a>
+      <nav>
+        <a href="#paths">Learning Paths</a>
+        <a href="#field-guide">Field Guide</a>
+        <a href="#visual-guides">Visual Guides</a>
+        <a href="#self-host">Self-Hosting</a>
+        <a href="#about">About</a>
+      </nav>
+      <a class="header-action" href="#" id="headerCtaBtn">Explore Paths →</a>
+    </div>
+  </header>
 
-  <!-- ALL 6 BRAND DIRECTIONS EXACT TO SHOWCASE.PNG -->
-  <main class="board-container">
+  <!-- ============================================================= -->
+  <!-- SURFACE 1: PUBLIC GATEWAY (3 LAYOUTS)                         -->
+  <!-- ============================================================= -->
+  <main class="surface-view active shell" id="surface-gateway">
 
-    <!-- ========================================================= -->
-    <!-- 01 · COSMIC ANSWER                                        -->
-    <!-- ========================================================= -->
-    <article class="concept-card card-cosmic" id="concept-01">
-      <div class="concept-hero-block">
-        <div class="concept-glass-card">
-          <div class="brand-mark-row">
-            <img src="concepts/01-cosmic-answer/mark.svg" alt="Cosmic Answer Mark" class="brand-mark-img">
-            <span class="brand-name-text">Project 42</span>
+    <!-- ----------------------------------------------------------- -->
+    <!-- LAYOUT 1: THE EXACT POSTER & DESIGN SYSTEM FROM SHOWCASE.PNG-->
+    <!-- ----------------------------------------------------------- -->
+    <div class="layout-view active" id="layout-poster">
+      
+      <!-- HERO BLOCK EXACT TO SHOWCASE.PNG -->
+      <section class="poster-hero-block" id="posterHeroBlock">
+        <div class="poster-glass-card">
+          <div class="poster-brand-row">
+            <img src="concepts/01-cosmic-answer/mark.svg" alt="Brand Mark" class="poster-mark-img" id="posterMarkImg">
+            <span class="poster-brand-title" id="posterBrandTitle">Project 42</span>
           </div>
-          <div class="concept-eyebrow">01 · COSMIC ANSWER</div>
-          <h2 class="concept-headline">Learn to ask better questions of an expanding universe.</h2>
-          <p class="concept-lede">A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers.</p>
-          <div class="concept-button-row">
-            <a href="#" class="concept-btn btn-primary">Start learning</a>
-            <a href="#" class="concept-btn btn-secondary">Open Field Guide</a>
+          <div class="poster-eyebrow" id="posterEyebrow">01 · COSMIC ANSWER</div>
+          <h1 class="poster-headline" id="posterHeadline">
+            Learn to ask better questions of an expanding universe.
+          </h1>
+          <p class="poster-lede" id="posterLede">
+            A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers.
+          </p>
+          <div class="poster-button-row">
+            <a href="#" class="btn btn-primary" id="posterBtn1">Start learning</a>
+            <a href="#" class="btn btn-secondary" id="posterBtn2">Open Field Guide</a>
           </div>
         </div>
-      </div>
-      <div class="concept-system-bar">
+        <div></div>
+      </section>
+
+      <!-- DESIGN SYSTEM BAR EXACT TO SHOWCASE.PNG -->
+      <section class="system-bar-board">
         <div>
           <div class="system-title">Identity Idea</div>
-          <div class="system-desc">An orbital answer aperture becomes the large hero motif; the compact 42 sits inside a simple orbit that survives at favicon scale.</div>
+          <div class="system-desc" id="systemIdentityDesc">
+            An orbital answer aperture becomes the large hero motif; the compact 42 sits inside a simple orbit that survives at favicon scale.
+          </div>
         </div>
         <div>
           <div class="system-title">Sub-Brands</div>
-          <div class="subbrand-pills-row">
-            <span class="subbrand-pill">Project 42 / Learn</span>
-            <span class="subbrand-pill">Project 42 / Field Guide</span>
+          <div class="subbrand-pills-row" id="systemSubbrandsRow">
+            <span class="subbrand-tag">Project 42 / Learn</span>
+            <span class="subbrand-tag">Project 42 / Field Guide</span>
           </div>
         </div>
         <div>
           <div class="system-title">Palette</div>
-          <div class="palette-swatches-row">
+          <div class="palette-swatches-row" id="systemPaletteRow">
             <span class="palette-circle" style="background: #080d2a;"></span>
             <span class="palette-circle" style="background: #754cff;"></span>
             <span class="palette-circle" style="background: #39d8ff;"></span>
             <span class="palette-circle" style="background: #ffca68;"></span>
           </div>
         </div>
-      </div>
-    </article>
+      </section>
 
-    <!-- ========================================================= -->
-    <!-- 02 · LEARNING PORTAL                                      -->
-    <!-- ========================================================= -->
-    <article class="concept-card card-portal" id="concept-02">
-      <div class="concept-hero-block">
-        <div class="concept-glass-card">
-          <div class="brand-mark-row">
-            <img src="concepts/02-learning-portal/mark.svg" alt="Learning Portal Mark" class="brand-mark-img">
-            <span class="brand-name-text">Project 42</span>
-          </div>
-          <div class="concept-eyebrow">02 · LEARNING PORTAL</div>
-          <h2 class="concept-headline">From curious beginner to capable AI practitioner.</h2>
-          <p class="concept-lede">A warm, human education brand built around an open doorway, visible steps, and progress that never feels mysterious.</p>
-          <div class="concept-button-row">
-            <a href="#" class="concept-btn btn-primary">Choose a path</a>
-            <a href="#" class="concept-btn btn-secondary">Find an answer</a>
-          </div>
-        </div>
-      </div>
-      <div class="concept-system-bar">
-        <div>
-          <div class="system-title">Identity Idea</div>
-          <div class="system-desc">The arch is both a portal and a protected learning space. Steps distinguish structured Learn from the quick-entry Field Guide.</div>
-        </div>
-        <div>
-          <div class="system-title">Sub-Brands</div>
-          <div class="subbrand-pills-row">
-            <span class="subbrand-pill">Project 42 Learn</span>
-            <span class="subbrand-pill">Project 42 Field Guide</span>
-          </div>
-        </div>
-        <div>
-          <div class="system-title">Palette</div>
-          <div class="palette-swatches-row">
-            <span class="palette-circle" style="background: #fbf7ef; border: 1px solid #d1d5db;"></span>
-            <span class="palette-circle" style="background: #ea580c;"></span>
-            <span class="palette-circle" style="background: #ff5630;"></span>
-            <span class="palette-circle" style="background: #0d9488;"></span>
-          </div>
-        </div>
-      </div>
-    </article>
+    </div>
 
-    <!-- ========================================================= -->
-    <!-- 03 · MODEL CONSTELLATION                                  -->
-    <!-- ========================================================= -->
-    <article class="concept-card card-constellation" id="concept-03">
-      <div class="concept-hero-block">
-        <div class="concept-glass-card">
-          <div class="brand-mark-row">
-            <img src="concepts/03-model-constellation/mark.svg" alt="Model Constellation Mark" class="brand-mark-img">
-            <span class="brand-name-text">Project 42</span>
+    <!-- ----------------------------------------------------------- -->
+    <!-- LAYOUT 2: FULL PRODUCTION SITE MULTI-SECTION LAYOUT         -->
+    <!-- ----------------------------------------------------------- -->
+    <div class="layout-view" id="layout-website">
+      
+      <!-- HERO WITH ARTWORK INTEGRATION -->
+      <section class="poster-hero-block" style="min-height: 480px;">
+        <div class="poster-glass-card">
+          <div class="poster-brand-row">
+            <img src="concepts/01-cosmic-answer/mark.svg" alt="Brand Mark" class="poster-mark-img" id="webHeroMark">
+            <span class="poster-brand-title" id="webHeroBrandTitle">Project 42</span>
           </div>
-          <div class="concept-eyebrow">03 · MODEL CONSTELLATION</div>
-          <h2 class="concept-headline">Understand the whole AI landscape—not one vendor.</h2>
-          <p class="concept-lede">A provider-neutral network where models, tools, agents, sources, and fact checks connect into durable learner evidence.</p>
-          <div class="concept-button-row">
-            <a href="#" class="concept-btn btn-primary">Explore models</a>
-            <a href="#" class="concept-btn btn-secondary">Build your path</a>
-          </div>
-        </div>
-      </div>
-      <div class="concept-system-bar">
-        <div>
-          <div class="system-title">Identity Idea</div>
-          <div class="system-desc">No node dominates. The open center represents a platform that can connect new providers and methods as the field changes.</div>
-        </div>
-        <div>
-          <div class="system-title">Sub-Brands</div>
-          <div class="subbrand-pills-row">
-            <span class="subbrand-pill">42 Learn · path node</span>
-            <span class="subbrand-pill">42 Guide · signal node</span>
+          <div class="poster-eyebrow" id="webHeroEyebrow">01 · COSMIC ANSWER</div>
+          <h1 class="poster-headline" id="webHeroHeadline">
+            Start curious. Become capable.
+          </h1>
+          <p class="poster-lede" id="webHeroLede">
+            Project 42 makes artificial intelligence understandable from your first question to your first reliable agent.
+          </p>
+          <div class="poster-button-row">
+            <a href="#" class="btn btn-primary">Start AI Foundations</a>
+            <a href="#" class="btn btn-secondary">Browse Field Guide</a>
           </div>
         </div>
-        <div>
-          <div class="system-title">Palette</div>
-          <div class="palette-swatches-row">
-            <span class="palette-circle" style="background: #080c14;"></span>
-            <span class="palette-circle" style="background: #58e4c2;"></span>
-            <span class="palette-circle" style="background: #8d64ff;"></span>
-            <span class="palette-circle" style="background: #4a6fff;"></span>
-          </div>
-        </div>
-      </div>
-    </article>
+        <div></div>
+      </section>
 
-    <!-- ========================================================= -->
-    <!-- 04 · FIELD SIGNAL                                         -->
-    <!-- ========================================================= -->
-    <article class="concept-card card-field" id="concept-04">
-      <div class="concept-hero-block">
-        <div class="concept-glass-card">
-          <div class="brand-mark-row">
-            <img src="concepts/04-field-signal/mark.svg" alt="Field Signal Mark" class="brand-mark-img">
-            <span class="brand-name-text">Project 42</span>
-          </div>
-          <div class="concept-eyebrow">04 · FIELD SIGNAL</div>
-          <h2 class="concept-headline">Practical bearings for a fast-changing field.</h2>
-          <p class="concept-lede">A durable operational identity combining a field manual, a navigational beacon, and evidence-marked routes.</p>
-          <div class="concept-button-row">
-            <a href="#" class="concept-btn btn-primary">Open Field Guide</a>
-            <a href="#" class="concept-btn btn-secondary">Follow a learning route</a>
-          </div>
-        </div>
-      </div>
-      <div class="concept-system-bar">
+      <!-- PROGRESS STRIP -->
+      <section class="progress-strip">
         <div>
-          <div class="system-title">Identity Idea</div>
-          <div class="system-desc">The compass-and-signal mark promises orientation rather than omniscience—useful for learning, deployment, and incident response.</div>
+          <strong>Learn</strong>
+          <span>Courses, knowledge checks, badges, and your transcript</span>
         </div>
         <div>
-          <div class="system-title">Sub-Brands</div>
-          <div class="subbrand-pills-row">
-            <span class="subbrand-pill">Project 42 · Learn Routes</span>
-            <span class="subbrand-pill">Project 42 · Field Guide</span>
-          </div>
+          <strong>Field Guide</strong>
+          <span>Practical answers, workflows, comparisons, and visual guides</span>
         </div>
-        <div>
-          <div class="system-title">Palette</div>
-          <div class="palette-swatches-row">
-            <span class="palette-circle" style="background: #071f1a;"></span>
-            <span class="palette-circle" style="background: #f6edd9;"></span>
-            <span class="palette-circle" style="background: #ff9b19;"></span>
-            <span class="palette-circle" style="background: #4bd9d0;"></span>
-          </div>
-        </div>
-      </div>
-    </article>
+        <a class="btn btn-secondary" href="#">Sign in to track progress</a>
+      </section>
 
-    <!-- ========================================================= -->
-    <!-- 05 · OPEN ORBIT                                           -->
-    <!-- ========================================================= -->
-    <article class="concept-card card-orbit" id="concept-05">
-      <div class="concept-hero-block">
-        <div class="concept-glass-card">
-          <div class="brand-mark-row">
-            <img src="concepts/05-open-orbit/mark.svg" alt="Open Orbit Mark" class="brand-mark-img">
-            <span class="brand-name-text">Project 42</span>
-          </div>
-          <div class="concept-eyebrow">05 · OPEN ORBIT</div>
-          <h2 class="concept-headline">Learning that stays open, current, and in motion.</h2>
-          <p class="concept-lede">A visibly open review loop connecting research, teaching, practice, fact-checking, and community contribution.</p>
-          <div class="concept-button-row">
-            <a href="#" class="concept-btn btn-primary">Start a learning loop</a>
-            <a href="#" class="concept-btn btn-secondary">See how content stays current</a>
-          </div>
-        </div>
-      </div>
-      <div class="concept-system-bar">
-        <div>
-          <div class="system-title">Identity Idea</div>
-          <div class="system-desc">The broken orbit avoids a closed system: learners and contributors can enter, branch, review, and improve the shared body of knowledge.</div>
-        </div>
-        <div>
-          <div class="system-title">Sub-Brands</div>
-          <div class="subbrand-pills-row">
-            <span class="subbrand-pill">Project 42 Learn</span>
-            <span class="subbrand-pill">Project 42 Field Guide</span>
-          </div>
-        </div>
-        <div>
-          <div class="system-title">Palette</div>
-          <div class="palette-swatches-row">
-            <span class="palette-circle" style="background: #f4f7ff; border: 1px solid #cbd5e1;"></span>
-            <span class="palette-circle" style="background: #2054f6;"></span>
-            <span class="palette-circle" style="background: #65c943;"></span>
-            <span class="palette-circle" style="background: #f1258e;"></span>
-          </div>
-        </div>
-      </div>
-    </article>
+      <!-- TWO WAYS TO GROW -->
+      <section class="pillar-grid">
+        <article class="pillar-card">
+          <div class="card-index">Academy / 01</div>
+          <h3>Self-paced learning</h3>
+          <p>13 structured paths, 92 assessed curriculum modules, and account-backed transcript verification.</p>
+          <a href="#" style="color: var(--p42-color-primary); font-weight: 700; text-decoration: none; margin-top: auto;">Explore learning paths →</a>
+        </article>
+        <article class="pillar-card">
+          <div class="card-index">Field guide / 02</div>
+          <h3>Resources for the work</h3>
+          <p>89 source-first evidence activities, 384 reviewed questions, and provider-neutral core concepts.</p>
+          <a href="#" style="color: var(--p42-color-primary); font-weight: 700; text-decoration: none; margin-top: auto;">Open the Field Guide →</a>
+        </article>
+      </section>
 
-    <!-- ========================================================= -->
-    <!-- 06 · THE GALACTIC GUIDE                                   -->
-    <!-- ========================================================= -->
-    <article class="concept-card card-galactic" id="concept-06">
-      <div class="concept-hero-block">
-        <div class="concept-glass-card">
-          <div class="brand-mark-row">
-            <img src="concepts/06-galactic-guide/mark.svg" alt="Galactic Guide Mark" class="brand-mark-img">
-            <span class="brand-name-text">Project 42 / Guide</span>
-          </div>
-          <div class="concept-eyebrow">06 · THE GALACTIC GUIDE (DON'T PANIC)</div>
-          <h2 class="concept-headline">The Answer to AI, Agents, and Everything.</h2>
-          <p class="concept-lede">A friendly, provider-neutral survival guide from your very first prompt to production multi-agent swarms. 13 paths, 92 modules, and always knowing where your context is.</p>
-          <div class="concept-button-row">
-            <a href="#" class="concept-btn btn-primary">Consult The Guide (Path 01)</a>
-            <a href="#" class="concept-btn btn-secondary">Don't Panic (Field Guide)</a>
+      <!-- FEATURED PATHS -->
+      <section class="path-grid">
+        <article class="path-card">
+          <div style="display: flex; justify-content: space-between;"><span class="level-pill">Beginner</span><span>16 modules</span></div>
+          <div class="path-number">01</div>
+          <h3>AI Foundations</h3>
+          <p>Build a clear mental model of AI, prompts, and agents without assuming technical experience.</p>
+        </article>
+        <article class="path-card">
+          <div style="display: flex; justify-content: space-between;"><span class="level-pill">Intermediate</span><span>6 modules</span></div>
+          <div class="path-number">02</div>
+          <h3>Providers in Practice</h3>
+          <p>Learn what transfers across providers and where Anthropic, OpenAI, and Google workflows differ.</p>
+        </article>
+        <article class="path-card">
+          <div style="display: flex; justify-content: space-between;"><span class="level-pill">Advanced</span><span>8 modules</span></div>
+          <div class="path-number">03</div>
+          <h3>Frontier Agentic Systems</h3>
+          <p>Master multi-agent orchestration, the Model Context Protocol (MCP), and production guardrails.</p>
+        </article>
+      </section>
+
+      <!-- PROVIDERS & SELF HOST & CTA -->
+      <section class="provider-section">
+        <div class="card-index">Provider Neutral</div>
+        <h2 style="font-family: var(--p42-font-headline); font-size: 2rem; font-weight: 850; color: var(--p42-text-primary); margin: 0.4rem 0 1rem;">
+          Learn the ideas that transfer across models.
+        </h2>
+        <div class="provider-stack">
+          <div class="provider-row"><strong>Core Concepts</strong><p>First principles that apply across all frontier AI models.</p></div>
+          <div class="provider-row"><strong>Anthropic</strong><p>Claude models, prompt caching, and tool-use loops.</p></div>
+          <div class="provider-row"><strong>OpenAI</strong><p>ChatGPT, Structured Outputs, and assistant APIs.</p></div>
+          <div class="provider-row"><strong>Google Gemini</strong><p>2M context windows and multi-modal grounding.</p></div>
+        </div>
+      </section>
+
+      <section class="self-host-card">
+        <div class="card-index">Open Source & Self-Hosting</div>
+        <h2 style="font-family: var(--p42-font-headline); font-size: 2rem; font-weight: 850; color: var(--p42-text-primary); margin: 0.4rem 0 1rem;">
+          Run Project 42 Inside Your Organization
+        </h2>
+        <p style="color: var(--p42-text-secondary); margin-bottom: 1.5rem;">
+          Deploy the host-agnostic platform in your cloud, private cluster, or local environment.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 12px;">
+          <a class="btn btn-primary" href="#">View on GitHub →</a>
+          <a class="btn btn-secondary" href="#">Read Runbook</a>
+        </div>
+      </section>
+
+      <section class="cta-banner">
+        <div class="poster-eyebrow" style="color: var(--p42-color-tertiary);">Your first checkpoint is 12 minutes away</div>
+        <h2 style="font-family: var(--p42-font-headline); font-size: 2.5rem; font-weight: 900; margin: 0.4rem 0 1rem;">Understanding beats intimidation.</h2>
+        <p style="color: rgba(255,255,255,0.9); margin-bottom: 1.5rem;">Start with one module. Your approved account keeps your place across devices.</p>
+        <a class="btn btn-primary" href="#" style="background: var(--p42-color-tertiary); color: #080d2a; padding: 12px 28px;">Begin the first module</a>
+      </section>
+    </div>
+
+    <!-- ----------------------------------------------------------- -->
+    <!-- LAYOUT 3: CENTERED EDITORIAL / SAAS                         -->
+    <!-- ----------------------------------------------------------- -->
+    <div class="layout-view" id="layout-centered">
+      <section class="hero-centered-container">
+        <img src="concepts/01-cosmic-answer/mark.svg" alt="Centered Logo" class="hero-centered-logo" id="centeredHeroMark">
+        <div class="poster-eyebrow" id="centeredEyebrow">01 · COSMIC ANSWER</div>
+        <h1 style="font-family: var(--p42-font-headline); font-size: clamp(34px, 4.5vw, 56px); font-weight: 900; letter-spacing: -0.05em; margin-bottom: 18px; max-width: 820px; color: var(--p42-text-primary);" id="centeredHeadline">
+          Learn to ask better questions of an expanding universe.
+        </h1>
+        <p class="poster-lede" style="max-width: 65ch; margin: 0 auto 28px;" id="centeredLede">
+          A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers across every frontier AI architecture.
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+          <a class="btn btn-primary" href="#" id="centeredBtn1">Start learning</a>
+          <a class="btn btn-secondary" href="#" id="centeredBtn2">Open Field Guide</a>
+        </div>
+        <div style="margin-top: 2.5rem; width: 100%; max-width: 680px;">
+          <div class="code-terminal" style="text-align: left;">
+# Multi-Agent Consensus & Grounding Engine
+from p42.foundry import AgentEnsemble
+pipeline = AgentEnsemble(drafter="claude-3-5-sonnet", adversary="gpt-4o", arbiter="gemini-1.5-pro")
+evaluation = pipeline.verify_claim(source_citation="NIST-AI-600-1")
+assert evaluation.confidence_score >= 0.98
           </div>
         </div>
-      </div>
-      <div class="concept-system-bar">
-        <div>
-          <div class="system-title">Identity Idea</div>
-          <div class="system-desc">A retro-futuristic pocket datapad that dispels intimidation with reassuring golden bezels, hitchhiker references, and pragmatic engineering.</div>
-        </div>
-        <div>
-          <div class="system-title">Sub-Brands</div>
-          <div class="subbrand-pills-row">
-            <span class="subbrand-pill">Project 42 Guide</span>
-            <span class="subbrand-pill">42 Don't Panic Manual</span>
-          </div>
-        </div>
-        <div>
-          <div class="system-title">Palette</div>
-          <div class="palette-swatches-row">
-            <span class="palette-circle" style="background: #090d16;"></span>
-            <span class="palette-circle" style="background: #f59e0b;"></span>
-            <span class="palette-circle" style="background: #10b981;"></span>
-            <span class="palette-circle" style="background: #fef3c7;"></span>
-          </div>
-        </div>
-      </div>
-    </article>
+      </section>
+    </div>
 
   </main>
 
+  <!-- ============================================================= -->
+  <!-- SURFACE 2: LEARN PLATFORM                                     -->
+  <!-- ============================================================= -->
+  <main class="surface-view shell" id="surface-learn">
+    <div class="learn-layout">
+      <aside class="learn-sidebar">
+        <h3 style="font-family: var(--p42-font-headline); font-size: 16px; margin-bottom: 12px; color: var(--p42-text-primary);">Course Modules</h3>
+        <select class="path-select-box">
+          <option>04 · Agentic Systems & Tool Use</option>
+          <option>01 · AI Foundations (16 Modules)</option>
+          <option>02 · Providers in Practice</option>
+        </select>
+        <div class="module-item"><span>✅</span><span>what-agents-do</span></div>
+        <div class="module-item"><span>✅</span><span>agent-anatomy-and-loops</span></div>
+        <div class="module-item active"><span>⚡</span><span>safe-tool-use-workflow</span></div>
+        <div class="module-item"><span>🔒</span><span>multi-agent-handoffs</span></div>
+      </aside>
+
+      <section class="learn-content-card">
+        <div class="poster-eyebrow">MODULE: safe-tool-use-workflow</div>
+        <h2 style="font-family: var(--p42-font-headline); font-size: 26px; font-weight: 800; color: var(--p42-text-primary); margin: 6px 0 14px;">
+          Safe Tool Use & Schema-Constrained Execution
+        </h2>
+        <p style="color: var(--p42-text-secondary); line-height: 1.6; margin-bottom: 18px;">
+          When language models invoke tools, they produce structured JSON arguments matching a predefined function schema. In production environments, this execution boundary must be strictly sandboxed.
+        </p>
+        <div class="code-terminal">
+// Safe Tool Invocation with Deterministic Zod Schema Validation
+import { z } from "zod";
+const WeatherToolSchema = z.object({ location: z.string().min(2), units: z.enum(["metric", "imperial"]).default("metric") });
+        </div>
+        <div class="quiz-card">
+          <h4 style="font-family: var(--p42-font-headline); font-size: 15px; color: var(--p42-color-primary); margin-bottom: 8px;">Interactive Knowledge Check</h4>
+          <label class="quiz-option correct"><input type="radio" checked><span>Prompt injection attacks can manipulate function arguments into malicious payloads.</span></label>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ============================================================= -->
+  <!-- SURFACE 3: FIELD GUIDE                                        -->
+  <!-- ============================================================= -->
+  <main class="surface-view shell" id="surface-guide">
+    <div class="guide-filter-bar">
+      <button class="filter-chip active">All Patterns</button>
+      <button class="filter-chip">Model Comparison</button>
+      <button class="filter-chip">Multi-Agent Loops</button>
+      <button class="filter-chip">Security & Guardrails</button>
+    </div>
+
+    <div class="matrix-table-card">
+      <table class="matrix-table">
+        <thead>
+          <tr><th>Model / Provider</th><th>Context Window</th><th>Tool Reliability</th><th>Best Use Case</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong style="color: var(--p42-color-primary);">Claude 3.5 Sonnet</strong></td><td>200K Tokens</td><td>★★★★★ (98.4%)</td><td>Complex reasoning & multi-step agents</td></tr>
+          <tr><td><strong style="color: var(--p42-color-primary);">GPT-4o</strong></td><td>128K Tokens</td><td>★★★★★ (97.8%)</td><td>Fast multimodal vision & structured outputs</td></tr>
+          <tr><td><strong style="color: var(--p42-color-primary);">Gemini 1.5 Pro</strong></td><td>2M Tokens</td><td>★★★★☆ (96.2%)</td><td>Massive context retrieval & repo audits</td></tr>
+          <tr><td><strong style="color: var(--p42-color-primary);">Llama 3.1 70B</strong></td><td>128K Tokens</td><td>★★★★☆ (94.5%)</td><td>Private on-premise execution & fine-tuning</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer shell">
+    <div><strong>Project 42</strong> — Provider-neutral AI learning & field guidance.</div>
+    <div>Open Source under Apache 2.0 & CC BY 4.0</div>
+  </footer>
+
+  <script>
+    const themeMetadata = {
+      cosmic: {
+        brandTitle: "Project 42",
+        eyebrow: "01 · COSMIC ANSWER",
+        headline: "Learn to ask better questions of an expanding universe.",
+        lede: "A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers.",
+        btn1: "Start learning",
+        btn2: "Open Field Guide",
+        mark: "concepts/01-cosmic-answer/mark.svg",
+        hero: "concepts/01-cosmic-answer/hero.png",
+        identityDesc: "An orbital answer aperture becomes the large hero motif; the compact 42 sits inside a simple orbit that survives at favicon scale.",
+        subbrands: ["Project 42 / Learn", "Project 42 / Field Guide"],
+        swatches: ["#080d2a", "#754cff", "#39d8ff", "#ffca68"]
+      },
+      portal: {
+        brandTitle: "Project 42",
+        eyebrow: "02 · LEARNING PORTAL",
+        headline: "From curious beginner to capable AI practitioner.",
+        lede: "A warm, human education brand built around an open doorway, visible steps, and progress that never feels mysterious.",
+        btn1: "Choose a path",
+        btn2: "Find an answer",
+        mark: "concepts/02-learning-portal/mark.svg",
+        hero: "concepts/02-learning-portal/hero.png",
+        identityDesc: "The arch is both a portal and a protected learning space. Steps distinguish structured Learn from the quick-entry Field Guide.",
+        subbrands: ["Project 42 Learn", "Project 42 Field Guide"],
+        swatches: ["#fbf7ef", "#ea580c", "#ff5630", "#0d9488"]
+      },
+      constellation: {
+        brandTitle: "Project 42",
+        eyebrow: "03 · MODEL CONSTELLATION",
+        headline: "Understand the whole AI landscape—not one vendor.",
+        lede: "A provider-neutral network where models, tools, agents, sources, and fact checks connect into durable learner evidence.",
+        btn1: "Explore models",
+        btn2: "Build your path",
+        mark: "concepts/03-model-constellation/mark.svg",
+        hero: "concepts/03-model-constellation/hero.png",
+        identityDesc: "No node dominates. The open center represents a platform that can connect new providers and methods as the field changes.",
+        subbrands: ["42 Learn · path node", "42 Guide · signal node"],
+        swatches: ["#080c14", "#58e4c2", "#8d64ff", "#4a6fff"]
+      },
+      field: {
+        brandTitle: "Project 42",
+        eyebrow: "04 · FIELD SIGNAL",
+        headline: "Practical bearings for a fast-changing field.",
+        lede: "A durable operational identity combining a field manual, a navigational beacon, and evidence-marked routes.",
+        btn1: "Open Field Guide",
+        btn2: "Follow a learning route",
+        mark: "concepts/04-field-signal/mark.svg",
+        hero: "concepts/04-field-signal/hero.png",
+        identityDesc: "The compass-and-signal mark promises orientation rather than omniscience—useful for learning, deployment, and incident response.",
+        subbrands: ["Project 42 · Learn Routes", "Project 42 · Field Guide"],
+        swatches: ["#071f1a", "#f6edd9", "#ff9b19", "#4bd9d0"]
+      },
+      orbit: {
+        brandTitle: "Project 42",
+        eyebrow: "05 · OPEN ORBIT",
+        headline: "Learning that stays open, current, and in motion.",
+        lede: "A visibly open review loop connecting research, teaching, practice, fact-checking, and community contribution.",
+        btn1: "Start a learning loop",
+        btn2: "See how content stays current",
+        mark: "concepts/05-open-orbit/mark.svg",
+        hero: "concepts/05-open-orbit/hero.png",
+        identityDesc: "The broken orbit avoids a closed system: learners and contributors can enter, branch, review, and improve the shared body of knowledge.",
+        subbrands: ["Project 42 Learn", "Project 42 Field Guide"],
+        swatches: ["#f4f7ff", "#2054f6", "#65c943", "#f1258e"]
+      },
+      galactic: {
+        brandTitle: "Project 42 / Guide",
+        eyebrow: "06 · THE GALACTIC GUIDE (DON'T PANIC)",
+        headline: "The Answer to AI, Agents, and Everything.",
+        lede: "A friendly, provider-neutral survival guide from your very first prompt to production multi-agent swarms. 13 paths, 92 modules, and always knowing where your context is.",
+        btn1: "Consult The Guide (Path 01)",
+        btn2: "Don't Panic (Field Guide)",
+        mark: "concepts/06-galactic-guide/mark.svg",
+        hero: "concepts/06-galactic-guide/hero.png",
+        identityDesc: "A retro-futuristic pocket datapad that dispels intimidation with reassuring golden bezels, hitchhiker references, and pragmatic engineering.",
+        subbrands: ["Project 42 Guide", "42 Don't Panic Manual"],
+        swatches: ["#090d16", "#f59e0b", "#10b981", "#fef3c7"]
+      }
+    };
+
+    function setTheme(themeKey, btnEl) {
+      document.body.setAttribute('data-theme', themeKey);
+      
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+
+      const data = themeMetadata[themeKey];
+      
+      // Update Site Header
+      document.getElementById('siteHeaderLogo').src = data.mark;
+      document.getElementById('siteHeaderBrandText').textContent = data.brandTitle;
+
+      // Update Poster Layout
+      document.getElementById('posterMarkImg').src = data.mark;
+      document.getElementById('posterBrandTitle').textContent = data.brandTitle;
+      document.getElementById('posterEyebrow').textContent = data.eyebrow;
+      document.getElementById('posterHeadline').textContent = data.headline;
+      document.getElementById('posterLede').textContent = data.lede;
+      document.getElementById('posterBtn1').textContent = data.btn1;
+      document.getElementById('posterBtn2').textContent = data.btn2;
+      document.getElementById('systemIdentityDesc').textContent = data.identityDesc;
+      document.getElementById('systemSubbrandsRow').innerHTML = data.subbrands.map(s => `<span class="subbrand-tag">${s}</span>`).join('');
+      document.getElementById('systemPaletteRow').innerHTML = data.swatches.map(c => `<span class="palette-circle" style="background: ${c};"></span>`).join('');
+
+      // Update Web Layout
+      document.getElementById('webHeroMark').src = data.mark;
+      document.getElementById('webHeroBrandTitle').textContent = data.brandTitle;
+      document.getElementById('webHeroEyebrow').textContent = data.eyebrow;
+
+      // Update Centered Layout
+      document.getElementById('centeredHeroMark').src = data.mark;
+      document.getElementById('centeredEyebrow').textContent = data.eyebrow;
+      document.getElementById('centeredHeadline').textContent = data.headline;
+      document.getElementById('centeredLede').textContent = data.lede;
+      document.getElementById('centeredBtn1').textContent = data.btn1;
+      document.getElementById('centeredBtn2').textContent = data.btn2;
+    }
+
+    function setLayout(layoutKey, btnEl) {
+      document.querySelectorAll('#layoutPillGroup .pill-btn').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+
+      document.querySelectorAll('#surface-gateway .layout-view').forEach(v => v.classList.remove('active'));
+      const target = document.getElementById(`layout-${layoutKey}`);
+      if (target) target.classList.add('active');
+    }
+
+    function setSurface(surfaceKey, btnEl) {
+      document.querySelectorAll('#surfacePillGroup .pill-btn').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+
+      document.querySelectorAll('.surface-view').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(`surface-${surfaceKey}`);
+      if (target) target.classList.add('active');
+    }
+
+    // Initialize with Cosmic theme
+    setTheme('cosmic', document.querySelector('.theme-btn.active'));
+  </script>
 </body>
 </html>
