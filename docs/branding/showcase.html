@@ -289,7 +289,7 @@
     }
 
     /* ------------------------------------------------------------- */
-    /* LAYOUT 1: EXACT POSTER HERO & SYSTEM CARD FROM SHOWCASE.PNG   */
+    /* THE CINEMATIC HERO COMPONENT (EXACT FROM SHOWCASE.PNG)        */
     /* ------------------------------------------------------------- */
     .brand-poster-card {
       border-radius: 24px;
@@ -303,7 +303,7 @@
       position: relative;
       min-height: 520px;
       display: grid;
-      grid-template-columns: minmax(360px, 480px) 1fr;
+      grid-template-columns: minmax(360px, 490px) 1fr;
       align-items: center;
       background-size: cover;
       background-position: center right;
@@ -462,74 +462,8 @@
     }
 
     /* ------------------------------------------------------------- */
-    /* LAYOUT 2: FULL PRODUCTION SITE (EXACT LIVE SITE STRUCTURE)    */
+    /* LAYOUT 2: FULL PRODUCTION SITE SECTIONS                       */
     /* ------------------------------------------------------------- */
-    .site-nav-header {
-      background: var(--p42-bg-glass);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--p42-border-subtle);
-      padding: 14px 0;
-      margin-bottom: 2rem;
-    }
-
-    .nav-inner {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 1.5rem;
-    }
-
-    .nav-links a {
-      color: var(--p42-text-secondary);
-      text-decoration: none;
-      font-size: 13.5px;
-      font-weight: 600;
-    }
-
-    .live-hero-grid {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 3rem;
-      align-items: center;
-      min-height: 520px;
-      margin-bottom: 3.5rem;
-    }
-
-    .live-hero-left h1 {
-      font-family: var(--p42-font-headline);
-      font-size: clamp(2.8rem, 4.5vw, 4.8rem);
-      font-weight: 900;
-      line-height: 0.95;
-      letter-spacing: -0.06em;
-      margin: 0 0 1.5rem;
-      color: var(--p42-text-primary);
-    }
-
-    .live-hero-left h1 span {
-      display: block;
-      color: var(--p42-text-muted);
-      font-family: Georgia, serif;
-      font-style: italic;
-      font-weight: 400;
-      font-size: 0.9em;
-      margin-top: 4px;
-    }
-
-    .live-hero-art-frame {
-      border-radius: 24px;
-      overflow: hidden;
-      aspect-ratio: 4 / 3;
-      border: 1px solid var(--p42-border-glass);
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
-      background-size: cover;
-      background-position: center;
-      background-image: var(--p42-hero-img);
-    }
-
     .progress-strip {
       background: var(--p42-bg-surface);
       border: 1px solid var(--p42-border-subtle);
@@ -667,9 +601,8 @@
     }
 
     /* ------------------------------------------------------------- */
-    /* LEARN & FIELD GUIDE SURFACES (WITH 3 DISTINCT LAYOUTS EACH!)  */
+    /* LEARN & FIELD GUIDE SURFACES                                  */
     /* ------------------------------------------------------------- */
-    /* Learn Layout 1: Split Reader */
     .learn-split-layout {
       display: grid;
       grid-template-columns: 340px 1fr;
@@ -748,7 +681,6 @@
       color: var(--p42-text-secondary);
     }
 
-    /* Learn Layout 2: Socratic Studio IDE */
     .learn-studio-layout {
       display: grid;
       grid-template-columns: 280px 1.2fr 0.95fr;
@@ -764,7 +696,6 @@
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
 
-    /* Learn Layout 3: Focused Editorial */
     .learn-focused-layout {
       max-width: 860px;
       margin: 2rem auto 3.5rem;
@@ -775,7 +706,6 @@
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     }
 
-    /* Field Guide Layout 1: Comparative Matrix */
     .guide-filter-bar {
       display: flex;
       gap: 8px;
@@ -833,7 +763,6 @@
       border-bottom: 1px solid var(--p42-border-subtle);
     }
 
-    /* Field Guide Layout 2: Recipe Cards */
     .guide-studio-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -849,7 +778,6 @@
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
 
-    /* Field Guide Layout 3: Technical Playbook */
     .guide-playbook-list {
       display: flex;
       flex-direction: column;
@@ -877,7 +805,6 @@
     @media (max-width: 900px) {
       .poster-hero-section { grid-template-columns: 1fr; padding: 24px; }
       .poster-system-bar { grid-template-columns: 1fr; }
-      .live-hero-grid { grid-template-columns: 1fr; }
       .pillar-grid { grid-template-columns: 1fr; }
       .progress-strip { grid-template-columns: 1fr; }
       .learn-split-layout { grid-template-columns: 1fr; }
@@ -893,7 +820,7 @@
   <header class="top-controls">
     <div style="display: flex; align-items: center; gap: 10px;">
       <span class="brand-badge">Brand Studio</span>
-      <strong style="font-size: 13.5px;">Project 42 Master Brand & Theme Showcase</strong>
+      <strong style="font-size: 13.5px;">Project 42 Master Brand & Layout Showcase</strong>
     </div>
 
     <!-- 6 BRANDS SELECTOR -->
@@ -1000,46 +927,33 @@
     </div>
 
     <!-- ----------------------------------------------------------- -->
-    <!-- GATEWAY LAYOUT 2: FULL PRODUCTION SITE (REAL SITE STRUCTURE)-->
+    <!-- GATEWAY LAYOUT 2: FULL PRODUCTION SITE WITH POSTER HERO     -->
     <!-- ----------------------------------------------------------- -->
     <div class="layout-view" id="gateway-layout-website">
       
-      <!-- SITE NAVBAR -->
-      <nav class="site-nav-header">
-        <div class="nav-inner">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <img src="concepts/01-cosmic-answer/mark.svg" class="brand-header-logo" id="webNavLogo" style="width: 36px; height: 36px;">
-            <strong style="font-family: var(--p42-font-headline); font-size: 18px;" id="webNavTitle">Project 42</strong>
+      <!-- CINEMATIC HERO BLOCK AS IN SHOWCASE.PNG -->
+      <article class="brand-poster-card" style="margin-bottom: 2rem;">
+        <div class="poster-hero-section">
+          <div class="poster-floating-card">
+            <div class="brand-header-row">
+              <img src="concepts/01-cosmic-answer/mark.svg" alt="Brand Mark" class="brand-header-logo" id="webHeroLogo">
+              <span class="brand-header-title" id="webHeroTitle">Project 42</span>
+            </div>
+            <div class="poster-eyebrow" id="webHeroEyebrow">01 · COSMIC ANSWER</div>
+            <h1 class="poster-headline" id="webHeroHeadline">
+              Learn to ask better questions of an expanding universe.
+            </h1>
+            <p class="poster-lede" id="webHeroLede">
+              A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers.
+            </p>
+            <div class="poster-btn-row">
+              <a href="#" class="btn btn-primary" id="webHeroBtn1">Start learning</a>
+              <a href="#" class="btn btn-secondary" id="webHeroBtn2">Open Field Guide</a>
+            </div>
           </div>
-          <div class="nav-links">
-            <a href="#">Learning Paths</a>
-            <a href="#">Field Guide</a>
-            <a href="#">Visual Guides</a>
-            <a href="#">Self-Hosting</a>
-            <a href="#">About</a>
-          </div>
-          <a class="btn btn-primary" href="#" style="font-size: 12px; padding: 6px 16px;">Explore Paths →</a>
+          <div></div>
         </div>
-      </nav>
-
-      <!-- HERO: Real Content on Left + Themed Art Frame on Right -->
-      <section class="live-hero-grid">
-        <div class="live-hero-left">
-          <div class="poster-eyebrow">Free, open AI learning</div>
-          <h1>
-            Start curious.
-            <span>Become capable.</span>
-          </h1>
-          <p class="poster-lede">
-            Project 42 makes artificial intelligence understandable from your first question to your first reliable agent. Learn at your pace, check what you know, and keep a record of your progress.
-          </p>
-          <div class="poster-btn-row">
-            <a class="btn btn-primary" href="#">Start AI Foundations</a>
-            <a class="btn btn-secondary" href="#">Browse the field guide</a>
-          </div>
-        </div>
-        <div class="live-hero-art-frame"></div>
-      </section>
+      </article>
 
       <!-- PROGRESS STRIP -->
       <section class="progress-strip">
@@ -1442,9 +1356,14 @@ const result = await sandbox.execute({
       document.getElementById('posterSubbrandsRow').innerHTML = data.subbrands.map(s => `<span class="subbrand-pill">${s}</span>`).join('');
       document.getElementById('posterPaletteRow').innerHTML = data.swatches.map(c => `<span class="palette-circle" style="background: ${c};"></span>`).join('');
 
-      // Update Web Layout
-      document.getElementById('webNavLogo').src = data.mark;
-      document.getElementById('webNavTitle').textContent = data.brandTitle;
+      // Update Web Layout Hero
+      document.getElementById('webHeroLogo').src = data.mark;
+      document.getElementById('webHeroTitle').textContent = data.brandTitle;
+      document.getElementById('webHeroEyebrow').textContent = data.eyebrow;
+      document.getElementById('webHeroHeadline').textContent = data.headline;
+      document.getElementById('webHeroLede').textContent = data.lede;
+      document.getElementById('webHeroBtn1').textContent = data.btn1;
+      document.getElementById('webHeroBtn2').textContent = data.btn2;
 
       // Update Centered Layout
       document.getElementById('centeredHeroMark').src = data.mark;
