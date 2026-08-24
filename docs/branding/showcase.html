@@ -189,21 +189,21 @@
       position: sticky;
       top: 0;
       z-index: 1000;
-      background: rgba(9, 13, 22, 0.94);
+      background: rgba(9, 13, 22, 0.96);
       backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--p42-border-subtle);
-      padding: 12px 24px;
+      padding: 10px 24px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 12px;
     }
 
     .showcase-title-group {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .showcase-badge {
@@ -211,18 +211,31 @@
       font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 4px 8px;
+      padding: 3px 8px;
       border-radius: 6px;
       background: rgba(56, 189, 248, 0.15);
-      color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--p42-color-primary);
+      border: 1px solid var(--p42-border-glass);
+    }
+
+    .url-simulator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--p42-border-subtle);
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-family: var(--p42-font-mono);
+      font-size: 12px;
+      color: var(--p42-text-secondary);
     }
 
     .theme-selector {
       display: flex;
       gap: 4px;
       background: rgba(255, 255, 255, 0.05);
-      padding: 4px;
+      padding: 3px;
       border-radius: 9999px;
       border: 1px solid rgba(255, 255, 255, 0.1);
       overflow-x: auto;
@@ -232,14 +245,14 @@
       background: transparent;
       border: none;
       color: #94a3b8;
-      padding: 6px 14px;
+      padding: 6px 13px;
       border-radius: 9999px;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       transition: all 0.2s ease;
       white-space: nowrap;
     }
@@ -259,7 +272,7 @@
       display: flex;
       gap: 6px;
       background: rgba(255, 255, 255, 0.06);
-      padding: 4px;
+      padding: 3px;
       border-radius: 10px;
       border: 1px solid rgba(255, 255, 255, 0.12);
     }
@@ -268,9 +281,9 @@
       background: transparent;
       border: none;
       color: #cbd5e1;
-      padding: 6px 14px;
+      padding: 6px 13px;
       border-radius: 8px;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -292,13 +305,12 @@
     .main-viewport {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 28px 24px 80px;
+      padding: 24px 24px 80px;
     }
 
-    /* SURFACE CONTAINER TOGGLES */
     .surface-content {
       display: none;
-      animation: fadeIn 0.3s ease;
+      animation: fadeIn 0.25s ease;
     }
 
     .surface-content.active {
@@ -306,16 +318,16 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     /* ------------------------------------------------------------- */
-    /* SURFACE 1: GATEWAY STYLES                                     */
+    /* SURFACE 1: PUBLIC GATEWAY (project-42.dev)                    */
     /* ------------------------------------------------------------- */
     .hero-container {
       position: relative;
-      min-height: 560px;
+      min-height: 540px;
       border-radius: 24px;
       overflow: hidden;
       display: grid;
@@ -343,7 +355,7 @@
       display: flex;
       align-items: center;
       gap: 16px;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .brand-mark-img {
@@ -478,7 +490,7 @@
       font-weight: 500;
     }
 
-    /* SECTION TITLE */
+    /* FOCUS AREAS GRID */
     .section-title {
       font-family: var(--p42-font-headline);
       font-size: 22px;
@@ -489,7 +501,6 @@
       justify-content: space-between;
     }
 
-    /* 6 FOCUS AREAS GRID */
     .focus-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
@@ -624,11 +635,54 @@
     }
 
     /* ------------------------------------------------------------- */
-    /* SURFACE 2: LEARN PLATFORM STYLES                              */
+    /* SURFACE 2: LEARN PLATFORM (learn.project-42.dev)              */
     /* ------------------------------------------------------------- */
+    .learn-mode-banner {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-glass);
+      border-radius: var(--p42-radius-card);
+      padding: 24px;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .mode-toggle-group {
+      display: flex;
+      background: var(--p42-bg-surface-elevated);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--p42-border-subtle);
+      width: fit-content;
+      margin-top: 12px;
+    }
+
+    .mode-toggle-btn {
+      background: transparent;
+      border: none;
+      color: var(--p42-text-secondary);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .mode-toggle-btn.active {
+      background: var(--p42-color-primary);
+      color: #080d2a;
+      font-weight: 700;
+    }
+
     .learn-layout {
       display: grid;
-      grid-template-columns: 320px 1fr;
+      grid-template-columns: 340px 1fr;
       gap: 24px;
     }
 
@@ -642,9 +696,9 @@
 
     .sidebar-header {
       font-family: var(--p42-font-headline);
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       color: var(--p42-text-primary);
       display: flex;
       align-items: center;
@@ -655,12 +709,13 @@
       background: var(--p42-bg-surface-elevated);
       border: 1px solid var(--p42-border-subtle);
       color: var(--p42-text-primary);
-      padding: 8px 12px;
+      padding: 10px 12px;
       border-radius: 8px;
       font-size: 13px;
       width: 100%;
       margin-bottom: 16px;
       cursor: pointer;
+      font-weight: 600;
     }
 
     .module-item {
@@ -688,10 +743,6 @@
       font-weight: 600;
     }
 
-    .module-badge-icon {
-      font-size: 14px;
-    }
-
     .learn-content {
       background: var(--p42-bg-surface);
       border: 1px solid var(--p42-border-subtle);
@@ -717,12 +768,6 @@
       border-radius: 4px;
     }
 
-    .lesson-progress-pill {
-      font-size: 12px;
-      color: var(--p42-color-tertiary);
-      font-weight: 600;
-    }
-
     .lesson-title {
       font-family: var(--p42-font-headline);
       font-size: 28px;
@@ -736,6 +781,30 @@
       font-size: 15px;
       line-height: 1.7;
       margin-bottom: 24px;
+    }
+
+    /* INSTRUCTOR CALLOUT */
+    .instructor-box {
+      display: flex;
+      gap: 14px;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid var(--p42-border-glass);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+
+    .instructor-avatar {
+      font-size: 24px;
+      background: var(--p42-bg-surface-elevated);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--p42-border-glass);
+      flex-shrink: 0;
     }
 
     /* QUIZ COMPONENT */
@@ -788,7 +857,7 @@
     }
 
     /* ------------------------------------------------------------- */
-    /* SURFACE 3: FIELD GUIDE STYLES                                 */
+    /* SURFACE 3: FIELD GUIDE (guide.project-42.dev)                 */
     /* ------------------------------------------------------------- */
     .guide-filter-bar {
       display: flex;
@@ -896,16 +965,19 @@
       .dual-panel-grid { grid-template-columns: 1fr; }
       .learn-layout { grid-template-columns: 1fr; }
       .focus-grid { grid-template-columns: 1fr; }
+      .learn-mode-banner { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body data-theme="cosmic">
 
-  <!-- TOP THEME SWITCHER CONTROLS -->
+  <!-- TOP THEME & SURFACE CONTROLS -->
   <header class="showcase-control-bar">
     <div class="showcase-title-group">
       <span class="showcase-badge">Brand Studio</span>
-      <strong style="font-size: 15px;">Project 42 Theming Engine</strong>
+      <div class="url-simulator" id="simulatedUrl">
+        <span>🌐</span> <strong>https://project-42.dev/</strong>
+      </div>
     </div>
 
     <!-- 6 THEMES SELECTOR -->
@@ -930,18 +1002,18 @@
       </button>
     </div>
 
-    <!-- 3 SURFACE SWITCHERS -->
+    <!-- 3 REAL SURFACE SWITCHERS -->
     <div class="surface-selector">
-      <button class="surface-btn active" onclick="setSurface('gateway', this)">Public Gateway</button>
-      <button class="surface-btn" onclick="setSurface('learn', this)">Learn Platform</button>
-      <button class="surface-btn" onclick="setSurface('guide', this)">Field Guide</button>
+      <button class="surface-btn active" onclick="setSurface('gateway', this)">project-42.dev</button>
+      <button class="surface-btn" onclick="setSurface('learn', this)">learn.project-42.dev</button>
+      <button class="surface-btn" onclick="setSurface('guide', this)">guide.project-42.dev</button>
     </div>
   </header>
 
   <main class="main-viewport">
 
     <!-- ============================================================= -->
-    <!-- SURFACE 1: PUBLIC GATEWAY                                     -->
+    <!-- SURFACE 1: PUBLIC GATEWAY (project-42.dev)                    -->
     <!-- ============================================================= -->
     <div id="surface-gateway" class="surface-content active">
 
@@ -960,7 +1032,7 @@
             A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers across every frontier AI architecture.
           </p>
           <div class="hero-actions">
-            <button class="btn-primary" id="heroBtn1" onclick="setSurface('learn', document.querySelectorAll('.surface-btn')[1])">Start Learning Path 01</button>
+            <button class="btn-primary" id="heroBtn1" onclick="setSurface('learn', document.querySelectorAll('.surface-btn')[1])">Launch Learn Platform</button>
             <button class="btn-ghost" id="heroBtn2" onclick="setSurface('guide', document.querySelectorAll('.surface-btn')[2])">Open Field Guide</button>
           </div>
         </div>
@@ -1091,106 +1163,157 @@ assert evaluation.confidence_score >= 0.98
     </div>
 
     <!-- ============================================================= -->
-    <!-- SURFACE 2: LEARN PLATFORM                                     -->
+    <!-- SURFACE 2: LEARN PLATFORM (learn.project-42.dev)              -->
     <!-- ============================================================= -->
     <div id="surface-learn" class="surface-content">
       
+      <!-- LEARN LANDING MODE SELECTOR BANNER -->
+      <div class="learn-mode-banner">
+        <div>
+          <span class="hero-eyebrow">CHOOSE YOUR LEARNING EXPERIENCE</span>
+          <h2 style="font-family: var(--p42-font-headline); font-size: 22px; font-weight: 800; color: var(--p42-text-primary); margin-bottom: 6px;">
+            How do you want to learn today?
+          </h2>
+          <p style="font-size: 13.5px; color: var(--p42-text-secondary);">
+            Switch seamlessly between autonomous self-directed exploration and an AI-guided Socratic walkthrough.
+          </p>
+          <div class="mode-toggle-group">
+            <button class="mode-toggle-btn active" id="btnModeSelf" onclick="toggleLearnMode('self')">
+              <span>🧭</span> Self-Taught Track
+            </button>
+            <button class="mode-toggle-btn" id="btnModeInstructor" onclick="toggleLearnMode('instructor')">
+              <span>🤖</span> Virtual Instructor Track
+            </button>
+          </div>
+        </div>
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--p42-border-subtle); padding: 16px; border-radius: 12px;">
+          <div style="font-size: 12px; font-weight: 700; color: var(--p42-color-primary); margin-bottom: 4px;" id="modeStatusTitle">MODE: SELF-TAUGHT (EXPLORATORY)</div>
+          <p style="font-size: 12.5px; color: var(--p42-text-secondary); line-height: 1.45;" id="modeStatusDesc">
+            Direct access to all 92 modules, local browser progress tracking, and zero mandatory sign-in.
+          </p>
+        </div>
+      </div>
+
       <div class="learn-layout">
         <!-- SIDEBAR -->
         <aside class="learn-sidebar">
           <div class="sidebar-header">
-            <span>Course Navigation</span>
-            <span style="font-size: 11px; color: var(--p42-color-primary); font-family: var(--p42-font-mono);" id="pathBadge">PATH 03 / 13</span>
+            <span>Learning Paths</span>
+            <span style="font-size: 11px; color: var(--p42-color-primary); font-family: var(--p42-font-mono);" id="pathBadge">PATH 04 / 13</span>
           </div>
 
+          <!-- REAL 13 PATHS FROM CATALOG.JSON -->
           <select class="path-select-box" onchange="onPathChange(this.value)">
-            <option value="path-03">Path 03: Frontier Agentic Systems & MCP</option>
-            <option value="path-01">Path 01: AI Foundations & Core Literacy</option>
-            <option value="path-02">Path 02: Advanced Prompting & Workflows</option>
-            <option value="path-04">Path 04: Production RAG & Vector Systems</option>
+            <option value="agentic-systems-and-tool-use">04 · Agentic Systems & Tool Use</option>
+            <option value="ai-foundations">01 · AI Foundations (16 Modules)</option>
+            <option value="providers-in-practice">02 · Providers in Practice</option>
+            <option value="prompt-engineering-and-structured-outputs">03 · Prompt Engineering & Outputs</option>
+            <option value="mcp-model-context-protocol">05 · Model Context Protocol (MCP)</option>
+            <option value="rag-and-retrieval-systems">06 · RAG & Retrieval Systems</option>
+            <option value="fine-tuning-and-domain-adaptation">07 · Fine-Tuning & Adaptation</option>
+            <option value="open-weight-and-local-models">08 · Open-Weight & Local Models</option>
+            <option value="aiops-and-production-observability">09 · AIOps & Observability</option>
+            <option value="ai-safety-and-guardrails">10 · AI Safety & Guardrails</option>
+            <option value="governance-and-compliance">11 · Governance & Compliance</option>
+            <option value="multimodal-and-vision-systems">12 · Multimodal & Vision Systems</option>
+            <option value="reasoning-and-deep-research-agents">13 · Deep Research Agents</option>
           </select>
 
           <div style="font-size: 11px; font-weight: 700; color: var(--p42-text-muted); text-transform: uppercase; margin: 12px 0 6px;">Path Modules</div>
           
           <div id="moduleListContainer">
             <div class="module-item" onclick="selectModule(0, this)">
-              <span class="module-badge-icon">✅</span>
-              <span>01 · Agent Loop Fundamentals</span>
+              <span>✅</span>
+              <span>what-agents-do</span>
             </div>
             <div class="module-item" onclick="selectModule(1, this)">
-              <span class="module-badge-icon">✅</span>
-              <span>02 · Tool Selection & Schema Parsing</span>
+              <span>✅</span>
+              <span>agent-anatomy-and-loops</span>
             </div>
             <div class="module-item active" onclick="selectModule(2, this)">
-              <span class="module-badge-icon">⚡</span>
-              <span>03 · MCP Protocol & Server Connections</span>
+              <span>⚡</span>
+              <span>safe-tool-use-workflow</span>
             </div>
             <div class="module-item" onclick="selectModule(3, this)">
-              <span class="module-badge-icon">🔒</span>
-              <span>04 · Multi-Agent Swarms & Handoffs</span>
+              <span>🔒</span>
+              <span>multi-agent-handoffs</span>
             </div>
             <div class="module-item" onclick="selectModule(4, this)">
-              <span class="module-badge-icon">🔒</span>
-              <span>05 · Reflection, Memory & Self-Correction</span>
+              <span>🔒</span>
+              <span>guardrails-and-sandboxes</span>
             </div>
             <div class="module-item" onclick="selectModule(5, this)">
-              <span class="module-badge-icon">🔒</span>
-              <span>06 · Production Safety & Guardrails</span>
+              <span>🔒</span>
+              <span>agentic-systems-capstone</span>
             </div>
           </div>
         </aside>
 
         <!-- MAIN LESSON READER -->
         <section class="learn-content">
-          <div class="lesson-meta-bar">
-            <span class="lesson-tag" id="lessonModuleTag">MODULE: agent-loop-03</span>
-            <span class="lesson-progress-pill" id="lessonProgressPill">● 45% Path Complete</span>
+          <!-- VIRTUAL INSTRUCTOR DIALOGUE (Shown only in instructor mode) -->
+          <div class="instructor-box" id="instructorDialogue" style="display: none;">
+            <div class="instructor-avatar">🤖</div>
+            <div>
+              <strong style="font-size: 13px; color: var(--p42-color-primary);">Virtual Instructor (Socratic Guide):</strong>
+              <p style="font-size: 13px; color: var(--p42-text-secondary); margin-top: 4px;">
+                "Welcome to <code>safe-tool-use-workflow</code>. Notice how we decouple the tool's schema declaration from the execution environment. Why do you think passing raw OS credentials directly in tool prompts is dangerous?"
+              </p>
+            </div>
           </div>
 
-          <h2 class="lesson-title" id="lessonTitle">Model Context Protocol (MCP) & Agent Connectivity</h2>
+          <div class="lesson-meta-bar">
+            <span class="lesson-tag" id="lessonModuleTag">MODULE: safe-tool-use-workflow</span>
+            <span class="lesson-progress-pill" id="lessonProgressPill">● 50% Path Complete</span>
+          </div>
+
+          <h2 class="lesson-title" id="lessonTitle">Safe Tool Use & Schema-Constrained Execution</h2>
           
           <div class="lesson-body" id="lessonBody">
             <p style="margin-bottom: 14px;">
-              The <strong>Model Context Protocol (MCP)</strong> establishes an open, standardized interface enabling AI agents to discover, negotiate, and safely execute tools across local processes, remote APIs, and enterprise databases.
+              When language models invoke tools, they produce structured JSON arguments matching a predefined function schema. In production environments, this execution boundary must be strictly sandboxed.
             </p>
             <p>
-              Unlike legacy proprietary tool-calling formats, MCP standardizes capability declarations (resources, prompts, and tools), decoupling application logic from specific model providers.
+              By decoupling tool discovery from execution privileges, we prevent untrusted prompt injections from acquiring unintended administrative access to underlying database records or host filesystems.
             </p>
           </div>
 
           <div class="code-terminal" id="lessonCodeTerminal">
             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-// Connecting an MCP Tool Provider over Server-Sent Events (SSE)
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+// Safe Tool Invocation with Deterministic Zod Schema Validation
+import { z } from "zod";
+import { executeSandboxedTool } from "@project42/platform/tools";
 
-const transport = new SSEClientTransport(new URL("https://mcp.project-42.dev/sse"));
-const client = new Client({ name: "p42-learner-agent", version: "1.0.0" });
-await client.connect(transport);
+const WeatherToolSchema = z.object({
+  location: z.string().min(2),
+  units: z.enum(["metric", "imperial"]).default("metric")
+});
 
-const tools = await client.listTools();
-console.log(`Discovered ${tools.tools.length} standardized tools.`);
+export async function handleToolCall(rawArgs: unknown) {
+  const validatedArgs = WeatherToolSchema.parse(rawArgs);
+  return await executeSandboxedTool("get_weather", validatedArgs);
+}
           </div>
 
           <!-- INTERACTIVE KNOWLEDGE CHECK -->
           <div class="quiz-card">
             <div class="quiz-title">Interactive Knowledge Check</div>
             <p style="font-size: 13.5px; color: var(--p42-text-secondary); margin-bottom: 14px;" id="quizQuestion">
-              Why does MCP reduce architectural coupling in multi-agent systems?
+              What is the primary vulnerability when executing LLM tool calls without argument validation?
             </p>
 
             <div id="quizOptionsContainer">
               <label class="quiz-option" onclick="evaluateQuiz(this, true)">
                 <input type="radio" name="learnQuiz">
-                <span>It standardizes tool and context definitions across all LLM providers so agents don't rely on vendor-specific RPC wrappers.</span>
+                <span>Prompt injection attacks can manipulate function arguments into malicious payloads (e.g., SQL injection or path traversal).</span>
               </label>
               <label class="quiz-option" onclick="evaluateQuiz(this, false)">
                 <input type="radio" name="learnQuiz">
-                <span>It forces all agents to run on the same cloud server.</span>
+                <span>The model will take longer to compute tokens.</span>
               </label>
               <label class="quiz-option" onclick="evaluateQuiz(this, false)">
                 <input type="radio" name="learnQuiz">
-                <span>It eliminates the need for tool schemas entirely.</span>
+                <span>The model will fail to output valid English.</span>
               </label>
             </div>
 
@@ -1205,7 +1328,7 @@ console.log(`Discovered ${tools.tools.length} standardized tools.`);
     </div>
 
     <!-- ============================================================= -->
-    <!-- SURFACE 3: FIELD GUIDE                                        -->
+    <!-- SURFACE 3: FIELD GUIDE (guide.project-42.dev)                 -->
     <!-- ============================================================= -->
     <div id="surface-guide" class="surface-content">
       
@@ -1319,7 +1442,7 @@ ollama run llama3.1:70b-instruct-q4_K_M
         eyebrow: "01 · Cosmic Answer",
         headline: "Learn to ask better questions of an expanding universe.",
         lede: "A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers across every frontier AI architecture.",
-        btn1: "Start Learning Path 01",
+        btn1: "Launch Learn Platform",
         btn2: "Open Field Guide",
         mark: "concepts/01-cosmic-answer/mark.svg",
         tokens: [
@@ -1334,7 +1457,7 @@ ollama run llama3.1:70b-instruct-q4_K_M
         eyebrow: "02 · Learning Portal",
         headline: "A clear, structured doorway into deep AI mastery.",
         lede: "A welcoming, ascending journey from fundamental literacy to production agent engineering. 13 learning paths, 92 assessed modules, built on open standards.",
-        btn1: "Enter Learning Portal",
+        btn1: "Launch Learn Platform",
         btn2: "Browse Field Guide",
         mark: "concepts/02-learning-portal/mark.svg",
         tokens: [
@@ -1349,7 +1472,7 @@ ollama run llama3.1:70b-instruct-q4_K_M
         eyebrow: "03 · Model Constellation",
         headline: "The multi-model universe. Connected without bias.",
         lede: "Master AI across Anthropic Claude, OpenAI, Google Gemini, and Open-Weight models side-by-side without vendor privilege or proprietary lock-in.",
-        btn1: "Explore Constellation",
+        btn1: "Launch Learn Platform",
         btn2: "Compare Provider Models",
         mark: "concepts/03-model-constellation/mark.svg",
         tokens: [
@@ -1364,8 +1487,8 @@ ollama run llama3.1:70b-instruct-q4_K_M
         eyebrow: "04 · Field Signal",
         headline: "Practical AI navigation for changing terrain.",
         lede: "Zero-fluff engineering recipes, verified provider patterns, and production-tested agent loops designed for practitioners in the field.",
-        btn1: "Open Field Guide",
-        btn2: "Browse Curriculum",
+        btn1: "Launch Learn Platform",
+        btn2: "Browse Field Guide",
         mark: "concepts/04-field-signal/mark.svg",
         tokens: [
           { name: "--p42-bg-canvas", val: "#061d18" },
@@ -1379,7 +1502,7 @@ ollama run llama3.1:70b-instruct-q4_K_M
         eyebrow: "05 · Open Orbit",
         headline: "The open orbit of continuous AI learning.",
         lede: "A community-powered, continuously verified curriculum that updates as fast as AI evolves. 100% open-source Apache 2.0 & CC BY 4.0.",
-        btn1: "Launch Learning Orbit",
+        btn1: "Launch Learn Platform",
         btn2: "Contribute to Platform",
         mark: "concepts/05-open-orbit/mark.svg",
         tokens: [
@@ -1410,11 +1533,9 @@ ollama run llama3.1:70b-instruct-q4_K_M
     function setTheme(themeKey, btnEl) {
       document.body.setAttribute('data-theme', themeKey);
       
-      // Update active theme button
       document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
       btnEl.classList.add('active');
 
-      // Update hero text & mark
       const data = themeMetadata[themeKey];
       document.getElementById('heroEyebrow').textContent = data.eyebrow;
       document.getElementById('heroHeadline').textContent = data.headline;
@@ -1423,7 +1544,6 @@ ollama run llama3.1:70b-instruct-q4_K_M
       document.getElementById('heroBtn2').textContent = data.btn2;
       document.getElementById('heroMark').src = data.mark;
 
-      // Update token inspector table
       const tbody = document.getElementById('tokenInspectorBody');
       tbody.innerHTML = data.tokens.map(t => `
         <tr>
@@ -1439,19 +1559,50 @@ ollama run llama3.1:70b-instruct-q4_K_M
     }
 
     function setSurface(surfaceKey, btnEl) {
-      // Update surface buttons
       document.querySelectorAll('.surface-btn').forEach(b => b.classList.remove('active'));
       btnEl.classList.add('active');
 
-      // Hide all surfaces and show selected surface
       document.querySelectorAll('.surface-content').forEach(s => s.classList.remove('active'));
       const targetSurface = document.getElementById(`surface-${surfaceKey}`);
       if (targetSurface) {
         targetSurface.classList.add('active');
       }
+
+      // Update simulated URL
+      const urlBar = document.getElementById('simulatedUrl');
+      if (surfaceKey === 'gateway') {
+        urlBar.innerHTML = '<span>🌐</span> <strong>https://project-42.dev/</strong>';
+      } else if (surfaceKey === 'learn') {
+        urlBar.innerHTML = '<span>🌐</span> <strong>https://learn.project-42.dev/paths/agentic-systems/</strong>';
+      } else if (surfaceKey === 'guide') {
+        urlBar.innerHTML = '<span>🌐</span> <strong>https://guide.project-42.dev/decision-matrix/</strong>';
+      }
     }
 
-    // FIELD GUIDE FILTER LOGIC (All buttons work!)
+    // LEARN MODE TOGGLE (Self-Taught vs Virtual Instructor)
+    function toggleLearnMode(mode) {
+      const btnSelf = document.getElementById('btnModeSelf');
+      const btnInst = document.getElementById('btnModeInstructor');
+      const title = document.getElementById('modeStatusTitle');
+      const desc = document.getElementById('modeStatusDesc');
+      const dialog = document.getElementById('instructorDialogue');
+
+      if (mode === 'self') {
+        btnSelf.classList.add('active');
+        btnInst.classList.remove('active');
+        title.textContent = "MODE: SELF-TAUGHT (EXPLORATORY)";
+        desc.textContent = "Direct access to all 92 modules, local browser progress tracking, and zero mandatory sign-in.";
+        dialog.style.display = 'none';
+      } else {
+        btnInst.classList.add('active');
+        btnSelf.classList.remove('active');
+        title.textContent = "MODE: VIRTUAL INSTRUCTOR (AI-GUIDED)";
+        desc.textContent = "Socratic AI mentor guidance, verified knowledge diagnostics, and shareable competency transcripts.";
+        dialog.style.display = 'flex';
+      }
+    }
+
+    // FIELD GUIDE FILTER LOGIC
     function filterGuide(category, btnEl) {
       document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
       btnEl.classList.add('active');
@@ -1480,40 +1631,40 @@ ollama run llama3.1:70b-instruct-q4_K_M
     // LEARN MODULE SWITCHING
     const modulesData = [
       {
-        tag: "MODULE: agent-loop-01",
-        title: "Agent Loop Fundamentals: Sense, Plan, Act",
+        tag: "MODULE: what-agents-do",
+        title: "What AI Agents Do: Goals, Environments & Actions",
         progress: "● 15% Path Complete",
-        body: "The core loop of any autonomous agent consists of three deterministic phases: Sensing input, Planning steps via tool-calling reflection, and Acting against environment APIs."
+        body: "Agents perceive their environment through structured observations, formulate plans against discrete goals, and invoke external tools to effect change."
       },
       {
-        tag: "MODULE: agent-loop-02",
-        title: "Tool Selection & Structured Schema Parsing",
+        tag: "MODULE: agent-anatomy-and-loops",
+        title: "Agent Anatomy: Planning, Context & Execution Loops",
         progress: "● 30% Path Complete",
-        body: "Agents must adhere to strict JSON schemas (Zod or Pydantic) to guarantee valid type structures before making critical tool-call handoffs."
+        body: "Understanding the ReAct loop (Reason + Act). Agents alternate between reasoning traces and tool invocations until an exit condition or answer is reached."
       },
       {
-        tag: "MODULE: agent-loop-03",
-        title: "Model Context Protocol (MCP) & Agent Connectivity",
-        progress: "● 45% Path Complete",
-        body: "The Model Context Protocol (MCP) establishes an open, standardized interface enabling AI agents to discover, negotiate, and safely execute tools across local processes, remote APIs, and enterprise databases."
+        tag: "MODULE: safe-tool-use-workflow",
+        title: "Safe Tool Use & Schema-Constrained Execution",
+        progress: "● 50% Path Complete",
+        body: "When language models invoke tools, they produce structured JSON arguments matching a predefined function schema. In production environments, this execution boundary must be strictly sandboxed."
       },
       {
-        tag: "MODULE: agent-loop-04",
-        title: "Multi-Agent Swarms & Handoff Protocols",
-        progress: "● 60% Path Complete",
+        tag: "MODULE: multi-agent-handoffs",
+        title: "Multi-Agent Handoffs: Orchestrator & Worker Topologies",
+        progress: "● 65% Path Complete",
         body: "Orchestrating specialized agents (Drafter, Verifier, Arbiter) through message handoffs guarantees higher precision than monolithic single-agent prompts."
       },
       {
-        tag: "MODULE: agent-loop-05",
-        title: "Reflection, Memory & Self-Correction Loops",
-        progress: "● 75% Path Complete",
-        body: "Embedding short-term context checkpoints and retry backoffs permits agents to recover autonomously when tool calls return unexpected errors."
+        tag: "MODULE: guardrails-and-sandboxes",
+        title: "Production Guardrails, Sandboxing & Cost Caps",
+        progress: "● 80% Path Complete",
+        body: "Hard enforcement of token caps, network egress firewalls, and human verification gates prevents unauthorized actions or rogue agent executions."
       },
       {
-        tag: "MODULE: agent-loop-06",
-        title: "Production Safety, Sandboxing & Guardrails",
-        progress: "● 90% Path Complete",
-        body: "Hard enforcement of token caps, network egress firewalls, and human verification gates prevents unauthorized actions or rogue agent executions."
+        tag: "MODULE: agentic-systems-capstone",
+        title: "Capstone Project: Build a Production Multi-Agent Pipeline",
+        progress: "● 100% Path Complete",
+        body: "Assemble a multi-agent system from scratch with tool calling, self-correction, and verified telemetry output."
       }
     ];
 
@@ -1522,12 +1673,11 @@ ollama run llama3.1:70b-instruct-q4_K_M
       el.classList.add('active');
 
       const mod = modulesData[index];
-      document.getElementById('lessonModuleTag').textContent = mod.tag;
+      document.getElementById('lessonModuleTag').textContent = `MODULE: ${mod.tag.replace('MODULE: ', '')}`;
       document.getElementById('lessonProgressPill').textContent = mod.progress;
       document.getElementById('lessonTitle').textContent = mod.title;
       document.getElementById('lessonBody').innerHTML = `<p>${mod.body}</p>`;
       
-      // Reset quiz
       document.querySelectorAll('.quiz-option').forEach(o => {
         o.classList.remove('correct', 'incorrect');
         o.querySelector('input').checked = false;
@@ -1538,10 +1688,11 @@ ollama run llama3.1:70b-instruct-q4_K_M
 
     function onPathChange(val) {
       const badge = document.getElementById('pathBadge');
-      if (val === 'path-01') badge.textContent = "PATH 01 / 13";
-      else if (val === 'path-02') badge.textContent = "PATH 02 / 13";
-      else if (val === 'path-03') badge.textContent = "PATH 03 / 13";
-      else if (val === 'path-04') badge.textContent = "PATH 04 / 13";
+      if (val === 'ai-foundations') badge.textContent = "PATH 01 / 13";
+      else if (val === 'providers-in-practice') badge.textContent = "PATH 02 / 13";
+      else if (val === 'prompt-engineering-and-structured-outputs') badge.textContent = "PATH 03 / 13";
+      else if (val === 'agentic-systems-and-tool-use') badge.textContent = "PATH 04 / 13";
+      else badge.textContent = "PATH 05 / 13";
     }
 
     function evaluateQuiz(labelEl, isCorrect) {
@@ -1549,11 +1700,11 @@ ollama run llama3.1:70b-instruct-q4_K_M
       const fb = document.getElementById('quizFeedback');
       if (isCorrect) {
         labelEl.classList.add('correct');
-        fb.textContent = "✓ Correct! Standardized tool schema decouples models. +50 XP";
+        fb.textContent = "✓ Correct! Schema constraints prevent malicious argument payloads. +50 XP";
         fb.style.color = "#10b981";
       } else {
         labelEl.classList.add('incorrect');
-        fb.textContent = "✗ Incorrect. Review the MCP protocol section above.";
+        fb.textContent = "✗ Incorrect. Review the sandboxing section above.";
         fb.style.color = "#ef4444";
       }
     }
