@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Project 42 — Live Production Site Theming Showcase</title>
+  <title>Project 42 — Master Brand & Layout Showcase</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
@@ -12,32 +12,32 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     
     :root {
-      --p42-bg-canvas: #f6f3eb;
-      --p42-bg-surface: #ffffff;
-      --p42-bg-surface-elevated: #fffdf7;
-      --p42-bg-glass: rgba(255, 253, 247, 0.94);
-      --p42-border-subtle: #d9d5ca;
-      --p42-border-glass: rgba(17, 24, 39, 0.12);
-      --p42-text-primary: #111827;
-      --p42-text-secondary: #455066;
-      --p42-text-muted: #626b7b;
-      --p42-color-primary: #0b1225;
-      --p42-color-secondary: #ff8c5a;
-      --p42-color-tertiary: #63d7e4;
-      --p42-color-accent: #c9f25f;
-      --p42-btn-gradient: linear-gradient(135deg, #0b1225, #111d38);
-      --p42-btn-text: #ffffff;
-      --p42-map-bg: #0b1225;
-      --p42-map-glow: rgba(99, 215, 228, 0.2);
+      --p42-bg-canvas: #080d2a;
+      --p42-bg-surface: #0f1538;
+      --p42-bg-surface-elevated: #18204d;
+      --p42-bg-glass: rgba(15, 21, 56, 0.9);
+      --p42-border-subtle: rgba(117, 76, 255, 0.25);
+      --p42-border-glass: rgba(57, 216, 255, 0.35);
+      --p42-text-primary: #ffffff;
+      --p42-text-secondary: #cbd5e1;
+      --p42-text-muted: #8492a6;
+      --p42-color-primary: #39d8ff;
+      --p42-color-secondary: #754cff;
+      --p42-color-tertiary: #ffca68;
+      --p42-color-accent: #39d8ff;
+      --p42-btn-gradient: linear-gradient(135deg, #ffca68, #f59e0b);
+      --p42-btn-text: #080d2a;
+      --p42-map-bg: #070b24;
+      --p42-map-glow: rgba(57, 216, 255, 0.3);
       --p42-hero-img: url('concepts/01-cosmic-answer/hero.png');
       --p42-mark-img: url('concepts/01-cosmic-answer/mark.svg');
-      --p42-font-headline: 'Inter', sans-serif;
+      --p42-font-headline: 'Outfit', sans-serif;
       --p42-font-body: 'Inter', sans-serif;
       --p42-font-mono: 'JetBrains Mono', monospace;
       --p42-shell: min(1180px, calc(100vw - 40px));
     }
 
-    /* THEME 1: COSMIC ANSWER (Atmospheric Dark Space) */
+    /* THEME 1: COSMIC ANSWER */
     [data-theme="cosmic"] {
       --p42-bg-canvas: #080d2a;
       --p42-bg-surface: #0f1538;
@@ -61,7 +61,7 @@
       --p42-font-headline: 'Outfit', sans-serif;
     }
 
-    /* THEME 2: LEARNING PORTAL (Warm Sunlit Terracotta & Teal Light Theme) */
+    /* THEME 2: LEARNING PORTAL */
     [data-theme="portal"] {
       --p42-bg-canvas: #fbf7ef;
       --p42-bg-surface: #ffffff;
@@ -85,7 +85,7 @@
       --p42-font-headline: 'Inter', sans-serif;
     }
 
-    /* THEME 3: MODEL CONSTELLATION (Midnight Cyber Dark Theme) */
+    /* THEME 3: MODEL CONSTELLATION */
     [data-theme="constellation"] {
       --p42-bg-canvas: #080c14;
       --p42-bg-surface: #0f1726;
@@ -109,7 +109,7 @@
       --p42-font-headline: 'Space Grotesk', sans-serif;
     }
 
-    /* THEME 4: FIELD SIGNAL (Tactical Sage & Field Parchment Theme) */
+    /* THEME 4: FIELD SIGNAL */
     [data-theme="field"] {
       --p42-bg-canvas: #f1f6f3;
       --p42-bg-surface: #ffffff;
@@ -133,7 +133,7 @@
       --p42-font-headline: 'Space Grotesk', sans-serif;
     }
 
-    /* THEME 5: OPEN ORBIT (Crisp Modern Light Theme) */
+    /* THEME 5: OPEN ORBIT */
     [data-theme="orbit"] {
       --p42-bg-canvas: #f4f7fb;
       --p42-bg-surface: #ffffff;
@@ -157,7 +157,7 @@
       --p42-font-headline: 'Outfit', sans-serif;
     }
 
-    /* THEME 6: GALACTIC GUIDE (Hitchhiker / "Don't Panic" / 42 Edition) */
+    /* THEME 6: GALACTIC GUIDE */
     [data-theme="galactic"] {
       --p42-bg-canvas: #090d16;
       --p42-bg-surface: #0f182a;
@@ -241,7 +241,7 @@
       color: #94a3b8;
       padding: 6px 12px;
       border-radius: 9999px;
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       display: flex;
@@ -262,33 +262,41 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 
-    .surface-selector {
+    .controls-right {
       display: flex;
-      gap: 6px;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill-group {
+      display: flex;
+      gap: 4px;
       background: rgba(255, 255, 255, 0.06);
       padding: 3px;
       border-radius: 10px;
       border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
-    .surface-btn {
+    .pill-btn {
       background: transparent;
       border: none;
       color: #cbd5e1;
-      padding: 6px 12px;
+      padding: 5px 11px;
       border-radius: 8px;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
+      white-space: nowrap;
     }
 
-    .surface-btn:hover {
+    .pill-btn:hover {
       background: rgba(255, 255, 255, 0.1);
       color: #ffffff;
     }
 
-    .surface-btn.active {
+    .pill-btn.active {
       background: #38bdf8;
       color: #080d2a;
       font-weight: 700;
@@ -296,89 +304,62 @@
     }
 
     /* ------------------------------------------------------------- */
-    /* REAL PRODUCTION SITE COMPONENTS (from project-42.dev)         */
+    /* BRAND INSPECTOR BANNER (Shows custom mark & identity)         */
+    /* ------------------------------------------------------------- */
+    .brand-preview-strip {
+      background: var(--p42-bg-surface);
+      border-bottom: 1px solid var(--p42-border-subtle);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    }
+
+    .brand-preview-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-preview-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--p42-border-glass);
+      background: var(--p42-bg-surface-elevated);
+    }
+
+    .brand-preview-title {
+      font-family: var(--p42-font-headline);
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--p42-text-primary);
+    }
+
+    .brand-preview-swatches {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .swatch-item {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--p42-bg-surface);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    /* ------------------------------------------------------------- */
+    /* SHARED SHELL & CORE TYPOGRAPHY                                */
     /* ------------------------------------------------------------- */
     .shell {
       margin-inline: auto;
       width: var(--p42-shell);
-    }
-
-    /* REAL SITE HEADER */
-    .site-header {
-      background: var(--p42-bg-glass);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--p42-border-subtle);
-      position: sticky;
-      top: 50px;
-      z-index: 50;
-      transition: background 0.3s ease, border-color 0.3s ease;
-    }
-
-    .header-inner {
-      align-items: center;
-      display: grid;
-      gap: 2rem;
-      grid-template-columns: auto 1fr auto;
-      min-height: 72px;
-    }
-
-    .brand {
-      align-items: center;
-      display: inline-flex;
-      font-size: 1.05rem;
-      font-weight: 700;
-      gap: 0.75rem;
-      letter-spacing: -0.02em;
-      text-decoration: none;
-      color: var(--p42-text-primary);
-      font-family: var(--p42-font-headline);
-    }
-
-    .brand-mark {
-      height: 36px;
-      width: 36px;
-      border-radius: 8px;
-    }
-
-    .site-header nav {
-      display: flex;
-      gap: 1.8rem;
-      justify-content: center;
-    }
-
-    .site-header nav a {
-      color: var(--p42-text-secondary);
-      font-size: 0.88rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    .site-header nav a:hover {
-      color: var(--p42-text-primary);
-    }
-
-    .header-action {
-      align-items: center;
-      background: var(--p42-color-primary);
-      border-radius: 999px;
-      color: var(--p42-btn-text);
-      display: inline-flex;
-      font-size: 0.82rem;
-      font-weight: 800;
-      padding: 0.7rem 1.1rem;
-      text-decoration: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    /* REAL HERO SECTION */
-    .hero {
-      align-items: center;
-      display: grid;
-      gap: clamp(2rem, 5vw, 6rem);
-      grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
-      min-height: 640px;
-      padding-block: 4rem 4rem;
     }
 
     .eyebrow {
@@ -389,34 +370,6 @@
       margin: 0 0 0.8rem;
       text-transform: uppercase;
       font-family: var(--p42-font-mono);
-    }
-
-    .hero h1 {
-      font-family: var(--p42-font-headline);
-      font-size: clamp(3rem, 5.5vw, 5.8rem);
-      font-weight: 900;
-      letter-spacing: -0.06em;
-      line-height: 0.92;
-      margin: 0;
-      color: var(--p42-text-primary);
-    }
-
-    .hero h1 span {
-      color: var(--p42-text-muted);
-      display: block;
-      font-family: Georgia, "Times New Roman", serif;
-      font-style: italic;
-      font-weight: 400;
-      letter-spacing: -0.05em;
-      margin-top: 0.12em;
-    }
-
-    .hero-lede {
-      color: var(--p42-text-secondary);
-      font-size: clamp(1.05rem, 1.6vw, 1.25rem);
-      line-height: 1.65;
-      margin: 2rem 0;
-      max-width: 640px;
     }
 
     .button-row {
@@ -435,8 +388,8 @@
       font-size: 0.88rem;
       font-weight: 800;
       justify-content: center;
-      min-height: 48px;
-      padding: 0.75rem 1.4rem;
+      min-height: 46px;
+      padding: 0.7rem 1.35rem;
       text-decoration: none;
       transition: transform 160ms ease, box-shadow 160ms ease;
     }
@@ -483,7 +436,114 @@
       font-weight: 900;
     }
 
-    /* REAL ORBIT JOURNEY MAP COMPONENT */
+    /* SITE HEADER */
+    .site-header {
+      background: var(--p42-bg-glass);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--p42-border-subtle);
+      position: sticky;
+      top: 50px;
+      z-index: 50;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .header-inner {
+      align-items: center;
+      display: grid;
+      gap: 2rem;
+      grid-template-columns: auto 1fr auto;
+      min-height: 70px;
+    }
+
+    .brand {
+      align-items: center;
+      display: inline-flex;
+      font-size: 1.05rem;
+      font-weight: 700;
+      gap: 0.75rem;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      color: var(--p42-text-primary);
+      font-family: var(--p42-font-headline);
+    }
+
+    .brand-mark {
+      height: 38px;
+      width: 38px;
+      border-radius: 8px;
+    }
+
+    .site-header nav {
+      display: flex;
+      gap: 1.8rem;
+      justify-content: center;
+    }
+
+    .site-header nav a {
+      color: var(--p42-text-secondary);
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .site-header nav a:hover {
+      color: var(--p42-text-primary);
+    }
+
+    .header-action {
+      align-items: center;
+      background: var(--p42-color-primary);
+      border-radius: 999px;
+      color: var(--p42-btn-text);
+      display: inline-flex;
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 0.65rem 1.1rem;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    /* ------------------------------------------------------------- */
+    /* LAYOUT 1: CURRENT PRODUCTION SITE LAYOUT (DEFAULT)            */
+    /* ------------------------------------------------------------- */
+    .layout-live-hero {
+      align-items: center;
+      display: grid;
+      gap: clamp(2rem, 5vw, 6rem);
+      grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+      min-height: 640px;
+      padding-block: 4rem 4rem;
+    }
+
+    .layout-live-hero h1 {
+      font-family: var(--p42-font-headline);
+      font-size: clamp(3rem, 5.5vw, 5.8rem);
+      font-weight: 900;
+      letter-spacing: -0.06em;
+      line-height: 0.92;
+      margin: 0;
+      color: var(--p42-text-primary);
+    }
+
+    .layout-live-hero h1 span {
+      color: var(--p42-text-muted);
+      display: block;
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      font-weight: 400;
+      letter-spacing: -0.05em;
+      margin-top: 0.12em;
+    }
+
+    .hero-lede {
+      color: var(--p42-text-secondary);
+      font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+      line-height: 1.65;
+      margin: 2rem 0;
+      max-width: 640px;
+    }
+
     .hero-map {
       aspect-ratio: 1;
       background: var(--p42-map-bg);
@@ -540,7 +600,7 @@
 
     .map-center {
       position: absolute;
-      inset: 38%;
+      inset: 34%;
       background: var(--p42-bg-surface-elevated);
       color: var(--p42-text-primary);
       border-radius: 50%;
@@ -550,25 +610,15 @@
       justify-content: center;
       border: 2px solid var(--p42-color-primary);
       box-shadow: 0 0 24px var(--p42-map-glow);
+      overflow: hidden;
     }
 
-    .map-mark {
-      font-family: var(--p42-font-headline);
-      font-size: 32px;
-      font-weight: 900;
-      color: var(--p42-color-primary);
-      line-height: 1;
+    .map-center-logo {
+      width: 78px;
+      height: 78px;
+      border-radius: 14px;
     }
 
-    .map-center small {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--p42-text-muted);
-      letter-spacing: 0.05em;
-    }
-
-    /* REAL PROGRESS STRIP */
     .progress-strip {
       background: var(--p42-bg-surface);
       border: 1px solid var(--p42-border-subtle);
@@ -594,30 +644,6 @@
       color: var(--p42-text-secondary);
     }
 
-    /* REAL PILLAR GRID (Two Ways to Grow) */
-    .section {
-      padding-block: 3.5rem;
-    }
-
-    .section-heading {
-      margin-bottom: 2.5rem;
-    }
-
-    .section-heading h2 {
-      font-family: var(--p42-font-headline);
-      font-size: clamp(2rem, 3.2vw, 3rem);
-      font-weight: 850;
-      letter-spacing: -0.04em;
-      color: var(--p42-text-primary);
-      margin: 0.4rem 0 0.8rem;
-    }
-
-    .section-heading p {
-      color: var(--p42-text-secondary);
-      font-size: 1.1rem;
-      max-width: 680px;
-    }
-
     .pillar-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -634,12 +660,6 @@
       flex-direction: column;
       gap: 1rem;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-      transition: transform 0.2s ease, border-color 0.2s ease;
-    }
-
-    .pillar-card:hover {
-      transform: translateY(-3px);
-      border-color: var(--p42-border-glass);
     }
 
     .card-index {
@@ -694,7 +714,6 @@
       margin-top: auto;
     }
 
-    /* REAL FEATURED PATHS GRID */
     .path-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -762,7 +781,6 @@
       margin-top: auto;
     }
 
-    /* REAL PROVIDER STACK */
     .provider-section {
       background: var(--p42-bg-surface);
       border: 1px solid var(--p42-border-subtle);
@@ -797,7 +815,6 @@
       line-height: 1.5;
     }
 
-    /* REAL SELF HOST SECTION */
     .self-host-card {
       background: var(--p42-bg-surface-elevated);
       border: 1px solid var(--p42-border-glass);
@@ -823,7 +840,6 @@
       margin-bottom: 1.8rem;
     }
 
-    /* REAL BOTTOM CTA */
     .cta-banner {
       background: var(--p42-color-primary);
       color: var(--p42-btn-text);
@@ -860,6 +876,345 @@
       padding: 0.9rem 2rem;
     }
 
+    /* ------------------------------------------------------------- */
+    /* LAYOUT 2: SPLIT GLASS HERO & SANDBOX                          */
+    /* ------------------------------------------------------------- */
+    .hero-split-container {
+      position: relative;
+      min-height: 560px;
+      border-radius: 24px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      align-items: center;
+      padding: 44px;
+      background-image: var(--p42-hero-img);
+      background-size: cover;
+      background-position: center;
+      border: 1px solid var(--p42-border-glass);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
+      margin-bottom: 36px;
+    }
+
+    .hero-split-glass {
+      background: var(--p42-bg-glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--p42-border-glass);
+      padding: 36px;
+      border-radius: 20px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .stats-ribbon {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 36px;
+    }
+
+    .stat-card {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      padding: 18px;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .stat-number {
+      font-family: var(--p42-font-headline);
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--p42-color-primary);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--p42-text-secondary);
+      font-weight: 600;
+    }
+
+    .focus-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 18px;
+      margin-bottom: 40px;
+    }
+
+    .focus-card {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 16px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .focus-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .focus-num {
+      font-family: var(--p42-font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--p42-color-primary);
+      padding: 3px 8px;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 4px;
+    }
+
+    .focus-name {
+      font-family: var(--p42-font-headline);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--p42-text-primary);
+    }
+
+    .focus-desc {
+      font-size: 13px;
+      color: var(--p42-text-secondary);
+      line-height: 1.5;
+    }
+
+    .code-terminal {
+      position: relative;
+      background: #080d1a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      font-family: var(--p42-font-mono);
+      font-size: 12.5px;
+      color: #38bdf8;
+      overflow-x: auto;
+      margin: 14px 0;
+      line-height: 1.55;
+    }
+
+    /* ------------------------------------------------------------- */
+    /* LAYOUT 3: CENTERED EDITORIAL / MODERN SAAS                    */
+    /* ------------------------------------------------------------- */
+    .hero-centered-container {
+      position: relative;
+      min-height: 540px;
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 56px 24px;
+      background: radial-gradient(circle at center, var(--p42-map-glow) 0%, transparent 70%), var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-glass);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.08);
+      margin-bottom: 36px;
+    }
+
+    .hero-centered-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+    .hero-centered-container h1 {
+      font-family: var(--p42-font-headline);
+      font-size: clamp(34px, 4.5vw, 60px);
+      letter-spacing: -0.05em;
+      margin-bottom: 18px;
+      max-width: 820px;
+      color: var(--p42-text-primary);
+    }
+
+    .hero-centered-container .hero-lede {
+      max-width: 65ch;
+      margin: 0 auto 28px;
+    }
+
+    /* SURFACE TOGGLES */
+    .surface-view {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .surface-view.active {
+      display: block;
+    }
+
+    .layout-view {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .layout-view.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ------------------------------------------------------------- */
+    /* LEARN PLATFORM & FIELD GUIDE SURFACES                         */
+    /* ------------------------------------------------------------- */
+    .learn-layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 24px;
+      margin-top: 2rem;
+    }
+
+    .learn-sidebar {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 16px;
+      padding: 20px;
+      height: fit-content;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .path-select-box {
+      background: var(--p42-bg-surface-elevated);
+      border: 1px solid var(--p42-border-subtle);
+      color: var(--p42-text-primary);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      width: 100%;
+      margin-bottom: 16px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .module-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--p42-text-secondary);
+      margin-bottom: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .module-item:hover {
+      background: var(--p42-bg-surface-elevated);
+      color: var(--p42-text-primary);
+    }
+
+    .module-item.active {
+      background: var(--p42-bg-surface-elevated);
+      color: var(--p42-color-primary);
+      border: 1px solid var(--p42-border-glass);
+      font-weight: 700;
+    }
+
+    .learn-content {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .quiz-card {
+      background: var(--p42-bg-surface-elevated);
+      border: 1px solid var(--p42-border-glass);
+      border-radius: 14px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .quiz-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 13.5px;
+      color: var(--p42-text-secondary);
+      transition: all 0.2s ease;
+    }
+
+    .quiz-option.correct {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--p42-text-primary);
+    }
+
+    .guide-filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      margin-top: 2rem;
+    }
+
+    .filter-chip {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      color: var(--p42-text-secondary);
+      padding: 8px 16px;
+      border-radius: 9999px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s ease;
+    }
+
+    .filter-chip.active {
+      background: var(--p42-color-primary);
+      color: var(--p42-btn-text);
+      border-color: var(--p42-color-primary);
+      font-weight: 700;
+    }
+
+    .matrix-table-card {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    .matrix-table th {
+      background: var(--p42-bg-surface-elevated);
+      color: var(--p42-text-primary);
+      padding: 14px 18px;
+      text-align: left;
+      font-family: var(--p42-font-headline);
+      font-weight: 700;
+      border-bottom: 1px solid var(--p42-border-subtle);
+    }
+
+    .matrix-table td {
+      padding: 14px 18px;
+      color: var(--p42-text-secondary);
+      border-bottom: 1px solid var(--p42-border-subtle);
+    }
+
     /* FOOTER */
     .site-footer {
       border-top: 1px solid var(--p42-border-subtle);
@@ -871,35 +1226,38 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 1rem;
+      margin-top: 4rem;
     }
 
     @media (max-width: 900px) {
-      .hero { grid-template-columns: 1fr; }
+      .layout-live-hero { grid-template-columns: 1fr; }
+      .hero-split-container { grid-template-columns: 1fr; }
       .pillar-grid { grid-template-columns: 1fr; }
       .progress-strip { grid-template-columns: 1fr; }
+      .learn-layout { grid-template-columns: 1fr; }
       .site-header nav { display: none; }
     }
   </style>
 </head>
 <body data-theme="cosmic">
 
-  <!-- TOP THEME & SURFACE SWITCHER BAR -->
+  <!-- MASTER CONTROLS BAR -->
   <header class="showcase-control-bar">
     <div class="showcase-title-group">
-      <span class="showcase-badge">Live Production Layout</span>
-      <strong style="font-size: 14px;">The Exact Website with 6 Brand Themes</strong>
+      <span class="showcase-badge">Brand Studio</span>
+      <strong style="font-size: 13.5px;">Master Brand & Layout Workbench</strong>
     </div>
 
-    <!-- 6 THEMES SELECTOR -->
+    <!-- 6 BRANDS / THEMES SELECTOR -->
     <div class="theme-selector">
       <button class="theme-btn active" onclick="setTheme('cosmic', this)">
-        <span>🌌</span> 01 Cosmic Answer
+        <span>🌌</span> 01 Cosmic
       </button>
       <button class="theme-btn" onclick="setTheme('portal', this)">
-        <span>🏛️</span> 02 Learning Portal
+        <span>🏛️</span> 02 Portal
       </button>
       <button class="theme-btn" onclick="setTheme('constellation', this)">
-        <span>🌐</span> 03 Model Constellation
+        <span>🌐</span> 03 Constellation
       </button>
       <button class="theme-btn" onclick="setTheme('field', this)">
         <span>🧭</span> 04 Field Signal
@@ -908,13 +1266,52 @@
         <span>🪐</span> 05 Open Orbit
       </button>
       <button class="theme-btn" onclick="setTheme('galactic', this)">
-        <span>🚀</span> 06 The Galactic Guide
+        <span>🚀</span> 06 Galactic
       </button>
+    </div>
+
+    <div class="controls-right">
+      <!-- 3 DISTINCT WEBSITE LAYOUTS -->
+      <div class="pill-group" id="layoutPillGroup">
+        <button class="pill-btn active" onclick="setLayout('live', this)">
+          1. Current Live Site
+        </button>
+        <button class="pill-btn" onclick="setLayout('split', this)">
+          2. Split Glass & Sandbox
+        </button>
+        <button class="pill-btn" onclick="setLayout('centered', this)">
+          3. Centered Editorial
+        </button>
+      </div>
+
+      <!-- 3 REAL SURFACE SELECTORS -->
+      <div class="pill-group">
+        <button class="pill-btn active" onclick="setSurface('gateway', this)">Gateway</button>
+        <button class="pill-btn" onclick="setSurface('learn', this)">Learn</button>
+        <button class="pill-btn" onclick="setSurface('guide', this)">Field Guide</button>
+      </div>
     </div>
   </header>
 
+  <!-- BRAND PREVIEW STRIP (Shows custom mark SVG and color swatches) -->
+  <div class="brand-preview-strip shell">
+    <div class="brand-preview-left">
+      <img src="concepts/01-cosmic-answer/mark.svg" alt="Brand Mark" class="brand-preview-logo" id="previewStripLogo">
+      <div>
+        <div class="brand-preview-title" id="previewStripTitle">01 · Cosmic Answer</div>
+        <div style="font-size: 12px; color: var(--p42-text-secondary);" id="previewStripSubtitle">Orbital answer aperture with starlight violet and solar gold</div>
+      </div>
+    </div>
+    <div class="brand-preview-swatches" id="previewStripSwatches">
+      <span class="swatch-item" style="background: #080d2a;" title="Canvas: #080d2a"></span>
+      <span class="swatch-item" style="background: #754cff;" title="Primary: #754cff"></span>
+      <span class="swatch-item" style="background: #39d8ff;" title="Secondary: #39d8ff"></span>
+      <span class="swatch-item" style="background: #ffca68;" title="Accent: #ffca68"></span>
+    </div>
+  </div>
+
   <!-- ============================================================= -->
-  <!-- EXACT PRODUCTION SITE HEADER                                   -->
+  <!-- SITE HEADER (Applies to all layouts & surfaces)               -->
   <!-- ============================================================= -->
   <header class="site-header">
     <div class="shell header-inner">
@@ -933,279 +1330,414 @@
     </div>
   </header>
 
-  <main>
-    <!-- ============================================================= -->
-    <!-- EXACT HERO SECTION (From project-42.dev/app/page.tsx)         -->
-    <!-- ============================================================= -->
-    <section class="hero shell">
-      <div class="hero-copy">
-        <p class="eyebrow" id="heroEyebrow">Free, open AI learning</p>
-        <h1 id="heroHeadline">
-          Start curious.
-          <span>Become capable.</span>
-        </h1>
-        <p class="hero-lede" id="heroLede">
-          Project 42 makes artificial intelligence understandable from your first question to your first reliable agent. Learn at your pace, check what you know, and keep a record of your progress.
-        </p>
-        <div class="button-row">
-          <a class="button button-primary" href="#" id="heroBtn1">Start AI Foundations</a>
-          <a class="button button-secondary" href="#" id="heroBtn2">Browse the field guide</a>
-          <a class="button button-secondary" href="#">See visual guides</a>
-        </div>
-        <ul class="trust-list" aria-label="Project 42 promises">
-          <li>Beginner-friendly</li>
-          <li>Provider-neutral</li>
-          <li>Evidence-linked</li>
-          <li>Open source</li>
-        </ul>
-      </div>
+  <!-- ============================================================= -->
+  <!-- SURFACE 1: PUBLIC GATEWAY (WITH 3 TOGGLEABLE LAYOUTS)         -->
+  <!-- ============================================================= -->
+  <main class="surface-view active" id="surface-gateway">
 
-      <!-- EXACT ORBITAL JOURNEY MAP -->
-      <div class="hero-map" aria-label="Learning journey preview">
-        <div class="map-orbit map-orbit-one"></div>
-        <div class="map-orbit map-orbit-two"></div>
-        <div class="map-node map-node-start">
-          <span>01</span> Understand
-        </div>
-        <div class="map-node map-node-build">
-          <span>02</span> Practice
-        </div>
-        <div class="map-node map-node-prove">
-          <span>03</span> Prove it
-        </div>
-        <div class="map-center">
-          <span class="map-mark">42</span>
-          <small>Your path</small>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================================================= -->
-    <!-- EXACT PROGRESS STRIP                                          -->
-    <!-- ============================================================= -->
-    <section class="progress-strip shell" aria-label="Project 42 destinations">
-      <div>
-        <strong>Learn</strong>
-        <span>Courses, knowledge checks, badges, and your transcript</span>
-      </div>
-      <div>
-        <strong>Field Guide</strong>
-        <span>Practical answers, workflows, comparisons, and visual guides</span>
-      </div>
-      <a class="button button-secondary" href="#">Sign in to track progress</a>
-    </section>
-
-    <!-- ============================================================= -->
-    <!-- EXACT TWO WAYS TO GROW PILLAR GRID                            -->
-    <!-- ============================================================= -->
-    <section class="section shell" id="field-guide">
-      <div class="section-heading">
-        <p class="eyebrow">Two ways to grow</p>
-        <h2>Learn deeply. Find answers quickly.</h2>
-        <p>
-          Follow a guided path when you want mastery, or jump into the field guide when you need something useful right now.
-        </p>
-      </div>
-
-      <div class="pillar-grid">
-        <article class="pillar-card">
-          <div class="card-index">Academy / 01</div>
-          <h3>Self-paced learning</h3>
-          <p>
-            Short modules, plain language, practical examples, and a knowledge check at the end of every major section.
+    <!-- ----------------------------------------------------------- -->
+    <!-- LAYOUT 1: CURRENT LIVE SITE LAYOUT (THE EXACT REAL WEBSITE) -->
+    <!-- ----------------------------------------------------------- -->
+    <div class="layout-view active" id="layout-live">
+      
+      <!-- HERO -->
+      <section class="layout-live-hero shell">
+        <div class="hero-copy">
+          <p class="eyebrow" id="liveHeroEyebrow">Free, open AI learning</p>
+          <h1 id="liveHeroHeadline">
+            Start curious.
+            <span>Become capable.</span>
+          </h1>
+          <p class="hero-lede" id="liveHeroLede">
+            Project 42 makes artificial intelligence understandable from your first question to your first reliable agent. Learn at your pace, check what you know, and keep a record of your progress.
           </p>
-          <ul>
-            <li>13 structured learning paths</li>
-            <li>92 assessed curriculum modules</li>
-            <li>Account-backed progress and transcript</li>
+          <div class="button-row">
+            <a class="button button-primary" href="#" id="liveHeroBtn1">Start AI Foundations</a>
+            <a class="button button-secondary" href="#" id="liveHeroBtn2">Browse the field guide</a>
+            <a class="button button-secondary" href="#">See visual guides</a>
+          </div>
+          <ul class="trust-list">
+            <li>Beginner-friendly</li>
+            <li>Provider-neutral</li>
+            <li>Evidence-linked</li>
+            <li>Open source</li>
           </ul>
-          <a href="#">Explore learning paths →</a>
-        </article>
+        </div>
 
-        <article class="pillar-card">
-          <div class="card-index">Field guide / 02</div>
-          <h3>Resources for the work</h3>
-          <p>
-            Checklists, explainers, provider maps, and decision tools with visible verification dates and sources.
-          </p>
-          <ul>
-            <li>89 source-first evidence activities</li>
-            <li>384 reviewed questions</li>
-            <li>Anthropic, OpenAI, Google & Open-Weight</li>
-            <li>Provider-neutral core concepts</li>
-          </ul>
-          <a href="#">Open the Field Guide →</a>
-        </article>
-      </div>
-    </section>
+        <!-- ORBITAL JOURNEY MAP WITH CUSTOM SVG LOGO AT CENTER -->
+        <div class="hero-map">
+          <div class="map-orbit map-orbit-one"></div>
+          <div class="map-orbit map-orbit-two"></div>
+          <div class="map-node map-node-start"><span>01</span> Understand</div>
+          <div class="map-node map-node-build"><span>02</span> Practice</div>
+          <div class="map-node map-node-prove"><span>03</span> Prove it</div>
+          <div class="map-center">
+            <img src="concepts/01-cosmic-answer/mark.svg" alt="Brand Mark Center" class="map-center-logo" id="mapCenterLogo">
+          </div>
+        </div>
+      </section>
 
-    <!-- ============================================================= -->
-    <!-- EXACT FEATURED PATHS GRID                                     -->
-    <!-- ============================================================= -->
-    <section class="section shell" id="paths">
-      <div class="section-heading" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+      <!-- PROGRESS STRIP -->
+      <section class="progress-strip shell">
         <div>
-          <p class="eyebrow">Choose your starting point</p>
-          <h2>Paths with a destination</h2>
+          <strong>Learn</strong>
+          <span>Courses, knowledge checks, badges, and your transcript</span>
         </div>
-        <a href="#" style="color: var(--p42-color-primary); font-weight: 700; text-decoration: none;">View all 13 paths →</a>
-      </div>
+        <div>
+          <strong>Field Guide</strong>
+          <span>Practical answers, workflows, comparisons, and visual guides</span>
+        </div>
+        <a class="button button-secondary" href="#">Sign in to track progress</a>
+      </section>
 
-      <div class="path-grid">
-        <article class="path-card">
-          <div class="path-card-top">
-            <span class="level-pill">Beginner</span>
-            <span>16 modules</span>
+      <!-- TWO WAYS TO GROW -->
+      <section class="section shell">
+        <div class="section-heading">
+          <p class="eyebrow">Two ways to grow</p>
+          <h2 style="font-family: var(--p42-font-headline); font-size: 2.4rem; font-weight: 850; color: var(--p42-text-primary); margin: 0.4rem 0 0.8rem;">
+            Learn deeply. Find answers quickly.
+          </h2>
+          <p style="color: var(--p42-text-secondary); font-size: 1.1rem; max-width: 680px; margin-bottom: 2rem;">
+            Follow a guided path when you want mastery, or jump into the field guide when you need something useful right now.
+          </p>
+        </div>
+
+        <div class="pillar-grid">
+          <article class="pillar-card">
+            <div class="card-index">Academy / 01</div>
+            <h3>Self-paced learning</h3>
+            <p>Short modules, plain language, practical examples, and a knowledge check at the end of every major section.</p>
+            <ul>
+              <li>13 structured learning paths</li>
+              <li>92 assessed curriculum modules</li>
+              <li>Account-backed progress and transcript</li>
+            </ul>
+            <a href="#">Explore learning paths →</a>
+          </article>
+
+          <article class="pillar-card">
+            <div class="card-index">Field guide / 02</div>
+            <h3>Resources for the work</h3>
+            <p>Checklists, explainers, provider maps, and decision tools with visible verification dates and sources.</p>
+            <ul>
+              <li>89 source-first evidence activities</li>
+              <li>384 reviewed questions</li>
+              <li>Anthropic, OpenAI, Google & Open-Weight</li>
+              <li>Provider-neutral core concepts</li>
+            </ul>
+            <a href="#">Open the Field Guide →</a>
+          </article>
+        </div>
+      </section>
+
+      <!-- FEATURED PATHS -->
+      <section class="section shell">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+          <div>
+            <p class="eyebrow">Choose your starting point</p>
+            <h2 style="font-family: var(--p42-font-headline); font-size: 2.2rem; font-weight: 850; color: var(--p42-text-primary);">Paths with a destination</h2>
           </div>
-          <div class="path-number">01</div>
-          <h3>AI Foundations</h3>
-          <p>Build a clear mental model of AI, prompts, and agents without assuming technical experience.</p>
-          <a href="#">See this path →</a>
-        </article>
+          <a href="#" style="color: var(--p42-color-primary); font-weight: 700; text-decoration: none;">View all 13 paths →</a>
+        </div>
 
-        <article class="path-card">
-          <div class="path-card-top">
-            <span class="level-pill">Intermediate</span>
-            <span>6 modules</span>
+        <div class="path-grid">
+          <article class="path-card">
+            <div class="path-card-top"><span class="level-pill">Beginner</span><span>16 modules</span></div>
+            <div class="path-number">01</div>
+            <h3>AI Foundations</h3>
+            <p>Build a clear mental model of AI, prompts, and agents without assuming technical experience.</p>
+            <a href="#">See this path →</a>
+          </article>
+          <article class="path-card">
+            <div class="path-card-top"><span class="level-pill">Intermediate</span><span>6 modules</span></div>
+            <div class="path-number">02</div>
+            <h3>Providers in Practice</h3>
+            <p>Learn what transfers across providers and where Anthropic, OpenAI, and Google workflows differ.</p>
+            <a href="#">See this path →</a>
+          </article>
+          <article class="path-card">
+            <div class="path-card-top"><span class="level-pill">Advanced</span><span>8 modules</span></div>
+            <div class="path-number">03</div>
+            <h3>Frontier Agentic Systems</h3>
+            <p>Master multi-agent orchestration, the Model Context Protocol (MCP), and production guardrails.</p>
+            <a href="#">See this path →</a>
+          </article>
+        </div>
+      </section>
+
+      <!-- PROVIDERS & SELF HOST & CTA -->
+      <section class="provider-section shell">
+        <p class="eyebrow">No single-provider tunnel vision</p>
+        <h2 style="font-family: var(--p42-font-headline); font-size: 2rem; font-weight: 850; color: var(--p42-text-primary); margin: 0.4rem 0 0.8rem;">
+          Learn the ideas that transfer.
+        </h2>
+        <div class="provider-stack">
+          <div class="provider-row"><strong>Core Concepts</strong><p>Ideas that apply across AI products and frontier model platforms.</p></div>
+          <div class="provider-row"><strong>Anthropic</strong><p>Claude models, prompt caching, tool-use protocols, and agent loops.</p></div>
+          <div class="provider-row"><strong>OpenAI</strong><p>ChatGPT, Structured Outputs, OpenAI APIs, and multi-modal tooling.</p></div>
+          <div class="provider-row"><strong>Google Gemini</strong><p>2M context windows, multi-modal grounding, and cross-model evaluation.</p></div>
+        </div>
+      </section>
+
+      <section class="self-host-card shell">
+        <p class="eyebrow">Open Source & Self-Hosting</p>
+        <h2>Run Project 42 Inside Your Organization</h2>
+        <p>Deploy the host-agnostic Project 42 platform in your own cloud, air-gapped intranet, or local server.</p>
+        <div class="button-row" style="justify-content: center;">
+          <a class="button button-primary" href="#">View on GitHub →</a>
+          <a class="button button-secondary" href="#">Read Self-Hosting Guide</a>
+        </div>
+      </section>
+
+      <section class="cta-banner shell">
+        <p class="eyebrow">Your first checkpoint is 12 minutes away</p>
+        <h2>Understanding beats intimidation.</h2>
+        <p>Start with one module. Your approved account keeps your place across devices.</p>
+        <a class="button button-primary" href="#">Begin the first module</a>
+      </section>
+    </div>
+
+    <!-- ----------------------------------------------------------- -->
+    <!-- LAYOUT 2: SPLIT GLASS HERO & SANDBOX DASHBOARD              -->
+    <!-- ----------------------------------------------------------- -->
+    <div class="layout-view" id="layout-split">
+      <section class="hero-split-container shell">
+        <div class="hero-split-glass">
+          <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 16px;">
+            <img src="concepts/01-cosmic-answer/mark.svg" class="brand-mark" id="splitHeroMark" style="width: 46px; height: 46px;">
+            <div>
+              <div style="font-family: var(--p42-font-headline); font-size: 22px; font-weight: 800; color: var(--p42-text-primary);" id="splitBrandTitle">Project 42</div>
+              <div class="eyebrow" style="margin: 0;" id="splitHeroEyebrow">01 · Cosmic Answer</div>
+            </div>
           </div>
-          <div class="path-number">02</div>
-          <h3>Providers in Practice</h3>
-          <p>Learn what transfers across providers and where Anthropic, OpenAI, and Google workflows differ.</p>
-          <a href="#">See this path →</a>
-        </article>
-
-        <article class="path-card">
-          <div class="path-card-top">
-            <span class="level-pill">Advanced</span>
-            <span>8 modules</span>
+          <h1 style="font-family: var(--p42-font-headline); font-size: clamp(28px, 3.4vw, 46px); font-weight: 800; line-height: 1.1; margin-bottom: 14px; color: var(--p42-text-primary);" id="splitHeroHeadline">
+            Learn to ask better questions of an expanding universe.
+          </h1>
+          <p class="hero-lede" style="margin: 0 0 20px;" id="splitHeroLede">
+            A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers.
+          </p>
+          <div class="button-row">
+            <a class="button button-primary" href="#" id="splitBtn1">Start Learning Path 01</a>
+            <a class="button button-secondary" href="#" id="splitBtn2">Open Field Guide</a>
           </div>
-          <div class="path-number">03</div>
-          <h3>Frontier Agentic Systems & MCP</h3>
-          <p>Master multi-agent orchestration, the Model Context Protocol (MCP), and production guardrails.</p>
-          <a href="#">See this path →</a>
-        </article>
-      </div>
-    </section>
+        </div>
+        <div></div>
+      </section>
 
-    <!-- ============================================================= -->
-    <!-- EXACT PROVIDER STACK                                          -->
-    <!-- ============================================================= -->
-    <section class="provider-section shell">
-      <p class="eyebrow">No single-provider tunnel vision</p>
-      <h2 style="font-family: var(--p42-font-headline); font-size: 2rem; font-weight: 850; color: var(--p42-text-primary); margin: 0.4rem 0 0.8rem;">
-        Learn the ideas that transfer.
-      </h2>
-      <div class="provider-stack">
-        <div class="provider-row">
-          <strong>Core Concepts</strong>
-          <p>Ideas that apply across AI products, model architectures, and frontier platforms.</p>
-        </div>
-        <div class="provider-row">
-          <strong>Anthropic</strong>
-          <p>Claude models, prompt caching, tool-use protocols, and multi-step agent workflows.</p>
-        </div>
-        <div class="provider-row">
-          <strong>OpenAI</strong>
-          <p>ChatGPT, Structured Outputs, OpenAI APIs, and multi-modal developer tooling.</p>
-        </div>
-        <div class="provider-row">
-          <strong>Google Gemini</strong>
-          <p>Massive 2M context windows, multi-modal grounding, and cross-provider evaluation.</p>
+      <!-- STATS RIBBON -->
+      <div class="stats-ribbon shell">
+        <div class="stat-card"><div class="stat-number">13</div><div class="stat-label">Learning Paths</div></div>
+        <div class="stat-card"><div class="stat-number">92</div><div class="stat-label">Assessed Modules</div></div>
+        <div class="stat-card"><div class="stat-number">89</div><div class="stat-label">Evidence Activities</div></div>
+        <div class="stat-card"><div class="stat-number">384</div><div class="stat-label">Reviewed Questions</div></div>
+      </div>
+
+      <!-- 6 FOCUS AREAS GRID -->
+      <div class="shell" style="margin-bottom: 3.5rem;">
+        <h2 style="font-family: var(--p42-font-headline); font-size: 1.8rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--p42-text-primary);">Curriculum Focus Areas</h2>
+        <div class="focus-grid">
+          <div class="focus-card"><div class="focus-header"><span class="focus-num">AREA 01</span><span>4 Paths</span></div><div class="focus-name">Foundations & Core Literacy</div><div class="focus-desc">First principles, tokenization, context windows, and prompt fundamentals.</div></div>
+          <div class="focus-card"><div class="focus-header"><span class="focus-num">AREA 02</span><span>2 Paths</span></div><div class="focus-name">Practitioner Prompting & Workflows</div><div class="focus-desc">Structured outputs, tool use, chain-of-thought, and developer workflows.</div></div>
+          <div class="focus-card"><div class="focus-header"><span class="focus-num">AREA 03</span><span>2 Paths</span></div><div class="focus-name">Frontier Agentic Systems & MCP</div><div class="focus-desc">Multi-agent swarms, Model Context Protocol (MCP), and planning loops.</div></div>
+          <div class="focus-card"><div class="focus-header"><span class="focus-num">AREA 04</span><span>2 Paths</span></div><div class="focus-name">Retrieval, RAG & Fine-Tuning</div><div class="focus-desc">Vector databases, hybrid search, embedding pipelines, and rerankers.</div></div>
+          <div class="focus-card"><div class="focus-header"><span class="focus-num">AREA 05</span><span>2 Paths</span></div><div class="focus-name">Self-Hosted, Open-Weight & AIOps</div><div class="focus-desc">Ollama, vLLM, quantized inference, GPU orchestration, and local LLMs.</div></div>
+          <div class="focus-card"><div class="focus-header"><span class="focus-num">AREA 06</span><span>1 Path</span></div><div class="focus-name">AI Safety, Governance & Resilience</div><div class="focus-desc">Guardrails, prompt injection mitigation, red-teaming, and evals.</div></div>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- ============================================================= -->
-    <!-- EXACT SELF-HOST & OPEN SOURCE CARD                            -->
-    <!-- ============================================================= -->
-    <section class="self-host-card shell" id="self-host">
-      <p class="eyebrow">Open Source & Self-Hosting</p>
-      <h2>Run Project 42 Inside Your Organization</h2>
-      <p>
-        Deploy the complete, host-agnostic Project 42 platform in your own cloud, air-gapped intranet, or local server. Customize with your organization's branding, overlay internal courses, and sync with upstream curriculum updates.
-      </p>
-      <div class="button-row" style="justify-content: center;">
-        <a class="button button-primary" href="#">View on GitHub →</a>
-        <a class="button button-secondary" href="#">Read Self-Hosting Guide</a>
-      </div>
-    </section>
+    <!-- ----------------------------------------------------------- -->
+    <!-- LAYOUT 3: CENTERED EDITORIAL / MODERN SAAS                  -->
+    <!-- ----------------------------------------------------------- -->
+    <div class="layout-view" id="layout-centered">
+      <section class="hero-centered-container shell">
+        <img src="concepts/01-cosmic-answer/mark.svg" alt="Centered Logo" class="hero-centered-logo" id="centeredHeroMark">
+        <p class="eyebrow" id="centeredHeroEyebrow">01 · Cosmic Answer</p>
+        <h1 id="centeredHeroHeadline">Learn to ask better questions of an expanding universe.</h1>
+        <p class="hero-lede" id="centeredHeroLede">
+          A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers across every frontier AI architecture.
+        </p>
+        <div class="button-row" style="justify-content: center;">
+          <a class="button button-primary" href="#" id="centeredBtn1">Start AI Foundations</a>
+          <a class="button button-secondary" href="#" id="centeredBtn2">Browse Field Guide</a>
+        </div>
+        <div style="margin-top: 2.5rem; width: 100%; max-width: 680px;">
+          <div class="code-terminal" style="text-align: left;">
+# Multi-Agent Consensus & Grounding Engine
+from p42.foundry import AgentEnsemble
+pipeline = AgentEnsemble(drafter="claude-3-5-sonnet", adversary="gpt-4o", arbiter="gemini-1.5-pro")
+evaluation = pipeline.verify_claim(source_citation="NIST-AI-600-1")
+assert evaluation.confidence_score >= 0.98
+          </div>
+        </div>
+      </section>
 
-    <!-- ============================================================= -->
-    <!-- EXACT BOTTOM CTA                                              -->
-    <!-- ============================================================= -->
-    <section class="cta-banner shell">
-      <p class="eyebrow">Your first checkpoint is 12 minutes away</p>
-      <h2>Understanding beats intimidation.</h2>
-      <p>Start with one module. Your approved account keeps your place across devices.</p>
-      <a class="button button-primary" href="#">Begin the first module</a>
-    </section>
+      <!-- 2 KEY PILLARS -->
+      <section class="shell" style="margin-bottom: 3.5rem;">
+        <div class="pillar-grid">
+          <article class="pillar-card">
+            <div class="card-index">01 · Guided Curriculum</div>
+            <h3>13 Structured Paths</h3>
+            <p>From token mechanics to production agent orchestration with verified knowledge checks.</p>
+          </article>
+          <article class="pillar-card">
+            <div class="card-index">02 · Practical Field Guide</div>
+            <h3>Zero-Fluff Engineering Recipes</h3>
+            <p>Multi-model decision matrices, CLI benchmarks, and security guardrail patterns.</p>
+          </article>
+        </div>
+      </section>
+    </div>
 
-    <!-- FOOTER -->
-    <footer class="site-footer shell">
-      <div>
-        <strong>Project 42</strong> — Provider-neutral AI learning & field guidance.
-      </div>
-      <div>
-        Open Source under Apache 2.0 & CC BY 4.0
-      </div>
-    </footer>
   </main>
+
+  <!-- ============================================================= -->
+  <!-- SURFACE 2: LEARN PLATFORM                                     -->
+  <!-- ============================================================= -->
+  <main class="surface-view shell" id="surface-learn">
+    <div class="learn-layout">
+      <aside class="learn-sidebar">
+        <h3 style="font-family: var(--p42-font-headline); font-size: 16px; margin-bottom: 12px; color: var(--p42-text-primary);">Learning Paths</h3>
+        <select class="path-select-box">
+          <option>04 · Agentic Systems & Tool Use</option>
+          <option>01 · AI Foundations (16 Modules)</option>
+          <option>02 · Providers in Practice</option>
+          <option>05 · Model Context Protocol (MCP)</option>
+        </select>
+        <div style="font-size: 11px; font-weight: 700; color: var(--p42-text-muted); text-transform: uppercase; margin-bottom: 8px;">Path Modules</div>
+        <div class="module-item"><span>✅</span><span>what-agents-do</span></div>
+        <div class="module-item"><span>✅</span><span>agent-anatomy-and-loops</span></div>
+        <div class="module-item active"><span>⚡</span><span>safe-tool-use-workflow</span></div>
+        <div class="module-item"><span>🔒</span><span>multi-agent-handoffs</span></div>
+      </aside>
+
+      <section class="learn-content">
+        <span class="eyebrow">MODULE: safe-tool-use-workflow</span>
+        <h2 style="font-family: var(--p42-font-headline); font-size: 26px; font-weight: 800; color: var(--p42-text-primary); margin: 6px 0 14px;">
+          Safe Tool Use & Schema-Constrained Execution
+        </h2>
+        <p style="color: var(--p42-text-secondary); line-height: 1.6; margin-bottom: 18px;">
+          When language models invoke tools, they produce structured JSON arguments matching a predefined function schema. In production environments, this execution boundary must be strictly sandboxed.
+        </p>
+        <div class="code-terminal">
+// Safe Tool Invocation with Deterministic Zod Schema Validation
+import { z } from "zod";
+const WeatherToolSchema = z.object({ location: z.string().min(2), units: z.enum(["metric", "imperial"]).default("metric") });
+        </div>
+        <div class="quiz-card">
+          <h4 style="font-family: var(--p42-font-headline); font-size: 15px; color: var(--p42-color-primary); margin-bottom: 8px;">Interactive Knowledge Check</h4>
+          <p style="font-size: 13.5px; color: var(--p42-text-secondary); margin-bottom: 12px;">What is the primary vulnerability when executing LLM tool calls without argument validation?</p>
+          <label class="quiz-option correct"><input type="radio" checked><span>Prompt injection attacks can manipulate function arguments into malicious payloads.</span></label>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ============================================================= -->
+  <!-- SURFACE 3: FIELD GUIDE                                        -->
+  <!-- ============================================================= -->
+  <main class="surface-view shell" id="surface-guide">
+    <div class="guide-filter-bar">
+      <button class="filter-chip active">All Patterns</button>
+      <button class="filter-chip">Model Comparison</button>
+      <button class="filter-chip">Multi-Agent Loops</button>
+      <button class="filter-chip">Security & Guardrails</button>
+    </div>
+
+    <div class="matrix-table-card">
+      <table class="matrix-table">
+        <thead>
+          <tr><th>Model / Provider</th><th>Context Window</th><th>Tool Calling</th><th>Best Use Case</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong style="color: var(--p42-color-primary);">Claude 3.5 Sonnet</strong></td><td>200K Tokens</td><td>★★★★★ (98.4%)</td><td>Complex reasoning & multi-step agents</td></tr>
+          <tr><td><strong style="color: var(--p42-color-primary);">GPT-4o</strong></td><td>128K Tokens</td><td>★★★★★ (97.8%)</td><td>Fast multimodal vision & structured outputs</td></tr>
+          <tr><td><strong style="color: var(--p42-color-primary);">Gemini 1.5 Pro</strong></td><td>2M Tokens</td><td>★★★★☆ (96.2%)</td><td>Massive context retrieval & repo audits</td></tr>
+          <tr><td><strong style="color: var(--p42-color-primary);">Llama 3.1 70B</strong></td><td>128K Tokens</td><td>★★★★☆ (94.5%)</td><td>Private on-premise execution & fine-tuning</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer shell">
+    <div><strong>Project 42</strong> — Provider-neutral AI learning & field guidance.</div>
+    <div>Open Source under Apache 2.0 & CC BY 4.0</div>
+  </footer>
 
   <script>
     const themeMetadata = {
       cosmic: {
+        title: "01 · Cosmic Answer",
+        subtitle: "Orbital answer aperture with starlight violet, cosmic cyan, and solar gold",
         eyebrow: "01 · Cosmic Answer",
         headline: "Start curious. <span>Become capable.</span>",
         lede: "A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers across every frontier AI architecture.",
         btn1: "Start AI Foundations",
         btn2: "Browse the field guide",
         mark: "concepts/01-cosmic-answer/mark.svg",
-        brandText: "Project 42"
+        brandText: "Project 42",
+        swatches: ["#080d2a", "#754cff", "#39d8ff", "#ffca68"]
       },
       portal: {
+        title: "02 · Learning Portal",
+        subtitle: "Architectural doorway arch with warm sunlit terracotta, teal, and cream",
         eyebrow: "02 · Learning Portal",
         headline: "A clear doorway. <span>Into deep AI mastery.</span>",
         lede: "A welcoming, ascending journey from fundamental literacy to production agent engineering. 13 learning paths, 92 assessed modules, built on open standards.",
         btn1: "Enter Learning Portal",
         btn2: "Browse Field Guide",
         mark: "concepts/02-learning-portal/mark.svg",
-        brandText: "Project 42"
+        brandText: "Project 42",
+        swatches: ["#fbf7ef", "#ea580c", "#0d9488", "#092f54"]
       },
       constellation: {
+        title: "03 · Model Constellation",
+        subtitle: "Neural network starburst coordinate grid with cyan and magenta nodes",
         eyebrow: "03 · Model Constellation",
         headline: "Multi-model universe. <span>Connected without bias.</span>",
         lede: "Master AI across Anthropic Claude, OpenAI, Google Gemini, and Open-Weight models side-by-side without vendor privilege or proprietary lock-in.",
         btn1: "Explore Constellation",
         btn2: "Compare Models",
         mark: "concepts/03-model-constellation/mark.svg",
-        brandText: "Project 42"
+        brandText: "Project 42",
+        swatches: ["#080c14", "#58e4c2", "#8d64ff", "#ec4899"]
       },
       field: {
+        title: "04 · Field Signal",
+        subtitle: "Topographic compass radar with crosshairs and tactical phosphor emerald",
         eyebrow: "04 · Field Signal",
         headline: "Practical AI navigation. <span>For changing terrain.</span>",
         lede: "Zero-fluff engineering recipes, verified provider patterns, and production-tested agent loops designed for practitioners in the field.",
         btn1: "Open Field Signal",
         btn2: "Browse Recipes",
         mark: "concepts/04-field-signal/mark.svg",
-        brandText: "Project 42"
+        brandText: "Project 42",
+        swatches: ["#f1f6f3", "#059669", "#d97706", "#062c23"]
       },
       orbit: {
+        title: "05 · Open Orbit",
+        subtitle: "Dual planetary velocity orbits with velocity blue, solar flame orange, and open arc",
         eyebrow: "05 · Open Orbit",
         headline: "The open orbit. <span>Of continuous AI learning.</span>",
         lede: "A community-powered, continuously verified curriculum that updates as fast as AI evolves. 100% open-source Apache 2.0 & CC BY 4.0.",
         btn1: "Launch Learning Orbit",
         btn2: "Contribute to Platform",
         mark: "concepts/05-open-orbit/mark.svg",
-        brandText: "Project 42"
+        brandText: "Project 42",
+        swatches: ["#f4f7fb", "#2054f6", "#fb923c", "#17213b"]
       },
       galactic: {
+        title: "06 · The Galactic Guide (Don't Panic)",
+        subtitle: "Retro-futuristic golden pocket datapad with illuminated bezels and 42",
         eyebrow: "06 · The Galactic Guide (Don't Panic)",
         headline: "The Answer to AI. <span>Agents, and Everything.</span>",
         lede: "A friendly, provider-neutral survival guide from your very first prompt to production multi-agent swarms. 13 paths, 92 modules, and always knowing where your context is.",
         btn1: "Consult The Guide (Path 01)",
         btn2: "Open Galactic Field Guide",
         mark: "concepts/06-galactic-guide/mark.svg",
-        brandText: "Project 42 / Guide"
+        brandText: "Project 42 / Guide",
+        swatches: ["#090d16", "#f59e0b", "#10b981", "#fef3c7"]
       }
     };
 
@@ -1216,13 +1748,61 @@
       btnEl.classList.add('active');
 
       const data = themeMetadata[themeKey];
-      document.getElementById('heroEyebrow').innerHTML = data.eyebrow;
-      document.getElementById('heroHeadline').innerHTML = data.headline;
-      document.getElementById('heroLede').textContent = data.lede;
-      document.getElementById('heroBtn1').textContent = data.btn1;
-      document.getElementById('heroBtn2').textContent = data.btn2;
+      
+      // Update top preview strip
+      document.getElementById('previewStripLogo').src = data.mark;
+      document.getElementById('previewStripTitle').textContent = data.title;
+      document.getElementById('previewStripSubtitle').textContent = data.subtitle;
+      document.getElementById('previewStripSwatches').innerHTML = data.swatches.map(c => `
+        <span class="swatch-item" style="background: ${c};" title="${c}"></span>
+      `).join('');
+
+      // Update Site Header
       document.getElementById('siteHeaderLogo').src = data.mark;
       document.getElementById('siteHeaderBrandText').textContent = data.brandText;
+
+      // Update Layout 1 (Live Site Layout)
+      document.getElementById('liveHeroEyebrow').innerHTML = data.eyebrow;
+      document.getElementById('liveHeroHeadline').innerHTML = data.headline;
+      document.getElementById('liveHeroLede').textContent = data.lede;
+      document.getElementById('liveHeroBtn1').textContent = data.btn1;
+      document.getElementById('liveHeroBtn2').textContent = data.btn2;
+      document.getElementById('mapCenterLogo').src = data.mark;
+
+      // Update Layout 2 (Split Glass)
+      document.getElementById('splitHeroMark').src = data.mark;
+      document.getElementById('splitBrandTitle').textContent = data.brandText;
+      document.getElementById('splitHeroEyebrow').innerHTML = data.eyebrow;
+      document.getElementById('splitHeroHeadline').innerHTML = data.headline;
+      document.getElementById('splitHeroLede').textContent = data.lede;
+      document.getElementById('splitBtn1').textContent = data.btn1;
+      document.getElementById('splitBtn2').textContent = data.btn2;
+
+      // Update Layout 3 (Centered Editorial)
+      document.getElementById('centeredHeroMark').src = data.mark;
+      document.getElementById('centeredHeroEyebrow').innerHTML = data.eyebrow;
+      document.getElementById('centeredHeroHeadline').innerHTML = data.headline;
+      document.getElementById('centeredHeroLede').textContent = data.lede;
+      document.getElementById('centeredBtn1').textContent = data.btn1;
+      document.getElementById('centeredBtn2').textContent = data.btn2;
+    }
+
+    function setLayout(layoutKey, btnEl) {
+      document.querySelectorAll('#layoutPillGroup .pill-btn').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+
+      document.querySelectorAll('.layout-view').forEach(v => v.classList.remove('active'));
+      const targetLayout = document.getElementById(`layout-${layoutKey}`);
+      if (targetLayout) targetLayout.classList.add('active');
+    }
+
+    function setSurface(surfaceKey, btnEl) {
+      btnEl.parentElement.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+
+      document.querySelectorAll('.surface-view').forEach(s => s.classList.remove('active'));
+      const targetSurface = document.getElementById(`surface-${surfaceKey}`);
+      if (targetSurface) targetSurface.classList.add('active');
     }
 
     // Initialize with Cosmic theme
