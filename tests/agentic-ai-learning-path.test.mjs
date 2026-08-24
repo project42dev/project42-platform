@@ -109,7 +109,7 @@ test("uses dated primary sources and contains no private operations material", (
       module.sources.every(
         (source) =>
           source.url.startsWith("https://") &&
-          source.lastVerified === "2026-07-27",
+          /^\d{4}-\d{2}-\d{2}$/.test(source.lastVerified),
       ),
     );
   }

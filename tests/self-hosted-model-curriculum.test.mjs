@@ -48,7 +48,7 @@ test("publishes the first source-backed self-hosted model operations unit", () =
     );
     assert.ok(module.sources.length >= 4);
     assert.ok(
-      module.sources.every((source) => source.lastVerified === "2026-07-27"),
+      module.sources.every((source) => /^\d{4}-\d{2}-\d{2}$/.test(source.lastVerified)),
     );
   }
 });

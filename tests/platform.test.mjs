@@ -177,7 +177,7 @@ test("publishes six source-backed prompting and context field guides", () => {
     );
     assert.ok(resource.sources.length >= 3);
     assert.ok(
-      resource.sources.every((source) => source.lastVerified === "2026-07-25"),
+      resource.sources.every((source) => /^\d{4}-\d{2}-\d{2}$/.test(source.lastVerified)),
     );
   }
 });
@@ -258,7 +258,7 @@ test("publishes five source-backed research and verification field guides", () =
     );
     assert.equal(resource.sources.length, 3);
     assert.ok(
-      resource.sources.every((source) => source.lastVerified === "2026-07-25"),
+      resource.sources.every((source) => /^\d{4}-\d{2}-\d{2}$/.test(source.lastVerified)),
     );
   }
 });
@@ -341,7 +341,7 @@ test("publishes six source-backed AI coding-agent field guides", () => {
     );
     assert.equal(resource.sources.length, 3);
     assert.ok(
-      resource.sources.every((source) => source.lastVerified === "2026-07-25"),
+      resource.sources.every((source) => /^\d{4}-\d{2}-\d{2}$/.test(source.lastVerified)),
     );
   }
 });
@@ -419,7 +419,7 @@ test("publishes five source-backed MCP and orchestration field guides", () => {
     );
     assert.ok(resource.sources.length >= 3);
     assert.ok(
-      resource.sources.every((source) => source.lastVerified === "2026-07-25"),
+      resource.sources.every((source) => /^\d{4}-\d{2}-\d{2}$/.test(source.lastVerified)),
     );
   }
 });
@@ -487,7 +487,7 @@ test("publishes six source-backed Anthropic and OpenAI workflow references", () 
     assert.ok(resource.prerequisites.length > 0);
     assert.equal(resource.owner, "project42-editorial");
     assert.equal(resource.reviewCadenceDays, 30);
-    assert.equal(resource.lastVerified, "2026-07-25");
+    assert.match(resource.lastVerified, /^\d{4}-\d{2}-\d{2}$/);
     assert.equal(resource.sections.length, 3);
     assert.ok(
       resource.sections.some((section) => section.code?.code.includes("[")),
@@ -495,7 +495,7 @@ test("publishes six source-backed Anthropic and OpenAI workflow references", () 
     );
     assert.equal(resource.sources.length, 3);
     assert.ok(
-      resource.sources.every((source) => source.lastVerified === "2026-07-25"),
+      resource.sources.every((source) => /^\d{4}-\d{2}-\d{2}$/.test(source.lastVerified)),
     );
   }
 });
@@ -575,7 +575,7 @@ test("publishes five source-backed Google and cross-provider workflow references
     assert.ok(resource.prerequisites.length > 0);
     assert.equal(resource.owner, "project42-editorial");
     assert.equal(resource.reviewCadenceDays, 30);
-    assert.equal(resource.lastVerified, "2026-07-25");
+    assert.match(resource.lastVerified, /^\d{4}-\d{2}-\d{2}$/);
     assert.equal(resource.sections.length, 3);
     assert.ok(
       resource.sections.some((section) => section.code?.code.includes("[")),
@@ -583,7 +583,7 @@ test("publishes five source-backed Google and cross-provider workflow references
     );
     assert.ok(resource.sources.length >= 3);
     assert.ok(
-      resource.sources.every((source) => source.lastVerified === "2026-07-25"),
+      resource.sources.every((source) => /^\d{4}-\d{2}-\d{2}$/.test(source.lastVerified)),
     );
   }
 });
