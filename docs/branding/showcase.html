@@ -27,14 +27,12 @@
       --p42-color-accent: #39d8ff;
       --p42-btn-gradient: linear-gradient(135deg, #ffca68, #f59e0b);
       --p42-btn-text: #080d2a;
-      --p42-map-bg: #070b24;
-      --p42-map-glow: rgba(57, 216, 255, 0.3);
       --p42-hero-img: url('concepts/01-cosmic-answer/hero.png');
       --p42-mark-img: url('concepts/01-cosmic-answer/mark.svg');
       --p42-font-headline: 'Outfit', sans-serif;
       --p42-font-body: 'Inter', sans-serif;
       --p42-font-mono: 'JetBrains Mono', monospace;
-      --p42-shell: min(1180px, calc(100vw - 40px));
+      --p42-shell: min(1200px, calc(100vw - 40px));
     }
 
     /* THEME 1: COSMIC ANSWER */
@@ -54,8 +52,6 @@
       --p42-color-accent: #39d8ff;
       --p42-btn-gradient: linear-gradient(135deg, #ffca68, #f59e0b);
       --p42-btn-text: #080d2a;
-      --p42-map-bg: #070b24;
-      --p42-map-glow: rgba(57, 216, 255, 0.3);
       --p42-hero-img: url('concepts/01-cosmic-answer/hero.png');
       --p42-mark-img: url('concepts/01-cosmic-answer/mark.svg');
       --p42-font-headline: 'Outfit', sans-serif;
@@ -78,8 +74,6 @@
       --p42-color-accent: #ea580c;
       --p42-btn-gradient: linear-gradient(135deg, #ea580c, #f97316);
       --p42-btn-text: #ffffff;
-      --p42-map-bg: #092f54;
-      --p42-map-glow: rgba(249, 115, 22, 0.25);
       --p42-hero-img: url('concepts/02-learning-portal/hero.png');
       --p42-mark-img: url('concepts/02-learning-portal/mark.svg');
       --p42-font-headline: 'Inter', sans-serif;
@@ -102,8 +96,6 @@
       --p42-color-accent: #58e4c2;
       --p42-btn-gradient: linear-gradient(135deg, #58e4c2, #06b6d4);
       --p42-btn-text: #080c14;
-      --p42-map-bg: #050810;
-      --p42-map-glow: rgba(88, 228, 194, 0.25);
       --p42-hero-img: url('concepts/03-model-constellation/hero.png');
       --p42-mark-img: url('concepts/03-model-constellation/mark.svg');
       --p42-font-headline: 'Space Grotesk', sans-serif;
@@ -126,8 +118,6 @@
       --p42-color-accent: #059669;
       --p42-btn-gradient: linear-gradient(135deg, #ff9b19, #f59e0b);
       --p42-btn-text: #061d18;
-      --p42-map-bg: #062c23;
-      --p42-map-glow: rgba(5, 150, 105, 0.25);
       --p42-hero-img: url('concepts/04-field-signal/hero.png');
       --p42-mark-img: url('concepts/04-field-signal/mark.svg');
       --p42-font-headline: 'Space Grotesk', sans-serif;
@@ -150,8 +140,6 @@
       --p42-color-accent: #2054f6;
       --p42-btn-gradient: linear-gradient(135deg, #2054f6, #3b82f6);
       --p42-btn-text: #ffffff;
-      --p42-map-bg: #101c42;
-      --p42-map-glow: rgba(32, 84, 246, 0.25);
       --p42-hero-img: url('concepts/05-open-orbit/hero.png');
       --p42-mark-img: url('concepts/05-open-orbit/mark.svg');
       --p42-font-headline: 'Outfit', sans-serif;
@@ -174,8 +162,6 @@
       --p42-color-accent: #f59e0b;
       --p42-btn-gradient: linear-gradient(135deg, #f59e0b, #d97706);
       --p42-btn-text: #090d16;
-      --p42-map-bg: #060911;
-      --p42-map-glow: rgba(245, 158, 11, 0.3);
       --p42-hero-img: url('concepts/06-galactic-guide/hero.png');
       --p42-mark-img: url('concepts/06-galactic-guide/mark.svg');
       --p42-font-headline: 'Bricolage Grotesque', 'Outfit', sans-serif;
@@ -304,7 +290,7 @@
     }
 
     /* ------------------------------------------------------------- */
-    /* BRAND INSPECTOR BANNER (Shows custom mark & identity)         */
+    /* BRAND INSPECTOR BANNER                                        */
     /* ------------------------------------------------------------- */
     .brand-preview-strip {
       background: var(--p42-bg-surface);
@@ -315,7 +301,6 @@
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 16px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
 
     .brand-preview-left {
@@ -325,9 +310,9 @@
     }
 
     .brand-preview-logo {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
       border: 1px solid var(--p42-border-glass);
       background: var(--p42-bg-surface-elevated);
@@ -335,7 +320,7 @@
 
     .brand-preview-title {
       font-family: var(--p42-font-headline);
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 800;
       color: var(--p42-text-primary);
     }
@@ -355,7 +340,7 @@
     }
 
     /* ------------------------------------------------------------- */
-    /* SHARED SHELL & CORE TYPOGRAPHY                                */
+    /* SHARED SHELL & TYPOGRAPHY                                     */
     /* ------------------------------------------------------------- */
     .shell {
       margin-inline: auto;
@@ -505,23 +490,23 @@
     }
 
     /* ------------------------------------------------------------- */
-    /* LAYOUT 1: CURRENT PRODUCTION SITE LAYOUT (DEFAULT)            */
+    /* LAYOUT 1: HERO ARTWORK + STRUCTURED CONTENT                   */
     /* ------------------------------------------------------------- */
     .layout-live-hero {
       align-items: center;
       display: grid;
-      gap: clamp(2rem, 5vw, 6rem);
-      grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
-      min-height: 640px;
-      padding-block: 4rem 4rem;
+      gap: clamp(2rem, 5vw, 5rem);
+      grid-template-columns: minmax(0, 1.1fr) minmax(380px, 0.9fr);
+      min-height: 600px;
+      padding-block: 3.5rem 3.5rem;
     }
 
     .layout-live-hero h1 {
       font-family: var(--p42-font-headline);
-      font-size: clamp(3rem, 5.5vw, 5.8rem);
+      font-size: clamp(2.8rem, 5vw, 5.2rem);
       font-weight: 900;
       letter-spacing: -0.06em;
-      line-height: 0.92;
+      line-height: 0.94;
       margin: 0;
       color: var(--p42-text-primary);
     }
@@ -538,85 +523,39 @@
 
     .hero-lede {
       color: var(--p42-text-secondary);
-      font-size: clamp(1.05rem, 1.6vw, 1.25rem);
-      line-height: 1.65;
-      margin: 2rem 0;
-      max-width: 640px;
+      font-size: clamp(1.05rem, 1.5vw, 1.2rem);
+      line-height: 1.6;
+      margin: 1.8rem 0;
+      max-width: 620px;
     }
 
-    .hero-map {
-      aspect-ratio: 1;
-      background: var(--p42-map-bg);
-      border-radius: 50%;
-      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.15), 0 0 50px var(--p42-map-glow);
-      color: white;
-      max-width: 480px;
+    /* HERO ARTWORK DISPLAY CARD (High-Res Concept Art) */
+    .hero-artwork-frame {
       position: relative;
-      width: 100%;
-      margin: 0 auto;
-      border: 1px solid var(--p42-border-glass);
-      transition: all 0.3s ease;
-    }
-
-    .map-orbit {
-      border: 1px dashed rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
-      position: absolute;
-      inset: 15%;
-    }
-
-    .map-orbit-two {
-      inset: 28%;
-      border-color: rgba(255, 255, 255, 0.15);
-    }
-
-    .map-node {
-      position: absolute;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      padding: 8px 14px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    }
-
-    .map-node span {
-      background: var(--p42-color-primary);
-      color: var(--p42-btn-text);
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-family: var(--p42-font-mono);
-    }
-
-    .map-node-start { top: 12%; left: 18%; }
-    .map-node-build { top: 48%; right: 4%; }
-    .map-node-prove { bottom: 12%; left: 24%; }
-
-    .map-center {
-      position: absolute;
-      inset: 34%;
-      background: var(--p42-bg-surface-elevated);
-      color: var(--p42-text-primary);
-      border-radius: 50%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid var(--p42-color-primary);
-      box-shadow: 0 0 24px var(--p42-map-glow);
+      border-radius: 24px;
       overflow: hidden;
+      aspect-ratio: 4 / 3;
+      border: 1px solid var(--p42-border-glass);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: flex-end;
+      padding: 24px;
+      background-size: cover;
+      background-position: center;
+      background-image: var(--p42-hero-img);
+      transition: background-image 0.3s ease;
     }
 
-    .map-center-logo {
-      width: 78px;
-      height: 78px;
+    .hero-artwork-overlay-pill {
+      background: var(--p42-bg-glass);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--p42-border-glass);
+      padding: 12px 18px;
       border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
     }
 
     .progress-strip {
@@ -1010,7 +949,7 @@
       justify-content: center;
       text-align: center;
       padding: 56px 24px;
-      background: radial-gradient(circle at center, var(--p42-map-glow) 0%, transparent 70%), var(--p42-bg-surface);
+      background: radial-gradient(circle at center, var(--p42-border-glass) 0%, transparent 70%), var(--p42-bg-surface);
       border: 1px solid var(--p42-border-glass);
       box-shadow: 0 24px 64px rgba(0, 0, 0, 0.08);
       margin-bottom: 36px;
@@ -1274,7 +1213,7 @@
       <!-- 3 DISTINCT WEBSITE LAYOUTS -->
       <div class="pill-group" id="layoutPillGroup">
         <button class="pill-btn active" onclick="setLayout('live', this)">
-          1. Current Live Site
+          1. Hero Art + Website Layout
         </button>
         <button class="pill-btn" onclick="setLayout('split', this)">
           2. Split Glass & Sandbox
@@ -1293,7 +1232,7 @@
     </div>
   </header>
 
-  <!-- BRAND PREVIEW STRIP (Shows custom mark SVG and color swatches) -->
+  <!-- BRAND PREVIEW STRIP -->
   <div class="brand-preview-strip shell">
     <div class="brand-preview-left">
       <img src="concepts/01-cosmic-answer/mark.svg" alt="Brand Mark" class="brand-preview-logo" id="previewStripLogo">
@@ -1310,9 +1249,7 @@
     </div>
   </div>
 
-  <!-- ============================================================= -->
-  <!-- SITE HEADER (Applies to all layouts & surfaces)               -->
-  <!-- ============================================================= -->
+  <!-- SITE HEADER -->
   <header class="site-header">
     <div class="shell header-inner">
       <a class="brand" href="#">
@@ -1336,14 +1273,14 @@
   <main class="surface-view active" id="surface-gateway">
 
     <!-- ----------------------------------------------------------- -->
-    <!-- LAYOUT 1: CURRENT LIVE SITE LAYOUT (THE EXACT REAL WEBSITE) -->
+    <!-- LAYOUT 1: HERO ARTWORK + STRUCTURED WEBSITE CONTENT         -->
     <!-- ----------------------------------------------------------- -->
     <div class="layout-view active" id="layout-live">
       
-      <!-- HERO -->
+      <!-- HERO: Real Artwork Hero + Content -->
       <section class="layout-live-hero shell">
         <div class="hero-copy">
-          <p class="eyebrow" id="liveHeroEyebrow">Free, open AI learning</p>
+          <p class="eyebrow" id="liveHeroEyebrow">01 · Cosmic Answer</p>
           <h1 id="liveHeroHeadline">
             Start curious.
             <span>Become capable.</span>
@@ -1364,15 +1301,14 @@
           </ul>
         </div>
 
-        <!-- ORBITAL JOURNEY MAP WITH CUSTOM SVG LOGO AT CENTER -->
-        <div class="hero-map">
-          <div class="map-orbit map-orbit-one"></div>
-          <div class="map-orbit map-orbit-two"></div>
-          <div class="map-node map-node-start"><span>01</span> Understand</div>
-          <div class="map-node map-node-build"><span>02</span> Practice</div>
-          <div class="map-node map-node-prove"><span>03</span> Prove it</div>
-          <div class="map-center">
-            <img src="concepts/01-cosmic-answer/mark.svg" alt="Brand Mark Center" class="map-center-logo" id="mapCenterLogo">
+        <!-- HIGH-RES CONCEPT HERO ARTWORK FRAME -->
+        <div class="hero-artwork-frame" id="liveHeroArtworkFrame">
+          <div class="hero-artwork-overlay-pill">
+            <img src="concepts/01-cosmic-answer/mark.svg" class="brand-mark" id="liveArtworkLogo" style="width: 32px; height: 32px;">
+            <div>
+              <strong style="font-size: 13px; color: var(--p42-text-primary);" id="liveArtworkCaptionTitle">Cosmic Answer</strong>
+              <div style="font-size: 11px; color: var(--p42-text-secondary);">Verified Frontier Curriculum</div>
+            </div>
           </div>
         </div>
       </section>
@@ -1671,12 +1607,14 @@ const WeatherToolSchema = z.object({ location: z.string().min(2), units: z.enum(
         title: "01 · Cosmic Answer",
         subtitle: "Orbital answer aperture with starlight violet, cosmic cyan, and solar gold",
         eyebrow: "01 · Cosmic Answer",
-        headline: "Start curious. <span>Become capable.</span>",
+        headline: "Learn to ask better questions. <span>Of an expanding universe.</span>",
         lede: "A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers across every frontier AI architecture.",
         btn1: "Start AI Foundations",
         btn2: "Browse the field guide",
         mark: "concepts/01-cosmic-answer/mark.svg",
+        hero: "concepts/01-cosmic-answer/hero.png",
         brandText: "Project 42",
+        caption: "Cosmic Answer",
         swatches: ["#080d2a", "#754cff", "#39d8ff", "#ffca68"]
       },
       portal: {
@@ -1688,7 +1626,9 @@ const WeatherToolSchema = z.object({ location: z.string().min(2), units: z.enum(
         btn1: "Enter Learning Portal",
         btn2: "Browse Field Guide",
         mark: "concepts/02-learning-portal/mark.svg",
+        hero: "concepts/02-learning-portal/hero.png",
         brandText: "Project 42",
+        caption: "Learning Portal",
         swatches: ["#fbf7ef", "#ea580c", "#0d9488", "#092f54"]
       },
       constellation: {
@@ -1700,7 +1640,9 @@ const WeatherToolSchema = z.object({ location: z.string().min(2), units: z.enum(
         btn1: "Explore Constellation",
         btn2: "Compare Models",
         mark: "concepts/03-model-constellation/mark.svg",
+        hero: "concepts/03-model-constellation/hero.png",
         brandText: "Project 42",
+        caption: "Model Constellation",
         swatches: ["#080c14", "#58e4c2", "#8d64ff", "#ec4899"]
       },
       field: {
@@ -1712,7 +1654,9 @@ const WeatherToolSchema = z.object({ location: z.string().min(2), units: z.enum(
         btn1: "Open Field Signal",
         btn2: "Browse Recipes",
         mark: "concepts/04-field-signal/mark.svg",
+        hero: "concepts/04-field-signal/hero.png",
         brandText: "Project 42",
+        caption: "Field Signal",
         swatches: ["#f1f6f3", "#059669", "#d97706", "#062c23"]
       },
       orbit: {
@@ -1724,7 +1668,9 @@ const WeatherToolSchema = z.object({ location: z.string().min(2), units: z.enum(
         btn1: "Launch Learning Orbit",
         btn2: "Contribute to Platform",
         mark: "concepts/05-open-orbit/mark.svg",
+        hero: "concepts/05-open-orbit/hero.png",
         brandText: "Project 42",
+        caption: "Open Orbit",
         swatches: ["#f4f7fb", "#2054f6", "#fb923c", "#17213b"]
       },
       galactic: {
@@ -1736,7 +1682,9 @@ const WeatherToolSchema = z.object({ location: z.string().min(2), units: z.enum(
         btn1: "Consult The Guide (Path 01)",
         btn2: "Open Galactic Field Guide",
         mark: "concepts/06-galactic-guide/mark.svg",
+        hero: "concepts/06-galactic-guide/hero.png",
         brandText: "Project 42 / Guide",
+        caption: "The Galactic Guide",
         swatches: ["#090d16", "#f59e0b", "#10b981", "#fef3c7"]
       }
     };
@@ -1761,13 +1709,15 @@ const WeatherToolSchema = z.object({ location: z.string().min(2), units: z.enum(
       document.getElementById('siteHeaderLogo').src = data.mark;
       document.getElementById('siteHeaderBrandText').textContent = data.brandText;
 
-      // Update Layout 1 (Live Site Layout)
+      // Update Layout 1 (Hero Artwork Frame + Content)
       document.getElementById('liveHeroEyebrow').innerHTML = data.eyebrow;
       document.getElementById('liveHeroHeadline').innerHTML = data.headline;
       document.getElementById('liveHeroLede').textContent = data.lede;
       document.getElementById('liveHeroBtn1').textContent = data.btn1;
       document.getElementById('liveHeroBtn2').textContent = data.btn2;
-      document.getElementById('mapCenterLogo').src = data.mark;
+      document.getElementById('liveHeroArtworkFrame').style.backgroundImage = `url('${data.hero}')`;
+      document.getElementById('liveArtworkLogo').src = data.mark;
+      document.getElementById('liveArtworkCaptionTitle').textContent = data.caption;
 
       // Update Layout 2 (Split Glass)
       document.getElementById('splitHeroMark').src = data.mark;
