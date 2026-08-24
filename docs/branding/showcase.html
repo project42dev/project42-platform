@@ -15,7 +15,7 @@
       --p42-bg-canvas: #080d2a;
       --p42-bg-surface: #0f1538;
       --p42-bg-surface-elevated: #18204d;
-      --p42-bg-glass: rgba(15, 21, 56, 0.9);
+      --p42-bg-glass: rgba(15, 21, 56, 0.92);
       --p42-border-subtle: rgba(117, 76, 255, 0.25);
       --p42-border-glass: rgba(57, 216, 255, 0.35);
       --p42-text-primary: #ffffff;
@@ -32,7 +32,7 @@
       --p42-font-headline: 'Outfit', sans-serif;
       --p42-font-body: 'Inter', sans-serif;
       --p42-font-mono: 'JetBrains Mono', monospace;
-      --p42-shell: min(1220px, calc(100vw - 40px));
+      --p42-shell: min(1200px, calc(100vw - 40px));
     }
 
     /* THEME 1: COSMIC ANSWER */
@@ -40,7 +40,7 @@
       --p42-bg-canvas: #080d2a;
       --p42-bg-surface: #0f1538;
       --p42-bg-surface-elevated: #18204d;
-      --p42-bg-glass: rgba(15, 21, 56, 0.9);
+      --p42-bg-glass: rgba(15, 21, 56, 0.92);
       --p42-border-subtle: rgba(117, 76, 255, 0.25);
       --p42-border-glass: rgba(57, 216, 255, 0.35);
       --p42-text-primary: #ffffff;
@@ -62,9 +62,9 @@
       --p42-bg-canvas: #fbf7ef;
       --p42-bg-surface: #ffffff;
       --p42-bg-surface-elevated: #fff9f0;
-      --p42-bg-glass: rgba(255, 246, 229, 0.94);
+      --p42-bg-glass: rgba(255, 246, 229, 0.95);
       --p42-border-subtle: rgba(20, 184, 166, 0.2);
-      --p42-border-glass: rgba(234, 88, 12, 0.3);
+      --p42-border-glass: rgba(234, 88, 12, 0.35);
       --p42-text-primary: #092f54;
       --p42-text-secondary: #475569;
       --p42-text-muted: #78716c;
@@ -84,7 +84,7 @@
       --p42-bg-canvas: #080c14;
       --p42-bg-surface: #0f1726;
       --p42-bg-surface-elevated: #162238;
-      --p42-bg-glass: rgba(15, 23, 38, 0.9);
+      --p42-bg-glass: rgba(15, 23, 38, 0.92);
       --p42-border-subtle: rgba(74, 111, 255, 0.25);
       --p42-border-glass: rgba(88, 228, 194, 0.35);
       --p42-text-primary: #ffffff;
@@ -106,9 +106,9 @@
       --p42-bg-canvas: #f1f6f3;
       --p42-bg-surface: #ffffff;
       --p42-bg-surface-elevated: #e6f0eb;
-      --p42-bg-glass: rgba(240, 245, 242, 0.94);
+      --p42-bg-glass: rgba(240, 245, 242, 0.95);
       --p42-border-subtle: rgba(6, 44, 35, 0.15);
-      --p42-border-glass: rgba(5, 150, 105, 0.3);
+      --p42-border-glass: rgba(5, 150, 105, 0.35);
       --p42-text-primary: #062c23;
       --p42-text-secondary: #335c51;
       --p42-text-muted: #607d75;
@@ -130,7 +130,7 @@
       --p42-bg-surface-elevated: #f8faff;
       --p42-bg-glass: rgba(248, 250, 255, 0.95);
       --p42-border-subtle: rgba(15, 23, 42, 0.08);
-      --p42-border-glass: rgba(32, 84, 246, 0.25);
+      --p42-border-glass: rgba(32, 84, 246, 0.3);
       --p42-text-primary: #17213b;
       --p42-text-secondary: #475569;
       --p42-text-muted: #64748b;
@@ -289,54 +289,6 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
-    /* BRAND PREVIEW STRIP */
-    .brand-preview-strip {
-      background: var(--p42-bg-surface);
-      border-bottom: 1px solid var(--p42-border-subtle);
-      padding: 10px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-
-    .brand-preview-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brand-preview-logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-      border: 1px solid var(--p42-border-glass);
-      background: var(--p42-bg-surface-elevated);
-    }
-
-    .brand-preview-title {
-      font-family: var(--p42-font-headline);
-      font-size: 15.5px;
-      font-weight: 800;
-      color: var(--p42-text-primary);
-    }
-
-    .brand-preview-swatches {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .swatch-item {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: 2px solid var(--p42-bg-surface);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
-
     /* SHARED SHELL & TYPOGRAPHY */
     .shell {
       margin-inline: auto;
@@ -345,7 +297,7 @@
 
     .eyebrow {
       color: var(--p42-color-primary);
-      font-size: 0.76rem;
+      font-size: 0.8rem;
       font-weight: 800;
       letter-spacing: 0.16em;
       margin: 0 0 0.8rem;
@@ -366,11 +318,11 @@
       border-radius: 999px;
       cursor: pointer;
       display: inline-flex;
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       font-weight: 800;
       justify-content: center;
-      min-height: 46px;
-      padding: 0.7rem 1.35rem;
+      min-height: 48px;
+      padding: 0.75rem 1.45rem;
       text-decoration: none;
       transition: transform 160ms ease, box-shadow 160ms ease;
     }
@@ -394,7 +346,7 @@
     .trust-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.55rem 1.3rem;
+      gap: 0.6rem 1.4rem;
       list-style: none;
       margin: 2rem 0 0;
       padding: 0;
@@ -402,7 +354,7 @@
 
     .trust-list li {
       color: var(--p42-text-secondary);
-      font-size: 0.8rem;
+      font-size: 0.84rem;
       font-weight: 700;
     }
 
@@ -428,15 +380,15 @@
       display: grid;
       gap: 2rem;
       grid-template-columns: auto 1fr auto;
-      min-height: 68px;
+      min-height: 72px;
     }
 
     .brand {
       align-items: center;
       display: inline-flex;
-      font-size: 1.05rem;
-      font-weight: 700;
-      gap: 0.75rem;
+      font-size: 1.15rem;
+      font-weight: 800;
+      gap: 0.85rem;
       letter-spacing: -0.02em;
       text-decoration: none;
       color: var(--p42-text-primary);
@@ -444,9 +396,10 @@
     }
 
     .brand-mark {
-      height: 36px;
-      width: 36px;
-      border-radius: 8px;
+      height: 42px;
+      width: 42px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
     .site-header nav {
@@ -457,7 +410,7 @@
 
     .site-header nav a {
       color: var(--p42-text-secondary);
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       font-weight: 600;
       text-decoration: none;
     }
@@ -468,9 +421,9 @@
       border-radius: 999px;
       color: var(--p42-btn-text);
       display: inline-flex;
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       font-weight: 800;
-      padding: 0.65rem 1.1rem;
+      padding: 0.65rem 1.2rem;
       text-decoration: none;
     }
 
@@ -488,10 +441,38 @@
     /* ------------------------------------------------------------- */
     /* 1. GATEWAY SURFACE LAYOUTS                                    */
     /* ------------------------------------------------------------- */
+    /* PROMINENT BRAND HERO PRESENTATION WITH LARGE 76PX BRAND MARK */
+    .brand-hero-header {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .hero-brand-mark-large {
+      width: 76px;
+      height: 76px;
+      border-radius: 18px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
+      border: 2px solid var(--p42-border-glass);
+      background: var(--p42-bg-surface-elevated);
+      flex-shrink: 0;
+    }
+
+    .brand-hero-title {
+      font-family: var(--p42-font-headline);
+      font-size: clamp(24px, 2.8vw, 34px);
+      font-weight: 900;
+      color: var(--p42-text-primary);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+
+    /* LAYOUT 1: STANDARD WITH PROMINENT LOGO & ART */
     .layout-live-hero {
       align-items: center;
       display: grid;
-      gap: clamp(2rem, 5vw, 5rem);
+      gap: clamp(2rem, 4.5vw, 4.5rem);
       grid-template-columns: minmax(0, 1.1fr) minmax(380px, 0.9fr);
       min-height: 560px;
       padding-block: 3.5rem 3.5rem;
@@ -499,10 +480,10 @@
 
     .layout-live-hero h1 {
       font-family: var(--p42-font-headline);
-      font-size: clamp(2.8rem, 5vw, 5.2rem);
+      font-size: clamp(2.8rem, 4.6vw, 4.8rem);
       font-weight: 900;
       letter-spacing: -0.06em;
-      line-height: 0.94;
+      line-height: 0.95;
       margin: 0;
       color: var(--p42-text-primary);
     }
@@ -532,23 +513,9 @@
       aspect-ratio: 4 / 3;
       border: 1px solid var(--p42-border-glass);
       box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
-      display: flex;
-      align-items: flex-end;
-      padding: 20px;
       background-size: cover;
       background-position: center;
       background-image: var(--p42-hero-img);
-    }
-
-    .hero-artwork-overlay-pill {
-      background: var(--p42-bg-glass);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--p42-border-glass);
-      padding: 10px 16px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
     }
 
     .progress-strip {
@@ -589,174 +556,131 @@
       color: var(--p42-text-primary);
     }
 
-    .path-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 3.5rem;
+    .card-index {
+      font-family: var(--p42-font-mono);
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--p42-color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
 
-    .path-card {
-      background: var(--p42-bg-surface);
-      border: 1px solid var(--p42-border-subtle);
-      border-radius: 16px;
-      padding: 1.8rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    .card-link {
+      color: var(--p42-color-primary);
+      font-weight: 700;
+      font-size: 0.92rem;
+      text-decoration: none;
+      margin-top: auto;
     }
 
-    .provider-section {
-      background: var(--p42-bg-surface);
-      border: 1px solid var(--p42-border-subtle);
-      border-radius: 20px;
-      padding: 2.5rem;
-      margin-bottom: 3.5rem;
-    }
-
-    .provider-stack {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
-      margin-top: 1.8rem;
-    }
-
-    .provider-row {
-      border-left: 3px solid var(--p42-color-primary);
-      padding-left: 1rem;
-    }
-
-    .self-host-card {
-      background: var(--p42-bg-surface-elevated);
-      border: 1px solid var(--p42-border-glass);
-      border-radius: 20px;
-      padding: 3rem 2rem;
-      text-align: center;
-      max-width: 860px;
-      margin: 0 auto 3.5rem;
-    }
-
-    .cta-banner {
-      background: var(--p42-color-primary);
-      color: var(--p42-btn-text);
-      border-radius: 24px;
-      padding: 4rem 2rem;
-      text-align: center;
-      margin-bottom: 4rem;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    }
-
+    /* LAYOUT 2: ORIGINAL CONCEPT POSTER / SPLIT GLASS */
     .hero-split-container {
       position: relative;
-      min-height: 560px;
+      min-height: 600px;
       border-radius: 24px;
       overflow: hidden;
       display: grid;
       grid-template-columns: 1.15fr 0.85fr;
       align-items: center;
-      padding: 44px;
+      padding: 48px;
       background-image: var(--p42-hero-img);
       background-size: cover;
       background-position: center;
       border: 1px solid var(--p42-border-glass);
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
-      margin-bottom: 36px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+      margin-block: 2rem 2.5rem;
     }
 
     .hero-split-glass {
       background: var(--p42-bg-glass);
       backdrop-filter: blur(20px);
       border: 1px solid var(--p42-border-glass);
-      padding: 36px;
-      border-radius: 20px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+      padding: 40px;
+      border-radius: 22px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
     }
 
-    .stats-ribbon {
+    .design-system-bar {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 14px;
-      margin-bottom: 36px;
-    }
-
-    .stat-card {
+      grid-template-columns: 1.3fr 1fr 1fr;
+      gap: 24px;
       background: var(--p42-bg-surface);
       border: 1px solid var(--p42-border-subtle);
-      padding: 18px;
-      border-radius: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+      border-radius: 18px;
+      padding: 24px 30px;
+      margin-bottom: 3rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
     }
 
-    .stat-number {
-      font-family: var(--p42-font-headline);
-      font-size: 30px;
-      font-weight: 800;
+    .system-col h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
       color: var(--p42-color-primary);
-    }
-
-    .focus-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-      gap: 18px;
-      margin-bottom: 40px;
-    }
-
-    .focus-card {
-      background: var(--p42-bg-surface);
-      border: 1px solid var(--p42-border-subtle);
-      border-radius: 16px;
-      padding: 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    }
-
-    .code-terminal {
-      position: relative;
-      background: #080d1a;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 16px;
+      margin-bottom: 8px;
       font-family: var(--p42-font-mono);
-      font-size: 12.5px;
-      color: #38bdf8;
-      overflow-x: auto;
-      margin: 14px 0;
-      line-height: 1.55;
+      font-weight: 800;
     }
 
+    .subbrand-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .subbrand-tag {
+      padding: 6px 12px;
+      border: 1px solid var(--p42-border-subtle);
+      background: var(--p42-bg-surface-elevated);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--p42-text-primary);
+    }
+
+    .swatch-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .swatch-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--p42-bg-surface);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    /* LAYOUT 3: CENTERED EDITORIAL WITH CENTERPIECE LOGO */
     .hero-centered-container {
       position: relative;
-      min-height: 520px;
+      min-height: 560px;
       border-radius: 24px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 56px 24px;
+      padding: 64px 24px;
       background: radial-gradient(circle at center, var(--p42-border-glass) 0%, transparent 70%), var(--p42-bg-surface);
       border: 1px solid var(--p42-border-glass);
       box-shadow: 0 24px 64px rgba(0, 0, 0, 0.08);
-      margin-bottom: 36px;
+      margin-block: 2rem 3rem;
     }
 
     .hero-centered-logo {
-      width: 60px;
-      height: 60px;
-      border-radius: 14px;
-      margin-bottom: 14px;
+      width: 88px;
+      height: 88px;
+      border-radius: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+      border: 2px solid var(--p42-border-glass);
     }
 
     /* ------------------------------------------------------------- */
-    /* 2. LEARN SURFACE LAYOUTS (3 VARIATIONS)                       */
+    /* 2. LEARN SURFACE LAYOUTS                                      */
     /* ------------------------------------------------------------- */
-    /* Learn Layout 1: Split Reader + Quiz */
     .learn-split-layout {
       display: grid;
       grid-template-columns: 340px 1fr;
@@ -813,6 +737,20 @@
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
 
+    .code-terminal {
+      position: relative;
+      background: #080d1a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      font-family: var(--p42-font-mono);
+      font-size: 12.5px;
+      color: #38bdf8;
+      overflow-x: auto;
+      margin: 14px 0;
+      line-height: 1.55;
+    }
+
     .quiz-card {
       background: var(--p42-bg-surface-elevated);
       border: 1px solid var(--p42-border-glass);
@@ -841,7 +779,6 @@
       color: var(--p42-text-primary);
     }
 
-    /* Learn Layout 2: 3-Column Studio IDE */
     .learn-studio-layout {
       display: grid;
       grid-template-columns: 280px 1.2fr 0.95fr;
@@ -857,7 +794,6 @@
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
 
-    /* Learn Layout 3: Focused Minimalist Reader */
     .learn-focused-layout {
       max-width: 860px;
       margin: 2.5rem auto 4rem;
@@ -869,7 +805,7 @@
     }
 
     /* ------------------------------------------------------------- */
-    /* 3. FIELD GUIDE SURFACE LAYOUTS (3 VARIATIONS)                 */
+    /* 3. FIELD GUIDE SURFACE LAYOUTS                                */
     /* ------------------------------------------------------------- */
     .guide-filter-bar {
       display: flex;
@@ -929,7 +865,6 @@
       border-bottom: 1px solid var(--p42-border-subtle);
     }
 
-    /* Field Guide Layout 2: Interactive Decision Tree & Benchmark Grid */
     .guide-studio-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -944,7 +879,6 @@
       padding: 24px;
     }
 
-    /* Field Guide Layout 3: Clean Playbook Format */
     .guide-playbook-list {
       display: flex;
       flex-direction: column;
@@ -983,6 +917,7 @@
       .progress-strip { grid-template-columns: 1fr; }
       .learn-split-layout { grid-template-columns: 1fr; }
       .learn-studio-layout { grid-template-columns: 1fr; }
+      .design-system-bar { grid-template-columns: 1fr; }
       .guide-studio-grid { grid-template-columns: 1fr; }
       .playbook-row { grid-template-columns: 1fr; }
       .site-header nav { display: none; }
@@ -995,7 +930,7 @@
   <header class="showcase-control-bar">
     <div class="showcase-title-group">
       <span class="showcase-badge">Brand Studio</span>
-      <strong style="font-size: 13.5px;">Project 42 Master Workbench</strong>
+      <strong style="font-size: 13.5px;">Project 42 Brand & Layout Workbench</strong>
     </div>
 
     <!-- 6 BRANDS / THEMES SELECTOR -->
@@ -1021,16 +956,16 @@
     </div>
 
     <div class="controls-right">
-      <!-- 3 DISTINCT WEBSITE LAYOUTS (Applies to all surfaces!) -->
+      <!-- 3 DISTINCT WEBSITE LAYOUTS -->
       <div class="pill-group" id="layoutPillGroup">
         <button class="pill-btn active" onclick="setLayout('live', this)">
-          Layout 1: Standard
+          1. Hero Art + Standard Site
         </button>
         <button class="pill-btn" onclick="setLayout('split', this)">
-          Layout 2: Split Studio
+          2. Original Poster & Design System
         </button>
         <button class="pill-btn" onclick="setLayout('centered', this)">
-          Layout 3: Editorial
+          3. Centered Editorial
         </button>
       </div>
 
@@ -1042,23 +977,6 @@
       </div>
     </div>
   </header>
-
-  <!-- BRAND PREVIEW STRIP -->
-  <div class="brand-preview-strip shell">
-    <div class="brand-preview-left">
-      <img src="concepts/01-cosmic-answer/mark.svg" alt="Brand Mark" class="brand-preview-logo" id="previewStripLogo">
-      <div>
-        <div class="brand-preview-title" id="previewStripTitle">01 · Cosmic Answer</div>
-        <div style="font-size: 12px; color: var(--p42-text-secondary);" id="previewStripSubtitle">Orbital answer aperture with starlight violet and solar gold</div>
-      </div>
-    </div>
-    <div class="brand-preview-swatches" id="previewStripSwatches">
-      <span class="swatch-item" style="background: #080d2a;" title="Canvas: #080d2a"></span>
-      <span class="swatch-item" style="background: #754cff;" title="Primary: #754cff"></span>
-      <span class="swatch-item" style="background: #39d8ff;" title="Secondary: #39d8ff"></span>
-      <span class="swatch-item" style="background: #ffca68;" title="Accent: #ffca68"></span>
-    </div>
-  </div>
 
   <!-- SITE HEADER -->
   <header class="site-header">
@@ -1083,11 +1001,20 @@
   <!-- ============================================================= -->
   <main class="surface-view active" id="surface-gateway">
 
-    <!-- GATEWAY LAYOUT 1: Standard Hero Art + Content -->
+    <!-- GATEWAY LAYOUT 1: STANDARD WITH PROMINENT LOGO & ART -->
     <div class="layout-view active" id="gateway-layout-live">
       <section class="layout-live-hero shell">
         <div class="hero-copy">
-          <p class="eyebrow" id="liveHeroEyebrow">01 · Cosmic Answer</p>
+          
+          <!-- PROMINENT BRAND LOGO CENTERPIECE AT TOP OF HERO -->
+          <div class="brand-hero-header">
+            <img src="concepts/01-cosmic-answer/mark.svg" alt="Brand Mark" class="hero-brand-mark-large" id="liveHeroBrandMark">
+            <div>
+              <div class="brand-hero-title" id="liveHeroBrandTitle">Project 42</div>
+              <div class="eyebrow" style="margin: 0;" id="liveHeroEyebrow">01 · Cosmic Answer</div>
+            </div>
+          </div>
+
           <h1 id="liveHeroHeadline">
             Start curious.
             <span>Become capable.</span>
@@ -1107,15 +1034,7 @@
           </ul>
         </div>
 
-        <div class="hero-artwork-frame" id="liveHeroArtworkFrame">
-          <div class="hero-artwork-overlay-pill">
-            <img src="concepts/01-cosmic-answer/mark.svg" class="brand-mark" id="liveArtworkLogo" style="width: 32px; height: 32px;">
-            <div>
-              <strong style="font-size: 13px; color: var(--p42-text-primary);" id="liveArtworkCaptionTitle">Cosmic Answer</strong>
-              <div style="font-size: 11px; color: var(--p42-text-secondary);">Verified Frontier Curriculum</div>
-            </div>
-          </div>
-        </div>
+        <div class="hero-artwork-frame" id="liveHeroArtworkFrame"></div>
       </section>
 
       <!-- PROGRESS STRIP -->
@@ -1138,30 +1057,33 @@
             <div class="card-index">Academy / 01</div>
             <h3>Self-paced learning</h3>
             <p>Short modules, plain language, practical examples, and a knowledge check at the end of every major section.</p>
-            <a href="#">Explore learning paths →</a>
+            <a class="card-link" href="#">Explore learning paths →</a>
           </article>
           <article class="pillar-card">
             <div class="card-index">Field guide / 02</div>
             <h3>Resources for the work</h3>
             <p>Checklists, explainers, provider maps, and decision tools with visible verification dates and sources.</p>
-            <a href="#">Open the Field Guide →</a>
+            <a class="card-link" href="#">Open the Field Guide →</a>
           </article>
         </div>
       </section>
     </div>
 
-    <!-- GATEWAY LAYOUT 2: Split Glass & Sandbox -->
+    <!-- GATEWAY LAYOUT 2: ORIGINAL CONCEPT POSTER & DESIGN SYSTEM -->
     <div class="layout-view" id="gateway-layout-split">
       <section class="hero-split-container shell">
         <div class="hero-split-glass">
-          <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 16px;">
-            <img src="concepts/01-cosmic-answer/mark.svg" class="brand-mark" id="splitHeroMark" style="width: 44px; height: 44px;">
+          
+          <!-- PROMINENT BRAND LOGO AT TOP OF HERO GLASS -->
+          <div class="brand-hero-header">
+            <img src="concepts/01-cosmic-answer/mark.svg" class="hero-brand-mark-large" id="splitHeroMark">
             <div>
-              <div style="font-family: var(--p42-font-headline); font-size: 20px; font-weight: 800; color: var(--p42-text-primary);" id="splitBrandTitle">Project 42</div>
+              <div class="brand-hero-title" id="splitBrandTitle">Project 42</div>
               <div class="eyebrow" style="margin: 0;" id="splitHeroEyebrow">01 · Cosmic Answer</div>
             </div>
           </div>
-          <h1 style="font-family: var(--p42-font-headline); font-size: clamp(28px, 3.4vw, 44px); font-weight: 800; line-height: 1.1; margin-bottom: 14px; color: var(--p42-text-primary);" id="splitHeroHeadline">
+
+          <h1 style="font-family: var(--p42-font-headline); font-size: clamp(28px, 3.4vw, 44px); font-weight: 900; line-height: 1.1; margin-bottom: 14px; color: var(--p42-text-primary);" id="splitHeroHeadline">
             Learn to ask better questions of an expanding universe.
           </h1>
           <p class="hero-lede" style="margin: 0 0 20px;" id="splitHeroLede">
@@ -1175,20 +1097,42 @@
         <div></div>
       </section>
 
-      <div class="stats-ribbon shell">
-        <div class="stat-card"><div class="stat-number">13</div><div class="stat-label">Learning Paths</div></div>
-        <div class="stat-card"><div class="stat-number">92</div><div class="stat-label">Assessed Modules</div></div>
-        <div class="stat-card"><div class="stat-number">89</div><div class="stat-label">Evidence Activities</div></div>
-        <div class="stat-card"><div class="stat-number">384</div><div class="stat-label">Reviewed Questions</div></div>
+      <!-- FULL DESIGN SYSTEM BAR -->
+      <div class="design-system-bar shell">
+        <div class="system-col">
+          <h3>Brand Concept Narrative</h3>
+          <p id="designSystemNarrative" style="font-size: 13.5px; color: var(--p42-text-secondary); line-height: 1.55;">
+            An expansive, atmospheric universe of open inquiry. Deep indigo space, glowing cyan horizon lines, and starlight violet accents.
+          </p>
+        </div>
+        <div class="system-col">
+          <h3>Palette Tokens</h3>
+          <div class="swatch-group" id="designSystemSwatches">
+            <span class="swatch-circle" style="background: #080d2a;" title="#080d2a"></span>
+            <span class="swatch-circle" style="background: #754cff;" title="#754cff"></span>
+            <span class="swatch-circle" style="background: #39d8ff;" title="#39d8ff"></span>
+            <span class="swatch-circle" style="background: #ffca68;" title="#ffca68"></span>
+          </div>
+        </div>
+        <div class="system-col">
+          <h3>Sub-Brand Ecosystem</h3>
+          <div class="subbrand-pills">
+            <span class="subbrand-tag">P42 Gateway</span>
+            <span class="subbrand-tag">P42 Learn</span>
+            <span class="subbrand-tag">P42 Guide</span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- GATEWAY LAYOUT 3: Centered Editorial -->
+    <!-- GATEWAY LAYOUT 3: CENTERED EDITORIAL -->
     <div class="layout-view" id="gateway-layout-centered">
       <section class="hero-centered-container shell">
         <img src="concepts/01-cosmic-answer/mark.svg" alt="Centered Logo" class="hero-centered-logo" id="centeredHeroMark">
         <p class="eyebrow" id="centeredHeroEyebrow">01 · Cosmic Answer</p>
-        <h1 id="centeredHeroHeadline">Learn to ask better questions of an expanding universe.</h1>
+        <h1 style="font-family: var(--p42-font-headline); font-size: clamp(34px, 4.5vw, 56px); font-weight: 900; letter-spacing: -0.05em; margin-bottom: 18px; max-width: 820px; color: var(--p42-text-primary);" id="centeredHeroHeadline">
+          Learn to ask better questions of an expanding universe.
+        </h1>
         <p class="hero-lede" id="centeredHeroLede">
           A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers across every frontier AI architecture.
         </p>
@@ -1202,11 +1146,10 @@
   </main>
 
   <!-- ============================================================= -->
-  <!-- SURFACE 2: LEARN PLATFORM (3 LAYOUT VARIATIONS)               -->
+  <!-- SURFACE 2: LEARN PLATFORM                                     -->
   <!-- ============================================================= -->
   <main class="surface-view shell" id="surface-learn">
 
-    <!-- LEARN LAYOUT 1: Standard Split Reader + Quiz -->
     <div class="layout-view active" id="learn-layout-live">
       <div class="learn-split-layout">
         <aside class="learn-sidebar">
@@ -1243,10 +1186,8 @@ const WeatherToolSchema = z.object({ location: z.string().min(2), units: z.enum(
       </div>
     </div>
 
-    <!-- LEARN LAYOUT 2: 3-Column Studio IDE & Socratic Mentor -->
     <div class="layout-view" id="learn-layout-split">
       <div class="learn-studio-layout">
-        <!-- Col 1: Path milestones -->
         <div class="studio-panel">
           <strong style="font-size: 13px; color: var(--p42-color-primary); text-transform: uppercase; font-family: var(--p42-font-mono);">01 · Path Progress</strong>
           <div style="font-size: 22px; font-weight: 800; font-family: var(--p42-font-headline); margin: 6px 0 14px;">Path 04 (50%)</div>
@@ -1255,7 +1196,6 @@ const WeatherToolSchema = z.object({ location: z.string().min(2), units: z.enum(
           <div class="module-item"><span>🔒</span><span>03 · Multi-Agent</span></div>
         </div>
 
-        <!-- Col 2: Socratic Mentor -->
         <div class="studio-panel">
           <span class="eyebrow">Socratic AI Mentor</span>
           <h3 style="font-family: var(--p42-font-headline); font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--p42-text-primary);">
@@ -1264,13 +1204,8 @@ const WeatherToolSchema = z.object({ location: z.string().min(2), units: z.enum(
           <p style="color: var(--p42-text-secondary); font-size: 13.5px; line-height: 1.6; margin-bottom: 16px;">
             "If an agent tool accepts raw strings instead of typed objects, an attacker can append hidden SQL injections. How does Zod guarantee immunity?"
           </p>
-          <div style="background: rgba(0,0,0,0.04); padding: 14px; border-radius: 10px; border: 1px solid var(--p42-border-subtle);">
-            <strong style="font-size: 12.5px; color: var(--p42-color-primary);">Learner Reflection:</strong>
-            <p style="font-size: 12.5px; color: var(--p42-text-secondary); margin-top: 4px;">Strict validation rejects un-sanitized arguments before backend execution.</p>
-          </div>
         </div>
 
-        <!-- Col 3: Live Terminal & Telemetry -->
         <div class="studio-panel">
           <strong style="font-size: 13px; color: var(--p42-color-primary); font-family: var(--p42-font-mono);">Live Code Runner</strong>
           <div class="code-terminal" style="font-size: 11.5px; margin-top: 10px;">
@@ -1283,7 +1218,6 @@ $ npx @project42/eval-agent --sandbox strict
       </div>
     </div>
 
-    <!-- LEARN LAYOUT 3: Focused Editorial Reader -->
     <div class="layout-view" id="learn-layout-centered">
       <article class="learn-focused-layout">
         <span class="eyebrow">04 · Agentic Systems · Module 03</span>
@@ -1300,21 +1234,16 @@ const result = await sandbox.execute({
   params: { sql_safe_token: "SELECT count(*) FROM telemetry" }
 });
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--p42-border-subtle); padding-top: 20px;">
-          <span style="font-size: 13px; color: var(--p42-text-muted);">End of Section 3</span>
-          <button class="button button-primary">Complete & Advance →</button>
-        </div>
       </article>
     </div>
 
   </main>
 
   <!-- ============================================================= -->
-  <!-- SURFACE 3: FIELD GUIDE (3 LAYOUT VARIATIONS)                  -->
+  <!-- SURFACE 3: FIELD GUIDE                                        -->
   <!-- ============================================================= -->
   <main class="surface-view shell" id="surface-guide">
 
-    <!-- GUIDE LAYOUT 1: Standard Table + Filter Chips -->
     <div class="layout-view active" id="guide-layout-live">
       <div class="guide-filter-bar">
         <button class="filter-chip active">All Patterns</button>
@@ -1338,7 +1267,6 @@ const result = await sandbox.execute({
       </div>
     </div>
 
-    <!-- GUIDE LAYOUT 2: Studio Decision Cards Grid -->
     <div class="layout-view" id="guide-layout-split">
       <div style="margin-top: 2rem;">
         <h2 style="font-family: var(--p42-font-headline); font-size: 24px; font-weight: 800; color: var(--p42-text-primary); margin-bottom: 1.5rem;">
@@ -1369,7 +1297,6 @@ const result = await sandbox.execute({
       </div>
     </div>
 
-    <!-- GUIDE LAYOUT 3: Technical Playbook List -->
     <div class="layout-view" id="guide-layout-centered">
       <div style="margin-top: 2rem;">
         <span class="eyebrow">Zero-Fluff Field Playbook</span>
@@ -1385,17 +1312,6 @@ const result = await sandbox.execute({
             <div>
               <p style="font-size: 14px; color: var(--p42-text-secondary); line-height: 1.6;">
                 Route high-volume classification to lightweight models (GPT-4o mini / Claude Haiku) and escalate reasoning traces to Claude 3.5 Sonnet only when ambiguity exceeds threshold.
-              </p>
-            </div>
-          </div>
-          <div class="playbook-row">
-            <div>
-              <strong style="font-family: var(--p42-font-headline); font-size: 18px; color: var(--p42-color-primary);">02 · Local Inference</strong>
-              <p style="font-size: 12.5px; color: var(--p42-text-muted); margin-top: 4px;">Air-gapped deployment</p>
-            </div>
-            <div>
-              <p style="font-size: 14px; color: var(--p42-text-secondary); line-height: 1.6;">
-                Run quantized open-weight checkpoints (Llama 3.1 70B 4-bit) under vLLM or Ollama to achieve zero-data-egress compliance for sensitive workloads.
               </p>
             </div>
           </div>
@@ -1415,21 +1331,20 @@ const result = await sandbox.execute({
     const themeMetadata = {
       cosmic: {
         title: "01 · Cosmic Answer",
-        subtitle: "Orbital answer aperture with starlight violet, cosmic cyan, and solar gold",
+        narrative: "An expansive, atmospheric universe of open inquiry. Deep indigo space, glowing cyan horizon lines, and starlight violet accents with solar gold.",
         eyebrow: "01 · Cosmic Answer",
-        headline: "Learn to ask better questions. <span>Of an expanding universe.</span>",
+        headline: "Start curious. <span>Become capable.</span>",
         lede: "A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers across every frontier AI architecture.",
         btn1: "Start AI Foundations",
         btn2: "Browse the field guide",
         mark: "concepts/01-cosmic-answer/mark.svg",
         hero: "concepts/01-cosmic-answer/hero.png",
         brandText: "Project 42",
-        caption: "Cosmic Answer",
         swatches: ["#080d2a", "#754cff", "#39d8ff", "#ffca68"]
       },
       portal: {
         title: "02 · Learning Portal",
-        subtitle: "Architectural doorway arch with warm sunlit terracotta, teal, and cream",
+        narrative: "A warm, sunlit architectural doorway from literacy to mastery. Warm alabaster canvas with rich sunset terracotta, copper, and portal teal.",
         eyebrow: "02 · Learning Portal",
         headline: "A clear doorway. <span>Into deep AI mastery.</span>",
         lede: "A welcoming, ascending journey from fundamental literacy to production agent engineering. 13 learning paths, 92 assessed modules, built on open standards.",
@@ -1438,12 +1353,11 @@ const result = await sandbox.execute({
         mark: "concepts/02-learning-portal/mark.svg",
         hero: "concepts/02-learning-portal/hero.png",
         brandText: "Project 42",
-        caption: "Learning Portal",
         swatches: ["#fbf7ef", "#ea580c", "#0d9488", "#092f54"]
       },
       constellation: {
         title: "03 · Model Constellation",
-        subtitle: "Neural network starburst coordinate grid with cyan and magenta nodes",
+        narrative: "A multi-model universe connected without bias. Deep cyber dark canvas with luminous neural cyan, electric magenta, and star coordinate points.",
         eyebrow: "03 · Model Constellation",
         headline: "Multi-model universe. <span>Connected without bias.</span>",
         lede: "Master AI across Anthropic Claude, OpenAI, Google Gemini, and Open-Weight models side-by-side without vendor privilege or proprietary lock-in.",
@@ -1452,12 +1366,11 @@ const result = await sandbox.execute({
         mark: "concepts/03-model-constellation/mark.svg",
         hero: "concepts/03-model-constellation/hero.png",
         brandText: "Project 42",
-        caption: "Model Constellation",
         swatches: ["#080c14", "#58e4c2", "#8d64ff", "#ec4899"]
       },
       field: {
         title: "04 · Field Signal",
-        subtitle: "Topographic compass radar with crosshairs and tactical phosphor emerald",
+        narrative: "Tactical, pragmatic field navigation for changing AI terrain. Tactical sage canvas, phosphor emerald telemetry, and signal amber accents.",
         eyebrow: "04 · Field Signal",
         headline: "Practical AI navigation. <span>For changing terrain.</span>",
         lede: "Zero-fluff engineering recipes, verified provider patterns, and production-tested agent loops designed for practitioners in the field.",
@@ -1466,12 +1379,11 @@ const result = await sandbox.execute({
         mark: "concepts/04-field-signal/mark.svg",
         hero: "concepts/04-field-signal/hero.png",
         brandText: "Project 42",
-        caption: "Field Signal",
         swatches: ["#f1f6f3", "#059669", "#d97706", "#062c23"]
       },
       orbit: {
         title: "05 · Open Orbit",
-        subtitle: "Dual planetary velocity orbits with velocity blue, solar flame orange, and open arc",
+        narrative: "Continuous open learning that evolves at the speed of AI. Crisp modern light canvas with velocity blue paths and solar flame orange accents.",
         eyebrow: "05 · Open Orbit",
         headline: "The open orbit. <span>Of continuous AI learning.</span>",
         lede: "A community-powered, continuously verified curriculum that updates as fast as AI evolves. 100% open-source Apache 2.0 & CC BY 4.0.",
@@ -1480,12 +1392,11 @@ const result = await sandbox.execute({
         mark: "concepts/05-open-orbit/mark.svg",
         hero: "concepts/05-open-orbit/hero.png",
         brandText: "Project 42",
-        caption: "Open Orbit",
         swatches: ["#f4f7fb", "#2054f6", "#fb923c", "#17213b"]
       },
       galactic: {
         title: "06 · The Galactic Guide (Don't Panic)",
-        subtitle: "Retro-futuristic golden pocket datapad with illuminated bezels and 42",
+        narrative: "The Answer to AI, Agents, and Everything. Deep galactic space, illuminated golden pocket-guide bezels, and reassurance for every builder.",
         eyebrow: "06 · The Galactic Guide (Don't Panic)",
         headline: "The Answer to AI. <span>Agents, and Everything.</span>",
         lede: "A friendly, provider-neutral survival guide from your very first prompt to production multi-agent swarms. 13 paths, 92 modules, and always knowing where your context is.",
@@ -1494,7 +1405,6 @@ const result = await sandbox.execute({
         mark: "concepts/06-galactic-guide/mark.svg",
         hero: "concepts/06-galactic-guide/hero.png",
         brandText: "Project 42 / Guide",
-        caption: "The Galactic Guide",
         swatches: ["#090d16", "#f59e0b", "#10b981", "#fef3c7"]
       }
     };
@@ -1510,29 +1420,21 @@ const result = await sandbox.execute({
 
       const data = themeMetadata[themeKey];
       
-      // Update top preview strip
-      document.getElementById('previewStripLogo').src = data.mark;
-      document.getElementById('previewStripTitle').textContent = data.title;
-      document.getElementById('previewStripSubtitle').textContent = data.subtitle;
-      document.getElementById('previewStripSwatches').innerHTML = data.swatches.map(c => `
-        <span class="swatch-item" style="background: ${c};" title="${c}"></span>
-      `).join('');
-
       // Update Site Header
       document.getElementById('siteHeaderLogo').src = data.mark;
       document.getElementById('siteHeaderBrandText').textContent = data.brandText;
 
-      // Update Gateway Live layout
+      // Update Gateway Layout 1 (Standard with Large Brand Mark)
+      document.getElementById('liveHeroBrandMark').src = data.mark;
+      document.getElementById('liveHeroBrandTitle').textContent = data.brandText;
       document.getElementById('liveHeroEyebrow').innerHTML = data.eyebrow;
       document.getElementById('liveHeroHeadline').innerHTML = data.headline;
       document.getElementById('liveHeroLede').textContent = data.lede;
       document.getElementById('liveHeroBtn1').textContent = data.btn1;
       document.getElementById('liveHeroBtn2').textContent = data.btn2;
       document.getElementById('liveHeroArtworkFrame').style.backgroundImage = `url('${data.hero}')`;
-      document.getElementById('liveArtworkLogo').src = data.mark;
-      document.getElementById('liveArtworkCaptionTitle').textContent = data.caption;
 
-      // Update Gateway Split layout
+      // Update Gateway Layout 2 (Poster / Design System)
       document.getElementById('splitHeroMark').src = data.mark;
       document.getElementById('splitBrandTitle').textContent = data.brandText;
       document.getElementById('splitHeroEyebrow').innerHTML = data.eyebrow;
@@ -1540,8 +1442,12 @@ const result = await sandbox.execute({
       document.getElementById('splitHeroLede').textContent = data.lede;
       document.getElementById('splitBtn1').textContent = data.btn1;
       document.getElementById('splitBtn2').textContent = data.btn2;
+      document.getElementById('designSystemNarrative').textContent = data.narrative;
+      document.getElementById('designSystemSwatches').innerHTML = data.swatches.map(c => `
+        <span class="swatch-circle" style="background: ${c};" title="${c}"></span>
+      `).join('');
 
-      // Update Gateway Centered layout
+      // Update Gateway Layout 3 (Centered Editorial)
       document.getElementById('centeredHeroMark').src = data.mark;
       document.getElementById('centeredHeroEyebrow').innerHTML = data.eyebrow;
       document.getElementById('centeredHeroHeadline').innerHTML = data.headline;
@@ -1555,7 +1461,6 @@ const result = await sandbox.execute({
       document.querySelectorAll('#layoutPillGroup .pill-btn').forEach(b => b.classList.remove('active'));
       btnEl.classList.add('active');
 
-      // Update active layout inside the current active surface
       updateVisibleViews();
     }
 
@@ -1564,7 +1469,6 @@ const result = await sandbox.execute({
       document.querySelectorAll('#surfacePillGroup .pill-btn').forEach(b => b.classList.remove('active'));
       btnEl.classList.add('active');
 
-      // Hide all surfaces and show target surface
       document.querySelectorAll('.surface-view').forEach(s => s.classList.remove('active'));
       const targetSurface = document.getElementById(`surface-${surfaceKey}`);
       if (targetSurface) targetSurface.classList.add('active');
@@ -1573,7 +1477,6 @@ const result = await sandbox.execute({
     }
 
     function updateVisibleViews() {
-      // For the active surface, toggle its internal layout views
       const parent = document.getElementById(`surface-${activeSurface}`);
       if (parent) {
         parent.querySelectorAll('.layout-view').forEach(v => v.classList.remove('active'));
