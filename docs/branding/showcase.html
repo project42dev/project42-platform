@@ -281,6 +281,64 @@
     }
 
     /* ------------------------------------------------------------- */
+    /* LEARNER MILESTONE BADGES ROW                                  */
+    /* ------------------------------------------------------------- */
+    .poster-badges-bar {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 22px 40px 28px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .badges-grid-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .badge-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .badge-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .badge-card-img {
+      width: 68px;
+      height: 68px;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+    }
+
+    .badge-card-level {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .badge-card-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.3;
+    }
+
+    /* ------------------------------------------------------------- */
     /* THEME-SPECIFIC HERO & PALETTE STYLING (EXACT TO IMAGE 2)      */
     /* ------------------------------------------------------------- */
     
@@ -330,6 +388,8 @@
     .theme-portal-card .system-title { color: #ea580c; }
     .theme-portal-card .system-desc { color: #475569; }
     .theme-portal-card .subbrand-pill { background: #ffffff; color: #092f54; border: 1px solid rgba(9, 47, 84, 0.15); }
+    .theme-portal-card .badge-card { background: rgba(9, 47, 84, 0.04); border-color: rgba(9, 47, 84, 0.1); }
+    .theme-portal-card .badge-card-title { color: #092f54; }
 
     /* 03. MODEL CONSTELLATION */
     .theme-constellation-card {
@@ -400,6 +460,8 @@
     .theme-orbit-card .system-title { color: #2054f6; }
     .theme-orbit-card .system-desc { color: #475569; }
     .theme-orbit-card .subbrand-pill { background: #ffffff; color: #17213b; border: 1px solid rgba(15, 23, 42, 0.12); }
+    .theme-orbit-card .badge-card { background: #ffffff; border-color: rgba(15, 23, 42, 0.1); }
+    .theme-orbit-card .badge-card-title { color: #17213b; }
 
     /* 06. GALACTIC */
     .theme-galactic-card {
@@ -733,6 +795,7 @@
     @media (max-width: 900px) {
       .poster-hero-section { grid-template-columns: 1fr; padding: 24px; }
       .poster-system-bar { grid-template-columns: 1fr; }
+      .badges-grid-row { grid-template-columns: 1fr 1fr; }
       .pillar-grid { grid-template-columns: 1fr; }
       .progress-strip { grid-template-columns: 1fr; }
       .learn-split-layout { grid-template-columns: 1fr; }
@@ -848,6 +911,14 @@
               <span class="palette-circle" style="background: #39d8ff;"></span>
               <span class="palette-circle" style="background: #ffca68;"></span>
             </div>
+          </div>
+        </div>
+
+        <!-- LEARNER MILESTONE BADGES ROW -->
+        <div class="poster-badges-bar">
+          <div class="system-title">Learner Achievement Badges (Earned across 13 Paths & 89 Activities)</div>
+          <div class="badges-grid-row" id="posterBadgesRow">
+            <!-- Dynamically populated by setTheme -->
           </div>
         </div>
       </article>
@@ -1333,7 +1404,13 @@ const result = await sandbox.execute({
         mark: "concepts/01-cosmic-answer/mark.svg",
         identityDesc: "An orbital answer aperture becomes the large hero motif; the compact 42 sits inside a simple orbit that survives at favicon scale.",
         subbrands: ["Project 42 / Learn", "Project 42 / Field Guide"],
-        swatches: ["#080d2a", "#754cff", "#39d8ff", "#ffca68"]
+        swatches: ["#080d2a", "#754cff", "#39d8ff", "#ffca68"],
+        badges: [
+          { file: "concepts/01-cosmic-answer/badge-foundations.svg", title: "Cosmic Foundations", level: "Level 01" },
+          { file: "concepts/01-cosmic-answer/badge-practitioner.svg", title: "Orbital Practitioner", level: "Level 02" },
+          { file: "concepts/01-cosmic-answer/badge-agentic.svg", title: "Constellation Architect", level: "Level 03" },
+          { file: "concepts/01-cosmic-answer/badge-evidence.svg", title: "Evidence Master", level: "Mastery" }
+        ]
       },
       portal: {
         cardClass: "theme-portal-card",
@@ -1346,7 +1423,13 @@ const result = await sandbox.execute({
         mark: "concepts/02-learning-portal/mark.svg",
         identityDesc: "The arch is both a portal and a protected learning space. Steps distinguish structured Learn from the quick-entry Field Guide.",
         subbrands: ["Project 42 Learn", "Project 42 Field Guide"],
-        swatches: ["#fbf7ef", "#ea580c", "#ff5630", "#0d9488"]
+        swatches: ["#fbf7ef", "#ea580c", "#ff5630", "#0d9488"],
+        badges: [
+          { file: "concepts/02-learning-portal/badge-foundations.svg", title: "Portal Novice", level: "Level 01" },
+          { file: "concepts/02-learning-portal/badge-practitioner.svg", title: "Ascending Steps", level: "Level 02" },
+          { file: "concepts/02-learning-portal/badge-agentic.svg", title: "Portal Architect", level: "Level 03" },
+          { file: "concepts/02-learning-portal/badge-evidence.svg", title: "Portal Keyholder", level: "Mastery" }
+        ]
       },
       constellation: {
         cardClass: "theme-constellation-card",
@@ -1359,7 +1442,13 @@ const result = await sandbox.execute({
         mark: "concepts/03-model-constellation/mark.svg",
         identityDesc: "No node dominates. The open center represents a platform that can connect new providers and methods as the field changes.",
         subbrands: ["42 Learn · path node", "42 Guide · signal node"],
-        swatches: ["#080c14", "#58e4c2", "#8d64ff", "#4a6fff"]
+        swatches: ["#080c14", "#58e4c2", "#8d64ff", "#4a6fff"],
+        badges: [
+          { file: "concepts/03-model-constellation/badge-foundations.svg", title: "Node Spark", level: "Level 01" },
+          { file: "concepts/03-model-constellation/badge-practitioner.svg", title: "Provider Crosslink", level: "Level 02" },
+          { file: "concepts/03-model-constellation/badge-agentic.svg", title: "Neural Swarm Lead", level: "Level 03" },
+          { file: "concepts/03-model-constellation/badge-evidence.svg", title: "Omni-Cluster Master", level: "Mastery" }
+        ]
       },
       field: {
         cardClass: "theme-field-card",
@@ -1372,7 +1461,13 @@ const result = await sandbox.execute({
         mark: "concepts/04-field-signal/mark.svg",
         identityDesc: "The compass-and-signal mark promises orientation rather than omniscience—useful for learning, deployment, and incident response.",
         subbrands: ["Project 42 · Learn Routes", "Project 42 · Field Guide"],
-        swatches: ["#071f1a", "#f6edd9", "#ff9b19", "#4bd9d0"]
+        swatches: ["#071f1a", "#f6edd9", "#ff9b19", "#4bd9d0"],
+        badges: [
+          { file: "concepts/04-field-signal/badge-foundations.svg", title: "Compass Bearing", level: "Level 01" },
+          { file: "concepts/04-field-signal/badge-practitioner.svg", title: "Signal Lantern", level: "Level 02" },
+          { file: "concepts/04-field-signal/badge-agentic.svg", title: "Waypoint Sentinel", level: "Level 03" },
+          { file: "concepts/04-field-signal/badge-evidence.svg", title: "Master Navigator", level: "Mastery" }
+        ]
       },
       orbit: {
         cardClass: "theme-orbit-card",
@@ -1385,7 +1480,13 @@ const result = await sandbox.execute({
         mark: "concepts/05-open-orbit/mark.svg",
         identityDesc: "The broken orbit avoids a closed system: learners and contributors can enter, branch, review, and improve the shared body of knowledge.",
         subbrands: ["Project 42 Learn", "Project 42 Field Guide"],
-        swatches: ["#f4f7ff", "#2054f6", "#65c943", "#f1258e"]
+        swatches: ["#f4f7ff", "#2054f6", "#65c943", "#f1258e"],
+        badges: [
+          { file: "concepts/05-open-orbit/badge-foundations.svg", title: "Velocity Loop", level: "Level 01" },
+          { file: "concepts/05-open-orbit/badge-practitioner.svg", title: "Modular Cube", level: "Level 02" },
+          { file: "concepts/05-open-orbit/badge-agentic.svg", title: "Continuous Review", level: "Level 03" },
+          { file: "concepts/05-open-orbit/badge-evidence.svg", title: "Consensus Master", level: "Mastery" }
+        ]
       },
       galactic: {
         cardClass: "theme-galactic-card",
@@ -1398,7 +1499,13 @@ const result = await sandbox.execute({
         mark: "concepts/06-galactic-guide/mark.svg",
         identityDesc: "A retro-futuristic pocket datapad that dispels intimidation with reassuring golden bezels, hitchhiker references, and pragmatic engineering.",
         subbrands: ["Project 42 Guide", "42 Don't Panic Manual"],
-        swatches: ["#090d16", "#f59e0b", "#10b981", "#fef3c7"]
+        swatches: ["#090d16", "#f59e0b", "#10b981", "#fef3c7"],
+        badges: [
+          { file: "concepts/06-galactic-guide/badge-foundations.svg", title: "Hitchhiker Novice", level: "Level 01" },
+          { file: "concepts/06-galactic-guide/badge-practitioner.svg", title: "Sub-Etha Scout", level: "Level 02" },
+          { file: "concepts/06-galactic-guide/badge-agentic.svg", title: "Swarm Architect", level: "Level 03" },
+          { file: "concepts/06-galactic-guide/badge-evidence.svg", title: "Don't Panic Medal", level: "Mastery" }
+        ]
       }
     };
 
@@ -1429,6 +1536,15 @@ const result = await sandbox.execute({
       document.getElementById('posterIdentityDesc').textContent = data.identityDesc;
       document.getElementById('posterSubbrandsRow').innerHTML = data.subbrands.map(s => `<span class="subbrand-pill">${s}</span>`).join('');
       document.getElementById('posterPaletteRow').innerHTML = data.swatches.map(c => `<span class="palette-circle" style="background: ${c};"></span>`).join('');
+
+      // Update Badges Row
+      document.getElementById('posterBadgesRow').innerHTML = data.badges.map(b => `
+        <div class="badge-card">
+          <img src="${b.file}" alt="${b.title}" class="badge-card-img">
+          <span class="badge-card-level">${b.level}</span>
+          <span class="badge-card-title">${b.title}</span>
+        </div>
+      `).join('');
 
       // Update Web Layout Hero Content
       document.getElementById('webHeroLogo').src = data.mark;
