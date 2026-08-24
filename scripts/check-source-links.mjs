@@ -43,7 +43,8 @@ if (failures.length > 0) process.exitCode = 1;
 
 async function checkUrl(url) {
   let lastError;
-  for (let attempt = 1; attempt <= 2; attempt += 1) {
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    let retryable = true;
     try {
       const response = await fetch(url, {
         redirect: "follow",
@@ -59,9 +60,12 @@ async function checkUrl(url) {
         return { ok: true, status: response.status, url };
       }
       lastError = `HTTP ${response.status}`;
+      retryable = response.status === 429 || response.status >= 500;
     } catch (error) {
       lastError = error.message;
     }
+    if (!retryable || attempt === 3) break;
+    await new Promise((resolve) => setTimeout(resolve, attempt * 2_000));
   }
   return { ok: false, url, error: lastError };
 }

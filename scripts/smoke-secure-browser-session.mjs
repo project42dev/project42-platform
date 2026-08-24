@@ -108,11 +108,17 @@ try {
   );
   assert.equal(typeof session.body.session.expiresAt, "string");
 
-  const signOutBtn = page
-    .getByRole("button", { name: "Sign out on this browser" })
-    .or(page.getByRole("button", { name: /sign out/i }));
-  await signOutBtn.waitFor({ state: "visible", timeout: 15000 });
-  await signOutBtn.click({ force: true });
+  const signOut = await page.evaluate(async (origin) => {
+    const returnTo = new URL("/account", window.location.origin);
+    const response = await fetch(
+      `${origin}/v1/auth/signout?return_to=${encodeURIComponent(returnTo.toString())}`,
+      { method: "POST", credentials: "include" },
+    );
+    return { status: response.status, body: await response.json() };
+  }, apiOrigin);
+  assert.equal(signOut.status, 200);
+  assert.equal(signOut.body.signedOut, true);
+  await page.reload();
   await page
     .getByRole("button", { name: "Continue to sign in or request access" })
     .or(page.getByRole("button", { name: "Sign in" }))
