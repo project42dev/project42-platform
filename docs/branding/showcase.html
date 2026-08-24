@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Project 42 — Interactive Brand & Theme Showcase</title>
+  <title>Project 42 — Live Production Site Theming Showcase</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
@@ -12,40 +12,39 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     
     :root {
-      --p42-bg-canvas: #080d2a;
-      --p42-bg-surface: #0f1538;
-      --p42-bg-surface-elevated: #18204d;
-      --p42-bg-glass: rgba(15, 21, 56, 0.85);
-      --p42-border-glass: rgba(57, 216, 255, 0.3);
-      --p42-border-subtle: rgba(117, 76, 255, 0.2);
-      --p42-text-primary: #ffffff;
-      --p42-text-secondary: #cbd5e1;
-      --p42-text-muted: #8492a6;
-      --p42-color-primary: #39d8ff;
-      --p42-color-secondary: #754cff;
-      --p42-color-tertiary: #ffca68;
-      --p42-color-accent: #39d8ff;
-      --p42-btn-gradient: linear-gradient(135deg, #ffca68, #f59e0b);
-      --p42-btn-text: #080d2a;
-      --p42-hero-glow: rgba(57, 216, 255, 0.2);
-      --p42-hero-copy-color: #ffffff;
-      --p42-font-headline: 'Outfit', sans-serif;
-      --p42-font-body: 'Inter', sans-serif;
-      --p42-font-mono: 'JetBrains Mono', monospace;
-      --p42-radius-card: 16px;
-      --p42-radius-btn: 9999px;
+      --p42-bg-canvas: #f6f3eb;
+      --p42-bg-surface: #ffffff;
+      --p42-bg-surface-elevated: #fffdf7;
+      --p42-bg-glass: rgba(255, 253, 247, 0.94);
+      --p42-border-subtle: #d9d5ca;
+      --p42-border-glass: rgba(17, 24, 39, 0.12);
+      --p42-text-primary: #111827;
+      --p42-text-secondary: #455066;
+      --p42-text-muted: #626b7b;
+      --p42-color-primary: #0b1225;
+      --p42-color-secondary: #ff8c5a;
+      --p42-color-tertiary: #63d7e4;
+      --p42-color-accent: #c9f25f;
+      --p42-btn-gradient: linear-gradient(135deg, #0b1225, #111d38);
+      --p42-btn-text: #ffffff;
+      --p42-map-bg: #0b1225;
+      --p42-map-glow: rgba(99, 215, 228, 0.2);
       --p42-hero-img: url('concepts/01-cosmic-answer/hero.png');
       --p42-mark-img: url('concepts/01-cosmic-answer/mark.svg');
+      --p42-font-headline: 'Inter', sans-serif;
+      --p42-font-body: 'Inter', sans-serif;
+      --p42-font-mono: 'JetBrains Mono', monospace;
+      --p42-shell: min(1180px, calc(100vw - 40px));
     }
 
-    /* THEME 1: COSMIC ANSWER */
+    /* THEME 1: COSMIC ANSWER (Atmospheric Dark Space) */
     [data-theme="cosmic"] {
       --p42-bg-canvas: #080d2a;
       --p42-bg-surface: #0f1538;
       --p42-bg-surface-elevated: #18204d;
-      --p42-bg-glass: rgba(7, 12, 38, 0.88);
+      --p42-bg-glass: rgba(15, 21, 56, 0.9);
+      --p42-border-subtle: rgba(117, 76, 255, 0.25);
       --p42-border-glass: rgba(57, 216, 255, 0.35);
-      --p42-border-subtle: rgba(117, 76, 255, 0.2);
       --p42-text-primary: #ffffff;
       --p42-text-secondary: #cbd5e1;
       --p42-text-muted: #8492a6;
@@ -55,21 +54,21 @@
       --p42-color-accent: #39d8ff;
       --p42-btn-gradient: linear-gradient(135deg, #ffca68, #f59e0b);
       --p42-btn-text: #080d2a;
-      --p42-hero-glow: rgba(57, 216, 255, 0.2);
-      --p42-hero-copy-color: #ffffff;
-      --p42-font-headline: 'Outfit', sans-serif;
+      --p42-map-bg: #070b24;
+      --p42-map-glow: rgba(57, 216, 255, 0.3);
       --p42-hero-img: url('concepts/01-cosmic-answer/hero.png');
       --p42-mark-img: url('concepts/01-cosmic-answer/mark.svg');
+      --p42-font-headline: 'Outfit', sans-serif;
     }
 
-    /* THEME 2: LEARNING PORTAL */
+    /* THEME 2: LEARNING PORTAL (Warm Sunlit Terracotta & Teal Light Theme) */
     [data-theme="portal"] {
       --p42-bg-canvas: #fbf7ef;
       --p42-bg-surface: #ffffff;
       --p42-bg-surface-elevated: #fff9f0;
       --p42-bg-glass: rgba(255, 246, 229, 0.94);
+      --p42-border-subtle: rgba(20, 184, 166, 0.2);
       --p42-border-glass: rgba(234, 88, 12, 0.3);
-      --p42-border-subtle: rgba(15, 23, 42, 0.08);
       --p42-text-primary: #092f54;
       --p42-text-secondary: #475569;
       --p42-text-muted: #78716c;
@@ -79,21 +78,21 @@
       --p42-color-accent: #ea580c;
       --p42-btn-gradient: linear-gradient(135deg, #ea580c, #f97316);
       --p42-btn-text: #ffffff;
-      --p42-hero-glow: rgba(234, 88, 12, 0.15);
-      --p42-hero-copy-color: #092f54;
-      --p42-font-headline: 'Inter', sans-serif;
+      --p42-map-bg: #092f54;
+      --p42-map-glow: rgba(249, 115, 22, 0.25);
       --p42-hero-img: url('concepts/02-learning-portal/hero.png');
       --p42-mark-img: url('concepts/02-learning-portal/mark.svg');
+      --p42-font-headline: 'Inter', sans-serif;
     }
 
-    /* THEME 3: MODEL CONSTELLATION */
+    /* THEME 3: MODEL CONSTELLATION (Midnight Cyber Dark Theme) */
     [data-theme="constellation"] {
       --p42-bg-canvas: #080c14;
       --p42-bg-surface: #0f1726;
       --p42-bg-surface-elevated: #162238;
-      --p42-bg-glass: rgba(9, 12, 20, 0.9);
-      --p42-border-glass: rgba(88, 228, 194, 0.35);
+      --p42-bg-glass: rgba(15, 23, 38, 0.9);
       --p42-border-subtle: rgba(74, 111, 255, 0.25);
+      --p42-border-glass: rgba(88, 228, 194, 0.35);
       --p42-text-primary: #ffffff;
       --p42-text-secondary: #cbd5e1;
       --p42-text-muted: #64748b;
@@ -103,21 +102,21 @@
       --p42-color-accent: #58e4c2;
       --p42-btn-gradient: linear-gradient(135deg, #58e4c2, #06b6d4);
       --p42-btn-text: #080c14;
-      --p42-hero-glow: rgba(88, 228, 194, 0.2);
-      --p42-hero-copy-color: #ffffff;
-      --p42-font-headline: 'Space Grotesk', sans-serif;
+      --p42-map-bg: #050810;
+      --p42-map-glow: rgba(88, 228, 194, 0.25);
       --p42-hero-img: url('concepts/03-model-constellation/hero.png');
       --p42-mark-img: url('concepts/03-model-constellation/mark.svg');
+      --p42-font-headline: 'Space Grotesk', sans-serif;
     }
 
-    /* THEME 4: FIELD SIGNAL */
+    /* THEME 4: FIELD SIGNAL (Tactical Sage & Field Parchment Theme) */
     [data-theme="field"] {
       --p42-bg-canvas: #f1f6f3;
       --p42-bg-surface: #ffffff;
       --p42-bg-surface-elevated: #e6f0eb;
-      --p42-bg-glass: rgba(6, 29, 24, 0.92);
+      --p42-bg-glass: rgba(240, 245, 242, 0.94);
+      --p42-border-subtle: rgba(6, 44, 35, 0.15);
       --p42-border-glass: rgba(5, 150, 105, 0.3);
-      --p42-border-subtle: rgba(6, 44, 35, 0.12);
       --p42-text-primary: #062c23;
       --p42-text-secondary: #335c51;
       --p42-text-muted: #607d75;
@@ -127,21 +126,21 @@
       --p42-color-accent: #059669;
       --p42-btn-gradient: linear-gradient(135deg, #ff9b19, #f59e0b);
       --p42-btn-text: #061d18;
-      --p42-hero-glow: rgba(5, 150, 105, 0.18);
-      --p42-hero-copy-color: #fff6df;
-      --p42-font-headline: 'Space Grotesk', sans-serif;
+      --p42-map-bg: #062c23;
+      --p42-map-glow: rgba(5, 150, 105, 0.25);
       --p42-hero-img: url('concepts/04-field-signal/hero.png');
       --p42-mark-img: url('concepts/04-field-signal/mark.svg');
+      --p42-font-headline: 'Space Grotesk', sans-serif;
     }
 
-    /* THEME 5: OPEN ORBIT */
+    /* THEME 5: OPEN ORBIT (Crisp Modern Light Theme) */
     [data-theme="orbit"] {
       --p42-bg-canvas: #f4f7fb;
       --p42-bg-surface: #ffffff;
       --p42-bg-surface-elevated: #f8faff;
       --p42-bg-glass: rgba(248, 250, 255, 0.95);
-      --p42-border-glass: rgba(32, 84, 246, 0.25);
       --p42-border-subtle: rgba(15, 23, 42, 0.08);
+      --p42-border-glass: rgba(32, 84, 246, 0.25);
       --p42-text-primary: #17213b;
       --p42-text-secondary: #475569;
       --p42-text-muted: #64748b;
@@ -151,21 +150,21 @@
       --p42-color-accent: #2054f6;
       --p42-btn-gradient: linear-gradient(135deg, #2054f6, #3b82f6);
       --p42-btn-text: #ffffff;
-      --p42-hero-glow: rgba(32, 84, 246, 0.15);
-      --p42-hero-copy-color: #17213b;
-      --p42-font-headline: 'Outfit', sans-serif;
+      --p42-map-bg: #101c42;
+      --p42-map-glow: rgba(32, 84, 246, 0.25);
       --p42-hero-img: url('concepts/05-open-orbit/hero.png');
       --p42-mark-img: url('concepts/05-open-orbit/mark.svg');
+      --p42-font-headline: 'Outfit', sans-serif;
     }
 
-    /* THEME 6: GALACTIC GUIDE */
+    /* THEME 6: GALACTIC GUIDE (Hitchhiker / "Don't Panic" / 42 Edition) */
     [data-theme="galactic"] {
       --p42-bg-canvas: #090d16;
       --p42-bg-surface: #0f182a;
       --p42-bg-surface-elevated: #17243c;
-      --p42-bg-glass: rgba(13, 22, 38, 0.92);
-      --p42-border-glass: rgba(245, 158, 11, 0.45);
+      --p42-bg-glass: rgba(15, 24, 42, 0.92);
       --p42-border-subtle: rgba(16, 185, 129, 0.3);
+      --p42-border-glass: rgba(245, 158, 11, 0.45);
       --p42-text-primary: #fef3c7;
       --p42-text-secondary: #e2e8f0;
       --p42-text-muted: #94a3b8;
@@ -175,11 +174,11 @@
       --p42-color-accent: #f59e0b;
       --p42-btn-gradient: linear-gradient(135deg, #f59e0b, #d97706);
       --p42-btn-text: #090d16;
-      --p42-hero-glow: rgba(245, 158, 11, 0.25);
-      --p42-hero-copy-color: #fef3c7;
-      --p42-font-headline: 'Bricolage Grotesque', 'Outfit', sans-serif;
+      --p42-map-bg: #060911;
+      --p42-map-glow: rgba(245, 158, 11, 0.3);
       --p42-hero-img: url('concepts/06-galactic-guide/hero.png');
       --p42-mark-img: url('concepts/06-galactic-guide/mark.svg');
+      --p42-font-headline: 'Bricolage Grotesque', 'Outfit', sans-serif;
     }
 
     body {
@@ -263,908 +262,644 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 
-    .selector-group {
+    .surface-selector {
       display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .pill-selector {
-      display: flex;
-      gap: 4px;
+      gap: 6px;
       background: rgba(255, 255, 255, 0.06);
       padding: 3px;
       border-radius: 10px;
       border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
-    .pill-btn {
+    .surface-btn {
       background: transparent;
       border: none;
       color: #cbd5e1;
-      padding: 5px 12px;
+      padding: 6px 12px;
       border-radius: 8px;
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
-      white-space: nowrap;
     }
 
-    .pill-btn:hover {
+    .surface-btn:hover {
       background: rgba(255, 255, 255, 0.1);
       color: #ffffff;
     }
 
-    .pill-btn.active {
-      background: var(--p42-color-primary);
-      color: var(--p42-btn-text);
+    .surface-btn.active {
+      background: #38bdf8;
+      color: #080d2a;
       font-weight: 700;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
-    /* MAIN CONTAINER */
-    .main-viewport {
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 24px 24px 80px;
-    }
-
-    .surface-content {
-      display: none;
-      animation: fadeIn 0.25s ease;
-    }
-
-    .surface-content.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
     /* ------------------------------------------------------------- */
-    /* LAYOUT VARIATION 1: SPLIT GLASSMORPHISM (DEFAULT)             */
+    /* REAL PRODUCTION SITE COMPONENTS (from project-42.dev)         */
     /* ------------------------------------------------------------- */
-    .layout-split .hero-container {
-      position: relative;
-      min-height: 560px;
-      border-radius: 24px;
-      overflow: hidden;
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      align-items: center;
-      padding: 44px;
-      background-image: var(--p42-hero-img);
-      background-size: cover;
-      background-position: center;
-      border: 1px solid var(--p42-border-glass);
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15), 0 0 40px var(--p42-hero-glow);
-      margin-bottom: 36px;
+    .shell {
+      margin-inline: auto;
+      width: var(--p42-shell);
     }
 
-    .layout-split .hero-glass-card {
-      background: var(--p42-bg-glass);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--p42-border-glass);
-      padding: 36px;
-      border-radius: 20px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
-      color: var(--p42-hero-copy-color);
-    }
-
-    /* ------------------------------------------------------------- */
-    /* LAYOUT VARIATION 2: ORIGINAL CONCEPT POSTER / SHOWCASE LAYOUT */
-    /* ------------------------------------------------------------- */
-    .layout-original .hero-container {
-      position: relative;
-      min-height: 620px;
-      border-radius: 24px;
-      overflow: hidden;
-      display: grid;
-      grid-template-columns: minmax(340px, 0.85fr) minmax(460px, 1.15fr);
-      align-items: center;
-      padding: 54px;
-      background-image: var(--p42-hero-img);
-      background-size: cover;
-      background-position: center;
-      border: 1px solid var(--p42-border-glass);
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
-      margin-bottom: 24px;
-    }
-
-    .layout-original .hero-glass-card {
-      max-width: 580px;
-      padding: 38px;
-      border-radius: 22px;
+    /* REAL SITE HEADER */
+    .site-header {
       background: var(--p42-bg-glass);
       backdrop-filter: blur(16px);
-      border: 1px solid var(--p42-border-glass);
-      color: var(--p42-hero-copy-color);
+      border-bottom: 1px solid var(--p42-border-subtle);
+      position: sticky;
+      top: 50px;
+      z-index: 50;
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
 
-    .layout-original .hero-headline {
-      font-size: clamp(38px, 4.4vw, 68px);
-      line-height: 0.98;
-      letter-spacing: -0.06em;
-      margin-bottom: 20px;
-    }
-
-    .layout-original .brand-mark-img {
-      width: 68px;
-      height: 68px;
-    }
-
-    .layout-original .brand-title {
-      font-size: 28px;
-      font-weight: 900;
-      letter-spacing: -0.04em;
-    }
-
-    .original-system-bar {
-      display: none;
-    }
-
-    .layout-original .original-system-bar {
+    .header-inner {
+      align-items: center;
       display: grid;
-      grid-template-columns: 1.4fr 1fr 1fr;
-      gap: 24px;
-      background: var(--p42-bg-surface);
-      border: 1px solid var(--p42-border-subtle);
-      border-radius: var(--p42-radius-card);
-      padding: 26px 32px 30px;
-      margin-bottom: 36px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+      gap: 2rem;
+      grid-template-columns: auto 1fr auto;
+      min-height: 72px;
     }
 
-    .system-col h3 {
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--p42-color-primary);
-      margin-bottom: 8px;
-      font-family: var(--p42-font-mono);
+    .brand {
+      align-items: center;
+      display: inline-flex;
+      font-size: 1.05rem;
       font-weight: 700;
+      gap: 0.75rem;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      color: var(--p42-text-primary);
+      font-family: var(--p42-font-headline);
     }
 
-    .system-col p {
-      font-size: 14px;
-      color: var(--p42-text-secondary);
-      line-height: 1.55;
-    }
-
-    .subbrand-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .subbrand-tag {
-      padding: 8px 12px;
-      border: 1px solid var(--p42-border-subtle);
-      background: var(--p42-bg-surface-elevated);
+    .brand-mark {
+      height: 36px;
+      width: 36px;
       border-radius: 8px;
-      font-size: 12.5px;
-      font-weight: 700;
+    }
+
+    .site-header nav {
+      display: flex;
+      gap: 1.8rem;
+      justify-content: center;
+    }
+
+    .site-header nav a {
+      color: var(--p42-text-secondary);
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .site-header nav a:hover {
       color: var(--p42-text-primary);
     }
 
-    .swatch-group {
-      display: flex;
-      gap: 10px;
+    .header-action {
       align-items: center;
-    }
-
-    .swatch-circle {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.8);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    /* ------------------------------------------------------------- */
-    /* LAYOUT VARIATION 3: CENTERED EDITORIAL / SAAS HERO            */
-    /* ------------------------------------------------------------- */
-    .layout-centered .hero-container {
-      position: relative;
-      min-height: 520px;
-      border-radius: 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 56px 24px;
-      background: radial-gradient(circle at center, var(--p42-hero-glow) 0%, transparent 70%), var(--p42-bg-surface);
-      border: 1px solid var(--p42-border-glass);
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
-      margin-bottom: 36px;
-    }
-
-    .layout-centered .hero-glass-card {
-      background: transparent;
-      border: none;
-      padding: 0;
-      box-shadow: none;
-      max-width: 860px;
-      color: var(--p42-text-primary);
-    }
-
-    .layout-centered .brand-mark-line {
-      justify-content: center;
-    }
-
-    .layout-centered .hero-eyebrow {
-      justify-content: center;
-    }
-
-    .layout-centered .hero-headline {
-      font-size: clamp(34px, 4.5vw, 60px);
-      letter-spacing: -0.05em;
-      margin-bottom: 18px;
-    }
-
-    .layout-centered .hero-lede {
-      max-width: 65ch;
-      margin: 0 auto 28px;
-    }
-
-    .layout-centered .hero-actions {
-      justify-content: center;
-    }
-
-    /* SHARED COMPONENTS */
-    .brand-mark-line {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 18px;
-    }
-
-    .brand-mark-img {
-      width: 52px;
-      height: 52px;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    }
-
-    .brand-title {
-      font-family: var(--p42-font-headline);
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      color: inherit;
-    }
-
-    .hero-eyebrow {
-      font-family: var(--p42-font-mono);
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--p42-color-primary);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .hero-eyebrow::before {
-      content: "";
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
       background: var(--p42-color-primary);
-      box-shadow: 0 0 8px var(--p42-color-primary);
+      border-radius: 999px;
+      color: var(--p42-btn-text);
+      display: inline-flex;
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 0.7rem 1.1rem;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    .hero-headline {
-      font-family: var(--p42-font-headline);
-      font-size: clamp(28px, 3.4vw, 48px);
+    /* REAL HERO SECTION */
+    .hero {
+      align-items: center;
+      display: grid;
+      gap: clamp(2rem, 5vw, 6rem);
+      grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+      min-height: 640px;
+      padding-block: 4rem 4rem;
+    }
+
+    .eyebrow {
+      color: var(--p42-color-primary);
+      font-size: 0.76rem;
       font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.04em;
-      color: inherit;
-      margin-bottom: 16px;
+      letter-spacing: 0.16em;
+      margin: 0 0 0.8rem;
+      text-transform: uppercase;
+      font-family: var(--p42-font-mono);
+    }
+
+    .hero h1 {
+      font-family: var(--p42-font-headline);
+      font-size: clamp(3rem, 5.5vw, 5.8rem);
+      font-weight: 900;
+      letter-spacing: -0.06em;
+      line-height: 0.92;
+      margin: 0;
+      color: var(--p42-text-primary);
+    }
+
+    .hero h1 span {
+      color: var(--p42-text-muted);
+      display: block;
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      font-weight: 400;
+      letter-spacing: -0.05em;
+      margin-top: 0.12em;
     }
 
     .hero-lede {
-      font-size: 16px;
-      line-height: 1.55;
       color: var(--p42-text-secondary);
-      margin-bottom: 24px;
+      font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+      line-height: 1.65;
+      margin: 2rem 0;
+      max-width: 640px;
     }
 
-    .hero-actions {
+    .button-row {
+      align-items: center;
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 0.8rem;
     }
 
-    .btn-primary {
-      background: var(--p42-btn-gradient);
-      color: var(--p42-btn-text);
-      font-weight: 700;
-      font-size: 14px;
-      padding: 12px 22px;
-      border-radius: var(--p42-radius-btn);
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
-    }
-
-    .btn-ghost {
-      background: rgba(255, 255, 255, 0.15);
-      color: inherit;
-      font-weight: 600;
-      font-size: 14px;
-      padding: 12px 20px;
-      border-radius: var(--p42-radius-btn);
-      border: 1px solid var(--p42-border-subtle);
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-      transition: background 0.2s ease;
-    }
-
-    .btn-ghost:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-
-    /* STATS RIBBON */
-    .stats-ribbon {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 14px;
-      margin-bottom: 36px;
-    }
-
-    .stat-card {
-      background: var(--p42-bg-surface);
-      border: 1px solid var(--p42-border-subtle);
-      padding: 18px;
-      border-radius: var(--p42-radius-card);
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-      transition: border-color 0.2s ease;
-    }
-
-    .stat-card:hover {
-      border-color: var(--p42-border-glass);
-    }
-
-    .stat-number {
-      font-family: var(--p42-font-headline);
-      font-size: 30px;
-      font-weight: 800;
-      color: var(--p42-color-primary);
-    }
-
-    .stat-label {
-      font-size: 13px;
-      color: var(--p42-text-secondary);
-      font-weight: 600;
-    }
-
-    /* FOCUS AREAS GRID */
-    .section-title {
-      font-family: var(--p42-font-headline);
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 18px;
-      display: flex;
+    .button {
       align-items: center;
-      justify-content: space-between;
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      font-size: 0.88rem;
+      font-weight: 800;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0.75rem 1.4rem;
+      text-decoration: none;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .button-primary {
+      background: var(--p42-btn-gradient);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      color: var(--p42-btn-text);
+    }
+
+    .button-secondary {
+      background: transparent;
+      border: 1px solid var(--p42-border-subtle);
       color: var(--p42-text-primary);
     }
 
-    .focus-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-      gap: 18px;
-      margin-bottom: 40px;
+    .button-secondary:hover {
+      background: rgba(0, 0, 0, 0.04);
     }
 
-    .focus-card {
-      background: var(--p42-bg-surface);
-      border: 1px solid var(--p42-border-subtle);
-      border-radius: var(--p42-radius-card);
-      padding: 22px;
+    .trust-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem 1.3rem;
+      list-style: none;
+      margin: 2rem 0 0;
+      padding: 0;
+    }
+
+    .trust-list li {
+      color: var(--p42-text-secondary);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .trust-list li::before {
+      color: var(--p42-color-primary);
+      content: "✓";
+      margin-right: 0.4rem;
+      font-weight: 900;
+    }
+
+    /* REAL ORBIT JOURNEY MAP COMPONENT */
+    .hero-map {
+      aspect-ratio: 1;
+      background: var(--p42-map-bg);
+      border-radius: 50%;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.15), 0 0 50px var(--p42-map-glow);
+      color: white;
+      max-width: 480px;
+      position: relative;
+      width: 100%;
+      margin: 0 auto;
+      border: 1px solid var(--p42-border-glass);
+      transition: all 0.3s ease;
+    }
+
+    .map-orbit {
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      position: absolute;
+      inset: 15%;
+    }
+
+    .map-orbit-two {
+      inset: 28%;
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .map-node {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+
+    .map-node span {
+      background: var(--p42-color-primary);
+      color: var(--p42-btn-text);
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--p42-font-mono);
+    }
+
+    .map-node-start { top: 12%; left: 18%; }
+    .map-node-build { top: 48%; right: 4%; }
+    .map-node-prove { bottom: 12%; left: 24%; }
+
+    .map-center {
+      position: absolute;
+      inset: 38%;
+      background: var(--p42-bg-surface-elevated);
+      color: var(--p42-text-primary);
+      border-radius: 50%;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--p42-color-primary);
+      box-shadow: 0 0 24px var(--p42-map-glow);
+    }
+
+    .map-mark {
+      font-family: var(--p42-font-headline);
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--p42-color-primary);
+      line-height: 1;
+    }
+
+    .map-center small {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--p42-text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* REAL PROGRESS STRIP */
+    .progress-strip {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 4rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .progress-strip strong {
+      display: block;
+      font-size: 1rem;
+      color: var(--p42-text-primary);
+      font-family: var(--p42-font-headline);
+    }
+
+    .progress-strip span {
+      font-size: 0.85rem;
+      color: var(--p42-text-secondary);
+    }
+
+    /* REAL PILLAR GRID (Two Ways to Grow) */
+    .section {
+      padding-block: 3.5rem;
+    }
+
+    .section-heading {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-heading h2 {
+      font-family: var(--p42-font-headline);
+      font-size: clamp(2rem, 3.2vw, 3rem);
+      font-weight: 850;
+      letter-spacing: -0.04em;
+      color: var(--p42-text-primary);
+      margin: 0.4rem 0 0.8rem;
+    }
+
+    .section-heading p {
+      color: var(--p42-text-secondary);
+      font-size: 1.1rem;
+      max-width: 680px;
+    }
+
+    .pillar-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.8rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .pillar-card {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 20px;
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
       transition: transform 0.2s ease, border-color 0.2s ease;
     }
 
-    .focus-card:hover {
+    .pillar-card:hover {
       transform: translateY(-3px);
       border-color: var(--p42-border-glass);
     }
 
-    .focus-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .focus-num {
+    .card-index {
       font-family: var(--p42-font-mono);
-      font-size: 11px;
-      font-weight: 700;
+      font-size: 0.75rem;
+      font-weight: 800;
       color: var(--p42-color-primary);
-      padding: 3px 8px;
-      background: rgba(0, 0, 0, 0.05);
-      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
 
-    .focus-name {
+    .pillar-card h3 {
       font-family: var(--p42-font-headline);
-      font-size: 17px;
-      font-weight: 700;
+      font-size: 1.55rem;
+      font-weight: 800;
       color: var(--p42-text-primary);
     }
 
-    .focus-desc {
-      font-size: 13px;
+    .pillar-card p {
       color: var(--p42-text-secondary);
-      line-height: 1.5;
+      font-size: 0.95rem;
+      line-height: 1.6;
     }
 
-    /* DUAL PANEL */
-    .dual-panel-grid {
+    .pillar-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0.5rem 0 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .pillar-card ul li {
+      color: var(--p42-text-secondary);
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .pillar-card ul li::before {
+      content: "•";
+      color: var(--p42-color-primary);
+      font-weight: 900;
+      margin-right: 0.5rem;
+    }
+
+    .pillar-card a {
+      color: var(--p42-color-primary);
+      font-weight: 700;
+      font-size: 0.92rem;
+      text-decoration: none;
+      margin-top: auto;
+    }
+
+    /* REAL FEATURED PATHS GRID */
+    .path-grid {
       display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 20px;
-      margin-bottom: 40px;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3.5rem;
     }
 
-    .panel-card {
+    .path-card {
       background: var(--p42-bg-surface);
       border: 1px solid var(--p42-border-subtle);
-      border-radius: var(--p42-radius-card);
-      padding: 24px;
+      border-radius: 16px;
+      padding: 1.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
 
-    .code-terminal {
-      position: relative;
-      background: #080d1a;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 16px;
-      font-family: var(--p42-font-mono);
-      font-size: 12.5px;
-      color: #38bdf8;
-      overflow-x: auto;
-      margin: 14px 0;
-      line-height: 1.55;
-    }
-
-    .copy-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #cbd5e1;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-family: var(--p42-font-mono);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .copy-btn:hover {
-      background: var(--p42-color-primary);
-      color: #080d2a;
-    }
-
-    .token-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-      margin-top: 8px;
-    }
-
-    .token-table th, .token-table td {
-      padding: 8px 10px;
-      text-align: left;
-      border-bottom: 1px solid var(--p42-border-subtle);
-    }
-
-    .token-table th {
+    .path-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
       color: var(--p42-text-muted);
       font-weight: 600;
     }
 
-    .color-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-family: var(--p42-font-mono);
-    }
-
-    .color-swatch-mini {
-      width: 14px;
-      height: 14px;
-      border-radius: 3px;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-    }
-
-    /* ------------------------------------------------------------- */
-    /* SURFACE 2: LEARN PLATFORM                                     */
-    /* ------------------------------------------------------------- */
-    .learn-mode-banner {
-      background: var(--p42-bg-surface);
-      border: 1px solid var(--p42-border-glass);
-      border-radius: var(--p42-radius-card);
-      padding: 24px;
-      margin-bottom: 24px;
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      align-items: center;
-      gap: 20px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    }
-
-    .mode-toggle-group {
-      display: flex;
-      background: var(--p42-bg-surface-elevated);
-      padding: 4px;
-      border-radius: 12px;
-      border: 1px solid var(--p42-border-subtle);
-      width: fit-content;
-      margin-top: 12px;
-    }
-
-    .mode-toggle-btn {
-      background: transparent;
-      border: none;
-      color: var(--p42-text-secondary);
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s ease;
-    }
-
-    .mode-toggle-btn.active {
-      background: var(--p42-color-primary);
-      color: var(--p42-btn-text);
-      font-weight: 700;
-    }
-
-    .learn-layout {
-      display: grid;
-      grid-template-columns: 340px 1fr;
-      gap: 24px;
-    }
-
-    .learn-sidebar {
-      background: var(--p42-bg-surface);
-      border: 1px solid var(--p42-border-subtle);
-      border-radius: var(--p42-radius-card);
-      padding: 20px;
-      height: fit-content;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    }
-
-    .sidebar-header {
-      font-family: var(--p42-font-headline);
-      font-size: 15px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      color: var(--p42-text-primary);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .path-select-box {
-      background: var(--p42-bg-surface-elevated);
-      border: 1px solid var(--p42-border-subtle);
-      color: var(--p42-text-primary);
-      padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      width: 100%;
-      margin-bottom: 16px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .module-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      color: var(--p42-text-secondary);
-      margin-bottom: 4px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .module-item:hover {
-      background: var(--p42-bg-surface-elevated);
-      color: var(--p42-text-primary);
-    }
-
-    .module-item.active {
-      background: var(--p42-bg-surface-elevated);
+    .level-pill {
+      background: rgba(0,0,0,0.05);
       color: var(--p42-color-primary);
-      border: 1px solid var(--p42-border-glass);
+      padding: 3px 8px;
+      border-radius: 6px;
       font-weight: 700;
-    }
-
-    .learn-content {
-      background: var(--p42-bg-surface);
-      border: 1px solid var(--p42-border-subtle);
-      border-radius: var(--p42-radius-card);
-      padding: 32px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    }
-
-    .lesson-meta-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--p42-border-subtle);
-      padding-bottom: 16px;
-      margin-bottom: 24px;
-    }
-
-    .lesson-tag {
+      text-transform: uppercase;
       font-family: var(--p42-font-mono);
-      font-size: 12px;
-      color: var(--p42-color-primary);
-      background: rgba(0, 0, 0, 0.05);
-      padding: 4px 8px;
-      border-radius: 4px;
+      font-size: 0.72rem;
     }
 
-    .lesson-title {
+    .path-number {
       font-family: var(--p42-font-headline);
-      font-size: 28px;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--p42-color-primary);
+      line-height: 1;
+    }
+
+    .path-card h3 {
+      font-family: var(--p42-font-headline);
+      font-size: 1.25rem;
       font-weight: 800;
       color: var(--p42-text-primary);
-      margin-bottom: 14px;
     }
 
-    .lesson-body {
+    .path-card p {
       color: var(--p42-text-secondary);
-      font-size: 15px;
-      line-height: 1.7;
-      margin-bottom: 24px;
+      font-size: 0.88rem;
+      line-height: 1.5;
     }
 
-    .instructor-box {
-      display: flex;
-      gap: 14px;
-      background: rgba(56, 189, 248, 0.08);
-      border: 1px solid var(--p42-border-glass);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 24px;
-    }
-
-    .instructor-avatar {
-      font-size: 24px;
-      background: var(--p42-bg-surface-elevated);
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid var(--p42-border-glass);
-      flex-shrink: 0;
-    }
-
-    .quiz-card {
-      background: var(--p42-bg-surface-elevated);
-      border: 1px solid var(--p42-border-glass);
-      border-radius: 14px;
-      padding: 24px;
-      margin-top: 24px;
-    }
-
-    .quiz-title {
-      font-family: var(--p42-font-headline);
-      font-size: 16px;
-      font-weight: 700;
+    .path-card a {
       color: var(--p42-color-primary);
-      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      text-decoration: none;
+      margin-top: auto;
     }
 
-    .quiz-option {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 12px 14px;
+    /* REAL PROVIDER STACK */
+    .provider-section {
       background: var(--p42-bg-surface);
       border: 1px solid var(--p42-border-subtle);
-      border-radius: 8px;
-      margin-bottom: 8px;
-      cursor: pointer;
-      font-size: 13.5px;
+      border-radius: 20px;
+      padding: 2.5rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .provider-stack {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.8rem;
+    }
+
+    .provider-row {
+      border-left: 3px solid var(--p42-color-primary);
+      padding-left: 1rem;
+    }
+
+    .provider-row strong {
+      display: block;
+      color: var(--p42-text-primary);
+      font-size: 1.05rem;
+      font-family: var(--p42-font-headline);
+      margin-bottom: 0.3rem;
+    }
+
+    .provider-row p {
       color: var(--p42-text-secondary);
-      transition: all 0.2s ease;
+      font-size: 0.85rem;
+      line-height: 1.5;
     }
 
-    .quiz-option:hover {
-      border-color: var(--p42-color-primary);
-      color: var(--p42-text-primary);
-    }
-
-    .quiz-option.correct {
-      border-color: #10b981;
-      background: rgba(16, 185, 129, 0.12);
-      color: var(--p42-text-primary);
-    }
-
-    .quiz-option.incorrect {
-      border-color: #ef4444;
-      background: rgba(239, 68, 68, 0.12);
-      color: var(--p42-text-primary);
-    }
-
-    /* ------------------------------------------------------------- */
-    /* SURFACE 3: FIELD GUIDE                                        */
-    /* ------------------------------------------------------------- */
-    .guide-filter-bar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 24px;
-    }
-
-    .filter-chip {
-      background: var(--p42-bg-surface);
-      border: 1px solid var(--p42-border-subtle);
-      color: var(--p42-text-secondary);
-      padding: 8px 16px;
-      border-radius: 9999px;
-      font-size: 13px;
-      cursor: pointer;
-      font-weight: 600;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-      transition: all 0.2s ease;
-    }
-
-    .filter-chip:hover {
+    /* REAL SELF HOST SECTION */
+    .self-host-card {
       background: var(--p42-bg-surface-elevated);
-      color: var(--p42-text-primary);
+      border: 1px solid var(--p42-border-glass);
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      text-align: center;
+      max-width: 860px;
+      margin: 0 auto 3.5rem;
     }
 
-    .filter-chip.active {
+    .self-host-card h2 {
+      font-family: var(--p42-font-headline);
+      font-size: 2rem;
+      font-weight: 850;
+      color: var(--p42-text-primary);
+      margin: 0.4rem 0 1rem;
+    }
+
+    .self-host-card p {
+      color: var(--p42-text-secondary);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin-bottom: 1.8rem;
+    }
+
+    /* REAL BOTTOM CTA */
+    .cta-banner {
       background: var(--p42-color-primary);
       color: var(--p42-btn-text);
-      border-color: var(--p42-color-primary);
-      font-weight: 700;
+      border-radius: 24px;
+      padding: 4rem 2rem;
+      text-align: center;
+      margin-bottom: 4rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     }
 
-    .matrix-table-card {
-      background: var(--p42-bg-surface);
-      border: 1px solid var(--p42-border-subtle);
-      border-radius: var(--p42-radius-card);
-      overflow: hidden;
-      margin-bottom: 32px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-      transition: all 0.3s ease;
+    .cta-banner .eyebrow {
+      color: var(--p42-color-tertiary);
     }
 
-    .matrix-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13.5px;
-    }
-
-    .matrix-table th {
-      background: var(--p42-bg-surface-elevated);
-      color: var(--p42-text-primary);
-      padding: 14px 18px;
-      text-align: left;
+    .cta-banner h2 {
       font-family: var(--p42-font-headline);
-      font-weight: 700;
-      border-bottom: 1px solid var(--p42-border-subtle);
+      font-size: clamp(2.2rem, 3.8vw, 3.4rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      margin: 0.4rem 0 1rem;
     }
 
-    .matrix-table td {
-      padding: 14px 18px;
-      color: var(--p42-text-secondary);
-      border-bottom: 1px solid var(--p42-border-subtle);
+    .cta-banner p {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 1.15rem;
+      max-width: 600px;
+      margin: 0 auto 2rem;
     }
 
-    .guide-cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-      gap: 20px;
+    .cta-banner .button-primary {
+      background: var(--p42-color-tertiary);
+      color: #080d2a;
+      font-size: 1rem;
+      padding: 0.9rem 2rem;
     }
 
-    .guide-recipe-card {
-      background: var(--p42-bg-surface);
-      border: 1px solid var(--p42-border-subtle);
-      border-radius: var(--p42-radius-card);
-      padding: 24px;
+    /* FOOTER */
+    .site-footer {
+      border-top: 1px solid var(--p42-border-subtle);
+      padding: 3rem 0;
+      color: var(--p42-text-muted);
+      font-size: 0.85rem;
       display: flex;
-      flex-direction: column;
-      gap: 12px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-      transition: all 0.3s ease;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
     }
 
-    .guide-recipe-card:hover {
-      border-color: var(--p42-border-glass);
-      transform: translateY(-2px);
-    }
-
-    .recipe-badge {
-      font-family: var(--p42-font-mono);
-      font-size: 11px;
-      color: var(--p42-color-primary);
-      background: rgba(0, 0, 0, 0.05);
-      padding: 3px 8px;
-      border-radius: 4px;
-      width: fit-content;
-    }
-
-    .recipe-title {
-      font-family: var(--p42-font-headline);
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--p42-text-primary);
-    }
-
-    @media (max-width: 960px) {
-      .layout-split .hero-container { grid-template-columns: 1fr; padding: 24px; }
-      .layout-original .hero-container { grid-template-columns: 1fr; padding: 24px; }
-      .layout-original .original-system-bar { grid-template-columns: 1fr; }
-      .dual-panel-grid { grid-template-columns: 1fr; }
-      .learn-layout { grid-template-columns: 1fr; }
-      .focus-grid { grid-template-columns: 1fr; }
-      .learn-mode-banner { grid-template-columns: 1fr; }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .pillar-grid { grid-template-columns: 1fr; }
+      .progress-strip { grid-template-columns: 1fr; }
+      .site-header nav { display: none; }
     }
   </style>
 </head>
-<body data-theme="cosmic" class="layout-split">
+<body data-theme="cosmic">
 
-  <!-- TOP THEME, LAYOUT & SURFACE CONTROLS -->
+  <!-- TOP THEME & SURFACE SWITCHER BAR -->
   <header class="showcase-control-bar">
     <div class="showcase-title-group">
-      <span class="showcase-badge">Brand Studio</span>
-      <div class="url-simulator" id="simulatedUrl">
-        <span>🌐</span> <strong>https://project-42.dev/</strong>
-      </div>
+      <span class="showcase-badge">Live Production Layout</span>
+      <strong style="font-size: 14px;">The Exact Website with 6 Brand Themes</strong>
     </div>
 
     <!-- 6 THEMES SELECTOR -->
     <div class="theme-selector">
       <button class="theme-btn active" onclick="setTheme('cosmic', this)">
-        <span>🌌</span> 01 Cosmic
+        <span>🌌</span> 01 Cosmic Answer
       </button>
       <button class="theme-btn" onclick="setTheme('portal', this)">
-        <span>🏛️</span> 02 Portal
+        <span>🏛️</span> 02 Learning Portal
       </button>
       <button class="theme-btn" onclick="setTheme('constellation', this)">
-        <span>🌐</span> 03 Constellation
+        <span>🌐</span> 03 Model Constellation
       </button>
       <button class="theme-btn" onclick="setTheme('field', this)">
         <span>🧭</span> 04 Field Signal
@@ -1173,585 +908,304 @@
         <span>🪐</span> 05 Open Orbit
       </button>
       <button class="theme-btn" onclick="setTheme('galactic', this)">
-        <span>🚀</span> 06 Galactic
+        <span>🚀</span> 06 The Galactic Guide
       </button>
-    </div>
-
-    <!-- SELECTORS GROUP: LAYOUT VARIATION & SURFACE -->
-    <div class="selector-group">
-      <!-- 3 LAYOUT VARIATIONS -->
-      <div class="pill-selector">
-        <button class="pill-btn active" onclick="setLayout('split', this)" title="Modern Split Glassmorphism Dashboard">
-          1. Split Glass
-        </button>
-        <button class="pill-btn" onclick="setLayout('original', this)" title="Original Concept Poster & Design System Specs">
-          2. Original Poster
-        </button>
-        <button class="pill-btn" onclick="setLayout('centered', this)" title="Centered Editorial SaaS Headline">
-          3. Centered Editorial
-        </button>
-      </div>
-
-      <!-- 3 REAL SURFACE SWITCHERS -->
-      <div class="pill-selector">
-        <button class="pill-btn active" onclick="setSurface('gateway', this)">project-42.dev</button>
-        <button class="pill-btn" onclick="setSurface('learn', this)">learn</button>
-        <button class="pill-btn" onclick="setSurface('guide', this)">guide</button>
-      </div>
     </div>
   </header>
 
-  <main class="main-viewport">
-
-    <!-- ============================================================= -->
-    <!-- SURFACE 1: PUBLIC GATEWAY (project-42.dev)                    -->
-    <!-- ============================================================= -->
-    <div id="surface-gateway" class="surface-content active">
-
-      <!-- DYNAMIC HERO VIEWPORT (Adapts to Layout 1, 2, or 3) -->
-      <section class="hero-container" id="heroSection">
-        <div class="hero-glass-card">
-          <div class="brand-mark-line">
-            <img src="concepts/01-cosmic-answer/mark.svg" alt="Project 42 Brand Mark" class="brand-mark-img" id="heroMark">
-            <div>
-              <div class="brand-title" id="brandTitle">Project 42</div>
-              <div class="hero-eyebrow" id="heroEyebrow">01 · Cosmic Answer</div>
-            </div>
-          </div>
-          <h1 class="hero-headline" id="heroHeadline">Learn to ask better questions of an expanding universe.</h1>
-          <p class="hero-lede" id="heroLede">
-            A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers across every frontier AI architecture.
-          </p>
-          <div class="hero-actions">
-            <button class="btn-primary" id="heroBtn1" onclick="setSurface('learn', document.querySelectorAll('.pill-selector')[1].querySelectorAll('.pill-btn')[1])">Launch Learn Platform</button>
-            <button class="btn-ghost" id="heroBtn2" onclick="setSurface('guide', document.querySelectorAll('.pill-selector')[1].querySelectorAll('.pill-btn')[2])">Open Field Guide</button>
-          </div>
-        </div>
-        <div></div>
-      </section>
-
-      <!-- ORIGINAL LAYOUT 2 SYSTEM SPECS BAR (Shown only in Layout 2: Original Poster) -->
-      <div class="original-system-bar" id="originalSystemBar">
-        <div class="system-col">
-          <h3>Identity & Narrative Idea</h3>
-          <p id="originalIdentityText">
-            An orbital answer aperture becomes the large hero motif; the compact 42 sits inside a simple orbit that survives at favicon scale.
-          </p>
-        </div>
-        <div class="system-col">
-          <h3>Sub-Brand Ecosystem</h3>
-          <div class="subbrand-pills">
-            <span class="subbrand-tag">Project 42 / Gateway</span>
-            <span class="subbrand-tag">Project 42 / Learn</span>
-            <span class="subbrand-tag">Project 42 / Field Guide</span>
-          </div>
-        </div>
-        <div class="system-col">
-          <h3>Design Swatches</h3>
-          <div class="swatch-group" id="swatchGroupContainer"></div>
-        </div>
-      </div>
-
-      <!-- LIVE STATS RIBBON -->
-      <div class="stats-ribbon">
-        <div class="stat-card">
-          <div class="stat-number">13</div>
-          <div class="stat-label">Learning Paths</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">92</div>
-          <div class="stat-label">Assessed Modules</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">89</div>
-          <div class="stat-label">Evidence Activities</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">384</div>
-          <div class="stat-label">Reviewed Questions</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">4</div>
-          <div class="stat-label">Provider Scopes</div>
-        </div>
-      </div>
-
-      <!-- 6 FOCUS AREAS GRID -->
-      <div class="section-title">
-        <span>Curriculum Focus Areas</span>
-        <span style="font-size: 13px; color: var(--p42-text-secondary); font-weight: 500;">92 Total Assessed Modules</span>
-      </div>
-      <div class="focus-grid">
-        <div class="focus-card">
-          <div class="focus-header">
-            <span class="focus-num">AREA 01</span>
-            <span style="font-size: 12px; color: var(--p42-text-muted);">4 Paths</span>
-          </div>
-          <div class="focus-name">Foundations & Core Literacy</div>
-          <div class="focus-desc">First principles, tokenization, context windows, model families, and prompt fundamentals.</div>
-        </div>
-
-        <div class="focus-card">
-          <div class="focus-header">
-            <span class="focus-num">AREA 02</span>
-            <span style="font-size: 12px; color: var(--p42-text-muted);">2 Paths</span>
-          </div>
-          <div class="focus-name">Practitioner Prompting & Workflows</div>
-          <div class="focus-desc">Structured outputs, tool use, chain-of-thought, few-shot prompting, and developer workflows.</div>
-        </div>
-
-        <div class="focus-card">
-          <div class="focus-header">
-            <span class="focus-num">AREA 03</span>
-            <span style="font-size: 12px; color: var(--p42-text-muted);">2 Paths</span>
-          </div>
-          <div class="focus-name">Frontier Agentic Systems & MCP</div>
-          <div class="focus-desc">Autonomous multi-agent swarms, Model Context Protocol (MCP), planning loops, and reflection.</div>
-        </div>
-
-        <div class="focus-card">
-          <div class="focus-header">
-            <span class="focus-num">AREA 04</span>
-            <span style="font-size: 12px; color: var(--p42-text-muted);">2 Paths</span>
-          </div>
-          <div class="focus-name">Retrieval, RAG & Fine-Tuning</div>
-          <div class="focus-desc">Vector databases, hybrid search, embedding pipelines, rerankers, and domain adaptation.</div>
-        </div>
-
-        <div class="focus-card">
-          <div class="focus-header">
-            <span class="focus-num">AREA 05</span>
-            <span style="font-size: 12px; color: var(--p42-text-muted);">2 Paths</span>
-          </div>
-          <div class="focus-name">Self-Hosted, Open-Weight & AIOps</div>
-          <div class="focus-desc">Ollama, vLLM, quantized inference, GPU orchestration, and local multi-model architectures.</div>
-        </div>
-
-        <div class="focus-card">
-          <div class="focus-header">
-            <span class="focus-num">AREA 06</span>
-            <span style="font-size: 12px; color: var(--p42-text-muted);">1 Path</span>
-          </div>
-          <div class="focus-name">AI Safety, Governance & Resilience</div>
-          <div class="focus-desc">Guardrails, prompt injection mitigation, red-teaming, eval harness, and audit trails.</div>
-        </div>
-      </div>
-
-      <!-- DUAL PANEL: CODE TERMINAL & DESIGN TOKEN INSPECTOR -->
-      <div class="dual-panel-grid">
-        <div class="panel-card">
-          <div class="section-title" style="margin-bottom: 12px;">Architecture Philosophy</div>
-          <p style="font-size: 14px; color: var(--p42-text-secondary); margin-bottom: 14px;">
-            <strong>Built by the thing it teaches:</strong> Learn AI with learning authored, verified, and kept current with AI.
-          </p>
-          <div class="code-terminal">
-            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-# Multi-Agent Consensus & Grounding Engine
-from p42.foundry import AgentEnsemble, GatePolicy
-
-pipeline = AgentEnsemble(
-    drafter="claude-3-5-sonnet",
-    adversary="gpt-4o",
-    arbiter="gemini-1.5-pro"
-)
-evaluation = pipeline.verify_claim(source_citation="NIST-AI-600-1")
-assert evaluation.confidence_score >= 0.98
-          </div>
-        </div>
-
-        <div class="panel-card">
-          <div class="section-title" style="margin-bottom: 12px;">Active Design Tokens</div>
-          <p style="font-size: 13px; color: var(--p42-text-secondary);">
-            Computed CSS variables for the active theme:
-          </p>
-          <table class="token-table">
-            <thead>
-              <tr><th>Token Name</th><th>Computed Value</th></tr>
-            </thead>
-            <tbody id="tokenInspectorBody"></tbody>
-          </table>
-        </div>
-      </div>
-
+  <!-- ============================================================= -->
+  <!-- EXACT PRODUCTION SITE HEADER                                   -->
+  <!-- ============================================================= -->
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="#">
+        <img src="concepts/01-cosmic-answer/mark.svg" alt="Project 42 Logo" class="brand-mark" id="siteHeaderLogo">
+        <span id="siteHeaderBrandText">Project 42</span>
+      </a>
+      <nav>
+        <a href="#paths">Learning Paths</a>
+        <a href="#field-guide">Field Guide</a>
+        <a href="#visual-guides">Visual Guides</a>
+        <a href="#self-host">Self-Hosting</a>
+        <a href="#about">About</a>
+      </nav>
+      <a class="header-action" href="#" id="headerCtaBtn">Explore Paths →</a>
     </div>
+  </header>
+
+  <main>
+    <!-- ============================================================= -->
+    <!-- EXACT HERO SECTION (From project-42.dev/app/page.tsx)         -->
+    <!-- ============================================================= -->
+    <section class="hero shell">
+      <div class="hero-copy">
+        <p class="eyebrow" id="heroEyebrow">Free, open AI learning</p>
+        <h1 id="heroHeadline">
+          Start curious.
+          <span>Become capable.</span>
+        </h1>
+        <p class="hero-lede" id="heroLede">
+          Project 42 makes artificial intelligence understandable from your first question to your first reliable agent. Learn at your pace, check what you know, and keep a record of your progress.
+        </p>
+        <div class="button-row">
+          <a class="button button-primary" href="#" id="heroBtn1">Start AI Foundations</a>
+          <a class="button button-secondary" href="#" id="heroBtn2">Browse the field guide</a>
+          <a class="button button-secondary" href="#">See visual guides</a>
+        </div>
+        <ul class="trust-list" aria-label="Project 42 promises">
+          <li>Beginner-friendly</li>
+          <li>Provider-neutral</li>
+          <li>Evidence-linked</li>
+          <li>Open source</li>
+        </ul>
+      </div>
+
+      <!-- EXACT ORBITAL JOURNEY MAP -->
+      <div class="hero-map" aria-label="Learning journey preview">
+        <div class="map-orbit map-orbit-one"></div>
+        <div class="map-orbit map-orbit-two"></div>
+        <div class="map-node map-node-start">
+          <span>01</span> Understand
+        </div>
+        <div class="map-node map-node-build">
+          <span>02</span> Practice
+        </div>
+        <div class="map-node map-node-prove">
+          <span>03</span> Prove it
+        </div>
+        <div class="map-center">
+          <span class="map-mark">42</span>
+          <small>Your path</small>
+        </div>
+      </div>
+    </section>
 
     <!-- ============================================================= -->
-    <!-- SURFACE 2: LEARN PLATFORM (learn.project-42.dev)              -->
+    <!-- EXACT PROGRESS STRIP                                          -->
     <!-- ============================================================= -->
-    <div id="surface-learn" class="surface-content">
-      
-      <!-- LEARN LANDING MODE SELECTOR BANNER -->
-      <div class="learn-mode-banner">
+    <section class="progress-strip shell" aria-label="Project 42 destinations">
+      <div>
+        <strong>Learn</strong>
+        <span>Courses, knowledge checks, badges, and your transcript</span>
+      </div>
+      <div>
+        <strong>Field Guide</strong>
+        <span>Practical answers, workflows, comparisons, and visual guides</span>
+      </div>
+      <a class="button button-secondary" href="#">Sign in to track progress</a>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- EXACT TWO WAYS TO GROW PILLAR GRID                            -->
+    <!-- ============================================================= -->
+    <section class="section shell" id="field-guide">
+      <div class="section-heading">
+        <p class="eyebrow">Two ways to grow</p>
+        <h2>Learn deeply. Find answers quickly.</h2>
+        <p>
+          Follow a guided path when you want mastery, or jump into the field guide when you need something useful right now.
+        </p>
+      </div>
+
+      <div class="pillar-grid">
+        <article class="pillar-card">
+          <div class="card-index">Academy / 01</div>
+          <h3>Self-paced learning</h3>
+          <p>
+            Short modules, plain language, practical examples, and a knowledge check at the end of every major section.
+          </p>
+          <ul>
+            <li>13 structured learning paths</li>
+            <li>92 assessed curriculum modules</li>
+            <li>Account-backed progress and transcript</li>
+          </ul>
+          <a href="#">Explore learning paths →</a>
+        </article>
+
+        <article class="pillar-card">
+          <div class="card-index">Field guide / 02</div>
+          <h3>Resources for the work</h3>
+          <p>
+            Checklists, explainers, provider maps, and decision tools with visible verification dates and sources.
+          </p>
+          <ul>
+            <li>89 source-first evidence activities</li>
+            <li>384 reviewed questions</li>
+            <li>Anthropic, OpenAI, Google & Open-Weight</li>
+            <li>Provider-neutral core concepts</li>
+          </ul>
+          <a href="#">Open the Field Guide →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- EXACT FEATURED PATHS GRID                                     -->
+    <!-- ============================================================= -->
+    <section class="section shell" id="paths">
+      <div class="section-heading" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
         <div>
-          <span class="hero-eyebrow">CHOOSE YOUR LEARNING EXPERIENCE</span>
-          <h2 style="font-family: var(--p42-font-headline); font-size: 22px; font-weight: 800; color: var(--p42-text-primary); margin-bottom: 6px;">
-            How do you want to learn today?
-          </h2>
-          <p style="font-size: 13.5px; color: var(--p42-text-secondary);">
-            Switch seamlessly between autonomous self-directed exploration and an AI-guided Socratic walkthrough.
-          </p>
-          <div class="mode-toggle-group">
-            <button class="mode-toggle-btn active" id="btnModeSelf" onclick="toggleLearnMode('self')">
-              <span>🧭</span> Self-Taught Track
-            </button>
-            <button class="mode-toggle-btn" id="btnModeInstructor" onclick="toggleLearnMode('instructor')">
-              <span>🤖</span> Virtual Instructor Track
-            </button>
-          </div>
+          <p class="eyebrow">Choose your starting point</p>
+          <h2>Paths with a destination</h2>
         </div>
-        <div style="background: rgba(0,0,0,0.03); border: 1px solid var(--p42-border-subtle); padding: 16px; border-radius: 12px;">
-          <div style="font-size: 12px; font-weight: 700; color: var(--p42-color-primary); margin-bottom: 4px;" id="modeStatusTitle">MODE: SELF-TAUGHT (EXPLORATORY)</div>
-          <p style="font-size: 12.5px; color: var(--p42-text-secondary); line-height: 1.45;" id="modeStatusDesc">
-            Direct access to all 92 modules, local browser progress tracking, and zero mandatory sign-in.
-          </p>
-        </div>
+        <a href="#" style="color: var(--p42-color-primary); font-weight: 700; text-decoration: none;">View all 13 paths →</a>
       </div>
 
-      <div class="learn-layout">
-        <!-- SIDEBAR -->
-        <aside class="learn-sidebar">
-          <div class="sidebar-header">
-            <span>Learning Paths</span>
-            <span style="font-size: 11px; color: var(--p42-color-primary); font-family: var(--p42-font-mono);" id="pathBadge">PATH 04 / 13</span>
+      <div class="path-grid">
+        <article class="path-card">
+          <div class="path-card-top">
+            <span class="level-pill">Beginner</span>
+            <span>16 modules</span>
           </div>
+          <div class="path-number">01</div>
+          <h3>AI Foundations</h3>
+          <p>Build a clear mental model of AI, prompts, and agents without assuming technical experience.</p>
+          <a href="#">See this path →</a>
+        </article>
 
-          <!-- REAL 13 PATHS FROM CATALOG.JSON -->
-          <select class="path-select-box" onchange="onPathChange(this.value)">
-            <option value="agentic-systems-and-tool-use">04 · Agentic Systems & Tool Use</option>
-            <option value="ai-foundations">01 · AI Foundations (16 Modules)</option>
-            <option value="providers-in-practice">02 · Providers in Practice</option>
-            <option value="prompt-engineering-and-structured-outputs">03 · Prompt Engineering & Outputs</option>
-            <option value="mcp-model-context-protocol">05 · Model Context Protocol (MCP)</option>
-            <option value="rag-and-retrieval-systems">06 · RAG & Retrieval Systems</option>
-            <option value="fine-tuning-and-domain-adaptation">07 · Fine-Tuning & Adaptation</option>
-            <option value="open-weight-and-local-models">08 · Open-Weight & Local Models</option>
-            <option value="aiops-and-production-observability">09 · AIOps & Observability</option>
-            <option value="ai-safety-and-guardrails">10 · AI Safety & Guardrails</option>
-            <option value="governance-and-compliance">11 · Governance & Compliance</option>
-            <option value="multimodal-and-vision-systems">12 · Multimodal & Vision Systems</option>
-            <option value="reasoning-and-deep-research-agents">13 · Deep Research Agents</option>
-          </select>
-
-          <div style="font-size: 11px; font-weight: 700; color: var(--p42-text-muted); text-transform: uppercase; margin: 12px 0 6px;">Path Modules</div>
-          
-          <div id="moduleListContainer">
-            <div class="module-item" onclick="selectModule(0, this)">
-              <span>✅</span>
-              <span>what-agents-do</span>
-            </div>
-            <div class="module-item" onclick="selectModule(1, this)">
-              <span>✅</span>
-              <span>agent-anatomy-and-loops</span>
-            </div>
-            <div class="module-item active" onclick="selectModule(2, this)">
-              <span>⚡</span>
-              <span>safe-tool-use-workflow</span>
-            </div>
-            <div class="module-item" onclick="selectModule(3, this)">
-              <span>🔒</span>
-              <span>multi-agent-handoffs</span>
-            </div>
-            <div class="module-item" onclick="selectModule(4, this)">
-              <span>🔒</span>
-              <span>guardrails-and-sandboxes</span>
-            </div>
-            <div class="module-item" onclick="selectModule(5, this)">
-              <span>🔒</span>
-              <span>agentic-systems-capstone</span>
-            </div>
+        <article class="path-card">
+          <div class="path-card-top">
+            <span class="level-pill">Intermediate</span>
+            <span>6 modules</span>
           </div>
-        </aside>
+          <div class="path-number">02</div>
+          <h3>Providers in Practice</h3>
+          <p>Learn what transfers across providers and where Anthropic, OpenAI, and Google workflows differ.</p>
+          <a href="#">See this path →</a>
+        </article>
 
-        <!-- MAIN LESSON READER -->
-        <section class="learn-content">
-          <!-- VIRTUAL INSTRUCTOR DIALOGUE -->
-          <div class="instructor-box" id="instructorDialogue" style="display: none;">
-            <div class="instructor-avatar">🤖</div>
-            <div>
-              <strong style="font-size: 13px; color: var(--p42-color-primary);">Virtual Instructor (Socratic Guide):</strong>
-              <p style="font-size: 13px; color: var(--p42-text-secondary); margin-top: 4px;">
-                "Welcome to <code>safe-tool-use-workflow</code>. Notice how we decouple the tool's schema declaration from the execution environment. Why do you think passing raw OS credentials directly in tool prompts is dangerous?"
-              </p>
-            </div>
+        <article class="path-card">
+          <div class="path-card-top">
+            <span class="level-pill">Advanced</span>
+            <span>8 modules</span>
           </div>
-
-          <div class="lesson-meta-bar">
-            <span class="lesson-tag" id="lessonModuleTag">MODULE: safe-tool-use-workflow</span>
-            <span class="lesson-progress-pill" id="lessonProgressPill">● 50% Path Complete</span>
-          </div>
-
-          <h2 class="lesson-title" id="lessonTitle">Safe Tool Use & Schema-Constrained Execution</h2>
-          
-          <div class="lesson-body" id="lessonBody">
-            <p style="margin-bottom: 14px;">
-              When language models invoke tools, they produce structured JSON arguments matching a predefined function schema. In production environments, this execution boundary must be strictly sandboxed.
-            </p>
-            <p>
-              By decoupling tool discovery from execution privileges, we prevent untrusted prompt injections from acquiring unintended administrative access to underlying database records or host filesystems.
-            </p>
-          </div>
-
-          <div class="code-terminal" id="lessonCodeTerminal">
-            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-// Safe Tool Invocation with Deterministic Zod Schema Validation
-import { z } from "zod";
-import { executeSandboxedTool } from "@project42/platform/tools";
-
-const WeatherToolSchema = z.object({
-  location: z.string().min(2),
-  units: z.enum(["metric", "imperial"]).default("metric")
-});
-
-export async function handleToolCall(rawArgs: unknown) {
-  const validatedArgs = WeatherToolSchema.parse(rawArgs);
-  return await executeSandboxedTool("get_weather", validatedArgs);
-}
-          </div>
-
-          <!-- INTERACTIVE KNOWLEDGE CHECK -->
-          <div class="quiz-card">
-            <div class="quiz-title">Interactive Knowledge Check</div>
-            <p style="font-size: 13.5px; color: var(--p42-text-secondary); margin-bottom: 14px;" id="quizQuestion">
-              What is the primary vulnerability when executing LLM tool calls without argument validation?
-            </p>
-
-            <div id="quizOptionsContainer">
-              <label class="quiz-option" onclick="evaluateQuiz(this, true)">
-                <input type="radio" name="learnQuiz">
-                <span>Prompt injection attacks can manipulate function arguments into malicious payloads (e.g., SQL injection or path traversal).</span>
-              </label>
-              <label class="quiz-option" onclick="evaluateQuiz(this, false)">
-                <input type="radio" name="learnQuiz">
-                <span>The model will take longer to compute tokens.</span>
-              </label>
-              <label class="quiz-option" onclick="evaluateQuiz(this, false)">
-                <input type="radio" name="learnQuiz">
-                <span>The model will fail to output valid English.</span>
-              </label>
-            </div>
-
-            <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
-              <span id="quizFeedback" style="font-size: 13px; color: var(--p42-text-secondary); font-weight: 600;">Select an answer to test your understanding</span>
-              <button class="btn-primary" style="padding: 8px 18px; font-size: 13px;" onclick="nextLesson()">Complete Lesson & Continue</button>
-            </div>
-          </div>
-        </section>
+          <div class="path-number">03</div>
+          <h3>Frontier Agentic Systems & MCP</h3>
+          <p>Master multi-agent orchestration, the Model Context Protocol (MCP), and production guardrails.</p>
+          <a href="#">See this path →</a>
+        </article>
       </div>
-
-    </div>
+    </section>
 
     <!-- ============================================================= -->
-    <!-- SURFACE 3: FIELD GUIDE (guide.project-42.dev)                 -->
+    <!-- EXACT PROVIDER STACK                                          -->
     <!-- ============================================================= -->
-    <div id="surface-guide" class="surface-content">
-      
-      <div class="section-title">
-        <span>The Practical Field Guide to Frontier AI</span>
-        <span style="font-size: 13px; color: var(--p42-text-secondary); font-weight: 500;">Zero-fluff decision matrices & recipes</span>
-      </div>
-
-      <!-- FILTER TAGS (FULLY FUNCTIONAL) -->
-      <div class="guide-filter-bar">
-        <button class="filter-chip active" onclick="filterGuide('all', this)">All Patterns</button>
-        <button class="filter-chip" onclick="filterGuide('matrix', this)">Model Comparison</button>
-        <button class="filter-chip" onclick="filterGuide('orchestration', this)">Multi-Agent Loops</button>
-        <button class="filter-chip" onclick="filterGuide('security', this)">Security & Guardrails</button>
-        <button class="filter-chip" onclick="filterGuide('local', this)">Local / Open-Weight</button>
-      </div>
-
-      <!-- MULTI-MODEL DECISION MATRIX TABLE -->
-      <div class="matrix-table-card" id="guideMatrixSection">
-        <table class="matrix-table">
-          <thead>
-            <tr>
-              <th>Model / Provider</th>
-              <th>Context Window</th>
-              <th>Tool Calling Reliability</th>
-              <th>Best Use Case</th>
-              <th>Local / Self-Host</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong style="color: var(--p42-color-primary);">Claude 3.5 Sonnet</strong> (Anthropic)</td>
-              <td>200K Tokens</td>
-              <td>★★★★★ (98.4%)</td>
-              <td>Complex reasoning, code architecture & multi-step agents</td>
-              <td>API Only</td>
-            </tr>
-            <tr>
-              <td><strong style="color: var(--p42-color-primary);">GPT-4o</strong> (OpenAI)</td>
-              <td>128K Tokens</td>
-              <td>★★★★★ (97.8%)</td>
-              <td>Fast multimodal vision, audio, and structured outputs</td>
-              <td>API Only</td>
-            </tr>
-            <tr>
-              <td><strong style="color: var(--p42-color-primary);">Gemini 1.5 Pro</strong> (Google)</td>
-              <td>2M Tokens</td>
-              <td>★★★★☆ (96.2%)</td>
-              <td>Massive context retrieval, video analysis & whole-repo audits</td>
-              <td>API Only</td>
-            </tr>
-            <tr>
-              <td><strong style="color: var(--p42-color-primary);">Llama 3.1 70B</strong> (Meta)</td>
-              <td>128K Tokens</td>
-              <td>★★★★☆ (94.5%)</td>
-              <td>Private on-premise execution, zero data egress, fine-tuning</td>
-              <td>✅ Ollama / vLLM</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- RECIPES GRID -->
-      <div class="guide-cards-grid" id="guideRecipesGrid">
-        <div class="guide-recipe-card" data-category="orchestration">
-          <span class="recipe-badge">RECIPE #01 · ORCHESTRATION</span>
-          <h3 class="recipe-title">Single Agent vs. Orchestrator vs. Swarm</h3>
-          <p style="font-size: 13.5px; color: var(--p42-text-secondary); line-height: 1.5;">
-            When your task exceeds 3 tool calls or requires distinct specialized skills, move from a single loop to an orchestrator-worker topology.
-          </p>
-          <div class="code-terminal">
-            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-# CLI Health Check
-npx @project42/cli verify --pattern orchestrator-worker
-          </div>
+    <section class="provider-section shell">
+      <p class="eyebrow">No single-provider tunnel vision</p>
+      <h2 style="font-family: var(--p42-font-headline); font-size: 2rem; font-weight: 850; color: var(--p42-text-primary); margin: 0.4rem 0 0.8rem;">
+        Learn the ideas that transfer.
+      </h2>
+      <div class="provider-stack">
+        <div class="provider-row">
+          <strong>Core Concepts</strong>
+          <p>Ideas that apply across AI products, model architectures, and frontier platforms.</p>
         </div>
-
-        <div class="guide-recipe-card" data-category="security">
-          <span class="recipe-badge">RECIPE #02 · SECURITY</span>
-          <h3 class="recipe-title">Prompt Injection Defense in Production</h3>
-          <p style="font-size: 13.5px; color: var(--p42-text-secondary); line-height: 1.5;">
-            Separate untrusted user input from system instructions using delimited tag blocks and deterministic schema validation before database execution.
-          </p>
-          <div class="code-terminal">
-            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-# Run Red-Team Benchmark
-npx @project42/eval --guardrail strict --target api
-          </div>
+        <div class="provider-row">
+          <strong>Anthropic</strong>
+          <p>Claude models, prompt caching, tool-use protocols, and multi-step agent workflows.</p>
         </div>
-
-        <div class="guide-recipe-card" data-category="local">
-          <span class="recipe-badge">RECIPE #03 · LOCAL INFERENCE</span>
-          <h3 class="recipe-title">Local Quantized Models with vLLM & Ollama</h3>
-          <p style="font-size: 13.5px; color: var(--p42-text-secondary); line-height: 1.5;">
-            Deploy high-throughput quantized 4-bit and 8-bit model endpoints with OpenAI-compatible streaming APIs in under 60 seconds.
-          </p>
-          <div class="code-terminal">
-            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-ollama run llama3.1:70b-instruct-q4_K_M
-          </div>
+        <div class="provider-row">
+          <strong>OpenAI</strong>
+          <p>ChatGPT, Structured Outputs, OpenAI APIs, and multi-modal developer tooling.</p>
+        </div>
+        <div class="provider-row">
+          <strong>Google Gemini</strong>
+          <p>Massive 2M context windows, multi-modal grounding, and cross-provider evaluation.</p>
         </div>
       </div>
+    </section>
 
-    </div>
+    <!-- ============================================================= -->
+    <!-- EXACT SELF-HOST & OPEN SOURCE CARD                            -->
+    <!-- ============================================================= -->
+    <section class="self-host-card shell" id="self-host">
+      <p class="eyebrow">Open Source & Self-Hosting</p>
+      <h2>Run Project 42 Inside Your Organization</h2>
+      <p>
+        Deploy the complete, host-agnostic Project 42 platform in your own cloud, air-gapped intranet, or local server. Customize with your organization's branding, overlay internal courses, and sync with upstream curriculum updates.
+      </p>
+      <div class="button-row" style="justify-content: center;">
+        <a class="button button-primary" href="#">View on GitHub →</a>
+        <a class="button button-secondary" href="#">Read Self-Hosting Guide</a>
+      </div>
+    </section>
 
+    <!-- ============================================================= -->
+    <!-- EXACT BOTTOM CTA                                              -->
+    <!-- ============================================================= -->
+    <section class="cta-banner shell">
+      <p class="eyebrow">Your first checkpoint is 12 minutes away</p>
+      <h2>Understanding beats intimidation.</h2>
+      <p>Start with one module. Your approved account keeps your place across devices.</p>
+      <a class="button button-primary" href="#">Begin the first module</a>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer shell">
+      <div>
+        <strong>Project 42</strong> — Provider-neutral AI learning & field guidance.
+      </div>
+      <div>
+        Open Source under Apache 2.0 & CC BY 4.0
+      </div>
+    </footer>
   </main>
 
   <script>
     const themeMetadata = {
       cosmic: {
         eyebrow: "01 · Cosmic Answer",
-        headline: "Learn to ask better questions of an expanding universe.",
+        headline: "Start curious. <span>Become capable.</span>",
         lede: "A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers across every frontier AI architecture.",
-        btn1: "Launch Learn Platform",
-        btn2: "Open Field Guide",
+        btn1: "Start AI Foundations",
+        btn2: "Browse the field guide",
         mark: "concepts/01-cosmic-answer/mark.svg",
-        idea: "An orbital answer aperture becomes the large hero motif; the compact 42 sits inside a simple orbit that survives at favicon scale.",
-        swatches: ["#080d2a", "#754cff", "#39d8ff", "#ffca68"],
-        tokens: [
-          { name: "--p42-bg-canvas", val: "#080d2a (Dark Space)" },
-          { name: "--p42-color-primary", val: "#39d8ff" },
-          { name: "--p42-color-secondary", val: "#754cff" },
-          { name: "--p42-color-tertiary", val: "#ffca68" },
-          { name: "--p42-font-headline", val: "'Outfit', sans-serif" }
-        ]
+        brandText: "Project 42"
       },
       portal: {
         eyebrow: "02 · Learning Portal",
-        headline: "A clear, structured doorway into deep AI mastery.",
+        headline: "A clear doorway. <span>Into deep AI mastery.</span>",
         lede: "A welcoming, ascending journey from fundamental literacy to production agent engineering. 13 learning paths, 92 assessed modules, built on open standards.",
-        btn1: "Launch Learn Platform",
+        btn1: "Enter Learning Portal",
         btn2: "Browse Field Guide",
         mark: "concepts/02-learning-portal/mark.svg",
-        idea: "A dimensional doorway inviting the learner in; warm sunlit palette to create psychological safety for beginners.",
-        swatches: ["#fbf7ef", "#ea580c", "#0d9488", "#092f54"],
-        tokens: [
-          { name: "--p42-bg-canvas", val: "#fbf7ef (Warm Sunlit Alabaster)" },
-          { name: "--p42-color-primary", val: "#ea580c" },
-          { name: "--p42-color-secondary", val: "#0d9488" },
-          { name: "--p42-color-tertiary", val: "#d97706" },
-          { name: "--p42-font-headline", val: "'Inter', sans-serif" }
-        ]
+        brandText: "Project 42"
       },
       constellation: {
         eyebrow: "03 · Model Constellation",
-        headline: "The multi-model universe. Connected without bias.",
+        headline: "Multi-model universe. <span>Connected without bias.</span>",
         lede: "Master AI across Anthropic Claude, OpenAI, Google Gemini, and Open-Weight models side-by-side without vendor privilege or proprietary lock-in.",
-        btn1: "Launch Learn Platform",
-        btn2: "Compare Provider Models",
+        btn1: "Explore Constellation",
+        btn2: "Compare Models",
         mark: "concepts/03-model-constellation/mark.svg",
-        idea: "Interconnected neural topology and constellation nodes representing multi-model parity and decentralized architectures.",
-        swatches: ["#080c14", "#58e4c2", "#8d64ff", "#ec4899"],
-        tokens: [
-          { name: "--p42-bg-canvas", val: "#080c14 (Cyber Midnight Dark)" },
-          { name: "--p42-color-primary", val: "#58e4c2" },
-          { name: "--p42-color-secondary", val: "#8d64ff" },
-          { name: "--p42-color-tertiary", val: "#ec4899" },
-          { name: "--p42-font-headline", val: "'Space Grotesk', sans-serif" }
-        ]
+        brandText: "Project 42"
       },
       field: {
         eyebrow: "04 · Field Signal",
-        headline: "Practical AI navigation for changing terrain.",
+        headline: "Practical AI navigation. <span>For changing terrain.</span>",
         lede: "Zero-fluff engineering recipes, verified provider patterns, and production-tested agent loops designed for practitioners in the field.",
-        btn1: "Launch Learn Platform",
-        btn2: "Browse Field Guide",
+        btn1: "Open Field Signal",
+        btn2: "Browse Recipes",
         mark: "concepts/04-field-signal/mark.svg",
-        idea: "Tactical topographic radar compass and durable telemetry lines for real-world engineering survival in changing territory.",
-        swatches: ["#f1f6f3", "#059669", "#d97706", "#062c23"],
-        tokens: [
-          { name: "--p42-bg-canvas", val: "#f1f6f3 (Tactical Field Sage)" },
-          { name: "--p42-color-primary", val: "#059669" },
-          { name: "--p42-color-secondary", val: "#d97706" },
-          { name: "--p42-color-tertiary", val: "#0891b2" },
-          { name: "--p42-font-headline", val: "'Space Grotesk', sans-serif" }
-        ]
+        brandText: "Project 42"
       },
       orbit: {
         eyebrow: "05 · Open Orbit",
-        headline: "The open orbit of continuous AI learning.",
+        headline: "The open orbit. <span>Of continuous AI learning.</span>",
         lede: "A community-powered, continuously verified curriculum that updates as fast as AI evolves. 100% open-source Apache 2.0 & CC BY 4.0.",
-        btn1: "Launch Learn Platform",
+        btn1: "Launch Learning Orbit",
         btn2: "Contribute to Platform",
         mark: "concepts/05-open-orbit/mark.svg",
-        idea: "Planetary velocity loops and open contribution trajectories signaling transparent open-source currency.",
-        swatches: ["#f4f7fb", "#2054f6", "#fb923c", "#17213b"],
-        tokens: [
-          { name: "--p42-bg-canvas", val: "#f4f7fb (Crisp Modern Light)" },
-          { name: "--p42-color-primary", val: "#2054f6" },
-          { name: "--p42-color-secondary", val: "#fb923c" },
-          { name: "--p42-color-tertiary", val: "#0284c7" },
-          { name: "--p42-font-headline", val: "'Outfit', sans-serif" }
-        ]
+        brandText: "Project 42"
       },
       galactic: {
         eyebrow: "06 · The Galactic Guide (Don't Panic)",
-        headline: "The Answer to Artificial Intelligence, Agents, and Everything.",
+        headline: "The Answer to AI. <span>Agents, and Everything.</span>",
         lede: "A friendly, provider-neutral survival guide from your very first prompt to production multi-agent swarms. 13 paths, 92 modules, and always knowing where your context is.",
         btn1: "Consult The Guide (Path 01)",
         btn2: "Open Galactic Field Guide",
         mark: "concepts/06-galactic-guide/mark.svg",
-        idea: "Friendly retro-futuristic galactic pocket computer guide with illuminated bezels and reassuring 'Don't Panic' clarity.",
-        swatches: ["#090d16", "#f59e0b", "#10b981", "#fef3c7"],
-        tokens: [
-          { name: "--p42-bg-canvas", val: "#090d16 (Galactic Star Dark)" },
-          { name: "--p42-color-primary", val: "#f59e0b" },
-          { name: "--p42-color-secondary", val: "#10b981" },
-          { name: "--p42-color-tertiary", val: "#06b6d4" },
-          { name: "--p42-font-headline", val: "'Bricolage Grotesque', sans-serif" }
-        ]
+        brandText: "Project 42 / Guide"
       }
     };
 
@@ -1762,209 +1216,16 @@ ollama run llama3.1:70b-instruct-q4_K_M
       btnEl.classList.add('active');
 
       const data = themeMetadata[themeKey];
-      document.getElementById('heroEyebrow').textContent = data.eyebrow;
-      document.getElementById('heroHeadline').textContent = data.headline;
+      document.getElementById('heroEyebrow').innerHTML = data.eyebrow;
+      document.getElementById('heroHeadline').innerHTML = data.headline;
       document.getElementById('heroLede').textContent = data.lede;
       document.getElementById('heroBtn1').textContent = data.btn1;
       document.getElementById('heroBtn2').textContent = data.btn2;
-      document.getElementById('heroMark').src = data.mark;
-
-      // Update Layout 2 system specs
-      document.getElementById('originalIdentityText').textContent = data.idea;
-      document.getElementById('swatchGroupContainer').innerHTML = data.swatches.map(c => `
-        <span class="swatch-circle" style="background: ${c};" title="${c}"></span>
-      `).join('');
-
-      // Update token inspector table
-      const tbody = document.getElementById('tokenInspectorBody');
-      tbody.innerHTML = data.tokens.map(t => `
-        <tr>
-          <td><code>${t.name}</code></td>
-          <td>
-            <span class="color-pill">
-              ${t.val.startsWith('#') ? `<span class="color-swatch-mini" style="background: ${t.val.split(' ')[0]}"></span>` : ''}
-              <code>${t.val}</code>
-            </span>
-          </td>
-        </tr>
-      `).join('');
+      document.getElementById('siteHeaderLogo').src = data.mark;
+      document.getElementById('siteHeaderBrandText').textContent = data.brandText;
     }
 
-    function setLayout(layoutKey, btnEl) {
-      document.body.classList.remove('layout-split', 'layout-original', 'layout-centered');
-      document.body.classList.add(`layout-${layoutKey}`);
-
-      btnEl.parentElement.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
-      btnEl.classList.add('active');
-    }
-
-    function setSurface(surfaceKey, btnEl) {
-      btnEl.parentElement.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
-      btnEl.classList.add('active');
-
-      document.querySelectorAll('.surface-content').forEach(s => s.classList.remove('active'));
-      const targetSurface = document.getElementById(`surface-${surfaceKey}`);
-      if (targetSurface) {
-        targetSurface.classList.add('active');
-      }
-
-      const urlBar = document.getElementById('simulatedUrl');
-      if (surfaceKey === 'gateway') {
-        urlBar.innerHTML = '<span>🌐</span> <strong>https://project-42.dev/</strong>';
-      } else if (surfaceKey === 'learn') {
-        urlBar.innerHTML = '<span>🌐</span> <strong>https://learn.project-42.dev/paths/agentic-systems/</strong>';
-      } else if (surfaceKey === 'guide') {
-        urlBar.innerHTML = '<span>🌐</span> <strong>https://guide.project-42.dev/decision-matrix/</strong>';
-      }
-    }
-
-    function toggleLearnMode(mode) {
-      const btnSelf = document.getElementById('btnModeSelf');
-      const btnInst = document.getElementById('btnModeInstructor');
-      const title = document.getElementById('modeStatusTitle');
-      const desc = document.getElementById('modeStatusDesc');
-      const dialog = document.getElementById('instructorDialogue');
-
-      if (mode === 'self') {
-        btnSelf.classList.add('active');
-        btnInst.classList.remove('active');
-        title.textContent = "MODE: SELF-TAUGHT (EXPLORATORY)";
-        desc.textContent = "Direct access to all 92 modules, local browser progress tracking, and zero mandatory sign-in.";
-        dialog.style.display = 'none';
-      } else {
-        btnInst.classList.add('active');
-        btnSelf.classList.remove('active');
-        title.textContent = "MODE: VIRTUAL INSTRUCTOR (AI-GUIDED)";
-        desc.textContent = "Socratic AI mentor guidance, verified knowledge diagnostics, and shareable competency transcripts.";
-        dialog.style.display = 'flex';
-      }
-    }
-
-    function filterGuide(category, btnEl) {
-      document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
-      btnEl.classList.add('active');
-
-      const matrixSec = document.getElementById('guideMatrixSection');
-      const cards = document.querySelectorAll('.guide-recipe-card');
-
-      if (category === 'all') {
-        matrixSec.style.display = 'block';
-        cards.forEach(c => c.style.display = 'flex');
-      } else if (category === 'matrix') {
-        matrixSec.style.display = 'block';
-        cards.forEach(c => c.style.display = 'none');
-      } else {
-        matrixSec.style.display = 'none';
-        cards.forEach(c => {
-          if (c.getAttribute('data-category') === category) {
-            c.style.display = 'flex';
-          } else {
-            c.style.display = 'none';
-          }
-        });
-      }
-    }
-
-    const modulesData = [
-      {
-        tag: "MODULE: what-agents-do",
-        title: "What AI Agents Do: Goals, Environments & Actions",
-        progress: "● 15% Path Complete",
-        body: "Agents perceive their environment through structured observations, formulate plans against discrete goals, and invoke external tools to effect change."
-      },
-      {
-        tag: "MODULE: agent-anatomy-and-loops",
-        title: "Agent Anatomy: Planning, Context & Execution Loops",
-        progress: "● 30% Path Complete",
-        body: "Understanding the ReAct loop (Reason + Act). Agents alternate between reasoning traces and tool invocations until an exit condition or answer is reached."
-      },
-      {
-        tag: "MODULE: safe-tool-use-workflow",
-        title: "Safe Tool Use & Schema-Constrained Execution",
-        progress: "● 50% Path Complete",
-        body: "When language models invoke tools, they produce structured JSON arguments matching a predefined function schema. In production environments, this execution boundary must be strictly sandboxed."
-      },
-      {
-        tag: "MODULE: multi-agent-handoffs",
-        title: "Multi-Agent Handoffs: Orchestrator & Worker Topologies",
-        progress: "● 65% Path Complete",
-        body: "Orchestrating specialized agents (Drafter, Verifier, Arbiter) through message handoffs guarantees higher precision than monolithic single-agent prompts."
-      },
-      {
-        tag: "MODULE: guardrails-and-sandboxes",
-        title: "Production Guardrails, Sandboxing & Cost Caps",
-        progress: "● 80% Path Complete",
-        body: "Hard enforcement of token caps, network egress firewalls, and human verification gates prevents unauthorized actions or rogue agent executions."
-      },
-      {
-        tag: "MODULE: agentic-systems-capstone",
-        title: "Capstone Project: Build a Production Multi-Agent Pipeline",
-        progress: "● 100% Path Complete",
-        body: "Assemble a multi-agent system from scratch with tool calling, self-correction, and verified telemetry output."
-      }
-    ];
-
-    function selectModule(index, el) {
-      document.querySelectorAll('#moduleListContainer .module-item').forEach(m => m.classList.remove('active'));
-      el.classList.add('active');
-
-      const mod = modulesData[index];
-      document.getElementById('lessonModuleTag').textContent = `MODULE: ${mod.tag.replace('MODULE: ', '')}`;
-      document.getElementById('lessonProgressPill').textContent = mod.progress;
-      document.getElementById('lessonTitle').textContent = mod.title;
-      document.getElementById('lessonBody').innerHTML = `<p>${mod.body}</p>`;
-      
-      document.querySelectorAll('.quiz-option').forEach(o => {
-        o.classList.remove('correct', 'incorrect');
-        o.querySelector('input').checked = false;
-      });
-      document.getElementById('quizFeedback').textContent = "Select an answer to test your understanding";
-      document.getElementById('quizFeedback').style.color = "var(--p42-text-secondary)";
-    }
-
-    function onPathChange(val) {
-      const badge = document.getElementById('pathBadge');
-      if (val === 'ai-foundations') badge.textContent = "PATH 01 / 13";
-      else if (val === 'providers-in-practice') badge.textContent = "PATH 02 / 13";
-      else if (val === 'prompt-engineering-and-structured-outputs') badge.textContent = "PATH 03 / 13";
-      else if (val === 'agentic-systems-and-tool-use') badge.textContent = "PATH 04 / 13";
-      else badge.textContent = "PATH 05 / 13";
-    }
-
-    function evaluateQuiz(labelEl, isCorrect) {
-      document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('correct', 'incorrect'));
-      const fb = document.getElementById('quizFeedback');
-      if (isCorrect) {
-        labelEl.classList.add('correct');
-        fb.textContent = "✓ Correct! Schema constraints prevent malicious argument payloads. +50 XP";
-        fb.style.color = "#10b981";
-      } else {
-        labelEl.classList.add('incorrect');
-        fb.textContent = "✗ Incorrect. Review the sandboxing section above.";
-        fb.style.color = "#ef4444";
-      }
-    }
-
-    function nextLesson() {
-      const items = document.querySelectorAll('#moduleListContainer .module-item');
-      let currentIdx = 0;
-      items.forEach((item, idx) => {
-        if (item.classList.contains('active')) currentIdx = idx;
-      });
-      const nextIdx = (currentIdx + 1) % items.length;
-      selectModule(nextIdx, items[nextIdx]);
-    }
-
-    function copyCode(btn) {
-      const pre = btn.parentElement;
-      const text = pre.innerText.replace('Copy', '').replace('Copied! ✓', '').trim();
-      navigator.clipboard.writeText(text).then(() => {
-        btn.textContent = "Copied! ✓";
-        setTimeout(() => { btn.textContent = "Copy"; }, 2000);
-      });
-    }
-
-    // Initialize with Cosmic theme tokens
+    // Initialize with Cosmic theme
     setTheme('cosmic', document.querySelector('.theme-btn.active'));
   </script>
 </body>
