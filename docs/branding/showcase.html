@@ -12,23 +12,22 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     
     :root {
-      /* Dynamic Theme Tokens - Default: Cosmic Answer */
-      --p42-bg-canvas: #0b0d17;
-      --p42-bg-surface: #111424;
-      --p42-bg-surface-elevated: #1a1e36;
-      --p42-bg-glass: rgba(17, 20, 36, 0.75);
-      --p42-border-glass: rgba(56, 189, 248, 0.25);
-      --p42-border-subtle: rgba(255, 255, 255, 0.1);
+      --p42-bg-canvas: #080d2a;
+      --p42-bg-surface: #0f1538;
+      --p42-bg-surface-elevated: #18204d;
+      --p42-bg-glass: rgba(15, 21, 56, 0.85);
+      --p42-border-glass: rgba(57, 216, 255, 0.3);
+      --p42-border-subtle: rgba(117, 76, 255, 0.2);
       --p42-text-primary: #ffffff;
-      --p42-text-secondary: #94a3b8;
-      --p42-text-muted: #64748b;
-      --p42-color-primary: #38bdf8;
-      --p42-color-secondary: #7c3aed;
-      --p42-color-tertiary: #f59e0b;
-      --p42-color-accent: #38bdf8;
-      --p42-btn-gradient: linear-gradient(135deg, #38bdf8, #7c3aed);
-      --p42-btn-text: #0b0d17;
-      --p42-hero-glow: rgba(56, 189, 248, 0.15);
+      --p42-text-secondary: #cbd5e1;
+      --p42-text-muted: #8492a6;
+      --p42-color-primary: #39d8ff;
+      --p42-color-secondary: #754cff;
+      --p42-color-tertiary: #ffca68;
+      --p42-color-accent: #39d8ff;
+      --p42-btn-gradient: linear-gradient(135deg, #ffca68, #f59e0b);
+      --p42-btn-text: #080d2a;
+      --p42-hero-glow: rgba(57, 216, 255, 0.2);
       --p42-font-headline: 'Outfit', sans-serif;
       --p42-font-body: 'Inter', sans-serif;
       --p42-font-mono: 'JetBrains Mono', monospace;
@@ -43,8 +42,8 @@
       --p42-bg-canvas: #080d2a;
       --p42-bg-surface: #0f1538;
       --p42-bg-surface-elevated: #18204d;
-      --p42-bg-glass: rgba(15, 21, 56, 0.82);
-      --p42-border-glass: rgba(57, 216, 255, 0.3);
+      --p42-bg-glass: rgba(15, 21, 56, 0.85);
+      --p42-border-glass: rgba(57, 216, 255, 0.35);
       --p42-border-subtle: rgba(117, 76, 255, 0.2);
       --p42-text-primary: #ffffff;
       --p42-text-secondary: #cbd5e1;
@@ -66,7 +65,7 @@
       --p42-bg-canvas: #0f172a;
       --p42-bg-surface: #1e293b;
       --p42-bg-surface-elevated: #283548;
-      --p42-bg-glass: rgba(30, 41, 59, 0.85);
+      --p42-bg-glass: rgba(30, 41, 59, 0.88);
       --p42-border-glass: rgba(249, 115, 22, 0.35);
       --p42-border-subtle: rgba(20, 184, 166, 0.25);
       --p42-text-primary: #ffffff;
@@ -89,7 +88,7 @@
       --p42-bg-canvas: #080c14;
       --p42-bg-surface: #0f1726;
       --p42-bg-surface-elevated: #162238;
-      --p42-bg-glass: rgba(15, 23, 38, 0.85);
+      --p42-bg-glass: rgba(15, 23, 38, 0.88);
       --p42-border-glass: rgba(88, 228, 194, 0.35);
       --p42-border-subtle: rgba(74, 111, 255, 0.3);
       --p42-text-primary: #ffffff;
@@ -112,7 +111,7 @@
       --p42-bg-canvas: #061d18;
       --p42-bg-surface: #0a2e27;
       --p42-bg-surface-elevated: #104037;
-      --p42-bg-glass: rgba(10, 46, 39, 0.85);
+      --p42-bg-glass: rgba(10, 46, 39, 0.88);
       --p42-border-glass: rgba(16, 185, 129, 0.35);
       --p42-border-subtle: rgba(245, 158, 11, 0.25);
       --p42-text-primary: #fff8e7;
@@ -135,7 +134,7 @@
       --p42-bg-canvas: #0a1128;
       --p42-bg-surface: #101c42;
       --p42-bg-surface-elevated: #192a5e;
-      --p42-bg-glass: rgba(16, 28, 66, 0.85);
+      --p42-bg-glass: rgba(16, 28, 66, 0.88);
       --p42-border-glass: rgba(59, 130, 246, 0.35);
       --p42-border-subtle: rgba(251, 146, 60, 0.3);
       --p42-text-primary: #ffffff;
@@ -158,7 +157,7 @@
       --p42-bg-canvas: #090d16;
       --p42-bg-surface: #0f182a;
       --p42-bg-surface-elevated: #17243c;
-      --p42-bg-glass: rgba(15, 24, 42, 0.88);
+      --p42-bg-glass: rgba(15, 24, 42, 0.9);
       --p42-border-glass: rgba(245, 158, 11, 0.45);
       --p42-border-subtle: rgba(16, 185, 129, 0.3);
       --p42-text-primary: #fef3c7;
@@ -181,7 +180,7 @@
       color: var(--p42-text-primary);
       font-family: var(--p42-font-body);
       line-height: 1.5;
-      transition: background 0.4s ease, color 0.4s ease;
+      transition: background 0.3s ease, color 0.3s ease;
       min-height: 100vh;
     }
 
@@ -190,10 +189,10 @@
       position: sticky;
       top: 0;
       z-index: 1000;
-      background: rgba(9, 13, 22, 0.92);
+      background: rgba(9, 13, 22, 0.94);
       backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--p42-border-subtle);
-      padding: 14px 24px;
+      padding: 12px 24px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
@@ -221,7 +220,7 @@
 
     .theme-selector {
       display: flex;
-      gap: 6px;
+      gap: 4px;
       background: rgba(255, 255, 255, 0.05);
       padding: 4px;
       border-radius: 9999px;
@@ -233,7 +232,7 @@
       background: transparent;
       border: none;
       color: #94a3b8;
-      padding: 8px 16px;
+      padding: 6px 14px;
       border-radius: 9999px;
       font-size: 13px;
       font-weight: 600;
@@ -258,14 +257,18 @@
 
     .surface-selector {
       display: flex;
-      gap: 8px;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
     .surface-btn {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: transparent;
+      border: none;
       color: #cbd5e1;
-      padding: 8px 14px;
+      padding: 6px 14px;
       border-radius: 8px;
       font-size: 13px;
       font-weight: 600;
@@ -274,46 +277,64 @@
     }
 
     .surface-btn:hover {
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.1);
       color: #ffffff;
     }
 
     .surface-btn.active {
       background: var(--p42-color-primary);
       color: #0b0d17;
-      border-color: var(--p42-color-primary);
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
     /* MAIN CONTAINER */
     .main-viewport {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 32px 24px 80px;
+      padding: 28px 24px 80px;
     }
 
-    /* THEME HERO SECTION */
+    /* SURFACE CONTAINER TOGGLES */
+    .surface-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .surface-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ------------------------------------------------------------- */
+    /* SURFACE 1: GATEWAY STYLES                                     */
+    /* ------------------------------------------------------------- */
     .hero-container {
       position: relative;
-      min-height: 580px;
+      min-height: 560px;
       border-radius: 24px;
       overflow: hidden;
       display: grid;
       grid-template-columns: 1.15fr 0.85fr;
       align-items: center;
-      padding: 48px;
+      padding: 44px;
       background-image: var(--p42-hero-img);
       background-size: cover;
       background-position: center;
       border: 1px solid var(--p42-border-glass);
       box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 40px var(--p42-hero-glow);
-      margin-bottom: 40px;
+      margin-bottom: 36px;
     }
 
     .hero-glass-card {
       background: var(--p42-bg-glass);
       backdrop-filter: blur(20px);
       border: 1px solid var(--p42-border-glass);
-      padding: 40px;
+      padding: 36px;
       border-radius: 20px;
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
     }
@@ -322,19 +343,19 @@
       display: flex;
       align-items: center;
       gap: 16px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .brand-mark-img {
-      width: 56px;
-      height: 56px;
-      border-radius: 14px;
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     }
 
     .brand-title {
       font-family: var(--p42-font-headline);
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 800;
       letter-spacing: -0.03em;
       color: var(--p42-text-primary);
@@ -342,12 +363,12 @@
 
     .hero-eyebrow {
       font-family: var(--p42-font-mono);
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       color: var(--p42-color-primary);
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -365,33 +386,33 @@
 
     .hero-headline {
       font-family: var(--p42-font-headline);
-      font-size: clamp(32px, 3.8vw, 54px);
+      font-size: clamp(28px, 3.4vw, 48px);
       font-weight: 800;
-      line-height: 1.08;
+      line-height: 1.1;
       letter-spacing: -0.04em;
       color: var(--p42-text-primary);
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
     .hero-lede {
-      font-size: 17px;
-      line-height: 1.6;
+      font-size: 16px;
+      line-height: 1.55;
       color: var(--p42-text-secondary);
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
 
     .hero-actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 14px;
+      gap: 12px;
     }
 
     .btn-primary {
       background: var(--p42-btn-gradient);
       color: var(--p42-btn-text);
       font-weight: 700;
-      font-size: 15px;
-      padding: 13px 24px;
+      font-size: 14px;
+      padding: 12px 22px;
       border-radius: var(--p42-radius-btn);
       border: none;
       cursor: pointer;
@@ -408,8 +429,8 @@
       background: rgba(255, 255, 255, 0.08);
       color: var(--p42-text-primary);
       font-weight: 600;
-      font-size: 15px;
-      padding: 13px 22px;
+      font-size: 14px;
+      padding: 12px 20px;
       border-radius: var(--p42-radius-btn);
       border: 1px solid var(--p42-border-subtle);
       cursor: pointer;
@@ -424,15 +445,15 @@
     /* STATS RIBBON */
     .stats-ribbon {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 40px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 36px;
     }
 
     .stat-card {
       background: var(--p42-bg-surface);
       border: 1px solid var(--p42-border-subtle);
-      padding: 20px;
+      padding: 18px;
       border-radius: var(--p42-radius-card);
       display: flex;
       flex-direction: column;
@@ -446,7 +467,7 @@
 
     .stat-number {
       font-family: var(--p42-font-headline);
-      font-size: 32px;
+      font-size: 30px;
       font-weight: 800;
       color: var(--p42-color-primary);
     }
@@ -457,12 +478,12 @@
       font-weight: 500;
     }
 
-    /* SECTION HEADERS */
+    /* SECTION TITLE */
     .section-title {
       font-family: var(--p42-font-headline);
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -471,19 +492,19 @@
     /* 6 FOCUS AREAS GRID */
     .focus-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-      gap: 20px;
-      margin-bottom: 48px;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 18px;
+      margin-bottom: 40px;
     }
 
     .focus-card {
       background: var(--p42-bg-surface);
       border: 1px solid var(--p42-border-subtle);
       border-radius: var(--p42-radius-card);
-      padding: 24px;
+      padding: 22px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       transition: transform 0.2s ease, border-color 0.2s ease;
     }
 
@@ -500,7 +521,7 @@
 
     .focus-num {
       font-family: var(--p42-font-mono);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--p42-color-primary);
       padding: 3px 8px;
@@ -510,54 +531,54 @@
 
     .focus-name {
       font-family: var(--p42-font-headline);
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
       color: var(--p42-text-primary);
     }
 
     .focus-desc {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--p42-text-secondary);
       line-height: 1.5;
     }
 
-    /* INTERACTIVE MODULE & TOKEN PANELS */
+    /* DUAL PANEL */
     .dual-panel-grid {
       display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 24px;
-      margin-bottom: 48px;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 20px;
+      margin-bottom: 40px;
     }
 
     .panel-card {
       background: var(--p42-bg-surface);
       border: 1px solid var(--p42-border-subtle);
       border-radius: var(--p42-radius-card);
-      padding: 28px;
+      padding: 24px;
     }
 
     .code-terminal {
       background: #060911;
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
-      padding: 16px;
+      padding: 14px;
       font-family: var(--p42-font-mono);
-      font-size: 13px;
-      color: #38bdf8;
+      font-size: 12.5px;
+      color: var(--p42-color-primary);
       overflow-x: auto;
-      margin: 16px 0;
-      line-height: 1.6;
+      margin: 14px 0;
+      line-height: 1.55;
     }
 
     .token-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
-      margin-top: 12px;
+      margin-top: 8px;
     }
 
     .token-table th, .token-table td {
-      padding: 8px 12px;
+      padding: 8px 10px;
       text-align: left;
       border-bottom: 1px solid var(--p42-border-subtle);
     }
@@ -575,23 +596,259 @@
     }
 
     .color-swatch-mini {
-      width: 16px;
-      height: 16px;
-      border-radius: 4px;
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
+    /* ------------------------------------------------------------- */
+    /* SURFACE 2: LEARN PLATFORM STYLES                              */
+    /* ------------------------------------------------------------- */
+    .learn-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+    }
+
+    .learn-sidebar {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: var(--p42-radius-card);
+      padding: 20px;
+      height: fit-content;
+    }
+
+    .sidebar-header {
+      font-family: var(--p42-font-headline);
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: var(--p42-text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .path-select-box {
+      background: var(--p42-bg-surface-elevated);
+      border: 1px solid var(--p42-border-subtle);
+      color: var(--p42-text-primary);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .module-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--p42-text-secondary);
+      margin-bottom: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .module-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+    }
+
+    .module-item.active {
+      background: var(--p42-bg-surface-elevated);
+      color: var(--p42-color-primary);
+      border: 1px solid var(--p42-border-glass);
+      font-weight: 600;
+    }
+
+    .module-badge-icon {
+      font-size: 14px;
+    }
+
+    .learn-content {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: var(--p42-radius-card);
+      padding: 32px;
+    }
+
+    .lesson-meta-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--p42-border-subtle);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+
+    .lesson-tag {
+      font-family: var(--p42-font-mono);
+      font-size: 12px;
+      color: var(--p42-color-primary);
+      background: rgba(255, 255, 255, 0.06);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .lesson-progress-pill {
+      font-size: 12px;
+      color: var(--p42-color-tertiary);
+      font-weight: 600;
+    }
+
+    .lesson-title {
+      font-family: var(--p42-font-headline);
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--p42-text-primary);
+      margin-bottom: 14px;
+    }
+
+    .lesson-body {
+      color: var(--p42-text-secondary);
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    /* QUIZ COMPONENT */
+    .quiz-card {
+      background: var(--p42-bg-surface-elevated);
+      border: 1px solid var(--p42-border-glass);
+      border-radius: 14px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .quiz-title {
+      font-family: var(--p42-font-headline);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--p42-color-primary);
+      margin-bottom: 8px;
+    }
+
+    .quiz-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 13.5px;
+      color: var(--p42-text-secondary);
+      transition: border-color 0.2s ease;
+    }
+
+    .quiz-option:hover {
+      border-color: var(--p42-color-primary);
+      color: #ffffff;
+    }
+
+    /* ------------------------------------------------------------- */
+    /* SURFACE 3: FIELD GUIDE STYLES                                 */
+    /* ------------------------------------------------------------- */
+    .guide-filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .filter-chip {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      color: var(--p42-text-secondary);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .filter-chip:hover, .filter-chip.active {
+      background: var(--p42-bg-surface-elevated);
+      color: var(--p42-color-primary);
+      border-color: var(--p42-color-primary);
+    }
+
+    .matrix-table-card {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: var(--p42-radius-card);
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    .matrix-table th {
+      background: var(--p42-bg-surface-elevated);
+      color: var(--p42-text-primary);
+      padding: 14px 18px;
+      text-align: left;
+      font-family: var(--p42-font-headline);
+      font-weight: 700;
+      border-bottom: 1px solid var(--p42-border-subtle);
+    }
+
+    .matrix-table td {
+      padding: 14px 18px;
+      color: var(--p42-text-secondary);
+      border-bottom: 1px solid var(--p42-border-subtle);
+    }
+
+    .guide-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 20px;
+    }
+
+    .guide-recipe-card {
+      background: var(--p42-bg-surface);
+      border: 1px solid var(--p42-border-subtle);
+      border-radius: var(--p42-radius-card);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .recipe-badge {
+      font-family: var(--p42-font-mono);
+      font-size: 11px;
+      color: var(--p42-color-primary);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 3px 8px;
+      border-radius: 4px;
+      width: fit-content;
+    }
+
+    .recipe-title {
+      font-family: var(--p42-font-headline);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--p42-text-primary);
+    }
+
     @media (max-width: 960px) {
-      .hero-container {
-        grid-template-columns: 1fr;
-        padding: 24px;
-      }
-      .dual-panel-grid {
-        grid-template-columns: 1fr;
-      }
-      .focus-grid {
-        grid-template-columns: 1fr;
-      }
+      .hero-container { grid-template-columns: 1fr; padding: 24px; }
+      .dual-panel-grid { grid-template-columns: 1fr; }
+      .learn-layout { grid-template-columns: 1fr; }
+      .focus-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -600,8 +857,8 @@
   <!-- TOP THEME SWITCHER CONTROLS -->
   <header class="showcase-control-bar">
     <div class="showcase-title-group">
-      <span class="showcase-badge">Brand System Studio</span>
-      <strong style="font-size: 15px;">Project 42 Identity Engine</strong>
+      <span class="showcase-badge">Brand Studio</span>
+      <strong style="font-size: 15px;">Project 42 Theming Engine</strong>
     </div>
 
     <!-- 6 THEMES SELECTOR -->
@@ -626,174 +883,376 @@
       </button>
     </div>
 
-    <!-- SURFACE SELECTOR -->
+    <!-- 3 SURFACE SWITCHERS -->
     <div class="surface-selector">
-      <button class="surface-btn active" onclick="setSurface('gateway', this)">Gateway</button>
-      <button class="surface-btn" onclick="setSurface('learn', this)">Learn</button>
+      <button class="surface-btn active" onclick="setSurface('gateway', this)">Public Gateway</button>
+      <button class="surface-btn" onclick="setSurface('learn', this)">Learn Platform</button>
       <button class="surface-btn" onclick="setSurface('guide', this)">Field Guide</button>
     </div>
   </header>
 
   <main class="main-viewport">
 
-    <!-- HERO VIEWPORT -->
-    <section class="hero-container" id="heroSection">
-      <div class="hero-glass-card">
-        <div class="brand-mark-line">
-          <img src="concepts/01-cosmic-answer/mark.svg" alt="Project 42 Brand Mark" class="brand-mark-img" id="heroMark">
-          <div>
-            <div class="brand-title" id="brandTitle">Project 42</div>
-            <div class="hero-eyebrow" id="heroEyebrow">01 · Cosmic Answer</div>
+    <!-- ============================================================= -->
+    <!-- SURFACE 1: PUBLIC GATEWAY                                     -->
+    <!-- ============================================================= -->
+    <div id="surface-gateway" class="surface-content active">
+
+      <!-- HERO VIEWPORT -->
+      <section class="hero-container" id="heroSection">
+        <div class="hero-glass-card">
+          <div class="brand-mark-line">
+            <img src="concepts/01-cosmic-answer/mark.svg" alt="Project 42 Brand Mark" class="brand-mark-img" id="heroMark">
+            <div>
+              <div class="brand-title" id="brandTitle">Project 42</div>
+              <div class="hero-eyebrow" id="heroEyebrow">01 · Cosmic Answer</div>
+            </div>
+          </div>
+          <h1 class="hero-headline" id="heroHeadline">Learn to ask better questions of an expanding universe.</h1>
+          <p class="hero-lede" id="heroLede">
+            A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers across every frontier AI architecture.
+          </p>
+          <div class="hero-actions">
+            <button class="btn-primary" id="heroBtn1" onclick="setSurface('learn', document.querySelectorAll('.surface-btn')[1])">Start Learning Path 01</button>
+            <button class="btn-ghost" id="heroBtn2" onclick="setSurface('guide', document.querySelectorAll('.surface-btn')[2])">Open Field Guide</button>
           </div>
         </div>
-        <h1 class="hero-headline" id="heroHeadline">Learn to ask better questions of an expanding universe.</h1>
-        <p class="hero-lede" id="heroLede">
-          A memorable expression of “42”: open inquiry, many possible paths, and evidence guiding learners toward useful answers across every frontier AI architecture.
-        </p>
-        <div class="hero-actions">
-          <button class="btn-primary" id="heroBtn1">Start Learning Path 01</button>
-          <button class="btn-ghost" id="heroBtn2">Open Field Guide</button>
+        <div></div>
+      </section>
+
+      <!-- LIVE STATS RIBBON -->
+      <div class="stats-ribbon">
+        <div class="stat-card">
+          <div class="stat-number">13</div>
+          <div class="stat-label">Learning Paths</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">92</div>
+          <div class="stat-label">Assessed Modules</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">89</div>
+          <div class="stat-label">Evidence Activities</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">384</div>
+          <div class="stat-label">Reviewed Questions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">4</div>
+          <div class="stat-label">Provider Scopes</div>
         </div>
       </div>
-      <div></div>
-    </section>
 
-    <!-- LIVE STATS RIBBON -->
-    <div class="stats-ribbon">
-      <div class="stat-card">
-        <div class="stat-number">13</div>
-        <div class="stat-label">Learning Paths</div>
+      <!-- 6 FOCUS AREAS GRID -->
+      <div class="section-title">
+        <span>Curriculum Focus Areas</span>
+        <span style="font-size: 13px; color: var(--p42-text-secondary); font-weight: 500;">92 Total Assessed Modules</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-number">92</div>
-        <div class="stat-label">Assessed Modules</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">89</div>
-        <div class="stat-label">Evidence Activities</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">384</div>
-        <div class="stat-label">Reviewed Questions</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">4</div>
-        <div class="stat-label">Provider Scopes</div>
-      </div>
-    </div>
-
-    <!-- 6 FOCUS AREAS GRID -->
-    <div class="section-title">
-      <span>Curriculum Focus Areas</span>
-      <span style="font-size: 13px; color: var(--p42-text-secondary); font-weight: 500;">92 Total Assessed Modules</span>
-    </div>
-    <div class="focus-grid">
-      <div class="focus-card">
-        <div class="focus-header">
-          <span class="focus-num">AREA 01</span>
-          <span style="font-size: 12px; color: var(--p42-text-muted);">4 Paths</span>
+      <div class="focus-grid">
+        <div class="focus-card">
+          <div class="focus-header">
+            <span class="focus-num">AREA 01</span>
+            <span style="font-size: 12px; color: var(--p42-text-muted);">4 Paths</span>
+          </div>
+          <div class="focus-name">Foundations & Core Literacy</div>
+          <div class="focus-desc">First principles, tokenization, context windows, model families, and prompt fundamentals.</div>
         </div>
-        <div class="focus-name">Foundations & Core Literacy</div>
-        <div class="focus-desc">First principles, tokenization, context windows, model families, and prompt fundamentals.</div>
-      </div>
 
-      <div class="focus-card">
-        <div class="focus-header">
-          <span class="focus-num">AREA 02</span>
-          <span style="font-size: 12px; color: var(--p42-text-muted);">2 Paths</span>
+        <div class="focus-card">
+          <div class="focus-header">
+            <span class="focus-num">AREA 02</span>
+            <span style="font-size: 12px; color: var(--p42-text-muted);">2 Paths</span>
+          </div>
+          <div class="focus-name">Practitioner Prompting & Workflows</div>
+          <div class="focus-desc">Structured outputs, tool use, chain-of-thought, few-shot prompting, and developer workflows.</div>
         </div>
-        <div class="focus-name">Practitioner Prompting & Workflows</div>
-        <div class="focus-desc">Structured outputs, tool use, chain-of-thought, few-shot prompting, and developer workflows.</div>
-      </div>
 
-      <div class="focus-card">
-        <div class="focus-header">
-          <span class="focus-num">AREA 03</span>
-          <span style="font-size: 12px; color: var(--p42-text-muted);">2 Paths</span>
+        <div class="focus-card">
+          <div class="focus-header">
+            <span class="focus-num">AREA 03</span>
+            <span style="font-size: 12px; color: var(--p42-text-muted);">2 Paths</span>
+          </div>
+          <div class="focus-name">Frontier Agentic Systems & MCP</div>
+          <div class="focus-desc">Autonomous multi-agent swarms, Model Context Protocol (MCP), planning loops, and reflection.</div>
         </div>
-        <div class="focus-name">Frontier Agentic Systems & MCP</div>
-        <div class="focus-desc">Autonomous multi-agent swarms, Model Context Protocol (MCP), planning loops, and reflection.</div>
-      </div>
 
-      <div class="focus-card">
-        <div class="focus-header">
-          <span class="focus-num">AREA 04</span>
-          <span style="font-size: 12px; color: var(--p42-text-muted);">2 Paths</span>
+        <div class="focus-card">
+          <div class="focus-header">
+            <span class="focus-num">AREA 04</span>
+            <span style="font-size: 12px; color: var(--p42-text-muted);">2 Paths</span>
+          </div>
+          <div class="focus-name">Retrieval, RAG & Fine-Tuning</div>
+          <div class="focus-desc">Vector databases, hybrid search, embedding pipelines, rerankers, and domain adaptation.</div>
         </div>
-        <div class="focus-name">Retrieval, RAG & Fine-Tuning</div>
-        <div class="focus-desc">Vector databases, hybrid search, embedding pipelines, rerankers, and domain adaptation.</div>
-      </div>
 
-      <div class="focus-card">
-        <div class="focus-header">
-          <span class="focus-num">AREA 05</span>
-          <span style="font-size: 12px; color: var(--p42-text-muted);">2 Paths</span>
+        <div class="focus-card">
+          <div class="focus-header">
+            <span class="focus-num">AREA 05</span>
+            <span style="font-size: 12px; color: var(--p42-text-muted);">2 Paths</span>
+          </div>
+          <div class="focus-name">Self-Hosted, Open-Weight & AIOps</div>
+          <div class="focus-desc">Ollama, vLLM, quantized inference, GPU orchestration, and local multi-model architectures.</div>
         </div>
-        <div class="focus-name">Self-Hosted, Open-Weight & AIOps</div>
-        <div class="focus-desc">Ollama, vLLM, quantized inference, GPU orchestration, and local multi-model architectures.</div>
-      </div>
 
-      <div class="focus-card">
-        <div class="focus-header">
-          <span class="focus-num">AREA 06</span>
-          <span style="font-size: 12px; color: var(--p42-text-muted);">1 Path</span>
+        <div class="focus-card">
+          <div class="focus-header">
+            <span class="focus-num">AREA 06</span>
+            <span style="font-size: 12px; color: var(--p42-text-muted);">1 Path</span>
+          </div>
+          <div class="focus-name">AI Safety, Governance & Resilience</div>
+          <div class="focus-desc">Guardrails, prompt injection mitigation, red-teaming, eval harness, and audit trails.</div>
         </div>
-        <div class="focus-name">AI Safety, Governance & Resilience</div>
-        <div class="focus-desc">Guardrails, prompt injection mitigation, red-teaming, eval harness, and audit trails.</div>
       </div>
-    </div>
 
-    <!-- DUAL PANEL: INTERACTIVE MODULE PREVIEW & DESIGN TOKEN INSPECTOR -->
-    <div class="dual-panel-grid">
-      <!-- Interactive Component Demo -->
-      <div class="panel-card">
-        <div class="section-title" style="margin-bottom: 14px;">Interactive Lesson View</div>
-        <p style="font-size: 14px; color: var(--p42-text-secondary); margin-bottom: 16px;">
-          Module <code>agent-loop-03</code> · Production Multi-Agent Swarms with Model Context Protocol
-        </p>
+      <!-- DUAL PANEL: CODE TERMINAL & DESIGN TOKEN INSPECTOR -->
+      <div class="dual-panel-grid">
+        <div class="panel-card">
+          <div class="section-title" style="margin-bottom: 12px;">Architecture Philosophy</div>
+          <p style="font-size: 14px; color: var(--p42-text-secondary); margin-bottom: 14px;">
+            <strong>Built by the thing it teaches:</strong> Learn AI with learning authored, verified, and kept current with AI.
+          </p>
+          <div class="code-terminal">
+# Multi-Agent Consensus & Grounding Engine
+from p42.foundry import AgentEnsemble, GatePolicy
 
-        <div class="code-terminal">
-# Connecting MCP Tools & Autonomous Multi-Agent Handshake
-from p42.agents import SwarmOrchestrator, MCPClient
-
-mcp = MCPClient.connect("sse://api.project-42.dev/mcp/v1")
-orchestrator = SwarmOrchestrator(
-    planner="claude-3-5-sonnet",
-    coder="gpt-4o",
-    evaluator="gemini-1.5-pro",
-    tools=mcp.tools
+pipeline = AgentEnsemble(
+    drafter="claude-3-5-sonnet",
+    adversary="gpt-4o",
+    arbiter="gemini-1.5-pro"
 )
-result = orchestrator.execute("Design zero-drift curriculum schema")
+evaluation = pipeline.verify_claim(source_citation="NIST-AI-600-1")
+assert evaluation.confidence_score >= 0.98
+          </div>
         </div>
 
-        <div style="background: rgba(255,255,255,0.04); padding: 16px; border-radius: 12px; border: 1px solid var(--p42-border-subtle);">
-          <strong style="font-size: 14px; color: var(--p42-color-primary);">Knowledge Check:</strong>
-          <p style="font-size: 13px; color: var(--p42-text-secondary); margin: 6px 0 12px;">What is the primary guarantee of Model Context Protocol (MCP) in multi-agent handoffs?</p>
-          <label style="display: block; font-size: 13px; margin-bottom: 6px; cursor: pointer;">
-            <input type="radio" name="quiz" checked> Standardized tool & context schema decoupled from proprietary model APIs
-          </label>
-          <label style="display: block; font-size: 13px; cursor: pointer;">
-            <input type="radio" name="quiz"> Vendor-locked proprietary RPC pipeline
-          </label>
+        <div class="panel-card">
+          <div class="section-title" style="margin-bottom: 12px;">Active Design Tokens</div>
+          <p style="font-size: 13px; color: var(--p42-text-secondary);">
+            Computed CSS variables for the active theme:
+          </p>
+          <table class="token-table">
+            <thead>
+              <tr><th>Token Name</th><th>Computed Value</th></tr>
+            </thead>
+            <tbody id="tokenInspectorBody"></tbody>
+          </table>
         </div>
       </div>
 
-      <!-- Live Design Token Inspector -->
-      <div class="panel-card">
-        <div class="section-title" style="margin-bottom: 14px;">Active Design Tokens</div>
-        <p style="font-size: 13px; color: var(--p42-text-secondary);">
-          Semantic CSS variables computed for the active theme:
-        </p>
+    </div>
 
-        <table class="token-table">
+    <!-- ============================================================= -->
+    <!-- SURFACE 2: LEARN PLATFORM                                     -->
+    <!-- ============================================================= -->
+    <div id="surface-learn" class="surface-content">
+      
+      <div class="learn-layout">
+        <!-- SIDEBAR -->
+        <aside class="learn-sidebar">
+          <div class="sidebar-header">
+            <span>Course Navigation</span>
+            <span style="font-size: 11px; color: var(--p42-color-primary); font-family: var(--p42-font-mono);">PATH 03 / 13</span>
+          </div>
+
+          <select class="path-select-box">
+            <option>Path 03: Frontier Agentic Systems & MCP</option>
+            <option>Path 01: AI Foundations & Core Literacy</option>
+            <option>Path 02: Advanced Prompting & Workflows</option>
+            <option>Path 04: Production RAG & Vector Systems</option>
+          </select>
+
+          <div style="font-size: 11px; font-weight: 700; color: var(--p42-text-muted); text-transform: uppercase; margin: 12px 0 6px;">Path Modules</div>
+          
+          <div class="module-item">
+            <span class="module-badge-icon">✅</span>
+            <span>01 · Agent Loop Fundamentals</span>
+          </div>
+          <div class="module-item">
+            <span class="module-badge-icon">✅</span>
+            <span>02 · Tool Selection & Schema Parsing</span>
+          </div>
+          <div class="module-item active">
+            <span class="module-badge-icon">⚡</span>
+            <span>03 · MCP Protocol & Server Connections</span>
+          </div>
+          <div class="module-item">
+            <span class="module-badge-icon">🔒</span>
+            <span>04 · Multi-Agent Swarms & Handoffs</span>
+          </div>
+          <div class="module-item">
+            <span class="module-badge-icon">🔒</span>
+            <span>05 · Reflection, Memory & Self-Correction</span>
+          </div>
+          <div class="module-item">
+            <span class="module-badge-icon">🔒</span>
+            <span>06 · Production Safety & Guardrails</span>
+          </div>
+        </aside>
+
+        <!-- MAIN LESSON READER -->
+        <section class="learn-content">
+          <div class="lesson-meta-bar">
+            <span class="lesson-tag">MODULE: agent-loop-03</span>
+            <span class="lesson-progress-pill">● 45% Path Complete</span>
+          </div>
+
+          <h2 class="lesson-title">Model Context Protocol (MCP) & Agent Connectivity</h2>
+          
+          <div class="lesson-body">
+            <p style="margin-bottom: 14px;">
+              The <strong>Model Context Protocol (MCP)</strong> establishes an open, standardized interface enabling AI agents to discover, negotiate, and safely execute tools across local processes, remote APIs, and enterprise databases.
+            </p>
+            <p>
+              Unlike legacy proprietary tool-calling formats, MCP standardizes capability declarations (resources, prompts, and tools), decoupling application logic from specific model providers.
+            </p>
+          </div>
+
+          <div class="code-terminal">
+// Connecting an MCP Tool Provider over Server-Sent Events (SSE)
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+
+const transport = new SSEClientTransport(new URL("https://mcp.project-42.dev/sse"));
+const client = new Client({ name: "p42-learner-agent", version: "1.0.0" });
+await client.connect(transport);
+
+const tools = await client.listTools();
+console.log(`Discovered ${tools.tools.length} standardized tools.`);
+          </div>
+
+          <!-- INTERACTIVE KNOWLEDGE CHECK -->
+          <div class="quiz-card">
+            <div class="quiz-title">Interactive Knowledge Check</div>
+            <p style="font-size: 13.5px; color: var(--p42-text-secondary); margin-bottom: 14px;">
+              Why does MCP reduce architectural coupling in multi-agent systems?
+            </p>
+
+            <label class="quiz-option">
+              <input type="radio" name="learnQuiz" checked>
+              <span>It standardizes tool and context definitions across all LLM providers so agents don't rely on vendor-specific RPC wrappers.</span>
+            </label>
+            <label class="quiz-option">
+              <input type="radio" name="learnQuiz">
+              <span>It forces all agents to run on the same cloud server.</span>
+            </label>
+            <label class="quiz-option">
+              <input type="radio" name="learnQuiz">
+              <span>It eliminates the need for tool schemas entirely.</span>
+            </label>
+
+            <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 12px; color: var(--p42-color-primary); font-weight: 600;">✓ Correct! +50 XP Earned</span>
+              <button class="btn-primary" style="padding: 8px 18px; font-size: 13px;">Complete Lesson & Continue</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- SURFACE 3: FIELD GUIDE                                        -->
+    <!-- ============================================================= -->
+    <div id="surface-guide" class="surface-content">
+      
+      <div class="section-title">
+        <span>The Practical Field Guide to Frontier AI</span>
+        <span style="font-size: 13px; color: var(--p42-text-secondary); font-weight: 500;">Zero-fluff decision matrices & recipes</span>
+      </div>
+
+      <!-- FILTER TAGS -->
+      <div class="guide-filter-bar">
+        <button class="filter-chip active">All Patterns</button>
+        <button class="filter-chip">Model Comparison</button>
+        <button class="filter-chip">Multi-Agent Loops</button>
+        <button class="filter-chip">Local / Open-Weight</button>
+        <button class="filter-chip">Security & Guardrails</button>
+      </div>
+
+      <!-- MULTI-MODEL DECISION MATRIX TABLE -->
+      <div class="matrix-table-card">
+        <table class="matrix-table">
           <thead>
-            <tr><th>Token Name</th><th>Computed Value</th></tr>
+            <tr>
+              <th>Model / Provider</th>
+              <th>Context Window</th>
+              <th>Tool Calling Reliability</th>
+              <th>Best Use Case</th>
+              <th>Local / Self-Host</th>
+            </tr>
           </thead>
-          <tbody id="tokenInspectorBody">
-            <!-- Populated dynamically via JS -->
+          <tbody>
+            <tr>
+              <td><strong style="color: var(--p42-color-primary);">Claude 3.5 Sonnet</strong> (Anthropic)</td>
+              <td>200K Tokens</td>
+              <td>★★★★★ (98.4%)</td>
+              <td>Complex reasoning, code architecture & multi-step agents</td>
+              <td>API Only</td>
+            </tr>
+            <tr>
+              <td><strong style="color: var(--p42-color-primary);">GPT-4o</strong> (OpenAI)</td>
+              <td>128K Tokens</td>
+              <td>★★★★★ (97.8%)</td>
+              <td>Fast multimodal vision, audio, and structured outputs</td>
+              <td>API Only</td>
+            </tr>
+            <tr>
+              <td><strong style="color: var(--p42-color-primary);">Gemini 1.5 Pro</strong> (Google)</td>
+              <td>2M Tokens</td>
+              <td>★★★★☆ (96.2%)</td>
+              <td>Massive context retrieval, video analysis & whole-repo audits</td>
+              <td>API Only</td>
+            </tr>
+            <tr>
+              <td><strong style="color: var(--p42-color-primary);">Llama 3.1 70B</strong> (Meta)</td>
+              <td>128K Tokens</td>
+              <td>★★★★☆ (94.5%)</td>
+              <td>Private on-premise execution, zero data egress, fine-tuning</td>
+              <td>✅ Ollama / vLLM</td>
+            </tr>
           </tbody>
         </table>
       </div>
+
+      <!-- RECIPES GRID -->
+      <div class="guide-cards-grid">
+        <div class="guide-recipe-card">
+          <span class="recipe-badge">RECIPE #01 · ORCHESTRATION</span>
+          <h3 class="recipe-title">Single Agent vs. Orchestrator vs. Swarm</h3>
+          <p style="font-size: 13.5px; color: var(--p42-text-secondary); line-height: 1.5;">
+            When your task exceeds 3 tool calls or requires distinct specialized skills, move from a single loop to an orchestrator-worker topology.
+          </p>
+          <div class="code-terminal" style="font-size: 12px; margin: 8px 0;">
+# CLI Health Check
+npx @project42/cli verify --pattern orchestrator-worker
+          </div>
+        </div>
+
+        <div class="guide-recipe-card">
+          <span class="recipe-badge">RECIPE #02 · SECURITY</span>
+          <h3 class="recipe-title">Prompt Injection Defense in Production</h3>
+          <p style="font-size: 13.5px; color: var(--p42-text-secondary); line-height: 1.5;">
+            Separate untrusted user input from system instructions using delimited tag blocks and deterministic schema validation before database execution.
+          </p>
+          <div class="code-terminal" style="font-size: 12px; margin: 8px 0;">
+# Run Red-Team Benchmark
+npx @project42/eval --guardrail strict --target api
+          </div>
+        </div>
+
+        <div class="guide-recipe-card">
+          <span class="recipe-badge">RECIPE #03 · LOCAL INFERENCE</span>
+          <h3 class="recipe-title">Local Quantized Models with vLLM & Ollama</h3>
+          <p style="font-size: 13.5px; color: var(--p42-text-secondary); line-height: 1.5;">
+            Deploy high-throughput quantized 4-bit and 8-bit model endpoints with OpenAI-compatible streaming APIs in under 60 seconds.
+          </p>
+          <div class="code-terminal" style="font-size: 12px; margin: 8px 0;">
+ollama run llama3.1:70b-instruct-q4_K_M
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </main>
@@ -923,9 +1382,17 @@ result = orchestrator.execute("Design zero-drift curriculum schema")
       `).join('');
     }
 
-    function setSurface(surface, btnEl) {
+    function setSurface(surfaceKey, btnEl) {
+      // Update surface buttons
       document.querySelectorAll('.surface-btn').forEach(b => b.classList.remove('active'));
       btnEl.classList.add('active');
+
+      // Hide all surfaces and show selected surface
+      document.querySelectorAll('.surface-content').forEach(s => s.classList.remove('active'));
+      const targetSurface = document.getElementById(`surface-${surfaceKey}`);
+      if (targetSurface) {
+        targetSurface.classList.add('active');
+      }
     }
 
     // Initialize with Cosmic theme tokens
