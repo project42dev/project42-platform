@@ -1,6 +1,6 @@
 {
-  "$schema": "./docs/theme-schema.json",
-  "theme": "01-cosmic-answer",
+  "$schema": "./schemas/portal-config.schema.json",
+  "theme": "06-galactic-guide",
   "availableThemes": [
     "01-cosmic-answer",
     "02-learning-portal",
@@ -10,6 +10,16 @@
     "06-galactic-guide"
   ],
   "galleryUrl": "https://gallery.project-42.dev",
+  "layout": {
+    "defaultPreset": "standard"
+  },
+  "portal": {
+    "canonicalOrigin": "https://project-42.dev",
+    "adminOrigin": "https://admin.project-42.dev",
+    "legacyOrigins": [
+      "https://learn.project-42.dev"
+    ]
+  },
   "organization": {
     "name": "Project 42",
     "tagline": "Learn to ask better questions of an expanding universe.",

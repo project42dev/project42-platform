@@ -134,13 +134,12 @@ untrusted forwarding header.
 Transaction and registration-receipt cookies use the `__Host-` prefix; the
 session cookie uses `__Secure-` so it can optionally carry a `Domain`
 attribute (`__Host-` forbids one entirely per RFC 6265bis). All three are
-`Secure`, `HttpOnly`, `Path=/`, and `SameSite=Lax`. By default the session
-cookie is still host-only, matching a single-origin deployment. Setting the
-`SESSION_COOKIE_DOMAIN` Worker variable to a leading-dot registrable domain
-(for example `.project-42.dev`) scopes the session cookie to every subdomain
-of that domain from one sign-in, without a second identity client — the
-Worker still authorizes every request independently of which subdomain
-presented the cookie. Session tokens are random and only their SHA-256
+`Secure`, `HttpOnly`, `Path=/`, and `SameSite=Lax`. The supported unified-portal
+deployment keeps the session cookie host-only. Do not set
+`SESSION_COOKIE_DOMAIN` for the public portal: Gallery has no authentication,
+and Admin obtains its own API-validated session on its isolated origin. Legacy
+subdomain-wide cookies are cleared during migration and are never treated as
+proof of an account or role. Session tokens are random and only their SHA-256
 digests are stored. Rotation, revocation, and account-state
 changes are committed with append-only audit evidence. Suspension, revocation,
 merge, and merge rollback revoke affected sessions and require a fresh sign-in.
@@ -171,3 +170,9 @@ for all non-approved states, pre-boundary stale sessions are revoked, and
 concurrent owner decisions produce exactly one transition and one audit event.
 Rotate `SESSION_ENCRYPTION_KEY` through a reviewed deployment because active
 authorization transactions encrypted with the old key become invalid.
+
+The browser may store non-authoritative presentation preferences and local
+learning progress. It must not cache a trusted signed-in account, role, bearer
+token, or session expiry in `localStorage`, `sessionStorage`, or a script-readable
+cookie. A failed or unavailable `/v1/auth/session` check is signed out; stale
+client data never unlocks learner or Admin UI.

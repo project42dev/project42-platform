@@ -8,20 +8,14 @@ const outDir = path.join(rootDir, 'dist/portal');
 
 // 1. Load configuration & catalog
 let config = {
-  branding: {
-    organizationName: "Project 42",
-    portalTitle: "Project 42 — Open-Source AI Academy",
-    portalTagline: "Self-Paced Curriculum, Hands-on Labs & Verified AI Engineering Guides",
-    logoUrl: "/assets/logo.svg",
-    copyright: "© 2026 Project 42 Open-Source Initiative. Apache-2.0 & CC BY 4.0 Licensed.",
+  theme: "06-galactic-guide",
+  availableThemes: ["06-galactic-guide"],
+  layout: { defaultPreset: "standard" },
+  portal: { canonicalOrigin: "http://localhost:3000", adminOrigin: "http://localhost:3001", legacyOrigins: [] },
+  organization: {
+    name: "Project 42",
+    tagline: "Learn to ask better questions of an expanding universe.",
     supportUrl: "https://github.com/project42dev/project42-platform/issues"
-  },
-  theme: {
-    colorMode: "system",
-    primaryColor: "#0F62FE",
-    accentColor: "#0043CE",
-    headerBackground: "#161616",
-    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
   },
   features: {
     enableFieldGuide: true,
@@ -37,11 +31,20 @@ const configPath = path.join(rootDir, 'project42.config.json');
 if (fs.existsSync(configPath)) {
   try {
     const userCfg = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    config = { ...config, ...userCfg, branding: { ...config.branding, ...userCfg.branding }, theme: { ...config.theme, ...userCfg.theme } };
+    config = { ...config, ...userCfg };
   } catch (e) {
     console.warn('Could not parse project42.config.json, using defaults.');
   }
 }
+
+const themePath = path.join(rootDir, 'docs', 'branding', 'concepts', config.theme, 'theme.json');
+if (!fs.existsSync(themePath)) {
+  throw new Error(`Configured theme bundle does not exist: ${config.theme}`);
+}
+const theme = JSON.parse(fs.readFileSync(themePath, 'utf8'));
+const tokens = theme.tokens;
+const portalTitle = config.organization.name;
+const portalTagline = config.organization.tagline;
 
 const catalogPath = path.join(rootDir, 'content/catalog.json');
 if (!fs.existsSync(catalogPath)) {
@@ -56,7 +59,6 @@ fs.mkdirSync(path.join(outDir, 'assets'), { recursive: true });
 fs.mkdirSync(path.join(outDir, 'learn'), { recursive: true });
 fs.mkdirSync(path.join(outDir, 'guide'), { recursive: true });
 fs.mkdirSync(path.join(outDir, 'profile'), { recursive: true });
-fs.mkdirSync(path.join(outDir, 'admin'), { recursive: true });
 
 // Helper: Common Header & Navigation
 function renderNav(activeTab = '') {
@@ -64,15 +66,13 @@ function renderNav(activeTab = '') {
   <header class="p42-navbar">
     <div class="p42-nav-container">
       <a href="/" class="p42-brand">
-        <span class="p42-logo-icon">🚀</span>
-        <span class="p42-brand-name">${config.branding.portalTitle}</span>
+        <span class="p42-brand-name">${portalTitle}</span>
       </a>
       <nav class="p42-nav-links">
         <a href="/" class="p42-nav-link ${activeTab === 'home' ? 'active' : ''}">Overview</a>
         <a href="/learn/" class="p42-nav-link ${activeTab === 'learn' ? 'active' : ''}">Learning Paths</a>
         <a href="/guide/" class="p42-nav-link ${activeTab === 'guide' ? 'active' : ''}">Field Guide</a>
         <a href="/profile/" class="p42-nav-link ${activeTab === 'profile' ? 'active' : ''}">My Progress</a>
-        <a href="/admin/" class="p42-nav-link ${activeTab === 'admin' ? 'active' : ''}">Admin</a>
       </nav>
     </div>
   </header>`;
@@ -82,10 +82,10 @@ function renderFooter() {
   return `
   <footer class="p42-footer">
     <div class="p42-footer-container">
-      <p>${config.branding.copyright}</p>
+      <p>Project 42 · Apache-2.0 software · CC BY 4.0 curriculum</p>
       <div class="p42-footer-links">
-        <a href="${config.branding.supportUrl || '#'}" target="_blank">Support & Helpdesk</a>
-        <a href="/admin/">System Status</a>
+        <a href="${config.organization.supportUrl || '#'}" target="_blank" rel="noreferrer">Support</a>
+        <a href="${config.portal.adminOrigin}">Admin Portal</a>
       </div>
     </div>
   </footer>`;
@@ -93,21 +93,21 @@ function renderFooter() {
 
 function renderBaseHtml({ title, content, activeTab = '', customHead = '' }) {
   return `<!DOCTYPE html>
-<html lang="en" data-theme="${config.theme.colorMode}">
+<html lang="en" data-theme="${config.theme}" data-layout="${config.layout.defaultPreset}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title} — ${config.branding.organizationName}</title>
+  <title>${title} — ${config.organization.name}</title>
   <style>
     :root {
-      --p42-primary: ${config.theme.primaryColor};
-      --p42-accent: ${config.theme.accentColor};
-      --p42-bg: #0d1117;
-      --p42-surface: #161b22;
-      --p42-border: #30363d;
-      --p42-text: #c9d1d9;
-      --p42-heading: #f0f6fc;
-      --p42-font: ${config.theme.fontFamily};
+      --p42-primary: ${tokens['--p42-primary']};
+      --p42-accent: ${tokens['--p42-accent']};
+      --p42-bg: ${tokens['--p42-bg']};
+      --p42-surface: ${tokens['--p42-surface']};
+      --p42-border: ${tokens['--p42-card-border']};
+      --p42-text: ${tokens['--p42-text-body']};
+      --p42-heading: ${tokens['--p42-text-title']};
+      --p42-font: ${theme.font};
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: var(--p42-font); background: var(--p42-bg); color: var(--p42-text); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
@@ -171,8 +171,8 @@ const pathsList = catalog.paths || [];
 const homeContent = `
   <div class="p42-hero">
     <span class="p42-badge-tag">Open-Source AI Learning Platform</span>
-    <h1>${config.branding.portalTitle}</h1>
-    <p>${config.branding.portalTagline}</p>
+    <h1>${portalTitle}</h1>
+    <p>${portalTagline}</p>
     <div style="display:flex; justify-content:center; gap:1rem;">
       <a href="/learn/" class="p42-btn">Explore Learning Paths (${pathsList.length})</a>
       <a href="/guide/" class="p42-btn p42-btn-outline">Field Guide References (${(catalog.resources || []).length})</a>
@@ -336,33 +336,5 @@ const profileContent = `
   </script>
 `;
 fs.writeFileSync(path.join(outDir, 'profile/index.html'), renderBaseHtml({ title: 'My Progress', content: profileContent, activeTab: 'profile' }));
-
-// 7. Build Admin Page (admin/index.html)
-const adminContent = `
-  <h1 style="color:var(--p42-heading); margin-bottom:0.5rem;">System & Administration Console</h1>
-  <p style="color:#8b949e; margin-bottom:2rem;">Overview of loaded curriculum catalogs, active configuration tokens, and deployment diagnostics.</p>
-
-  <div class="p42-grid">
-    <div class="p42-card">
-      <h3>Active Branding</h3>
-      <p>Organization: <strong>${config.branding.organizationName}</strong></p>
-      <p>Portal Title: <strong>${config.branding.portalTitle}</strong></p>
-      <p>Primary Color: <strong>${config.theme.primaryColor}</strong></p>
-    </div>
-    <div class="p42-card">
-      <h3>Loaded Catalog</h3>
-      <p>Total Modules: <strong>${(catalog.modules || []).length}</strong></p>
-      <p>Learning Paths: <strong>${pathsList.length}</strong></p>
-      <p>Field Resources: <strong>${(catalog.resources || []).length}</strong></p>
-    </div>
-    <div class="p42-card">
-      <h3>Content Synchronization</h3>
-      <p>Upstream Repo: <code>${config.content?.upstreamRepo || 'project42-content'}</code></p>
-      <p>Custom Overlays: <code>${config.content?.customContentDir || './custom-content'}</code></p>
-      <a href="/admin/#sync" class="p42-btn" style="margin-top:0.75rem; text-align:center;">Trigger Content Sync</a>
-    </div>
-  </div>
-`;
-fs.writeFileSync(path.join(outDir, 'admin/index.html'), renderBaseHtml({ title: 'Administration', content: adminContent, activeTab: 'admin' }));
 
 console.log(`Successfully generated static portal to ${outDir}`);

@@ -1,35 +1,64 @@
-# Universal Hosting & Deployment Guide
+# Universal hosting and deployment
 
-Project 42 Platform is host-agnostic. The static site generator outputs pure HTML, JavaScript, and CSS that runs on any static hosting platform.
+Project 42 separates the public portal, Gallery, Admin, API, identity provider,
+and durable record store. A static host can serve the public UI, but authenticated
+cloud progress and administration require the API and identity services.
 
----
+## Required host map
 
-## Supported Hosting Platforms
+| Surface | Requirement |
+|---|---|
+| Public portal | One canonical origin for `/`, `/learn/**`, `/guide/**`, profile, and information routes |
+| Legacy public hosts | Permanent or client fallback redirects that preserve path, query, and fragment |
+| Gallery | Separate public static origin; no authentication or learner state |
+| Admin | Separate origin; API-enforced `admin` or `owner` authorization; fixed operational theme |
+| API | HTTPS, exact-origin CORS, secure cookie and CSRF enforcement |
 
-### 1. Cloudflare Pages
-- **Build Command**: `npm run build`
-- **Build Output Directory**: `out` or `dist`
-- **Environment Variables**: `NODE_VERSION = 22`
+## Static export
 
-### 2. Azure Static Web Apps
-- **App Location**: `/`
-- **Output Location**: `dist`
-- **API Location**: (optional)
-
-### 3. GitHub Pages / GitLab Pages
-- Automatically configured via GitHub Actions (`.github/workflows/deploy-pages.yml`).
-
-### 4. AWS S3 + CloudFront
 ```bash
-npm run build
-aws s3 sync dist/ s3://your-project42-bucket --delete
-aws cloudfront create-invalidation --distribution-id YOUR_ID --paths "/*"
+npm ci
+npm run portal:build
 ```
 
-### 5. Air-Gapped NGINX Container
+Publish `dist/portal` to a static host. Configure a fallback only for routes
+the generated artifact owns; do not rewrite missing assets to HTML. Generate
+real files or redirect documents for deep links when the host does not provide
+application rewrites.
+
+Cloudflare Pages, Azure Static Web Apps, GitHub Pages, S3 plus CloudFront, and
+NGINX are suitable when they preserve HTTPS, MIME types, cache controls, and
+deep-link behavior.
+
+## Docker Compose
+
+```bash
+cd self-host
+docker compose up -d
+docker compose ps
+```
+
+Use the Compose profile for evaluation and as a self-host reference. Before
+production, replace development secrets, pin images, configure backups, set
+exact canonical/API origins, provision TLS, and run the migration and recovery
+gates.
+
+## NGINX example
+
 ```dockerfile
 FROM nginx:alpine
-COPY dist /usr/share/nginx/html
+COPY dist/portal /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
+
+For multiple origins, use separate virtual hosts or deployments. Never publish
+Admin files under the public origin, and never allow Gallery configuration to
+load authenticated account state.
+
+## Verification
+
+Verify `/`, `/learn`, `/guide`, `/profile`, representative dynamic routes,
+assets, redirects, canonical metadata, and the selected theme. Confirm Gallery
+works while signed out and Admin fails closed for signed-out, learner, pending,
+rejected, suspended, and revoked accounts.

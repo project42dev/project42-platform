@@ -5,6 +5,8 @@ RUN npm ci --ignore-scripts
 COPY src ./src
 COPY content ./content
 COPY scripts ./scripts
+COPY docs/branding/concepts ./docs/branding/concepts
+COPY project42.config.json ./project42.config.json
 RUN npm run build
 
 FROM node:22.23.1-alpine3.24 AS runtime
