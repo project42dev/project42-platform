@@ -6,7 +6,7 @@ This runbook guides operators on how to brand, customize, and operate the Projec
 
 ## 1. Quick Start Configuration
 
-Project 42 reads its branding and visual theme from `project42.config.json` at the root of the platform repository.
+Project 42 reads its global theme and layout configuration directly from `project42.config.json` at the root of the portal repository (operating like a Hugo or Jekyll declarative theme engine).
 
 Create `project42.config.json` from the provided template:
 
@@ -18,21 +18,26 @@ cp project42.config.example.json project42.config.json
 
 ```json
 {
-  "$schema": "./schemas/portal-config.schema.json",
+  "$schema": "https://schema.project-42.dev/v1/portal-config.json",
+  "theme": "06-galactic-guide",
+  "availableThemes": [
+    "06-galactic-guide",
+    "01-cosmic-answer",
+    "02-learning-portal",
+    "03-model-constellation",
+    "04-field-signal",
+    "05-open-orbit"
+  ],
   "branding": {
     "organizationName": "Acme Global Corp",
     "portalTitle": "Acme AI Academy",
     "portalTagline": "Mastering Agentic AI, MCP Tooling & Modern Cloud Architectures",
-    "logoUrl": "/assets/branding/acme-logo.svg",
+    "logoUrl": "/brand/project-42-mark.svg",
     "copyright": "© 2026 Acme Global Corp. All rights reserved.",
     "supportUrl": "https://helpdesk.acme.corp"
   },
-  "theme": {
-    "colorMode": "system",
-    "primaryColor": "#0F62FE",
-    "accentColor": "#0043CE",
-    "headerBackground": "#161616",
-    "fontFamily": "Inter, -apple-system, BlinkMacSystemFont, sans-serif"
+  "layout": {
+    "defaultPreset": "standard"
   },
   "features": {
     "enableFieldGuide": true,
@@ -40,23 +45,29 @@ cp project42.config.example.json project42.config.json
     "enableKnowledgeChecks": true,
     "enableBadges": true,
     "enableTranscripts": true
-  },
-  "content": {
-    "customContentDir": "./custom-content"
   }
 }
 ```
 
 ---
 
-## 2. Adding Internal / Proprietary Courses
+## 2. Layout Density Presets
+
+Project 42 provides three core responsive layout presets:
+- **Standard Shell (`standard`)**: Balanced 1180px maximum line length for optimal readability.
+- **Wide Canvas (`wide`)**: Expansive 1560px container width for high-density administrative dashboards and multi-column comparison matrices.
+- **Compact Minimal (`compact`)**: Streamlined 960px container for narrow-width reading focus.
+
+---
+
+## 3. Adding Internal / Proprietary Courses
 
 You can overlay proprietary corporate courses and modules alongside the open-source curriculum without modifying core files:
 
 1. Place your course JSON definitions in `custom-content/modules/`.
 2. Run the build script:
    ```bash
-   npm run portal:build
+   npm run build
    ```
 3. The generator automatically validates your custom modules against the JSON schema and compiles them into `dist/portal/`.
 

@@ -20,10 +20,19 @@ Project 42 separates curriculum intelligence, content storage, and presentation 
 └────────────────────────────────────┬───────────────────────────────────┘
                                      │ Upstream Sync (Git / npm / CLI)
 ┌────────────────────────────────────▼───────────────────────────────────┐
-│ 3. THE CONSUMER PLATFORMS (project42-platform & Customer Deployments)  │
-│    • Host-Agnostic Static Generator (Cloudflare, Azure, GitLab, S3)    │
-│    • Reads content/ folder + optional custom/ corporate overlay        │
-│    • Configurable themes (logo, colors, corporate styling)             │
+│ 3. THE CONSUMER PLATFORMS & PORTALS                                    │
+│    ┌─────────────────────────────────────────────────────────────┐     │
+│    │ A. UNIFIED WEB PORTAL (project-42.dev / learn)              │     │
+│    │    • Single-origin routing: /, /learn/*, /guide/*, /profile │     │
+│    │    • Declarative config (project42.config.json)             │     │
+│    │    • Zero session drops, single auth state, tokenized CSS   │     │
+│    └─────────────────────────────────────────────────────────────┘     │
+│    ┌─────────────────────────────┐ ┌─────────────────────────────┐     │
+│    │ B. STANDALONE THEME GALLERY │ │ C. STANDALONE ADMIN PORTAL  │     │
+│    │    • gallery.project-42.dev │ │    • admin.project-42.dev   │     │
+│    │    • Design system sandbox  │ │    • RBAC owner & domain ops│     │
+│    │    • 100% public, no auth   │ │    • Fixed dark console UI  │     │
+│    └─────────────────────────────┘ └─────────────────────────────┘     │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -35,8 +44,17 @@ Project 42 separates curriculum intelligence, content storage, and presentation 
    - Upstream maintenance (Orchard) is strictly responsible for researching, drafting, and dropping validated JSON/Markdown content into the content repository.
    - Downstream presentation engines are responsible for layout, routing, theming, and hosting.
 
-2. **Universal Host-Agnostic Compatibility**:
-   - The platform compiles into a static HTML/JS/CSS artifact that can be hosted on any static cloud or on-prem web server.
+2. **Unified Single-Origin Web Experience**:
+   - The primary consumer portal operates on a single origin, providing unified navigation across landing, learning paths (`/learn`), field guide references (`/guide`), and learner profile (`/profile`).
+   - Eliminates cross-subdomain authentication drops and avoids brittle iframe/postMessage bridges.
 
-3. **Corporate Theming & Custom Content Overlays**:
-   - Organizations can mount proprietary internal courses (`custom-content/`) alongside the open-source catalog.
+3. **Declarative Hugo/Jekyll-Style Theming**:
+   - The entire visual aesthetic is governed by `project42.config.json` via a single `"theme"` key (e.g. `"06-galactic-guide"`).
+   - Dynamic CSS variable mappings (`--paper`, `--paper-strong`, `--ink`, `--line`, `--orange`, `--lime`, `--cyan`) skin all components instantly.
+
+4. **Dedicated Standalone Portals**:
+   - **Theme Gallery (`gallery.project-42.dev`)**: Completely independent, static catalog of design systems with isolated preview sandboxes and downloadable `theme.json` packages. Zero auth or learner profile overhead.
+   - **Admin Console (`admin.project-42.dev`)**: Role-gated management portal for tenant administrators and domain owners, running a fixed high-contrast dark theme.
+
+5. **Universal Host-Agnostic Compatibility & Air-Gapped Operation**:
+   - The platform builds cleanly for Cloudflare Workers, Node.js, Docker Compose, or static GitHub Pages with zero external CDN dependencies.
