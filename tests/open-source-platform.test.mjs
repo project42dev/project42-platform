@@ -12,8 +12,10 @@ test('Open-Source Platform: portal-config schema is valid JSON Schema', () => {
   assert.ok(fs.existsSync(schemaPath), 'portal-config schema must exist');
   const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
   assert.equal(schema.type, 'object');
-  assert.ok(schema.properties.branding, 'branding properties must be defined');
-  assert.ok(schema.properties.theme, 'theme properties must be defined');
+  assert.equal(schema.properties.theme.type, 'string');
+  assert.ok(schema.properties.organization, 'organization properties must be defined');
+  assert.ok(schema.properties.portal, 'portal origins must be defined');
+  assert.ok(schema.properties.layout, 'layout preset must be defined');
 });
 
 test('Open-Source Platform: static portal builds and produces all required pages', () => {
@@ -22,7 +24,9 @@ test('Open-Source Platform: static portal builds and produces all required pages
   assert.ok(fs.existsSync(path.join(outDir, 'learn/index.html')), 'learn/index.html must exist');
   assert.ok(fs.existsSync(path.join(outDir, 'guide/index.html')), 'guide/index.html must exist');
   assert.ok(fs.existsSync(path.join(outDir, 'profile/index.html')), 'profile/index.html must exist');
-  assert.ok(fs.existsSync(path.join(outDir, 'admin/index.html')), 'admin/index.html must exist');
+  assert.ok(!fs.existsSync(path.join(outDir, 'admin/index.html')), 'Admin must not be published in the public artifact');
+  const html = fs.readFileSync(path.join(outDir, 'index.html'), 'utf8');
+  assert.match(html, /data-theme="06-galactic-guide"/);
 });
 
 test('Open-Source Platform: air-gapped zero-CDN asset bundling integrity', () => {

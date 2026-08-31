@@ -9,7 +9,9 @@ contracts—not the private PMO records or Project42dev production configuration
 
 ## 🚀 Quick Start: Run the Unified Open-Source Web Portal
 
-Project 42 includes a standalone, host-agnostic, white-label learning portal (Learn + Field Guide + Transcripts + Admin).
+Project 42 includes a host-agnostic public portal for Learn, Field Guide, and
+learner profiles. Gallery and the role-protected Admin console are deliberately
+separate deployments.
 
 ### 1. Build and Run Locally (Zero Backend Required)
 ```bash

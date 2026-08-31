@@ -28,13 +28,16 @@ cp project42.config.example.json project42.config.json
     "04-field-signal",
     "05-open-orbit"
   ],
-  "branding": {
-    "organizationName": "Acme Global Corp",
-    "portalTitle": "Acme AI Academy",
-    "portalTagline": "Mastering Agentic AI, MCP Tooling & Modern Cloud Architectures",
+  "portal": {
+    "canonicalOrigin": "https://learn.acme.example",
+    "adminOrigin": "https://admin.acme.example",
+    "legacyOrigins": []
+  },
+  "organization": {
+    "name": "Acme AI Academy",
+    "tagline": "Evidence-based AI learning",
     "logoUrl": "/brand/project-42-mark.svg",
-    "copyright": "© 2026 Acme Global Corp. All rights reserved.",
-    "supportUrl": "https://helpdesk.acme.corp"
+    "supportUrl": "https://helpdesk.acme.example"
   },
   "layout": {
     "defaultPreset": "standard"
@@ -73,7 +76,7 @@ You can overlay proprietary corporate courses and modules alongside the open-sou
 
 ---
 
-## 3. Running Turnkey with Docker Compose
+## 4. Running Turnkey with Docker Compose
 
 To deploy the entire portal stack (NGINX Web Portal + PostgreSQL + Keycloak + Platform API):
 
@@ -88,7 +91,15 @@ docker compose up -d
 
 ---
 
-## 4. Air-Gapped Intranet Deployments
+## 5. Air-Gapped Intranet Deployments
+
+## 6. Portal boundaries
+
+The selected theme applies only to the public portal. Gallery uses a neutral
+fixed shell and renders theme packages in isolated previews. Admin uses its
+fixed high-contrast operational theme and ignores learner preferences. Keep
+learner navigation relative to the canonical public origin; use absolute links
+only when crossing to Gallery, Admin, source repositories, or support systems.
 
 Project 42 is engineered with **zero external CDN dependencies**:
 - **Offline Fonts**: Uses embedded system font stacks.
