@@ -49,11 +49,12 @@ Project 42 separates curriculum intelligence, content storage, and presentation 
    - Eliminates cross-subdomain authentication drops and avoids brittle iframe/postMessage bridges.
 
 3. **Declarative Hugo/Jekyll-Style Theming**:
-   - The entire visual aesthetic is governed by `project42.config.json` via a single `"theme"` key (e.g. `"06-galactic-guide"`).
+   - The visual aesthetic is governed by `project42.config.json` via a single `"theme"` key. The generic portal loader resolves that ID to a complete, version-locked Gallery bundle; named customer-theme rules never live in platform core.
+   - Layout is independently selected by bundle ID. Theme and layout bundles may change presentation only; content, behavior, routing, authentication, and learner-data contracts remain core-owned.
    - Dynamic CSS variable mappings (`--paper`, `--paper-strong`, `--ink`, `--line`, `--orange`, `--lime`, `--cyan`) skin all components instantly.
 
 4. **Dedicated Standalone Portals**:
-   - **Theme Gallery (`gallery.project-42.dev`)**: Completely independent, static catalog of design systems with isolated preview sandboxes and downloadable `theme.json` packages. Zero auth or learner profile overhead.
+   - **Theme Gallery (`gallery.project-42.dev`)**: Completely independent, static catalog of complete theme bundles with isolated preview sandboxes. It is the editing and publishing source for manifests, tokens, component treatments, marks, hero artwork, and badges. Zero auth or learner profile overhead.
    - **Admin Console (`admin.project-42.dev`)**: Role-gated management portal for tenant administrators and domain owners, running a fixed high-contrast dark theme.
 
 5. **Universal Host-Agnostic Compatibility & Air-Gapped Operation**:

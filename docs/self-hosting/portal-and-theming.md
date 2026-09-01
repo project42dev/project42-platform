@@ -36,7 +36,6 @@ cp project42.config.example.json project42.config.json
   "organization": {
     "name": "Acme AI Academy",
     "tagline": "Evidence-based AI learning",
-    "logoUrl": "/brand/project-42-mark.svg",
     "supportUrl": "https://helpdesk.acme.example"
   },
   "layout": {
@@ -54,16 +53,35 @@ cp project42.config.example.json project42.config.json
 
 ---
 
-## 2. Layout Density Presets
+## 2. Theme and core boundary
 
-Project 42 provides three core responsive layout presets:
-- **Standard Shell (`standard`)**: Balanced 1180px maximum line length for optimal readability.
-- **Wide Canvas (`wide`)**: Expansive 1560px container width for high-density administrative dashboards and multi-column comparison matrices.
-- **Compact Minimal (`compact`)**: Streamlined 960px container for narrow-width reading focus.
+The platform core owns behavior, content contracts, routing, authentication,
+learner data, accessibility semantics, and stable component hooks. It does not
+contain named customer-theme selectors or theme artwork.
+
+The Gallery owns complete versioned theme bundles. A bundle contains its
+manifest, tokens, component treatments, mark, hero artwork, and badges. The
+portal installs a bundle from the Gallery, records the exact source revision and
+file hashes, and loads it through generic theme hooks. The favicon and every
+browser-size alias are derived from the selected bundle's authoritative mark;
+they are not configured as unrelated organization assets.
+
+Changing only the `theme` value selects a different installed bundle. Theme
+installation or editing happens in the Gallery first, followed by the portal's
+sync/install process. Never copy a theme's CSS into platform core or edit page
+content to make a theme fit.
+
+## 3. Layout bundles
+
+`layout.defaultPreset` is an installed layout bundle ID. The reference portal
+ships `standard`, `wide`, and `compact`, but customer layouts use the same
+declarative contract. Layout bundles control structure, density, and responsive
+arrangement through stable hooks; they do not replace behavior, content,
+routing, or authentication.
 
 ---
 
-## 3. Adding Internal / Proprietary Courses
+## 4. Adding Internal / Proprietary Courses
 
 You can overlay proprietary corporate courses and modules alongside the open-source curriculum without modifying core files:
 
@@ -76,7 +94,7 @@ You can overlay proprietary corporate courses and modules alongside the open-sou
 
 ---
 
-## 4. Running Turnkey with Docker Compose
+## 5. Running Turnkey with Docker Compose
 
 To deploy the entire portal stack (NGINX Web Portal + PostgreSQL + Keycloak + Platform API):
 
@@ -91,9 +109,9 @@ docker compose up -d
 
 ---
 
-## 5. Air-Gapped Intranet Deployments
+## 6. Air-Gapped Intranet Deployments
 
-## 6. Portal boundaries
+## 7. Portal boundaries
 
 The selected theme applies only to the public portal. Gallery uses a neutral
 fixed shell and renders theme packages in isolated previews. Admin uses its

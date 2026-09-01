@@ -36,7 +36,10 @@ docker compose up -d
 - **Identity & SSO (Keycloak)**: `http://localhost:8080`
 
 ### 3. White-Label Theming & Custom Courses
-Custom branding is configured in `project42.config.json`. See the [Portal Theming & Self-Hosting Guide](docs/self-hosting/portal-and-theming.md).
+Custom presentation is selected in `project42.config.json`. Themes are complete,
+versioned Gallery bundles and layouts are separate installable bundles; neither
+changes core content, behavior, authentication, or learner-data contracts. See
+the [Portal Theming & Self-Hosting Guide](docs/self-hosting/portal-and-theming.md).
 
 ---
 

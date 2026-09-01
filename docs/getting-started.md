@@ -23,10 +23,11 @@ services described in the self-host profile.
 `project42.config.json` is the declarative source of truth. Set:
 
 - `theme` to one installed theme bundle, such as `06-galactic-guide`;
-- `layout.defaultPreset` to `standard`, `wide`, or `compact`;
+- `layout.defaultPreset` to one installed layout bundle, such as `standard`;
 - `portal.canonicalOrigin` to the one public learner origin;
 - `portal.adminOrigin` to the separately protected Admin origin; and
-- organization identity and support links.
+- organization name, tagline, and support link. The selected theme bundle owns
+  its mark, favicon source, hero artwork, badges, tokens, and component treatments.
 
 Validate configuration before packaging:
 

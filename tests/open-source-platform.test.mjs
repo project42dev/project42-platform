@@ -16,6 +16,10 @@ test('Open-Source Platform: portal-config schema is valid JSON Schema', () => {
   assert.ok(schema.properties.organization, 'organization properties must be defined');
   assert.ok(schema.properties.portal, 'portal origins must be defined');
   assert.ok(schema.properties.layout, 'layout preset must be defined');
+  assert.equal(schema.properties.layout.properties.defaultPreset.type, 'string');
+  assert.equal(schema.properties.layout.properties.defaultPreset.enum, undefined);
+  assert.equal(schema.properties.organization.properties.logoUrl, undefined);
+  assert.equal(schema.properties.organization.properties.faviconUrl, undefined);
 });
 
 test('Open-Source Platform: static portal builds and produces all required pages', () => {
