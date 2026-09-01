@@ -9,14 +9,14 @@
     "$schema": { "type": "string", "format": "uri-reference" },
     "theme": {
       "type": "string",
-      "pattern": "^[0-9]{2}-[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
       "description": "Theme bundle selected for every public-portal route."
     },
     "availableThemes": {
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
-      "items": { "type": "string", "pattern": "^[0-9]{2}-[a-z0-9]+(?:-[a-z0-9]+)*$" }
+      "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }
     },
     "galleryUrl": { "type": "string", "format": "uri", "pattern": "^https://" },
     "layout": {
@@ -24,7 +24,11 @@
       "additionalProperties": false,
       "required": ["defaultPreset"],
       "properties": {
-        "defaultPreset": { "enum": ["standard", "wide", "compact"] }
+        "defaultPreset": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "description": "Installed layout bundle selected for the public portal."
+        }
       }
     },
     "portal": {
@@ -48,9 +52,7 @@
       "properties": {
         "name": { "type": "string", "minLength": 1 },
         "tagline": { "type": "string", "minLength": 1 },
-        "supportUrl": { "type": "string", "format": "uri-reference" },
-        "logoUrl": { "type": "string", "format": "uri-reference" },
-        "faviconUrl": { "type": "string", "format": "uri-reference" }
+        "supportUrl": { "type": "string", "format": "uri-reference" }
       }
     },
     "features": {

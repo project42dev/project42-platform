@@ -21,9 +21,7 @@
   "organization": {
     "name": "Example AI Academy",
     "tagline": "Practical, evidence-based AI learning.",
-    "supportUrl": "https://support.example.org",
-    "logoUrl": "/brand/logo.svg",
-    "faviconUrl": "/favicon.ico"
+    "supportUrl": "https://support.example.org"
   },
   "features": {
     "enableFieldGuide": true,

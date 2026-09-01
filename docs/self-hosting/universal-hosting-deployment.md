@@ -59,6 +59,8 @@ load authenticated account state.
 ## Verification
 
 Verify `/`, `/learn`, `/guide`, `/profile`, representative dynamic routes,
-assets, redirects, canonical metadata, and the selected theme. Confirm Gallery
+assets, redirects, canonical metadata, and the selected theme. Confirm the
+installed theme lock records the intended Gallery revision and hashes, and that
+the configured layout bundle exists. Confirm Gallery
 works while signed out and Admin fails closed for signed-out, learner, pending,
 rejected, suspended, and revoked accounts.
