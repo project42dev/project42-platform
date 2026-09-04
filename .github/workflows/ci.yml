@@ -182,13 +182,20 @@ jobs:
             sort --unique
           )
           test "${#images[@]}" -gt 0
+          # self-host/.trivyignore.yaml carries dated, justified exceptions for
+          # findings that are not reachable in this topology. Every entry states
+          # why and expires, so an exception cannot silently become permanent:
+          # once the expiry passes the finding is enforced again. The CRITICAL
+          # gate is otherwise unchanged.
           for image in "${images[@]}"; do
             docker image inspect "$image" >/dev/null 2>&1 || docker pull "$image"
             docker run --rm \
               --volume /var/run/docker.sock:/var/run/docker.sock \
               --volume "$RUNNER_TEMP/trivy-cache:/root/.cache/trivy" \
+              --volume "$GITHUB_WORKSPACE/self-host/.trivyignore.yaml:/tmp/.trivyignore.yaml:ro" \
               aquasec/trivy:0.66.0 \
-              image --exit-code 1 --severity CRITICAL "$image"
+              image --exit-code 1 --severity CRITICAL \
+              --ignorefile /tmp/.trivyignore.yaml "$image"
           done
       - name: Verify only the HTTPS gateway is published
         shell: pwsh

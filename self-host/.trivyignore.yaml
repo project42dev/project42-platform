@@ -1,0 +1,38 @@
+# Scanner exceptions for the secure self-host topology.
+#
+# The CRITICAL gate stays on for everything else. Each entry here must state
+# why the finding is not reachable in THIS topology and must carry an expiry,
+# so an exception cannot quietly become permanent. An entry whose expiry has
+# passed is enforced again and fails the build.
+#
+# Nothing may be added here merely to make CI green. If a finding is reachable,
+# the image gets fixed or pinned forward instead.
+
+vulnerabilities:
+  - id: CVE-2026-56854
+    # golang.org/x/crypto v0.52.0, bundled by caddy:2.11.4-alpine.
+    # Fixed upstream in golang.org/x/crypto 0.55.0.
+    #
+    # Not reachable here. The vulnerability is an authentication bypass in
+    # golang.org/x/crypto/ssh, where source-address restrictions on an
+    # authorized key are not enforced by an SSH *server*. This service runs
+    # Caddy purely as an HTTPS reverse proxy: it publishes only 443, starts no
+    # SSH listener, and neither the compose topology nor the Caddyfile
+    # references SSH. The vulnerable package is linked into the Caddy binary
+    # but the affected code path is never entered.
+    #
+    # This is a deferral, not a dismissal. caddy:2.11.4-alpine (released
+    # 2026-06-24) is still the newest official tag and no release yet carries
+    # x/crypto >= 0.55.0. Building an unofficial Caddy image to clear a scanner
+    # finding would trade a non-reachable issue for an unreviewed one.
+    #
+    # Action: track official Caddy releases; pin forward as soon as one ships
+    # x/crypto >= 0.55.0, then delete this entry. Re-verify at expiry whether
+    # the deployment still runs no SSH.
+    statement: >-
+      caddy:2.11.4-alpine bundles golang.org/x/crypto v0.52.0. The flaw is in
+      the x/crypto/ssh server path; this gateway publishes only 443, runs no
+      SSH listener, and never enters that code path. No official Caddy release
+      yet ships x/crypto >= 0.55.0. Pin forward and remove this entry when one
+      does.
+    expired_at: 2026-12-01
