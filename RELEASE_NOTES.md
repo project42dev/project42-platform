@@ -1,3 +1,27 @@
+# Project 42 platform v0.101.0
+
+Version 0.101.0 completes the extraction of the curriculum into `project42-content`. Until now the platform built from a copy of the curriculum vendored in this repository, so the canonical repository fed nothing and the two had drifted apart. This release makes `project42-content` the source, hash-locked at a named commit.
+
+## Content
+
+Every file under `content/` is now installed from `project42-content` and recorded in `config/content.lock.json`. The catalogue this ships is the six-domain structure: 14 learning paths where v0.100.0 had 13, and roughly twice the catalogue size. `content:check` verifies the installed tree against the lock with no network access, so an air-gapped build still works, while editing curriculum in this repository now fails the build.
+
+## Migrations
+
+No file under `migrations/` was added or changed since v0.100.0.
+
+## Breaking changes
+
+Consuming sites will serve a different set of learning paths. Path IDs from the previous catalogue that do not exist in the canonical one will 404 until redirects are added. Review the path list before approving the release environment.
+
+## Known limitations
+
+44 modules had instructor scripts whose cues were never authored; those declarations were removed upstream, so the affected modules are outline-only until narration is written. 22 modules cited a placeholder source that returned 404 and now cite a primary source from `source-registry.json` instead; each pairing should be reviewed.
+
+## Rollback
+
+Revert consuming sites to v0.100.0.
+
 # Project 42 platform v0.100.0
 
 Version 0.100.0 was cut by the Orchard release role from everything merged into `main` since v0.99.0. It exists so that content already merged into the platform repository reaches the sites that consume the platform package.

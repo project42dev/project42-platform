@@ -4,6 +4,20 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.101.0] - 2026-09-05
+
+### Changed
+
+- The curriculum is now installed from `project42-content`, the canonical
+  content repository, rather than from a copy vendored in this repository.
+  `config/content.lock.json` records the upstream commit and a hash of every
+  installed file; `content:check` verifies the tree without network access, so
+  an air-gapped build still works while editing curriculum here fails the build.
+- `content-sync.yml` checks out the content repository and no longer swallows a
+  failed sync.
+- The catalogue this ships is now the six-domain structure: 14 learning paths
+  where v0.100.0 had 13, and a catalogue roughly twice the size.
+
 ## [0.100.0] - 2026-08-23
 
 ### Changed
