@@ -4,7 +4,7 @@
   "summary": "Understand what fits into a model request, what can be lost, and how text, images, audio, and files change the workflow.",
   "level": "beginner",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-23",
+  "lastVerified": "2026-07-27",
   "providers": [
     "provider-neutral"
   ],

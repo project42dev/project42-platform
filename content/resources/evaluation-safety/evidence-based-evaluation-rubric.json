@@ -5,9 +5,16 @@
   "summary": "Design observable criteria, anchored score levels, calibrated graders, and blocking safety rules that make qualitative AI judgments reproducible.",
   "category": "Evaluation and safety",
   "format": "template",
-  "audience": ["practitioner", "developer", "educator", "leader"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "educator",
+    "leader"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "A measurable evaluation charter",
     "Representative examples of acceptable and unacceptable outcomes"
@@ -15,7 +22,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 90,
   "lastVerified": "2026-08-23",
-  "tags": ["evaluation", "rubric", "grader", "calibration", "evidence"],
+  "tags": [
+    "evaluation",
+    "rubric",
+    "grader",
+    "calibration",
+    "evidence"
+  ],
   "sections": [
     {
       "id": "write-observable-criteria",

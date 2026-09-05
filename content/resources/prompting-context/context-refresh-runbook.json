@@ -5,14 +5,30 @@
   "summary": "Refresh long-running AI work without carrying forward superseded decisions, stale facts, unsafe instructions, or unresolved side effects.",
   "category": "Context",
   "format": "playbook",
-  "audience": ["practitioner", "developer", "operator"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "operator"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral", "anthropic", "openai", "google"],
-  "prerequisites": ["An active multi-turn workflow or saved session state"],
+  "providers": [
+    "provider-neutral",
+    "anthropic",
+    "openai",
+    "google"
+  ],
+  "prerequisites": [
+    "An active multi-turn workflow or saved session state"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["context", "sessions", "handoff", "operations"],
+  "tags": [
+    "context",
+    "sessions",
+    "handoff",
+    "operations"
+  ],
   "sections": [
     {
       "id": "trigger-refresh",

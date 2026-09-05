@@ -5,14 +5,30 @@
   "summary": "Build a verified map of a repository before asking an AI coding agent to plan or modify it.",
   "category": "AI coding agents",
   "format": "checklist",
-  "audience": ["practitioner", "developer", "operator"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "operator"
+  ],
   "level": "beginner",
-  "providers": ["provider-neutral", "anthropic", "openai", "google"],
-  "prerequisites": ["Read access to a version-controlled repository"],
+  "providers": [
+    "provider-neutral",
+    "anthropic",
+    "openai",
+    "google"
+  ],
+  "prerequisites": [
+    "Read access to a version-controlled repository"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["coding-agents", "repositories", "instructions", "orientation"],
+  "tags": [
+    "coding-agents",
+    "repositories",
+    "instructions",
+    "orientation"
+  ],
   "sections": [
     {
       "id": "establish-authority",

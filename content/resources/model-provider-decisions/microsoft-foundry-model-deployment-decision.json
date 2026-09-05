@@ -5,9 +5,15 @@
   "summary": "Select and govern a Microsoft Foundry model deployment using current catalog availability, workload evaluation, identity, region, capacity, cost, and recovery evidence.",
   "category": "Models and providers",
   "format": "decision-path",
-  "audience": ["developer", "operator", "leader"],
+  "audience": [
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "advanced",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "An Azure subscription and approved tenant boundary",
     "A defined workload, region, data class, and budget",
@@ -16,7 +22,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 45,
   "lastVerified": "2026-08-23",
-  "tags": ["microsoft-foundry", "azure", "deployment", "models", "capacity"],
+  "tags": [
+    "microsoft-foundry",
+    "azure",
+    "deployment",
+    "models",
+    "capacity"
+  ],
   "sections": [
     {
       "id": "discover-deployable-options",

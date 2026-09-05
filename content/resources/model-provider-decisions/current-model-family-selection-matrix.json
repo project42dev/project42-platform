@@ -5,9 +5,16 @@
   "summary": "Turn current Anthropic, OpenAI, and Google model catalogs into a dated candidate list, then select with workload evidence instead of product rank or memory.",
   "category": "Models and providers",
   "format": "decision-path",
-  "audience": ["practitioner", "developer", "operator", "leader"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "A defined workload with quality, safety, latency, and cost targets",
     "Access to current provider model and lifecycle documentation",
@@ -16,7 +23,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["models", "anthropic", "openai", "google", "selection"],
+  "tags": [
+    "models",
+    "anthropic",
+    "openai",
+    "google",
+    "selection"
+  ],
   "sections": [
     {
       "id": "read-snapshot-correctly",

@@ -5,14 +5,30 @@
   "summary": "Design model-callable tools with a narrow purpose, explicit schemas, enforced authorization, predictable errors, and verifiable side effects.",
   "category": "MCP and orchestration",
   "format": "template",
-  "audience": ["developer", "operator"],
+  "audience": [
+    "developer",
+    "operator"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral", "anthropic", "openai", "google"],
-  "prerequisites": ["A bounded capability that should be exposed to an agent", "An identified authorization policy"],
+  "providers": [
+    "provider-neutral",
+    "anthropic",
+    "openai",
+    "google"
+  ],
+  "prerequisites": [
+    "A bounded capability that should be exposed to an agent",
+    "An identified authorization policy"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["mcp", "tools", "contracts", "schemas"],
+  "tags": [
+    "mcp",
+    "tools",
+    "contracts",
+    "schemas"
+  ],
   "sections": [
     {
       "id": "design-one-capability",

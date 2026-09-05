@@ -5,14 +5,32 @@
   "summary": "Separate application intent from Anthropic, OpenAI, and Google credentials, models, API versions, state, capabilities, and operational limits without pretending their APIs are equivalent.",
   "category": "Provider workflows",
   "format": "template",
-  "audience": ["developer", "operator", "leader"],
+  "audience": [
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral", "anthropic", "openai", "google"],
-  "prerequisites": ["A defined AI use case and data classification", "Approved provider accounts and secret storage", "Provider-specific capability checks"],
+  "providers": [
+    "provider-neutral",
+    "anthropic",
+    "openai",
+    "google"
+  ],
+  "prerequisites": [
+    "A defined AI use case and data classification",
+    "Approved provider accounts and secret storage",
+    "Provider-specific capability checks"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["cross-provider", "configuration", "credentials", "portability"],
+  "tags": [
+    "cross-provider",
+    "configuration",
+    "credentials",
+    "portability"
+  ],
   "sections": [
     {
       "id": "separate-contract-and-adapter",

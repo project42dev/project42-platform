@@ -5,9 +5,15 @@
   "summary": "Restore a verified AI workflow, reconcile state and side effects, prove recovery, and close an incident only after corrective work has accountable evidence.",
   "category": "Troubleshooting and operations",
   "format": "playbook",
-  "audience": ["developer", "operator", "leader"],
+  "audience": [
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "advanced",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "A contained incident with an accountable incident commander",
     "A known verified configuration or safe degraded mode",
@@ -16,7 +22,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 60,
   "lastVerified": "2026-08-23",
-  "tags": ["rollback", "recovery", "reconciliation", "incident", "closeout"],
+  "tags": [
+    "rollback",
+    "recovery",
+    "reconciliation",
+    "incident",
+    "closeout"
+  ],
   "sections": [
     {
       "id": "select-recovery-shape",

@@ -4,7 +4,7 @@
   "summary": "Inventory dependencies, separate portable contracts from Claude-specific behavior, compare candidates, canary safely, and preserve rollback when changing models or providers.",
   "level": "advanced",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-23",
+  "lastVerified": "2026-07-25",
   "providers": [
     "anthropic"
   ],

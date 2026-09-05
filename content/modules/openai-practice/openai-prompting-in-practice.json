@@ -4,7 +4,7 @@
   "summary": "Design clear, versioned prompts for ChatGPT and API workflows, separate instruction authority from variable input, and improve behavior with controlled evaluations.",
   "level": "intermediate",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-23",
+  "lastVerified": "2026-07-25",
   "providers": [
     "openai"
   ],

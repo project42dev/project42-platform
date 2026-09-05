@@ -4,7 +4,7 @@
   "summary": "Inventory dependencies, separate portable contracts from OpenAI-specific behavior, compare APIs or providers, canary safely, and preserve rollback through migration and deprecation.",
   "level": "advanced",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-23",
+  "lastVerified": "2026-07-25",
   "providers": [
     "openai"
   ],

@@ -5,14 +5,27 @@
   "summary": "Select the smallest trustworthy working set by relevance, authority, freshness, provenance, sensitivity, and contradiction value.",
   "category": "Context",
   "format": "checklist",
-  "audience": ["practitioner", "developer", "operator"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "operator"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
-  "prerequisites": ["A defined decision or deliverable"],
+  "providers": [
+    "provider-neutral"
+  ],
+  "prerequisites": [
+    "A defined decision or deliverable"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 90,
   "lastVerified": "2026-08-23",
-  "tags": ["context", "provenance", "privacy", "checklist"],
+  "tags": [
+    "context",
+    "provenance",
+    "privacy",
+    "checklist"
+  ],
   "sections": [
     {
       "id": "screen-candidate-context",

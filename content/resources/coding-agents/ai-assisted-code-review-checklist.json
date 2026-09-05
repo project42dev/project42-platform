@@ -5,14 +5,31 @@
   "summary": "Review AI-assisted changes for correctness, security, evidence, maintainability, and scope without treating model output as approval.",
   "category": "AI coding agents",
   "format": "checklist",
-  "audience": ["developer", "operator", "leader"],
+  "audience": [
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral", "anthropic", "openai", "google"],
-  "prerequisites": ["A reviewable change set", "Acceptance criteria and implementation evidence"],
+  "providers": [
+    "provider-neutral",
+    "anthropic",
+    "openai",
+    "google"
+  ],
+  "prerequisites": [
+    "A reviewable change set",
+    "Acceptance criteria and implementation evidence"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["coding-agents", "code-review", "security", "quality"],
+  "tags": [
+    "coding-agents",
+    "code-review",
+    "security",
+    "quality"
+  ],
   "sections": [
     {
       "id": "review-the-change",

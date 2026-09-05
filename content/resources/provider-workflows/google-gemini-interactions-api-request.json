@@ -5,14 +5,28 @@
   "summary": "Send a bounded Gemini Interactions API request with environment-based credentials and model configuration, typed response inspection, and recoverable failure handling.",
   "category": "Provider workflows",
   "format": "playbook",
-  "audience": ["developer", "operator"],
+  "audience": [
+    "developer",
+    "operator"
+  ],
   "level": "beginner",
-  "providers": ["google"],
-  "prerequisites": ["Node.js 20 or later", "A Gemini API key stored outside source control", "An approved Gemini model ID and API version"],
+  "providers": [
+    "google"
+  ],
+  "prerequisites": [
+    "Node.js 20 or later",
+    "A Gemini API key stored outside source control",
+    "An approved Gemini model ID and API version"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["google", "gemini", "interactions-api", "javascript"],
+  "tags": [
+    "google",
+    "gemini",
+    "interactions-api",
+    "javascript"
+  ],
   "sections": [
     {
       "id": "prepare-request",

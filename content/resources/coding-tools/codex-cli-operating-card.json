@@ -5,9 +5,15 @@
   "summary": "Choose and operate Codex CLI with bounded workspace permissions, reviewed actions, and reproducible verification.",
   "category": "AI coding tools",
   "format": "reference",
-  "audience": ["practitioner", "developer", "operator"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "operator"
+  ],
   "level": "beginner",
-  "providers": ["openai"],
+  "providers": [
+    "openai"
+  ],
   "prerequisites": [
     "A version-controlled working copy",
     "An OpenAI-supported sign-in path"
@@ -15,7 +21,12 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["coding-tools", "codex-cli", "permissions", "verification"],
+  "tags": [
+    "coding-tools",
+    "codex-cli",
+    "permissions",
+    "verification"
+  ],
   "sections": [
     {
       "id": "fit",

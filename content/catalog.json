@@ -27,6 +27,195 @@
   ],
   "paths": [
     {
+      "id": "ai-literacy-and-mental-models",
+      "title": "AI Literacy & Mental Models for Professionals",
+      "summary": "Core concepts, probabilistic generation, mental models, prompt architecture, and AI economics.",
+      "audience": "Knowledge workers, product managers, and beginners seeking deep AI literacy.",
+      "level": "beginner",
+      "moduleIds": [
+        "ai-mental-models",
+        "prompt-architecture",
+        "token-economics-and-limits"
+      ],
+      "badge": {
+        "id": "badge-ai-literacy",
+        "name": "AI Literacy & Mental Models Mastery",
+        "description": "Demonstrated mastery of non-deterministic intelligence, prompt architecture, and AI limits."
+      }
+    },
+    {
+      "id": "developer-and-practitioner-ai",
+      "title": "Developer & Application AI Engineering",
+      "summary": "Multi-provider SDKs, streaming, guaranteed structured output with Zod/Pydantic, and vector databases.",
+      "audience": "Software developers and engineers building LLM-powered applications.",
+      "level": "intermediate",
+      "moduleIds": [
+        "provider-sdk-patterns",
+        "structured-outputs-mastery",
+        "function-calling-and-tools",
+        "vector-embeddings-and-pgvector"
+      ],
+      "badge": {
+        "id": "badge-developer-ai",
+        "name": "Developer & Application AI Practitioner",
+        "description": "Built type-safe LLM applications with guaranteed structured outputs and vector search."
+      }
+    },
+    {
+      "id": "agentic-systems-and-mcp",
+      "title": "Frontier Agentic Systems & Model Context Protocol",
+      "summary": "Autonomous ReAct loops, Model Context Protocol (MCP), multi-agent coordination, and human-in-the-loop controls.",
+      "audience": "Senior developers and architects designing autonomous agent workflows.",
+      "level": "advanced",
+      "moduleIds": [
+        "agent-architecture-spectrum",
+        "model-context-protocol-mcp",
+        "multi-agent-orchestration",
+        "agent-safety-and-spend-brakes"
+      ],
+      "badge": {
+        "id": "badge-agentic-mcp",
+        "name": "Frontier Agentic & MCP Architect",
+        "description": "Engineered autonomous multi-agent loops and secure Model Context Protocol servers."
+      }
+    },
+    {
+      "id": "rag-and-fine-tuning-engineering",
+      "title": "Advanced RAG & Model Fine-Tuning Engineering",
+      "summary": "Hybrid search, GraphRAG, re-ranking, LoRA/QLoRA parameter-efficient fine-tuning, and DPO.",
+      "audience": "ML engineers and data architects building domain-customized model pipelines.",
+      "level": "advanced",
+      "moduleIds": [
+        "advanced-rag-and-hybrid-search",
+        "graph-rag-and-knowledge-graphs",
+        "lora-qlora-fine-tuning",
+        "dpo-and-model-evaluation"
+      ],
+      "badge": {
+        "id": "badge-rag-finetuning",
+        "name": "RAG & Fine-Tuning Specialist",
+        "description": "Mastered hybrid search, GraphRAG, and LoRA parameter-efficient fine-tuning."
+      }
+    },
+    {
+      "id": "self-hosted-and-aiops",
+      "title": "Self-Hosted Models & Enterprise AIOps",
+      "summary": "Open-weight models (Llama 3, DeepSeek, Mistral), GGUF/AWQ quantization, GPU VRAM sizing, vLLM, and OpenTelemetry.",
+      "audience": "DevOps, SREs, and enterprise infrastructure operators running private AI.",
+      "level": "advanced",
+      "moduleIds": [
+        "open-weights-and-quantization",
+        "hardware-and-vram-calculator",
+        "production-vllm-and-ollama",
+        "semantic-caching-and-ai-tracing"
+      ],
+      "badge": {
+        "id": "badge-selfhosted-aiops",
+        "name": "Enterprise AIOps & Open-Weight Operator",
+        "description": "Deployed high-throughput self-hosted inference engines with GPU sizing and observability."
+      }
+    },
+    {
+      "id": "ai-security-and-governance",
+      "title": "AI Security, Red-Teaming & Enterprise Governance",
+      "summary": "OWASP LLM Top 10, direct/indirect prompt injection, agent guardrails, sandboxing, and EU AI Act compliance.",
+      "audience": "Security engineers, compliance auditors, and AI safety professionals.",
+      "level": "advanced",
+      "moduleIds": [
+        "owasp-top-10-llm-attacks",
+        "guardrails-and-sandboxing",
+        "ai-compliance-and-crypto-receipts"
+      ],
+      "badge": {
+        "id": "badge-security-governance",
+        "name": "AI Security & Red-Teaming Defender",
+        "description": "Secured agentic systems against OWASP LLM vulnerabilities with guardrails and auditing."
+      }
+    },
+    {
+      "id": "anthropic-claude-practice",
+      "title": "Claude in Practice",
+      "summary": "Build practical Claude workflows from surface selection and prompting through APIs, tools, safety, evaluation, and migration.",
+      "audience": "Learners and practitioners who want to use Claude deliberately in individual, developer, and agent workflows.",
+      "level": "intermediate",
+      "moduleIds": [
+        "anthropic-ecosystem-and-interfaces",
+        "claude-prompting-in-practice",
+        "claude-api-and-sdk-workflows",
+        "claude-tools-and-agent-loops",
+        "claude-safety-and-trust-boundaries",
+        "claude-evaluation-and-observability",
+        "migrating-to-and-from-claude"
+      ],
+      "badge": {
+        "id": "badge-anthropic-claude-practitioner",
+        "name": "Claude Practitioner",
+        "description": "Completed the Claude practice path and its evidence-based activities and checks."
+      }
+    },
+    {
+      "id": "openai-practice",
+      "title": "OpenAI in Practice",
+      "summary": "Choose the right OpenAI surface and build evaluated, secure, observable, migration-ready API, tool, and Codex workflows.",
+      "audience": "Learners and practitioners using ChatGPT, the OpenAI API, or Codex for individual, application, and development workflows.",
+      "level": "intermediate",
+      "moduleIds": [
+        "openai-ecosystem-and-interfaces",
+        "openai-prompting-in-practice",
+        "openai-responses-api-and-sdk-workflows",
+        "openai-tools-and-codex-agent-loops",
+        "openai-safety-and-trust-boundaries",
+        "openai-evaluation-and-observability",
+        "migrating-to-and-from-openai"
+      ],
+      "badge": {
+        "id": "badge-openai-practitioner",
+        "name": "OpenAI Practitioner",
+        "description": "Completed the OpenAI practice path and its evidence-based activities and checks."
+      }
+    },
+    {
+      "id": "google-gemini-practice",
+      "title": "Gemini in Practice",
+      "summary": "Choose the right Gemini surface and build evaluated, secure, observable, migration-ready API, tool, and agent workflows.",
+      "audience": "Learners and practitioners using Gemini Apps, Google AI Studio, or the Gemini API for individual, prototype, and application workflows.",
+      "level": "intermediate",
+      "moduleIds": [
+        "gemini-ecosystem-and-interfaces",
+        "gemini-prompting-in-practice",
+        "gemini-api-and-sdk-workflows",
+        "gemini-tools-and-agent-loops",
+        "gemini-safety-and-trust-boundaries",
+        "gemini-evaluation-and-observability",
+        "migrating-to-and-from-gemini"
+      ],
+      "badge": {
+        "id": "badge-google-gemini-practitioner",
+        "name": "Gemini Practitioner",
+        "description": "Completed the Gemini practice path and its evidence-based activities and checks."
+      }
+    },
+    {
+      "id": "providers-in-practice",
+      "title": "Providers in Practice",
+      "summary": "Learn what transfers across providers and where Anthropic, OpenAI, and Google workflows differ.",
+      "audience": "Practitioners choosing tools or supporting a mixed-provider team.",
+      "level": "intermediate",
+      "moduleIds": [
+        "anthropic-in-practice",
+        "openai-in-practice",
+        "choose-a-provider",
+        "compare-provider-capabilities",
+        "plan-cross-provider-migration",
+        "execute-cross-provider-cutover"
+      ],
+      "badge": {
+        "id": "badge-provider-practitioner",
+        "name": "Provider Practitioner",
+        "description": "Demonstrated practical cross-provider understanding."
+      }
+    },
+    {
       "id": "ai-foundations",
       "title": "AI Foundations",
       "summary": "Build a clear mental model of AI, prompts, and agents without assuming technical experience.",
@@ -54,95 +243,7 @@
         "id": "badge-ai-foundations",
         "name": "AI Foundations",
         "description": "Completed the AI Foundations path and its knowledge checks."
-      },
-      "focusArea": "ai-literacy-and-foundations"
-    },
-    {
-      "id": "providers-in-practice",
-      "title": "Providers in Practice",
-      "summary": "Learn what transfers across providers and where Anthropic, OpenAI, and Google workflows differ.",
-      "audience": "Practitioners choosing tools or supporting a mixed-provider team.",
-      "level": "intermediate",
-      "moduleIds": [
-        "anthropic-in-practice",
-        "openai-in-practice",
-        "choose-a-provider",
-        "compare-provider-capabilities",
-        "plan-cross-provider-migration",
-        "execute-cross-provider-cutover"
-      ],
-      "badge": {
-        "id": "badge-provider-practitioner",
-        "name": "Provider Practitioner",
-        "description": "Demonstrated practical cross-provider understanding."
-      },
-      "focusArea": "developer-and-practitioner-ai"
-    },
-    {
-      "id": "anthropic-claude-practice",
-      "title": "Claude in Practice",
-      "summary": "Build practical Claude workflows from surface selection and prompting through APIs, tools, safety, evaluation, and migration.",
-      "audience": "Learners and practitioners who want to use Claude deliberately in individual, developer, and agent workflows.",
-      "level": "intermediate",
-      "moduleIds": [
-        "anthropic-ecosystem-and-interfaces",
-        "claude-prompting-in-practice",
-        "claude-api-and-sdk-workflows",
-        "claude-tools-and-agent-loops",
-        "claude-safety-and-trust-boundaries",
-        "claude-evaluation-and-observability",
-        "migrating-to-and-from-claude"
-      ],
-      "badge": {
-        "id": "badge-anthropic-claude-practitioner",
-        "name": "Claude Practitioner",
-        "description": "Completed the Claude practice path and its evidence-based activities and checks."
-      },
-      "focusArea": "developer-and-practitioner-ai"
-    },
-    {
-      "id": "openai-practice",
-      "title": "OpenAI in Practice",
-      "summary": "Choose the right OpenAI surface and build evaluated, secure, observable, migration-ready API, tool, and Codex workflows.",
-      "audience": "Learners and practitioners using ChatGPT, the OpenAI API, or Codex for individual, application, and development workflows.",
-      "level": "intermediate",
-      "moduleIds": [
-        "openai-ecosystem-and-interfaces",
-        "openai-prompting-in-practice",
-        "openai-responses-api-and-sdk-workflows",
-        "openai-tools-and-codex-agent-loops",
-        "openai-safety-and-trust-boundaries",
-        "openai-evaluation-and-observability",
-        "migrating-to-and-from-openai"
-      ],
-      "badge": {
-        "id": "badge-openai-practitioner",
-        "name": "OpenAI Practitioner",
-        "description": "Completed the OpenAI practice path and its evidence-based activities and checks."
-      },
-      "focusArea": "developer-and-practitioner-ai"
-    },
-    {
-      "id": "google-gemini-practice",
-      "title": "Gemini in Practice",
-      "summary": "Choose the right Gemini surface and build evaluated, secure, observable, migration-ready API, tool, and agent workflows.",
-      "audience": "Learners and practitioners using Gemini Apps, Google AI Studio, or the Gemini API for individual, prototype, and application workflows.",
-      "level": "intermediate",
-      "moduleIds": [
-        "gemini-ecosystem-and-interfaces",
-        "gemini-prompting-in-practice",
-        "gemini-api-and-sdk-workflows",
-        "gemini-tools-and-agent-loops",
-        "gemini-safety-and-trust-boundaries",
-        "gemini-evaluation-and-observability",
-        "migrating-to-and-from-gemini"
-      ],
-      "badge": {
-        "id": "badge-google-gemini-practitioner",
-        "name": "Gemini Practitioner",
-        "description": "Completed the Gemini practice path and its evidence-based activities and checks."
-      },
-      "focusArea": "developer-and-practitioner-ai"
+      }
     },
     {
       "id": "reliable-agent-workflows",
@@ -168,8 +269,7 @@
         "id": "badge-reliable-agent-workflows",
         "name": "Reliable Agent Operator",
         "description": "Completed a safe, evidence-driven agent workflow from task definition through review."
-      },
-      "focusArea": "frontier-agentic-systems-and-mcp"
+      }
     },
     {
       "id": "agentic-ai-literacy",
@@ -188,8 +288,7 @@
         "id": "badge-agentic-ai-literacy",
         "name": "Agentic AI Classifier",
         "description": "Demonstrated evidence-based classification of models, workflows, agents, and agentic systems."
-      },
-      "focusArea": "ai-literacy-and-foundations"
+      }
     },
     {
       "id": "self-hosted-model-operations",
@@ -215,103 +314,7 @@
         "id": "badge-self-hosted-model-operator",
         "name": "Self-Hosted Model Operator",
         "description": "Demonstrated evidence-based operation of a self-hosted model endpoint from artifact decision through recovery."
-      },
-      "focusArea": "self-hosted-and-aiops"
-    },
-    {
-      "id": "advanced-rag-engineering",
-      "title": "Advanced RAG Engineering",
-      "summary": "Design, index, retrieve, rerank, and evaluate production Retrieval-Augmented Generation systems across hybrid search and knowledge graphs.",
-      "audience": "ML engineers, backend developers, and data architects building enterprise knowledge systems.",
-      "level": "advanced",
-      "focusArea": "retrieval-rag-and-fine-tuning",
-      "badge": {
-        "id": "badge-advanced-rag-engineering",
-        "name": "Advanced RAG Engineer",
-        "description": "Demonstrated mastery of hybrid chunking, cross-encoder reranking, GraphRAG, and RAG-triad evaluation."
-      },
-      "moduleIds": [
-        "chunking-strategies-in-practice",
-        "hybrid-search-and-reranking",
-        "graph-rag-and-knowledge-graphs",
-        "rag-evaluation-and-triad",
-        "advanced-rag-capstone"
-      ]
-    },
-    {
-      "id": "model-customization-and-fine-tuning",
-      "title": "Model Customization & Fine-Tuning",
-      "summary": "Master Parameter-Efficient Fine-Tuning (LoRA, QLoRA), instruction dataset curation, preference alignment (DPO), and model evaluation.",
-      "audience": "Machine learning engineers, AI practitioners, and developers tailoring open-weight models.",
-      "level": "advanced",
-      "focusArea": "retrieval-rag-and-fine-tuning",
-      "badge": {
-        "id": "badge-model-customization",
-        "name": "Model Customization Specialist",
-        "description": "Demonstrated mastery of LoRA/QLoRA adapter training, synthetic instruction datasets, and DPO alignment."
-      },
-      "moduleIds": [
-        "customization-decision-matrix",
-        "lora-and-qlora-tuning",
-        "dataset-curation-and-dpo",
-        "fine-tuning-eval-and-quantization",
-        "model-customization-capstone"
-      ]
-    },
-    {
-      "id": "adversarial-ai-security-and-red-teaming",
-      "title": "Adversarial AI Security & Red-Teaming",
-      "summary": "Identify, exploit, and remediate OWASP Top 10 for LLMs vulnerabilities, prompt injections, and jailbreak vectors.",
-      "audience": "Security engineers, red-teamers, cloud architects, and AI application developers.",
-      "level": "advanced",
-      "focusArea": "ai-security-and-governance",
-      "badge": {
-        "id": "badge-adversarial-ai-security",
-        "name": "AI Security & Red-Team Specialist",
-        "description": "Demonstrated mastery of OWASP LLM Top 10 vulnerabilities, prompt injection defenses, and red-team methodologies."
-      },
-      "moduleIds": [
-        "owasp-top-10-for-llms",
-        "jailbreaking-and-prompt-injection",
-        "llm-red-teaming-methodology",
-        "adversarial-security-capstone"
-      ]
-    },
-    {
-      "id": "deepseek-in-practice",
-      "title": "DeepSeek in Practice",
-      "summary": "Build evaluated, cost-optimized applications using DeepSeek V3, DeepSeek R1 reasoning models, and Mixture-of-Experts architecture.",
-      "audience": "Developers, system architects, and AI practitioners leveraging open and hosted DeepSeek models.",
-      "level": "intermediate",
-      "focusArea": "developer-and-practitioner-ai",
-      "badge": {
-        "id": "badge-deepseek-practice",
-        "name": "DeepSeek Practitioner",
-        "description": "Demonstrated mastery of DeepSeek V3/R1 API patterns, reasoning tokens, and MoE economics."
-      },
-      "moduleIds": [
-        "navigate-deepseek-ecosystem",
-        "deepseek-reasoning-and-moe-patterns",
-        "deepseek-api-and-cost-optimization"
-      ]
-    },
-    {
-      "id": "mistral-in-practice",
-      "title": "Mistral in Practice",
-      "summary": "Build applications using Mistral Small/Large, Codestral for code generation, Pixtral for vision, and native embeddings.",
-      "audience": "Developers and engineers building multilingual, code, and multimodal applications on Mistral.",
-      "level": "intermediate",
-      "focusArea": "developer-and-practitioner-ai",
-      "badge": {
-        "id": "badge-mistral-practice",
-        "name": "Mistral Practitioner",
-        "description": "Demonstrated mastery of Mistral Client SDK, Codestral, Pixtral, and function calling."
-      },
-      "moduleIds": [
-        "navigate-mistral-ecosystem",
-        "mistral-function-calling-and-codestral",
-        "mistral-multimodal-and-embeddings"
-      ]
+      }
     }
   ],
   "modules": [
@@ -1694,44 +1697,6 @@
           "lastVerified": "2026-08-23"
         }
       ]
-    }
-  ],
-  "focusAreas": [
-    {
-      "id": "ai-literacy-and-foundations",
-      "number": 1,
-      "title": "AI Literacy & Foundations",
-      "summary": "Core mental models, language model generation, prompt anatomy, context tokens, verification, and privacy without assuming technical experience."
-    },
-    {
-      "id": "developer-and-practitioner-ai",
-      "number": 2,
-      "title": "Developer & Practitioner AI",
-      "summary": "Provider-neutral evaluation, capability comparison, structured outputs, function calling, and hands-on practice across Anthropic, OpenAI, and Google Gemini."
-    },
-    {
-      "id": "frontier-agentic-systems-and-mcp",
-      "number": 3,
-      "title": "Frontier Agentic Systems & MCP",
-      "summary": "Bounded agent loops, tool authority, memory boundaries, Model Context Protocol (MCP) architecture, multi-agent handoffs, and scored capstone."
-    },
-    {
-      "id": "retrieval-rag-and-fine-tuning",
-      "number": 4,
-      "title": "Retrieval, RAG & Fine-Tuning",
-      "summary": "Advanced retrieval architectures, hybrid search, embedding stores, knowledge graphs, and LoRA/QLoRA fine-tuning."
-    },
-    {
-      "id": "self-hosted-and-aiops",
-      "number": 5,
-      "title": "Self-Hosted, Open-Weight & AIOps",
-      "summary": "Open-weight model selection, vLLM/Ollama serving, VRAM calculations, artifact integrity, endpoint security, and disaster recovery."
-    },
-    {
-      "id": "ai-security-and-governance",
-      "number": 6,
-      "title": "AI Security, Red-Teaming & Governance",
-      "summary": "OWASP Top 10 for LLMs, sandboxing, guardrails, compliance frameworks, and cryptographic audit receipts."
     }
   ]
 }

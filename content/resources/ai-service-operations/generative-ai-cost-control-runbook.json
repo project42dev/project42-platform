@@ -5,9 +5,15 @@
   "summary": "Attribute, forecast, constrain, investigate, and optimize AI usage without trading away required quality, safety, or reliability.",
   "category": "AI service operations",
   "format": "playbook",
-  "audience": ["developer", "operator", "leader"],
+  "audience": [
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "Provider usage and billing access",
     "Application telemetry with workload attribution",
@@ -16,7 +22,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["cost", "usage", "budgets", "tokens", "operations"],
+  "tags": [
+    "cost",
+    "usage",
+    "budgets",
+    "tokens",
+    "operations"
+  ],
   "sections": [
     {
       "id": "build-unit-economics",

@@ -4,7 +4,7 @@
   "summary": "Choose deliberately among ChatGPT workspaces, the OpenAI API platform, and Codex development workflows without transferring capabilities or controls between them.",
   "level": "intermediate",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-23",
+  "lastVerified": "2026-07-25",
   "providers": [
     "openai"
   ],

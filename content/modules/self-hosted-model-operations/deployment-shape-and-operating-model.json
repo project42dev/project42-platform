@@ -4,7 +4,7 @@
   "summary": "Choose among workstation, container, on-premises, edge, and cloud shapes from workload evidence, data boundaries, ownership, and recovery needs.",
   "level": "advanced",
   "reviewCadenceDays": 60,
-  "lastVerified": "2026-08-23",
+  "lastVerified": "2026-07-27",
   "providers": [
     "provider-neutral"
   ],

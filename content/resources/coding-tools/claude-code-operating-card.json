@@ -5,9 +5,15 @@
   "summary": "Choose and operate Claude Code with explicit repository scope, permissions, verification, and recovery.",
   "category": "AI coding tools",
   "format": "reference",
-  "audience": ["practitioner", "developer", "operator"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "operator"
+  ],
   "level": "beginner",
-  "providers": ["anthropic"],
+  "providers": [
+    "anthropic"
+  ],
   "prerequisites": [
     "A version-controlled working copy",
     "An Anthropic-supported authentication path"
@@ -15,7 +21,12 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["coding-tools", "claude-code", "permissions", "verification"],
+  "tags": [
+    "coding-tools",
+    "claude-code",
+    "permissions",
+    "verification"
+  ],
   "sections": [
     {
       "id": "fit",

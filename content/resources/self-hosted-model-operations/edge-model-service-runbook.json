@@ -5,9 +5,15 @@
   "summary": "Qualify and operate an edge model under device, power, connectivity, physical-access, privacy, update, and recovery constraints.",
   "category": "Self-hosted model operations",
   "format": "playbook",
-  "audience": ["developer", "operator", "leader"],
+  "audience": [
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "advanced",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "A device, location, connectivity, power, and physical-access inventory",
     "An optimized model and runtime candidate with license and provenance evidence",
@@ -16,7 +22,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 60,
   "lastVerified": "2026-08-23",
-  "tags": ["self-hosted", "edge", "iot", "offline", "model-serving"],
+  "tags": [
+    "self-hosted",
+    "edge",
+    "iot",
+    "offline",
+    "model-serving"
+  ],
   "sections": [
     {
       "id": "design-edge-boundary",

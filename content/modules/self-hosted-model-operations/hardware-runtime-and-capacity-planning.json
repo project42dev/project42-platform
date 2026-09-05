@@ -4,7 +4,7 @@
   "summary": "Select a compatible runtime and size compute, accelerator memory, host memory, storage, and concurrency from measurements of the exact serving build.",
   "level": "advanced",
   "reviewCadenceDays": 60,
-  "lastVerified": "2026-08-23",
+  "lastVerified": "2026-07-27",
   "providers": [
     "provider-neutral"
   ],

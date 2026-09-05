@@ -5,9 +5,16 @@
   "summary": "Turn an AI use case into a versioned evaluation plan with measurable outcomes, representative slices, blocking thresholds, accountable owners, and a repeatable decision process.",
   "category": "Evaluation and safety",
   "format": "template",
-  "audience": ["practitioner", "developer", "operator", "leader"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "A bounded AI use case with named users and consequences",
     "A baseline workflow or documented expected behavior"
@@ -15,7 +22,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 90,
   "lastVerified": "2026-08-23",
-  "tags": ["evaluation", "success-criteria", "quality", "safety", "release"],
+  "tags": [
+    "evaluation",
+    "success-criteria",
+    "quality",
+    "safety",
+    "release"
+  ],
   "sections": [
     {
       "id": "define-the-evaluation-contract",

@@ -5,9 +5,15 @@
   "summary": "Decide whether an AI gateway earns its additional trust, latency, cost, and failure boundary through enforceable governance or operational value.",
   "category": "AI service operations",
   "format": "decision-path",
-  "audience": ["developer", "operator", "leader"],
+  "audience": [
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "advanced",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "An inventory of applications, providers, models, tools, and data classes",
     "Required identity, policy, resilience, and telemetry controls",
@@ -16,7 +22,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 60,
   "lastVerified": "2026-08-23",
-  "tags": ["gateway", "routing", "governance", "resilience", "decision"],
+  "tags": [
+    "gateway",
+    "routing",
+    "governance",
+    "resilience",
+    "decision"
+  ],
   "sections": [
     {
       "id": "identify-value",

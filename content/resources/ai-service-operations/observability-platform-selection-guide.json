@@ -5,9 +5,15 @@
   "summary": "Select telemetry standards and products from the decisions operators must make, while minimizing sensitive-content collection and vendor lock-in.",
   "category": "AI service operations",
   "format": "decision-path",
-  "audience": ["developer", "operator", "leader"],
+  "audience": [
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "advanced",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "Service objectives, critical user journeys, and incident questions",
     "A data classification and telemetry retention policy",
@@ -16,7 +22,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 60,
   "lastVerified": "2026-08-23",
-  "tags": ["observability", "tracing", "telemetry", "privacy", "operations"],
+  "tags": [
+    "observability",
+    "tracing",
+    "telemetry",
+    "privacy",
+    "operations"
+  ],
   "sections": [
     {
       "id": "start-with-decisions",

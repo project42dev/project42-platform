@@ -5,9 +5,15 @@
   "summary": "Plan and run authorized adversarial tests against the complete AI application while protecting people, data, systems, and downstream tools.",
   "category": "Evaluation and safety",
   "format": "playbook",
-  "audience": ["developer", "operator", "leader"],
+  "audience": [
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "advanced",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "Written authorization and rules of engagement",
     "An isolated or safely instrumented test environment",
@@ -16,7 +22,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 60,
   "lastVerified": "2026-08-23",
-  "tags": ["safety", "red-team", "prompt-injection", "security", "adversarial-testing"],
+  "tags": [
+    "safety",
+    "red-team",
+    "prompt-injection",
+    "security",
+    "adversarial-testing"
+  ],
   "sections": [
     {
       "id": "bound-the-exercise",

@@ -5,14 +5,29 @@
   "summary": "Build representative Gemini evaluation datasets, preserve interaction evidence, classify API failures, and release or recover through explicit gates.",
   "category": "Provider workflows",
   "format": "playbook",
-  "audience": ["developer", "operator", "leader"],
+  "audience": [
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "intermediate",
-  "providers": ["google"],
-  "prerequisites": ["A defined Gemini workflow", "Representative redacted or synthetic cases", "An approved logging and retention policy"],
+  "providers": [
+    "google"
+  ],
+  "prerequisites": [
+    "A defined Gemini workflow",
+    "Representative redacted or synthetic cases",
+    "An approved logging and retention policy"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["google", "gemini", "evaluation", "troubleshooting"],
+  "tags": [
+    "google",
+    "gemini",
+    "evaluation",
+    "troubleshooting"
+  ],
   "sections": [
     {
       "id": "build-evaluation",

@@ -4,7 +4,7 @@
   "summary": "Plan, qualify, release, observe, and reverse model-serving changes without losing exact identity, compatibility, learner evidence, or a known-good recovery path.",
   "level": "advanced",
   "reviewCadenceDays": 60,
-  "lastVerified": "2026-08-23",
+  "lastVerified": "2026-07-27",
   "providers": [
     "provider-neutral"
   ],

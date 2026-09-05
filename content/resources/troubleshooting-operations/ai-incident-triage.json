@@ -5,9 +5,15 @@
   "summary": "Stabilize an AI-enabled service, classify impact, preserve privacy-safe evidence, reconcile uncertain actions, and route decisions to accountable humans.",
   "category": "Troubleshooting and operations",
   "format": "decision-path",
-  "audience": ["developer", "operator", "leader"],
+  "audience": [
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "advanced",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "An incident response policy with severity and notification rules",
     "On-call ownership for application, data, security, safety, and business decisions",
@@ -16,7 +22,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 60,
   "lastVerified": "2026-08-23",
-  "tags": ["incident", "triage", "containment", "evidence", "communications"],
+  "tags": [
+    "incident",
+    "triage",
+    "containment",
+    "evidence",
+    "communications"
+  ],
   "sections": [
     {
       "id": "stabilize-and-scope",

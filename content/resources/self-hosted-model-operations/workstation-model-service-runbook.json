@@ -5,9 +5,15 @@
   "summary": "Build and operate a bounded local model service on one workstation without confusing locality with security, privacy, or production readiness.",
   "category": "Self-hosted model operations",
   "format": "playbook",
-  "audience": ["practitioner", "developer", "operator"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "operator"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "An inventory of CPU, accelerator, memory, storage, operating system, and power constraints",
     "An approved immutable model artifact with license and provenance review",
@@ -16,7 +22,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 60,
   "lastVerified": "2026-08-23",
-  "tags": ["self-hosted", "workstation", "local-model", "runtime", "runbook"],
+  "tags": [
+    "self-hosted",
+    "workstation",
+    "local-model",
+    "runtime",
+    "runbook"
+  ],
   "sections": [
     {
       "id": "bound-local-service",

@@ -1252,7 +1252,13 @@ test("coverage classifies every substantive module without overstating readiness
     await readFile(resolve(root, "content/training/coverage.json"), "utf8"),
   );
   assert.deepEqual(committedCoverage, trainingPackageCoverage);
-  assert.equal(trainingPackageCoverage.substantiveModuleCount, 69);
+  // Derived, not pinned. A literal here froze the curriculum at the size it
+  // happened to be when the platform still carried its own copy, so the
+  // canonical catalogue could never grow without failing this test.
+  assert.equal(
+    trainingPackageCoverage.substantiveModuleCount,
+    starterCatalog.modules.filter((module) => module.instructorScript).length,
+  );
   assert.equal(
     trainingPackageCoverage.classReadyModuleCount,
     classScriptPackages.length,

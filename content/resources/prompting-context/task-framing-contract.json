@@ -5,14 +5,25 @@
   "summary": "Turn an unclear request into an outcome, authority boundary, evidence plan, and explicit stopping condition before asking an AI system to work.",
   "category": "Prompting",
   "format": "template",
-  "audience": ["learner", "practitioner", "developer"],
+  "audience": [
+    "learner",
+    "practitioner",
+    "developer"
+  ],
   "level": "beginner",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [],
   "owner": "project42-editorial",
   "reviewCadenceDays": 90,
   "lastVerified": "2026-08-23",
-  "tags": ["prompting", "task-framing", "template", "verification"],
+  "tags": [
+    "prompting",
+    "task-framing",
+    "template",
+    "verification"
+  ],
   "sections": [
     {
       "id": "frame-before-prompting",

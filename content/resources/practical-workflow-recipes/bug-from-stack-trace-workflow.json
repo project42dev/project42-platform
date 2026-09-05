@@ -5,9 +5,14 @@
   "summary": "Turn a stack trace into a minimized reproducer, evidence-backed cause, bounded fix, regression test, and verified user outcome.",
   "category": "Practical workflows",
   "format": "playbook",
-  "audience": ["developer", "operator"],
+  "audience": [
+    "developer",
+    "operator"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "A secret-safe error report or stack trace",
     "The relevant source and a reproducible environment",
@@ -16,7 +21,12 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 90,
   "lastVerified": "2026-08-23",
-  "tags": ["debugging", "stack-trace", "reproducer", "regression-test"],
+  "tags": [
+    "debugging",
+    "stack-trace",
+    "reproducer",
+    "regression-test"
+  ],
   "sections": [
     {
       "id": "orient",

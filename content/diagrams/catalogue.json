@@ -156,14 +156,14 @@
       "id": "orchard-lifecycle",
       "title": "The Orchard content lifecycle",
       "category": "Governance",
-      "summary": "How discovery, currency review, owner gates, authoring, release, and live verification form one governed content lifecycle.",
-      "description": "The Orchard joins discovery and currency signals with an explicit request path, owner approval gates, evidence-backed authoring and review, release, and live verification. Dashed nodes distinguish designed work that is not yet implemented from running controls.",
-      "altText": "A governed content lifecycle with discovery, currency, and request-intake lanes feeding owner Gate 1; approved work proceeds through authoring and review to digest-bound Gate 2, commit, release, and live verification, while denials stop delivery or return work for revision.",
-      "caption": "The Orchard keeps discovery, authoring, approval, release, and verification in one evidence-preserving lifecycle.",
+      "summary": "How Orchard content moves from discovery, monthly currency review, or a requested topic through two owner-approval gates to a published, verified course.",
+      "description": "Discovery, the monthly currency track, and a designed request-intake path all feed one shared queue and one Gate 1 owner approval, so nothing reaches a model before the owner approves. Approved work moves through a research, authoring, and review ensemble to a second Gate 2 approval bound to the exact artifact digest; editing the artifact after that point invalidates the approval. A Gate 2 denial carries a reason and returns the work for rework. Approved work is committed, pushed, and, once wired, verified live. Discovery runs monthly on the 1st, currency review on the 15th, both at 06:00 UTC. Request intake and live verification are designed and not yet built, and only the currency track's inspection step runs today.",
+      "altText": "A flowchart shows three intake paths, discovery, a currency inspection track, and a designed request-intake path, converging on one shared GitHub issue and a Gate 1 owner approval. Approval creates a tracker item that passes through a research, authoring, and review ensemble to a second GitHub issue and a Gate 2 approval bound to the exact artifact digest. Gate 2 denial returns the work for rework with a reason; approval leads to commit and push, then a not-yet-wired live verification step.",
+      "caption": "One shared queue, two owner-approval gates, and an honest mark of what is designed against what actually runs today.",
       "takeaways": [
-        "Discovery and currency findings enter one governed queue.",
-        "Owner approval gates establish delivery and publication authority.",
-        "Designed but unimplemented steps remain visibly distinct from running controls."
+        "Two gates protect the pipeline. Nothing reaches a model before Gate 1, and Gate 2 binds approval to one exact artifact digest.",
+        "Discovery, currency review, and requested topics are three intake paths that converge on the same queue and the same Gate 1 decision.",
+        "The diagram marks what is designed but not built: request intake, live verification, and every currency step past inspection."
       ],
       "source": "orchard-lifecycle.mmd"
     }

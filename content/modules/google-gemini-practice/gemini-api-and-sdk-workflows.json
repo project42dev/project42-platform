@@ -4,7 +4,7 @@
   "summary": "Use the Google Gen AI SDK with environment-based credentials, configurable models, explicit conversation state, typed candidate handling, validation, bounded recovery, and privacy-safe evidence.",
   "level": "intermediate",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-23",
+  "lastVerified": "2026-07-25",
   "providers": [
     "google"
   ],

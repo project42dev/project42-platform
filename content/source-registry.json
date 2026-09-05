@@ -480,62 +480,6 @@
       "trustTier": "primary",
       "reviewCadenceDays": 30,
       "owner": "provider-deepseek"
-    },
-    {
-      "id": "arxiv-papers",
-      "urlPrefix": "https://arxiv.org/abs/",
-      "publisher": "ArXiv",
-      "trustTier": "primary",
-      "reviewCadenceDays": 180,
-      "owner": "curriculum"
-    },
-    {
-      "id": "waterloo-cs",
-      "urlPrefix": "https://plg.uwaterloo.ca/",
-      "publisher": "University of Waterloo",
-      "trustTier": "primary",
-      "reviewCadenceDays": 180,
-      "owner": "curriculum"
-    },
-    {
-      "id": "trulens-docs",
-      "urlPrefix": "https://www.trulens.org/",
-      "publisher": "TruLens",
-      "trustTier": "primary",
-      "reviewCadenceDays": 90,
-      "owner": "curriculum"
-    },
-    {
-      "id": "owasp-docs",
-      "urlPrefix": "https://owasp.org/",
-      "publisher": "OWASP",
-      "trustTier": "primary",
-      "reviewCadenceDays": 90,
-      "owner": "curriculum"
-    },
-    {
-      "id": "microsoft-pyrit",
-      "urlPrefix": "https://github.com/Azure/PyRIT",
-      "publisher": "Microsoft",
-      "trustTier": "primary",
-      "reviewCadenceDays": 90,
-      "owner": "curriculum"
-    },
-    {
-      "id": "mistral-docs",
-      "urlPrefix": "https://docs.mistral.ai/",
-      "publisher": "Mistral AI",
-      "trustTier": "primary",
-      "reviewCadenceDays": 30,
-      "owner": "curriculum"
-    },
-    {
-      "id": "mistral-news",
-      "urlPrefix": "https://mistral.ai/",
-      "publisher": "Mistral AI",
-      "trustTier": "primary",
-      "reviewCadenceDays": 30,
-      "owner": "curriculum"
     }
   ]
 }

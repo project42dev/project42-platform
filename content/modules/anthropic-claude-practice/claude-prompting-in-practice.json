@@ -4,7 +4,7 @@
   "summary": "Turn a real task into a clear, structured, testable Claude prompt and improve it from evaluation evidence instead of guesswork.",
   "level": "intermediate",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-23",
+  "lastVerified": "2026-07-25",
   "providers": [
     "anthropic"
   ],

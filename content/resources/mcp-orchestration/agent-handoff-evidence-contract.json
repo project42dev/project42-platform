@@ -5,14 +5,30 @@
   "summary": "Transfer work between agents or people with explicit ownership, minimized context, verified state, acceptance evidence, and safe continuation rules.",
   "category": "MCP and orchestration",
   "format": "template",
-  "audience": ["practitioner", "developer", "operator"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "operator"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral", "anthropic", "openai", "google"],
-  "prerequisites": ["A workflow boundary with a named source and destination owner"],
+  "providers": [
+    "provider-neutral",
+    "anthropic",
+    "openai",
+    "google"
+  ],
+  "prerequisites": [
+    "A workflow boundary with a named source and destination owner"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["agents", "handoffs", "evidence", "ownership"],
+  "tags": [
+    "agents",
+    "handoffs",
+    "evidence",
+    "ownership"
+  ],
   "sections": [
     {
       "id": "transfer-control-explicitly",

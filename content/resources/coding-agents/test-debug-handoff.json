@@ -5,14 +5,27 @@
   "summary": "Transfer a failing or partially verified coding-agent change with a reproducible state, bounded hypothesis, and clear next action.",
   "category": "AI coding agents",
   "format": "template",
-  "audience": ["practitioner", "developer", "operator"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "operator"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
-  "prerequisites": ["A failed check, observed defect, or explicitly unverified behavior"],
+  "providers": [
+    "provider-neutral"
+  ],
+  "prerequisites": [
+    "A failed check, observed defect, or explicitly unverified behavior"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 90,
   "lastVerified": "2026-08-23",
-  "tags": ["coding-agents", "testing", "debugging", "handoff"],
+  "tags": [
+    "coding-agents",
+    "testing",
+    "debugging",
+    "handoff"
+  ],
   "sections": [
     {
       "id": "stabilize-the-handoff",

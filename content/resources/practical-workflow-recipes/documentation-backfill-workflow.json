@@ -5,9 +5,15 @@
   "summary": "Reconstruct missing documentation from code, tests, configuration, history, and observed behavior while marking uncertainty and keeping volatile claims sourced.",
   "category": "Practical workflows",
   "format": "playbook",
-  "audience": ["practitioner", "developer", "operator"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "operator"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "Read access to the implementation and existing evidence",
     "An identified audience and documentation purpose",
@@ -16,7 +22,12 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 90,
   "lastVerified": "2026-08-23",
-  "tags": ["documentation", "backfill", "provenance", "verification"],
+  "tags": [
+    "documentation",
+    "backfill",
+    "provenance",
+    "verification"
+  ],
   "sections": [
     {
       "id": "inventory-evidence",

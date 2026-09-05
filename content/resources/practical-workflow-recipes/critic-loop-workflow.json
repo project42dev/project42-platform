@@ -5,9 +5,14 @@
   "summary": "Use an independent critique and revision loop with a frozen rubric, evidence requirements, iteration budget, and human-owned acceptance decision.",
   "category": "Practical workflows",
   "format": "playbook",
-  "audience": ["practitioner", "developer"],
+  "audience": [
+    "practitioner",
+    "developer"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "A draft artifact and observable acceptance criteria",
     "A versioned rubric with blocking conditions",
@@ -16,7 +21,12 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 90,
   "lastVerified": "2026-08-23",
-  "tags": ["critic", "review", "iteration", "evaluation"],
+  "tags": [
+    "critic",
+    "review",
+    "iteration",
+    "evaluation"
+  ],
   "sections": [
     {
       "id": "freeze-contract",

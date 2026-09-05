@@ -5,14 +5,28 @@
   "summary": "Choose between Gemini schema-constrained output and function calling, define narrow contracts, validate semantics, and keep execution under application control.",
   "category": "Provider workflows",
   "format": "reference",
-  "audience": ["developer", "operator"],
+  "audience": [
+    "developer",
+    "operator"
+  ],
   "level": "intermediate",
-  "providers": ["google"],
-  "prerequisites": ["A working Gemini Interactions API request", "A Gemini model that supports the selected feature", "A JSON Schema for the intended data"],
+  "providers": [
+    "google"
+  ],
+  "prerequisites": [
+    "A working Gemini Interactions API request",
+    "A Gemini model that supports the selected feature",
+    "A JSON Schema for the intended data"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["google", "gemini", "structured-output", "function-calling"],
+  "tags": [
+    "google",
+    "gemini",
+    "structured-output",
+    "function-calling"
+  ],
   "sections": [
     {
       "id": "choose-control",

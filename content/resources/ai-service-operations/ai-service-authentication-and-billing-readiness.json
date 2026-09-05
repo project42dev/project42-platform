@@ -5,9 +5,15 @@
   "summary": "Prepare a provider API project with separate human and workload identities, least-privilege credentials, billing ownership, limits, monitoring, and tested rotation.",
   "category": "AI service operations",
   "format": "checklist",
-  "audience": ["developer", "operator", "leader"],
+  "audience": [
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "An approved provider, tenant or organization, and workload owner",
     "A data classification and expected usage profile",
@@ -16,7 +22,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 45,
   "lastVerified": "2026-08-23",
-  "tags": ["authentication", "billing", "api-keys", "secrets", "readiness"],
+  "tags": [
+    "authentication",
+    "billing",
+    "api-keys",
+    "secrets",
+    "readiness"
+  ],
   "sections": [
     {
       "id": "separate-boundaries",

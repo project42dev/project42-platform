@@ -5,14 +5,28 @@
   "summary": "Scale evidence, independence, expertise, approval, monitoring, and rollback to the realistic harm caused by an incorrect AI-assisted result.",
   "category": "Verification",
   "format": "decision-path",
-  "audience": ["practitioner", "developer", "operator", "leader"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
-  "prerequisites": ["A proposed AI-assisted output or action and its intended use"],
+  "providers": [
+    "provider-neutral"
+  ],
+  "prerequisites": [
+    "A proposed AI-assisted output or action and its intended use"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 90,
   "lastVerified": "2026-08-23",
-  "tags": ["risk", "review", "approval", "verification"],
+  "tags": [
+    "risk",
+    "review",
+    "approval",
+    "verification"
+  ],
   "sections": [
     {
       "id": "classify-consequence",

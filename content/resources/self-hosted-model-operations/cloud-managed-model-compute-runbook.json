@@ -5,9 +5,15 @@
   "summary": "Use managed cloud compute as a replaceable deployment adapter while preserving exact model identity, tenant authority, evaluation, cost, telemetry, and recovery evidence.",
   "category": "Self-hosted model operations",
   "format": "playbook",
-  "audience": ["developer", "operator", "leader"],
+  "audience": [
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "advanced",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "An authorized cloud account, region, quota, network, identity, and cost owner",
     "An approved model, runtime option, workload, and data-classification decision",
@@ -16,7 +22,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 45,
   "lastVerified": "2026-08-23",
-  "tags": ["self-hosted", "managed-compute", "cloud", "foundry", "model-serving"],
+  "tags": [
+    "self-hosted",
+    "managed-compute",
+    "cloud",
+    "foundry",
+    "model-serving"
+  ],
   "sections": [
     {
       "id": "preserve-portable-contract",

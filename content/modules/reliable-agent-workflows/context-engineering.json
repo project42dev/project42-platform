@@ -4,7 +4,7 @@
   "summary": "Select, structure, budget, and refresh the information an agent needs while preserving provenance and trust boundaries.",
   "level": "intermediate",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-23",
+  "lastVerified": "2026-07-25",
   "providers": [
     "provider-neutral"
   ],

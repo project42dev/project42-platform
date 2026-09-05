@@ -5,14 +5,28 @@
   "summary": "Implement coding-agent changes in small increments that continuously prove scope, behavior, safety, and recoverability.",
   "category": "AI coding agents",
   "format": "playbook",
-  "audience": ["practitioner", "developer", "operator"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "operator"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
-  "prerequisites": ["An approved bounded work plan", "A verified repository baseline"],
+  "providers": [
+    "provider-neutral"
+  ],
+  "prerequisites": [
+    "An approved bounded work plan",
+    "A verified repository baseline"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 90,
   "lastVerified": "2026-08-23",
-  "tags": ["coding-agents", "implementation", "evidence", "verification"],
+  "tags": [
+    "coding-agents",
+    "implementation",
+    "evidence",
+    "verification"
+  ],
   "sections": [
     {
       "id": "work-in-evidence-loops",

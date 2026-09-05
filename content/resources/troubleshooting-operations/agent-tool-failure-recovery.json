@@ -5,9 +5,14 @@
   "summary": "Diagnose tool selection, schema, authorization, execution, result-matching, timeout, and side-effect failures without allowing an agent to retry blindly.",
   "category": "Troubleshooting and operations",
   "format": "troubleshooting",
-  "audience": ["developer", "operator"],
+  "audience": [
+    "developer",
+    "operator"
+  ],
   "level": "advanced",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "A tool contract with schemas, execution ownership, and postconditions",
     "Trace access that links model requests, tool calls, and results",
@@ -16,7 +21,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 60,
   "lastVerified": "2026-08-23",
-  "tags": ["agents", "tools", "mcp", "errors", "reconciliation"],
+  "tags": [
+    "agents",
+    "tools",
+    "mcp",
+    "errors",
+    "reconciliation"
+  ],
   "sections": [
     {
       "id": "locate-tool-divergence",

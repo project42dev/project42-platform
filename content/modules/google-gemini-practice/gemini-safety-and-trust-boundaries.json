@@ -4,7 +4,7 @@
   "summary": "Threat-model prompt injection, unsafe content, sensitive data, excessive tool authority, and factuality failures, then enforce layered controls around Gemini.",
   "level": "advanced",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-23",
+  "lastVerified": "2026-07-25",
   "providers": [
     "google"
   ],

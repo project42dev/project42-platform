@@ -5,9 +5,16 @@
   "summary": "Build a privacy-safe, versioned set of normal, boundary, adversarial, and incident-derived cases that measures the application people will actually use.",
   "category": "Evaluation and safety",
   "format": "playbook",
-  "audience": ["practitioner", "developer", "operator", "educator"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "operator",
+    "educator"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "An approved evaluation charter",
     "Authorized data-handling and retention rules"
@@ -15,7 +22,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 90,
   "lastVerified": "2026-08-23",
-  "tags": ["evaluation", "dataset", "slices", "privacy", "regression"],
+  "tags": [
+    "evaluation",
+    "dataset",
+    "slices",
+    "privacy",
+    "regression"
+  ],
   "sections": [
     {
       "id": "sample-the-real-task",

@@ -5,9 +5,15 @@
   "summary": "Isolate whether an AI quality regression comes from task distribution, prompts, context, retrieval, model behavior, tools, graders, or application changes.",
   "category": "Troubleshooting and operations",
   "format": "playbook",
-  "audience": ["practitioner", "developer", "operator"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "operator"
+  ],
   "level": "advanced",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "A versioned baseline and representative evaluation set",
     "Traceable prompt, context, retrieval, model, tool, and grader versions",
@@ -16,7 +22,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 60,
   "lastVerified": "2026-08-23",
-  "tags": ["context", "quality", "regression", "evaluation", "drift"],
+  "tags": [
+    "context",
+    "quality",
+    "regression",
+    "evaluation",
+    "drift"
+  ],
   "sections": [
     {
       "id": "freeze-and-reproduce",

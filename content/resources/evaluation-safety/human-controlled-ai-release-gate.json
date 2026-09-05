@@ -5,9 +5,15 @@
   "summary": "Convert evaluation, safety, security, privacy, operational, and rollback evidence into an accountable promote, hold, or reject decision.",
   "category": "Evaluation and safety",
   "format": "checklist",
-  "audience": ["developer", "operator", "leader"],
+  "audience": [
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "advanced",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "A versioned release candidate and evaluation report",
     "Named product, risk, and operational owners",
@@ -16,7 +22,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 60,
   "lastVerified": "2026-08-23",
-  "tags": ["release", "safety", "approval", "canary", "rollback"],
+  "tags": [
+    "release",
+    "safety",
+    "approval",
+    "canary",
+    "rollback"
+  ],
   "sections": [
     {
       "id": "assemble-release-evidence",

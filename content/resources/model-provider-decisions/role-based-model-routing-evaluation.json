@@ -5,9 +5,14 @@
   "summary": "Assign models to planner, executor, reviewer, researcher, and specialist roles only after testing the role contract and end-to-end workflow.",
   "category": "Models and providers",
   "format": "playbook",
-  "audience": ["developer", "operator"],
+  "audience": [
+    "developer",
+    "operator"
+  ],
   "level": "advanced",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "Explicit role and handoff contracts",
     "Representative end-to-end workflow cases",
@@ -16,7 +21,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 45,
   "lastVerified": "2026-08-23",
-  "tags": ["routing", "models", "roles", "evaluation", "orchestration"],
+  "tags": [
+    "routing",
+    "models",
+    "roles",
+    "evaluation",
+    "orchestration"
+  ],
   "sections": [
     {
       "id": "define-role-contract",

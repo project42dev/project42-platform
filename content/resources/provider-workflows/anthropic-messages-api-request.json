@@ -5,14 +5,28 @@
   "summary": "Send a bounded Claude Messages API request with environment-based credentials, explicit configuration, response inspection, and recoverable failure handling.",
   "category": "Provider workflows",
   "format": "playbook",
-  "audience": ["developer", "operator"],
+  "audience": [
+    "developer",
+    "operator"
+  ],
   "level": "beginner",
-  "providers": ["anthropic"],
-  "prerequisites": ["Node.js 20 or later", "An Anthropic API key stored outside source control", "An approved Claude model ID"],
+  "providers": [
+    "anthropic"
+  ],
+  "prerequisites": [
+    "Node.js 20 or later",
+    "An Anthropic API key stored outside source control",
+    "An approved Claude model ID"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["anthropic", "messages-api", "api", "javascript"],
+  "tags": [
+    "anthropic",
+    "messages-api",
+    "api",
+    "javascript"
+  ],
   "sections": [
     {
       "id": "prepare-request",

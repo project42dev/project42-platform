@@ -5,9 +5,14 @@
   "summary": "Classify authentication, request, quota, timeout, rate-limit, provider, and application failures before retrying or escalating an AI API call.",
   "category": "Troubleshooting and operations",
   "format": "troubleshooting",
-  "audience": ["developer", "operator"],
+  "audience": [
+    "developer",
+    "operator"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "Access to redacted request metadata and application telemetry",
     "A documented timeout and retry budget",
@@ -16,7 +21,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 60,
   "lastVerified": "2026-08-23",
-  "tags": ["api", "errors", "retry", "rate-limit", "operations"],
+  "tags": [
+    "api",
+    "errors",
+    "retry",
+    "rate-limit",
+    "operations"
+  ],
   "sections": [
     {
       "id": "classify-api-failure",

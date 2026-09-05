@@ -5,14 +5,28 @@
   "summary": "Break a broad answer into atomic factual, comparative, causal, predictive, and normative claims so each can receive the evidence and review it needs.",
   "category": "Research",
   "format": "template",
-  "audience": ["learner", "practitioner", "developer", "educator"],
+  "audience": [
+    "learner",
+    "practitioner",
+    "developer",
+    "educator"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
-  "prerequisites": ["A draft answer, recommendation, or research question"],
+  "providers": [
+    "provider-neutral"
+  ],
+  "prerequisites": [
+    "A draft answer, recommendation, or research question"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 90,
   "lastVerified": "2026-08-23",
-  "tags": ["research", "claims", "evidence", "reasoning"],
+  "tags": [
+    "research",
+    "claims",
+    "evidence",
+    "reasoning"
+  ],
   "sections": [
     {
       "id": "separate-claim-types",

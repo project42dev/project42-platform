@@ -5,9 +5,14 @@
   "summary": "Locate and reconcile system, managed, user, workspace, local, and task-level AI tool configuration without guessing which layer wins.",
   "category": "Setup and quick reference",
   "format": "reference",
-  "audience": ["developer", "operator"],
+  "audience": [
+    "developer",
+    "operator"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "The selected tool's current configuration documentation",
     "Access to inspect the effective workspace configuration",
@@ -16,7 +21,12 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 45,
   "lastVerified": "2026-08-23",
-  "tags": ["configuration", "instructions", "precedence", "policy"],
+  "tags": [
+    "configuration",
+    "instructions",
+    "precedence",
+    "policy"
+  ],
   "sections": [
     {
       "id": "map-layers",

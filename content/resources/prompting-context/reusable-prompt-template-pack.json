@@ -5,14 +5,25 @@
   "summary": "Copy safe, provider-neutral templates for summarizing, transforming, comparing, researching, and reviewing work with visible evidence.",
   "category": "Prompting",
   "format": "template",
-  "audience": ["learner", "practitioner", "educator"],
+  "audience": [
+    "learner",
+    "practitioner",
+    "educator"
+  ],
   "level": "beginner",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [],
   "owner": "project42-editorial",
   "reviewCadenceDays": 90,
   "lastVerified": "2026-08-23",
-  "tags": ["prompting", "templates", "research", "daily-use"],
+  "tags": [
+    "prompting",
+    "templates",
+    "research",
+    "daily-use"
+  ],
   "sections": [
     {
       "id": "use-templates-safely",

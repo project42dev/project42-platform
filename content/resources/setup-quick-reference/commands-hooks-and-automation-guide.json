@@ -5,9 +5,14 @@
   "summary": "Choose between interactive commands, reusable command templates, hooks, and CI automation according to trigger, authority, side effects, and verification needs.",
   "category": "Setup and quick reference",
   "format": "how-to",
-  "audience": ["developer", "operator"],
+  "audience": [
+    "developer",
+    "operator"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "A bounded workflow with observable success criteria",
     "The selected tool's current command or hook documentation",
@@ -16,7 +21,13 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 45,
   "lastVerified": "2026-08-23",
-  "tags": ["commands", "hooks", "automation", "ci", "permissions"],
+  "tags": [
+    "commands",
+    "hooks",
+    "automation",
+    "ci",
+    "permissions"
+  ],
   "sections": [
     {
       "id": "choose-mechanism",

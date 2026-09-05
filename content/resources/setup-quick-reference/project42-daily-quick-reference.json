@@ -5,9 +5,16 @@
   "summary": "Use a compact orient, plan, execute, verify, and recover loop for everyday AI-assisted work, with deeper Project 42 guides for specialized decisions.",
   "category": "Setup and quick reference",
   "format": "reference",
-  "audience": ["learner", "practitioner", "developer", "operator"],
+  "audience": [
+    "learner",
+    "practitioner",
+    "developer",
+    "operator"
+  ],
   "level": "beginner",
-  "providers": ["provider-neutral"],
+  "providers": [
+    "provider-neutral"
+  ],
   "prerequisites": [
     "An authorized task and target workspace",
     "A way to review changes and observable results",
@@ -16,7 +23,12 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 60,
   "lastVerified": "2026-08-23",
-  "tags": ["quick-reference", "workflow", "verification", "recovery"],
+  "tags": [
+    "quick-reference",
+    "workflow",
+    "verification",
+    "recovery"
+  ],
   "sections": [
     {
       "id": "orient-and-plan",

@@ -5,14 +5,30 @@
   "summary": "Check that every citation resolves, identifies the intended source, and supports the nearby claim without scope, date, or attribution drift.",
   "category": "Verification",
   "format": "checklist",
-  "audience": ["learner", "practitioner", "educator"],
+  "audience": [
+    "learner",
+    "practitioner",
+    "educator"
+  ],
   "level": "beginner",
-  "providers": ["provider-neutral", "anthropic", "openai", "google"],
-  "prerequisites": ["A draft containing citations or source links"],
+  "providers": [
+    "provider-neutral",
+    "anthropic",
+    "openai",
+    "google"
+  ],
+  "prerequisites": [
+    "A draft containing citations or source links"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["citations", "verification", "research", "quality"],
+  "tags": [
+    "citations",
+    "verification",
+    "research",
+    "quality"
+  ],
   "sections": [
     {
       "id": "check-four-layers",

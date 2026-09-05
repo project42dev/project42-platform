@@ -4,7 +4,7 @@
   "summary": "Identify the exact model artifact, distinguish open weights from Open Source AI, and make a reviewable license and lineage decision before deployment.",
   "level": "advanced",
   "reviewCadenceDays": 60,
-  "lastVerified": "2026-08-23",
+  "lastVerified": "2026-07-27",
   "providers": [
     "provider-neutral"
   ],

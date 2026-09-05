@@ -5,9 +5,15 @@
   "summary": "Choose and operate Gemini CLI with an explicit authentication path, tool boundary, sandbox decision, and recovery plan.",
   "category": "AI coding tools",
   "format": "reference",
-  "audience": ["practitioner", "developer", "operator"],
+  "audience": [
+    "practitioner",
+    "developer",
+    "operator"
+  ],
   "level": "beginner",
-  "providers": ["google"],
+  "providers": [
+    "google"
+  ],
   "prerequisites": [
     "A supported local runtime and operating system",
     "A Google-supported authentication path"
@@ -15,7 +21,12 @@
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["coding-tools", "gemini-cli", "sandboxing", "verification"],
+  "tags": [
+    "coding-tools",
+    "gemini-cli",
+    "sandboxing",
+    "verification"
+  ],
   "sections": [
     {
       "id": "fit",

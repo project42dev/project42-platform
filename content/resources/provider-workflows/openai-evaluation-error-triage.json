@@ -5,14 +5,29 @@
   "summary": "Apply eval-driven development to an OpenAI workflow, preserve request evidence, classify failures, and release or recover through explicit gates.",
   "category": "Provider workflows",
   "format": "playbook",
-  "audience": ["developer", "operator", "leader"],
+  "audience": [
+    "developer",
+    "operator",
+    "leader"
+  ],
   "level": "intermediate",
-  "providers": ["openai"],
-  "prerequisites": ["A defined OpenAI workflow", "Representative redacted or synthetic cases", "Access to application telemetry without secrets"],
+  "providers": [
+    "openai"
+  ],
+  "prerequisites": [
+    "A defined OpenAI workflow",
+    "Representative redacted or synthetic cases",
+    "Access to application telemetry without secrets"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["openai", "evaluation", "errors", "troubleshooting"],
+  "tags": [
+    "openai",
+    "evaluation",
+    "errors",
+    "troubleshooting"
+  ],
   "sections": [
     {
       "id": "build-evaluation",

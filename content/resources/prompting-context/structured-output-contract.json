@@ -5,14 +5,29 @@
   "summary": "Design portable output contracts, use provider schema features where supported, and validate shape, meaning, authority, and evidence before downstream use.",
   "category": "Prompting",
   "format": "how-to",
-  "audience": ["practitioner", "developer"],
+  "audience": [
+    "practitioner",
+    "developer"
+  ],
   "level": "intermediate",
-  "providers": ["provider-neutral", "anthropic", "openai", "google"],
-  "prerequisites": ["A framed task and a consumer that needs predictable output"],
+  "providers": [
+    "provider-neutral",
+    "anthropic",
+    "openai",
+    "google"
+  ],
+  "prerequisites": [
+    "A framed task and a consumer that needs predictable output"
+  ],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
   "lastVerified": "2026-08-23",
-  "tags": ["structured-output", "schema", "validation", "portability"],
+  "tags": [
+    "structured-output",
+    "schema",
+    "validation",
+    "portability"
+  ],
   "sections": [
     {
       "id": "separate-shape-from-truth",
