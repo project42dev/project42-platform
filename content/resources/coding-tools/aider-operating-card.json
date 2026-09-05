@@ -11,7 +11,7 @@
   "prerequisites": ["A supported Python environment", "A version-controlled working copy", "An approved model-provider credential path"],
   "owner": "project42-editorial",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-08-23",
+  "lastVerified": "2026-07-26",
   "tags": ["coding-tools", "aider", "terminal", "git"],
   "sections": [
     {
@@ -45,8 +45,8 @@
     }
   ],
   "sources": [
-    {"title": "Aider documentation", "url": "https://aider.chat/docs/", "publisher": "Aider", "lastVerified": "2026-08-23"},
-    {"title": "Aider installation", "url": "https://aider.chat/docs/install.html", "publisher": "Aider", "lastVerified": "2026-08-23"},
-    {"title": "Aider usage", "url": "https://aider.chat/docs/usage.html", "publisher": "Aider", "lastVerified": "2026-08-23"}
+    {"title": "Aider documentation", "url": "https://aider.chat/docs/", "publisher": "Aider", "lastVerified": "2026-07-26"},
+    {"title": "Aider installation", "url": "https://aider.chat/docs/install.html", "publisher": "Aider", "lastVerified": "2026-07-26"},
+    {"title": "Aider usage", "url": "https://aider.chat/docs/usage.html", "publisher": "Aider", "lastVerified": "2026-07-26"}
   ]
 }

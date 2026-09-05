@@ -29,8 +29,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # The canonical curriculum lives in project42-content (docs/architecture.md,
+      # layer 2). This job exists to pull it, so it needs that repository
+      # checked out -- previously it did not, and the sync step could not have
+      # reached upstream even if it had tried.
+      - name: Checkout canonical content repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: project42dev/project42-content
+          path: .content-upstream
+
+      # No `|| echo` here. The previous form swallowed every failure and printed
+      # a success message, which is how content/ drifted from upstream by a
+      # whole learning path and 100 KB of catalogue without anyone seeing it.
+      # If the sync cannot run, this job must stop.
       - name: Sync upstream content
-        run: npm run content:sync || echo "Content synced"
+        run: npm run content:sync -- --source .content-upstream
 
       - name: Validate content schema and tests
         run: npm test
