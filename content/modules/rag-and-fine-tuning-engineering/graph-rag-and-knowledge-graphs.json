@@ -63,23 +63,12 @@
       }
     ]
   },
-  "instructorScript": {
-    "schemaVersion": "1.0",
-    "estimatedSeconds": 2700,
-    "cues": [
-      {
-        "id": "graph-rag-and-knowledge-graphs-cue-1",
-        "kind": "narration",
-        "text": "Welcome to GraphRAG & Multi-Hop Entity Reasoning. In this session, we explore key architecture patterns, hands-on implementation, and verifiable checkpoints."
-      }
-    ]
-  },
   "sources": [
     {
-      "title": "Project 42 Architecture Standards",
-      "url": "https://project-42.dev/docs",
-      "publisher": "Project 42 PMO",
-      "lastVerified": "2026-08-22"
+      "title": "Hugging Face documentation",
+      "url": "https://huggingface.co/docs/",
+      "publisher": "Hugging Face",
+      "lastVerified": "2026-09-05"
     }
   ]
 }

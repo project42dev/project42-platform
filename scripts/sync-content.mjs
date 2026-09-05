@@ -54,6 +54,13 @@ const SYNCED_ENTRIES = [
 
 const TEXT_EXTENSIONS = [".json", ".md", ".mmd", ".svg", ".csv", ".txt", ".yaml", ".yml"];
 
+// Derived here, not authored upstream. generate-training-packages writes these
+// from the training scripts every build, so locking them would make the lock
+// fail on its own generator: any curriculum change would demand a second
+// upstream commit just to re-record what this repository had recomputed.
+// They are still policed -- by training:check, which is the gate that owns them.
+const GENERATED_HERE = new Set(["training/coverage.json"]);
+
 function assertInside(parent, target) {
   const relative = path.relative(parent, target);
   if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) {
@@ -99,6 +106,7 @@ async function inventory(base) {
     const absolute = path.join(base, entry);
     await access(absolute);
     for (const file of await filesUnder(absolute, entry)) {
+      if (GENERATED_HERE.has(file.relative)) continue;
       files[file.relative] = await hashFile(file.absolute);
     }
   }
@@ -179,6 +187,20 @@ if (dirty) {
 // cannot leave content/ half-written.
 await inventory(sourceRoot);
 
+// Files this repository generates survive the install untouched. Each synced
+// entry is removed before being recopied, which would delete them, so they are
+// held aside and put back. training:check owns them and requires them to match
+// what the generator computes here; taking upstream's copy makes that gate fail
+// on a file the sync had no business touching.
+const preserved = new Map();
+for (const relative of GENERATED_HERE) {
+  try {
+    preserved.set(relative, await readFile(path.join(contentRoot, relative)));
+  } catch {
+    // Nothing to preserve on a first install; the generator writes it.
+  }
+}
+
 await mkdir(contentRoot, { recursive: true });
 for (const entry of SYNCED_ENTRIES) {
   const source = path.join(sourceRoot, entry);
@@ -186,7 +208,17 @@ for (const entry of SYNCED_ENTRIES) {
   assertInside(sourceRoot, source);
   assertInside(contentRoot, target);
   await rm(target, { recursive: true, force: true });
-  await cp(source, target, { recursive: true });
+  await cp(source, target, {
+    recursive: true,
+    filter: (from) =>
+      !GENERATED_HERE.has(path.relative(sourceRoot, from).split(path.sep).join("/")),
+  });
+}
+
+for (const [relative, bytes] of preserved) {
+  const target = path.join(contentRoot, relative);
+  await mkdir(path.dirname(target), { recursive: true });
+  await writeFile(target, bytes);
 }
 
 const installed = await inventory(contentRoot);

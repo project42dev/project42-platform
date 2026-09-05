@@ -63,23 +63,12 @@
       }
     ]
   },
-  "instructorScript": {
-    "schemaVersion": "1.0",
-    "estimatedSeconds": 1200,
-    "cues": [
-      {
-        "id": "ai-mental-models-cue-1",
-        "kind": "narration",
-        "text": "Welcome to Mental Models: Probabilistic Intelligence. In this session, we explore key architecture patterns, hands-on implementation, and verifiable checkpoints."
-      }
-    ]
-  },
   "sources": [
     {
-      "title": "Project 42 Architecture Standards",
-      "url": "https://project-42.dev/docs",
-      "publisher": "Project 42 PMO",
-      "lastVerified": "2026-08-22"
+      "title": "NIST Generative AI Profile (AI 600-1)",
+      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
+      "publisher": "NIST",
+      "lastVerified": "2026-09-05"
     }
   ]
 }

@@ -63,23 +63,12 @@
       }
     ]
   },
-  "instructorScript": {
-    "schemaVersion": "1.0",
-    "estimatedSeconds": 2100,
-    "cues": [
-      {
-        "id": "ai-compliance-and-crypto-receipts-cue-1",
-        "kind": "narration",
-        "text": "Welcome to EU AI Act, NIST AI RMF & Deletion Receipts. In this session, we explore key architecture patterns, hands-on implementation, and verifiable checkpoints."
-      }
-    ]
-  },
   "sources": [
     {
-      "title": "Project 42 Architecture Standards",
-      "url": "https://project-42.dev/docs",
-      "publisher": "Project 42 PMO",
-      "lastVerified": "2026-08-22"
+      "title": "NIST AI Risk Management Framework",
+      "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+      "publisher": "NIST",
+      "lastVerified": "2026-09-05"
     }
   ]
 }

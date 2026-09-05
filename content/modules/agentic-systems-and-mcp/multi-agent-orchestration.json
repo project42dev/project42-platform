@@ -63,23 +63,12 @@
       }
     ]
   },
-  "instructorScript": {
-    "schemaVersion": "1.0",
-    "estimatedSeconds": 2700,
-    "cues": [
-      {
-        "id": "multi-agent-orchestration-cue-1",
-        "kind": "narration",
-        "text": "Welcome to Multi-Agent Orchestration & Consensus. In this session, we explore key architecture patterns, hands-on implementation, and verifiable checkpoints."
-      }
-    ]
-  },
   "sources": [
     {
-      "title": "Project 42 Architecture Standards",
-      "url": "https://project-42.dev/docs",
-      "publisher": "Project 42 PMO",
-      "lastVerified": "2026-08-22"
+      "title": "OpenAI Agents SDK documentation",
+      "url": "https://openai.github.io/openai-agents-js/",
+      "publisher": "OpenAI",
+      "lastVerified": "2026-09-05"
     }
   ]
 }

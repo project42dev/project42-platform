@@ -63,23 +63,12 @@
       }
     ]
   },
-  "instructorScript": {
-    "schemaVersion": "1.0",
-    "estimatedSeconds": 1500,
-    "cues": [
-      {
-        "id": "token-economics-and-limits-cue-1",
-        "kind": "narration",
-        "text": "Welcome to Token Economics, Context Windows & Limits. In this session, we explore key architecture patterns, hands-on implementation, and verifiable checkpoints."
-      }
-    ]
-  },
   "sources": [
     {
-      "title": "Project 42 Architecture Standards",
-      "url": "https://project-42.dev/docs",
-      "publisher": "Project 42 PMO",
-      "lastVerified": "2026-08-22"
+      "title": "Anthropic documentation",
+      "url": "https://docs.anthropic.com/",
+      "publisher": "Anthropic",
+      "lastVerified": "2026-09-05"
     }
   ]
 }

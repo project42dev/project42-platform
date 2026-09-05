@@ -44,7 +44,16 @@ test("starter catalog is valid", () => {
   assert.equal(learningCatalog.modules.length, starterCatalog.modules.length);
   assert.equal(fieldGuideCatalog.resources.length, starterCatalog.resources.length);
   assert.equal(starterCatalog.contentVersion, "0.42.0");
-  assert.equal(starterCatalog.paths[0].moduleIds.length, 16);
+  // Invariant, not a snapshot. This used to assert paths[0] held exactly 16
+  // modules, which pinned the shape of whichever curriculum happened to be
+  // vendored in this repository and broke the moment the canonical catalogue
+  // was consumed. What matters is that no path ships empty.
+  for (const learningPath of starterCatalog.paths) {
+    assert.ok(
+      learningPath.moduleIds.length > 0,
+      `learning path ${learningPath.id} references no modules`,
+    );
+  }
   const referencedModuleIds = new Set(
     starterCatalog.paths.flatMap((path) => path.moduleIds),
   );
@@ -2036,6 +2045,9 @@ test("catalog validation catches broken references and unsafe source metadata", 
   );
   assert.ok(whatAiDoes);
   assert.ok(promptWithPurpose);
+  // Derived from the catalogue, not hardcoded: this named ai-foundations,
+  // which was paths[0] only in the copy this repository used to vendor.
+  const brokenPathId = broken.paths[0].id;
   broken.paths[0].moduleIds.push("missing-module");
   whatAiDoes.providers = [];
   whatAiDoes.sources[0].url = "http://example.com/source";
@@ -2048,7 +2060,7 @@ test("catalog validation catches broken references and unsafe source metadata", 
   assert.equal(validation.valid, false);
   assert.ok(
     validation.errors.includes(
-      "Path ai-foundations references missing module missing-module",
+      `Path ${brokenPathId} references missing module missing-module`,
     ),
   );
   assert.ok(validation.errors.includes("Module what-ai-does has no providers"));
