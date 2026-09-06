@@ -582,12 +582,15 @@ async function create(name, flags) {
   console.log(`  cd ${frontendRoot}`);
   console.log("  npm install");
   console.log("  npm run themes:sync -- --source <a project42-gallery checkout>");
+  // facts:generate rewrites README and public/release-facts.json from the
+  // catalogue that was just installed. `prebuild` verifies them, so a build
+  // before this one fails on the content release it cannot find.
+  console.log("  npm run facts:generate");
   console.log("  npm run build");
   console.log("");
-  console.log(
-    `Add a module under ${contentRoot}/custom/, rebuild there, then re-run ` +
-      "`npm run app:materialise` in the front end to publish it.",
-  );
+  console.log("To publish a module of your own afterwards:");
+  console.log(`  cd ${contentRoot} && <add custom/modules/<id>.json> && npm run content:build`);
+  console.log(`  cd ${frontendRoot} && npm run app:materialise && npm run facts:generate`);
 }
 
 // --------------------------------------------------------------------- doctor

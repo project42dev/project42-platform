@@ -4,6 +4,62 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.104.0] - 2026-09-06
+
+### Added
+
+- A site now renders the merged catalogue its own content repository publishes.
+  `project42-portal materialise` resolves it and installs it as
+  `lib/siteCatalog.generated.ts` (imported by the application) and
+  `lib/siteCatalog.generated.json` (read by the `.mjs` gates, which cannot
+  import TypeScript), written from one value in one call so they cannot
+  disagree. Resolution has exactly two outcomes: the content repository's
+  `dist/catalog.json` when `content.customContentDir` is declared, the
+  platform's own catalogue when it is not.
+- `PROJECT42_CONTENT_DIR` overrides the configured content path, for CI where
+  `actions/checkout` cannot write above the workspace. The scaffolded
+  workflows use it: each job that installs now checks the sibling content
+  repository out and builds its catalogue first.
+- `materialise` prunes files the product no longer ships, deciding per file
+  from the consuming repository's own `.gitignore` -- ignored under a
+  materialised root means build input, tracked or un-ignored means a declared
+  fork, which it leaves alone and names in its report. Outside a git repository
+  it prunes nothing.
+- `doctor` reports a configured content repository whose catalogue has not been
+  built, and a front end with no catalogue installed.
+- `CatalogMetadata.inheritedFrom`, the provenance a downstream catalogue carries
+  through the merge.
+
+### Fixed
+
+- `content.customContentDir` was written into a scaffolded front end's
+  configuration and read by nothing, so an adopter's own module merged
+  correctly into their content repository's `dist/catalog.json` and never
+  appeared on their site. Inheritance was proven at one end and rendering at
+  the other, with nothing joining them.
+- A configured content repository whose catalogue is missing, unparseable,
+  empty or the wrong shape now fails the install naming the command that fixes
+  it. It never falls back to the platform's own catalogue: a site silently
+  missing its operator's content is indistinguishable, from outside, from a
+  site that never had any.
+- Two `rendered-html` gates asserted fixed module counts on inherited learning
+  paths (sixteen on AI Foundations, twelve on reliable-agent workflows with the
+  capstone last), so a deployment that attached one module of its own to an
+  inherited path failed a product gate for doing exactly what the inheritance
+  model is for.
+- `LessonPager` was imported by two module pages and not shipped, so a
+  consuming repository materialised pages that could not compile.
+
+### Changed
+
+- The package declares `sideEffects: false`. Without it a consuming bundler
+  must assume every module might act on import, so importing anything at all
+  pulled the compiled canonical curriculum into the client bundle -- 1.3 MB
+  that a site rendering its own merged catalogue would then ship twice.
+- Every page, script and gate under `web/` reads `lib/catalog.ts` instead of
+  importing `starterCatalog` from the package, so a deployment's curriculum has
+  one source.
+
 ## [0.103.5] - 2026-09-06
 
 ### Fixed

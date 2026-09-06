@@ -57,6 +57,23 @@ Collision rules, applied by `mergeCatalogs` from `@project42/platform`:
 - **provider** — added only if the id is new; upstream's entry is kept.
 - Anything with an id upstream has never seen is simply added.
 
+## Publishing it to the site
+
+`dist/catalog.json` is what the front end renders — not the platform's own
+catalogue, and not `custom/` directly. Two commands in each repository:
+
+```bash
+npm run content:build                       # here: merge upstream/ + custom/
+cd ../{{NAME}}
+npm run app:materialise && npm run facts:generate
+```
+
+`app:materialise` installs the merged catalogue into the front end and fails
+loudly if this repository has not built one — it never falls back to the
+platform's, because a site quietly missing your modules looks exactly like a
+site that has none. `facts:generate` refreshes the counts and content release
+the front end's `prebuild` gate verifies.
+
 ## Versioning
 
 `dist/catalog.json` declares `custom/catalog.json`'s `contentVersion` as its
