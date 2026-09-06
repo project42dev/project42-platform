@@ -93,7 +93,7 @@ path.
 
 ## Representative fixture and first wave
 
-`examples/training/language-models-and-generation/class-script.json` is a substantial
+`content/training/ai-foundations/language-models-and-generation/class-script.json` is a substantial
 interactive class script tied to the existing module. Its deterministic transcript,
 WebVTT captions, text-only route, reduced-motion direction, and integrity manifest are
 published with the package. The media manifest is deliberately `draft`: placeholder

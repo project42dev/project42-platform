@@ -1,6 +1,6 @@
 # Legal and transparency requirements
 
-> **Orchard deployment reality: see [How Orchard works](../../docs/design/orchard-two-track/how-orchard-works.md).**
+> **Orchard deployment reality: see [the Orchard content lifecycle](../orchard/lifecycle.md) and [Orchard status](../orchard/status.md).**
 > Verified 2026-08-13. The discovery engine has no schedule and ends by
 > opening a GitHub issue. **Approvals ARE read, by a mechanism the design forbids** (see below). Item gates, ADO binding, publication and live verification are
 > designed and not built.

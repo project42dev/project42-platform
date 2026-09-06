@@ -40,9 +40,9 @@ count and the totals look healthy. That was true of all 66 Learn modules until
 |---|---|
 | The content lifecycle tool: discovery, authoring, currency | `orchard` |
 | The public marketing and entry surface | `project-42.dev` |
-| The Learn delivery surface | `learn.project-42.dev` |
-| The Field Guide delivery surface | `guide.project-42.dev` |
-| Learner account and profile | `account.project-42.dev` |
+| The Learn delivery surface | `project-42.dev`, under `/learn/**` |
+| The Field Guide delivery surface | `project-42.dev`, under `/guide/**` |
+| Learner account and profile | `project-42.dev`, under the account routes |
 | Owner administration | `admin.project-42.dev` |
 | Planning, sprints, ADRs, board records | `project42dev-ops`, private |
 | An Azure AI Foundry deployment framework | `homestead-foundry` |

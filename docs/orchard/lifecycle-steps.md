@@ -24,6 +24,14 @@ step cannot be described at that level, it is not designed.
 - **NO RUNTIME** the script exists and **nothing deployed can invoke it**
 - **NOT BUILT** neither script nor runtime exists
 
+> **Path convention used on this page.** Orchard's code does not live in this
+> repository. Every file path written here is relative to the root of the
+> **`project42dev/orchard`** repository unless it names a repository first
+> (for example `project-42.dev/app/...`, which is relative to the
+> `project42dev/project-42.dev` repository root). An unqualified script name
+> such as `announce-gates.mjs` means `scripts/announce-gates.mjs` in the
+> Orchard repository.
+
 ---
 
 ## The physical system
@@ -142,7 +150,7 @@ verifying the container. Issue I-37.
 | --- | --- |
 | Job | `caj-orch-t1-sch-prod-eus-01` (cron `0 6 1 * *`) or `-t1-man-` |
 | Entry | `orchard-production-runtime.mjs --track track-1` |
-| Script | `discover-approved-sources.mjs` via `lib/track-1-controller.mjs` |
+| Script | `discover-approved-sources.mjs` via `scripts/lib/track-1-controller.mjs` |
 | Identity | `id-p42orch-t1-prod-eus-01` |
 | Reads | the approved source registry; the public internet, egress-restricted |
 | Writes | `workflow_run` (one row, `run_id` UUIDv7), `track-1-state` blobs |
@@ -179,7 +187,7 @@ received a single write. Issue I-06.
 | --- | --- |
 | Job | `caj-orch-t2-sch-prod-eus-01` (cron `0 6 15 * *`) or `-t2-man-` |
 | Entry | `orchard-production-runtime.mjs --track track-2` |
-| Script | `inspect-canonical-corpus.mjs` via `lib/track-2-controller.mjs` |
+| Script | `inspect-canonical-corpus.mjs` via `scripts/lib/track-2-controller.mjs` |
 | Identity | `id-p42orch-t2-prod-eus-01` |
 | Reads | the canonical corpus snapshot; Foundry, for inspection |
 | Writes | `workflow_run`, `observation_event`, `run_outcome`, `track-2-state` |
@@ -202,11 +210,11 @@ announce. The published diagram draws that edge as solid and built. Issue I-12.
 
 | Field | Value |
 | --- | --- |
-| Script | `lib/gate-queue.mjs`, called by the track controller |
+| Script | `scripts/lib/gate-queue.mjs`, called by the track controller |
 | Reads | the survey results held in memory for this run |
 | Writes | nothing yet; produces candidate objects |
 
-**Scoring.** `scoreCandidate` in `lib/gate-queue.mjs`:
+**Scoring.** `scoreCandidate` in `scripts/lib/gate-queue.mjs`:
 
 ```
 score = round((breadth * 10 + min(depth, 100) * 0.5) * 10) / 10
@@ -253,7 +261,7 @@ the run.
 
 | Field | Value |
 | --- | --- |
-| Function | `persistDiscoveryItems` in `lib/gate-queue.mjs` |
+| Function | `persistDiscoveryItems` in `scripts/lib/gate-queue.mjs` |
 | Database | the SQLite state database |
 | **Table** | **`workflow_item`**, plus `item_revision` and `decision_event` |
 | Writes | `recordItem` at `observed`, then two transitions, then `recordObservation` |
@@ -340,10 +348,10 @@ gate. Issue I-26.
 | --- | --- |
 | Script | `apply-gate-decisions.mjs`, run at track **start**, before any work |
 | Reads | open gate issues and their comments |
-| Adapter | `adapters/github-gate/adapter.mjs`, identity `orchard.github-gate-adapter.v1` |
+| Adapter | `scripts/adapters/github-gate/adapter.mjs`, identity `orchard.github-gate-adapter.v1` |
 | Writes | `decision_event`, `workflow_item.current_state` |
 
-**The adapter is pinned.** `lib/protected-adapter.mjs` hashes the entry file and
+**The adapter is pinned.** `scripts/lib/protected-adapter.mjs` hashes the entry file and
 every reachable file, refuses any import that leaves the artifact root, and
 refuses any package import. Its digest is recorded in
 `protected_trust_anchor`. A modified adapter cannot execute.
@@ -413,7 +421,7 @@ issue so both sides point at each other.
 exists for this item, reuse it and create nothing.
 
 **Transport must be the Azure DevOps REST API over `fetch`**, exactly as
-`lib/github-issues.mjs` is, for exactly the same reason.
+`scripts/lib/github-issues.mjs` is, for exactly the same reason.
 
 **Credential must not be a PAT.** Both existing PATs return 401. A service
 principal or managed identity registered in the organisation, obtaining an AAD
@@ -437,7 +445,7 @@ evidence and constraints.
 **Status: NOT BUILT in the deployed system.**
 
 **No deployed job can author anything.** The eight-phase authoring engine
-exists in `delivery/Dockerfile` with `Invoke-Project42Engine.ps1`. **That image
+exists in `delivery/Dockerfile` with `delivery/Invoke-Project42Engine.ps1`. **That image
 was never built or pushed.** `az acr repository list` on the registry returns
 exactly one repository, `orchard-two-track`. Issues I-01, I-02.
 
@@ -517,7 +525,7 @@ tracker work item, and transition `ado-closure-ready` -> `closed`.
 **Status: NOT DESIGNED AND NOT BUILT. This is the largest hole in the system
 relative to its stated purpose.**
 
-`lib/state-machine.mjs` terminates at `closed` **with no re-entry**, and the
+`scripts/lib/state-machine.mjs` terminates at `closed` **with no re-entry**, and the
 deduplication rule at step 4 actively prevents a future currency run from
 re-proposing a subject that already has an item. **So content that becomes
 obsolete, superseded or wrong has no path to retirement and cannot be

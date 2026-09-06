@@ -22,9 +22,9 @@ Compose stack (web portal, Platform API, Keycloak identity/SSO).
 
 ## How it relates to other repos
 
-- **`project-42.dev`**, **`learn.project-42.dev`**, **`guide.project-42.dev`** —
-  all three sites consume this repo's versioned content/contracts rather than
-  duplicating them
+- **`project-42.dev`** — the single portal (Learn under `/learn/**`, the Field
+  Guide under `/guide/**`, plus the account routes) consumes this repo's
+  versioned content/contracts rather than duplicating them
 - **`project42-gallery`** — themes for sites built on this core
 
 ## Status

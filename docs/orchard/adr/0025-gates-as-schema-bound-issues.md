@@ -2,6 +2,14 @@
 
 **Status:** Accepted.
 
+> **Path convention used on this page.** Orchard's code does not live in this
+> repository. Every file path written here is relative to the root of the
+> **`project42dev/orchard`** repository unless it names a repository first
+> (for example `project-42.dev/app/...`, which is relative to the
+> `project42dev/project-42.dev` repository root). An unqualified script name
+> such as `announce-gates.mjs` means `scripts/announce-gates.mjs` in the
+> Orchard repository.
+
 ## Decision
 
 1. **Gate 1 and Gate 2 use separate schemas and separate labels.** They ask
@@ -35,12 +43,12 @@
    timeout is reconciled before any retry.
 
     > **Correction, 2026-08-15.** The builder had to override this. The
-    > contract's `batch_digest` (`lib/gates.mjs`) hashes the run id along with
+    > contract's `batch_digest` (`scripts/lib/gates.mjs`) hashes the run id along with
     > the batch, so keying idempotency on gate, run and batch digest as
     > written above would open a fresh issue every month for the same
     > unchanged held work, because the run id changes every run even when
     > nothing else does. `announce-gates.mjs` instead keys the issue marker on
-    > `heldSetDigest` (`lib/gate-queue.mjs`), a hash of the sorted set of held
+    > `heldSetDigest` (`scripts/lib/gate-queue.mjs`), a hash of the sorted set of held
     > item ids, revisions and proposal or artifact digests, which does not
     > include the run id and so stays stable while the held set is stable.
     > The `batch_digest` field itself is still computed and persisted exactly

@@ -121,7 +121,7 @@ contributions share the same `providerFamily`, and rejects a script with
 `accessibility` sign-off; an approved script needs all three.
 
 The published representative example is
-`examples/training/language-models-and-generation/class-script.json`, a
+`content/training/ai-foundations/language-models-and-generation/class-script.json`, a
 substantial (986-word) script tied to the `language-models-and-generation`
 module. Read that file directly rather than a trimmed excerpt here: it is the
 executable ground truth, and this repository's own test suite validates it.

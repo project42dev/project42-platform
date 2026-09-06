@@ -32,6 +32,14 @@ content database)
 > **Treat this page as the intended lifecycle.** [Status](status.md) is the
 > record of what is built, what is deployed and what has been proven.
 
+> **Path convention used on this page.** Orchard's code does not live in this
+> repository. Every file path written here is relative to the root of the
+> **`project42dev/orchard`** repository unless it names a repository first
+> (for example `project-42.dev/app/...`, which is relative to the
+> `project42dev/project-42.dev` repository root). An unqualified script name
+> such as `announce-gates.mjs` means `scripts/announce-gates.mjs` in the
+> Orchard repository.
+
 One content item, from the moment a discovery pass first notices the topic to
 the moment it is retired. The states below are the **intended** lifecycle.
 
@@ -478,10 +486,15 @@ that assumption ten of the twenty-four queued items looked homeless: the
 `visual-guide` surface had no directory anywhere in the content platform.
 
 **It was never homeless. It was in a different repository.** Visual guides are
-the diagrams published on the Field Guide subdomain at `/diagrams` and
-`/diagrams/<id>`, where the interface calls them visual guides. The Mermaid
-source is `diagrams/<id>.mmd`, the catalogue entry is in `config/diagrams.json`,
-and the SVG under `public/diagrams/` is generated rather than authored.
+the diagrams the portal publishes at `/guide/diagrams` and
+`/guide/diagrams/<id>`, where the interface calls them visual guides. Both the
+Mermaid source `project42-content/diagrams/<id>.mmd` and the catalogue entry
+`project42-content/diagrams/catalogue.json` live in the
+`project42dev/project42-content` repository, and the SVG is generated rather
+than authored. (Corrected 2026-09-05: this paragraph previously named a
+`config/diagrams.json` file that exists in no repository, and the retired
+Field Guide subdomain. The authority for both paths is the `visual-guide`
+entry in Orchard's `config/surface-targets.json`.)
 
 Two rules came out of it, and both are in `config/surface-targets.json`:
 

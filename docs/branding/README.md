@@ -12,8 +12,9 @@ rebuilt as canonical SVG and semantic web assets, tested, reviewed for conflicti
 marks, and accepted before replacing the current production brand.
 
 Open [showcase.html](showcase.html) to compare the complete concepts at full size.
-The first selected-direction landing explorations are in
-[`selected/cosmic-answer/landing-mockups/`](selected/cosmic-answer/landing-mockups/README.md).
+The selected-direction landing explorations referenced here were never committed
+to this repository; `selected/` does not exist. The six concept sets that do
+exist are under [`concepts/`](concepts/).
 
 ## Selected product promise
 

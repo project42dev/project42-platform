@@ -71,7 +71,7 @@ Phase order matters: user-level core first (immediate value, low risk), shared s
 
 ## Pricing-aware tiering
 
-Not all agents are equal in cost. See [`decisions/per-role-model-assignment.md`](../../decisions/per-role-model-assignment.md) for the full per-role rationale. The summary:
+Not all agents are equal in cost. There is no per-role model-assignment decision record in this repository; the closest published material is [`docs/decisions/model-routing.md`](../decisions/model-routing.md), which gives worked routing examples rather than a per-role roster. The summary:
 
 | Tier | Model | When |
 |---|---|---|
@@ -86,6 +86,6 @@ Not all agents are equal in cost. See [`decisions/per-role-model-assignment.md`]
 ## Cross-references
 
 - [`docs/concepts/agents.md`](agents.md) — agent fundamentals
-- [`decisions/per-role-model-assignment.md`](../../decisions/per-role-model-assignment.md) — per-role model rationale
+- [`docs/decisions/model-routing.md`](../decisions/model-routing.md) — worked model-routing examples
 - [`docs/operations/settings-layering.md`](../operations/settings-layering.md) — three-tier settings configuration
-- [`examples/multi-repo-agent-roster.md`](../../examples/multi-repo-agent-roster.md) — sanitized real-world case study
+- A sanitized multi-repo agent-roster case study is not published in this repository.

@@ -1,13 +1,20 @@
 # AB#5194 manual accessibility and usability validation plan
 
-**Status:** Ready for execution; no human session claimed
+**Status:** Plan only. The human procedure below stands; the machine-readable
+manifest, result schema and PowerShell tooling this plan was written against
+were **never committed to this repository** (verified 2026-09-05). No human
+session claimed.
 
 **Work item:** AB#5194
 
 **Target:** WCAG 2.2 AA plus moderated task comprehension
 
-**Applies to:** `project-42.dev`, `learn.project-42.dev`, and
-`guide.project-42.dev`
+**Applies to:** the single portal `project-42.dev` — the root and legal
+routes, Learn under `/learn/**`, the Field Guide under `/guide/**`, and the
+account routes. (Corrected 2026-09-05: this plan was written against the
+separate `learn.` and `guide.` hosts, which were retired in September 2026
+when the estate consolidated onto one origin. The scenarios below are
+unaffected — only the URLs they are run against changed.)
 
 ## Purpose and claim boundary
 
@@ -27,28 +34,39 @@ The package does **not** claim that any moderated, keyboard-only, screen-reader,
 physical-device session has occurred. Automated HTTP, markup, browser, or Axe checks
 cannot establish comprehension or actual assistive-technology behavior.
 
-## Authoritative package
+## Package status
 
-| Artifact | Purpose |
+**Only the two templates exist. Verified 2026-09-05.**
+
+| Artifact | Status |
 |---|---|
-| `deployment/accessibility/ab5194-validation-manifest.json` | Versioned routes, environments, scenarios, tasks, and assertions |
-| `deployment/accessibility/ab5194-result.schema.json` | Fail-closed anonymized result contract |
-| `deployment/accessibility/fixtures/ab5194-manual-result.valid.json` | Copyable, deliberately `not-run` manual result template |
-| `deployment/Invoke-Project42AccessibilityPreflight.ps1` | Read-only production HTTP and static-markup preflight |
-| `deployment/Test-Project42AccessibilityResultSet.ps1` | Schema, manifest, privacy, and aggregate approval validation |
-| `deployment/Test-Project42AccessibilityValidation.ps1` | Offline redirect, manifest binding, privacy, evidence-path, fixture, and behavior tests |
-| `templates/ab5194-accessibility-bug.md` | Public-safe accessibility Bug evidence |
-| `templates/ab5194-redacted-release-report.md` | Cross-repository release decision |
+| [`templates/ab5194-accessibility-bug.md`](templates/ab5194-accessibility-bug.md) | **Exists.** Public-safe accessibility Bug evidence |
+| [`templates/ab5194-redacted-release-report.md`](templates/ab5194-redacted-release-report.md) | **Exists.** Cross-repository release decision |
+| `deployment/accessibility/ab5194-validation-manifest.json` | **Does not exist.** Versioned routes, environments, scenarios, tasks and assertions |
+| `deployment/accessibility/ab5194-result.schema.json` | **Does not exist.** Fail-closed anonymized result contract |
+| `deployment/accessibility/fixtures/ab5194-manual-result.valid.json` | **Does not exist.** `not-run` manual result template |
+| `deployment/Invoke-Project42AccessibilityPreflight.ps1` | **Does not exist.** Read-only production HTTP and markup preflight |
+| `deployment/Test-Project42AccessibilityResultSet.ps1` | **Does not exist.** Schema, manifest, privacy and approval validation |
+| `deployment/Test-Project42AccessibilityValidation.ps1` | **Does not exist.** Offline redirect, binding, privacy and behavior tests |
 
-The machine-readable manifest is authoritative when this prose and the manifest
-disagree. Update both in the same reviewed change.
+The repository has a single `deployment/` directory containing only
+`deployment/cloudflare/`. There is no accessibility tooling anywhere in
+`scripts/`, `tests/` or `.github/workflows/`.
+
+**Consequence for a reader:** until that tooling is built, this document is the
+authority for the scenario, environment and task definitions, and every step
+below that says "the manifest" means "the tables on this page". The result
+schema, the preflight and the validator are unbuilt work, not missing files
+that can be found somewhere else.
 
 ## Preconditions
 
 Do not begin a human session until all applicable conditions are true:
 
-1. Record the exact root, Learn, and Field Guide release facts.
-2. Run the production preflight and retain its schema-valid JSON privately.
+1. Record the exact portal release facts covering the root, `/learn/**` and
+   `/guide/**` routes.
+2. **Preflight is unbuilt.** Record route availability manually against
+   `https://project-42.dev` and retain the evidence privately.
 3. Confirm the participant cohort and anonymous ID without storing a direct
    identifier in the repository.
 4. Record informed consent outside the repository and reference it only by an
@@ -63,22 +81,18 @@ Do not begin a human session until all applicable conditions are true:
 9. Make AB#5194 and its current execution tasks Active. Do not mark the Story
    Resolved until every acceptance criterion is evidenced.
 
-Run the preflight from PowerShell 7:
+**There is no preflight script.** This plan originally invoked
+`deployment/Invoke-Project42AccessibilityPreflight.ps1`, which was never
+committed. Until it is built, record route availability by hand against
+`https://project-42.dev` and store the notes in the private evidence root,
+outside any Git repository or worktree.
 
-```powershell
-$privateEvidenceRoot = Read-Host 'Absolute private evidence root outside Git'
-
-./deployment/Invoke-Project42AccessibilityPreflight.ps1 `
-  -PrivateEvidenceRoot $privateEvidenceRoot `
-  -OutputPath 'preflight/ab5194-preflight.json'
-```
-
-The explicit root and the `preflight` parent directory must already exist. The
-script rejects relative roots, every root inside a Git repository or worktree,
-absolute output paths, path traversal, missing parents, and an existing output file.
-It does not create a parent, overwrite evidence, or silently fall back to the current
-directory. A passing result proves only route availability and declared static
-markers.
+When that script is written it must: reject relative evidence roots, reject any
+root inside a Git repository or worktree, reject absolute output paths, path
+traversal, missing parents and an existing output file; never create a parent,
+overwrite evidence, or fall back to the current directory. A passing result
+would prove only route availability and declared static markers — never
+comprehension or assistive-technology behavior.
 
 ## Participants and roles
 
@@ -134,7 +148,7 @@ this repository.
 
 ## Environment matrix
 
-The manifest defines the exact minimum:
+The exact minimum (this page is the authority; there is no manifest file):
 
 | ID | Operating system and browser | Assistive technology | Primary purpose |
 |---|---|---|---|
@@ -152,9 +166,10 @@ rule, not sufficient result evidence.
 
 For every session:
 
-1. Copy the valid manual result fixture and replace the template timestamps,
-   release lines, anonymous participant ID, environment, and scenario. Retain the
-   manifest's exact scenario, environment, and task IDs.
+1. Start a result record from the scenario and environment tables on this page —
+   there is no committed result fixture to copy. Record timestamps, release
+   lines, anonymous participant ID, environment and scenario, and use the exact
+   scenario, environment and task IDs given below.
 2. Confirm consent before recording any observation.
 3. Reset browser state according to the scenario. Keep required authenticated
    fixtures isolated from participant data.
@@ -166,7 +181,8 @@ For every session:
 7. Stop the task if it could expose private data, change an unapproved production
    record, or leave the participant unable to recover.
 8. Record each distinct issue immediately. Do not combine unrelated failures.
-9. Run the result through the JSON schema before accepting it as evidence.
+9. There is no committed result schema to validate against. Check the record by
+   hand against the required fields above before accepting it as evidence.
 10. Hash the approved private evidence and record only its redacted reference and
     digest.
 
@@ -182,9 +198,9 @@ For every session:
 | `guide-resource-discovery` | Newcomer and practitioner | Search/filter/no-result recovery, provenance, freshness, copy feedback |
 | `visual-guide-dialog` | AT evaluator on desktop and physical mobile | Dialog name, focus, zoom, scroll, Escape/Close, restoration, text alternative |
 
-Use the complete task and assertion text from the manifest.
+Use the complete task and assertion text from the scenario table above.
 
-Before approval, validate the complete result set against the manifest. Every
+Before approval, validate the complete result set against this plan. Every
 scenario must have a passed human result, every required environment must be
 represented in a passed human result, and newcomer, practitioner, and AT-evaluator
 cohorts must be covered. A passed scenario must include every declared task exactly
@@ -192,16 +208,11 @@ once, passed task observations, announcement observations, focus observations, a
 comprehension evidence. JSON Schema validation alone does not establish those
 cross-record requirements.
 
-Run the approval gate over the redacted result files:
-
-```powershell
-./deployment/Test-Project42AccessibilityResultSet.ps1 `
-  -ResultPath $redactedResultPaths `
-  -RequireApprovalCoverage
-```
-
-The validator still reports that human redaction is required. A machine pass does
-not authorize publication.
+**There is no approval-gate validator.** This plan originally invoked
+`deployment/Test-Project42AccessibilityResultSet.ps1`, which was never
+committed. Until it is built, a reviewer performs the coverage check above by
+hand over the redacted result files. Note that even a machine pass would not
+authorize publication: human redaction review is always required.
 
 ## Observation rules
 
@@ -286,5 +297,7 @@ steps require external action or authority:
 - approve accepted limitations; and
 - record the accountable release decision.
 
-Until those actions and sessions occur, report AB#5194 as **Active, validation
-package implemented; human execution pending**.
+Until those actions and sessions occur, report AB#5194 as **Active; validation
+tooling not built and human execution pending**. Reporting the package as
+"implemented" — as this line previously instructed — was wrong: only the two
+evidence templates were ever committed.

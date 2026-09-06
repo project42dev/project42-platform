@@ -16,14 +16,22 @@ is never a substitute for the required human sessions.
 
 ## Operational readiness
 
-- [AB#5196 foundation evidence](../releases/operational-readiness-ab5196-foundation.md)
-- [AB#5196 scheduled-review candidate](../releases/operational-readiness-scheduled-review-ab5196.md)
-- [Operational signal-review runbook](../runbooks/project42-operational-signal-review.md)
-- [Incident-response runbook](../runbooks/project42-incident-response.md)
-- [Operational game-day runbook](../runbooks/project42-operational-game-day.md)
+**Nothing in this section is written yet. Verified 2026-09-05.**
 
-The AB#5196 package supplies privacy-safe contracts, deterministic fixtures, a
-read-only public preflight, offline alert-condition tests, and a six-hour
-least-privilege observation workflow candidate with retained aggregate evidence.
-It does not claim that private-signal collection, real alert delivery, a
-production restore, or a game day has occurred.
+This section previously linked to two AB#5196 release records and three
+runbooks — operational signal review, incident response, and an operational
+game day. **None of those five documents exist** in this repository, and the links have been removed rather than left to look like a
+standing body of work.
+
+The paragraph that stood here claimed the AB#5196 package supplies
+privacy-safe contracts, deterministic fixtures, a read-only public preflight,
+offline alert-condition tests and a least-privilege observation workflow. **No
+such code is in this repository.** `scripts/`, `tests/`, `src/` and
+`.github/workflows/` contain no preflight, no alert-condition test, no
+observation workflow, and no incident or game-day procedure.
+
+The runbooks have deliberately **not** been written here. A runbook that
+invents a procedure nobody runs is worse than an acknowledged gap: it would be
+read as evidence that operational readiness exists. When signal collection,
+alerting and a restore procedure are actually built, the runbooks describing
+them belong in `docs/runbooks/` and should be linked back from here.
