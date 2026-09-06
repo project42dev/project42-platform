@@ -1,3 +1,29 @@
+# Project 42 platform v0.103.5
+
+The last gate that named one deployment.
+
+`tests/github-pages-export.test.mjs` asserted that the Admin redirect in the static artifact points at one deployment's Admin host. The exporter reads `portal.adminOrigin` and had emitted exactly the right URL; the gate then failed the build for it.
+
+## What this completes
+
+A front-end repository produced by `project42-portal create` now passes `npm run verify` in full -- the production audit and all twenty gates, including the Playwright browser suite, link integrity across every route it publishes, and the static-export artifact -- with no file edited after generation.
+
+## Migrations
+
+No file under `migrations/` was added or changed since v0.103.4.
+
+## Breaking changes
+
+None.
+
+## Known limitations
+
+A generated site's browser suite passes on `06-galactic-guide` and fails on `05-open-orbit` and `07-quiet-lantern`, which ship 5-7 KB of component CSS against Galactic's 19 KB and do not implement treatments the conformance suite asserts; `05-open-orbit` also misses WCAG AA contrast in the footer at 4.4:1. Both are Gallery-side, and the gate finding them is the gate working.
+
+## Rollback
+
+Revert consuming sites to v0.103.4.
+
 # Project 42 platform v0.103.4
 
 A test that had never actually run outside CI, and a typecheck that had never run outside one repository.

@@ -71,7 +71,13 @@ test("keeps public account routes live while isolating Admin AB#6167", async () 
   ]);
 
   assert.doesNotMatch(account, /<meta http-equiv="refresh"/);
-  assert.match(admin, /https:\/\/admin\.project-42\.dev\/admin\//);
+  // The Admin redirect target is portal.adminOrigin, which the exporter
+  // already reads. Asserting one deployment's Admin host here meant every
+  // other deployment failed a gate that its own exporter had satisfied.
+  assert.ok(
+    admin.includes(`${adminOrigin}/admin/`),
+    `Admin redirect should point at ${adminOrigin}/admin/`,
+  );
   assert.match(account, /One learning record/);
   assert.doesNotMatch(admin, /Accounts &amp; Registrations/);
 });

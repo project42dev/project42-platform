@@ -4,6 +4,21 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.103.5] - 2026-09-06
+
+### Fixed
+
+- `tests/github-pages-export.test.mjs` asserted that the Admin redirect in the
+  static artifact points at one deployment's Admin host. The exporter reads
+  `portal.adminOrigin` and had emitted the right URL; the gate then failed the
+  build for it. It reads the same value now.
+
+With this, a front-end repository produced by `project42-portal create`
+passes `npm run verify` in full -- the production audit and all twenty gates,
+including the Playwright browser suite, link integrity across every route it
+publishes, and the static-export artifact -- with no file edited after
+generation.
+
 ## [0.103.4] - 2026-09-06
 
 ### Fixed
