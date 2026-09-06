@@ -5,7 +5,12 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 import portalConfig from "../../project42.config.json" with { type: "json" };
-import { expectColor, expectNotColor } from "./support/colors";
+import {
+  colorsMatch,
+  expectColor,
+  expectNotColor,
+  parseColor,
+} from "./support/colors";
 
 // Expected token values come from the SELECTED theme's own manifest rather
 // than a hardcoded Galactic palette. Those literals previously pinned the
@@ -36,6 +41,83 @@ const galacticTokens: Record<string, string> = Object.fromEntries(
     .filter((name) => themeManifest.tokens?.[name])
     .map((name) => [name, themeManifest.tokens![name]!]),
 );
+
+// The value the SELECTED bundle declares for a token, following a
+// `var(--p42-other)` alias through to the colour it ultimately names.
+//
+// The presentation assertions below used to be Galactic's own numbers written
+// out: rgb(9, 13, 22) for the page, rgba(245, 158, 11, 0.45) for a card edge,
+// rgb(254, 243, 199) for a heading, Bricolage Grotesque for the heading face.
+// No other palette can satisfy those, so this required suite failed every
+// other theme by construction -- which is why the scaffolder template had to
+// default to 06-galactic-guide, and is the same "a gate that names one
+// deployment" defect the rest of this migration spent five patch releases
+// clearing.
+//
+// Deriving them does not weaken them. The invariant worth protecting is that
+// the page paints exactly what the configured bundle declares, and that is
+// what is asserted: an exact colour match, against the bundle's own value.
+function declared(name: string): string {
+  const seen = new Set<string>();
+  let value = themeManifest.tokens?.[name];
+  while (value) {
+    const alias = /^var\(\s*(--p42-[a-z0-9-]+)\s*\)$/.exec(value.trim());
+    if (!alias) return value;
+    if (seen.has(alias[1])) break;
+    seen.add(alias[1]);
+    value = themeManifest.tokens?.[alias[1]];
+  }
+  throw new Error(
+    `${selectedTheme}/theme.json declares no usable value for ${name}, ` +
+      `so this suite cannot know what the page should paint`,
+  );
+}
+
+// The heading typeface belongs to the bundle too, so the family is read from
+// the bundle rather than named here. Only the first family is asserted: the
+// rest of the stack is a fallback chain the browser may never reach.
+const declaredHeadingFamily = declared("--p42-font-heading")
+  .split(",")[0]
+  .trim()
+  .replace(/^["']|["']$/g, "");
+
+/**
+ * The site header must resolve to one of the bundle's declared page surfaces
+ * once composited over the page it sits on, and must be opaque enough that
+ * content scrolling underneath does not read through it.
+ */
+async function expectHeaderSurface(
+  page: import("@playwright/test").Page,
+  route: string,
+): Promise<void> {
+  const painted = await page
+    .locator(".site-header")
+    .evaluate((element) => getComputedStyle(element).backgroundColor);
+  const header = parseColor(painted);
+  expect(
+    header.a,
+    `${route} site-header is ${painted}: too translucent to sit over content`,
+  ).toBeGreaterThanOrEqual(0.9);
+
+  const page42 = parseColor(declared("--p42-bg"));
+  const composite = {
+    r: header.r * header.a + page42.r * (1 - header.a),
+    g: header.g * header.a + page42.g * (1 - header.a),
+    b: header.b * header.a + page42.b * (1 - header.a),
+    a: 1,
+  };
+  const candidates = ["--p42-bg", "--p42-surface"] as const;
+  const matched = candidates.some((name) =>
+    colorsMatch(composite, { ...parseColor(declared(name)), a: 1 }, 2),
+  );
+  expect(
+    matched,
+    `${route} site-header composites to ` +
+      `rgb(${Math.round(composite.r)}, ${Math.round(composite.g)}, ${Math.round(composite.b)}), ` +
+      `which is neither ${selectedTheme}'s --p42-bg (${declared("--p42-bg")}) ` +
+      `nor its --p42-surface (${declared("--p42-surface")})`,
+  ).toBe(true);
+}
 
 const publicRouteFamilies = [
   "/",
@@ -147,24 +229,26 @@ test("uses Galactic presentation without Gallery specimen content", async ({
   await expectColor(
     page.locator(".portal-floating-card"),
     "background-color",
-    "rgba(13, 20, 36, 0.94)",
+    declared("--p42-surface-card"),
   );
   await expectColor(
     page.locator(".portal-floating-card"),
     "border-top-color",
-    "rgba(245, 158, 11, 0.45)",
+    declared("--p42-card-border"),
   );
   await expectColor(
     page.locator(".portal-actions a").first(),
     "background-color",
-    "rgb(245, 158, 11)",
+    declared("--p42-primary"),
   );
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     /Start curious\.\s*Become capable\./,
   );
   await expect(
     page.locator(".portal-actions").getByRole("link", { name: "Start learning" }),
-  ).toHaveAttribute("href", "/learn");
+    // Canonical form: next.config.ts sets trailingSlash, so the router emits
+    // the URL the host serves rather than one it answers with a 301.
+  ).toHaveAttribute("href", "/learn/");
   await expect(
     page.locator(
       ".galactic-system-bar, .galactic-subbrands, .galactic-palette, .galactic-badges-bar, .galactic-badge-card",
@@ -307,16 +391,18 @@ test("keeps every public route family inside the Galactic presentation boundary"
         "data-theme",
         selectedTheme,
       );
-      await expectColor(page.locator("body"), "background-color", "rgb(9, 13, 22)", {
+      await expectColor(page.locator("body"), "background-color", declared("--p42-bg"), {
         message: route,
       });
       await expect(page.locator("main"), route).toBeVisible();
-      await expectColor(
-        page.locator(".site-header"),
-        "background-color",
-        "rgba(9, 13, 22, 0.96)",
-        { message: route },
-      );
+      // The sticky header is painted from one of the bundle's two page
+      // surfaces, and a bundle may compose it with an alpha -- Galactic uses
+      // color-mix(in srgb, var(--p42-bg) 96%, transparent), others leave core's
+      // var(--p42-surface). What must hold for every bundle is that the header
+      // is opaque enough to sit over scrolling content and that what shows
+      // through resolves to a surface the theme declares, so the composite over
+      // the page is asserted rather than one theme's literal.
+      await expectHeaderSurface(page, route);
 
       const presentation = await page.evaluate(() => {
         const heading = document.querySelector("main h1, main h2");
@@ -332,9 +418,16 @@ test("keeps every public route family inside the Galactic presentation boundary"
 
       expect(presentation.bodyFont, `${route} body font`).toContain("Inter");
       expect(presentation.headingFont, `${route} heading font`).toContain(
-        "Bricolage Grotesque",
+        declaredHeadingFamily,
       );
-      expect(presentation.headingColor, `${route} heading color`).toBe("rgb(254, 243, 199)");
+      expect(
+        colorsMatch(
+          parseColor(presentation.headingColor),
+          parseColor(declared("--p42-text-title")),
+        ),
+        `${route} heading color: painted ${presentation.headingColor}, ` +
+          `${selectedTheme} declares --p42-text-title ${declared("--p42-text-title")}`,
+      ).toBe(true);
       expect(presentation.hasHorizontalOverflow, `${route} horizontal overflow`).toBe(false);
     }
   }
@@ -347,7 +440,11 @@ test("preserves accessible focus, hover, reduced-motion, and contrast states", a
   const primaryAction = page.locator(".portal-actions a").first();
 
   await primaryAction.hover();
-  await expectColor(primaryAction, "background-color", "rgb(251, 191, 36)");
+  await expectColor(
+    primaryAction,
+    "background-color",
+    declared("--p42-primary-hover"),
+  );
 
   await primaryAction.focus();
   await expect(primaryAction).toBeFocused();
@@ -437,7 +534,10 @@ const apiOrigin =
 
     const returnTo = startUrl.searchParams.get("return_to");
     expect(returnTo).toBeTruthy();
-    expect(new URL(returnTo!).pathname).toBe(route);
+    // The route in its canonical trailing-slash form: the browser is already
+    // on that URL by the time sign-in starts, because trailingSlash resolves
+    // the navigation before the page runs.
+    expect(new URL(returnTo!).pathname).toBe(`${route}/`);
 
     await page.unroute(`${apiOrigin}/v1/auth/start**`);
   }
