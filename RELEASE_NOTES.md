@@ -1,27 +1,30 @@
-# Project 42 platform v0.104.2
+# Project 42 platform v0.104.3
 
-A fresh clone failed its own lock check having changed nothing.
+The curriculum stops being downloaded by browsers that never render it.
 
-Cloning a scaffolded content repository on Windows and running `npm run content:check` — the first two steps of the adopter path — reported 41 differences against the hash lock:
+Three client components track a learner's progress — `ProgressProvider`, `ProfileDashboard`, `ProgressSnapshot` — and each was handed the whole catalogue. The progress API reads eight fields from it: `contentVersion`, a path's `id`, `title`, `moduleIds` and `badge`, and a module's `id`, `title` and `capstone`. Every module body, knowledge check and source list travelled with them into the browser as the single largest chunk in the bundle.
 
-```
-Error: upstream/ differs from the curriculum locked at 55cce487…: changed 41
-(training/ai-foundations/agents-and-guardrails/captions/en-US.vtt, …)
-```
+It had been that way as long as those components have existed. Splitting the catalogue into its own module in v0.104.0 made it visible rather than causing it, by putting the same 1.3 MB in two chunks at once.
 
-Nothing had been edited. The lock normalises line endings before hashing, precisely so a checkout difference is never mistaken for a content difference, but it decides what is text from a list of extensions and `.vtt` was not on it. The 40 caption files were therefore hashed as raw bytes, and git rewrote their line endings on checkout.
+Projecting at run time would not have helped: a projection computed from the full object still has the full object in the module graph. So `materialise` generates the projection — the curriculum's shape without its content — into `lib/progressCatalog.generated.ts`, which imports nothing, and `lib/progressCatalog` is what a client component reads.
 
-The list now covers every text form the curriculum is authored in — `.csv .json .md .mmd .py .svg .txt .vtt .yaml .yml` — and the same list in the platform's own `scripts/sync-content.mjs` is corrected with it.
+Measured on the generated template, same build, same content:
 
-Belt and braces: the content scaffold now ships a `.gitattributes` marking `upstream/**` as not-text, so the bytes the lock covers survive a checkout unchanged rather than relying on the normaliser to undo the damage afterwards. `project42-portal create` renames it on the way out, as it already did for `gitignore`, because npm will not publish either under its real name.
+| | before | after |
+| --- | --- | --- |
+| client total | 3,535,749 bytes | 993,821 bytes |
+| largest chunk | 1,306,327 bytes | 199,967 bytes |
+| projection | — | 48 KiB of the catalogue's 1,625 KiB |
 
-## For an already-generated content repository
+A gate in `tests/web-distribution.test.mjs` fails any `"use client"` module that imports `lib/catalog` directly. It is a direct-import check; the performance budget in a consuming repository is what catches a client component reaching the catalogue through an intermediate module.
 
-The scripts are scaffolded files that repository owns, so this release does not reach them. Copy `scripts/sync-upstream.mjs` from the new scaffold, or add `".vtt"` to its `TEXT_EXTENSIONS`.
+## Adding a field
+
+The projection is one function in `bin/project42-portal.mjs`. A progress feature that needs a field the projection does not carry must add it there, and the type cast on the generated value is why that is a deliberate act rather than something that happens by accident.
 
 ## Migrations
 
-No file under `migrations/` was added or changed since v0.104.1.
+No file under `migrations/` was added or changed since v0.104.2.
 
 ## Breaking changes
 
@@ -33,4 +36,4 @@ Unchanged from v0.104.0: publishing a content change to a site is three commands
 
 ## Rollback
 
-Revert consuming sites to v0.104.1. The defect this fixes is in a scaffolded file rather than in anything a site installs, so a rollback changes nothing a running site does.
+Revert consuming sites to v0.104.2. They regain 2.5 MB of client payload and lose nothing else.

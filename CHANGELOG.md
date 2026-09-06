@@ -4,6 +4,20 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.104.3] - 2026-09-06
+
+### Changed
+
+- The three client components that track a learner's progress read a generated
+  projection of the catalogue -- `lib/progressCatalog` -- rather than the
+  catalogue itself. The progress API reads eight fields from it; every module
+  body, knowledge check and source list was being shipped to the browser with
+  them, as the largest single chunk in the bundle. Measured on the generated
+  template: client total 3,535,749 to 993,821 bytes, largest chunk 1,306,327 to
+  199,967 bytes, the projection 48 KiB of the catalogue's 1,625 KiB. A gate in
+  `tests/web-distribution.test.mjs` fails any `"use client"` module that
+  imports `lib/catalog` directly.
+
 ## [0.104.2] - 2026-09-06
 
 ### Added
