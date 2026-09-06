@@ -1,3 +1,27 @@
+# Project 42 platform v0.103.4
+
+A test that had never actually run outside CI, and a typecheck that had never run outside one repository.
+
+The protected-profile authentication boundary test stubbed the auth-start hand-off but not the session and registration probes AuthProvider makes before it decides a learner is signed out. That was invisible while the spec skipped itself outside CI; v0.103.3 let it resolve its origin from configuration, so it began running -- and reached whatever host the configuration named. For the deployment that owns this repository that is a live production API; for a scaffolded one it is nothing at all. Either way it timed out after a full minute rather than asserting the boundary. It answers those probes itself now and passes against a real origin, a stub origin, and none.
+
+The conformance spec also failed to typecheck in a repository whose `content` block declares only upstream fields.
+
+## Migrations
+
+No file under `migrations/` was added or changed since v0.103.3.
+
+## Breaking changes
+
+None.
+
+## Known limitations
+
+Unchanged from v0.103.2: a generated site's browser suite passes on `06-galactic-guide` and fails on `05-open-orbit` and `07-quiet-lantern`, which ship 5-7 KB of component CSS against Galactic's 19 KB. Both are Gallery-side.
+
+## Rollback
+
+Revert consuming sites to v0.103.3.
+
 # Project 42 platform v0.103.3
 
 The last of the browser gates that named one deployment, found by running a generated front end's own Playwright suite.

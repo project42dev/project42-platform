@@ -54,7 +54,8 @@ const publicRouteFamilies = [
   // An instructor-led lesson route exists only where this deployment serves the
   // media for it -- see content.instructorMedia. Naming one made the gate
   // depend on one deployment hosting one video.
-  ...(portalConfig.content?.instructorMedia?.availableKeys?.length
+  ...((portalConfig as { content?: { instructorMedia?: { availableKeys?: string[] } } })
+    .content?.instructorMedia?.availableKeys?.length
     ? ["/ondemand/ai-foundations/agents-and-guardrails"]
     : []),
   "/transfer-progress",
@@ -390,6 +391,30 @@ const apiOrigin =
   test.skip(
     !apiOrigin,
     "The authentication boundary requires account-API configuration.",
+  );
+
+  // Hermetic means hermetic. The session and registration probes AuthProvider
+  // makes before it decides the learner is signed out have to be answered here
+  // too, or the run reaches whatever host the configuration names -- a live
+  // production API for the deployment that owns this repository, and nothing
+  // at all for one that has just been scaffolded. Either way the outcome stops
+  // being about the boundary this test exists to check.
+  await page.route(
+    (url) =>
+      url.href.startsWith(`${apiOrigin}/v1/auth/session`) ||
+      url.href.startsWith(`${apiOrigin}/v1/registration/status`),
+    async (probe) => {
+      await probe.fulfill({
+        status: 401,
+        contentType: "application/json",
+        body: JSON.stringify({
+          error: {
+            code: "authentication_required",
+            message: "Sign in is required.",
+          },
+        }),
+      });
+    },
   );
 
   for (const route of protectedRouteFamilies) {

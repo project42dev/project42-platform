@@ -4,6 +4,23 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.103.4] - 2026-09-06
+
+### Fixed
+
+- The protected-profile authentication boundary test was not hermetic, which
+  only became visible once v0.103.3 let it resolve its origin from
+  configuration and it therefore started running outside CI. It stubbed the
+  auth-start hand-off but not the session and registration probes
+  AuthProvider makes first, so it reached whatever host the configuration
+  named -- a live production API for the deployment that owns it, nothing at
+  all for a scaffolded one -- and timed out after a full minute instead of
+  asserting anything. It answers those probes itself now, and passes against
+  a real origin, a stub origin, and none.
+- `tests/browser/galactic-conformance.spec.ts` failed to typecheck in a
+  repository whose `content` block declares only upstream fields; the
+  instructor-media read is widened.
+
 ## [0.103.3] - 2026-09-06
 
 ### Fixed
