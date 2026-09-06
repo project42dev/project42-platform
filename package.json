@@ -52,6 +52,7 @@
     "release:check": "node scripts/validate-release-governance.mjs",
     "release:manifest": "node scripts/generate-release-manifest.mjs",
     "release:rehearse": "node scripts/rehearse-release.mjs",
+    "docs:audit": "node scripts/audit-docs.mjs",
     "sources:links": "node scripts/check-source-links.mjs",
     "learning-records:measure": "node scripts/measure-hosted-learning-record-adapter.mjs",
     "test": "npm run build && node --test tests/*.test.mjs && npm run resources:validate",
