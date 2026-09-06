@@ -1,7 +1,14 @@
 import AxeBuilder from "@axe-core/playwright";
+import portalConfig from "../../project42.config.json" with { type: "json" };
 import { expect, test, type Page, type Route } from "@playwright/test";
 
-const apiOrigin = process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN;
+// The account API origin comes from the environment OR from
+// portal.apiOrigin, exactly as AuthProvider resolves it. Reading only the
+// environment variable made a deployment that declared its API in
+// configuration -- the supported way -- look unconfigured to its own tests.
+const apiOrigin =
+  process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN ??
+  (portalConfig.portal as { apiOrigin?: string }).apiOrigin;
 const hostedIdentityConfigured = Boolean(apiOrigin);
 const now = "2026-07-29T12:00:00.000Z";
 const account = {

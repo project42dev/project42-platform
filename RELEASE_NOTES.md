@@ -1,3 +1,25 @@
+# Project 42 platform v0.103.3
+
+The last of the browser gates that named one deployment, found by running a generated front end's own Playwright suite.
+
+Every browser spec resolved the account API from the environment variable alone, so a deployment that declares `portal.apiOrigin` in configuration -- the supported way since v0.103.0 -- looked unconfigured to its own tests. One spec built the string `undefined/v1/auth/start` and waited a full minute for a request that could never arrive. All eight now resolve it exactly as AuthProvider does. The brand spec fetched one operator's mark filename and now reads `branding.mark`; the conformance spec asserted a menu label carrying one operator's name, and required an instructor-led lesson route that exists only where the deployment hosts that lesson's media.
+
+## Migrations
+
+No file under `migrations/` was added or changed since v0.103.2.
+
+## Breaking changes
+
+None.
+
+## Known limitations
+
+Unchanged from v0.103.2: a generated site's browser suite passes on `06-galactic-guide` and fails on `05-open-orbit` and `07-quiet-lantern`, which ship 5-7 KB of component CSS against Galactic's 19 KB and do not implement treatments the conformance suite asserts. `05-open-orbit` also misses WCAG AA contrast in the footer. Both are Gallery-side.
+
+## Rollback
+
+Revert consuming sites to v0.103.2.
+
 # Project 42 platform v0.103.2
 
 Everything in this release was found the same way: by generating a front end with `project42-portal create`, installing it, and running its own `npm run verify`. These files had never been executed anywhere but `project-42.dev` before, and five gates turned out to encode that one deployment.

@@ -98,7 +98,7 @@ test("starts API-owned sign-in without storing an identity-provider token", asyn
   );
   await installSignedOutApi(page);
   const startPattern =
-    `${process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN}/v1/auth/start**`;
+    `${apiOrigin}/v1/auth/start**`;
   await page.route(startPattern, async (route) => route.abort("aborted"));
   await page.goto("/account");
   const expectedReturnTo = new URL("/account", page.url()).toString();
@@ -346,7 +346,7 @@ test("explains a temporarily unreachable hosted account service", async ({ page 
   );
 
   await page.route(
-    `${process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN}/v1/auth/session`,
+    `${apiOrigin}/v1/auth/session`,
     async (route) => route.abort("failed"),
   );
 

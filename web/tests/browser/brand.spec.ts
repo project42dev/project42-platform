@@ -18,6 +18,9 @@ const themeManifest = JSON.parse(
   readFileSync(resolve(`public/themes/${selectedTheme}/theme.json`), "utf8"),
 ) as { tokens?: Record<string, string> };
 const themeBackground = themeManifest.tokens?.["--p42-bg"];
+const brandMarkPath: string =
+  (portalConfig as { branding?: { mark?: string } }).branding?.mark ??
+  "/brand/project-42-mark.svg";
 const themeMarkSource = readFileSync(
   resolve(`public/themes/${selectedTheme}/mark.svg`),
   "utf8",
@@ -56,8 +59,11 @@ test("publishes visible accessible branding and complete icon assets", async ({
     `/layouts/${selectedLayout}/layout.css`,
   );
 
+  // The brand mark is this deployment's own file, named by branding.mark in
+  // project42.config.json. Naming it here made the gate depend on one
+  // operator's filename.
   const iconAssets = [
-    ["/brand/project-42-mark.svg", "image/svg+xml"],
+    [brandMarkPath, "image/svg+xml"],
     ["/favicon-16x16.png", "image/png"],
     ["/favicon-32x32.png", "image/png"],
     ["/favicon-48x48.png", "image/png"],

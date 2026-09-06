@@ -4,6 +4,27 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.103.3] - 2026-09-06
+
+### Fixed
+
+The last of the browser gates that named one deployment. Found by running a
+generated front end's own Playwright suite.
+
+- Every browser spec resolved the account API from
+  `NEXT_PUBLIC_PROJECT42_API_ORIGIN` alone. A deployment that declares
+  `portal.apiOrigin` in configuration -- the supported way since v0.103.0 --
+  therefore looked unconfigured to its own tests, and one spec built the
+  string `undefined/v1/auth/start` and waited sixty seconds for a request
+  that could never arrive. All eight specs resolve it the way AuthProvider
+  does.
+- `tests/browser/brand.spec.ts` fetched one operator's mark by filename. It
+  reads `branding.mark`, which exists for exactly this reason.
+- `tests/browser/galactic-conformance.spec.ts` asserted a menu link labelled
+  "About Project 42" and required an instructor-led lesson route to answer
+  200. The first is `organization.name`; the second exists only where the
+  deployment serves that lesson's media, so it is asserted only when it does.
+
 ## [0.103.2] - 2026-09-06
 
 ### Fixed

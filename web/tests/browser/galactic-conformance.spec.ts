@@ -51,7 +51,12 @@ const publicRouteFamilies = [
   "/diagrams/agent-orchestration",
   "/resources/agent-safety-checklist",
   "/ondemand",
-  "/ondemand/ai-foundations/agents-and-guardrails",
+  // An instructor-led lesson route exists only where this deployment serves the
+  // media for it -- see content.instructorMedia. Naming one made the gate
+  // depend on one deployment hosting one video.
+  ...(portalConfig.content?.instructorMedia?.availableKeys?.length
+    ? ["/ondemand/ai-foundations/agents-and-guardrails"]
+    : []),
   "/transfer-progress",
   "/account",
   "/learner-data",
@@ -246,7 +251,7 @@ test("keeps the About and profile disclosures aligned and inside the viewport", 
     const about = page.getByRole("button", { name: "About" });
     await about.click();
     const aboutPanel = page.locator(".header-menu-panel").filter({
-      has: page.getByRole("link", { name: "About Project 42" }),
+      has: page.getByRole("link", { name: `About ${portalConfig.organization.name}` }),
     });
     await expect(aboutPanel).toBeVisible();
     const geometry = await aboutPanel.evaluate((panel) => {
@@ -375,7 +380,13 @@ test("preserves accessible focus, hover, reduced-motion, and contrast states", a
 // must hand the browser to the account API's auth-start endpoint over HTTPS
 // with a return target pointing back at that same route.
 test("preserves the protected-profile authentication boundary", async ({ page }) => {
-  const apiOrigin = process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN;
+  // The account API origin comes from the environment OR from
+// portal.apiOrigin, exactly as AuthProvider resolves it. Reading only the
+// environment variable made a deployment that declared its API in
+// configuration -- the supported way -- look unconfigured to its own tests.
+const apiOrigin =
+  process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN ??
+  (portalConfig.portal as { apiOrigin?: string }).apiOrigin;
   test.skip(
     !apiOrigin,
     "The authentication boundary requires account-API configuration.",
