@@ -52,15 +52,20 @@ export function retiredPathTarget(
   pathId: string,
   moduleId?: string,
 ): string | undefined {
+  // Canonical, with the trailing slash the application emits and resolves.
+  // Redirecting to the slashless form would cost a second hop: this permanent
+  // redirect, and then the host's own 301 onto the directory that answers.
+  const canonical = (target: string) =>
+    target.endsWith("/") ? target : `${target}/`;
   const entry = byPathId.get(pathId);
   if (!entry) return undefined;
-  if (!entry.successorPathId) return CATALOGUE_INDEX;
+  if (!entry.successorPathId) return canonical(CATALOGUE_INDEX);
   const successor = getLearningPath(entry.successorPathId);
-  if (!successor) return CATALOGUE_INDEX;
+  if (!successor) return canonical(CATALOGUE_INDEX);
   if (moduleId && successor.moduleIds.includes(moduleId)) {
-    return `/learn/${successor.id}/${moduleId}`;
+    return canonical(`/learn/${successor.id}/${moduleId}`);
   }
-  return `/learn/${successor.id}`;
+  return canonical(`/learn/${successor.id}`);
 }
 
 /** Every previously published URL this map keeps alive, path and module alike. */

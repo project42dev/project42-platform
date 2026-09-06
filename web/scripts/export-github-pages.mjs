@@ -181,11 +181,21 @@ async function main() {
   const workerUrl = pathToFileURL(workerPath);
   workerUrl.searchParams.set("pages-export", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
+  // Ask for the canonical form. The route inventory carries routes without a
+  // trailing slash, but the application now emits and resolves them with one
+  // (next.config.ts, trailingSlash), so requesting "/about" answers 308 to
+  // "/about/" rather than returning a document. Only the request URL changes:
+  // the artifact is still written at the inventory's path, which is already
+  // the directory that answers the canonical URL.
+  const canonicalRequestPath = (route) =>
+    route === "/" || route.endsWith("/") || path.posix.extname(route)
+      ? route
+      : `${route}/`;
   const fetchRoute = (route) =>
     worker.fetch(
       // Set the synthetic host explicitly so generated metadata and client
       // bootstrap state reflect the artifact's deployment domain.
-      new Request(`https://${canonicalDomain}${route}`, {
+      new Request(`https://${canonicalDomain}${canonicalRequestPath(route)}`, {
         headers: { host: canonicalDomain },
       }),
       {

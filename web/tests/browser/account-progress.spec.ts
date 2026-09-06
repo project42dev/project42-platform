@@ -55,7 +55,7 @@ test("keeps the shared sign-in option in the profile menu", async ({ page }) => 
   await expect(page.getByText("Sign in", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "My progress" })).toHaveAttribute(
     "href",
-    "/profile",
+    "/profile/",
   );
 });
 

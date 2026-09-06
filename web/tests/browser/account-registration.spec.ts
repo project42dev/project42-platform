@@ -126,7 +126,7 @@ test.describe("learner account request and private status receipt", () => {
       page.getByRole("link", { name: "Legal & Transparency page" }),
     ).toHaveAttribute(
       "href",
-      "/legal-transparency",
+      "/legal-transparency/",
     );
 
     const accessibility = await new AxeBuilder({ page })

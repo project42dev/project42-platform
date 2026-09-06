@@ -74,18 +74,24 @@ export function buildRetiredRouteRedirects(
   retired = retiredPathConfig.retired,
   catalogueIndex = retiredPathConfig.catalogueIndex,
 ) {
+  // Targets carry the trailing slash the application emits and resolves.
+  // Without it a retired URL cost the reader two hops: this redirect to the
+  // successor, and then the host's own 301 onto the canonical slash form.
+  const canonical = (target) => (target.endsWith("/") ? target : `${target}/`);
   const redirects = new Map();
   for (const entry of retired) {
     const successor = entry.successorPathId
       ? catalog.paths.find((path) => path.id === entry.successorPathId)
       : undefined;
-    const pathTarget = successor ? `/learn/${successor.id}` : catalogueIndex;
+    const pathTarget = canonical(
+      successor ? `/learn/${successor.id}` : catalogueIndex,
+    );
     redirects.set(`/learn/${entry.pathId}`, pathTarget);
     for (const moduleId of entry.retiredModuleIds) {
       redirects.set(
         `/learn/${entry.pathId}/${moduleId}`,
         successor && successor.moduleIds.includes(moduleId)
-          ? `/learn/${successor.id}/${moduleId}`
+          ? canonical(`/learn/${successor.id}/${moduleId}`)
           : pathTarget,
       );
     }
@@ -559,6 +565,20 @@ export async function checkExternalReferences({
   };
 }
 
+// The inventory names routes without a trailing slash; the application emits
+// and resolves them with one (next.config.ts, trailingSlash). Requesting the
+// slashless form gets a 308, and a 308 carries no text/html body -- so this
+// crawler extracted ZERO references from every route while still reporting
+// success. The only thing that noticed was the unused-exception check, because
+// the external targets those exceptions cover had vanished from the crawl.
+// Hence the redirect guard below: a hollow crawl must fail loudly, not quietly.
+function canonicalRequestPath(route) {
+  if (route === "/" || route.endsWith("/")) return route;
+  const [pathname] = route.split(/(?=[?#])/);
+  if (path.posix.extname(pathname)) return route;
+  return `${pathname}/${route.slice(pathname.length)}`;
+}
+
 async function createWorkerLoader(workerPath = defaultWorkerPath) {
   if (!(await defaultFileExists(workerPath))) {
     throw new Error(
@@ -570,7 +590,7 @@ async function createWorkerLoader(workerPath = defaultWorkerPath) {
   const { default: worker } = await import(workerUrl.href);
   return async function loadRoute(route) {
     const response = await worker.fetch(
-      new Request(`http://localhost${route}`, {
+      new Request(`http://localhost${canonicalRequestPath(route)}`, {
         headers: { accept: route.endsWith(".json") ? "application/json" : "*/*" },
       }),
       {
@@ -621,11 +641,26 @@ export async function runLinkIntegrityCheck({
   for (const document of rendered) {
     documents.set(normalizeRoute(document.route), document);
   }
+  // An inventory HTML route must answer with a document, not a redirect to
+  // one. The old test was `status < 200 || status >= 400`, which accepted a
+  // 3xx -- and a 3xx has no text/html body, so the crawler extracted no
+  // references from it and reported success over an empty set. That is how a
+  // gate covering ~20,900 references quietly came to cover almost none.
   const renderFailures = rendered
-    .filter((document) => document.status < 200 || document.status >= 400)
+    .filter((document) => document.status !== 200)
     .map(
       (document) =>
-        `Inventory route returned ${document.status}: ${document.route}`,
+        `Inventory route returned ${document.status} rather than a document: ` +
+        `${document.route}`,
+    )
+    .concat(
+      rendered
+        .filter((document) => document.status === 200 && !document.html)
+        .map(
+          (document) =>
+            `Inventory route served no HTML, so nothing was link-checked on ` +
+            `it: ${document.route} (${document.contentType || "no content-type"})`,
+        ),
     );
 
   const internal = await validateInternalReferences({

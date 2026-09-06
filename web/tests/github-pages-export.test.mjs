@@ -223,6 +223,50 @@ test("every published page carries the metadata iOS needs to install it", async 
   }
 });
 
+test("every internal link in the artifact is already canonical", async () => {
+  // Asserted on the EXPORTED HTML, because this is a framework behaviour.
+  // next.config.ts sets trailingSlash, but that only rewrites the router's
+  // <Link>. A raw <a href>, a redirect document's target, and a path built
+  // from the catalogue are all untouched by it, and each was a real source of
+  // slashless links here. The site publishes each route as <route>/index.html,
+  // so the host answers a slashless path with a 301 -- and the Pages export's
+  // static-navigation shim turns every internal click into a full document
+  // load, so that redirect was paid on each click, not merely the first.
+  //
+  // Walks the whole artifact rather than a sample: the claim is that no page
+  // has one, and a sample is how the previous 425 stayed invisible.
+  const { readdir } = await import("node:fs/promises");
+  const htmlFiles = [];
+  const walk = async (directory) => {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      const absolute = path.join(directory, entry.name);
+      if (entry.isDirectory()) await walk(absolute);
+      else if (entry.name.endsWith(".html")) htmlFiles.push(absolute);
+    }
+  };
+  await walk(outputRoot);
+  assert.ok(htmlFiles.length > 100, "expected a full export to walk");
+
+  const offenders = [];
+  for (const file of htmlFiles) {
+    const html = await readFile(file, "utf8");
+    for (const match of html.matchAll(/href="(\/[^"#?]*)"/g)) {
+      const target = match[1];
+      // A directory ends in "/". A last segment carrying an extension is a
+      // file -- an asset, the manifest, the sitemap -- and files take no slash.
+      if (target.endsWith("/")) continue;
+      if (/\.[a-z0-9]+$/i.test(target.split("/").pop() ?? "")) continue;
+      offenders.push(`${path.relative(outputRoot, file)} -> ${target}`);
+    }
+  }
+
+  assert.deepEqual(
+    offenders,
+    [],
+    `${offenders.length} internal link(s) would 301 before serving anything`,
+  );
+});
+
 test("a filtered --domain/--routes export publishes only its own routes with cross-subdomain nav links AB#6851", async () => {
   const filteredOutputRoot = path.join(projectRoot, "dist", "pages-account-test");
   execFileSync(

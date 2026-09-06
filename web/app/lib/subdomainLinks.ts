@@ -14,10 +14,24 @@ function ownerOriginForPath(path: string): string {
     : PUBLIC_ORIGIN;
 }
 
+// These are raw <a href> targets rather than <Link>, because they can cross an
+// origin. next.config.ts's trailingSlash rewrites the router's links but never
+// touches a plain anchor, so the canonical form is applied here. This is the
+// one place every cross-origin anchor on the site is built, so it is the one
+// place that has to remember.
+function canonicalPath(path: string): string {
+  const [pathname] = path.split(/(?=[?#])/);
+  if (pathname.endsWith("/") || /\.[a-z0-9]+$/i.test(pathname)) return path;
+  return `${pathname}/${path.slice(pathname.length)}`;
+}
+
 export function clientCrossDomainHref(path: string): string {
+  const target = canonicalPath(path);
   const ownerOrigin = ownerOriginForPath(path);
   if (typeof window === "undefined") {
-    return ownerOrigin === PUBLIC_ORIGIN ? path : `${ownerOrigin}${path}`;
+    return ownerOrigin === PUBLIC_ORIGIN ? target : `${ownerOrigin}${target}`;
   }
-  return window.location.origin === ownerOrigin ? path : `${ownerOrigin}${path}`;
+  return window.location.origin === ownerOrigin
+    ? target
+    : `${ownerOrigin}${target}`;
 }

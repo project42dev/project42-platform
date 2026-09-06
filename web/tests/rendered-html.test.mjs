@@ -43,12 +43,25 @@ const hostedIdentityConfigured = Boolean(
   process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN,
 );
 
+// Request the canonical form of a route. next.config.ts sets trailingSlash, so
+// "/about" answers 308 to "/about/", and every assertion downstream would be
+// measuring a redirect rather than a page. Applied here, in the one helper, so
+// each test keeps naming routes the readable way. A path carrying a query, a
+// fragment or a file extension is passed through untouched.
+function canonicalPathname(pathname) {
+  const [route] = pathname.split(/(?=[?#])/);
+  if (route === "/" || route.endsWith("/") || /\.[a-z0-9]+$/i.test(route)) {
+    return pathname;
+  }
+  return `${route}/${pathname.slice(route.length)}`;
+}
+
 async function render(pathname) {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}-${pathname}`);
   const { default: worker } = await import(workerUrl.href);
   return worker.fetch(
-    new Request(`http://localhost${pathname}`, {
+    new Request(`http://localhost${canonicalPathname(pathname)}`, {
       headers: { accept: "text/html" },
     }),
     { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
@@ -64,7 +77,7 @@ test("renders the home page", async () => {
   assert.match(html, /Start curious/);
   assert.match(html, /Become capable/);
   assert.match(html, /Free, open AI learning/);
-  assert.match(html, /href="\/learn"[^>]*>Start learning</);
+  assert.match(html, /href="\/learn\/"[^>]*>Start learning</);
   assert.match(html, new RegExp(`/themes/${selectedTheme}/mark\\.svg`));
   assert.match(html, new RegExp(`data-project42-theme-tokens="true"[^>]+href="/themes/${selectedTheme}/tokens\\.css"`));
   assert.match(html, new RegExp(`data-project42-theme-components="true"[^>]+href="/themes/${selectedTheme}/portal\\.css"`));
@@ -272,10 +285,10 @@ test("renders the Learn landing, learning paths, and format routes", async () =>
   const onDemandHtml = await onDemand.text();
 
   assert.match(homeHtml, /Start curious/);
-  assert.match(homeHtml, /href="\/learn\/paths"/, "the gateway links to the learning catalog");
+  assert.match(homeHtml, /href="\/learn\/paths\/"/, "the gateway links to the learning catalog");
   assert.match(learnHtml, /Start curious/);
   assert.match(learnHtml, /Become capable/);
-  assert.match(learnHtml, /href="\/learn\/paths"/);
+  assert.match(learnHtml, /href="\/learn\/paths\/"/);
   assert.match(pathsHtml, /Learning paths with a clear next step/);
   assert.match(onDemandHtml, /The classroom, on demand/);
   assert.doesNotMatch(
@@ -381,11 +394,11 @@ test("points the header's navigation links to relative routes", async () => {
   assert.ok(nav, "primary navigation is missing");
   assert.match(
     nav[1],
-    /<a href="\/learn">Learn<\/a>/,
+    /<a href="\/learn\/">Learn<\/a>/,
     "Learn link points to /learn",
   );
-  assert.match(nav[1], /<a href="\/guide">Field Guide<\/a>/);
-  assert.match(nav[1], /<a href="\/guide\/diagrams">Visual guides<\/a>/);
+  assert.match(nav[1], /<a href="\/guide\/">Field Guide<\/a>/);
+  assert.match(nav[1], /<a href="\/guide\/diagrams\/">Visual guides<\/a>/);
 });
 
 test("renders the complete accessible diagram library", async () => {

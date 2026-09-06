@@ -34,7 +34,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ),
     ...diagramCatalog.map((diagram) => `/guide/diagrams/${diagram.id}`),
   ].map((path) => ({
-    url: `${base}${path}`,
+    // Canonical, with the trailing slash. Next does not apply next.config.ts's
+    // trailingSlash to MetadataRoute, so all 226 entries were published to
+    // search engines in the form the host answers with a 301 -- a redirect on
+    // every one, and a sitemap that disagreed with the links on the pages it
+    // was listing.
+    url: `${base}${path === "" ? "/" : `${path}/`}`,
     lastModified: new Date("2026-07-25"),
     changeFrequency: "monthly",
     priority: path === "" ? 1 : path.split("/").length <= 2 ? 0.8 : 0.6,
