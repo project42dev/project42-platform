@@ -242,11 +242,14 @@ export {
   CLASS_SEGMENT_KINDS,
   VIRTUAL_INSTRUCTOR_MEDIA_SCHEMA_VERSION,
   validateClassScriptPackage,
+  validateInstructorRenderingManifest,
   validateVirtualInstructorMediaManifest,
 } from "./training-package.js";
 export {
   classScriptPackages,
   getClassScriptPackage,
+  getInstructorRendering,
+  instructorRenderings,
   trainingPackageCoverage,
 } from "./training-catalog.js";
 
@@ -485,6 +488,7 @@ export type {
   ClassScriptSegment,
   ClassScriptVisual,
   ClassSegmentKind,
+  InstructorRenderingManifest,
   TrainingPackageCoverage,
   TrainingPackageCoverageEntry,
   VirtualInstructorArtifact,

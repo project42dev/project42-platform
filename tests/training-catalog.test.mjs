@@ -7,13 +7,19 @@ import Ajv2020 from "ajv/dist/2020.js";
 import {
   classScriptPackages,
   getClassScriptPackage,
+  getInstructorRendering,
   getLearningModule,
+  instructorRenderings,
   starterCatalog,
   trainingPackageCoverage,
   validateClassScriptPackage,
+  validateInstructorRenderingManifest,
 } from "../dist/index.js";
 import { buildTrainingFixtureArtifacts } from "../scripts/training-fixture-lib.mjs";
-import { buildTrainingCoverage } from "../scripts/training-package-catalog-lib.mjs";
+import {
+  buildTrainingCoverage,
+  loadInstructorRenderings,
+} from "../scripts/training-package-catalog-lib.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const classSchema = JSON.parse(
@@ -1245,6 +1251,73 @@ test("publishes complete agent evaluation, operations, and capstone packages", (
   assert.match(spokenText, /eighty-percent knowledge check/u);
   assert.match(spokenText, /capstone score of at least eighty percent/u);
   assert.match(spokenText, /Preserve the first submission/u);
+});
+
+// ADR-0020: instructor-led delivery is a rendering of the same module, so
+// which lessons have been filmed is a fact about the curriculum. It used to be
+// a hand-kept list in project-42.dev's config/, which meant one deployment's
+// front end decided what the catalogue claimed to have filmed.
+test("publishes the filmed lessons the curriculum declares, and only those", async () => {
+  const fromDisk = await loadInstructorRenderings(root);
+  assert.deepEqual(instructorRenderings, fromDisk);
+  assert.equal(
+    trainingPackageCoverage.renderedModuleCount,
+    instructorRenderings.length,
+  );
+
+  for (const rendering of instructorRenderings) {
+    const script = getClassScriptPackage(rendering.moduleId);
+    assert.ok(script, `${rendering.moduleId} has no class script to render`);
+    const result = validateInstructorRenderingManifest(rendering, script);
+    assert.deepEqual(result.errors, []);
+    assert.ok(result.valid);
+
+    // The learner has to be told the instructor is synthetic, and the media key
+    // may not carry a deployment's directory layout into the shared contract.
+    assert.match(rendering.production.disclosure, /synthetic|generated|virtual/i);
+    assert.doesNotMatch(rendering.media.key, /[\\/]|^\./);
+
+    const module = getLearningModule(rendering.moduleId);
+    assert.ok(module?.instructorScript, "a rendering needs a declared script");
+    const entry = trainingPackageCoverage.modules.find(
+      (candidate) => candidate.moduleId === rendering.moduleId,
+    );
+    assert.equal(entry?.rendering?.renderedSegments, rendering.renderedSegments);
+    assert.equal(getInstructorRendering(rendering.moduleId), rendering);
+  }
+
+  // A scripted-but-unfilmed module must not resolve, or a consumer building
+  // routes from this list publishes pages for lessons nobody can watch.
+  const unfilmed = classScriptPackages.find(
+    (script) => !getInstructorRendering(script.moduleId),
+  );
+  assert.ok(unfilmed, "expected at least one scripted, unfilmed module");
+  assert.equal(getInstructorRendering(unfilmed.moduleId), undefined);
+});
+
+test("rejects a rendering that claims more of the script than was filmed", async () => {
+  const [rendering] = instructorRenderings;
+  const script = getClassScriptPackage(rendering.moduleId);
+  const overclaimed = validateInstructorRenderingManifest(
+    { ...rendering, renderedSegments: script.segments.length + 1 },
+    script,
+  );
+  assert.equal(overclaimed.valid, false);
+  const wrongScript = validateInstructorRenderingManifest(
+    { ...rendering, classScriptVersion: "9.9.9" },
+    script,
+  );
+  assert.equal(wrongScript.valid, false);
+  const undisclosed = validateInstructorRenderingManifest(
+    { ...rendering, production: { ...rendering.production, disclosure: "  " } },
+    script,
+  );
+  assert.equal(undisclosed.valid, false);
+  const pathAsKey = validateInstructorRenderingManifest(
+    { ...rendering, media: { ...rendering.media, key: "/preview/lesson.mp4" } },
+    script,
+  );
+  assert.equal(pathAsKey.valid, false);
 });
 
 test("coverage classifies every substantive module without overstating readiness", async () => {

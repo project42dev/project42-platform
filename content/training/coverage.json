@@ -4,6 +4,7 @@
   "substantiveModuleCount": 69,
   "classReadyModuleCount": 40,
   "outlineOnlyModuleCount": 29,
+  "renderedModuleCount": 1,
   "coverageStatus": "migration-active",
   "modules": [
     {
@@ -77,7 +78,12 @@
       "instructorSchemaVersion": "1.0",
       "classScriptId": "agents-and-guardrails-class",
       "classScriptVersion": "1.0.0",
-      "classScriptPath": "content/training/ai-foundations/agents-and-guardrails/class-script.json"
+      "classScriptPath": "content/training/ai-foundations/agents-and-guardrails/class-script.json",
+      "rendering": {
+        "releaseStatus": "preview",
+        "renderedSeconds": 86,
+        "renderedSegments": 2
+      }
     },
     {
       "moduleId": "ai-foundations-capstone",

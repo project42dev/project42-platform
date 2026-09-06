@@ -5,14 +5,16 @@ import { loadCatalog } from "./load-catalog.mjs";
 import {
   buildTrainingCoverage,
   loadCanonicalClassScripts,
+  loadInstructorRenderings,
 } from "./training-package-catalog-lib.mjs";
 import { buildTrainingFixtureArtifacts } from "./training-fixture-lib.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const checkOnly = process.argv.includes("--check");
 const entries = await loadCanonicalClassScripts(root);
+const renderings = await loadInstructorRenderings(root);
 const catalog = await loadCatalog(root);
-const coverage = buildTrainingCoverage(catalog, entries);
+const coverage = buildTrainingCoverage(catalog, entries, renderings);
 
 async function persistOrCheck(outputPath, content) {
   if (checkOnly) {
@@ -52,9 +54,10 @@ await persistOrCheck(
 if (!checkOnly) {
   const generatedSource = [
     "// Generated from content/training. Do not edit.",
-    'import type { ClassScriptPackage, TrainingPackageCoverage } from "../training-package.js";',
+    'import type { ClassScriptPackage, InstructorRenderingManifest, TrainingPackageCoverage } from "../training-package.js";',
     `export const generatedClassScriptPackages = ${JSON.stringify(entries.map((entry) => entry.script), null, 2)} satisfies ClassScriptPackage[];`,
     `export const generatedTrainingPackageCoverage = ${JSON.stringify(coverage, null, 2)} satisfies TrainingPackageCoverage;`,
+    `export const generatedInstructorRenderings = ${JSON.stringify(renderings, null, 2)} satisfies InstructorRenderingManifest[];`,
     "",
   ].join("\n");
   const generatedPath = resolve(root, "src/generated/training-packages.ts");
@@ -63,5 +66,6 @@ if (!checkOnly) {
 }
 
 console.log(
-  `${checkOnly ? "Verified" : "Generated"} ${entries.length} class-ready package(s); ${coverage.outlineOnlyModuleCount} outline-only module(s) remain.`,
+  `${checkOnly ? "Verified" : "Generated"} ${entries.length} class-ready package(s); ` +
+    `${coverage.renderedModuleCount} rendered; ${coverage.outlineOnlyModuleCount} outline-only module(s) remain.`,
 );

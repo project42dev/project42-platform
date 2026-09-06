@@ -96,6 +96,51 @@ export interface ClassScriptPackage {
   releaseStatus: "draft" | "approved";
 }
 
+// A filmed rendering of a module, authored in project42-content beside the
+// class script it was rendered from.
+//
+// This is deliberately not VirtualInstructorMediaManifest. That contract
+// describes a *released* lesson and demands a class-script hash, model and
+// voice profile refs, pronunciation-review evidence and four sign-offs. One
+// lesson has been rendered and it has none of those; its class script is still
+// releaseStatus "draft". Asserting the released contract for it would claim
+// provenance the artifact does not have. This is the preview tier: enough to
+// publish a page honestly, and it says so in releaseStatus.
+//
+// media.key is a bare filename, never a path or a URL. The video is tens of
+// megabytes of derived binary and does not belong in a hash-locked text
+// curriculum, so the consumer resolves the key against wherever it serves
+// media from. Keeping a URL here would put one deployment's directory layout
+// into the shared contract.
+export interface InstructorRenderingManifest {
+  schemaVersion: "1.0";
+  id: string;
+  moduleId: string;
+  pathId: string;
+  classScriptId: string;
+  classScriptVersion: string;
+  /** "preview" while the render covers only part of the script. */
+  releaseStatus: "preview" | "released";
+  renderedAt: string;
+  /** Seconds of video that exist, which is not the planned lesson length. */
+  renderedSeconds: number;
+  /** How many of the class script's segments were spoken in this render. */
+  renderedSegments: number;
+  production: {
+    adapter: string;
+    avatar: string;
+    voice: string;
+    /** Must tell the learner the instructor is synthetic. */
+    disclosure: string;
+  };
+  media: {
+    key: string;
+    mediaType: string;
+    captions: "embedded" | "sidecar" | "none";
+    locale: string;
+  };
+}
+
 export interface TrainingPackageCoverageEntry {
   moduleId: string;
   pathIds: string[];
@@ -104,6 +149,12 @@ export interface TrainingPackageCoverageEntry {
   classScriptId?: string;
   classScriptVersion?: string;
   classScriptPath?: string;
+  /** Present only where a lesson has actually been filmed. */
+  rendering?: {
+    releaseStatus: "preview" | "released";
+    renderedSeconds: number;
+    renderedSegments: number;
+  };
 }
 
 export interface TrainingPackageCoverage {
@@ -112,6 +163,8 @@ export interface TrainingPackageCoverage {
   substantiveModuleCount: number;
   classReadyModuleCount: number;
   outlineOnlyModuleCount: number;
+  /** How many of the class-ready modules have been rendered on video. */
+  renderedModuleCount: number;
   coverageStatus: "migration-active" | "complete";
   modules: TrainingPackageCoverageEntry[];
 }
@@ -372,6 +425,56 @@ export function validateClassScriptPackage(
   validateScriptApprovalGate(script, errors);
   validateNoPrivateReferences(script, "Class script", errors);
 
+  return { valid: errors.length === 0, errors };
+}
+
+export function validateInstructorRenderingManifest(
+  manifest: InstructorRenderingManifest,
+  script?: ClassScriptPackage,
+): ValidationResult {
+  const errors: string[] = [];
+  if (manifest.schemaVersion !== "1.0") {
+    errors.push("Instructor rendering has an unsupported schema version");
+  }
+  if (!idPattern.test(manifest.id) || !idPattern.test(manifest.moduleId)) {
+    errors.push("Instructor rendering ID or module ID is invalid");
+  }
+  if (manifest.releaseStatus !== "preview" && manifest.releaseStatus !== "released") {
+    errors.push("Instructor rendering release status must be preview or released");
+  }
+  if (!Number.isInteger(manifest.renderedSeconds) || manifest.renderedSeconds <= 0) {
+    errors.push("Instructor rendering must record how many seconds exist");
+  }
+  if (!manifest.production.disclosure.trim()) {
+    errors.push("Instructor rendering must disclose that the instructor is synthetic");
+  }
+  // A key that is a path or a URL would carry one deployment's layout into a
+  // contract every consumer shares.
+  if (
+    !manifest.media.key.trim() ||
+    manifest.media.key.includes("/") ||
+    manifest.media.key.includes("\\") ||
+    manifest.media.key.startsWith(".")
+  ) {
+    errors.push("Instructor rendering media key must be a bare filename");
+  }
+  if (script) {
+    if (script.id !== manifest.classScriptId || script.version !== manifest.classScriptVersion) {
+      errors.push(
+        `Instructor rendering ${manifest.id} does not match class script ${script.id}@${script.version}`,
+      );
+    }
+    if (
+      !Number.isInteger(manifest.renderedSegments) ||
+      manifest.renderedSegments < 1 ||
+      manifest.renderedSegments > script.segments.length
+    ) {
+      errors.push(
+        `Instructor rendering ${manifest.id} claims ${manifest.renderedSegments} of ` +
+          `${script.segments.length} segments`,
+      );
+    }
+  }
   return { valid: errors.length === 0, errors };
 }
 

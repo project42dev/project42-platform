@@ -2,6 +2,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { isAbsolute, relative, resolve, sep } from "node:path";
 
 const classScriptFilename = "class-script.json";
+const instructorRenderingFilename = "instructor-rendering.json";
 
 export async function loadCanonicalClassScripts(root) {
   const trainingRoot = resolve(root, "content/training");
@@ -75,7 +76,48 @@ export async function loadCanonicalClassScripts(root) {
   );
 }
 
-export function buildTrainingCoverage(catalog, entries) {
+// Which lessons have actually been filmed. Authored upstream in
+// project42-content beside the class script each was rendered from, so a
+// consumer inherits the list with the curriculum instead of maintaining its own
+// copy. project-42.dev previously held this in config/, which made "which
+// lessons exist" a fact about one deployment's front end rather than about the
+// curriculum -- the thing ADR-0020 says it is.
+export async function loadInstructorRenderings(root) {
+  const trainingRoot = resolve(root, "content/training");
+  const files = await findNamedFiles(trainingRoot, instructorRenderingFilename);
+  const renderings = [];
+
+  for (const file of files) {
+    const relativePath = relative(trainingRoot, file);
+    if (
+      isAbsolute(relativePath) ||
+      relativePath === ".." ||
+      relativePath.startsWith(`..${sep}`)
+    ) {
+      throw new Error(`Instructor rendering escapes the training root: ${file}`);
+    }
+    const path = relativePath.split(sep).join("/");
+    const parts = path.split("/");
+    if (parts.length !== 3 || parts[2] !== instructorRenderingFilename) {
+      throw new Error(
+        `Instructor renderings must use <path>/<module>/${instructorRenderingFilename}: ${path}`,
+      );
+    }
+    const manifest = JSON.parse(await readFile(file, "utf8"));
+    if (parts[1] !== manifest.moduleId) {
+      throw new Error(
+        `Instructor rendering directory ${parts[1]} does not match module ${manifest.moduleId}`,
+      );
+    }
+    // pathId is derived from where the manifest sits rather than authored, so
+    // it cannot disagree with the tree it lives in.
+    renderings.push({ ...manifest, pathId: parts[0] });
+  }
+
+  return renderings.sort((left, right) => left.moduleId.localeCompare(right.moduleId));
+}
+
+export function buildTrainingCoverage(catalog, entries, renderings = []) {
   const modulesById = new Map(catalog.modules.map((module) => [module.id, module]));
   const pathsByModule = new Map();
   for (const path of catalog.paths) {
@@ -115,6 +157,40 @@ export function buildTrainingCoverage(catalog, entries) {
     packageIds.add(script.id);
   }
 
+  const renderingsByModule = new Map(
+    renderings.map((rendering) => [rendering.moduleId, rendering]),
+  );
+  for (const rendering of renderings) {
+    const entry = entriesByModule.get(rendering.moduleId);
+    if (!entry) {
+      throw new Error(
+        `Instructor rendering ${rendering.id} has no class script to be a rendering of`,
+      );
+    }
+    if (
+      rendering.classScriptId !== entry.script.id ||
+      rendering.classScriptVersion !== entry.script.version
+    ) {
+      throw new Error(
+        `Instructor rendering ${rendering.id} was filmed from ` +
+          `${rendering.classScriptId}@${rendering.classScriptVersion}, not ` +
+          `${entry.script.id}@${entry.script.version}`,
+      );
+    }
+    if (rendering.renderedSegments > entry.script.segments.length) {
+      throw new Error(
+        `Instructor rendering ${rendering.id} claims ${rendering.renderedSegments} of ` +
+          `${entry.script.segments.length} segments`,
+      );
+    }
+    if (entry.pathId && rendering.pathId !== entry.pathId) {
+      throw new Error(
+        `Instructor rendering ${rendering.id} is stored under ${rendering.pathId}, ` +
+          `its class script under ${entry.pathId}`,
+      );
+    }
+  }
+
   const substantiveModules = catalog.modules
     .filter((module) => module.activity && module.instructorScript)
     .sort((left, right) => left.id.localeCompare(right.id));
@@ -124,6 +200,7 @@ export function buildTrainingCoverage(catalog, entries) {
     if (pathIds.length === 0) {
       throw new Error(`Substantive module ${module.id} is not assigned to a path`);
     }
+    const rendering = renderingsByModule.get(module.id);
     return entry
       ? {
           moduleId: module.id,
@@ -133,6 +210,15 @@ export function buildTrainingCoverage(catalog, entries) {
           classScriptId: entry.script.id,
           classScriptVersion: entry.script.version,
           classScriptPath: entry.classScriptPath,
+          ...(rendering
+            ? {
+                rendering: {
+                  releaseStatus: rendering.releaseStatus,
+                  renderedSeconds: rendering.renderedSeconds,
+                  renderedSegments: rendering.renderedSegments,
+                },
+              }
+            : {}),
         }
       : {
           moduleId: module.id,
@@ -151,6 +237,7 @@ export function buildTrainingCoverage(catalog, entries) {
     substantiveModuleCount: modules.length,
     classReadyModuleCount,
     outlineOnlyModuleCount: modules.length - classReadyModuleCount,
+    renderedModuleCount: modules.filter((module) => module.rendering).length,
     coverageStatus:
       classReadyModuleCount === modules.length ? "complete" : "migration-active",
     modules,
