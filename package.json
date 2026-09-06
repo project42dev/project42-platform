@@ -4,6 +4,8 @@
   "description": "Open-source content, assessment, and learning-record core for Project 42.",
   "type": "module",
   "main": "./dist/index.js",
+  "//sideEffects": "Every module here is declarations, pure functions and data. Saying so lets a consuming bundler drop what a page does not import -- without it the compiled curriculum in dist/generated/catalog.js is pulled into every client bundle that imports anything at all, and a site that renders its own merged catalogue would ship the canonical one alongside it for nothing.",
+  "sideEffects": false,
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
