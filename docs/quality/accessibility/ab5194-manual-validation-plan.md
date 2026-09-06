@@ -49,15 +49,16 @@ cannot establish comprehension or actual assistive-technology behavior.
 | `project42dev-ops/deployment/Test-Project42AccessibilityResultSet.ps1` | **Exists**, in the private operations repository. Schema, manifest, privacy and approval validation |
 | `project42dev-ops/deployment/Test-Project42AccessibilityValidation.ps1` | **Exists**, in the private operations repository. Offline redirect, binding, privacy and behavior tests |
 
-The repository has a single `deployment/` directory containing only
-`deployment/cloudflare/`. There is no accessibility tooling anywhere in
-`scripts/`, `tests/` or `.github/workflows/`.
+None of that tooling is in this repository: `deployment/` here holds only
+`deployment/cloudflare/`, and there is no accessibility tooling in `scripts/`,
+`tests/` or `.github/workflows/`. It is operator tooling, and the operations
+repository is private.
 
-**Consequence for a reader:** until that tooling is built, this document is the
+**Consequence for a reader:** if you are not the operator, this document is the
 authority for the scenario, environment and task definitions, and every step
-below that says "the manifest" means "the tables on this page". The result
-schema, the preflight and the validator are unbuilt work, not missing files
-that can be found somewhere else.
+below that says "the manifest" means "the tables on this page". The manifest,
+result schema, preflight and validator exist and are maintained — you simply
+cannot run them, so perform the equivalent by hand and keep your own evidence.
 
 ## Preconditions
 
@@ -65,8 +66,10 @@ Do not begin a human session until all applicable conditions are true:
 
 1. Record the exact portal release facts covering the root, `/learn/**` and
    `/guide/**` routes.
-2. **Preflight is unbuilt.** Record route availability manually against
-   `https://project-42.dev` and retain the evidence privately.
+2. **Run the preflight, or stand in for it.** The operator runs
+   `project42dev-ops/deployment/Invoke-Project42AccessibilityPreflight.ps1`;
+   anyone else records route availability by hand against
+   `https://project-42.dev`. Retain the evidence privately either way.
 3. Confirm the participant cohort and anonymous ID without storing a direct
    identifier in the repository.
 4. Record informed consent outside the repository and reference it only by an
@@ -149,7 +152,8 @@ this repository.
 
 ## Environment matrix
 
-The exact minimum (this page is the authority; there is no manifest file):
+The exact minimum (this page is the public authority; the operator's manifest
+carries the same definitions in machine-readable form):
 
 | ID | Operating system and browser | Assistive technology | Primary purpose |
 |---|---|---|---|
