@@ -91,8 +91,8 @@ denial carries a reason and returns the work for rework rather than discarding
 it.
 
 Models draft, criticise, and revise. **Models do not approve, merge, deploy,
-tag, or publish.** That constraint is not only a policy statement; it is
-enforced in this repository's schemas. See
+tag, or publish.** That constraint is not only a policy statement; any proposal
+validated against this repository's schemas is rejected without it. See
 [Governed content-maintenance contracts](content-maintenance-contracts.md): a
 proposal is not publishable until every model stage has passed, every
 deterministic gate has passed, no conflict is unresolved, a rollback plan
@@ -100,13 +100,17 @@ exists, and a named human has recorded an explicit approval with a timestamp. A
 structurally valid proposal with a pending human decision is intentionally not
 publishable.
 
-The drafting itself is not a single model talking to itself. Distinct roles —
-evidence research, writing, independent factual verification, assessment
-review, accessibility review — are held by different model deployments, and the
-writer and the final factual verifier must come from different provider
-families. Disagreement is never settled by majority vote; an unresolved
-conflict blocks publication and routes to a person. The full role contract is
-in [the content freshness pipeline](content-freshness-pipeline.md).
+The drafting is not meant to be a single model talking to itself. The contract
+requires distinct roles — evidence research, writing, independent factual
+verification, assessment review, accessibility review — to be held by different
+model deployments, and requires the writer and the final factual verifier to
+come from different provider families. Disagreement may not be settled by
+majority vote; an unresolved conflict blocks publication and routes to a person.
+A proposal that does not record every stage is not publishable. Note that this
+is a contract the schemas enforce on a proposal, not an orchestrator that ships
+in this repository, and not every role in it has an implementation yet. The full
+role contract, and an honest account of what runs, is in
+[the content freshness pipeline](content-freshness-pipeline.md).
 
 ## How you can see freshness for yourself
 

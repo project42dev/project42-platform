@@ -1,5 +1,11 @@
 # Content freshness pipeline
 
+> This is the engineering account of the pipeline, written for a contributor.
+> For the plain-language account a learner or an adopter needs — where material
+> comes from, who approves it before it reaches anyone, and what none of it
+> guarantees — see
+> [how the curriculum stays current](how-content-stays-current.md).
+
 Project 42 treats freshness as a monitoring and evidence problem, not a
 one-time fact-check at authoring time. This document describes the pipeline
 that is meant to turn a changed primary source into a reviewed, evidence-
