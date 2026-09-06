@@ -39,7 +39,11 @@ export default function Home() {
               <div className="portal-actions">
                 <Link href="/learn">{text.hero.actions.learn}</Link>
                 <Link href="/guide">{text.hero.actions.guide}</Link>
-                <Link href="/diagrams">{text.hero.actions.diagrams}</Link>
+                {/* /guide/diagrams, not /diagrams. Both routes render the same
+                    index, but sitemap.ts publishes the /guide/ one as canonical
+                    and every diagram card and breadcrumb already points there,
+                    so this was the one link dropping readers on the duplicate. */}
+                <Link href="/guide/diagrams">{text.hero.actions.diagrams}</Link>
               </div>
             </div>
           </div>

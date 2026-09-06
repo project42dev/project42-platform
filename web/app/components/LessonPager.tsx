@@ -51,7 +51,7 @@ export function LessonPager({
         </Link>
       ) : (
         <Link className="lesson-pager-link lesson-pager-back" href={pathHref}>
-          <span className="lesson-pager-direction">← Path overview</span>
+          <span className="lesson-pager-direction">← First module · back to</span>
           <strong>{pathTitle}</strong>
         </Link>
       )}
@@ -66,8 +66,8 @@ export function LessonPager({
         </Link>
       ) : (
         <Link className="lesson-pager-link lesson-pager-forward" href={pathHref}>
-          <span className="lesson-pager-direction">Last module in this path →</span>
-          <strong>Back to {pathTitle}</strong>
+          <span className="lesson-pager-direction">Last module · back to →</span>
+          <strong>{pathTitle}</strong>
         </Link>
       )}
     </nav>

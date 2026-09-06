@@ -21,8 +21,15 @@ export async function generateMetadata({
 }: DiagramPageProps): Promise<Metadata> {
   const { diagramId } = await params;
   const diagram = getDiagram(diagramId);
+  // Rendered at /diagrams/<id> and, via a re-export, at /guide/diagrams/<id>.
+  // The /guide/ form is what sitemap.ts publishes and what every link points
+  // at, so it is named as canonical from both.
   return diagram
-    ? { title: diagram.title, description: diagram.summary }
+    ? {
+        title: diagram.title,
+        description: diagram.summary,
+        alternates: { canonical: `/guide/diagrams/${diagram.id}/` },
+      }
     : { title: "Diagram not found" };
 }
 
@@ -31,6 +38,10 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
   const diagram = getDiagram(diagramId);
   if (!diagram) notFound();
   const steps = getDiagramSteps(diagramId);
+  const position = diagramCatalog.findIndex((entry) => entry.id === diagram.id);
+  const previousDiagram = position > 0 ? diagramCatalog[position - 1] : undefined;
+  const nextDiagram =
+    position >= 0 ? diagramCatalog[position + 1] : undefined;
 
   return (
     <main className="diagram-detail shell">
@@ -93,8 +104,31 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
         </section>
       </div>
 
-      <nav className="diagram-next" aria-label="More visual guides">
-        <Link href="/guide/diagrams">← Browse every visual guide</Link>
+      {/*
+        This was a <nav aria-label="More visual guides"> containing exactly one
+        anchor -- "← Browse every visual guide" -- a back link wearing a
+        forward name. On a catalogue of sequential visual guides there was no
+        way to reach the next one without returning to the index first. The
+        neighbours are real links now, and the name describes what is here.
+      */}
+      <nav className="diagram-next" aria-label="Nearby visual guides">
+        {previousDiagram ? (
+          <Link href={`/guide/diagrams/${previousDiagram.id}`}>
+            ← {previousDiagram.title}
+          </Link>
+        ) : (
+          <Link href="/guide/diagrams">← Browse every visual guide</Link>
+        )}
+        <Link className="diagram-next-index" href="/guide/diagrams">
+          All {diagramCatalog.length} visual guides
+        </Link>
+        {nextDiagram ? (
+          <Link href={`/guide/diagrams/${nextDiagram.id}`}>
+            {nextDiagram.title} →
+          </Link>
+        ) : (
+          <Link href="/guide">Back to the Field Guide →</Link>
+        )}
       </nav>
     </main>
   );

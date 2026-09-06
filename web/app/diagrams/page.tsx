@@ -6,6 +6,11 @@ export const metadata: Metadata = {
   title: "Visual guides",
   description:
     "Accessible, source-first diagrams for learning, research, prompting, providers, agents, safety, and AI content governance.",
+  // This module renders at two URLs: /diagrams, published first, and
+  // /guide/diagrams, which re-exports it and is what sitemap.ts publishes and
+  // what every breadcrumb and card links to. Naming the canonical one stops
+  // the pair being indexed as two pages carrying identical content.
+  alternates: { canonical: "/guide/diagrams/" },
 };
 
 export default function DiagramIndexPage() {

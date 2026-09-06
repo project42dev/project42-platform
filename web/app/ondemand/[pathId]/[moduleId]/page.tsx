@@ -130,7 +130,9 @@ export default async function OnDemandLessonPage({ params }: LessonPageProps) {
               <source src={rendering.src} type="video/mp4" />
               This browser cannot play the lesson. The full script is written out
               below, and the{" "}
-              <a href={`/learn/${path.id}/${lessonModule.id}`}>written module</a>{" "}
+              {/* A raw anchor inside the <video> fallback, so trailingSlash
+                  does not rewrite it; the canonical form is written out. */}
+              <a href={`/learn/${path.id}/${lessonModule.id}/`}>written module</a>{" "}
               covers the same material.
             </video>
             {rendering.partial ? (
@@ -267,7 +269,7 @@ export default async function OnDemandLessonPage({ params }: LessonPageProps) {
                 : undefined
             }
             pathHref="/ondemand"
-            pathTitle="the on-demand classroom"
+            pathTitle="All on-demand lessons"
             previous={
               previousHref && previousModule
                 ? {

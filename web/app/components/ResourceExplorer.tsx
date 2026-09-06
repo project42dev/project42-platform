@@ -47,6 +47,7 @@ export function ResourceExplorer({
   const [provider, setProvider] = useState<"all" | Provider>("all");
   const [level, setLevel] = useState<"all" | Level>("all");
   const [format, setFormat] = useState<"all" | ResourceFormat>("all");
+  const [showAll, setShowAll] = useState(false);
   const [freshness, setFreshness] = useState<
     "all" | ResourceFreshnessStatus
   >("all");
@@ -140,7 +141,25 @@ export function ResourceExplorer({
     setLevel("all");
     setFormat("all");
     setFreshness("all");
+    setShowAll(false);
   };
+
+  // Render a first page of cards rather than the whole catalogue.
+  //
+  // Every one of the 91 resources used to render on load: 98 KB of card markup
+  // in a 487 KB document, and 91 filter-and-fact grids for a phone to lay out
+  // before it can paint anything. A reader searching the guide reads the first
+  // screen and then filters; they do not scroll ninety-one cards.
+  //
+  // Worth being exact about what this does and does not fix. Of that 487 KB,
+  // 376 KB is the <script> payload carrying the resource data, because
+  // filtering happens in the browser and needs the whole set. Capping the
+  // rendered list removes the markup and the layout cost, not the payload;
+  // moving that would mean moving the filtering to the server, which is a
+  // different decision than this one.
+  const PAGE_SIZE = 24;
+  const visible = showAll ? filtered : filtered.slice(0, PAGE_SIZE);
+  const remaining = filtered.length - visible.length;
 
   return (
     <>
@@ -243,7 +262,9 @@ export function ResourceExplorer({
           id="resource-results-status"
           role="status"
         >
-          Showing {filtered.length} of {resources.length} resources
+          {remaining > 0
+            ? `Showing ${visible.length} of ${filtered.length} matching resources, out of ${resources.length}`
+            : `Showing ${filtered.length} of ${resources.length} resources`}
         </p>
         {hasFilters && filtered.length > 0 ? (
           <button
@@ -256,7 +277,7 @@ export function ResourceExplorer({
         ) : null}
       </div>
       <div className="resource-grid" id="resource-results">
-        {filtered.map((resource) => {
+        {visible.map((resource) => {
           const resourceFreshness = freshnessById.get(resource.id);
           if (!resourceFreshness) return null;
           return (
@@ -265,9 +286,19 @@ export function ResourceExplorer({
               data-resource-id={resource.id}
               key={resource.id}
             >
+              {/*
+                Category and format are separate fields and usually differ, but
+                three of the published resources are a Reference in the
+                Reference category and a Checklist in the Checklist category.
+                Printing the same word twice reads as an unfinished card, so
+                the format is suppressed when it says nothing the category did
+                not.
+              */}
               <div className="resource-meta">
                 <span>{resource.category}</span>
-                <span>{titleCase(resource.format)}</span>
+                {titleCase(resource.format) === resource.category ? null : (
+                  <span>{titleCase(resource.format)}</span>
+                )}
               </div>
               <h2>{resource.title}</h2>
               <p>{resource.summary}</p>
@@ -308,9 +339,18 @@ export function ResourceExplorer({
                     </time>
                   </small>
                 </div>
+                {/*
+                  Under /guide/, not /resources/. Both routes render this
+                  resource, but sitemap.ts has always published
+                  /guide/resources/<id> as the canonical URL, so linking at
+                  /resources/<id> sent every reader to the copy search engines
+                  are not told about and dropped them out of the section they
+                  were browsing. The bare /resources/<id> route stays: it is a
+                  previously published URL.
+                */}
                 <Link
                   aria-label={`Open ${resource.title}`}
-                  href={`/resources/${resource.id}`}
+                  href={`/guide/resources/${resource.id}`}
                 >
                   Open →
                 </Link>
@@ -319,6 +359,18 @@ export function ResourceExplorer({
           );
         })}
       </div>
+      {remaining > 0 ? (
+        <div className="resource-more">
+          <button
+            aria-controls="resource-results"
+            className="button button-secondary"
+            onClick={() => setShowAll(true)}
+            type="button"
+          >
+            Show {remaining} more {remaining === 1 ? "resource" : "resources"}
+          </button>
+        </div>
+      ) : null}
       {filtered.length === 0 ? (
         <div className="empty-state">
           <h2>No resources match these filters.</h2>

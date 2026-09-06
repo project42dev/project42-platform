@@ -22,8 +22,15 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: ResourcePageProps): Promise<Metadata> {
   const { resourceId } = await params;
   const resource = getResource(resourceId);
+  // Rendered here and, via a re-export, at the previously published
+  // /resources/<id>. This is the URL sitemap.ts publishes and the Field Guide
+  // links to, so it is named as canonical from both.
   return resource
-    ? { title: `${resource.title} · ${orgName} Field Guide`, description: resource.summary }
+    ? {
+        title: `${resource.title} · ${orgName} Field Guide`,
+        description: resource.summary,
+        alternates: { canonical: `/guide/resources/${resource.id}/` },
+      }
     : { title: "Resource not found" };
 }
 
