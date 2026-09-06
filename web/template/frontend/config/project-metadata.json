@@ -11,12 +11,18 @@
     "software": {
       "spdx": "Apache-2.0",
       "label": "Apache License 2.0",
-      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+      "url": "https://example.org/{{NAME}}/blob/main/LICENSE"
     },
     "curriculum": {
       "spdx": "CC-BY-4.0",
       "label": "Creative Commons Attribution 4.0",
-      "url": "https://creativecommons.org/licenses/by/4.0/"
+      "url": "https://github.com/project42dev/project42-platform/blob/main/LICENSE-CONTENT.md"
     }
-  }
+  },
+  "providerIds": [
+    "provider-neutral",
+    "anthropic",
+    "openai",
+    "google"
+  ]
 }

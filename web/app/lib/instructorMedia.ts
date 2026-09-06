@@ -1,3 +1,4 @@
+import config from "../../project42.config.json";
 import {
   getInstructorRendering as getCurriculumRendering,
   instructorRenderings as curriculumRenderings,
@@ -28,8 +29,24 @@ import {
 // is published under the explicit preview tier rather than a contract it cannot
 // meet.
 
-/** Where this deployment serves rendered lessons from. */
-const MEDIA_BASE = "/preview/";
+// Which rendered lessons THIS deployment actually serves.
+//
+// The curriculum declares that a lesson was filmed; it does not, and cannot,
+// declare that your origin hosts the file. The media key is a bare filename
+// precisely so that tens of megabytes of derived binary stay out of a
+// hash-locked text curriculum -- which means an adopter who inherits the
+// curriculum inherits a manifest and no video.
+//
+// Surfacing every declared rendering therefore published a page whose player
+// pointed at a 404. It fails closed now: a deployment lists the media keys it
+// hosts under content.instructorMedia in project42.config.json, and a lesson
+// nobody can watch is not offered. An empty or absent list means no
+// instructor-led lessons, which is the correct answer for a fresh install.
+const mediaConfig =
+  (config as { content?: { instructorMedia?: { baseUrl?: string; availableKeys?: string[] } } })
+    .content?.instructorMedia ?? {};
+const MEDIA_BASE = mediaConfig.baseUrl ?? "/preview/";
+const availableKeys = new Set(mediaConfig.availableKeys ?? []);
 
 export interface InstructorRendering {
   moduleId: string;
@@ -78,14 +95,15 @@ function adapt(manifest: InstructorRenderingManifest): InstructorRendering {
 }
 
 export const instructorRenderings: InstructorRendering[] = Object.freeze(
-  curriculumRenderings.map(adapt),
+  curriculumRenderings.filter((manifest) => availableKeys.has(manifest.media.key)).map(adapt),
 ) as InstructorRendering[];
 
 export function getInstructorRendering(
   moduleId: string,
 ): InstructorRendering | undefined {
   const manifest = getCurriculumRendering(moduleId);
-  return manifest ? adapt(manifest) : undefined;
+  if (!manifest || !availableKeys.has(manifest.media.key)) return undefined;
+  return adapt(manifest);
 }
 
 export function formatLessonLength(totalSeconds: number): string {

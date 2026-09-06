@@ -66,6 +66,16 @@ Curriculum comes from the content repository scaffolded beside this one. It
 tracks `project42dev/project42-content` upstream and layers your own modules on
 top; see that repository's README.
 
+## Current release facts
+
+`npm run facts:generate` owns the block below and rewrites it from the
+installed platform package and the catalogue it carries. `npm run facts:check`
+fails when it has drifted, so these numbers cannot rot. Do not edit them by
+hand; the markers are how the generator finds them.
+
+<!-- release-facts:start -->
+<!-- release-facts:end -->
+
 ## Gates
 
 `npm run verify` is the contract: a production audit plus the full `check`

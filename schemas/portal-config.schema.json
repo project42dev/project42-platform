@@ -129,6 +129,27 @@
         "customContentDir": {
           "type": "string",
           "minLength": 1
+        },
+        "instructorMedia": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Rendered instructor-led lesson media this deployment actually serves. The curriculum declares that a lesson was filmed; only the deployment knows whether its origin hosts the file.",
+          "properties": {
+            "baseUrl": {
+              "type": "string",
+              "pattern": "^/",
+              "description": "Path under public/ that the media keys resolve against. Defaults to /preview/."
+            },
+            "availableKeys": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Media filenames present under baseUrl. A rendering whose key is absent is not offered."
+            }
+          }
         }
       }
     },

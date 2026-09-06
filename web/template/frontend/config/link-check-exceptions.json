@@ -1,4 +1,46 @@
 {
   "$schemaVersion": 1,
-  "exceptions": []
+  "$comment": "Every entry is an allowance for an external target the link gate cannot fetch cleanly, with the reason and a review date. Replace the example.org entries with your own repository and support URLs; delete an entry rather than extending its expiry when the underlying reason has gone.",
+  "exceptions": [
+    {
+      "targetPattern": "https://example.org/*",
+      "expectedStatuses": [200, 403, 404],
+      "reason": "Scaffold placeholder host. Replace it with your own repository and support URLs in config/project-metadata.json and project42.config.json, then delete this entry.",
+      "owner": "{{ORGANIZATION}} maintainers",
+      "verifiedOn": "2026-01-01",
+      "expires": "2026-12-31"
+    },
+    {
+      "targetPattern": "https://docs.vllm.ai/*",
+      "expectedStatuses": [200, 429],
+      "reason": "vLLM documentation rate limits automated scrapers.",
+      "owner": "{{ORGANIZATION}} maintainers",
+      "verifiedOn": "2026-01-01",
+      "expires": "2026-12-31"
+    },
+    {
+      "targetPattern": "https://help.openai.com/*",
+      "expectedStatuses": [200, 403],
+      "reason": "The OpenAI help centre requires bot verification for automated requests.",
+      "owner": "{{ORGANIZATION}} maintainers",
+      "verifiedOn": "2026-01-01",
+      "expires": "2026-12-31"
+    },
+    {
+      "targetPattern": "https://openai.com/*",
+      "expectedStatuses": [200, 403],
+      "reason": "OpenAI corporate pages block automated HEAD/GET bot requests.",
+      "owner": "{{ORGANIZATION}} maintainers",
+      "verifiedOn": "2026-01-01",
+      "expires": "2026-12-31"
+    },
+    {
+      "targetPattern": "https://huggingface.co/docs/*",
+      "expectedStatuses": [200, 429, 500],
+      "reason": "Hugging Face documentation rate limits concurrent CI link checks and can return a transient server error.",
+      "owner": "{{ORGANIZATION}} maintainers",
+      "verifiedOn": "2026-01-01",
+      "expires": "2026-12-31"
+    }
+  ]
 }

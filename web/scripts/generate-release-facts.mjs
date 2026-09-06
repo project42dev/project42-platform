@@ -108,8 +108,20 @@ const facts = {
   licenses: projectMetadata.licenses,
 };
 
-const readme = await readFile(readmePath, "utf8");
-for (const requiredFact of [
+// The README must not carry stale numbers, so every generated fact has to
+// appear in it. That gate is right for a running deployment and impossible
+// for a freshly scaffolded one: the catalogue counts are not knowable until
+// the platform is installed, and this script refuses to run until the README
+// already states them.
+//
+// So a README may delegate the block. Between the two markers below, this
+// script OWNS the text and rewrites it -- but only when generating. --check
+// still asserts and never writes, so CI catches a README that drifted from
+// what a build produces, which is the case the gate exists for.
+const FACTS_START = "<!-- release-facts:start -->";
+const FACTS_END = "<!-- release-facts:end -->";
+
+const requiredFacts = [
   `Site release \`${facts.siteVersion}\``,
   `Platform package \`${facts.platformVersion}\``,
   `Content release \`${facts.contentVersion}\``,
@@ -119,7 +131,29 @@ for (const requiredFact of [
   `${facts.counts.reviewedQuestions} reviewed questions`,
   `${facts.counts.resources} practical resources`,
   `${facts.counts.providerScopes} provider scopes`,
-]) {
+];
+
+let readme = await readFile(readmePath, "utf8");
+const factsStart = readme.indexOf(FACTS_START);
+const factsEnd = readme.indexOf(FACTS_END);
+if (factsStart >= 0 && factsEnd > factsStart && !process.argv.includes("--check")) {
+  const eol = readme.includes("\r\n") ? "\r\n" : "\n";
+  const block = [
+    FACTS_START,
+    `- Site release \`${facts.siteVersion}\``,
+    `- Platform package \`${facts.platformVersion}\``,
+    `- Content release \`${facts.contentVersion}\``,
+    `- ${facts.counts.learningPaths} learning paths, ${facts.counts.assessedModules} assessed modules, ` +
+      `${facts.counts.evidenceActivities} evidence activities, and ` +
+      `${facts.counts.reviewedQuestions} reviewed questions`,
+    `- ${facts.counts.resources} practical resources and ${facts.counts.providerScopes} provider scopes`,
+    "",
+  ].join(eol);
+  readme = readme.slice(0, factsStart) + block + readme.slice(factsEnd);
+  await writeFile(readmePath, readme);
+}
+
+for (const requiredFact of requiredFacts) {
   assert.ok(
     readme.includes(requiredFact),
     `README is missing the current release fact: ${requiredFact}`,

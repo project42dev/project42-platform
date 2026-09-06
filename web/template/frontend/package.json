@@ -5,6 +5,13 @@
   "private": true,
   "license": "Apache-2.0",
   "homepage": "{{ORIGIN}}",
+  "repository": {
+    "type": "git",
+    "url": "https://example.org/{{NAME}}.git"
+  },
+  "bugs": {
+    "url": "{{SUPPORT_URL}}"
+  },
   "engines": {
     "node": ">=22.13.0"
   },

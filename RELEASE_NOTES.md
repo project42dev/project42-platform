@@ -1,3 +1,33 @@
+# Project 42 platform v0.103.1
+
+A patch release for three defects that only appear on the adopter path v0.103.0 opened, all found by generating a front end and building it rather than by reading the code.
+
+## A route was missing from the published package
+
+`.gitignore` carried an unanchored `logs`, which matched `web/app/admin/logs` -- a real route. `npm pack` in this repository produced a complete tarball; the tarball npm builds when installing this package as a git dependency did not. The consuming site then 404ed a page its own link gate had inventoried, and neither repository could see why. The pattern is anchored, and a new assertion fails if any tracked file under `web/`, `bin/` or `schemas/` matches an ignore rule.
+
+## Instructor-led lessons
+
+The curriculum declares that a lesson was filmed. It cannot declare that your origin hosts the file -- the media key is deliberately a bare filename so that tens of megabytes of derived binary stay out of a hash-locked text curriculum. An adopter therefore inherited a manifest and no video, and the lesson page published a player pointing at a 404. A deployment now lists the media keys it serves under `content.instructorMedia`, and the lookup fails closed.
+
+Existing deployments must declare their keys or their instructor-led lessons stop being offered. That is the intended direction: silence is the safe answer.
+
+## The README fact gate
+
+`generate-release-facts.mjs` requires every generated fact to appear in the README. A running deployment can satisfy that; a freshly scaffolded one cannot, because the catalogue counts are not knowable until the platform is installed and the script refuses to run until the README already states them. A README may now delegate the block between two markers, which the generator rewrites in write mode only. `--check` still asserts and never writes.
+
+## Migrations
+
+No file under `migrations/` was added or changed since v0.103.0.
+
+## Breaking changes
+
+None, with one behavioural note: a deployment that serves instructor-led lesson media must add `content.instructorMedia.availableKeys` to `project42.config.json`.
+
+## Rollback
+
+Revert consuming sites to v0.103.0. The missing admin route returns with it.
+
 # Project 42 platform v0.103.0
 
 Version 0.103.0 makes the platform adoptable. Until this release it had no front end: `web/` held two files, no React, no CSS and no route, while the entire rendering application lived in `project-42.dev`, one deployment's repository. A product whose adopter path ends in "a working front end" cannot keep the front end outside the product.

@@ -1,5 +1,11 @@
 # Logs
-logs
+#
+# ANCHORED. An unanchored "logs" matched web/app/admin/logs -- a real route of
+# the front-end application this package ships -- so npm dropped that route
+# from the published tarball on a git install, and the consuming site 404ed a
+# page its own link gate had inventoried. Nothing here may match a path under
+# web/ or bin/; tests/web-distribution.test.mjs asserts that.
+/logs
 *.log
 npm-debug.log*
 yarn-debug.log*

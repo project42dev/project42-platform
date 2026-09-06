@@ -4,6 +4,41 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.103.1] - 2026-09-06
+
+### Fixed
+
+- A route was missing from the published package. `.gitignore` carried an
+  unanchored `logs` pattern, which matched `web/app/admin/logs` -- a real
+  route of the front-end application. `npm pack` here produced a complete
+  tarball and the tarball npm builds when installing this package as a git
+  dependency did not, so a consuming site 404ed a page its own link gate had
+  inventoried, and nothing in either repository could see it. The pattern is
+  anchored, and `tests/web-distribution.test.mjs` now asserts that no tracked
+  file under `web/`, `bin/` or `schemas/` matches any ignore rule.
+- Instructor-led lessons are offered only where the deployment hosts the media.
+  The curriculum declares that a lesson was filmed; the media key is a bare
+  filename, so an adopter inherits the manifest and no video, and the page
+  published a player pointing at a 404. A deployment now lists the keys it
+  serves under `content.instructorMedia` in `project42.config.json`, and the
+  lookup fails closed: an absent or empty list means no instructor-led lessons.
+- `generate-release-facts.mjs` can own the README fact block. The gate requires
+  every generated fact to appear in the README, which a running deployment can
+  satisfy and a freshly scaffolded one cannot -- the catalogue counts are not
+  knowable until the platform is installed. A README may now delegate the block
+  between two markers, which the generator rewrites. `--check` still only
+  asserts, so CI still catches a README that drifted.
+
+### Changed
+
+- The scaffold template is complete enough to build unmodified: `package.json`
+  carries the `repository` and `bugs` identity the release-facts gate
+  cross-checks against `config/project-metadata.json`, that file gains
+  `providerIds` and resolvable licence URLs, `CHANGELOG.md` uses the heading
+  form the release-notes compiler parses, `config/link-check-exceptions.json`
+  is seeded with the allowances a fresh scaffold needs, and `README.md` carries
+  the release-facts markers.
+
 ## [0.103.0] - 2026-09-06
 
 ### Added

@@ -10,7 +10,7 @@
 // back into product code.
 
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -79,6 +79,35 @@ test("the package ships the front-end application and the adopter CLI", () => {
   assert.ok(
     statSync(path.join(webDir, "app/globals.css")).size > 100_000,
     "globals.css is the portal's design system; a small one means it was not shipped",
+  );
+});
+
+test("no ignore rule silently drops a packaged file", () => {
+  // This caught a shipping defect. .gitignore carried an unanchored "logs",
+  // which matched web/app/admin/logs -- a real route -- so npm excluded it
+  // when installing this package as a git dependency. The tarball built here
+  // contained the file and the tarball npm built during install did not, so
+  // the loss was invisible until a consuming site 404ed a page its own link
+  // gate had inventoried. Every file the package ships must survive that.
+  const packaged = execFileSync("git", ["ls-files", "web", "bin", "schemas"], {
+    cwd: rootDir,
+    encoding: "utf8",
+  })
+    .split(/\r?\n/)
+    .filter(Boolean);
+  assert.ok(packaged.length > 100, "expected the front-end application to be tracked");
+
+  const ignored = [];
+  for (const relative of packaged) {
+    const result = spawnSync("git", ["check-ignore", "--no-index", "-q", relative], {
+      cwd: rootDir,
+    });
+    if (result.status === 0) ignored.push(relative);
+  }
+  assert.deepEqual(
+    ignored,
+    [],
+    "these packaged files match a .gitignore rule and npm will drop them from a git install",
   );
 });
 
