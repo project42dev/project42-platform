@@ -4,6 +4,32 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.102.0] - 2026-09-06
+
+### Added
+
+- Instructor renderings are part of the content contract. A filmed lesson is
+  declared in `project42-content` at
+  `training/<path>/<module>/instructor-rendering.json`, beside the class script
+  it was rendered from. The platform validates each manifest against that
+  script - same id, same version, no more segments than the script has - and
+  exports `instructorRenderings` and `getInstructorRendering`. Consuming sites
+  no longer keep their own list of which lessons exist.
+- `InstructorRenderingManifest` and `validateInstructorRenderingManifest`. This
+  is the preview tier, distinct from `VirtualInstructorMediaManifest`, which
+  describes a released lesson and requires provenance a preview render does not
+  have. A rendering must disclose that the instructor is synthetic, and its
+  media key must be a bare filename so no deployment's directory layout reaches
+  the shared contract.
+
+### Changed
+
+- `content/training/coverage.json` gains `renderedModuleCount` and marks the
+  entry for any module that has been filmed.
+- The curriculum is synced to `project42-content@bb00b9a`, which corrects five
+  module citations that did not support their module and adds a content-side
+  validator for instructor scripts.
+
 ## [0.101.0] - 2026-09-05
 
 ### Changed

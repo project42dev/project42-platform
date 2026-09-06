@@ -1,3 +1,33 @@
+# Project 42 platform v0.102.0
+
+Version 0.102.0 moves instructor-led renderings into the content contract and closes two of the limitations v0.101.0 shipped with.
+
+## Instructor renderings
+
+Which lessons have been filmed was previously a fact about one deployment's front end: `project-42.dev` held the list in `config/`. ADR-0020 makes instructor-led delivery a rendering of the same content item rather than a second catalogue, so it is a fact about the curriculum. Each rendering is now declared in `project42-content` beside the class script it was rendered from, validated here against that script, and exported as `instructorRenderings` / `getInstructorRendering`. `coverage.json` reports `renderedModuleCount`.
+
+The video itself stays with the deployment that serves it. A manifest carries a bare media key, not a URL, so a hash-locked text curriculum does not grow tens of megabytes of derived binary.
+
+## Content
+
+Synced to `project42-content@bb00b9a`. Five of the 22 topic-matched citations v0.101.0 flagged for review did not support their module and have been replaced; the full review is in `project42dev-ops/pmo/plans/source-pairing-review.md`. The content repository now validates instructor-script completeness itself, so an empty declaration can no longer reach a consumer.
+
+## Migrations
+
+No file under `migrations/` was added or changed since v0.101.0.
+
+## Breaking changes
+
+None. `instructorRenderings` is additive, and `TrainingPackageCoverage` gains a field rather than changing one.
+
+## Known limitations
+
+22 modules remain outline-only: their instructor scripts were removed upstream because the cues were never authored. The scope is written down in `project42dev-ops/pmo/plans/instructor-cue-worklist.md` - 22 modules, 132 cues minimum. The same 22 modules carry templated prose rather than written sections.
+
+## Rollback
+
+Revert consuming sites to v0.101.0.
+
 # Project 42 platform v0.101.0
 
 Version 0.101.0 completes the extraction of the curriculum into `project42-content`. Until now the platform built from a copy of the curriculum vendored in this repository, so the canonical repository fed nothing and the two had drifted apart. This release makes `project42-content` the source, hash-locked at a named commit.
