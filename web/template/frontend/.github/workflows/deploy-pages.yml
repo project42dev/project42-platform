@@ -1,5 +1,13 @@
 name: Deploy to GitHub Pages
 
+# Validate, then package, then deploy -- three jobs rather than one, so nothing
+# is published that has not passed the same gates a pull request must pass, and
+# so the only job holding id-token: write is the one that needs it.
+#
+# Every action is pinned to an immutable commit SHA. A tag can be moved; a
+# workflow that trusts a moved tag runs somebody else's code with your
+# permissions. The version each SHA corresponds to is in the trailing comment.
+
 on:
   push:
     branches: [main]
@@ -7,34 +15,70 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: github-pages
   cancel-in-progress: false
 
 jobs:
-  build:
+  validate:
+    name: Validate Pages candidate
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 22
           cache: npm
       - run: npm ci
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: "true"
+      - run: npx playwright install --with-deps chromium --only-shell
+      - run: npm run check
+
+  package:
+    name: Package validated Pages artifact
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Configure Pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
+      - run: npm ci
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: "true"
       - run: npm run pages:build
-      - uses: actions/upload-pages-artifact@v3
+      - name: Upload validated Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           path: dist/pages
 
   deploy:
-    needs: build
+    name: Deploy to GitHub Pages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: package
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5
+        id: deployment

@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import packageDocument from "../package.json" with { type: "json" };
 import {
   createManifest,
   rehearseRelease,
@@ -13,8 +14,11 @@ import {
 const repositoryRoot = fileURLToPath(new URL("..", import.meta.url));
 
 test("current release contract is complete", async () => {
+  // The version under test is whatever this repository declares. Naming one
+  // deployment's version here meant the gate could only ever pass for that
+  // deployment, and only until its next release.
   const result = await validateRelease(repositoryRoot);
-  assert.equal(result.version, "0.19.0");
+  assert.equal(result.version, packageDocument.version);
 });
 
 test("missing release-note risk disclosure is rejected", async () => {
@@ -63,7 +67,7 @@ test("manifest publication, consumption, rollback, and cleanup are reproducible"
       root: repositoryRoot,
       output: ".release-test/release-manifest.json",
       source: "0123456789abcdef0123456789abcdef01234567",
-      tag: "v0.19.0",
+      tag: `v${packageDocument.version}`,
       artifacts: [".release-test/artifact.json"],
     });
     assert.equal(manifest.artifacts.length, 1);

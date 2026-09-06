@@ -1,3 +1,33 @@
+# Project 42 platform v0.103.2
+
+Everything in this release was found the same way: by generating a front end with `project42-portal create`, installing it, and running its own `npm run verify`. These files had never been executed anywhere but `project-42.dev` before, and five gates turned out to encode that one deployment.
+
+## Gates that could only pass for one deployment
+
+The route inventory and the application disagreed about instructor-led lessons, so the static exporter tried to export a route the app returns 404 for and the build stopped. The workflow gate listed four filenames including one owner's private Azure DevOps mirror, so a repository without that file could not run the gate at all -- and one that added a fifth workflow was never checked. The release gate asserted the literal version 0.19.0. The rendered-HTML gate asserted one theme's background colour and one operator's name, and required the retired-learning-path map to be non-empty, which failed a new deployment for having no history. The account browser spec read only the environment variable, so a deployment that declared its API in configuration asserted a screen it does not render.
+
+All five now read configuration, and the workflow gate discovers workflows rather than naming them.
+
+## The scaffold template
+
+It now ships the release plumbing its own gates require, and its CI and Pages workflows are rebuilt to the contract the workflow gate enforces: every action pinned to an immutable commit SHA, per-job permissions rather than workflow-wide ones, and a separate validation job that must pass before anything is published.
+
+## Migrations
+
+No file under `migrations/` was added or changed since v0.103.1.
+
+## Breaking changes
+
+None.
+
+## Known limitations
+
+A generated site's browser suite passes on `06-galactic-guide` and fails on `05-open-orbit` and `07-quiet-lantern`. That is not a defect in this release: those bundles ship 5-7 KB of component CSS against Galactic's 19 KB, and the conformance suite asserts treatments they do not implement. `05-open-orbit` also fails WCAG AA contrast in the footer -- `#616f85` on `#e9eff8` is 4.4:1 against a 4.5:1 threshold. Both are Gallery-side, and the gate finding them is the gate working.
+
+## Rollback
+
+Revert consuming sites to v0.103.1.
+
 # Project 42 platform v0.103.1
 
 A patch release for three defects that only appear on the adopter path v0.103.0 opened, all found by generating a front end and building it rather than by reading the code.

@@ -1,13 +1,23 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-const hostedIdentityConfigured = Boolean(
-  process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN,
-);
+import portalConfig from "../../project42.config.json" with { type: "json" };
+
+// AuthProvider treats the deployment as configured when EITHER the environment
+// variable or portal.apiOrigin names an account API. This read used to consider
+// only the environment variable, so a deployment that declared its API in
+// configuration -- the supported way -- took the unconfigured branch here and
+// asserted a screen it does not render.
+const apiOrigin =
+  process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN ??
+  (portalConfig.portal as { apiOrigin?: string }).apiOrigin ??
+  "";
+const hostedIdentityConfigured = Boolean(apiOrigin);
+const organizationName = portalConfig.organization.name;
 
 async function installSignedOutApi(page: Page) {
   if (!hostedIdentityConfigured) return;
-  await page.route(`${process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN}/**`, async (route) => {
+  await page.route(`${apiOrigin}/**`, async (route) => {
     const pathname = new URL(route.request().url()).pathname;
     if (pathname === "/v1/auth/session") {
       await route.fulfill({
@@ -56,17 +66,19 @@ test("renders the account state selected by public account-API configuration", a
   await page.goto("/account");
   if (hostedIdentityConfigured) {
     await expect(
-      page.getByRole("heading", { name: "Request a Project 42 account" }),
+      page.getByRole("heading", { name: `Request a ${organizationName} account` }),
     ).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Sign in", exact: true }),
     ).toBeVisible();
   } else {
+    // A deployment with no account API is not broken; it is unconfigured, and
+    // the page says so rather than reporting a failure the operator cannot fix.
     await expect(
-      page.getByRole("heading", { name: "Account sign-in needs attention" }),
+      page.getByRole("heading", { name: "Ready for hosted identity configuration" }),
     ).toBeVisible();
     await expect(
-      page.getByText(/account service could not be reached/i),
+      page.getByText(/has not yet been connected/i),
     ).toBeVisible();
     await expect(page.locator("main").getByRole("button", { name: /sign in/i })).toHaveCount(0);
   }
@@ -142,7 +154,7 @@ test("recovers when another browser tab wins secure-session rotation", async ({
   let renewalRequests = 0;
 
   await page.route(
-    `${process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN}/**`,
+    `${apiOrigin}/**`,
     async (route) => {
       const request = route.request();
       const pathname = new URL(request.url()).pathname;
@@ -226,7 +238,7 @@ test.skip("rejects malformed GitHub authorization URLs before storing or navigat
   };
 
   await page.route(
-    `${process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN}/**`,
+    `${apiOrigin}/**`,
     async (route) => {
       const request = route.request();
       const pathname = new URL(request.url()).pathname;
@@ -395,7 +407,7 @@ test.skip("completes GitHub linkage without exposing the provider token to Learn
   };
   let completionRequest: Record<string, unknown> | null = null;
   await page.route(
-    `${process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN}/**`,
+    `${apiOrigin}/**`,
     async (route) => {
       const request = route.request();
       const origin = request.headers().origin ?? "http://localhost";
@@ -590,7 +602,7 @@ test("keeps protected owner administration keyboard-operable at a narrow viewpor
   };
 
   await page.route(
-    `${process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN}/**`,
+    `${apiOrigin}/**`,
     async (route) => {
       const origin = route.request().headers().origin ?? "http://localhost";
       const headers = {
@@ -1127,7 +1139,7 @@ test("signing out clears the session and returns the learner to a signed-out acc
   let signoutRequests = 0;
 
   await page.route(
-    `${process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN}/**`,
+    `${apiOrigin}/**`,
     async (route) => {
       const request = route.request();
       const pathname = new URL(request.url()).pathname;

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 
 import {
@@ -7,23 +7,39 @@ import {
   validateWorkflowGovernance,
 } from "../scripts/workflow-governance-validation.mjs";
 
+// EVERY workflow this repository has, discovered rather than listed.
+//
+// The list used to be four filenames, one of which was ado-sync.yml -- one
+// owner's private issue mirror. A repository without it could not run this
+// gate at all, and a repository that added a fifth workflow was not checked.
+// Both are the wrong failure: the contract is that no workflow escapes the
+// immutable-action and deployment-guard rules, not that four particular files
+// exist.
 const workflowDirectory = new URL("../.github/workflows/", import.meta.url);
-const deploymentWorkflow = await readFile(
-  new URL("deploy-pages.yml", workflowDirectory),
-  "utf8",
-);
-const ciWorkflow = await readFile(
-  new URL("ci.yml", workflowDirectory),
-  "utf8",
-);
-const intakeWorkflow = await readFile(
-  new URL("ado-sync.yml", workflowDirectory),
-  "utf8",
-);
-const releaseWorkflow = await readFile(
-  new URL("release.yml", workflowDirectory),
-  "utf8",
-);
+
+async function readWorkflows() {
+  let entries;
+  try {
+    entries = await readdir(workflowDirectory);
+  } catch (error) {
+    if (error?.code === "ENOENT") return [];
+    throw error;
+  }
+  const workflows = [];
+  for (const name of entries.filter((entry) => /\.ya?ml$/.test(entry)).sort()) {
+    const workflow = await readFile(new URL(name, workflowDirectory), "utf8");
+    workflows.push({
+      name,
+      workflow,
+      // A deployment workflow is one that deploys; asserting that by name
+      // would only work for repositories that spell it the same way.
+      deploymentWorkflow: /uses:\s*actions\/deploy-pages@/.test(workflow),
+    });
+  }
+  return workflows;
+}
+
+const repositoryWorkflows = await readWorkflows();
 
 const pinnedCheckout =
   "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1";
@@ -61,16 +77,11 @@ jobs:
 `;
 
 test("current workflows satisfy the immutable and deployment boundaries", () => {
-  assertWorkflowGovernance([
-    {
-      name: "deploy-pages.yml",
-      workflow: deploymentWorkflow,
-      deploymentWorkflow: true,
-    },
-    { name: "ci.yml", workflow: ciWorkflow },
-    { name: "ado-sync.yml", workflow: intakeWorkflow },
-    { name: "release.yml", workflow: releaseWorkflow },
-  ]);
+  assert.ok(
+    repositoryWorkflows.length > 0,
+    "a repository with no workflow has no continuous integration; add one",
+  );
+  assertWorkflowGovernance(repositoryWorkflows);
 });
 
 test("accepts a minimal read-only manual validation and guarded deploy", () => {

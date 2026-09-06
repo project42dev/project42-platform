@@ -90,10 +90,22 @@ export function buildRetiredRouteRedirects(
   return redirects;
 }
 
+// A lesson is only a route where this deployment actually serves its media.
+// The curriculum declares every rendering that exists anywhere; whether the
+// file is on THIS origin is deployment configuration, and the route inventory
+// has to agree with app/lib/instructorMedia.ts about it or the exporter
+// renders a page the app returns 404 for.
+const servedMediaKeys = new Set(
+  portalConfig.content?.instructorMedia?.availableKeys ?? [],
+);
+const servedRenderings = curriculumRenderings.filter((rendering) =>
+  servedMediaKeys.has(rendering.media.key),
+);
+
 export function buildRouteInventory(
   catalog = starterCatalog,
   diagrams = mergedDiagrams,
-  instructorRenderings = curriculumRenderings,
+  instructorRenderings = servedRenderings,
 ) {
   const htmlRoutes = new Set([
     "/",

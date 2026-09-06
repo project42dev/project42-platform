@@ -4,6 +4,48 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.103.2] - 2026-09-06
+
+### Fixed
+
+Five more gates that could only ever pass for one deployment. Every one was
+found by running a generated front end's own `npm run verify`, which is the
+first time these files had been executed anywhere but `project-42.dev`.
+
+- The route inventory disagreed with the application about instructor-led
+  lessons. `link-integrity.mjs` built `/ondemand/<path>/<module>` from every
+  rendering the curriculum declares, while `app/lib/instructorMedia.ts` (since
+  v0.103.1) offers only the ones this deployment hosts. The static exporter
+  then tried to export a route the app returns 404 for, and the build stopped.
+  Both now read `content.instructorMedia`.
+- `tests/workflow-governance.test.mjs` listed four workflow filenames, one of
+  them `ado-sync.yml` -- one owner's private issue mirror. A repository without
+  that file could not run the gate at all, and a repository that added a fifth
+  workflow was never checked. It discovers every workflow instead, and decides
+  which is a deployment workflow by whether it deploys rather than by its name.
+- `tests/release-governance.test.mjs` asserted the version `0.19.0`, so the
+  gate could pass only for one repository and only until its next release. It
+  reads the version the repository declares.
+- `tests/rendered-html.test.mjs` asserted `theme-color: #090d16` and a
+  `short_name` of `Project 42` -- 06-galactic-guide's background and one
+  operator's name. Both come from the selected bundle's tokens and
+  `organization.name` now. It also required the retired-learning-path map to be
+  non-empty, which failed a new deployment for having no history; that case is
+  skipped rather than failed, and every ID the map does name is still checked.
+- `tests/browser/account-progress.spec.ts` decided whether hosted identity was
+  configured from the environment variable alone, so a deployment that declared
+  `portal.apiOrigin` in configuration -- the supported way -- took the
+  unconfigured branch and asserted a screen it does not render.
+
+### Changed
+
+- The scaffold template ships the release plumbing its own gates require: a
+  `release.yml` whose tokens `release-governance.mjs` checks for, and a
+  `RELEASE_NOTES.md` with the four sections it requires non-empty. Its CI and
+  Pages workflows are rebuilt to the contract the workflow gate enforces --
+  every action pinned to an immutable commit SHA, per-job permissions, and a
+  separate validation job before anything is published.
+
 ## [0.103.1] - 2026-09-06
 
 ### Fixed
