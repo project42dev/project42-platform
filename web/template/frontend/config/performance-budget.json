@@ -1,0 +1,40 @@
+{
+  "$schemaVersion": 1,
+  "measuredOn": "2026-01-01",
+  "measuredAt": "scaffolded template; re-measure before trusting these numbers",
+  "note": "Budgets are set from what YOUR build actually produces plus a stated margin. These are the platform reference numbers, generous enough to pass a fresh scaffold. Re-measure with npm run perf:check after your first real build and tighten them deliberately.",
+  "budgets": [
+    {
+      "id": "client-total-bytes",
+      "label": "Total client JavaScript and CSS shipped by the build",
+      "measured": 0,
+      "limit": 2600000,
+      "marginPercent": 18,
+      "reasoning": "The whole client payload today is 2.15 MiB across JS and CSS. The curriculum is compiled into the client bundle and is actively growing as content lands, so the margin has to absorb ordinary authoring without a budget change: roughly 400 KiB of headroom, which is about a fifth again of the current total. Anything that consumes that in one change is a dependency or an architecture decision, not a content edit, and deserves the conversation this gate forces."
+    },
+    {
+      "id": "client-css-bytes",
+      "label": "Total client CSS",
+      "measured": 0,
+      "limit": 200000,
+      "marginPercent": 20,
+      "reasoning": "CSS is 163 KiB, dominated by the single layout stylesheet. It grows in small increments as components are themed, and the token work already removed the duplication that would drive it up sharply. A 20% margin covers a themed feature or two; a jump past it means either a second framework or the theme boundary leaking back into core, both of which are exactly what the theme-boundary and token gates exist to stop."
+    },
+    {
+      "id": "largest-chunk-bytes",
+      "label": "Largest single JavaScript chunk",
+      "measured": 0,
+      "limit": 1600000,
+      "marginPercent": 22,
+      "reasoning": "One chunk carries the compiled platform package and curriculum at 1.24 MiB, which is 64% of all client JavaScript. It is the single most important number on this page because it is what a first visit must download before anything is interactive, and it is the one most likely to grow silently as content is added. The 22% margin leaves room for the content that is already planned while making a step change - a new dependency pulled into that chunk, or code-splitting quietly regressing - fail loudly."
+    }
+  ],
+  "vitals": [
+    {
+      "id": "home-lcp-ms",
+      "label": "Largest Contentful Paint on the home route",
+      "limit": 4000,
+      "reasoning": "Measured in the browser suite against the production build on a local server, so this is a ceiling rather than a field measurement: it cannot see real networks or real devices. 4000 ms is the Core Web Vitals 'poor' boundary. On a loopback server the honest expectation is a small fraction of that, so anything approaching this limit means a render-blocking regression rather than ordinary variance. Deliberately generous: a vitals gate that flakes gets disabled, and a disabled gate measures nothing. Lighthouse and a real throttled profile need full Chrome, which CI does not install (it fetches the headless shell only), so that is not what this checks."
+    }
+  ]
+}

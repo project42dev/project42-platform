@@ -1,0 +1,14 @@
+{
+  "$schemaVersion": 1,
+  "note": "Direction, not commitments or dates. Replace these items with your own.",
+  "statuses": ["available", "in-progress", "next", "exploring"],
+  "items": [
+    {
+      "id": "self-paced-learning",
+      "title": "Self-paced learning paths",
+      "status": "available",
+      "summary": "Written modules with a knowledge check at the end of every one.",
+      "detail": "Available now from the curriculum this deployment inherits."
+    }
+  ]
+}

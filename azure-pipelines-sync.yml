@@ -21,13 +21,16 @@ steps:
   - script: |
       npm ci
       npm run content:sync
-      npm test
-      npm run build
-    displayName: 'Sync Content, Validate & Build Static Portal'
+      npm run check
+    displayName: 'Sync Content, Validate & Build'
 
+  # The compiled platform package, not a site. This repository does not build a
+  # site: a site is built in the front-end repository "project42-portal create"
+  # produces, by that repository's own pipeline. This step used to publish
+  # dist/portal, the output of a static generator that has since been retired.
   - task: PublishPipelineArtifact@1
     inputs:
-      targetPath: 'dist/portal'
-      artifact: 'project42-portal'
+      targetPath: 'dist'
+      artifact: 'project42-platform'
       publishLocation: 'pipeline'
-    displayName: 'Publish Static Portal Artifact'
+    displayName: 'Publish Platform Package Artifact'

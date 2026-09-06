@@ -1,0 +1,41 @@
+{
+  "$comment": "Override any string from the platform's copy defaults. Every leaf you omit keeps the wording the platform ships. The full vocabulary is node_modules/@project42/platform/web/copy/. {org}, {tagline}, {supportUrl}, {origin}, {adminOrigin} and {galleryUrl} interpolate from project42.config.json.",
+  "chrome": {
+    "header": {
+      "brandLead": "{org}",
+      "brandStrong": ""
+    }
+  },
+  "home": {
+    "hero": {
+      "lede": "{org} teaches artificial intelligence from your first question to your first reliable agent. Learn at your pace, check what you know, and keep a record of your progress."
+    },
+    "selfHost": {
+      "body": "Deploy the complete, host-agnostic Project 42 platform in your own cloud, air-gapped intranet, or local server. Customize with your organization's branding, overlay internal courses, and sync with upstream curriculum updates."
+    }
+  },
+  "about": {
+    "principles": [
+      {
+        "number": "01",
+        "title": "Beginner first, no ceiling",
+        "body": "Every subject begins in plain language, then opens into practical and advanced material. Accessible does not mean shallow."
+      },
+      {
+        "number": "02",
+        "title": "Concepts before vendors",
+        "body": "We teach ideas that transfer, then explain how each provider implements them."
+      },
+      {
+        "number": "03",
+        "title": "Evidence before freshness claims",
+        "body": "Volatile material carries sources and verification dates."
+      }
+    ]
+  },
+  "legal": {
+    "review": {
+      "body": "This wording is the platform's review draft with {org}'s name substituted. It is not legal advice and it has not been reviewed for this organisation. Replace it before launch."
+    }
+  }
+}

@@ -51,6 +51,11 @@ export const SKIP_DIRS = new Set([
   "coverage",
   "seed-inputs",
   "private",
+  // web/template is the seed `project42-portal create` copies into a NEW
+  // repository. Its documents are written from an adopter's point of view and
+  // carry {{TOKEN}} placeholders, so every repository path they name is a path
+  // in the repository that does not exist yet, not one here.
+  "template",
 ]);
 
 // Release history legitimately names files that later moved or were removed,

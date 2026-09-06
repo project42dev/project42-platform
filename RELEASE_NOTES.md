@@ -1,3 +1,51 @@
+# Project 42 platform v0.103.0
+
+Version 0.103.0 makes the platform adoptable. Until this release it had no front end: `web/` held two files, no React, no CSS and no route, while the entire rendering application lived in `project-42.dev`, one deployment's repository. A product whose adopter path ends in "a working front end" cannot keep the front end outside the product.
+
+## The front end
+
+`web/` now holds the application: every route under `app/`, the components, the 158 KB design system, the theme and layout loaders, the Cloudflare Worker entry, the build toolchain, and the twenty gates that police them. 149 files.
+
+It is installed rather than imported. A Next.js application needs its routes to be real files, its stylesheet resolvable by PostCSS, and its Playwright specs to see the same relative paths as the code they drive; none of that survives being vendored into `node_modules`. So `project42-portal materialise` copies `web/` onto a front-end repository's root, where every gate runs unchanged and every relative import of instance data still resolves. The materialised files are git-ignored build inputs, and materialise refuses to overwrite a git-tracked file, so a deliberate fork is an error rather than a silent clobber.
+
+## One command
+
+```bash
+npx project42-portal create "Your Academy" --theme 05-open-orbit
+```
+
+That writes two repositories side by side. The front end holds branding, configuration and release records and nothing else. The content repository inherits `project42-content` into `upstream/`, hash-locked, and keeps your own modules in `custom/`, which no sync touches. `mergeCatalogs` layers the two: your module replaces an inherited one of the same id, your path entry unions its module list into the inherited path, anything new is added.
+
+`project42-portal doctor` reports what a repository is still missing.
+
+## Copy is configuration, not code
+
+Every user-visible sentence on the marketing and policy pages moved into `web/copy/`, one module per page, carrying the Project 42 wording verbatim as the shipped default. An adopter puts the leaves they want to change into `project42.copy.json`; anything they omit keeps the default. `{org}`, `{origin}`, `{adminOrigin}`, `{galleryUrl}`, `{tagline}` and `{supportUrl}` interpolate from `project42.config.json`, and a bracketed label followed by a parenthesised URL inside a string renders as a link, so a paragraph with a citation stays one editable string.
+
+## Configuration that was hard-coded
+
+`portal.apiOrigin` and a `branding` block are new in the schema. Both were literals in product code. The account API defaulted to one deployment's own host, so an adopter who forgot an environment variable pointed their learners at somebody else's account service. Brand source filenames were `stat`-ed by name, so an adopter whose wordmark was not called `project-42-wordmark.svg` could not build. The governance-documents gate required a heading naming one deployment and a link to one repository's advisories page; both now derive from configuration.
+
+## Breaking changes
+
+`npm run portal:build` is gone, and with it `scripts/build-portal.mjs`. It generated a static portal from a third copy of the theme bundles under `docs/branding/concepts/` and modelled a theme as five colour strings, contradicting principle 3 of the architecture. `project42-portal create` replaces it. Documentation, the GitLab and Azure pipelines, and the NGINX example now publish `dist/pages` from a front-end repository instead of `dist/portal` from this one.
+
+`web/src/lib/config.ts` and `web/src/lib/storage.ts` are removed. Nothing imported either.
+
+## Migrations
+
+No file under `migrations/` was added or changed since v0.102.0.
+
+## Known limitations
+
+`web/` is not built or type-checked by this repository's own gates. Adding React, Next and vinext to this package's dependencies would put them inside `audit:production`, which runs at `moderate`, and the front end would never be clean again. `tests/web-distribution.test.mjs` asserts the distribution contract — that the application ships, that the CLI installs and scaffolds it, that no deployment's origins survive in product code — and the build, lint, typecheck, browser and link gates run in the consuming front-end repository, where the toolchain lives.
+
+The brand mark component still draws the Project 42 "42" glyph inline. Brand *file paths* are configurable; the inline mark is not, pending the owner's decision on whether an adopter re-brands or supplies branding.
+
+## Rollback
+
+Revert consuming sites to v0.102.0 and restore their vendored application from history.
+
 # Project 42 platform v0.102.0
 
 Version 0.102.0 moves instructor-led renderings into the content contract and closes two of the limitations v0.101.0 shipped with.

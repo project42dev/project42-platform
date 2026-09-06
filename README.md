@@ -13,18 +13,26 @@ Project 42 includes a host-agnostic public portal for Learn, Field Guide, and
 learner profiles. Gallery and the role-protected Admin console are deliberately
 separate deployments.
 
-### 1. Build and Run Locally (Zero Backend Required)
+### 1. Scaffold your own front end (one command)
 ```bash
-# Install dependencies
 npm ci
-
-# Build the complete static portal
-npm run portal:build
-
-# Preview with any static web server
-npx serve dist/portal
+npx project42-portal create "Your Academy" --theme 06-galactic-guide
 ```
-Visit `http://localhost:3000` to explore all 12 learning paths, 94 assessed modules, and 83 field guide resources.
+That writes two repositories side by side: a front end holding your branding,
+configuration and release records, and a content repository that inherits this
+project's curriculum while keeping your own modules. Then:
+
+```bash
+cd your-academy-content && npm install && npm run content:sync
+cd ../your-academy   && npm install          # installs and materialises the app
+npm run themes:sync -- --source ../project42-gallery
+npm run bootstrap && npm run build
+npm run pages:build && npm run pages:serve   # static preview on :4173
+```
+The front-end application itself lives in this repository under `web/` and is
+installed into your repository by `project42-portal materialise`, which the
+scaffolded `postinstall` runs for you. Your repository tracks configuration,
+not application code.
 
 ### 2. Turnkey Docker Compose Deployment
 ```bash

@@ -3,20 +3,30 @@
 Project 42 Platform supplies the validated curriculum, account API, and
 self-hosting contracts used by the unified learning and reference portal.
 
-## Preview the static portal
+## Scaffold a front end
 
 Prerequisites are Node.js 22 and npm.
 
 ```bash
 npm ci
-cp project42.config.example.json project42.config.json
-npm run portal:build
-npx serve dist/portal
+npx project42-portal create "Your Academy"
 ```
 
-The generated site is a static preview. Browser-local progress works without an
-API. Cloud progress, account management, and Admin require the API and identity
-services described in the self-host profile.
+That produces a front-end repository and a content repository beside each other,
+with content inheritance already wired. Build the front end:
+
+```bash
+cd your-academy
+npm install                                   # installs and materialises the app
+npm run themes:sync -- --source ../project42-gallery
+npm run bootstrap
+npm run build
+npm run pages:build && npm run pages:serve
+```
+
+Browser-local progress works without an API. Cloud progress, account management,
+and Admin require the API and identity services described in the self-host
+profile. `npm run doctor` reports anything a front-end repository is missing.
 
 ## Configure the deployment
 
@@ -32,8 +42,8 @@ services described in the self-host profile.
 Validate configuration before packaging:
 
 ```bash
-npm run test
-npm run portal:build
+npm run check          # in this repository
+npm run verify         # in the front-end repository
 ```
 
 See [Portal and theming](self-hosting/portal-and-theming.md) for the complete

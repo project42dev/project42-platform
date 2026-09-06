@@ -1,0 +1,32 @@
+# --- Materialised front-end application -------------------------------------
+# These paths are installed from @project42/platform by the postinstall hook
+# (project42-portal materialise). They are build inputs, not source: edit them
+# upstream, never here. The materialiser refuses to overwrite anything git
+# tracks, so un-ignoring a file here is also how you fork one deliberately.
+/app/
+/copy/
+/lib/
+/worker/
+/scripts/*
+!/scripts/mint-github-app-token.mjs
+/tests/*
+!/tests/production/
+/eslint.config.mjs
+/next.config.ts
+/playwright.config.ts
+/playwright.pages.config.ts
+/postcss.config.mjs
+/tsconfig.json
+/vite.config.ts
+
+# --- Build output and caches ------------------------------------------------
+node_modules/
+dist/
+.next/
+.vinext/
+.wrangler/
+coverage/
+test-results/
+playwright-report/
+tsconfig.tsbuildinfo
+next-env.d.ts

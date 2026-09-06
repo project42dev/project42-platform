@@ -1,0 +1,22 @@
+{
+  "$schemaVersion": 1,
+  "homepage": "{{ORIGIN}}",
+  "repositories": {
+    "site": "https://example.org/{{NAME}}",
+    "platform": "https://github.com/project42dev/project42-platform",
+    "issues": "{{SUPPORT_URL}}",
+    "roadmap": "{{SUPPORT_URL}}"
+  },
+  "licenses": {
+    "software": {
+      "spdx": "Apache-2.0",
+      "label": "Apache License 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "curriculum": {
+      "spdx": "CC-BY-4.0",
+      "label": "Creative Commons Attribution 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  }
+}

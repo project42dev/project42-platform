@@ -1,0 +1,8 @@
+{
+  "$comment": "Additions and overrides layered on top of the inherited Project 42 curriculum. A path whose id already exists upstream is merged (its moduleIds are unioned); a module or resource whose id already exists upstream is REPLACED by yours. Anything with a new id is added.",
+  "contentVersion": "0.1.0",
+  "paths": [],
+  "modules": [],
+  "resources": [],
+  "providers": []
+}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "source": "https://github.com/project42dev/project42-content",
+  "upstream": {
+    "commit": null
+  },
+  "contentVersion": null,
+  "files": {}
+}

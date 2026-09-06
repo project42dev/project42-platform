@@ -4,6 +4,62 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.103.0] - 2026-09-06
+
+### Added
+
+- The front end. `web/` now holds the entire rendering application - 149 files
+  of routes, components, the design system, the Cloudflare Worker entry, the
+  build toolchain and the twenty gates that police them. Until this release the
+  platform had no front end at all: `web/` was two files, no React, no CSS and
+  no route, while the whole application was vendored in one deployment's
+  repository. The adopter path could not end in "a working front end" because
+  the front end was not part of the product.
+- `project42-portal`, the adopter CLI, shipped as this package's `bin`.
+  `create` scaffolds a front-end repository and a content repository side by
+  side with content inheritance wired between them; `materialise` installs the
+  application into a front-end repository and is what that repository's
+  `postinstall` runs; `doctor` reports what a repository is still missing.
+  Materialise refuses to overwrite a git-tracked file, so a deliberate fork is
+  an error rather than a silent clobber.
+- A copy layer. Every user-visible sentence on the marketing and policy pages
+  lives in `web/copy/`, one module per page, carrying the Project 42 wording
+  verbatim as the default. An adopter overrides any leaf in
+  `project42.copy.json` instead of forking the page that renders it.
+  `{org}`, `{origin}`, `{adminOrigin}`, `{galleryUrl}`, `{tagline}` and
+  `{supportUrl}` interpolate from configuration, and a bracketed label followed by a parenthesised URL inside a
+  string renders as a link.
+- `web/template/`, the seed `create` copies: a front-end repository holding
+  only branding, configuration and release records, and a content repository
+  that inherits `project42-content` into `upstream/` while keeping local
+  material in `custom/`, merged by `mergeCatalogs`.
+- `tests/web-distribution.test.mjs`, the gate for all of the above. It asserts
+  the package ships the application, that materialise installs it and refuses to
+  clobber a fork, that create produces two repositories with no unsubstituted
+  tokens, and that no `project-42.dev` origin survives in product code.
+
+### Changed
+
+- `schemas/portal-config.schema.json` gains optional `portal.apiOrigin` and a
+  `branding` block naming this deployment's own brand source filenames.
+  Both were hard-coded in product code: the account API defaulted to one
+  deployment's host, so an adopter who forgot an environment variable pointed
+  their learners at somebody else's account service.
+- `governance-docs-validation.mjs` derives the security-advisories URL from
+  `config/project-metadata.json` and accepts any `# Contributing ...` heading,
+  so a repository that is not `project-42.dev` can pass its own gate.
+
+### Removed
+
+- `scripts/build-portal.mjs`, a static portal generator that read a third copy
+  of the theme bundles out of `docs/branding/concepts/` and modelled a theme as
+  five colour strings. Principle 3 of the architecture makes a theme a
+  version-locked Gallery bundle selected by ID; the generator contradicted it
+  and would have become a rival to the front end this release ships. `npm run
+  portal:build` is replaced by `project42-portal create`.
+- `web/src/lib/config.ts` and `web/src/lib/storage.ts`, a rival `PortalConfig`
+  and a second learner-progress store. Neither was imported anywhere.
+
 ## [0.102.0] - 2026-09-06
 
 ### Added

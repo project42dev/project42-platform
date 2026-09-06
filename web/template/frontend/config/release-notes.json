@@ -1,0 +1,12 @@
+{
+  "$schemaVersion": 1,
+  "releases": [
+    {
+      "version": "0.1.0",
+      "date": null,
+      "changes": [
+        "Scaffolded from @project42/platform v{{PLATFORM_VERSION}}."
+      ]
+    }
+  ]
+}

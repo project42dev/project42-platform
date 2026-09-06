@@ -4,9 +4,18 @@
   "title": "Project 42 portal configuration",
   "type": "object",
   "additionalProperties": false,
-  "required": ["theme", "availableThemes", "layout", "portal", "organization"],
+  "required": [
+    "theme",
+    "availableThemes",
+    "layout",
+    "portal",
+    "organization"
+  ],
   "properties": {
-    "$schema": { "type": "string", "format": "uri-reference" },
+    "$schema": {
+      "type": "string",
+      "format": "uri-reference"
+    },
     "theme": {
       "type": "string",
       "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
@@ -16,13 +25,22 @@
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
-      "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      }
     },
-    "galleryUrl": { "type": "string", "format": "uri", "pattern": "^https://" },
+    "galleryUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
     "layout": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["defaultPreset"],
+      "required": [
+        "defaultPreset"
+      ],
       "properties": {
         "defaultPreset": {
           "type": "string",
@@ -34,38 +52,115 @@
     "portal": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["canonicalOrigin", "adminOrigin", "legacyOrigins"],
+      "required": [
+        "canonicalOrigin",
+        "adminOrigin",
+        "legacyOrigins"
+      ],
       "properties": {
-        "canonicalOrigin": { "type": "string", "format": "uri", "pattern": "^https://" },
-        "adminOrigin": { "type": "string", "format": "uri", "pattern": "^https://" },
+        "canonicalOrigin": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://"
+        },
+        "adminOrigin": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://"
+        },
         "legacyOrigins": {
           "type": "array",
           "uniqueItems": true,
-          "items": { "type": "string", "format": "uri", "pattern": "^https://" }
+          "items": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://"
+          }
+        },
+        "apiOrigin": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://",
+          "description": "Account and learning-record API origin. Optional; when absent the portal runs without an account service."
         }
       }
     },
     "organization": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "tagline", "supportUrl"],
+      "required": [
+        "name",
+        "tagline",
+        "supportUrl"
+      ],
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "tagline": { "type": "string", "minLength": 1 },
-        "supportUrl": { "type": "string", "format": "uri-reference" }
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tagline": {
+          "type": "string",
+          "minLength": 1
+        },
+        "supportUrl": {
+          "type": "string",
+          "format": "uri-reference"
+        }
       }
     },
     "features": {
       "type": "object",
-      "additionalProperties": { "type": "boolean" }
+      "additionalProperties": {
+        "type": "boolean"
+      }
     },
     "content": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "upstreamRepo": { "type": "string", "format": "uri" },
-        "upstreamBranch": { "type": "string", "minLength": 1 },
-        "customContentDir": { "type": "string", "minLength": 1 }
+        "upstreamRepo": {
+          "type": "string",
+          "format": "uri"
+        },
+        "upstreamBranch": {
+          "type": "string",
+          "minLength": 1
+        },
+        "customContentDir": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "branding": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Paths, under public/, to this deployment's own brand source artwork. Every key is optional and falls back to the shipped default filename.",
+      "properties": {
+        "wordmark": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "mark": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "markMono": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "markReversed": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "social": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "maskIcon": {
+          "type": "string",
+          "pattern": "^/"
+        }
       }
     }
   }

@@ -1,0 +1,6 @@
+{
+  "$schemaVersion": 1,
+  "note": "Learning path IDs published in an earlier catalogue that no longer exist. Each keeps its URLs alive with a permanent redirect instead of a 404.",
+  "catalogueIndex": "/learn/paths",
+  "retired": []
+}

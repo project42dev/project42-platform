@@ -85,12 +85,17 @@ routing, or authentication.
 
 You can overlay proprietary corporate courses and modules alongside the open-source curriculum without modifying core files:
 
-1. Place your course JSON definitions in `custom-content/modules/`.
-2. Run the build script:
+1. Place your course JSON definitions in `custom/modules/` of the content
+   repository `project42-portal create` scaffolded beside your front end, and
+   declare how they join the catalogue in that repository's overlay catalogue (the seed is `web/template/content/custom/catalog.json`).
+2. Merge them with the inherited curriculum:
    ```bash
-   npm run build
+   npm run content:build
    ```
-3. The generator automatically validates your custom modules against the JSON schema and compiles them into `dist/portal/`.
+3. `mergeCatalogs` layers your material over the upstream catalogue: a module
+   or resource whose id already exists is replaced by yours, a path is merged
+   and its module list unioned, and anything new is added. An upstream update
+   replaces `upstream/` only and never touches `custom/`.
 
 ---
 

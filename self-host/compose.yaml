@@ -1,9 +1,12 @@
 name: project42
 
 services:
+  # The build context is a front-end repository produced by
+  # `project42-portal create`, not this repository. Point PROJECT42_WEB_CONTEXT
+  # at it, or pull the published image instead of building.
   web:
     build:
-      context: ..
+      context: ${PROJECT42_WEB_CONTEXT:-../..}
       dockerfile: self-host/Dockerfile.web
     image: project42/web:${PROJECT42_VERSION:-latest}
     ports:

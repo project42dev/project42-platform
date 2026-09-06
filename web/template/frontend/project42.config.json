@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/project42dev/project42-platform/main/schemas/portal-config.schema.json",
+  "theme": "{{THEME}}",
+  "availableThemes": {{AVAILABLE_THEMES}},
+  "galleryUrl": "{{GALLERY_URL}}",
+  "layout": {
+    "defaultPreset": "standard"
+  },
+  "portal": {
+    "canonicalOrigin": "{{ORIGIN}}",
+    "adminOrigin": "{{ADMIN_ORIGIN}}",
+    "legacyOrigins": []
+  },
+  "organization": {
+    "name": "{{ORGANIZATION}}",
+    "tagline": "{{TAGLINE}}",
+    "supportUrl": "{{SUPPORT_URL}}"
+  },
+  "branding": {
+    "wordmark": "/brand/wordmark.svg",
+    "mark": "/brand/mark.svg",
+    "markMono": "/brand/mark-mono.svg",
+    "markReversed": "/brand/mark-reversed.svg",
+    "social": "/brand/social.svg",
+    "maskIcon": "/brand/mark-mono.svg"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "name": "@project42/platform",
-  "version": "0.102.0",
+  "version": "0.103.0",
   "description": "Open-source content, assessment, and learning-record core for Project 42.",
   "type": "module",
   "main": "./dist/index.js",
@@ -17,31 +17,33 @@
     "./content/diagrams/catalogue.json": "./content/diagrams/catalogue.json"
   },
   "files": [
-    "dist",
-    "content",
-    "docs",
-    "deployment",
-    "examples",
-    "scripts",
-    "migrations",
-    "schemas",
-    "self-host",
-    "wrangler.jsonc",
     ".dev.vars.example",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
     "LICENSE",
     "LICENSE-CONTENT.md",
-    "CHANGELOG.md",
+    "README.md",
     "RELEASE_NOTES.md",
     "SUPPORT.md",
-    "CONTRIBUTING.md",
-    "README.md"
+    "bin",
+    "content",
+    "deployment",
+    "dist",
+    "docs",
+    "examples",
+    "migrations",
+    "schemas",
+    "scripts",
+    "self-host",
+    "web",
+    "wrangler.jsonc"
   ],
   "scripts": {
     "lab:agent": "node examples/training/bounded-agent-lab/src/cli.mjs",
     "generate": "node scripts/generate-catalog.mjs && node scripts/generate-training-packages.mjs",
     "training:generate": "node scripts/generate-training-packages.mjs",
     "training:check": "node scripts/generate-training-packages.mjs --check",
-    "build": "npm run generate && tsc -p tsconfig.json && node scripts/build-portal.mjs",
+    "build": "npm run generate && tsc -p tsconfig.json",
     "api:types": "wrangler types src/worker-configuration.d.ts",
     "api:check": "npm run api:types && wrangler deploy --dry-run",
     "db:migrate:local": "wrangler d1 migrations apply PROJECT42_DB --local",
@@ -56,12 +58,12 @@
     "sources:links": "node scripts/check-source-links.mjs",
     "learning-records:measure": "node scripts/measure-hosted-learning-record-adapter.mjs",
     "test": "npm run build && node --test tests/*.test.mjs && npm run resources:validate",
-    "check": "npm run audit:production && npm run docs:audit && npm run content:check && npm run training:check && npm test && npm run learning-records:measure && npm run content:freshness && npm run sources:links && npm run self-host:validate && npm run release:check",
+    "check": "npm run audit:production && npm run docs:audit && npm run web:check && npm run content:check && npm run training:check && npm test && npm run learning-records:measure && npm run content:freshness && npm run sources:links && npm run self-host:validate && npm run release:check",
     "audit:production": "npm audit --omit=dev --audit-level=moderate",
     "prepare": "npm run build",
     "content:sync": "node scripts/sync-content.mjs",
-    "portal:build": "npm run generate && node scripts/build-portal.mjs",
-    "content:check": "node scripts/sync-content.mjs --check"
+    "content:check": "node scripts/sync-content.mjs --check",
+    "web:check": "node --test tests/web-distribution.test.mjs"
   },
   "engines": {
     "node": ">=22"
@@ -90,5 +92,8 @@
     "miniflare": "4.20260722.0",
     "typescript": "5.9.3",
     "wrangler": "4.114.0"
+  },
+  "bin": {
+    "project42-portal": "./bin/project42-portal.mjs"
   }
 }

@@ -1,9 +1,14 @@
 stages:
   - sync
   - build
-  - deploy
 
-# Scheduled Weekly Content Synchronization
+# Scheduled content synchronisation.
+#
+# This repository builds the platform package: the contracts, the catalogue and
+# the front-end application under web/. It does not build a site. A site is
+# built in the front-end repository `project42-portal create` produces, whose
+# own pipeline runs `npm run pages:build` and publishes dist/pages. A `pages`
+# stage here used to copy an artifact this pipeline has never produced.
 content_sync:
   stage: sync
   image: node:22-alpine
@@ -15,21 +20,8 @@ content_sync:
   script:
     - npm ci
     - npm run content:sync
-    - npm test
-    - npm run build
+    - npm run check
   artifacts:
     paths:
       - dist/
     expire_in: 1 week
-
-pages:
-  stage: deploy
-  image: alpine:latest
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-  script:
-    - mkdir -p public
-    - cp -r dist/portal/* public/
-  artifacts:
-    paths:
-      - public

@@ -1,0 +1,3 @@
+# The merged catalogue is derived from upstream/ plus custom/ on every build.
+dist/
+node_modules/

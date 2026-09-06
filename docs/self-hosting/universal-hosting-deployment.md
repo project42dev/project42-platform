@@ -36,12 +36,15 @@ This section exists so the gap is recorded rather than discovered.
 
 ## Static export
 
+Run these in the front-end repository `project42-portal create` produced, not
+in the platform repository:
+
 ```bash
 npm ci
-npm run portal:build
+npm run pages:build
 ```
 
-Publish `dist/portal` to a static host. Configure a fallback only for routes
+Publish `dist/pages` to a static host. Configure a fallback only for routes
 the generated artifact owns; do not rewrite missing assets to HTML. Generate
 real files or redirect documents for deep links when the host does not provide
 application rewrites.
@@ -67,7 +70,7 @@ gates.
 
 ```dockerfile
 FROM nginx:alpine
-COPY dist/portal /usr/share/nginx/html
+COPY dist/pages /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
