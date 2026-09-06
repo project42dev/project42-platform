@@ -1,0 +1,9 @@
+# The inherited curriculum is hash-locked, so its bytes must survive a
+# checkout unchanged. Without this, git rewrites line endings on Windows and a
+# fresh clone fails `npm run content:check` having changed nothing -- the lock
+# reporting a "difference" that is only a checkout artefact.
+#
+# scripts/sync-upstream.mjs also normalises line endings before hashing every
+# text form the curriculum uses. Both, deliberately: the normaliser keeps an
+# existing clone honest, and this keeps the working tree byte-exact.
+upstream/** -text

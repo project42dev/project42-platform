@@ -547,12 +547,15 @@ async function create(name, flags) {
   await cp(path.join(templateRoot, "frontend"), frontendRoot, { recursive: true });
   await cp(path.join(templateRoot, "content"), contentRoot, { recursive: true });
   // npm refuses to publish a file literally named .gitignore inside a package,
-  // so the template carries it as "gitignore" and it is renamed on the way out.
+  // so the template carries these without their leading dot and they are
+  // renamed on the way out.
   for (const root of [frontendRoot, contentRoot]) {
-    const staged = path.join(root, "gitignore");
-    if (await exists(staged)) {
-      await cp(staged, path.join(root, ".gitignore"));
-      await rm(staged);
+    for (const dotfile of ["gitignore", "gitattributes"]) {
+      const staged = path.join(root, dotfile);
+      if (await exists(staged)) {
+        await cp(staged, path.join(root, `.${dotfile}`));
+        await rm(staged);
+      }
     }
   }
   await substituteTree(frontendRoot, replacements);

@@ -53,7 +53,23 @@ const SYNCED_ENTRIES = [
   "training",
 ];
 
-const TEXT_EXTENSIONS = [".json", ".md", ".mmd", ".svg", ".csv", ".txt", ".yaml", ".yml"];
+// Every text form the curriculum is authored in. An extension missing from
+// this list is hashed as raw bytes, so on a platform where git rewrites line
+// endings on checkout a fresh clone fails its own lock check having changed
+// nothing -- which is how ".vtt" was found: 40 caption files, 41 differences,
+// on the first clean checkout anyone made on Windows.
+const TEXT_EXTENSIONS = [
+  ".csv",
+  ".json",
+  ".md",
+  ".mmd",
+  ".py",
+  ".svg",
+  ".txt",
+  ".vtt",
+  ".yaml",
+  ".yml",
+];
 
 function assertInside(parent, target) {
   const relative = path.relative(parent, target);
