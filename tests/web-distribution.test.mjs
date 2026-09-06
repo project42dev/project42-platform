@@ -603,3 +603,29 @@ test("the scaffold approves the install scripts its own build depends on", () =>
     );
   }
 });
+
+test("no client component pulls the whole catalogue into the browser", () => {
+  // The progress API reads eight fields from the catalogue. A client component
+  // that imports lib/catalog to get them ships every module body, knowledge
+  // check and source list with them -- 1.3 MB the browser downloads and never
+  // renders, and the largest single chunk in the bundle. lib/progressCatalog
+  // is the generated shape-without-content they read instead.
+  //
+  // This is a direct-import check. It cannot see a client component reaching
+  // the catalogue through an intermediate module, which is what the
+  // performance budget in a consuming repository is for; what it does catch is
+  // the easy regression, which is someone adding the obvious import back.
+  const offenders = [];
+  for (const relative of walk(webDir)) {
+    if (!/\.(ts|tsx)$/.test(relative)) continue;
+    if (relative.startsWith("template/") || relative.startsWith("tests/")) continue;
+    const text = readFileSync(path.join(webDir, relative), "utf8");
+    if (!/^\s*["']use client["']/m.test(text)) continue;
+    if (/from "[^"]*\/lib\/catalog"/.test(text)) offenders.push(relative);
+  }
+  assert.deepEqual(
+    offenders,
+    [],
+    "client components must read lib/progressCatalog, not the full catalogue",
+  );
+});

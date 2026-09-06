@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { siteCatalog } from "../../lib/catalog";
+import { progressCatalog } from "../../lib/progressCatalog";
 import { useProgress } from "./ProgressProvider";
 
 export function ProgressSnapshot() {
   const { progress, hydrated } = useProgress();
   const completed = progress.completedModuleIds.length;
-  const total = siteCatalog.modules.length;
+  const total = progressCatalog.modules.length;
   const recentModule = progress.recentModule
-    ? siteCatalog.modules.find(
+    ? progressCatalog.modules.find(
       (module) => module.id === progress.recentModule?.moduleId,
     )
     : undefined;

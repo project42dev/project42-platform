@@ -8,7 +8,7 @@ import {
   restorePortableLearnerRecord,
   serializePortableLearnerRecord,
 } from "@project42/platform";
-import { siteCatalog } from "../../lib/catalog";
+import { progressCatalog } from "../../lib/progressCatalog";
 import Link from "next/link";
 import { useMemo, useState, type ChangeEvent } from "react";
 import { clientCrossDomainHref } from "../lib/subdomainLinks";
@@ -37,22 +37,22 @@ export function ProfileDashboard() {
   const [transcriptDownloadPending, setTranscriptDownloadPending] =
     useState(false);
   const transcript = useMemo(
-    () => buildTranscript(siteCatalog, progress),
+    () => buildTranscript(progressCatalog, progress),
     [progress],
   );
   const assessmentHistory = useMemo(
-    () => buildAssessmentHistory(siteCatalog, progress),
+    () => buildAssessmentHistory(progressCatalog, progress),
     [progress],
   );
   const capstoneHistory = useMemo(
-    () => buildCapstoneHistory(siteCatalog, progress),
+    () => buildCapstoneHistory(progressCatalog, progress),
     [progress],
   );
   const exportDate = new Date().toISOString().slice(0, 10);
   const authoritativeAccountTranscript = account?.state === "approved";
 
   const downloadRecord = () => {
-    const record = buildPortableLearnerRecord(siteCatalog, progress);
+    const record = buildPortableLearnerRecord(progressCatalog, progress);
     downloadTextFile(
       `project-42-learning-record-${exportDate}.json`,
       serializePortableLearnerRecord(record),
@@ -144,7 +144,7 @@ export function ProfileDashboard() {
 
     try {
       const parsed: unknown = JSON.parse(await file.text());
-      const restored = restorePortableLearnerRecord(parsed, siteCatalog);
+      const restored = restorePortableLearnerRecord(parsed, progressCatalog);
       if (!restored.valid) {
         setImportStatus({
           kind: "error",
