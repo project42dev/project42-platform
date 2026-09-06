@@ -4,6 +4,78 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.104.2] - 2026-09-06
+
+### Added
+
+- Lesson pages carry a forward step. Both the written and the on-demand tracks
+  end in a pager naming the previous and next module, rendered on the server so
+  it is present whether or not the learner takes the knowledge check. The
+  on-demand pager mirrors the rail's filmed-versus-written logic, and the last
+  module in a path says so and returns to the path rather than showing nothing.
+- Resource pages offer related reading from the same category and a way back to
+  the Field Guide. A reader who finished one previously had two internal links
+  in the whole `<main>`, both of them navigation chrome.
+- Visual-guide pages link to the neighbouring guides. `.diagram-next` was a
+  `<nav aria-label="More visual guides">` containing a single back link.
+
+### Changed
+
+- Every internal link is emitted in its canonical trailing-slash form. The site
+  publishes each route as `<route>/index.html`, so the host answered every
+  slashless link with a 301, and the Pages export's static-navigation shim
+  turned each internal click into a full document load that paid it. Set
+  through `next.config.ts`; the four places that setting does not reach --
+  `clientCrossDomainHref`, the retired-path redirect targets, `sitemap.ts`, and
+  one raw anchor in a `<video>` fallback -- are corrected at their own source.
+  Measured on the exported artifact: 425 non-canonical links before, 0 after.
+- `/guide/` renders 24 resource cards with a control for the rest, rather than
+  all 91 on load. This removes 72 KB of markup and the layout cost of 67 cards;
+  the page's remaining 376 KB is the script payload the browser-side filtering
+  needs, which this does not address.
+- The Field Guide links resources at `/guide/resources/<id>` and the home page
+  links visual guides at `/guide/diagrams/`, matching what `sitemap.ts` has
+  always published as canonical. The previously published `/resources/<id>` and
+  `/diagrams/` forms still serve, and now declare their canonical URL.
+- Learning-path numbers on `/learn/paths/` count within the focus area they are
+  displayed in rather than within the flat catalogue, which rendered 11 and 13
+  as the first two entries of Focus Area 01.
+- `/learn/` no longer repeats the home page below its chooser.
+
+### Fixed
+
+- `galactic-conformance.spec.ts` asserted one theme's palette as raw colour
+  literals, so a required gate failed every other theme by construction and the
+  scaffold template had to default to `06-galactic-guide`. Expected values now
+  come from the selected bundle's `theme.json`, following a `var(--p42-*)`
+  alias where one is declared, and the heading typeface is read from
+  `--p42-font-heading`. The assertions remain exact colour matches; the site
+  header, which a bundle may compose, is asserted to be opaque and to composite
+  to a surface the theme declares.
+- The link-integrity crawler fetched routes in the slashless form. Once routes
+  answered `308` for that form, every route returned no `text/html` body, so
+  the crawler extracted zero references from all 338 of them and still reported
+  success. It requests the canonical form now, and fails when an inventory
+  route answers anything but `200` or serves no HTML, so a gate covering 22,010
+  references cannot silently come to cover none.
+- `/resources/<id>` and `/guide/resources/<id>` were byte-identical files
+  maintained in parallel. The previously published route re-exports the
+  canonical one.
+- Three of 91 resource cards printed their category twice, because format and
+  category coincide for a Reference in the Reference category.
+- `.ondemand-status`, `.lesson-video-note` and `.lesson-preview-video`
+  hardcoded radii, so a layout switch could not move them.
+- A freshly cloned content repository failed its own `content:check` on
+  Windows having changed nothing. `.vtt` was missing from the extensions the
+  hash normaliser treats as text, so git's line-ending conversion on checkout
+  made 40 caption files look like 41 curriculum differences. The list now
+  covers every text form the curriculum is authored in, and the content
+  scaffold ships a `.gitattributes` marking `upstream/**` as not-text so the
+  bytes the lock covers survive a checkout unchanged. The same list in the
+  platform's own `scripts/sync-content.mjs` is corrected with it.
+- `project42-portal create` renames `gitattributes` as well as `gitignore` on
+  the way out, since npm will not publish either under its real name.
+
 ## [0.104.1] - 2026-09-06
 
 ### Fixed
