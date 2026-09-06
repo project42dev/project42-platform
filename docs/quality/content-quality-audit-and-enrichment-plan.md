@@ -56,7 +56,7 @@ The audit confirms the user's critical observation: **the existing curriculum is
 
 ## 4. Track 2 Content Enrichment Execution Plan
 
-We will leverage Orchard's 5-model authoring ensemble to enrich and upgrade the 74 modules in structured batches:
+We will use the upstream maintenance system's multi-model authoring ensemble to enrich and upgrade the 74 modules in structured batches. Nothing it drafts reaches a learner without the human approval gates described in [how the curriculum stays current](../how-content-stays-current.md):
 
 1. **Batch 1 (AI Foundations & Prompt Architecture - 16 Modules):**
    - Inject rich technical text, structured prompt schemas, and interactive token-counting exercises.

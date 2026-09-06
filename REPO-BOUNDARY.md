@@ -5,7 +5,9 @@ and where to look instead. It exists because two codebases ended up in the
 wrong repositories, and both got there through a directory convention that
 nobody enforced.
 
-Governing decision: **ADR-0017**, Orchard and the Foundry layer separation.
+The content-maintenance tooling is a separate repository, and the model layer
+is a read-only dependency of it. See
+[how the curriculum stays current](docs/how-content-stays-current.md).
 
 ## What this is
 
@@ -19,15 +21,14 @@ Governing decision: **ADR-0017**, Orchard and the Foundry layer separation.
 |---|---|---|
 | **Private planning, PMO material, or board records** | This repository is public. | `project42dev-ops`, which is private |
 | **Infrastructure definitions** | The platform is consumed as a package; it does not provision anything. | `homestead-foundry`, or the adopter's own infrastructure repo |
-| **The tooling that builds content** | A content library that ships its own authoring tool cannot be adopted by anyone with different tooling. | `orchard` |
+| **The tooling that builds content** | A content library that ships its own authoring tool cannot be adopted by anyone with different tooling. | The upstream maintenance system's own repository |
 | **Secrets, tenant names, subscription ids, keys, vault names** | Public repository. | The operator's own secret store |
 
 ## A note on the content files
 
-The content files here are the **source of truth**. Orchard compiles them into
-a queryable database, and that database is derived: it can be deleted and
-rebuilt from a checkout at any time. Two tables inside it are not derived and
-do not live here, `work_item` and `rendering`. See ADR-0019.
+The content files here are the **source of truth**. Anything the upstream
+maintenance system derives from them is derived: it can be deleted and rebuilt
+from a checkout at any time, and it does not live here.
 
 Every content item must carry `lastVerified` and `reviewCadenceDays`. An item
 without them cannot be stale, so it drops silently out of every staleness
@@ -38,11 +39,11 @@ count and the totals look healthy. That was true of all 66 Learn modules until
 
 | Looking for | It lives in |
 |---|---|
-| The content lifecycle tool: discovery, authoring, currency | `orchard` |
+| The content maintenance tool: discovery, authoring, currency | Its own repository, operated by the owner and not part of the open-source product. Its method is described in [how the curriculum stays current](docs/how-content-stays-current.md) |
 | The public marketing and entry surface | `project-42.dev` |
-| The Learn delivery surface | `learn.project-42.dev` |
-| The Field Guide delivery surface | `guide.project-42.dev` |
-| Learner account and profile | `account.project-42.dev` |
+| The Learn delivery surface | `project-42.dev`, under `/learn/**` |
+| The Field Guide delivery surface | `project-42.dev`, under `/guide/**` |
+| Learner account and profile | `project-42.dev`, under the account routes |
 | Owner administration | `admin.project-42.dev` |
 | Planning, sprints, ADRs, board records | `project42dev-ops`, private |
 | An Azure AI Foundry deployment framework | `homestead-foundry` |

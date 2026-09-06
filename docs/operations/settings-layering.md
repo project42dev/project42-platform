@@ -57,7 +57,7 @@ For the fastest path to reducing permission prompts in your own session, run `/f
 
 Hooks are lifecycle callbacks — shell scripts that run at specific events. They are registered in `.claude/settings.json` under the `hooks` key.
 
-For the full authoring guide see [`learning-path/04-power-user/03-hooks.md`](../../learning-path/04-power-user/03-hooks.md). This section only covers the settings-level registration.
+A full hook-authoring guide is not published in this repository; the nearest published material is [`docs/concepts/skills-mcp-hooks.md`](../concepts/skills-mcp-hooks.md). This section only covers the settings-level registration.
 
 Example hook registration:
 
@@ -146,6 +146,6 @@ Local overrides win over project and user settings for the same key.
 
 ## Related
 
-- [`learning-path/04-power-user/03-hooks.md`](../../learning-path/04-power-user/03-hooks.md) — full hook authoring guide
+- [`docs/concepts/skills-mcp-hooks.md`](../concepts/skills-mcp-hooks.md) — what hooks are, alongside skills and MCP
 - [`docs/concepts/subagent-roster-design.md`](../concepts/subagent-roster-design.md) — where to place agents across the three tiers
-- [`guides/custom-slash-commands.md`](../../guides/custom-slash-commands.md) — slash command scope follows the same user vs. project rules
+- Slash-command scope follows the same user vs. project rules described above. A dedicated custom-slash-commands guide is not published in this repository.

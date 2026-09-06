@@ -1,9 +1,9 @@
 # Legal and transparency requirements
 
-> **Orchard deployment reality: see [How Orchard works](../../docs/design/orchard-two-track/how-orchard-works.md).**
-> Verified 2026-08-13. The discovery engine has no schedule and ends by
-> opening a GitHub issue. **Approvals ARE read, by a mechanism the design forbids** (see below). Item gates, ADO binding, publication and live verification are
-> designed and not built.
+> **Content-maintenance reality: see [how the curriculum stays current](../how-content-stays-current.md).**
+> That page is the public account of the method, the human approval gates, and
+> an explicit list of the parts that are designed and not built. No transparency
+> claim published on a live page may exceed what that page states.
 
 **Status:** Draft; qualified legal review required before publication  
 **ADO:** AB#6186–AB#6190  

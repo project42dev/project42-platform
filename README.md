@@ -541,7 +541,8 @@ const policyCheck = validateLearnerDataPolicy(defaultLearnerDataPolicy);
 
 - Public hosted application: `project42dev/project-42.dev`
 - Private operations and planning: `project42dev/project42dev-ops`
-- Transitional site: `project42dev/project42dev.github.io`
+- Transitional site: `project42dev/project42dev.github.io` — retired; a
+  preserved archive, not a canonical source
 
 ## Licensing
 
