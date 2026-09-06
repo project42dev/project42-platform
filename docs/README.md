@@ -18,7 +18,7 @@ is a separate decision.
 | Connect a tool or an editor | [tools/](tools/) |
 | Operate a deployment | [operations/](operations/) |
 | Know why something is built the way it is | [decisions/](decisions/) |
-| Understand Orchard, the content lifecycle engine | [orchard/](orchard/README.md) |
+| Understand how the curriculum stays current | [how-content-stays-current.md](how-content-stays-current.md) |
 | Build against the contracts | the contract pages below |
 | Get going quickly | [getting-started.md](getting-started.md) |
 
@@ -55,17 +55,17 @@ them as a breaking change until proven otherwise.
 - [virtual-instructor-production.md](virtual-instructor-production.md)
 - [training/](training/)
 
-## Orchard
+## How the curriculum stays current
 
-Orchard is the content lifecycle engine, a separate open-source tool and a core
-part of Project 42. **What it is and what it does are documented here**, in
-[orchard/](orchard/README.md): status, lifecycle, workflow orchestration,
-decisions, and thirteen decision records.
+Curriculum is discovered, re-verified, and kept current by an automated
+maintenance system that the project owner operates. **That system is not part
+of the open-source product and its internals are not documented here.**
 
-**How to deploy and run it stays with the code**, in
-[github.com/project42dev/orchard](https://github.com/project42dev/orchard).
-That is the line throughout this repository: what a thing is lives here, how to
-operate it lives beside the code the operator is running.
+What is documented here is everything a learner or an adopter needs in order to
+judge and use the material: the method, the vetted source registry, the human
+approval gates that stand between a model and a learner, how freshness is
+recorded and enforced, and what none of it guarantees. See
+[how-content-stays-current.md](how-content-stays-current.md).
 
 ## What is deliberately not here
 

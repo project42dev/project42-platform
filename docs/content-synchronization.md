@@ -57,11 +57,17 @@ Runs automatically on Sundays at midnight UTC (`0 0 * * 0`) in GitHub Actions (`
 ### Vector 2: Manual UI Trigger
 Operators can trigger an instant content pull and build by clicking **Run workflow** under the **Content Sync & Deployment** tab in GitHub Actions.
 
-### Vector 3: Event-Driven Orchard Webhook
-When Orchard finishes an authoring run, it dispatches a repository event
-(`content_updated`) to trigger immediate ingestion and deployment. This is the
-handoff point: Orchard's responsibility ends when it has dropped content into
-`project42-content` and fired this event.
+### Vector 3: Event-Driven Upstream Webhook
+When the upstream maintenance system finishes an authoring run, it dispatches a
+repository event (`content_updated`) to trigger immediate ingestion and
+deployment. This is the handoff point: that system's responsibility ends when it
+has dropped content into `project42-content` and fired this event. Everything
+after the event is this repository's job.
+
+That maintenance system is operated by the project owner and is not part of the
+open-source product. For what it does, where material is sourced from, and who
+approves it before it reaches a learner, see
+[how the curriculum stays current](how-content-stays-current.md).
 
 ---
 

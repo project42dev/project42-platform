@@ -41,7 +41,7 @@ Project 42 separates curriculum intelligence, content storage, and presentation 
 ## Key Architectural Principles
 
 1. **The "Content Drop" Boundary**:
-   - Upstream maintenance (Orchard) is strictly responsible for researching, drafting, and dropping validated JSON/Markdown content into the content repository.
+   - Upstream maintenance (Orchard) is strictly responsible for researching, drafting, and dropping validated JSON/Markdown content into the content repository. It is operated by the project owner, is not part of the open-source product, and its internals are not documented in this repository. The method it follows, and the human approval gates every item passes through, are described in [how the curriculum stays current](how-content-stays-current.md).
    - Downstream presentation engines are responsible for layout, routing, theming, and hosting.
 
 2. **Unified Single-Origin Web Experience**:
