@@ -4,10 +4,10 @@ import { expect, test, type Page } from "@playwright/test";
 import {
   buildTranscriptCsv,
   createEmptyProgress,
-  starterCatalog,
   type LearnerProgress,
   type LearningModule,
 } from "@project42/platform";
+import { siteCatalog } from "../../lib/catalog";
 import { readFile } from "node:fs/promises";
 
 // The account API origin comes from the environment OR from
@@ -73,7 +73,7 @@ async function installJourneyApi(page: Page) {
         },
         body:
           '"schema_version","record_authority","record_type"\r\n' +
-          buildTranscriptCsv(starterCatalog, serverProgress),
+          buildTranscriptCsv(siteCatalog, serverProgress),
       });
       return;
     }
@@ -91,10 +91,10 @@ const providerPathIds = [
   "google-gemini-practice",
 ] as const;
 
-const openAIPath = starterCatalog.paths.find(
+const openAIPath = siteCatalog.paths.find(
   (candidate) => candidate.id === "openai-practice",
 );
-const comparisonPath = starterCatalog.paths.find(
+const comparisonPath = siteCatalog.paths.find(
   (candidate) => candidate.id === "providers-in-practice",
 );
 
@@ -102,7 +102,7 @@ if (!openAIPath) throw new Error("OpenAI practice path is missing");
 if (!comparisonPath) throw new Error("Provider comparison path is missing");
 
 const openAIModules = openAIPath.moduleIds.map((moduleId) => {
-  const learningModule = starterCatalog.modules.find(
+  const learningModule = siteCatalog.modules.find(
     (candidate) => candidate.id === moduleId,
   );
   if (!learningModule) throw new Error(`Missing module ${moduleId}`);
@@ -145,7 +145,7 @@ test("renders provider routes and completes an accessible OpenAI journey", async
   await installJourneyApi(page);
 
   for (const pathId of providerPathIds) {
-    const path = starterCatalog.paths.find((candidate) => candidate.id === pathId);
+    const path = siteCatalog.paths.find((candidate) => candidate.id === pathId);
     if (!path) throw new Error(`Missing provider path ${pathId}`);
     expect(path.moduleIds.length).toBeGreaterThanOrEqual(7);
     await page.goto(`/learn/${path.id}`);
@@ -156,7 +156,7 @@ test("renders provider routes and completes an accessible OpenAI journey", async
     await expectNoAutomatedAccessibilityViolations(page);
   }
 
-  const comparisonModule = starterCatalog.modules.find(
+  const comparisonModule = siteCatalog.modules.find(
     (candidate) => candidate.id === "compare-provider-capabilities",
   );
   if (!comparisonModule?.comparisonMatrix) {
@@ -279,7 +279,7 @@ test("renders provider routes and completes an accessible OpenAI journey", async
   const jsonPath = await jsonDownload.path();
   if (!jsonPath) throw new Error("JSON download path is unavailable");
   const record = JSON.parse(await readFile(jsonPath, "utf8"));
-  expect(record.catalogVersion).toBe(starterCatalog.contentVersion);
+  expect(record.catalogVersion).toBe(siteCatalog.contentVersion);
   expect(record.learner.completedModuleIds).toHaveLength(openAIModules.length);
   expect(record.learner.attempts).toHaveLength(openAIModules.length);
   expect(record.learner.badges.map((badge: { id: string }) => badge.id)).toContain(

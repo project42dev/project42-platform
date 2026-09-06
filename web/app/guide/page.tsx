@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { starterCatalog } from "@project42/platform";
+import { siteCatalog } from "../../lib/catalog";
 import { ResourceExplorer } from "../components/ResourceExplorer";
 import { ContentUseNotice } from "../components/ContentUseNotice";
 import { orgName } from "../../lib/copy";
@@ -25,7 +25,7 @@ export default function FieldGuideHome() {
         </p>
       </header>
       <ContentUseNotice artifact="resource" />
-      <ResourceExplorer asOf={asOf} resources={starterCatalog.resources} />
+      <ResourceExplorer asOf={asOf} resources={siteCatalog.resources} />
     </main>
   );
 }

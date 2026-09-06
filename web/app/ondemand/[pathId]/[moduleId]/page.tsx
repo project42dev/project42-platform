@@ -3,10 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   getClassScriptPackage,
-  getLearningModule,
-  getLearningPath,
 } from "@project42/platform";
+import { getLearningModule, getLearningPath } from "../../../../lib/catalog";
 import { KnowledgeCheck } from "../../../components/KnowledgeCheck";
+import { LessonPager } from "../../../components/LessonPager";
 import { ModuleVisitTracker } from "../../../components/ModuleVisitTracker";
 import { ProviderPills } from "../../../components/ProviderPills";
 import {
@@ -70,6 +70,16 @@ export default async function OnDemandLessonPage({ params }: LessonPageProps) {
     ? getInstructorRendering(nextModuleId)
       ? `/ondemand/${path.id}/${nextModuleId}`
       : `/learn/${path.id}/${nextModuleId}`
+    : undefined;
+  const nextModule = nextModuleId ? getLearningModule(nextModuleId) : undefined;
+  const previousModuleId = position > 0 ? path.moduleIds[position - 1] : undefined;
+  const previousModule = previousModuleId
+    ? getLearningModule(previousModuleId)
+    : undefined;
+  const previousHref = previousModuleId
+    ? getInstructorRendering(previousModuleId)
+      ? `/ondemand/${path.id}/${previousModuleId}`
+      : `/learn/${path.id}/${previousModuleId}`
     : undefined;
 
   const spokenSegments = classScript.segments.filter(
@@ -244,6 +254,29 @@ export default async function OnDemandLessonPage({ params }: LessonPageProps) {
             pathId={path.id}
             questions={lessonModule.knowledgeCheck.questions}
             requiresCapstone={Boolean(lessonModule.capstone)}
+          />
+
+          <LessonPager
+            next={
+              nextHref && nextModule
+                ? {
+                    href: nextHref,
+                    title: nextModule.title,
+                    writtenOnly: !getInstructorRendering(nextModule.id),
+                  }
+                : undefined
+            }
+            pathHref="/ondemand"
+            pathTitle="the on-demand classroom"
+            previous={
+              previousHref && previousModule
+                ? {
+                    href: previousHref,
+                    title: previousModule.title,
+                    writtenOnly: !getInstructorRendering(previousModule.id),
+                  }
+                : undefined
+            }
           />
         </article>
 

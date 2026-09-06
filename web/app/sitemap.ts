@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { starterCatalog } from "@project42/platform";
+import { siteCatalog } from "../lib/catalog";
 import { diagramCatalog } from "./lib/diagrams";
 import { instructorRenderings } from "./lib/instructorMedia";
 import { canonicalOrigin } from "../lib/copy";
@@ -22,14 +22,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/platform",
     "/support",
     "/legal-transparency",
-    ...starterCatalog.paths.map((path) => `/learn/${path.id}`),
-    ...starterCatalog.paths.flatMap((path) =>
+    ...siteCatalog.paths.map((path) => `/learn/${path.id}`),
+    ...siteCatalog.paths.flatMap((path) =>
       path.moduleIds.map((moduleId) => `/learn/${path.id}/${moduleId}`),
     ),
     ...instructorRenderings.map(
       (rendering) => `/ondemand/${rendering.pathId}/${rendering.moduleId}`,
     ),
-    ...starterCatalog.resources.map(
+    ...siteCatalog.resources.map(
       (resource) => `/guide/resources/${resource.id}`,
     ),
     ...diagramCatalog.map((diagram) => `/guide/diagrams/${diagram.id}`),

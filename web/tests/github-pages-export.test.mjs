@@ -5,8 +5,8 @@ import path from "node:path";
 import test from "node:test";
 import {
   defaultLearnerDataPolicy,
-  starterCatalog,
 } from "@project42/platform";
+import siteCatalog from "../lib/siteCatalog.generated.json" with { type: "json" };
 import {
   buildRetiredRouteRedirects,
   buildRouteInventory,
@@ -25,7 +25,7 @@ const projectRoot = path.resolve(import.meta.dirname, "..");
 const outputRoot = path.join(projectRoot, "dist", "pages");
 
 test("exports every governed route for GitHub Pages", async () => {
-  const inventory = buildRouteInventory(starterCatalog);
+  const inventory = buildRouteInventory(siteCatalog);
   const manifest = JSON.parse(
     await readFile(path.join(outputRoot, "pages-manifest.json"), "utf8"),
   );
@@ -47,7 +47,7 @@ test("keeps previously published learning-path URLs alive in the artifact", asyn
   // cannot send a status code, so the export writes the same meta-refresh
   // document the retired Admin routes get. Without this the Pages copy would
   // still 404 on every URL the redirect map exists to rescue.
-  const redirects = buildRetiredRouteRedirects(starterCatalog);
+  const redirects = buildRetiredRouteRedirects(siteCatalog);
   const manifest = JSON.parse(
     await readFile(path.join(outputRoot, "pages-manifest.json"), "utf8"),
   );

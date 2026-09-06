@@ -1,4 +1,4 @@
-import { getLearningPath } from "@project42/platform";
+import { getLearningPath } from "../../lib/catalog";
 import retiredPathConfig from "../../config/retired-learning-paths.json";
 
 // Learning path IDs the catalogue used to publish.

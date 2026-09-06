@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import {
-  getLearningModule,
-  getLearningPath,
-  starterCatalog,
-} from "@project42/platform";
+import { getLearningModule, getLearningPath, siteCatalog } from "../../../../lib/catalog";
 import { CapstoneSubmission } from "../../../components/CapstoneSubmission";
 import { KnowledgeCheck } from "../../../components/KnowledgeCheck";
 import { LearningActivity } from "../../../components/LearningActivity";
+import { LessonPager } from "../../../components/LessonPager";
 import { LessonSections } from "../../../components/LessonSections";
 import { ModuleVisitTracker } from "../../../components/ModuleVisitTracker";
 import { ProviderComparisonMatrix } from "../../../components/ProviderComparisonMatrix";
@@ -21,7 +18,7 @@ interface ModulePageProps {
 
 export function generateStaticParams() {
   return [
-    ...starterCatalog.paths.flatMap((path) =>
+    ...siteCatalog.paths.flatMap((path) =>
       path.moduleIds.map((moduleId) => ({ pathId: path.id, moduleId })),
     ),
     ...retiredLearningPaths.flatMap((entry) =>
@@ -55,9 +52,14 @@ export default async function ModulePage({ params }: ModulePageProps) {
   const position = path.moduleIds.indexOf(lessonModule.id);
   const nextModuleId = path.moduleIds[position + 1];
   const nextHref = nextModuleId ? `/learn/${path.id}/${nextModuleId}` : undefined;
+  const nextModule = nextModuleId ? getLearningModule(nextModuleId) : undefined;
+  const previousModuleId = position > 0 ? path.moduleIds[position - 1] : undefined;
+  const previousModule = previousModuleId
+    ? getLearningModule(previousModuleId)
+    : undefined;
   const prerequisites = lessonModule.prerequisites.flatMap((prerequisiteId) => {
     const prerequisite = getLearningModule(prerequisiteId);
-    const prerequisitePath = starterCatalog.paths.find((candidate) =>
+    const prerequisitePath = siteCatalog.paths.find((candidate) =>
       candidate.moduleIds.includes(prerequisiteId),
     );
     return prerequisite && prerequisitePath
@@ -163,6 +165,24 @@ export default async function ModulePage({ params }: ModulePageProps) {
             pathId={path.id}
             questions={lessonModule.knowledgeCheck.questions}
             requiresCapstone={Boolean(lessonModule.capstone)}
+          />
+
+          <LessonPager
+            next={
+              nextHref && nextModule
+                ? { href: nextHref, title: nextModule.title }
+                : undefined
+            }
+            pathHref={`/learn/${path.id}`}
+            pathTitle={path.title}
+            previous={
+              previousModuleId && previousModule
+                ? {
+                    href: `/learn/${path.id}/${previousModuleId}`,
+                    title: previousModule.title,
+                  }
+                : undefined
+            }
           />
         </article>
 

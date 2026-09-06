@@ -2,7 +2,10 @@ import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { instructorRenderings as curriculumRenderings, starterCatalog } from "@project42/platform";
+import {
+  instructorRenderings as curriculumRenderings,
+} from "@project42/platform";
+import siteCatalog from "../lib/siteCatalog.generated.json" with { type: "json" };
 import diagramConfig from "../node_modules/@project42/platform/content/diagrams/catalogue.json" with { type: "json" };
 import diagramOverrides from "../config/diagram-catalog-overrides.json" with { type: "json" };
 import retiredPathConfig from "../config/retired-learning-paths.json" with { type: "json" };
@@ -67,7 +70,7 @@ const mergedDiagrams = [...new Map(
 // 200. They are still part of the published surface, so the export has to write
 // something for each of them rather than leaving a hole where a page was.
 export function buildRetiredRouteRedirects(
-  catalog = starterCatalog,
+  catalog = siteCatalog,
   retired = retiredPathConfig.retired,
   catalogueIndex = retiredPathConfig.catalogueIndex,
 ) {
@@ -103,7 +106,7 @@ const servedRenderings = curriculumRenderings.filter((rendering) =>
 );
 
 export function buildRouteInventory(
-  catalog = starterCatalog,
+  catalog = siteCatalog,
   diagrams = mergedDiagrams,
   instructorRenderings = servedRenderings,
 ) {
@@ -603,7 +606,7 @@ async function loadExceptions(exceptionsPath = defaultExceptionsPath) {
 }
 
 export async function runLinkIntegrityCheck({
-  catalog = starterCatalog,
+  catalog = siteCatalog,
   loadRoute,
   exceptions,
   staticRoot = defaultStaticRoot,

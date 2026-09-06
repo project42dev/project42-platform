@@ -4,10 +4,10 @@ import { expect, test, type Page } from "@playwright/test";
 import {
   buildTranscriptCsv,
   createEmptyProgress,
-  starterCatalog,
   type LearnerProgress,
   type LearningModule,
 } from "@project42/platform";
+import { siteCatalog } from "../../lib/catalog";
 import { readFile } from "node:fs/promises";
 
 // The account API origin comes from the environment OR from
@@ -73,7 +73,7 @@ async function installJourneyApi(page: Page) {
         },
         body:
           '"schema_version","record_authority","record_type"\r\n' +
-          buildTranscriptCsv(starterCatalog, serverProgress),
+          buildTranscriptCsv(siteCatalog, serverProgress),
       });
       return;
     }
@@ -85,14 +85,14 @@ async function installJourneyApi(page: Page) {
   });
 }
 
-const path = starterCatalog.paths.find(
+const path = siteCatalog.paths.find(
   (candidate) => candidate.id === "reliable-agent-workflows",
 );
 
 if (!path) throw new Error("Reliable Agent Workflows path is missing");
 
 const modules = path.moduleIds.map((moduleId) => {
-  const learningModule = starterCatalog.modules.find(
+  const learningModule = siteCatalog.modules.find(
     (candidate) => candidate.id === moduleId,
   );
   if (!learningModule) throw new Error(`Missing module ${moduleId}`);

@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createEmptyProgress, starterCatalog } from "@project42/platform";
+import {
+  createEmptyProgress,
+} from "@project42/platform";
+import siteCatalog from "../lib/siteCatalog.generated.json" with { type: "json" };
 import {
   deviceLocalProgressKey,
   deviceLocalProgressQuarantineKey,
@@ -22,12 +25,12 @@ class MemoryStorage {
 test("returns a fully validated compatible progress record", () => {
   const storage = new MemoryStorage();
   const progress = createEmptyProgress("Device learner");
-  progress.startedPathIds = [starterCatalog.paths[0].id];
+  progress.startedPathIds = [siteCatalog.paths[0].id];
   storage.setItem(deviceLocalProgressKey, JSON.stringify(progress));
 
   const result = readDeviceLocalProgress(
     storage,
-    starterCatalog,
+    siteCatalog,
     "2026-07-29T12:00:00.000Z",
   );
 
@@ -46,7 +49,7 @@ test("quarantines a future schema without changing the source record", () => {
 
   const result = readDeviceLocalProgress(
     storage,
-    starterCatalog,
+    siteCatalog,
     "2026-07-29T12:00:00.000Z",
   );
 
@@ -87,7 +90,7 @@ test("quarantines malformed JSON and catalog-incompatible evidence losslessly", 
 
     const result = readDeviceLocalProgress(
       storage,
-      starterCatalog,
+      siteCatalog,
       "2026-07-29T12:00:00.000Z",
     );
 
@@ -113,7 +116,7 @@ test("leaves the source intact when quarantine storage is unavailable", () => {
 
   const result = readDeviceLocalProgress(
     storage,
-    starterCatalog,
+    siteCatalog,
     "2026-07-29T12:00:00.000Z",
   );
 

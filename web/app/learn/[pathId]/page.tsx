@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { getLearningModule, getLearningPath, starterCatalog } from "@project42/platform";
+import { getLearningModule, getLearningPath, siteCatalog } from "../../../lib/catalog";
 import { PathModuleList } from "../../components/PathModuleList";
 import { retiredLearningPaths, retiredPathTarget } from "../../lib/retiredPaths";
 
@@ -11,7 +11,7 @@ interface PathPageProps {
 
 export function generateStaticParams() {
   return [
-    ...starterCatalog.paths.map((path) => ({ pathId: path.id })),
+    ...siteCatalog.paths.map((path) => ({ pathId: path.id })),
     // Retired IDs are prerendered too, so the redirect belongs to the built
     // artifact rather than being something only a live server can answer.
     ...retiredLearningPaths.map((entry) => ({ pathId: entry.pathId })),

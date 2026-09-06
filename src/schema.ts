@@ -241,6 +241,14 @@ export interface CatalogMetadata {
     description: string;
   }>;
   focusAreas?: FocusArea[];
+  // Present on a catalogue a downstream content repository publishes: the
+  // upstream contentVersion and commit its own material was layered on to, so
+  // provenance survives the merge. Absent on the canonical catalogue, which
+  // inherits from nothing.
+  inheritedFrom?: {
+    contentVersion: string;
+    commit: string;
+  };
 }
 
 export interface LearningCatalog extends CatalogMetadata {

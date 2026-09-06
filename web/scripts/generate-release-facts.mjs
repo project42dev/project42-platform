@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import { readFile, writeFile } from "node:fs/promises";
 import {
   defaultLearnerDataPolicy,
-  starterCatalog,
   validateLearnerDataPolicy,
 } from "@project42/platform";
+import siteCatalog from "../lib/siteCatalog.generated.json" with { type: "json" };
 import { assertReleaseFactsMatch } from "./release-facts-validation.mjs";
 
 const root = new URL("../", import.meta.url);
@@ -58,7 +58,7 @@ assert.equal(
   "The platform dependency tag and installed package version must match.",
 );
 
-const providers = starterCatalog.providers.map((provider) => ({
+const providers = siteCatalog.providers.map((provider) => ({
   id: provider.id,
   name: provider.name,
   description: provider.description,
@@ -78,17 +78,17 @@ const facts = {
   $schemaVersion: 1,
   siteVersion: packageMetadata.version,
   platformVersion: installedPlatform.version,
-  contentVersion: starterCatalog.contentVersion,
+  contentVersion: siteCatalog.contentVersion,
   counts: {
-    learningPaths: starterCatalog.paths.length,
-    assessedModules: starterCatalog.modules.length,
-    evidenceActivities: starterCatalog.modules.filter((module) => module.activity)
+    learningPaths: siteCatalog.paths.length,
+    assessedModules: siteCatalog.modules.length,
+    evidenceActivities: siteCatalog.modules.filter((module) => module.activity)
       .length,
-    reviewedQuestions: starterCatalog.modules.reduce(
+    reviewedQuestions: siteCatalog.modules.reduce(
       (total, module) => total + (module.knowledgeCheck?.questions.length ?? 0),
       0,
     ),
-    resources: starterCatalog.resources.length,
+    resources: siteCatalog.resources.length,
     providerScopes: providers.length,
     providerImplementations: providers.filter(
       (provider) => provider.id !== "provider-neutral",

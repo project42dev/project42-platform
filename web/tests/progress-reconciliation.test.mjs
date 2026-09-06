@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   createEmptyProgress,
-  starterCatalog,
 } from "@project42/platform";
+import siteCatalog from "../lib/siteCatalog.generated.json" with { type: "json" };
 import {
   buildProgressMigrationItems,
   buildProgressReconciliationPackage,
@@ -13,13 +13,13 @@ import {
 } from "../app/lib/progressMigration.ts";
 
 function progressRecords() {
-  const path = starterCatalog.paths[0];
+  const path = siteCatalog.paths[0];
   const [browserModuleId, accountModuleId] = path.moduleIds;
   const duplicateAttempt = {
     id: "shared-attempt",
     pathId: path.id,
     moduleId: browserModuleId,
-    contentVersion: starterCatalog.contentVersion,
+    contentVersion: siteCatalog.contentVersion,
     scorePercent: 100,
     passed: true,
     completedAt: "2026-07-29T01:00:00.000Z",
@@ -53,7 +53,7 @@ test("lists every browser record with an exact reconciliation disposition", () =
   const { account, browser, accountModuleId, browserModuleId, path } =
     progressRecords();
   const preview = createProgressMigrationPreview(browser, account);
-  const items = buildProgressMigrationItems(preview, starterCatalog);
+  const items = buildProgressMigrationItems(preview, siteCatalog);
 
   assert.deepEqual(
     items.map(({ kind, id, disposition }) => ({ kind, id, disposition })),
@@ -87,7 +87,7 @@ test("lists every browser record with an exact reconciliation disposition", () =
 test("builds a portable report with replace risk and projected transcript", () => {
   const { account, browser } = progressRecords();
   const preview = createProgressMigrationPreview(browser, account);
-  const report = buildProgressReconciliationPackage(preview, starterCatalog, {
+  const report = buildProgressReconciliationPackage(preview, siteCatalog, {
     generatedAt: "2026-07-29T03:00:00.000Z",
     importId: "browser-local-v1-report",
     state: "preview",
@@ -101,7 +101,7 @@ test("builds a portable report with replace risk and projected transcript", () =
   assert.equal(report.records.proposedMerge.learner.attempts.length, 2);
   assert.ok(
     report.transcriptProjection.some(
-      (entry) => entry.pathId === starterCatalog.paths[0].id,
+      (entry) => entry.pathId === siteCatalog.paths[0].id,
     ),
   );
   const serialized = JSON.stringify(report);
@@ -133,7 +133,7 @@ test("accepts only cryptographically bound, chronological, strict retained backu
   };
 
   assert.deepEqual(
-    await parseProgressMigrationRecovery(recovery, starterCatalog),
+    await parseProgressMigrationRecovery(recovery, siteCatalog),
     recovery,
   );
   assert.equal(
@@ -142,7 +142,7 @@ test("accepts only cryptographically bound, chronological, strict retained backu
         ...recovery,
         mergedProgress: account,
       },
-      starterCatalog,
+      siteCatalog,
     ),
     null,
   );
@@ -152,7 +152,7 @@ test("accepts only cryptographically bound, chronological, strict retained backu
         ...recovery,
         verifiedRevision: undefined,
       },
-      starterCatalog,
+      siteCatalog,
     ),
     null,
   );
@@ -162,7 +162,7 @@ test("accepts only cryptographically bound, chronological, strict retained backu
         ...recovery,
         importId: `browser-local-v1-${"0".repeat(64)}`,
       },
-      starterCatalog,
+      siteCatalog,
     ),
     null,
   );
@@ -172,7 +172,7 @@ test("accepts only cryptographically bound, chronological, strict retained backu
         ...recovery,
         completedAt: "2026-07-29T02:58:00.000Z",
       },
-      starterCatalog,
+      siteCatalog,
     ),
     null,
   );
@@ -182,7 +182,7 @@ test("accepts only cryptographically bound, chronological, strict retained backu
         ...recovery,
         verifiedExportAt: "2026-07-29T02:59:30.000Z",
       },
-      starterCatalog,
+      siteCatalog,
     ),
     null,
   );
@@ -192,7 +192,7 @@ test("accepts only cryptographically bound, chronological, strict retained backu
         ...recovery,
         unsupportedTenantHint: "must-not-load",
       },
-      starterCatalog,
+      siteCatalog,
     ),
     null,
   );
@@ -221,7 +221,7 @@ test("an interrupted import leaves both the local and durable records recoverabl
 
   const recovered = await parseProgressMigrationRecovery(
     interrupted,
-    starterCatalog,
+    siteCatalog,
   );
   assert.ok(recovered, "a pending envelope must survive an interrupted import");
   assert.equal(recovered.state, "pending");
@@ -240,7 +240,7 @@ test("an interrupted import leaves both the local and durable records recoverabl
   assert.equal(
     await parseProgressMigrationRecovery(
       { ...interrupted, mergedProgress: browser },
-      starterCatalog,
+      siteCatalog,
     ),
     null,
     "a merge that does not match the recorded inputs must not be recoverable",
@@ -248,7 +248,7 @@ test("an interrupted import leaves both the local and durable records recoverabl
   assert.equal(
     await parseProgressMigrationRecovery(
       { ...interrupted, importId: `browser-local-v1-${"0".repeat(64)}` },
-      starterCatalog,
+      siteCatalog,
     ),
     null,
     "an import id that does not address the local record must not be recoverable",
@@ -256,7 +256,7 @@ test("an interrupted import leaves both the local and durable records recoverabl
   const truncated = { ...interrupted };
   delete truncated.mergedProgress;
   assert.equal(
-    await parseProgressMigrationRecovery(truncated, starterCatalog),
+    await parseProgressMigrationRecovery(truncated, siteCatalog),
     null,
     "a partially written envelope must not be recoverable",
   );

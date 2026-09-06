@@ -30,9 +30,9 @@
 // clobber.
 
 import { execFileSync } from "node:child_process";
-import { access, cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { access, cp, mkdir, readFile, readdir, rm, rmdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const platformRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const webRoot = path.join(platformRoot, "web");
@@ -61,6 +61,15 @@ const APP_ENTRIES = [
 // them. scripts/mint-github-app-token.mjs mints a token for one owner's GitHub
 // App installation; tests/production/** drive one live deployment.
 const INSTANCE_EXCEPTIONS = ["scripts/mint-github-app-token.mjs", "tests/production"];
+
+// Files the materialiser writes itself. They live under a materialised root but
+// are not copied from web/, so without this list the pruner would read them as
+// product files the product no longer ships and delete them every run.
+const GENERATED_FILES = [
+  "lib/themeBundles.generated.ts",
+  "lib/siteCatalog.generated.json",
+  "lib/siteCatalog.generated.ts",
+];
 
 function fail(message) {
   console.error(`project42-portal: ${message}`);
@@ -92,6 +101,15 @@ function parseArgs(argv) {
 async function exists(target) {
   try {
     await access(target);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function isGitRepository(root) {
+  try {
+    execFileSync("git", ["rev-parse", "--is-inside-work-tree"], { cwd: root, stdio: "pipe" });
     return true;
   } catch {
     return false;
@@ -160,6 +178,203 @@ function themeBundleModule(themeIds) {
   ].join("\n");
 }
 
+
+// -------------------------------------------------------- the site catalogue
+//
+// WHY THE CATALOGUE IS GENERATED RATHER THAN IMPORTED
+//
+// The rendering application used to import `starterCatalog` from
+// @project42/platform: the canonical curriculum, baked into the package at
+// platform build time. That is the right default and the wrong ceiling. An
+// adopter's own content repository publishes dist/catalog.json -- the inherited
+// curriculum merged with their own modules -- and nothing read it, so an
+// adopter's module existed, passed its own tests, and never appeared on their
+// site.
+//
+// So the front end reads lib/siteCatalog.generated.json, written here, and the
+// resolution has exactly two outcomes:
+//
+//   content.customContentDir configured  ->  that repository's dist/catalog.json
+//   not configured                       ->  the platform's own catalogue
+//
+// There is no third outcome. A configured content repository whose catalogue is
+// missing, unparseable or the wrong shape FAILS the install, naming the command
+// that fixes it. Falling back to the starter catalogue there would ship a site
+// silently missing its operator's own content -- indistinguishable, from the
+// outside, from a site that never had any.
+
+function contentDirFor(targetRoot, config) {
+  // The environment override exists for CI, where a sibling checkout cannot
+  // live at "../<name>-content": actions/checkout cannot write above the
+  // workspace.
+  const configured = process.env.PROJECT42_CONTENT_DIR || config.content?.customContentDir;
+  return configured ? path.resolve(targetRoot, configured) : null;
+}
+
+function assertCatalogShape(catalog, origin) {
+  const bad = (reason) =>
+    fail(
+      `the catalogue at ${origin} is not a catalogue: ${reason}. Rebuild it with ` +
+        "`npm run content:build` in that repository; never hand-edit dist/.",
+    );
+  if (!catalog || typeof catalog !== "object" || Array.isArray(catalog)) bad("not an object");
+  for (const key of ["paths", "modules", "resources", "providers"]) {
+    if (!Array.isArray(catalog[key])) bad(`${key} is not an array`);
+  }
+  if (catalog.paths.length === 0) bad("it declares no learning paths");
+  if (catalog.modules.length === 0) bad("it declares no modules");
+}
+
+async function writeSiteCatalog(targetRoot, config) {
+  const contentDir = contentDirFor(targetRoot, config);
+  let catalog;
+  let origin;
+
+  if (contentDir) {
+    origin = path.join(contentDir, "dist", "catalog.json");
+    if (!(await exists(contentDir))) {
+      fail(
+        `content.customContentDir points at ${contentDir}, which does not exist. ` +
+          "Clone this deployment's content repository beside the front end, or set " +
+          "PROJECT42_CONTENT_DIR to where it is checked out.",
+      );
+    }
+    if (!(await exists(origin))) {
+      fail(
+        `${origin} has not been built. Run \`npm run content:sync\` then ` +
+          `\`npm run content:build\` in ${contentDir} -- this site renders that merged ` +
+          "catalogue, not the platform's own.",
+      );
+    }
+    try {
+      catalog = JSON.parse(await readFile(origin, "utf8"));
+    } catch (error) {
+      fail(`${origin} is not valid JSON (${error.message}). Rebuild it with \`npm run content:build\`.`);
+    }
+    assertCatalogShape(catalog, origin);
+  } else {
+    origin = "@project42/platform";
+    ({ starterCatalog: catalog } = await import(
+      pathToFileURL(path.join(platformRoot, "dist", "catalog.js")).href
+    ));
+    assertCatalogShape(catalog, origin);
+  }
+
+  // Two forms of one catalogue, written together so they cannot drift. The
+  // TypeScript module is what the application imports: an annotated object
+  // literal, exactly like the platform's own src/generated/catalog.ts, so the
+  // compiler checks it against Catalog instead of inferring a megabyte-wide
+  // literal type from a JSON import. The JSON is what the .mjs gates and
+  // scripts read, since those cannot import TypeScript.
+  const serialized = JSON.stringify(catalog, null, 2);
+  await mkdir(path.join(targetRoot, "lib"), { recursive: true });
+  await writeFile(
+    path.join(targetRoot, "lib", "siteCatalog.generated.json"),
+    `${serialized}\n`,
+    "utf8",
+  );
+  await writeFile(
+    path.join(targetRoot, "lib", "siteCatalog.generated.ts"),
+    [
+      "// GENERATED by `project42-portal materialise`. Do not edit.",
+      `// Source: ${contentDir ? "the merged catalogue this deployment's content repository publishes" : "the canonical curriculum shipped by @project42/platform"}.`,
+      'import type { Catalog } from "@project42/platform";',
+      `export const generatedSiteCatalog: Catalog = ${serialized};`,
+      "",
+    ].join("\n"),
+    "utf8",
+  );
+  return {
+    origin,
+    paths: catalog.paths.length,
+    modules: catalog.modules.length,
+    resources: catalog.resources.length,
+  };
+}
+
+// ------------------------------------------------------------------- pruning
+//
+// materialise copies what the product ships. Without a matching removal, a file
+// the product deletes upstream lives forever in every consumer: a dead route
+// still exported to Pages, a retired gate still run by `npm run check`, a
+// component nothing imports. The consumer's own .gitignore already states who
+// owns what under a materialised root -- ignored means build input, un-ignored
+// means a declared fork -- so the pruner reads that same contract rather than
+// inventing a second one. It names everything it declines to delete, because
+// leaving a stale product file behind is always better than deleting an
+// adopter's work.
+
+function ignoredPaths(root, relatives) {
+  if (relatives.length === 0) return new Set();
+  const listed = (output) => new Set((output ?? "").split(/\r?\n/).filter(Boolean));
+  try {
+    return listed(
+      execFileSync("git", ["check-ignore", "--stdin"], {
+        cwd: root,
+        input: `${relatives.join("\n")}\n`,
+        encoding: "utf8",
+      }),
+    );
+  } catch (error) {
+    // git exits 1 when nothing matched, which is a legitimate answer; any other
+    // status means git could not answer and nothing may be deleted.
+    if (error?.status === 1) return listed(error.stdout);
+    return null;
+  }
+}
+
+async function prune(targetRoot, planned, tracked, isGitRepository) {
+  const shipped = new Set(planned.map((file) => file.relative));
+  const protectedPaths = [...INSTANCE_EXCEPTIONS, ...GENERATED_FILES];
+
+  const candidates = [];
+  for (const entry of APP_ENTRIES) {
+    for (const file of await filesUnder(path.join(targetRoot, entry), entry)) {
+      if (shipped.has(file.relative)) continue;
+      const isProtected = protectedPaths.some(
+        (keep) => file.relative === keep || file.relative.startsWith(`${keep}/`),
+      );
+      if (!isProtected) candidates.push(file);
+    }
+  }
+  if (candidates.length === 0) return { removed: [], kept: [] };
+
+  // Without git there is no way to tell an adopter's file from a stale one, and
+  // guessing wrong deletes their work. Report, delete nothing.
+  const relatives = candidates.map((file) => file.relative);
+  if (!isGitRepository) return { removed: [], kept: relatives };
+  const ignored = ignoredPaths(targetRoot, relatives);
+  if (ignored === null) return { removed: [], kept: relatives };
+
+  const removed = [];
+  const kept = [];
+  for (const file of candidates) {
+    // Tracked, or not ignored: the consumer has claimed this file.
+    if (tracked.has(file.relative) || !ignored.has(file.relative)) kept.push(file.relative);
+    else removed.push(file);
+  }
+
+  for (const file of removed) await rm(file.absolute, { force: true });
+
+  // Then the directories those removals emptied, innermost first.
+  const directories = [...new Set(removed.map((file) => path.dirname(file.absolute)))].sort(
+    (a, b) => b.length - a.length,
+  );
+  for (const directory of directories) {
+    let current = directory;
+    while (current.startsWith(targetRoot) && current !== targetRoot) {
+      try {
+        await rmdir(current);
+      } catch {
+        break;
+      }
+      current = path.dirname(current);
+    }
+  }
+
+  return { removed: removed.map((file) => file.relative), kept };
+}
+
 async function materialise(targetRoot, options = {}) {
   const force = options.force === true;
   const quiet = options.quiet === true;
@@ -195,11 +410,15 @@ async function materialise(targetRoot, options = {}) {
     );
   }
 
+  const pruned = await prune(targetRoot, planned, tracked, isGitRepository(targetRoot));
+
   for (const file of planned) {
     const destination = path.join(targetRoot, file.relative);
     await mkdir(path.dirname(destination), { recursive: true });
     await cp(file.absolute, destination);
   }
+
+  const catalogue = await writeSiteCatalog(targetRoot, config);
 
   const declared = config.availableThemes ?? [config.theme];
   const themeIds = [...new Set(declared)].sort();
@@ -226,6 +445,22 @@ async function materialise(targetRoot, options = {}) {
       `Materialised ${planned.length} front-end files from @project42/platform ` +
         `into ${targetRoot} (${themeIds.length} theme bundle(s) indexed).`,
     );
+    console.log(
+      `Catalogue: ${catalogue.paths} path(s), ${catalogue.modules} module(s), ` +
+        `${catalogue.resources} resource(s) from ${catalogue.origin}.`,
+    );
+    if (pruned.removed.length > 0) {
+      console.log(
+        `Pruned ${pruned.removed.length} file(s) the product no longer ships: ` +
+          `${pruned.removed.slice(0, 5).join(", ")}${pruned.removed.length > 5 ? ", ..." : ""}`,
+      );
+    }
+    if (pruned.kept.length > 0) {
+      console.log(
+        `Left ${pruned.kept.length} unshipped file(s) in place because this repository ` +
+          `claims them (tracked, or not git-ignored): ${pruned.kept.join(", ")}`,
+      );
+    }
   }
   return planned.length;
 }
@@ -339,10 +574,20 @@ async function create(name, flags) {
   console.log(`Created ${contentRoot}`);
   console.log("");
   console.log("Next:");
-  console.log(`  cd ${contentRoot} && npm run content:sync`);
-  console.log(`  cd ${frontendRoot} && npm install`);
+  // The content repository first, and built, not merely synced: the front end
+  // renders ITS dist/catalog.json -- the inherited curriculum merged with this
+  // organisation's own modules -- and its install fails without one.
+  console.log(`  cd ${contentRoot}`);
+  console.log("  npm install && npm run content:sync && npm run content:build");
+  console.log(`  cd ${frontendRoot}`);
+  console.log("  npm install");
   console.log("  npm run themes:sync -- --source <a project42-gallery checkout>");
   console.log("  npm run build");
+  console.log("");
+  console.log(
+    `Add a module under ${contentRoot}/custom/, rebuild there, then re-run ` +
+      "`npm run app:materialise` in the front end to publish it.",
+  );
 }
 
 // --------------------------------------------------------------------- doctor
@@ -370,6 +615,22 @@ async function doctor(targetRoot) {
   }
   if (!(await exists(path.join(targetRoot, "app", "layout.tsx")))) {
     findings.push("front-end application not materialised -- run npm run app:materialise");
+  }
+  if (await exists(path.join(targetRoot, "project42.config.json"))) {
+    const config = await readJson(path.join(targetRoot, "project42.config.json"));
+    const contentDir = contentDirFor(targetRoot, config);
+    if (contentDir && !(await exists(path.join(contentDir, "dist", "catalog.json")))) {
+      findings.push(
+        `content repository ${contentDir} has no dist/catalog.json -- run ` +
+          "`npm run content:sync && npm run content:build` there, then npm run app:materialise",
+      );
+    }
+    if (!(await exists(path.join(targetRoot, "lib", "siteCatalog.generated.json")))) {
+      findings.push(
+        "no merged catalogue installed -- run npm run app:materialise (this site renders " +
+          "lib/siteCatalog.generated.json, not the platform's own catalogue)",
+      );
+    }
   }
   if (findings.length === 0) {
     console.log(`${targetRoot} is a complete Project 42 front-end repository.`);

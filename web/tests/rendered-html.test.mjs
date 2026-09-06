@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { defaultLearnerDataPolicy, starterCatalog } from "@project42/platform";
+import {
+  defaultLearnerDataPolicy,
+} from "@project42/platform";
+import siteCatalog from "../lib/siteCatalog.generated.json" with { type: "json" };
 import diagramConfig from "../node_modules/@project42/platform/content/diagrams/catalogue.json" with { type: "json" };
 import diagramOverrides from "../config/diagram-catalog-overrides.json" with { type: "json" };
 import { buildRetiredRouteRedirects } from "../scripts/link-integrity.mjs";
@@ -291,11 +294,11 @@ test("renders the Learn landing, learning paths, and format routes", async () =>
 // Server-side rendering without a session will not produce the gated page
 // content. Verify the catalog data integrity instead.
 test("renders an on-demand lesson as the full class, not a video embed", async () => {
-  const path = starterCatalog.paths.find(
+  const path = siteCatalog.paths.find(
     (candidate) => candidate.id === "ai-foundations",
   );
   assert.ok(path);
-  const learningModule = starterCatalog.modules.find(
+  const learningModule = siteCatalog.modules.find(
     (candidate) => candidate.id === "agents-and-guardrails",
   );
   assert.ok(learningModule);
@@ -413,7 +416,7 @@ test("renders stable learning routes", async () => {
   // Path-level routes are public (catalog/descriptions).
   // Module-level routes require authentication (RequireAuth guard).
   const routes = [
-    ...starterCatalog.paths.map((path) => `/learn/${path.id}`),
+    ...siteCatalog.paths.map((path) => `/learn/${path.id}`),
   ];
 
   for (const route of routes) {
@@ -432,7 +435,7 @@ test("renders complete provider paths plus comparison and migration guidance", a
     "openai-practice",
     "google-gemini-practice",
   ]) {
-    const path = starterCatalog.paths.find((candidate) => candidate.id === pathId);
+    const path = siteCatalog.paths.find((candidate) => candidate.id === pathId);
     assert.ok(path);
     assert.ok(path.moduleIds.length >= 7, `${pathId} needs at least seven modules`);
     const response = await render(`/learn/${path.id}`);
@@ -440,7 +443,7 @@ test("renders complete provider paths plus comparison and migration guidance", a
     assert.equal(response.status, 200);
     assert.ok(html.includes(path.title));
     for (const moduleId of path.moduleIds) {
-      const learningModule = starterCatalog.modules.find(
+      const learningModule = siteCatalog.modules.find(
         (candidate) => candidate.id === moduleId,
       );
       assert.ok(learningModule);
@@ -451,7 +454,7 @@ test("renders complete provider paths plus comparison and migration guidance", a
   // Module-level routes require authentication (RequireAuth guard).
   // Verify the catalog data integrity, but skip server-side rendering
   // of gated module pages.
-  const comparisonPath = starterCatalog.paths.find(
+  const comparisonPath = siteCatalog.paths.find(
     (candidate) => candidate.id === "providers-in-practice",
   );
   assert.ok(comparisonPath);
@@ -461,7 +464,7 @@ test("renders complete provider paths plus comparison and migration guidance", a
     "execute-cross-provider-cutover",
   ]);
 
-  const comparisonModule = starterCatalog.modules.find(
+  const comparisonModule = siteCatalog.modules.find(
     (candidate) => candidate.id === "compare-provider-capabilities",
   );
   assert.ok(comparisonModule?.comparisonMatrix);
@@ -470,7 +473,7 @@ test("renders complete provider paths plus comparison and migration guidance", a
   }
 
   for (const moduleId of comparisonPath.moduleIds.slice(-2)) {
-    const learningModule = starterCatalog.modules.find(
+    const learningModule = siteCatalog.modules.find(
       (candidate) => candidate.id === moduleId,
     );
     assert.ok(learningModule);
@@ -483,13 +486,13 @@ test("renders complete provider paths plus comparison and migration guidance", a
 test("renders evidence-producing activities for every substantive module", async () => {
   // Module-level routes require authentication (RequireAuth guard).
   // Verify catalog data integrity without server-side rendering.
-  const activityModules = starterCatalog.modules.filter(
+  const activityModules = siteCatalog.modules.filter(
     (learningModule) => learningModule.activity,
   );
   assert.equal(activityModules.length, releaseFacts.counts.evidenceActivities);
 
   for (const learningModule of activityModules) {
-    const path = starterCatalog.paths.find((candidate) =>
+    const path = siteCatalog.paths.find((candidate) =>
       candidate.moduleIds.includes(learningModule.id),
     );
     assert.ok(path);
@@ -501,18 +504,18 @@ test("renders evidence-producing activities for every substantive module", async
 test("renders the complete AI Foundations curriculum and source provenance", async () => {
   // Module-level routes require authentication (RequireAuth guard).
   // Verify catalog data integrity without server-side rendering.
-  const path = starterCatalog.paths.find(
+  const path = siteCatalog.paths.find(
     (candidate) => candidate.id === "ai-foundations",
   );
   assert.ok(path);
   assert.equal(path.moduleIds.length, 16);
   assert.equal(
-    starterCatalog.modules.length,
+    siteCatalog.modules.length,
     releaseFacts.counts.assessedModules,
   );
 
   for (const moduleId of path.moduleIds) {
-    const learningModule = starterCatalog.modules.find(
+    const learningModule = siteCatalog.modules.find(
       (candidate) => candidate.id === moduleId,
     );
     assert.ok(learningModule);
@@ -531,7 +534,7 @@ test("renders the complete AI Foundations curriculum and source provenance", asy
 test("renders an accessible scored capstone evidence form", async () => {
   // Module-level routes require authentication (RequireAuth guard).
   // Verify catalog data integrity without server-side rendering.
-  const learningModule = starterCatalog.modules.find(
+  const learningModule = siteCatalog.modules.find(
     (candidate) => candidate.id === "ai-foundations-capstone",
   );
   assert.ok(learningModule?.capstone);
@@ -553,10 +556,10 @@ test("renders an accessible scored capstone evidence form", async () => {
 test("renders the complete reliable-agent capstone calibration and evidence map", async () => {
   // Module-level routes require authentication (RequireAuth guard).
   // Verify catalog data integrity without server-side rendering.
-  const path = starterCatalog.paths.find(
+  const path = siteCatalog.paths.find(
     (candidate) => candidate.id === "reliable-agent-workflows",
   );
-  const learningModule = starterCatalog.modules.find(
+  const learningModule = siteCatalog.modules.find(
     (candidate) => candidate.id === "reliable-agent-capstone",
   );
   assert.ok(path);

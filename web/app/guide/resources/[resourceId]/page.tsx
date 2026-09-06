@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getResource, starterCatalog } from "@project42/platform";
+import { getResource, siteCatalog } from "../../../../lib/catalog";
 import { LessonSections } from "../../../components/LessonSections";
 import { ContentUseNotice } from "../../../components/ContentUseNotice";
 import { ProviderPills } from "../../../components/ProviderPills";
@@ -16,7 +16,7 @@ interface ResourcePageProps {
 }
 
 export function generateStaticParams() {
-  return starterCatalog.resources.map((resource) => ({ resourceId: resource.id }));
+  return siteCatalog.resources.map((resource) => ({ resourceId: resource.id }));
 }
 
 export async function generateMetadata({ params }: ResourcePageProps): Promise<Metadata> {
@@ -35,6 +35,23 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
     resource,
     new Date().toISOString().slice(0, 10),
   );
+
+  // Where to go next. A reader who finished a resource had three anchors in
+  // the whole <main>, of which two were internal -- the breadcrumb and a legal
+  // link -- so the page simply ended. Related resources are drawn from the
+  // same category first, because that is the grouping the Field Guide's own
+  // filters offer, and topped up from the rest of the catalogue so a
+  // single-member category is not a dead end either.
+  const others = siteCatalog.resources.filter(
+    (candidate) => candidate.id !== resource.id,
+  );
+  const sameCategory = others.filter(
+    (candidate) => candidate.category === resource.category,
+  );
+  const related = [
+    ...sameCategory,
+    ...others.filter((candidate) => candidate.category !== resource.category),
+  ].slice(0, 3);
 
   return (
     <main className="resource-detail shell" id="main-content">
@@ -60,7 +77,7 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
             <time dateTime={resource.lastVerified}>{resource.lastVerified}</time>
           </strong>
           <small>Next review due {freshness.dueOn}</small>
-          <small>Content version {starterCatalog.contentVersion}</small>
+          <small>Content version {siteCatalog.contentVersion}</small>
         </div>
       </header>
       <dl className="resource-detail-facts" aria-label="Resource details">
@@ -110,6 +127,27 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
           ))}
         </aside>
       </div>
+
+      <nav className="resource-next" aria-label="Where to go next">
+        <div className="resource-next-heading">
+          <p className="eyebrow">Keep reading</p>
+          <h2>More from the Field Guide</h2>
+        </div>
+        <ul>
+          {related.map((candidate) => (
+            <li key={candidate.id}>
+              <Link href={`/guide/resources/${candidate.id}`}>
+                <span>{candidate.category}</span>
+                <strong>{candidate.title}</strong>
+                <small>{candidate.summary}</small>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <Link className="button button-secondary" href="/guide">
+          Back to the Field Guide
+        </Link>
+      </nav>
     </main>
   );
 }

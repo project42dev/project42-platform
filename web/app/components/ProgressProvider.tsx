@@ -5,11 +5,11 @@ import {
   recordAssessmentAttempt,
   recordCapstoneSubmission,
   recordModuleVisit,
-  starterCatalog,
   type AssessmentResult,
   type CapstoneCriterionScore,
   type LearnerProgress,
 } from "@project42/platform";
+import { siteCatalog } from "../../lib/catalog";
 import {
   createContext,
   useCallback,
@@ -224,7 +224,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           ? crypto.randomUUID()
           : `${moduleId}-${Date.now()}`;
       setProgress((current) =>
-        recordAssessmentAttempt(current, starterCatalog, {
+        recordAssessmentAttempt(current, siteCatalog, {
           attemptId,
           pathId,
           moduleId,
@@ -239,7 +239,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const recordVisit = useCallback((pathId: string, moduleId: string) => {
     const visitedAt = new Date().toISOString();
     setProgress((current) =>
-      recordModuleVisit(current, starterCatalog, {
+      recordModuleVisit(current, siteCatalog, {
         pathId,
         moduleId,
         visitedAt,
@@ -261,7 +261,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           ? crypto.randomUUID()
           : `${moduleId}-capstone-${Date.now()}`;
       setProgress((current) =>
-        recordCapstoneSubmission(current, starterCatalog, {
+        recordCapstoneSubmission(current, siteCatalog, {
           submissionId,
           pathId,
           moduleId,

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { starterCatalog } from "@project42/platform";
+import { siteCatalog } from "../../../lib/catalog";
 import { orgName } from "../../../lib/copy";
 
 export const metadata: Metadata = {
@@ -35,7 +35,7 @@ const defaultFocusAreas: FocusAreaItem[] = [
 ];
 
 export default function LearningPathsPage() {
-  const paths = starterCatalog.paths as unknown as LearningPathWithFocus[];
+  const paths = siteCatalog.paths as unknown as LearningPathWithFocus[];
 
   return (
     <main className="page-shell shell">
@@ -65,13 +65,20 @@ export default function LearningPathsPage() {
                 <p>{area.summary}</p>
               </div>
               <div className="learning-path-list">
-                {areaPaths.map((path) => {
-                  const currentCourseNumber = paths.findIndex((candidate) => candidate.id === path.id) + 1;
-                  const modules = path.moduleIds.map((moduleId) => starterCatalog.modules.find((module) => module.id === moduleId)).filter(Boolean);
+                {areaPaths.map((path, positionInArea) => {
+                  // Count within the focus area the reader is looking at, not
+                  // within the flat catalogue. The number is the most
+                  // prominent thing in the row -- 3.5rem italic serif -- and
+                  // indexing the global array printed 11 and 13 as the first
+                  // two entries of Focus Area 01, which counts nothing the
+                  // reader can see. The value was ordinal all along; it was
+                  // ordinal in the wrong list.
+                  const numberInArea = positionInArea + 1;
+                  const modules = path.moduleIds.map((moduleId) => siteCatalog.modules.find((module) => module.id === moduleId)).filter(Boolean);
                   const minutes = modules.reduce((total, module) => total + (module?.estimatedMinutes ?? 0), 0);
                   return (
                     <article className="learning-path-row" key={path.id}>
-                      <div className="learning-path-number">{String(currentCourseNumber).padStart(2, "0")}</div>
+                      <div className="learning-path-number">{String(numberInArea).padStart(2, "0")}</div>
                       <div>
                         <div className="path-card-top">
                           <span className="level-pill">{path.level}</span>

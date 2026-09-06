@@ -128,7 +128,8 @@
         },
         "customContentDir": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "description": "Path, relative to this repository, of the content repository whose merged catalogue this site renders. It must contain dist/catalog.json -- the inherited curriculum merged with this organisation's own modules, produced by `npm run content:build` there. Declaring it makes that catalogue the site's curriculum: `project42-portal materialise` installs it as lib/siteCatalog.generated.ts and fails the install if it is missing or malformed, rather than falling back to the platform's own. Omit it and the site renders the canonical Project 42 curriculum. PROJECT42_CONTENT_DIR overrides it, for CI where the checkout cannot be a sibling."
         },
         "instructorMedia": {
           "type": "object",

@@ -9,6 +9,12 @@ on:
 permissions:
   contents: read
 
+# actions/checkout cannot write above the workspace, so the content repository
+# cannot sit at the "../<name>-content" that project42.config.json declares.
+# This override tells the materialiser where it really is.
+env:
+  PROJECT42_CONTENT_DIR: content-repository
+
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -18,10 +24,26 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
+      # The curriculum this site serves lives in its own repository: the
+      # inherited Project 42 content merged with this organisation's own
+      # modules. The front end renders that repository's dist/catalog.json, so
+      # it is checked out and built before anything installs here. Without this
+      # the install fails loudly rather than quietly publishing a site missing
+      # this organisation's own content.
+      #
+      # A private content repository needs a token with read access to it here.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ github.repository }}-content
+          path: content-repository
+          persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 22
           cache: npm
+      - name: Build the merged catalogue
+        working-directory: content-repository
+        run: npm ci && npm run content:check && npm run content:build
       # npm ci also materialises the front-end application from
       # @project42/platform, through this repository's postinstall hook.
       - run: npm ci

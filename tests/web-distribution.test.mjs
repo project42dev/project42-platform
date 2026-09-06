@@ -293,3 +293,285 @@ test("create produces a front-end repository and a content repository, inheritan
     rmSync(scratch, { recursive: true, force: true });
   }
 });
+
+// --------------------------------------------------------- the site catalogue
+//
+// The seam this closes: content inheritance was proven in the content
+// repository and rendering was proven on the site, and nothing joined them. An
+// adopter's module merged correctly into dist/catalog.json, and the site went
+// on rendering the platform's own catalogue, so their module was never on their
+// site. These tests assert the join, and assert that it fails loudly rather
+// than falling back -- a silent fallback ships a site missing its operator's
+// own content and looks identical, from outside, to a site that has none.
+
+function writeContentRepository(root, catalog) {
+  mkdirSync(path.join(root, "dist"), { recursive: true });
+  writeFileSync(path.join(root, "dist", "catalog.json"), JSON.stringify(catalog, null, 2), "utf8");
+}
+
+function mergedCatalogueFixture() {
+  return {
+    schemaVersion: "1.0",
+    contentVersion: "0.1.0",
+    title: "Example Academy Curriculum",
+    description: "Inherited, plus our own.",
+    providers: [{ id: "provider-neutral", name: "Provider neutral", description: "Inherited." }],
+    paths: [
+      {
+        id: "ai-foundations",
+        title: "AI Foundations",
+        level: "beginner",
+        summary: "Inherited path, extended locally.",
+        moduleIds: ["what-ai-does", "house-style"],
+      },
+    ],
+    modules: [
+      { id: "what-ai-does", pathId: "ai-foundations", title: "What AI does" },
+      { id: "house-style", pathId: "ai-foundations", title: "Our house style for prompts" },
+    ],
+    resources: [],
+    inheritedFrom: { contentVersion: "0.42.0", commit: "0".repeat(40) },
+  };
+}
+
+test("materialise renders the catalogue the adopter's content repository publishes", () => {
+  const scratch = mkdtempSync(path.join(tmpdir(), "p42-catalogue-"));
+  try {
+    const frontend = path.join(scratch, "frontend");
+    const content = path.join(scratch, "frontend-content");
+    mkdirSync(frontend, { recursive: true });
+    const config = scaffoldConfig(["06-galactic-guide"]);
+    config.content = { customContentDir: "../frontend-content" };
+    writeFileSync(
+      path.join(frontend, "project42.config.json"),
+      JSON.stringify(config, null, 2),
+      "utf8",
+    );
+    writeContentRepository(content, mergedCatalogueFixture());
+
+    execFileSync(process.execPath, [cli, "materialise", "--target", frontend], { stdio: "pipe" });
+
+    const installed = JSON.parse(
+      readFileSync(path.join(frontend, "lib", "siteCatalog.generated.json"), "utf8"),
+    );
+    assert.ok(
+      installed.modules.some((entry) => entry.id === "house-style"),
+      "the adopter's own module must reach the front end -- this is the whole seam",
+    );
+    assert.deepEqual(
+      installed.paths.find((entry) => entry.id === "ai-foundations").moduleIds,
+      ["what-ai-does", "house-style"],
+      "and it must stay attached to the inherited path it joined",
+    );
+    assert.ok(
+      !installed.modules.some((entry) => entry.id === "prompt-with-purpose"),
+      "the platform's own catalogue must not leak in beside the adopter's",
+    );
+
+    // The application imports the TypeScript form; the .mjs gates read the
+    // JSON. They are written together so they cannot disagree.
+    const generated = readFileSync(path.join(frontend, "lib", "siteCatalog.generated.ts"), "utf8");
+    assert.match(generated, /export const generatedSiteCatalog: Catalog =/);
+    assert.match(generated, /house-style/);
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+});
+
+test("materialise uses the platform catalogue only when none is configured", () => {
+  const scratch = mkdtempSync(path.join(tmpdir(), "p42-catalogue-default-"));
+  try {
+    writeFileSync(
+      path.join(scratch, "project42.config.json"),
+      JSON.stringify(scaffoldConfig(["06-galactic-guide"]), null, 2),
+      "utf8",
+    );
+    execFileSync(process.execPath, [cli, "materialise", "--target", scratch], { stdio: "pipe" });
+
+    const installed = JSON.parse(
+      readFileSync(path.join(scratch, "lib", "siteCatalog.generated.json"), "utf8"),
+    );
+    // The deployment with no content repository -- the operator's own -- must
+    // keep rendering exactly what it rendered before.
+    assert.ok(installed.paths.length > 10, "the canonical curriculum must be installed whole");
+    assert.ok(installed.modules.some((entry) => entry.id === "what-ai-does"));
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+});
+
+test("a configured content repository that has not been built fails the install", () => {
+  const scratch = mkdtempSync(path.join(tmpdir(), "p42-catalogue-missing-"));
+  try {
+    const frontend = path.join(scratch, "frontend");
+    mkdirSync(path.join(scratch, "frontend-content"), { recursive: true });
+    mkdirSync(frontend, { recursive: true });
+    const config = scaffoldConfig(["06-galactic-guide"]);
+    config.content = { customContentDir: "../frontend-content" };
+    writeFileSync(
+      path.join(frontend, "project42.config.json"),
+      JSON.stringify(config, null, 2),
+      "utf8",
+    );
+
+    const result = spawnSync(process.execPath, [cli, "materialise", "--target", frontend], {
+      encoding: "utf8",
+    });
+    assert.notEqual(result.status, 0, "a missing merged catalogue must stop the install");
+    assert.match(result.stderr, /content:build/, "and must name the command that fixes it");
+    assert.ok(
+      !existsSync(path.join(frontend, "lib", "siteCatalog.generated.json")),
+      "no catalogue at all beats the wrong one: a fallback here ships a site silently " +
+        "missing its operator's own content",
+    );
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+});
+
+test("a malformed merged catalogue fails the install", () => {
+  const scratch = mkdtempSync(path.join(tmpdir(), "p42-catalogue-malformed-"));
+  try {
+    const frontend = path.join(scratch, "frontend");
+    const content = path.join(scratch, "frontend-content");
+    mkdirSync(frontend, { recursive: true });
+    const config = scaffoldConfig(["06-galactic-guide"]);
+    config.content = { customContentDir: "../frontend-content" };
+    writeFileSync(
+      path.join(frontend, "project42.config.json"),
+      JSON.stringify(config, null, 2),
+      "utf8",
+    );
+
+    // An empty catalogue is what a half-finished build leaves behind.
+    writeContentRepository(content, { ...mergedCatalogueFixture(), modules: [] });
+    let result = spawnSync(process.execPath, [cli, "materialise", "--target", frontend], {
+      encoding: "utf8",
+    });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /no modules/);
+
+    // A truncated one is what an interrupted write leaves behind.
+    writeFileSync(path.join(content, "dist", "catalog.json"), "{\"paths\": [", "utf8");
+    result = spawnSync(process.execPath, [cli, "materialise", "--target", frontend], {
+      encoding: "utf8",
+    });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /not valid JSON/);
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+});
+
+// -------------------------------------------------------------------- pruning
+//
+// materialise copies what the product ships. Without a matching removal, a file
+// the product deletes upstream lives forever in every consumer: a dead route
+// still exported, a retired gate still run, a component nothing imports. The
+// rule it applies is the consumer's own .gitignore, because that file already
+// states who owns what under a materialised root.
+
+test("materialise removes a product file the product no longer ships", () => {
+  const scratch = mkdtempSync(path.join(tmpdir(), "p42-prune-"));
+  try {
+    const git = (...args) => execFileSync("git", args, { cwd: scratch, stdio: "pipe" });
+    git("init", "-q");
+    git("config", "user.email", "test@localhost");
+    git("config", "user.name", "test");
+    writeFileSync(
+      path.join(scratch, "project42.config.json"),
+      JSON.stringify(scaffoldConfig(["06-galactic-guide"]), null, 2),
+      "utf8",
+    );
+    writeFileSync(path.join(scratch, ".gitignore"), "/app/\n/lib/\n", "utf8");
+
+    // A file an earlier release materialised and this one no longer ships.
+    mkdirSync(path.join(scratch, "app", "retired"), { recursive: true });
+    writeFileSync(path.join(scratch, "app", "retired", "page.tsx"), "// last release\n", "utf8");
+    // A file the adopter wrote and tracked, under the same root.
+    mkdirSync(path.join(scratch, "app", "mine"), { recursive: true });
+    writeFileSync(path.join(scratch, "app", "mine", "page.tsx"), "// ours\n", "utf8");
+    git("add", "-f", ".gitignore", "project42.config.json", "app/mine/page.tsx");
+    git("commit", "-qm", "our own page");
+
+    const output = execFileSync(process.execPath, [cli, "materialise", "--target", scratch], {
+      encoding: "utf8",
+    });
+
+    assert.ok(
+      !existsSync(path.join(scratch, "app", "retired", "page.tsx")),
+      "a stale product file must go, or every consumer accumulates dead routes forever",
+    );
+    assert.ok(
+      !existsSync(path.join(scratch, "app", "retired")),
+      "and the directory it emptied with it",
+    );
+    assert.equal(
+      readFileSync(path.join(scratch, "app", "mine", "page.tsx"), "utf8"),
+      "// ours\n",
+      "an adopter's own file must survive -- deleting their work is far worse than a stale file",
+    );
+    assert.match(output, /Pruned 1 file/);
+    assert.match(output, /app\/mine\/page\.tsx/, "and what it declined to delete must be named");
+
+    // The materialiser's own generated files are not product files. Pruning
+    // them every run would delete the catalogue the site renders.
+    assert.ok(existsSync(path.join(scratch, "lib", "siteCatalog.generated.json")));
+    assert.ok(existsSync(path.join(scratch, "lib", "themeBundles.generated.ts")));
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+});
+
+test("materialise refuses to prune an unshipped file the consumer has not ignored", () => {
+  const scratch = mkdtempSync(path.join(tmpdir(), "p42-prune-unclaimed-"));
+  try {
+    const git = (...args) => execFileSync("git", args, { cwd: scratch, stdio: "pipe" });
+    git("init", "-q");
+    git("config", "user.email", "test@localhost");
+    git("config", "user.name", "test");
+    writeFileSync(
+      path.join(scratch, "project42.config.json"),
+      JSON.stringify(scaffoldConfig(["06-galactic-guide"]), null, 2),
+      "utf8",
+    );
+    writeFileSync(path.join(scratch, ".gitignore"), "/lib/\n", "utf8");
+    mkdirSync(path.join(scratch, "app", "draft"), { recursive: true });
+    // Untracked and un-ignored: somebody has started something and not
+    // committed it. Erring toward refusing is the whole rule.
+    writeFileSync(path.join(scratch, "app", "draft", "page.tsx"), "// in progress\n", "utf8");
+
+    const output = execFileSync(process.execPath, [cli, "materialise", "--target", scratch], {
+      encoding: "utf8",
+    });
+    assert.equal(
+      readFileSync(path.join(scratch, "app", "draft", "page.tsx"), "utf8"),
+      "// in progress\n",
+    );
+    assert.match(output, /Left 1 unshipped file/);
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+});
+
+test("materialise prunes nothing outside a git repository", () => {
+  const scratch = mkdtempSync(path.join(tmpdir(), "p42-prune-nogit-"));
+  try {
+    writeFileSync(
+      path.join(scratch, "project42.config.json"),
+      JSON.stringify(scaffoldConfig(["06-galactic-guide"]), null, 2),
+      "utf8",
+    );
+    mkdirSync(path.join(scratch, "app", "retired"), { recursive: true });
+    writeFileSync(path.join(scratch, "app", "retired", "page.tsx"), "// unknown owner\n", "utf8");
+
+    execFileSync(process.execPath, [cli, "materialise", "--target", scratch], { stdio: "pipe" });
+    assert.ok(
+      existsSync(path.join(scratch, "app", "retired", "page.tsx")),
+      "without git there is no way to tell an adopter's file from a stale one, and " +
+        "guessing wrong deletes their work",
+    );
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+});

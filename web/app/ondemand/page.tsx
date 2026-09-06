@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   getClassScriptPackage,
-  getLearningModule,
-  starterCatalog,
 } from "@project42/platform";
+import { getLearningModule, siteCatalog } from "../../lib/catalog";
 import { getInstructorRendering, instructorRenderings } from "../lib/instructorMedia";
 import { orgName } from "../../lib/copy";
 
@@ -88,7 +87,7 @@ const defaultFocusAreas: FocusAreaItem[] = [
 
 export default function OnDemandPage() {
   const focusAreas = defaultFocusAreas;
-  const rawPaths = starterCatalog.paths as unknown as LearningPathWithFocus[];
+  const rawPaths = siteCatalog.paths as unknown as LearningPathWithFocus[];
 
   const paths: OnDemandPathEntry[] = rawPaths.map((path) => {
     const lessons: OnDemandLesson[] = path.moduleIds.flatMap((moduleId) => {
@@ -141,7 +140,7 @@ export default function OnDemandPage() {
           {filmedCount} lesson{filmedCount === 1 ? "" : "s"} filmed so far
         </strong>{" "}
         out of {scriptedTotal} written for the classroom, across{" "}
-        {pathsWithScripts} of {starterCatalog.paths.length} paths. The Focus Areas and
+        {pathsWithScripts} of {siteCatalog.paths.length} paths. The Focus Areas and
         their courses are identical to the self-paced curriculum. Every module is already
         available to read, and anything you finish now carries straight over when
         its lesson is published.

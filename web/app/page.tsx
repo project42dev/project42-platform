@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { starterCatalog } from "@project42/platform";
+import { siteCatalog } from "../lib/catalog";
 import { diagramCatalog } from "./lib/diagrams";
 import { getThemeAssets } from "../lib/theme";
 import { copy } from "../lib/copy";
@@ -8,8 +8,8 @@ import { copy } from "../lib/copy";
 export default function Home() {
   const themeAssets = getThemeAssets();
   const text = copy.home;
-  const beginnerPath = starterCatalog.paths.find((path) => path.id === "ai-foundations");
-  const practitionerPath = starterCatalog.paths.find(
+  const beginnerPath = siteCatalog.paths.find((path) => path.id === "ai-foundations");
+  const practitionerPath = siteCatalog.paths.find(
     (path) => path.id === "providers-in-practice",
   );
 
@@ -73,10 +73,10 @@ export default function Home() {
             <p>{text.twoWays.learn.summary}</p>
             <ul>
               <li>
-                {starterCatalog.paths.length} {text.twoWays.learn.pathsSuffix}
+                {siteCatalog.paths.length} {text.twoWays.learn.pathsSuffix}
               </li>
               <li>
-                {starterCatalog.modules.length} {text.twoWays.learn.modulesSuffix}
+                {siteCatalog.modules.length} {text.twoWays.learn.modulesSuffix}
               </li>
               <li>{text.twoWays.learn.extra}</li>
             </ul>
@@ -88,7 +88,7 @@ export default function Home() {
             <p>{text.twoWays.guide.summary}</p>
             <ul>
               <li>
-                {starterCatalog.resources.length} {text.twoWays.guide.resourcesSuffix}
+                {siteCatalog.resources.length} {text.twoWays.guide.resourcesSuffix}
               </li>
               <li>
                 {diagramCatalog.length} {text.twoWays.guide.diagramsSuffix}
@@ -136,7 +136,7 @@ export default function Home() {
           <h2 id="provider-title">{text.providers.heading}</h2>
         </div>
         <div className="provider-stack">
-          {starterCatalog.providers.map((provider) => (
+          {siteCatalog.providers.map((provider) => (
             <div className="provider-row" key={provider.id}>
               <span className={`provider-dot provider-${provider.id}`} />
               <strong>{provider.name}</strong>
