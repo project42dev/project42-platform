@@ -17,6 +17,7 @@ is a separate decision.
 | Choose and wire up models | [models/](models/) |
 | Connect a tool or an editor | [tools/](tools/) |
 | Operate a deployment | [operations/](operations/) |
+| Keep a deployment healthy, or run an incident | [runbooks/](runbooks/) |
 | Know why something is built the way it is | [decisions/](decisions/) |
 | Understand how the curriculum stays current | [how-content-stays-current.md](how-content-stays-current.md) |
 | Build against the contracts | the contract pages below |
