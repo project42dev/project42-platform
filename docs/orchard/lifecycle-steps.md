@@ -28,9 +28,11 @@ step cannot be described at that level, it is not designed.
 > repository. Every file path written here is relative to the root of the
 > **`project42dev/orchard`** repository unless it names a repository first
 > (for example `project-42.dev/app/...`, which is relative to the
-> `project42dev/project-42.dev` repository root). An unqualified script name
-> such as `announce-gates.mjs` means `scripts/announce-gates.mjs` in the
-> Orchard repository.
+> `project42dev/project-42.dev` repository root). An unqualified `.mjs`
+> script name such as `announce-gates.mjs` means
+> `scripts/announce-gates.mjs`; every other unqualified name is relative to
+> the Orchard repository root, or is named with its directory in the
+> surrounding prose.
 
 ---
 
@@ -547,7 +549,7 @@ document:
    machine states and two authority gates, the same shape this document uses.
    Was missing a node for Step 14, live verification, entirely, and drew
    almost everything past Gate 1 as solid, built edges.
-2. **`content/diagrams/orchard-lifecycle.mmd`**, rendered on the public
+2. **`project42-platform/content/diagrams/orchard-lifecycle.mmd`**, rendered on the public
    interactive guide site. Fourteen owner-mandate steps across three intake
    lanes. Draws the same overstatement: its `currencyRecord`-`issue1` edge and
    everything from `approvedTracker` through `commitPush` are solid, though
@@ -561,20 +563,20 @@ an audience (this document's technical reader, or the public site's
 narrative reader). What made them "conflicting" was not that two exist, it
 is that both told a story the code disproves. `lifecycle.mmd` is corrected:
 it now has a node for Step 14 and every step this document marks `NO
-RUNTIME` or `NOT BUILT` is styled dashed. `content/diagrams/orchard-lifecycle.mmd`
+RUNTIME` or `NOT BUILT` is styled dashed. `project42-platform/content/diagrams/orchard-lifecycle.mmd`
 is not corrected here. Its data is `graph.ts` in `project-42.dev` (this named
 `guide.project-42.dev`, a repository archived in September 2026 when the estate
 consolidated onto one origin), application code in a different repository, and
 its SVG is checksum-pinned
-in `content/diagrams/catalogue.json`; editing the Mermaid source without
+in `project42-platform/content/diagrams/catalogue.json`; editing the Mermaid source without
 regenerating the SVG and updating that hash would fail the site's own
 consistency check rather than fix anything, and this is a documentation
 change with no build tooling available to it. **Follow-up:** apply the same
 `pending: true` treatment `graph.ts` already uses for `requestIntake` and
 `verifyLive` to `currencyRecord`, `approvedTracker`, `orchestration`,
 `storeWritten`, `issue2`, `gate2`, `rework` and `commitPush`, regenerate
-`public/diagrams/orchard-lifecycle.svg`, and update its `sourceSha256` and
-`svgSha256` in `content/diagrams/catalogue.json`. Tracked against T9, which
+`project-42.dev/public/diagrams/orchard-lifecycle.svg`, and update its `sourceSha256` and
+`svgSha256` in `project42-platform/content/diagrams/catalogue.json`. Tracked against T9, which
 already owns that diagram's dead links.
 
 ---

@@ -6,9 +6,11 @@
 > repository. Every file path written here is relative to the root of the
 > **`project42dev/orchard`** repository unless it names a repository first
 > (for example `project-42.dev/app/...`, which is relative to the
-> `project42dev/project-42.dev` repository root). An unqualified script name
-> such as `announce-gates.mjs` means `scripts/announce-gates.mjs` in the
-> Orchard repository.
+> `project42dev/project-42.dev` repository root). An unqualified `.mjs`
+> script name such as `announce-gates.mjs` means
+> `scripts/announce-gates.mjs`; every other unqualified name is relative to
+> the Orchard repository root, or is named with its directory in the
+> surrounding prose.
 
 ## Decision
 

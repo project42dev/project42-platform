@@ -36,9 +36,11 @@ content database)
 > repository. Every file path written here is relative to the root of the
 > **`project42dev/orchard`** repository unless it names a repository first
 > (for example `project-42.dev/app/...`, which is relative to the
-> `project42dev/project-42.dev` repository root). An unqualified script name
-> such as `announce-gates.mjs` means `scripts/announce-gates.mjs` in the
-> Orchard repository.
+> `project42dev/project-42.dev` repository root). An unqualified `.mjs`
+> script name such as `announce-gates.mjs` means
+> `scripts/announce-gates.mjs`; every other unqualified name is relative to
+> the Orchard repository root, or is named with its directory in the
+> surrounding prose.
 
 One content item, from the moment a discovery pass first notices the topic to
 the moment it is retired. The states below are the **intended** lifecycle.
@@ -138,7 +140,7 @@ converge on the same labeled issue and there is exactly one parser.
 ### Known gaps against this mandate
 
 - **Approval before authoring is live (closed 2026-08-14).** Gate 1 runs inside the deployed engine: new work enters `gate1-pending` and only owner approval reaches a model. Remaining wiring: nothing posts the Gate 1 issue automatically, and the engine job has no `ORCHARD_GATE1_ISSUE` set, so decisions are pulled manually.
-- **The publication approval is bound (closed 2026-08-14).** `orchard-human-review.yml` now acts only on `/orchard gate2` commands naming the exact item and artifact digest; editing a proposal invalidates prior approvals, and denial re-queues the item with the reviewer's reason. Publication is still a direct commit, not the designed PR transaction.
+- **The publication approval is bound (closed 2026-08-14).** `.github/workflows/orchard-human-review.yml` now acts only on `/orchard gate2` commands naming the exact item and artifact digest; editing a proposal invalidates prior approvals, and denial re-queues the item with the reviewer's reason. Publication is still a direct commit, not the designed PR transaction.
 - **Online search for the currency track is not designed.** It conflicts with
   the fail-closed approved-source rule and needs a decision.
 - **Batch approval is not designed.** Every decision command is per item and
@@ -283,7 +285,7 @@ the whole diagram**, because that is what is actually running.
 
 ### The second Mermaid lifecycle, and why there are two
 
-`content/diagrams/orchard-lifecycle.mmd` is a second, independent diagram: the
+`project42-platform/content/diagrams/orchard-lifecycle.mmd` is a second, independent diagram: the
 one rendered on the public guide, now served from `project-42.dev/guide`
 (component `OrchardLifecycleDiagram`), drawn in the
 owner's fourteen-step mandate language rather than this page's sixteen
@@ -300,7 +302,7 @@ in `project-42.dev/app/components/OrchardLifecycleDiagram/graph.ts` — the
 `guide.project-42.dev` repository this used to name was archived in September
 2026 when the estate consolidated onto one origin — application code in a
 different repository, and its shipped SVG is
-checksum-pinned in `content/diagrams/catalogue.json`, so a source edit
+checksum-pinned in `project42-platform/content/diagrams/catalogue.json`, so a source edit
 without regenerating the SVG and its hash would break the site's own
 consistency check rather than fix anything. Specifically, `graph.ts`'s edges
 `currencyRecord`-`issue1`, `approvedTracker`, `orchestration`,
@@ -310,8 +312,8 @@ reasons: I-12 (currency cannot produce a gated item) and steps 6 through 15
 being `NO RUNTIME` or `NOT BUILT` per `lifecycle-steps.md`. **Follow-up,
 tracked as part of T9's diagram work:** apply the same `pending` treatment
 already used there for `requestIntake` and `verifyLive` to the rest of that
-chain, regenerate `public/diagrams/orchard-lifecycle.svg`, and update its
-`sourceSha256`/`svgSha256` in `content/diagrams/catalogue.json`.
+chain, regenerate `project-42.dev/public/diagrams/orchard-lifecycle.svg`, and update its
+`sourceSha256`/`svgSha256` in `project42-platform/content/diagrams/catalogue.json`.
 
 ## The authoring ensemble: six roles designed, four running
 
