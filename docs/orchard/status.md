@@ -23,7 +23,7 @@ On 2026-08-20, the full Track 1 Discovery and Direct Curriculum Request pipeline
 - **5-model frontier ensemble** (`gpt-5-6-sol`, `deepseek-v4-pro`, `grok-4-20-reasoning`, `mistral-large-3`, `gpt-5-6-luna`) qualified all 13 modules against instructional and factuality standards.
 - **Gate 1 & Gate 2 governance cycles** executed with tamper-evident SHA256 digests and stakeholder authorization recorded in the append-only SQLite ledger on Azure Blob Storage.
 - **Autonomous publication** created PRs, verified trailers, and merged all modules into `project42-platform` `main` branch.
-- **Production release v0.81.0** was tagged, and consumer sites (`learn.project-42.dev`, `guide.project-42.dev`, `project-42.dev`) were updated with 12 dedicated learning paths across 94 total modules.
+- **Production release v0.81.0** was tagged, and the consumer sites of the day (`learn.project-42.dev`, `guide.project-42.dev`, `project-42.dev`) were updated with 12 dedicated learning paths across 94 total modules. The first two hosts were retired in September 2026 when the estate consolidated onto the single `project-42.dev` origin, and their repositories were archived. They are named here because this section records what happened on 2026-08-20; it is not a description of the current estate.
 
 ## Where things stand
 

@@ -4,6 +4,26 @@ Project 42 separates the public portal, Gallery, Admin, API, identity provider,
 and durable record store. A static host can serve the public UI, but authenticated
 cloud progress and administration require the API and identity services.
 
+## Scope of this document, and what is missing
+
+This page covers **running the stack**. It does not cover **becoming an
+adopter**, and as of 2026-09-05 nothing else does either.
+
+The intended adopter path is: clone or run something from this repository and
+receive two things — a working front end on the host of your choice, and your
+own content repository configured to stay current from
+`project42dev/project42-content`. Your content repository then feeds your front
+end by the same three vectors documented in
+[`../content-synchronization.md`](../content-synchronization.md), so an upstream
+curriculum update reaches your site the way it reaches ours.
+
+**That mechanism does not exist yet.** There is no scaffolding script in this
+repository, and no template for the front-end or content repositories it would
+produce. Until it does, an adopter has to assemble those by hand from the
+sections below, and keep their content current themselves.
+
+This section exists so the gap is recorded rather than discovered.
+
 ## Required host map
 
 | Surface | Requirement |

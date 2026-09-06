@@ -7,8 +7,11 @@
 
 **Status:** Draft; qualified legal review required before publication  
 **ADO:** AB#6186–AB#6190  
-**Surfaces:** `project-42.dev`, `learn.project-42.dev`, and
-`guide.project-42.dev`
+**Surfaces:** `project-42.dev` — a single origin serving `/learn`, `/guide`
+and the account routes. The former `learn.project-42.dev` and
+`guide.project-42.dev` hosts were retired in September 2026 and their
+repositories archived, so a transparency statement published only on those
+hosts would reach nobody.
 
 ## Product intent
 

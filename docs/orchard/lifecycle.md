@@ -276,8 +276,8 @@ the whole diagram**, because that is what is actually running.
 ### The second Mermaid lifecycle, and why there are two
 
 `content/diagrams/orchard-lifecycle.mmd` is a second, independent diagram: the
-one rendered on the public interactive guide site
-(`guide.project-42.dev`, component `OrchardLifecycleDiagram`), drawn in the
+one rendered on the public guide, now served from `project-42.dev/guide`
+(component `OrchardLifecycleDiagram`), drawn in the
 owner's fourteen-step mandate language rather than this page's sixteen
 machine states and two authority gates. Both diagrams describe the same
 lifecycle at different altitudes and are meant to keep existing side by side,
@@ -288,8 +288,10 @@ section describes English noun phrases as insufficient on their own.
 **They previously conflicted on more than altitude: both drew unbuilt work as
 built.** This page's diagram is corrected above. The public diagram is not,
 and correcting it is out of scope for a documentation change: its data lives
-in `guide.project-42.dev/app/components/OrchardLifecycleDiagram/graph.ts`,
-application code in a different repository, and its shipped SVG is
+in `project-42.dev/app/components/OrchardLifecycleDiagram/graph.ts` — the
+`guide.project-42.dev` repository this used to name was archived in September
+2026 when the estate consolidated onto one origin — application code in a
+different repository, and its shipped SVG is
 checksum-pinned in `content/diagrams/catalogue.json`, so a source edit
 without regenerating the SVG and its hash would break the site's own
 consistency check rather than fix anything. Specifically, `graph.ts`'s edges

@@ -554,8 +554,10 @@ narrative reader). What made them "conflicting" was not that two exist, it
 is that both told a story the code disproves. `lifecycle.mmd` is corrected:
 it now has a node for Step 14 and every step this document marks `NO
 RUNTIME` or `NOT BUILT` is styled dashed. `content/diagrams/orchard-lifecycle.mmd`
-is not corrected here. Its data is `graph.ts` in `guide.project-42.dev`,
-application code in a different repository, and its SVG is checksum-pinned
+is not corrected here. Its data is `graph.ts` in `project-42.dev` (this named
+`guide.project-42.dev`, a repository archived in September 2026 when the estate
+consolidated onto one origin), application code in a different repository, and
+its SVG is checksum-pinned
 in `content/diagrams/catalogue.json`; editing the Mermaid source without
 regenerating the SVG and updating that hash would fail the site's own
 consistency check rather than fix anything, and this is a documentation
