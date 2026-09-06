@@ -97,8 +97,13 @@
     "playwright-core": "1.62.0",
     "nanoid": "^3.3.18"
   },
+  "$allowScripts": "npm keys this by package NAME, not by the dependency spec. It was keyed by the spec, so npm covered nothing: it warned that @project42/platform's prepare script was unapproved on every install, and this repository's front end is BUILT by that prepare -- the day npm enforces rather than warns, an install would produce a package with no dist/ and the site would fail at its first import. esbuild, workerd, unrs-resolver and sharp fetch or compile their platform binaries in the same phase and the build needs all four.",
   "allowScripts": {
-    "github:project42dev/project42-platform#v{{PLATFORM_VERSION}}": true,
+    "@project42/platform": true,
+    "esbuild": true,
+    "workerd": true,
+    "unrs-resolver": true,
+    "sharp": true,
     "puppeteer": false
   }
 }

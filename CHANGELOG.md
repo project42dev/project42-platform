@@ -4,6 +4,22 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.104.1] - 2026-09-06
+
+### Fixed
+
+- A scaffolded front end keyed `allowScripts` by the dependency spec
+  (`"github:project42dev/project42-platform#v0.104.0"`). npm matches that field
+  by package name, so the entry covered nothing and every install warned that
+  `@project42/platform`'s `prepare` script -- the script that compiles `dist/`,
+  which is the entire front end -- was unapproved. npm warns and runs it today;
+  the day it enforces, an install would produce a package with no `dist/` and
+  the adopter's first build would fail at its first import. Approved by name
+  now, together with `esbuild`, `workerd`, `unrs-resolver` and `sharp`, whose
+  install scripts fetch or compile the binaries the build needs.
+  `tests/web-distribution.test.mjs` asserts both that each is approved and that
+  no key is a dependency spec.
+
 ## [0.104.0] - 2026-09-06
 
 ### Added

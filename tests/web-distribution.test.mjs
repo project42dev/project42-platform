@@ -575,3 +575,31 @@ test("materialise prunes nothing outside a git repository", () => {
     rmSync(scratch, { recursive: true, force: true });
   }
 });
+
+test("the scaffold approves the install scripts its own build depends on", () => {
+  // npm keys allowScripts by package NAME. The template keyed it by the
+  // dependency spec, so it covered nothing: every install warned that
+  // @project42/platform's prepare script was unapproved -- and that prepare
+  // script is what compiles dist/, which is the entire front end. npm warns
+  // today. The day it enforces, an install produces a package with no dist/
+  // and the adopter's first build fails at its first import, which is exactly
+  // the failure this scaffold exists to prevent.
+  const manifest = JSON.parse(
+    readFileSync(path.join(webDir, "template", "frontend", "package.json"), "utf8"),
+  );
+  const approved = manifest.allowScripts ?? {};
+  for (const name of ["@project42/platform", "esbuild", "workerd", "sharp"]) {
+    assert.equal(
+      approved[name],
+      true,
+      `${name} runs an install or prepare script the build needs; approve it by name`,
+    );
+  }
+  for (const key of Object.keys(approved)) {
+    assert.ok(
+      !key.includes("#") && !key.startsWith("github:"),
+      `allowScripts key ${key} is a dependency spec; npm matches package names and ` +
+        "silently covers nothing here",
+    );
+  }
+});
