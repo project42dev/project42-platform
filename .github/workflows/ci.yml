@@ -60,6 +60,20 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      # The web service is not started here. Its image builds from a FRONT-END
+      # repository -- the platform ships the application and a front end
+      # installs it -- so there is nothing in this checkout to build it from.
+      # Nothing below touches the portal either: this job verifies the API,
+      # identity and database tier. The front end is covered by the template's
+      # own build.
+      - name: Scaffold a front end, proving the adopter path still works
+        run: |
+          node bin/project42-portal.mjs create "Smoke Academy" \
+            --theme 06-galactic-guide \
+            --origin https://smoke.example.test \
+            --dir "$RUNNER_TEMP/smoke-frontend"
+          test -f "$RUNNER_TEMP/smoke-frontend/smoke-academy/project42.config.json"
+          test -f "$RUNNER_TEMP/smoke-frontend/smoke-academy-content/package.json"
       - name: Validate Compose model
         run: docker compose --env-file self-host/.env.example -f self-host/compose.yaml config --quiet
       - name: Start evaluation stack

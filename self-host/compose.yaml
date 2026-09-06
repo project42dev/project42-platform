@@ -5,6 +5,12 @@ services:
   # `project42-portal create`, not this repository. Point PROJECT42_WEB_CONTEXT
   # at it, or pull the published image instead of building.
   web:
+    # Opt-in, because its context is a front-end repository that this one does
+    # not contain. Without a profile the default stack cannot start at all
+    # here: `up --build` resolves this context and fails before any service
+    # runs. Start it with `--profile web` once PROJECT42_WEB_CONTEXT points at
+    # a front end, or pull the published image.
+    profiles: ["web"]
     build:
       context: ${PROJECT42_WEB_CONTEXT:-../..}
       dockerfile: self-host/Dockerfile.web
