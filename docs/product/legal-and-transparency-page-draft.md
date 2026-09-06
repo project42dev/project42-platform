@@ -57,7 +57,7 @@ this draft is superseded, not the other way around.
 - **The license and third-party ownership inventory** behind the shipped page:
   `pmo/legal-transparency-license-inventory-2026-07-30.md`.
 - **The live wording**: `project-42.dev/legal-transparency`, sourced from
-  `app/legal-transparency/page.tsx` in the `project-42.dev` repository.
+  `project-42.dev/app/legal-transparency/page.tsx`.
 
 Do not draft new legal copy in this file. If the shipped page needs to change,
 change it in the `project-42.dev` repository and update the review packet, not

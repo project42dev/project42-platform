@@ -73,7 +73,15 @@ const SIBLING_REPOSITORIES = new Set([
 // deliberate historical note. Those are the record of what changed, and
 // deleting them would lose the very history that explains the change.
 const HISTORICAL =
-  /retired|archived|former|used to|previously|no longer|until 20|record of|at the time|renamed/i;
+  /retired|archived?|former|used to|previously|no longer|until 20|record of|at the time|renamed|transitional/i;
+
+// Paths the reader creates on their own machine. They are illustrative, and
+// there is nothing in any repository for them to resolve against.
+const OPERATOR_LOCAL = /^(?:\.\/|\.claude\/|~\/)/;
+
+// Release history legitimately names the version it describes. That is a
+// record of what shipped, not a claim about what the current version is.
+const RELEASE_HISTORY = /^\s*(?:[-*]\s*)?(?:\*\*)?Release\s+`?v?\d+\.\d+\.\d+/i;
 
 const RELATIVE_LINK = /\[[^\]]*\]\((?!https?:|mailto:|#)([^)\s]+)\)/g;
 const BACKTICKED_PATH =
@@ -167,13 +175,16 @@ export async function auditRepository(repoRoot, options = {}) {
 
     for (const [index, raw] of lines.entries()) {
       const lineNumber = index + 1;
-      const historical = HISTORICAL.test(raw);
+      // A historical note often wraps: the marker word can land on the next
+      // line. Judge the sentence around the match, not the line alone.
+      const neighbourhood = lines.slice(Math.max(0, index - 1), index + 3).join(" ");
+      const historical = HISTORICAL.test(neighbourhood);
 
       for (const host of DEAD_HOSTS) {
         if (raw.includes(host) && !historical) report("dead-host", file, lineNumber, host);
       }
 
-      if (currentVersion && !isHistory) {
+      if (currentVersion && !isHistory && !RELEASE_HISTORY.test(raw)) {
         for (const match of raw.matchAll(SEMVER)) {
           const found = [Number(match[1]), Number(match[2]), Number(match[3])];
           const current = currentVersion.split(".").map(Number);
@@ -214,6 +225,7 @@ export async function auditRepository(repoRoot, options = {}) {
     for (const match of text.matchAll(BACKTICKED_PATH)) {
       const candidate = match[1];
       if (candidate.includes("node_modules")) continue;
+      if (OPERATOR_LOCAL.test(candidate)) continue;
       // A path inside a generated or runtime directory names an artifact the
       // repository deliberately does not track. It is absent from a fresh
       // checkout by design, so its absence is not a documentation defect --

@@ -42,12 +42,12 @@ cannot establish comprehension or actual assistive-technology behavior.
 |---|---|
 | [`templates/ab5194-accessibility-bug.md`](templates/ab5194-accessibility-bug.md) | **Exists.** Public-safe accessibility Bug evidence |
 | [`templates/ab5194-redacted-release-report.md`](templates/ab5194-redacted-release-report.md) | **Exists.** Cross-repository release decision |
-| `deployment/accessibility/ab5194-validation-manifest.json` | **Does not exist.** Versioned routes, environments, scenarios, tasks and assertions |
-| `deployment/accessibility/ab5194-result.schema.json` | **Does not exist.** Fail-closed anonymized result contract |
-| `deployment/accessibility/fixtures/ab5194-manual-result.valid.json` | **Does not exist.** `not-run` manual result template |
-| `deployment/Invoke-Project42AccessibilityPreflight.ps1` | **Does not exist.** Read-only production HTTP and markup preflight |
-| `deployment/Test-Project42AccessibilityResultSet.ps1` | **Does not exist.** Schema, manifest, privacy and approval validation |
-| `deployment/Test-Project42AccessibilityValidation.ps1` | **Does not exist.** Offline redirect, binding, privacy and behavior tests |
+| `project42dev-ops/deployment/accessibility/ab5194-validation-manifest.json` | **Exists**, in the private operations repository. Versioned routes, environments, scenarios, tasks and assertions |
+| `project42dev-ops/deployment/accessibility/ab5194-result.schema.json` | **Exists**, in the private operations repository. Fail-closed anonymized result contract |
+| `project42dev-ops/deployment/accessibility/fixtures/ab5194-manual-result.valid.json` | **Exists**, in the private operations repository. `not-run` manual result template |
+| `project42dev-ops/deployment/Invoke-Project42AccessibilityPreflight.ps1` | **Exists**, in the private operations repository. Read-only production HTTP and markup preflight |
+| `project42dev-ops/deployment/Test-Project42AccessibilityResultSet.ps1` | **Exists**, in the private operations repository. Schema, manifest, privacy and approval validation |
+| `project42dev-ops/deployment/Test-Project42AccessibilityValidation.ps1` | **Exists**, in the private operations repository. Offline redirect, binding, privacy and behavior tests |
 
 The repository has a single `deployment/` directory containing only
 `deployment/cloudflare/`. There is no accessibility tooling anywhere in
@@ -81,9 +81,10 @@ Do not begin a human session until all applicable conditions are true:
 9. Make AB#5194 and its current execution tasks Active. Do not mark the Story
    Resolved until every acceptance criterion is evidenced.
 
-**There is no preflight script.** This plan originally invoked
-`deployment/Invoke-Project42AccessibilityPreflight.ps1`, which was never
-committed. Until it is built, record route availability by hand against
+**The preflight script is operator tooling.**
+`project42dev-ops/deployment/Invoke-Project42AccessibilityPreflight.ps1` lives
+in the private operations repository, so the operator can run it and a public
+contributor cannot. Without it, record route availability by hand against
 `https://project-42.dev` and store the notes in the private evidence root,
 outside any Git repository or worktree.
 
@@ -208,10 +209,10 @@ once, passed task observations, announcement observations, focus observations, a
 comprehension evidence. JSON Schema validation alone does not establish those
 cross-record requirements.
 
-**There is no approval-gate validator.** This plan originally invoked
-`deployment/Test-Project42AccessibilityResultSet.ps1`, which was never
-committed. Until it is built, a reviewer performs the coverage check above by
-hand over the redacted result files. Note that even a machine pass would not
+**The approval-gate validator is operator tooling.**
+`project42dev-ops/deployment/Test-Project42AccessibilityResultSet.ps1` lives in
+the private operations repository. Without it, a reviewer performs the coverage
+check above by hand over the redacted result files. Note that even a machine pass would not
 authorize publication: human redaction review is always required.
 
 ## Observation rules

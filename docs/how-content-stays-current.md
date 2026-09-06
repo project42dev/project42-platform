@@ -64,7 +64,8 @@ Both tracks produce **evidence, not decisions**. A run's output is a list of
 findings with the reasoning attached. Neither track can publish, edit
 curriculum, or close its own work.
 
-A third path, **request intake**, is designed and not built. See
+A third path, **request intake**, carries a reader's request into the same
+queue. See
 [Asking for content, or challenging it](#asking-for-content-or-challenging-it).
 
 The flow, including both approval gates, is drawn in
@@ -167,22 +168,25 @@ open. The mechanics are in
 
 ## Asking for content, or challenging it
 
-If you think something is missing, wrong, or out of date, say so. Open an issue
-on this repository, or use GitHub Discussions for a question rather than a
-defect. [SUPPORT.md](../SUPPORT.md) describes the routes and what to include.
+If you think something is missing, wrong, or out of date, say so. Requests for
+curriculum go to the repository that holds it: open a **content request** on
+`project42-content`, which offers a form whose fields the intake reads
+directly. For a question rather than a defect, use GitHub Discussions.
+[SUPPORT.md](../SUPPORT.md) describes the routes and what to include.
 
-Be aware of what actually happens next, because the design and the current
-reality differ:
+What happens next:
 
-- **Today:** a person reads the issue and triages it by hand. It is folded into
-  the maintenance system's work through the same owner approval as anything
-  else.
-- **Designed and not built:** an automated intake path that reads issues
-  carrying a `content-request` label, deduplicates them against the existing
-  corpus and open candidates, and joins them to the same queue and the same
-  Gate 1 that discovery and currency use. There is no such issue template and
-  no such automation in this repository today. Do not expect a labeled issue to
-  be picked up by a machine.
+- A scheduled run reads issues carrying the `content-request` label and turns
+  each into a candidate, carrying the originating issue number with it.
+- That candidate joins the same queue, and faces the same Gate 1, as anything
+  discovery or currency produces. A request is not a shortcut past approval.
+- If it is approved and authored, the originating issue receives a comment
+  naming the published module.
+
+Two parts of that chain still need a person, and this page will say so until
+they do not: moving approved candidates into the registry, and posting the
+comment back to the issue. Both are implemented as commands an operator runs;
+neither is yet triggered automatically.
 
 A request never bypasses scoring or the approval gates, by design. There is no
 fast lane.
@@ -203,18 +207,20 @@ matters.
   person approving a draft that several models produced and reviewed is better
   than no person. It is not peer review, and it is not a warranty.
 - **Parts of the described method are designed and not built.** This page marks
-  each one where it appears. The most significant are automated source-change
-  detection, automated request intake, and automated verification that
-  published material is live. Treat the pipeline described in
+  each one where it appears. The most significant is automated source-change
+  detection: freshness is judged by comparing dates against each source's
+  review cadence, and nothing fetches a source to see whether it actually
+  changed. Treat the pipeline described in
   [the content freshness pipeline](content-freshness-pipeline.md) as the
   intended process with its status marked, not as a description of a fully
   closed loop.
-- **The maintenance system's publication target is being corrected.** The
-  architecture is that authored content lands in `project42-content` and this
-  platform consumes it. What this repository does is verifiable and true: it
-  pulls from `project42-content`, hash-locked, and holds no curriculum of its
-  own. The upstream side of that handoff is outside this repository and cannot
-  be verified from here.
+- **Approved content lands in `project42-content`, and this platform consumes
+  it.** Both halves are now enforced rather than merely intended: upstream, a
+  publication naming any other repository fails schema validation outright;
+  downstream, this repository pulls from `project42-content` hash-locked and
+  holds no curriculum of its own. Until recently the upstream half was not
+  true — a normalization step silently rewrote every publication back to this
+  repository — which is why the two copies were able to drift apart.
 - **AI is used substantially.** Discovery, research, drafting, review, and
   factual checking all involve models. This is disclosed rather than hidden;
   see [Legal and transparency requirements](product/legal-and-transparency-requirements.md).
