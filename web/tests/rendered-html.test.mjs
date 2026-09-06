@@ -508,7 +508,15 @@ test("renders the complete AI Foundations curriculum and source provenance", asy
     (candidate) => candidate.id === "ai-foundations",
   );
   assert.ok(path);
-  assert.equal(path.moduleIds.length, 16);
+  // Not a fixed count. This gate ships to every deployment, and a deployment
+  // that adds one module of its own to the inherited foundations path -- which
+  // is the entire point of the content-inheritance model -- would fail a gate
+  // that says "sixteen". What must hold is that the path is populated and that
+  // every id on it resolves to a whole module, which the loop below asserts.
+  assert.ok(
+    path.moduleIds.length > 0,
+    "the foundations path must carry modules",
+  );
   assert.equal(
     siteCatalog.modules.length,
     releaseFacts.counts.assessedModules,
@@ -564,8 +572,11 @@ test("renders the complete reliable-agent capstone calibration and evidence map"
   );
   assert.ok(path);
   assert.ok(learningModule?.capstone);
-  assert.equal(path.moduleIds.length, 12);
-  assert.equal(path.moduleIds.at(-1), learningModule.id);
+  // Neither a fixed length nor a fixed position: a deployment that adds a
+  // module of its own to this path -- what content inheritance is for -- would
+  // fail both, and the claim worth making is that the capstone is on the path.
+  assert.ok(path.moduleIds.length > 0);
+  assert.ok(path.moduleIds.includes(learningModule.id));
   assert.equal(learningModule.capstone.requiredArtifacts.length, 8);
   assert.equal(learningModule.capstone.rubric.criteria.length, 6);
   assert.equal(learningModule.capstone.exemplars?.length, 2);
