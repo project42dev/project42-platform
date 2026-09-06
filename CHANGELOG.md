@@ -52,6 +52,23 @@ semantic versioning.
   `--p42-font-heading`. The assertions remain exact colour matches; the site
   header, which a bundle may compose, is asserted to be opaque and to composite
   to a surface the theme declares.
+
+  Running the suite against `05-open-orbit` now reaches 6 of 9 rather than
+  failing by construction, and the three that remain fail on measurements
+  rather than on having the wrong palette. Correcting the attribution in commit
+  `e805abf`, which called both defects bundle-side: the 860 and 128 axe
+  colour-contrast violations have one root cause, and it is **shared**. Core
+  paints body text with `--lime`, which aliases `--p42-accent`, in about twenty
+  selectors -- `.progress-strip strong` and `.knowledge-check .eyebrow` among
+  them, which are the nodes that fail. That default only works for a theme
+  whose accent is legible as text on its own page, and `05-open-orbit`'s
+  declared accent (`#65c943`) is 1.95:1 on its `--p42-bg` (`#f4f7fb`). Whether
+  the answer is a text-safe accent in every bundle or a token in core that the
+  theme contract actually measures for text depends on whether the contract
+  intends `--p42-accent` to be text-safe at all -- its 112 measured pairs do not
+  cover this one. Not resolved here, because it is a contract decision rather
+  than a defect with an obvious owner. The `.footer-grid a` alignment failure is
+  separately bundle-side.
 - The link-integrity crawler fetched routes in the slashless form. Once routes
   answered `308` for that form, every route returned no `text/html` body, so
   the crawler extracted zero references from all 338 of them and still reported
