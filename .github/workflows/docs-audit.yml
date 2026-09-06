@@ -1,0 +1,47 @@
+# Documentation audit gate.
+#
+# Documentation rots silently. Nothing else in CI reads prose, so a reference to
+# a file that has since been renamed, or to a host retired months ago, survives
+# indefinitely and misleads the next reader. This job reads every tracked
+# Markdown file and fails on a dead host, a broken relative link, a backticked
+# repository path that is not on disk, a claim that the curriculum lives here
+# rather than in project42-content, or a version claimed as current that is
+# behind package.json.
+#
+# It runs as its own job rather than inside `npm run check` because the
+# documentation this repository inherited does not pass yet: sixty findings
+# remain against main, most of them Orchard design documents naming files that
+# live in the Orchard repository, plus retired hosts and stale README version
+# claims that a separate documentation pass is already working through.
+# Keeping the audit separate makes that failure visible and attributable
+# instead of reddening every other check.
+# Once the documentation is clean, fold `npm run docs:audit` into `check` and
+# delete this workflow.
+
+name: Documentation audit
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit-docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+      - name: Audit documentation
+        run: npm run docs:audit
