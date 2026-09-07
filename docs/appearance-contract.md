@@ -15,7 +15,7 @@ and no network call to anywhere.
 Markup, routes, layout mechanics, behaviour, data, accessibility affordances.
 Core owns no brand.
 
-**The default theme** — `web/themes/06-galactic-guide`, shipped inside
+**The default theme** — a complete bundle under `web/themes/`, shipped inside
 `@project42/platform`. This is the product's own appearance, and it is what a
 fresh install renders. It exists so a site is never unstyled and never depends
 on a service being reachable to have a look at all.
@@ -49,7 +49,7 @@ named theme, highest precedence first:
 
 1. **`themes/<id>/` in your repository.** You put it there; it wins.
 2. **`public/themes/<id>/` already installed, and either tracked by git or
-   named in `config/theme-bundles.lock.json`.** That is a bundle the site
+   named in the site’s theme-bundles lock.** That is a bundle the site
    pulled from the Gallery, so the next install leaves it alone. The lock is
    what makes it stick: a new scaffold git-ignores `public/themes/`, so being
    tracked is not on its own a reliable signal.
@@ -75,9 +75,9 @@ Everything visual, through two files:
 - **`portal.css`** — component treatments core does not express as tokens.
 
 The token vocabulary a bundle must declare is enforced by
-`tests/token-completeness.test.mjs`: every `--p42-*` token core reads must be
+`web/tests/token-completeness.test.mjs`: every `--p42-*` token core reads must be
 declared by every installed theme, or that surface renders unstyled on that
-theme. `tests/surface-isolation.test.mjs` enforces the other direction — the
+theme. `web/tests/surface-isolation.test.mjs` enforces the other direction — the
 admin console pins the whole vocabulary so no theme can reach it.
 
 Composition — width, spacing rhythm, density, radii, the type ramp — belongs to

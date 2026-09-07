@@ -22,7 +22,7 @@
 
   Adding a token here is how core hands a decision to the theme. Adding a
   VALUE that is really a brand choice is not: the product's own appearance
-  lives in the bundle it ships, web/themes/06-galactic-guide, and alternatives
+  lives in the bundle the platform ships under web/themes/, and alternatives
   live in the Gallery. See docs/appearance-contract.md.
 */
 @layer p42-fallback {
