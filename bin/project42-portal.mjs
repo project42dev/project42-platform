@@ -38,6 +38,13 @@ const platformRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 
 const webRoot = path.join(platformRoot, "web");
 const templateRoot = path.join(platformRoot, "web", "template");
 
+// The product ships its own theme and layout bundles. A site therefore has a
+// complete, intentional appearance the moment it is installed -- no Gallery
+// checkout, no sync step, no lock file, no network. The Gallery is where you
+// go for a DIFFERENT look, not for a look at all.
+const shippedThemesRoot = path.join(webRoot, "themes");
+const shippedLayoutsRoot = path.join(webRoot, "layouts");
+
 // Everything under web/ except template/, which is the seed for a NEW
 // repository rather than part of the application.
 const APP_ENTRIES = [
@@ -437,6 +444,91 @@ async function prune(targetRoot, planned, tracked, isGitRepository) {
   return { removed: removed.map((file) => file.relative), kept };
 }
 
+// ------------------------------------------------------ appearance resolution
+//
+// A theme is a FOLDER, and a site chooses one by naming it in
+// project42.config.json. Resolution, highest precedence first:
+//
+//   1. themes/<id>/ in the site's own repository -- you downloaded a theme
+//      folder, dropped it in, and named it. Nothing else changes: no script,
+//      no manifest, no lock entry. This is the Hugo/Jekyll move.
+//   2. public/themes/<id>/ already installed and tracked by git -- a site that
+//      predates (1) and vendors its Gallery-synced bundles. Left untouched so
+//      the Gallery sync keeps working as a convenience.
+//   3. web/themes/<id>/ shipped by the platform -- the default. Every install
+//      has one, so every install renders.
+//
+// public/themes/ is the rendered output of that decision and is a build input,
+// exactly like app/. Layout bundles resolve the same way from layouts/.
+
+async function readdirSafe(directory) {
+  try {
+    return (await readdir(directory, { withFileTypes: true }))
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .sort();
+  } catch {
+    return [];
+  }
+}
+
+async function copyBundle(from, to) {
+  await rm(to, { recursive: true, force: true });
+  await mkdir(path.dirname(to), { recursive: true });
+  await cp(from, to, { recursive: true });
+}
+
+async function resolveBundle(kind, id, targetRoot, tracked, shippedRoot, manifest) {
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) fail(`unsafe ${kind} id: ${id}`);
+  const repoFolder = path.join(targetRoot, kind, id);
+  const installed = path.join(targetRoot, "public", kind, id);
+  if (await exists(path.join(repoFolder, manifest))) {
+    await copyBundle(repoFolder, installed);
+    return "repository";
+  }
+  if (
+    (await exists(path.join(installed, manifest))) &&
+    tracked.has(`public/${kind}/${id}/${manifest}`)
+  ) {
+    return "vendored";
+  }
+  const shipped = path.join(shippedRoot, id);
+  if (await exists(path.join(shipped, manifest))) {
+    await copyBundle(shipped, installed);
+    return "platform";
+  }
+  const available = (await readdirSafe(shippedRoot)).join(", ") || "none";
+  fail(
+    `${kind} bundle "${id}" is named in project42.config.json but no folder ` +
+      `provides it. Drop the folder in at ${kind}/${id}/ in this repository, or ` +
+      `name one the platform ships (${available}).`,
+  );
+  return "missing";
+}
+
+async function resolveAppearance(targetRoot, config, tracked) {
+  const themeIds = [...new Set(config.availableThemes ?? [config.theme])].sort();
+  const layoutIds = [
+    ...new Set([
+      ...(config.layout?.availablePresets ?? []),
+      config.layout?.defaultPreset ?? "standard",
+    ]),
+  ].sort();
+  const origins = { repository: [], vendored: [], platform: [] };
+  for (const id of themeIds) {
+    origins[
+      await resolveBundle("themes", id, targetRoot, tracked, shippedThemesRoot, "theme.json")
+    ].push(id);
+  }
+  const layoutOrigins = { repository: [], vendored: [], platform: [] };
+  for (const id of layoutIds) {
+    layoutOrigins[
+      await resolveBundle("layouts", id, targetRoot, tracked, shippedLayoutsRoot, "layout.json")
+    ].push(id);
+  }
+  return { themeIds, layoutIds, origins, layoutOrigins };
+}
+
 async function materialise(targetRoot, options = {}) {
   const force = options.force === true;
   const quiet = options.quiet === true;
@@ -482,8 +574,8 @@ async function materialise(targetRoot, options = {}) {
 
   const catalogue = await writeSiteCatalog(targetRoot, config);
 
-  const declared = config.availableThemes ?? [config.theme];
-  const themeIds = [...new Set(declared)].sort();
+  const appearance = await resolveAppearance(targetRoot, config, tracked);
+  const themeIds = appearance.themeIds;
   await writeFile(
     path.join(targetRoot, "lib", "themeBundles.generated.ts"),
     themeBundleModule(themeIds),
@@ -506,6 +598,15 @@ async function materialise(targetRoot, options = {}) {
     console.log(
       `Materialised ${planned.length} front-end files from @project42/platform ` +
         `into ${targetRoot} (${themeIds.length} theme bundle(s) indexed).`,
+    );
+    const describe = (map) =>
+      Object.entries(map)
+        .filter(([, ids]) => ids.length > 0)
+        .map(([origin, ids]) => `${ids.join(", ")} from ${origin}`)
+        .join("; ");
+    console.log(
+      `Appearance: themes ${describe(appearance.origins)}; ` +
+        `layouts ${describe(appearance.layoutOrigins)}.`,
     );
     console.log(
       `Catalogue: ${catalogue.paths} path(s), ${catalogue.modules} module(s), ` +
@@ -647,8 +748,9 @@ async function create(name, flags) {
   console.log(`  cd ${contentRoot}`);
   console.log("  npm install && npm run content:sync && npm run content:build");
   console.log(`  cd ${frontendRoot}`);
+  // No theme step. `npm install` materialises the application and resolves the
+  // appearance, so the site has its complete default look before it is built.
   console.log("  npm install");
-  console.log("  npm run themes:sync -- --source <a project42-gallery checkout>");
   // facts:generate rewrites README and public/release-facts.json from the
   // catalogue that was just installed. `prebuild` verifies them, so a build
   // before this one fails on the content release it cannot find.
@@ -664,10 +766,12 @@ async function create(name, flags) {
 
 async function doctor(targetRoot) {
   const findings = [];
+  // config/theme-bundles.lock.json is deliberately NOT required. It records
+  // bundles a site pulled from the Gallery; a site whose appearance comes from
+  // its own themes/ folder or from the platform default never has one.
   const required = [
     "project42.config.json",
     "project42.copy.json",
-    "config/theme-bundles.lock.json",
     "package.json",
   ];
   for (const relative of required) {
@@ -675,10 +779,16 @@ async function doctor(targetRoot) {
   }
   if (await exists(path.join(targetRoot, "project42.config.json"))) {
     const config = await readJson(path.join(targetRoot, "project42.config.json"));
-    for (const id of config.availableThemes ?? []) {
-      if (!(await exists(path.join(targetRoot, "public", "themes", id, "theme.json")))) {
+    for (const id of config.availableThemes ?? [config.theme]) {
+      const resolvable =
+        (await exists(path.join(targetRoot, "themes", id, "theme.json"))) ||
+        (await exists(path.join(targetRoot, "public", "themes", id, "theme.json"))) ||
+        (await exists(path.join(shippedThemesRoot, id, "theme.json")));
+      if (!resolvable) {
         findings.push(
-          `theme bundle ${id} is declared but not installed -- run npm run themes:sync`,
+          `theme "${id}" is named in project42.config.json but no folder provides it -- ` +
+            `drop the theme folder in at themes/${id}/, or name one the platform ships ` +
+            `(${(await readdirSafe(shippedThemesRoot)).join(", ") || "none"})`,
         );
       }
     }

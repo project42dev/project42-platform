@@ -87,30 +87,53 @@ const sourceLayouts = path.join(sourceRoot, "layouts");
 // not check the Gallery out at all, so touching it here fails the build with
 // ENOENT rather than reporting anything useful about the lock.
 if (checkOnly) {
-  const lock = JSON.parse(await readFile(lockPath, "utf8"));
-  if (lock.selectedTheme !== config.theme) throw new Error("Selected theme differs from theme lock");
-  if (JSON.stringify(Object.keys(lock.themes).sort()) !== JSON.stringify(themeIds)) {
-    throw new Error("Configured themes differ from theme lock");
+  // The lock pins bundles a site chose to pull FROM THE GALLERY. It is not the
+  // source of a site's appearance and never was a prerequisite for having one:
+  // a theme folder dropped into themes/ in the site's own repository, and the
+  // default the platform ships, are both outside it by design. So an absent
+  // lock is a site that never went to the Gallery, not a broken site, and a
+  // configured theme with no lock entry is a locally resolved theme.
+  let lock;
+  try {
+    lock = JSON.parse(await readFile(lockPath, "utf8"));
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+    console.log(
+      "No Gallery lock: this site's appearance resolves from its own themes/ " +
+        "folder or from the bundles the platform ships. Nothing to verify.",
+    );
+    process.exit(0);
   }
-  for (const id of themeIds) {
+  const lockedThemes = Object.keys(lock.themes ?? {}).sort();
+  if (lockedThemes.includes(config.theme) && lock.selectedTheme !== config.theme) {
+    throw new Error("Selected theme differs from theme lock");
+  }
+  for (const id of lockedThemes) {
     assertSafeId(id);
     const actual = await inventoryTheme(id, path.join(themesRoot, id));
     if (JSON.stringify(actual) !== JSON.stringify(lock.themes[id].files)) {
       throw new Error(`${id}: installed bundle differs from lock`);
     }
   }
-  if (lock.selectedLayout !== config.layout.defaultPreset) {
+  const lockedLayouts = Object.keys(lock.layouts ?? {}).sort();
+  if (
+    lockedLayouts.includes(config.layout.defaultPreset) &&
+    lock.selectedLayout !== config.layout.defaultPreset
+  ) {
     throw new Error("Selected layout differs from theme lock");
   }
-  for (const id of Object.keys(lock.layouts ?? {})) {
+  for (const id of lockedLayouts) {
     assertSafeId(id);
     const actual = await inventoryLayout(id, path.join(layoutsRoot, id));
     if (JSON.stringify(actual) !== JSON.stringify(lock.layouts[id].files)) {
       throw new Error(`${id}: installed layout bundle differs from lock`);
     }
   }
+  const unlocked = themeIds.filter((id) => !lockedThemes.includes(id));
   console.log(
-    `Verified ${themeIds.length} locked theme bundles and ${Object.keys(lock.layouts ?? {}).length} locked layout bundles at ${lock.gallery.commit}.`,
+    `Verified ${lockedThemes.length} locked theme bundles and ${lockedLayouts.length} ` +
+      `locked layout bundles at ${lock.gallery.commit}.` +
+      (unlocked.length > 0 ? ` Resolved locally, outside the lock: ${unlocked.join(", ")}.` : ""),
   );
   process.exit(0);
 }

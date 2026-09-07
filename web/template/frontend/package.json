@@ -20,7 +20,7 @@
     "postinstall": "node node_modules/@project42/platform/bin/project42-portal.mjs materialise",
     "app:materialise": "node node_modules/@project42/platform/bin/project42-portal.mjs materialise",
     "doctor": "node node_modules/@project42/platform/bin/project42-portal.mjs doctor",
-    "bootstrap": "npm run themes:sync && npm run facts:generate && npm run brand:generate && npm run releases:generate",
+    "bootstrap": "npm run facts:generate && npm run brand:generate && npm run releases:generate",
     "themes:sync": "node scripts/sync-gallery-themes.mjs",
     "themes:check": "node scripts/sync-gallery-themes.mjs --check",
     "brand:generate": "node scripts/generate-brand-assets.mjs",

@@ -30,3 +30,14 @@ test-results/
 playwright-report/
 tsconfig.tsbuildinfo
 next-env.d.ts
+
+# --- Resolved appearance ------------------------------------------------------
+# The theme and layout bundles the site actually renders are RESOLVED on install
+# from, in order: this repository's own themes/<id>/ and layouts/<id>/ folders,
+# then the bundles @project42/platform ships. They are build outputs, like app/.
+#
+# To change the look: download a theme folder, drop it in at themes/<id>/, and
+# name it in project42.config.json. That is the whole procedure -- no sync step,
+# no lock entry, no code change.
+/public/themes/
+/public/layouts/

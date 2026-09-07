@@ -32,6 +32,29 @@ function walk(directory, prefix = "") {
   return output;
 }
 
+const DROPPED_IN = "/* dropped in by the site */\n";
+const EMPTY_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\"/>\n";
+
+// A theme is a folder. This writes the smallest one that satisfies the manifest
+// contract, which is all "drop a theme in" has ever needed to mean.
+function dropThemeFolder(root, id) {
+  const directory = path.join(root, "themes", id);
+  mkdirSync(path.join(directory, "badges"), { recursive: true });
+  writeFileSync(path.join(directory, "tokens.css"), DROPPED_IN, "utf8");
+  writeFileSync(path.join(directory, "portal.css"), DROPPED_IN, "utf8");
+  writeFileSync(path.join(directory, "mark.svg"), EMPTY_SVG, "utf8");
+  writeFileSync(path.join(directory, "hero.png"), "", "utf8");
+  for (const badge of ["foundations", "practitioner", "agentic", "evidence"]) {
+    writeFileSync(path.join(directory, "badges", "badge-" + badge + ".svg"), EMPTY_SVG, "utf8");
+  }
+  writeFileSync(
+    path.join(directory, "theme.json"),
+    JSON.stringify({ id, name: id, version: "1.0.0", tokens: {} }, null, 2),
+    "utf8",
+  );
+  return directory;
+}
+
 function scaffoldConfig(themes) {
   return {
     theme: themes[0],
@@ -154,6 +177,10 @@ test("materialise installs the application and generates the theme-bundle index"
       JSON.stringify(scaffoldConfig(["05-open-orbit", "06-galactic-guide"]), null, 2),
       "utf8",
     );
+    // 05-open-orbit is a theme this site downloaded and dropped into its own
+    // repository. Nothing registers it: the folder being there, and the name
+    // being in the config, is the whole mechanism.
+    dropThemeFolder(scratch, "05-open-orbit");
     execFileSync(process.execPath, [cli, "materialise", "--target", scratch], { stdio: "pipe" });
 
     assert.ok(existsSync(path.join(scratch, "app", "layout.tsx")));
@@ -177,6 +204,19 @@ test("materialise installs the application and generates the theme-bundle index"
     assert.ok(
       !/01-cosmic-answer/.test(generated),
       "only the configured themes may be indexed; a fixed six-theme list was the defect this replaced",
+    );
+
+    // Both bundles are installed and renderable, from two different origins:
+    // 05-open-orbit from this repository's own themes/ folder, 06-galactic-guide
+    // from the platform. Neither needed a Gallery checkout or a lock entry.
+    assert.equal(
+      readFileSync(path.join(scratch, "public", "themes", "05-open-orbit", "tokens.css"), "utf8"),
+      DROPPED_IN,
+      "a theme folder in the site's own repository wins",
+    );
+    assert.ok(
+      existsSync(path.join(scratch, "public", "themes", "06-galactic-guide", "portal.css")),
+      "and the platform's shipped default supplies anything the site did not drop in",
     );
 
     // lib/copy.ts imports the override document statically, so it must exist.
@@ -628,4 +668,106 @@ test("no client component pulls the whole catalogue into the browser", () => {
     [],
     "client components must read lib/progressCatalog, not the full catalogue",
   );
+});
+
+// ------------------------------------------------------ appearance resolution
+//
+// The product ships a complete look. These three tests are the whole contract:
+// a site with nothing of its own renders the platform default, a site that
+// drops a folder in and names it renders that instead, and a site that names
+// something no folder provides is told so rather than rendering unstyled.
+
+test("a site with no theme of its own renders the bundles the platform ships", () => {
+  const scratch = mkdtempSync(path.join(tmpdir(), "p42-default-theme-"));
+  try {
+    writeFileSync(
+      path.join(scratch, "project42.config.json"),
+      JSON.stringify(scaffoldConfig(["06-galactic-guide"]), null, 2),
+      "utf8",
+    );
+    execFileSync(process.execPath, [cli, "materialise", "--target", scratch], { stdio: "pipe" });
+
+    for (const relative of [
+      ["public", "themes", "06-galactic-guide", "theme.json"],
+      ["public", "themes", "06-galactic-guide", "tokens.css"],
+      ["public", "themes", "06-galactic-guide", "portal.css"],
+      ["public", "themes", "06-galactic-guide", "hero.png"],
+      ["public", "themes", "06-galactic-guide", "mark.svg"],
+      ["public", "layouts", "standard", "layout.css"],
+      ["public", "layouts", "standard", "layout.json"],
+    ]) {
+      assert.ok(
+        existsSync(path.join(scratch, ...relative)),
+        relative.join("/") + " must be installed with no Gallery involvement",
+      );
+    }
+
+    assert.equal(
+      readFileSync(path.join(scratch, "public", "themes", "06-galactic-guide", "tokens.css"), "utf8"),
+      readFileSync(path.join(webDir, "themes", "06-galactic-guide", "tokens.css"), "utf8"),
+      "and it must be the platform's bundle byte for byte, not a reconstruction",
+    );
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+});
+
+test("naming a theme folder in the repository is the whole procedure for changing the look", () => {
+  const scratch = mkdtempSync(path.join(tmpdir(), "p42-own-theme-"));
+  try {
+    // Start on the shipped default.
+    writeFileSync(
+      path.join(scratch, "project42.config.json"),
+      JSON.stringify(scaffoldConfig(["06-galactic-guide"]), null, 2),
+      "utf8",
+    );
+    execFileSync(process.execPath, [cli, "materialise", "--target", scratch], { stdio: "pipe" });
+    const shipped = readFileSync(
+      path.join(scratch, "public", "themes", "06-galactic-guide", "portal.css"),
+      "utf8",
+    );
+
+    // Drop a folder in and change ONE field. No script, no lock, no code.
+    dropThemeFolder(scratch, "house-style");
+    writeFileSync(
+      path.join(scratch, "project42.config.json"),
+      JSON.stringify(scaffoldConfig(["house-style"]), null, 2),
+      "utf8",
+    );
+    execFileSync(process.execPath, [cli, "materialise", "--target", scratch], { stdio: "pipe" });
+
+    assert.equal(
+      readFileSync(path.join(scratch, "public", "themes", "house-style", "portal.css"), "utf8"),
+      DROPPED_IN,
+    );
+    assert.notEqual(shipped, DROPPED_IN);
+    const generated = readFileSync(path.join(scratch, "lib", "themeBundles.generated.ts"), "utf8");
+    assert.match(generated, /public\/themes\/house-style\/theme\.json/);
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+});
+
+test("a theme no folder provides is reported, not silently rendered unstyled", () => {
+  const scratch = mkdtempSync(path.join(tmpdir(), "p42-missing-theme-"));
+  try {
+    writeFileSync(
+      path.join(scratch, "project42.config.json"),
+      JSON.stringify(scaffoldConfig(["not-a-theme"]), null, 2),
+      "utf8",
+    );
+    let stderr = "";
+    assert.throws(() => {
+      try {
+        execFileSync(process.execPath, [cli, "materialise", "--target", scratch], { stdio: "pipe" });
+      } catch (error) {
+        stderr = String(error.stderr ?? "");
+        throw error;
+      }
+    });
+    assert.match(stderr, /themes\/not-a-theme\//);
+    assert.match(stderr, /06-galactic-guide/, "and it must say what the platform does ship");
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
 });
