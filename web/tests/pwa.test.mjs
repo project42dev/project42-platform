@@ -68,7 +68,11 @@ test("iOS standalone metadata and safe-area viewport are declared", async () => 
   // Without these tags, Add to Home Screen produces a bookmark in Safari chrome.
   assert.match(layout, /appleWebApp: \{/);
   assert.match(layout, /capable: true/);
-  assert.match(layout, /statusBarStyle: "black-translucent"/);
+  // NOT "black-translucent": that forces the status-bar glyphs white, which is
+  // invisible on the light ground the shipped default theme paints. "default"
+  // follows the system appearance and stays legible on a light bundle and on a
+  // dark one. viewport-fit=cover still exposes the cutout to the page.
+  assert.match(layout, /statusBarStyle: "default"/);
 
   assert.match(layout, /viewportFit: "cover"/);
   assert.match(layout, /width: "device-width"/);

@@ -22,6 +22,8 @@ export const chromeCopy = {
       legal: "Legal and transparency",
     },
     startLearning: "Start learning",
+    /** Accessible name of the phone-width navigation disclosure. */
+    navMenuLabel: "Menu",
   },
   footer: {
     blurb:

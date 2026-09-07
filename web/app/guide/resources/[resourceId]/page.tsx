@@ -63,7 +63,7 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
   return (
     <main className="resource-detail shell" id="main-content">
       <nav className="breadcrumbs" aria-label="Breadcrumb">
-        <Link href="/guide">Field guide</Link>
+        <Link href="/guide" prefetch={false}>Field guide</Link>
         <span>/</span>
         <span aria-current="page">{resource.title}</span>
       </nav>
@@ -151,7 +151,7 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
             </li>
           ))}
         </ul>
-        <Link className="button button-secondary" href="/guide">
+        <Link className="button button-secondary" href="/guide" prefetch={false}>
           Back to the Field Guide
         </Link>
       </nav>

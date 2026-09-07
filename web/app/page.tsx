@@ -38,7 +38,7 @@ export default function Home() {
               <p className="portal-lede">{text.hero.lede}</p>
               <div className="portal-actions">
                 <Link href="/learn">{text.hero.actions.learn}</Link>
-                <Link href="/guide">{text.hero.actions.guide}</Link>
+                <Link href="/guide" prefetch={false}>{text.hero.actions.guide}</Link>
                 {/* /guide/diagrams, not /diagrams. Both routes render the same
                     index, but sitemap.ts publishes the /guide/ one as canonical
                     and every diagram card and breadcrumb already points there,
@@ -101,7 +101,7 @@ export default function Home() {
                 <li key={entry}>{entry}</li>
               ))}
             </ul>
-            <Link href="/guide">{text.twoWays.guide.link}</Link>
+            <Link href="/guide" prefetch={false}>{text.twoWays.guide.link}</Link>
           </article>
         </div>
       </section>

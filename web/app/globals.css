@@ -8704,12 +8704,9 @@ button.orchard-node:hover {
    on a desktop browser and are not gated behind a media query.
    --------------------------------------------------------------------------- */
 
-body {
-  /* Standalone iOS paints behind the status bar with black-translucent, so the
-     top inset has to come off the sticky header rather than the body, but the
-     home indicator is a body-level concern. */
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
+/* The home-indicator inset is applied once, by .site-footer below. Applying it
+   on <body> as well stacked two insets and left a dead strip under the footer
+   in the installed app. */
 
 .site-header {
   padding-top: env(safe-area-inset-top, 0px);
@@ -8735,4 +8732,172 @@ body {
 
 .skip-link:focus {
   top: calc(1rem + env(safe-area-inset-top, 0px));
+}
+
+/* The nav disclosure is phone-only: above the breakpoint the row is visible
+   and a second control for it would be a duplicate. */
+.nav-toggle {
+  align-items: center;
+  background: none;
+  border: 1px solid var(--p42-card-border);
+  border-radius: var(--p42-radius-pill);
+  color: var(--ink);
+  display: none;
+  height: 44px;
+  justify-content: center;
+  padding: 0;
+  width: 44px;
+}
+
+.nav-toggle svg {
+  height: 20px;
+  width: 20px;
+}
+
+/* Restated at the specificity of `.site-header nav > a`, which sets
+   display: inline-flex and would otherwise outrank a bare class. */
+.site-header nav > a.nav-cta {
+  display: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Phone ramp.
+
+   Everything below is scoped to (max-width: 760px) -- the breakpoint core
+   already treats as "phone" -- so nothing at 761px or wider changes.
+
+   The heading families above are sized with clamp() whose FLOOR is a desktop
+   size: clamp(3.4rem, 7vw, 7.3rem) never resolves below 54.4px, because on any
+   phone the 7vw term is smaller than the floor and the floor wins. A 54px
+   headline with -0.075em tracking in a 226px column is what pushed
+   document.scrollWidth to 344px against a 320px viewport on an iPhone SE, one
+   word per line, the last word clipped off the right edge.
+
+   Each ramp below is chosen so that AT 760px it resolves to exactly the floor
+   it replaces, which makes the seam continuous: the value is identical at the
+   breakpoint and only diverges as the screen gets narrower.
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 760px) {
+  /* 11vw meets 3.4rem at 494px and is capped there, so 494-760px is unchanged
+     from the old flat 54.4px and the homepage keeps its poster headline. */
+  .hero h1 {
+    font-size: clamp(2.2rem, 11vw, 3.4rem);
+    line-height: 0.95;
+    overflow-wrap: anywhere;
+  }
+
+  /* 8.5vw meets 3.4rem at 640px: identical to the old floor from 640-760px. */
+  .page-hero h1,
+  .path-hero h1,
+  .lesson-hero h1,
+  .resource-detail-hero h1,
+  .diagram-detail-hero h1,
+  .legal-hero h1,
+  .not-found h1 {
+    font-size: clamp(1.9rem, 8.5vw, 3.4rem);
+    line-height: 1;
+    overflow-wrap: anywhere;
+  }
+
+  /* Section headings carry a 2.3rem/36.8px floor for the same reason. 6vw
+     meets 2.3rem at 613px. */
+  .section-heading h2,
+  .cta h2,
+  .check-heading h2,
+  .comparison-heading h2,
+  .capstone-heading h2,
+  .lesson-block h2,
+  .focus-area-header h2,
+  .provider-section h2 {
+    font-size: clamp(1.5rem, 6vw, 2.3rem);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+
+  /* Vertical rhythm. 72px above and 128px below the content is a desktop
+     measure; on a phone it is most of a screen of nothing. */
+  main.shell,
+  main.page-shell {
+    padding-block: 2.25rem 4rem;
+  }
+
+  /* PHONE NAVIGATION.
+
+     The nav used to wrap into a two-column block that occupied roughly 330 of
+     the 568 visible pixels on an iPhone SE, and "Start learning" was hidden
+     outright. Now the row collapses behind the disclosure in SiteHeader, the
+     action returns as the first item in it, and every item is a full-width
+     44px row. The links stay in the served HTML either way -- this hides them,
+     it does not stop rendering them. */
+  .nav-toggle {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+  }
+
+  .site-header nav {
+    display: none;
+  }
+
+  .site-header[data-nav-open="true"] nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    padding-bottom: 0.75rem;
+    width: 100%;
+  }
+
+  /* The <=420px rule above gives each item flex: 1 1 calc(50% - 0.75rem) to
+     build the two-column block. In a column flex container that basis would
+     become a height, so the stack restates it. */
+  .site-header[data-nav-open="true"] nav > a,
+  .site-header[data-nav-open="true"] nav > .header-menu,
+  .site-header[data-nav-open="true"] nav > .header-menu > .header-menu-trigger {
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    min-height: 48px;
+    width: 100%;
+  }
+
+  .site-header[data-nav-open="true"] nav > .header-menu {
+    width: 100%;
+  }
+
+  .site-header[data-nav-open="true"] nav > a.nav-cta {
+    display: inline-flex;
+    order: -1;
+  }
+
+  /* A theme is entitled to trade the tap target for a tighter footer on a
+     desktop; on a phone the footer is the only way back to most of the site,
+     so core restates the minimum here and a bundle inherits it. */
+  .footer-grid a {
+    min-height: 44px;
+  }
+
+  /* Breadcrumbs measured 18-19px tall. They are the way back out of a module. */
+  .breadcrumbs a,
+  .lesson-breadcrumbs a,
+  .breadcrumb a {
+    align-items: center;
+    display: inline-flex;
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* .resource-foot a is the "Open" control on every Field Guide card -- the
+     only action on the card, and 45x18px on a phone. .sources li a is the
+     citation list at the foot of a module, 19px tall. */
+  /* min-width matters as much as min-height here: a one-word citation such
+     as "Models" measured 41.8px wide with a 44px height. */
+  .resource-foot a,
+  .sources li a {
+    align-items: center;
+    display: flex;
+    min-height: 44px;
+    min-width: 44px;
+  }
 }
