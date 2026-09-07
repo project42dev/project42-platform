@@ -24,6 +24,20 @@ const themeManifest = JSON.parse(
   readFileSync(resolve(`public/themes/${selectedTheme}/theme.json`), "utf8"),
 ) as { tokens?: Record<string, string> };
 
+// tokens.css is the bundle's actual declaration; theme.json's copy is a
+// convenience that not every published bundle carries, and the two can drift.
+// Reading the stylesheet first means this suite works against any bundle the
+// Gallery has ever published, including one predating the manifest copy.
+const themeTokensCss = readFileSync(
+  resolve(`public/themes/${selectedTheme}/tokens.css`),
+  "utf8",
+);
+
+function declaredInStylesheet(name: string): string | undefined {
+  const match = new RegExp(`${name}\\s*:\\s*([^;}]+)`).exec(themeTokensCss);
+  return match?.[1].trim();
+}
+
 // Surface and text colour tokens are asserted; a theme declaring extras is
 // free to do so, and a theme that omits one is not failed on that basis here.
 const assertedTokenNames = [
@@ -59,13 +73,15 @@ const galacticTokens: Record<string, string> = Object.fromEntries(
 // what is asserted: an exact colour match, against the bundle's own value.
 function declared(name: string): string {
   const seen = new Set<string>();
-  let value = themeManifest.tokens?.[name];
+  const lookup = (token: string) =>
+    themeManifest.tokens?.[token] ?? declaredInStylesheet(token);
+  let value = lookup(name);
   while (value) {
     const alias = /^var\(\s*(--p42-[a-z0-9-]+)\s*\)$/.exec(value.trim());
     if (!alias) return value;
     if (seen.has(alias[1])) break;
     seen.add(alias[1]);
-    value = themeManifest.tokens?.[alias[1]];
+    value = lookup(alias[1]);
   }
   throw new Error(
     `${selectedTheme}/theme.json declares no usable value for ${name}, ` +
