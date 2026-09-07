@@ -292,3 +292,69 @@ html[data-theme="portal-default"] .specimen-btn-primary:hover {
     transition: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Accent-filled panels and the header disclosure.
+ *
+ * Three more places core hands the bundle a decision and fails without one:
+ *
+ *   .cta               core fills it with the accent (`background: var(--lime)`,
+ *                      and --lime aliases --p42-accent). Every text token
+ *                      inside is chosen for the PAGE ground, so on any accent
+ *                      dark enough to need light text the whole panel drops
+ *                      below 4.5:1 -- eight axe violations on one section.
+ *   .pillar-reference  the same, through --cyan -- as does .pillar-ondemand.
+ *   .pillar-ondemand   Core also dims the card index to 0.65 and the list to
+ *                      0.75 and restores neither.
+ *   .header-menu-*     core leaves justify-content unset, so the disclosure's
+ *                      links compute `normal` and the panel reads ragged.
+ *
+ * A theme whose accent is light (Galactic's mint) never notices; one whose
+ * accent is dark fails immediately. The fix is not a lighter accent -- it is
+ * naming --p42-accent-fg, which exists for exactly this and which every
+ * bundle already declares.
+ * ------------------------------------------------------------------------ */
+
+html[data-theme="portal-default"] .cta,
+html[data-theme="portal-default"] .cta :is(h2, h3, p, li, small, a, .eyebrow),
+html[data-theme="portal-default"] :is(.pillar-reference, .pillar-ondemand),
+html[data-theme="portal-default"] :is(.pillar-reference, .pillar-ondemand)
+  :is(h2, h3, p, li, small, a, .eyebrow, .card-index) {
+  color: var(--p42-accent-fg);
+}
+
+/* Core dims the index to 0.65 and the list to 0.75 and restores neither. On
+   the page ground those read as legible greys; on an accent fill they drop
+   white to 3.65:1 and 4.13:1. Opacity over a themed fill is the bundle’s
+   decision, so this bundle takes it back and carries the emphasis in the rule
+   and the border instead. */
+html[data-theme="portal-default"] :is(.pillar-reference, .pillar-ondemand) > .card-index {
+  background: none;
+  border-color: color-mix(in srgb, var(--p42-accent-fg) 45%, transparent);
+  opacity: 1;
+}
+
+html[data-theme="portal-default"] :is(.pillar-reference, .pillar-ondemand) > ul {
+  border-top-color: color-mix(in srgb, var(--p42-accent-fg) 45%, transparent);
+  opacity: 1;
+}
+
+html[data-theme="portal-default"] .header-menu-panel {
+  background: var(--p42-surface-card);
+  border-color: var(--p42-card-border);
+  color: var(--p42-text-title);
+}
+
+html[data-theme="portal-default"] .header-menu-list a,
+html[data-theme="portal-default"] .header-menu-list button,
+html[data-theme="portal-default"] .header-menu-footer button {
+  color: var(--p42-text-body);
+  justify-content: flex-start;
+}
+
+html[data-theme="portal-default"] .header-menu-list a:hover,
+html[data-theme="portal-default"] .header-menu-list button:hover,
+html[data-theme="portal-default"] .header-menu-footer button:hover {
+  background: var(--p42-interactive-muted);
+  color: var(--p42-text-title);
+}

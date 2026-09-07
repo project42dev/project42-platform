@@ -4,6 +4,26 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.106.1] - 2026-09-07
+
+### Fixed
+
+- `portal-default` now takes over the surfaces core fills with the accent --
+  `.cta`, `.pillar-reference` and `.pillar-ondemand` -- and names
+  `--p42-accent-fg` on them. Core chooses every text colour inside those
+  panels for the PAGE ground, and also dims the card index to 0.65 and the
+  list to 0.75 without restoring either, so a bundle whose accent is dark
+  enough to need light text dropped the whole panel below 4.5:1. A bundle
+  whose accent is light never notices, which is why it survived this long.
+- `portal-default` sets `justify-content: flex-start` on the header
+  disclosure. Core leaves it unset, so the panel’s links compute `normal`
+  and read ragged.
+- The browser conformance suite derived every colour and the heading face from
+  the selected bundle but still asserted `toContain("Inter")` for the body
+  face -- 06-galactic-guide’s. Any bundle naming another body face failed a
+  required gate for no reason beyond not being that theme. It is now read from
+  `--p42-font-body` like the rest.
+
 ## [0.106.0] - 2026-09-06
 
 ### Added

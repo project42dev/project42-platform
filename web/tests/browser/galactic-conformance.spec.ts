@@ -89,13 +89,20 @@ function declared(name: string): string {
   );
 }
 
-// The heading typeface belongs to the bundle too, so the family is read from
-// the bundle rather than named here. Only the first family is asserted: the
-// rest of the stack is a fallback chain the browser may never reach.
-const declaredHeadingFamily = declared("--p42-font-heading")
-  .split(",")[0]
-  .trim()
-  .replace(/^["']|["']$/g, "");
+// The typefaces belong to the bundle too, so the families are read from the
+// bundle rather than named here. Only the first family is asserted: the rest
+// of the stack is a fallback chain the browser may never reach.
+//
+// The body face was `toContain("Inter")` -- a literal, and the last hardcoded
+// theme value left in this suite. Inter is 06-galactic-guide's body face, so a
+// bundle that names any other one failed a required gate for no reason beyond
+// not being that theme. That is the same defect the derived palette above
+// exists to close.
+const firstFamily = (value: string): string =>
+  value.split(",")[0].trim().replace(/^["']|["']$/g, "");
+
+const declaredHeadingFamily = firstFamily(declared("--p42-font-heading"));
+const declaredBodyFamily = firstFamily(declared("--p42-font-body"));
 
 /**
  * The site header must resolve to one of the bundle's declared page surfaces
@@ -432,7 +439,7 @@ test("keeps every public route family inside the Galactic presentation boundary"
         };
       });
 
-      expect(presentation.bodyFont, `${route} body font`).toContain("Inter");
+      expect(presentation.bodyFont, `${route} body font`).toContain(declaredBodyFamily);
       expect(presentation.headingFont, `${route} heading font`).toContain(
         declaredHeadingFamily,
       );

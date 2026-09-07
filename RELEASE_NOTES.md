@@ -1,4 +1,4 @@
-# Project 42 platform v0.106.0
+# Project 42 platform v0.106.1
 
 The default theme stops being somebody else’s brand.
 
@@ -13,6 +13,14 @@ It is a complete bundle, not a placeholder. All 48 tokens core reads, every comp
 **One fix made the swap a one-line change.** `materialise` resolved `availableThemes` and nothing else. `availableThemes` is the switcher’s menu; `theme` is what the site renders, and the two are not the same list -- a site that offers the six Gallery bundles but renders the shipped default names that default in `theme` alone. Such a site installed six bundles and not the one it had actually selected, then rendered on fallback values with every gate green. The selected theme is now always resolved, and `tests/web-distribution.test.mjs` fails if that regresses.
 
 Verified by building a real site both ways and reading computed styles off `/`, `/learn`, `/learn/paths` and `/about`, all 200: changing the one `"theme"` field moves the page ground, the body and heading typefaces, every heading colour, the primary action fill and shape, the eyebrow treatment and the card surface -- and changing it back restores the Galactic rendering exactly.
+
+## Fixed after the first cut (v0.106.1)
+
+Building the real site on `portal-default` found three things the first cut missed, all of them the same shape: a decision core hands the bundle, which a light-accented theme never has to make.
+
+Core fills `.cta`, `.pillar-reference` and `.pillar-ondemand` with the accent, then chooses every text colour inside them for the PAGE ground, and dims the card index to 0.65 and the list to 0.75 without restoring either. On Galactic mint accent with dark text that reads fine. On any accent dark enough to need light text the whole panel falls below 4.5:1 -- 309 axe violations across three suites. `portal-default` now names `--p42-accent-fg` on those panels and takes the opacity back. Core also leaves `justify-content` unset on the header disclosure, so its links compute `normal`; the bundle sets `flex-start`.
+
+And one gate: the browser conformance suite derived every colour and the heading face from the selected bundle, but still asserted `toContain("Inter")` for the body face -- 06-galactic-guide’s own. Any bundle naming another body face failed a required gate for no reason beyond not being that theme, which is the very defect that suite was rewritten to remove. It now reads `--p42-font-body` like the rest.
 
 ## Breaking changes
 
