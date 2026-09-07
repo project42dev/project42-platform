@@ -4,6 +4,51 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.104.4] - 2026-09-06
+
+### Added
+
+- The product ships its own appearance. A complete theme bundle and the three
+  layout bundles now live in the package, so installing the platform installs a
+  finished look -- no Gallery checkout, no sync step, no lock file, no network.
+- A theme is a folder, and choosing one is naming it. A site drops
+  `themes/<id>/` into its own repository, sets `"theme"` in
+  `project42.config.json`, and the build uses it. Resolution is: the site's own
+  folder, then a bundle it already pulled from the Gallery, then the platform
+  default. Naming a theme nothing provides fails the install with the folder to
+  create, rather than serving an unstyled page.
+- `docs/appearance-contract.md` states who owns what a site looks like: what
+  core owns, what a theme owns, and what a theme is guaranteed to be able to
+  change.
+
+### Changed
+
+- Core CSS declares no brand. The 27 places an accent or brand fill was read as
+  text, the 31 typefaces named inline, 28 pill radii, nine ramp tracking values
+  and nine `white` fills are now tokens the bundle owns. Each token takes its
+  last-resort value once, in the `p42-fallback` layer.
+  `--p42-text-accent` and `--p42-text-emphasis` separate "this text carries
+  emphasis" from the fill colour it defaults to, so a bundle can make emphasis
+  legible in its palette without repainting a surface. Verified unchanged
+  against 121,231 computed style values across 15 routes.
+- The Gallery lock is what it always described: a record of what a site chose to
+  pull from the Gallery, not a prerequisite for having a look. `themes:check`
+  passes without one and verifies only the bundles actually locked.
+
+### Fixed
+
+- A bundle pulled from the Gallery survived only if it happened to be tracked by
+  git, so on a new scaffold -- which ignores `public/themes/` as build output --
+  the next install overwrote it with the platform default, or refused to install
+  a theme the platform does not ship. The lock is now the signal.
+- `npm run theme:boundary` runs in this repository as well as in a consuming
+  site, so a regression in CSS authored here fails here. It enforces five rules
+  rather than one: no colour literal, no brand colour as text, no typeface named
+  in core, no token pinned outside the fallback layer, and no hardcoded radius or
+  letter-spacing beyond a recorded baseline.
+- `self-host/compatibility.json` and the two environment examples still named
+  0.104.3, so `npm run self-host:validate` failed on a released tree.
+
 ## [0.104.3] - 2026-09-06
 
 ### Changed
