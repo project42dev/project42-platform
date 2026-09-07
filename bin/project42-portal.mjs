@@ -478,7 +478,21 @@ async function copyBundle(from, to) {
   await cp(from, to, { recursive: true });
 }
 
-async function resolveBundle(kind, id, targetRoot, tracked, shippedRoot, manifest) {
+// The lock is the durable, git-tracked record of "I pulled this one from the
+// Gallery". It has to be the signal, because a bundle the sync writes into
+// public/ is build output that a new scaffold git-ignores -- so tracking alone
+// is not reliable, and without reading the lock the very next install would
+// overwrite a freshly synced Gallery bundle with the platform default.
+async function galleryLockedIds(targetRoot, kind) {
+  try {
+    const lock = await readJson(path.join(targetRoot, "config", "theme-bundles.lock.json"));
+    return new Set(Object.keys((kind === "themes" ? lock.themes : lock.layouts) ?? {}));
+  } catch {
+    return new Set();
+  }
+}
+
+async function resolveBundle(kind, id, targetRoot, tracked, shippedRoot, manifest, locked) {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) fail(`unsafe ${kind} id: ${id}`);
   const repoFolder = path.join(targetRoot, kind, id);
   const installed = path.join(targetRoot, "public", kind, id);
@@ -488,7 +502,7 @@ async function resolveBundle(kind, id, targetRoot, tracked, shippedRoot, manifes
   }
   if (
     (await exists(path.join(installed, manifest))) &&
-    tracked.has(`public/${kind}/${id}/${manifest}`)
+    (tracked.has(`public/${kind}/${id}/${manifest}`) || locked.has(id))
   ) {
     return "vendored";
   }
@@ -514,16 +528,22 @@ async function resolveAppearance(targetRoot, config, tracked) {
       config.layout?.defaultPreset ?? "standard",
     ]),
   ].sort();
+  const lockedThemes = await galleryLockedIds(targetRoot, "themes");
+  const lockedLayouts = await galleryLockedIds(targetRoot, "layouts");
   const origins = { repository: [], vendored: [], platform: [] };
   for (const id of themeIds) {
     origins[
-      await resolveBundle("themes", id, targetRoot, tracked, shippedThemesRoot, "theme.json")
+      await resolveBundle(
+        "themes", id, targetRoot, tracked, shippedThemesRoot, "theme.json", lockedThemes,
+      )
     ].push(id);
   }
   const layoutOrigins = { repository: [], vendored: [], platform: [] };
   for (const id of layoutIds) {
     layoutOrigins[
-      await resolveBundle("layouts", id, targetRoot, tracked, shippedLayoutsRoot, "layout.json")
+      await resolveBundle(
+        "layouts", id, targetRoot, tracked, shippedLayoutsRoot, "layout.json", lockedLayouts,
+      )
     ].push(id);
   }
   return { themeIds, layoutIds, origins, layoutOrigins };

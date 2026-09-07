@@ -771,3 +771,47 @@ test("a theme no folder provides is reported, not silently rendered unstyled", (
     rmSync(scratch, { recursive: true, force: true });
   }
 });
+
+test("a Gallery-synced bundle survives the next install, tracked or not", () => {
+  // A new scaffold git-ignores public/themes, because it is build output. So a
+  // bundle `npm run themes:sync` just wrote there is untracked, and an earlier
+  // version of the resolver overwrote it with the platform default on the very
+  // next `npm install` -- silently changing the site's look. The lock is the
+  // tracked record of the pull, so it is what makes the bundle stick.
+  const scratch = mkdtempSync(path.join(tmpdir(), "p42-gallery-sync-"));
+  try {
+    writeFileSync(
+      path.join(scratch, "project42.config.json"),
+      JSON.stringify(scaffoldConfig(["06-galactic-guide"]), null, 2),
+      "utf8",
+    );
+
+    // What themes:sync leaves behind: the bundle in public/, and a lock naming it.
+    const installed = path.join(scratch, "public", "themes", "06-galactic-guide");
+    mkdirSync(path.join(installed, "badges"), { recursive: true });
+    writeFileSync(path.join(installed, "theme.json"), JSON.stringify({ id: "06-galactic-guide" }), "utf8");
+    writeFileSync(path.join(installed, "tokens.css"), "/* from the Gallery */\n", "utf8");
+    mkdirSync(path.join(scratch, "config"), { recursive: true });
+    writeFileSync(
+      path.join(scratch, "config", "theme-bundles.lock.json"),
+      JSON.stringify({
+        gallery: { commit: "0".repeat(40) },
+        selectedTheme: "06-galactic-guide",
+        themes: { "06-galactic-guide": { files: {} } },
+        selectedLayout: "standard",
+        layouts: {},
+      }),
+      "utf8",
+    );
+
+    execFileSync(process.execPath, [cli, "materialise", "--target", scratch], { stdio: "pipe" });
+
+    assert.equal(
+      readFileSync(path.join(installed, "tokens.css"), "utf8"),
+      "/* from the Gallery */\n",
+      "the platform default must not overwrite a bundle the site pulled from the Gallery",
+    );
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+});

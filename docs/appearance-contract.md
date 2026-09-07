@@ -48,8 +48,11 @@ your-site/
 named theme, highest precedence first:
 
 1. **`themes/<id>/` in your repository.** You put it there; it wins.
-2. **`public/themes/<id>/` already installed and tracked by git.** A site that
-   vendors bundles it once pulled from the Gallery keeps working unchanged.
+2. **`public/themes/<id>/` already installed, and either tracked by git or
+   named in `config/theme-bundles.lock.json`.** That is a bundle the site
+   pulled from the Gallery, so the next install leaves it alone. The lock is
+   what makes it stick: a new scaffold git-ignores `public/themes/`, so being
+   tracked is not on its own a reliable signal.
 3. **The bundle the platform ships.** Always present, so every install renders.
 
 Naming a theme no folder provides fails the install and says which folder to
