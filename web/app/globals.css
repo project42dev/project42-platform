@@ -34,6 +34,28 @@
   --p42-text-muted: #94a3b8;
   --p42-eyebrow: var(--p42-primary);
   --p42-font-heading: Inter, ui-sans-serif, system-ui, sans-serif;
+  --p42-font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --p42-font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --p42-font-mono-display: "JetBrains Mono", ui-monospace, monospace;
+  --p42-font-serif: Georgia, "Times New Roman", serif;
+
+  /* An accent is a FILL colour. Read as body copy it can fail contrast while
+     passing its own contract -- that is how near-black text landed on a
+     near-black panel here. These two say "this text carries emphasis", and a
+     bundle sets them to whatever is legible in ITS palette without touching a
+     single fill. They default to the fills, so today nothing moves. */
+  --p42-text-accent: var(--p42-accent);
+  --p42-text-emphasis: var(--p42-primary);
+
+  /* A panel inverted out of the page: chips, white cards, form fields. */
+  --p42-surface-inverse: #ffffff;
+
+  /* Published by the layout bundle. Named here so core never writes 999px. */
+  --p42-radius-pill: 999px;
+  --p42-track-5: -0.055em;
+  --p42-track-4: -0.035em;
+  --p42-track-3: -0.02em;
+  --p42-track-2: -0.005em;
   --p42-surface-elevated: var(--p42-surface-card);
   --p42-surface-code: #020617;
   --p42-border-soft: var(--p42-card-border);
@@ -76,9 +98,7 @@ body {
     radial-gradient(circle at 85% 3%, color-mix(in srgb, var(--p42-primary) 8%, transparent), transparent 24rem),
     var(--paper);
   color: var(--ink);
-  font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  font-family: var(--p42-font-body);
   margin: 0;
   min-height: 100vh;
 }
@@ -196,7 +216,7 @@ a {
 
 .portal-actions a {
   border: 1px solid var(--p42-card-border);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   color: var(--p42-text-title);
   font-weight: 800;
   padding: 0.75rem 1rem;
@@ -256,7 +276,7 @@ a {
   font-size: 1rem;
   font-weight: 650;
   gap: 0.7rem;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--p42-track-3);
   min-height: 44px;
   text-decoration: none;
 }
@@ -491,7 +511,7 @@ a {
 .profile-trigger:hover {
   background: var(--p42-interactive-muted);
   border-color: var(--p42-primary);
-  color: var(--p42-primary);
+  color: var(--p42-text-emphasis);
 }
 
 .profile-trigger[aria-expanded="true"] {
@@ -514,7 +534,7 @@ a {
 .header-action {
   align-items: center;
   background: var(--navy);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   color: var(--p42-text-title);
   display: inline-flex;
   font-size: 0.82rem;
@@ -549,7 +569,7 @@ a {
 .hero h1 span {
   color: var(--p42-text-muted);
   display: block;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--p42-font-serif);
   font-style: italic;
   font-weight: 400;
   letter-spacing: -0.065em;
@@ -574,7 +594,7 @@ a {
 .button {
   align-items: center;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   cursor: pointer;
   display: inline-flex;
   font-size: 0.87rem;
@@ -691,7 +711,7 @@ a {
 }
 
 .map-mark {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--p42-font-mono);
   font-size: clamp(2rem, 5vw, 3.2rem);
   font-weight: 950;
   letter-spacing: -0.1em;
@@ -709,8 +729,8 @@ a {
 
 .map-node {
   align-items: center;
-  background: white;
-  border-radius: 999px;
+  background: var(--p42-surface-inverse);
+  border-radius: var(--p42-radius-pill);
   box-shadow: var(--p42-shadow-card);
   color: var(--navy);
   display: flex;
@@ -724,7 +744,7 @@ a {
 
 .map-node span {
   color: var(--p42-text-muted);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--p42-font-mono);
   font-size: 0.63rem;
 }
 
@@ -792,7 +812,7 @@ a {
 .mini-progress,
 .transcript-progress {
   background: var(--p42-interactive-muted);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   height: 8px;
   overflow: hidden;
 }
@@ -837,7 +857,7 @@ a {
 .open-source-banner h2 {
   font-size: clamp(2.3rem, 5vw, 4.5rem);
   font-weight: 840;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--p42-track-3);
   line-height: 1.05;
   margin: 0;
 }
@@ -873,7 +893,7 @@ a {
 }
 
 .card-index {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--p42-font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.08em;
   opacity: 0.65;
@@ -882,7 +902,7 @@ a {
 
 .pillar-card h3 {
   font-size: clamp(2rem, 4vw, 3.2rem);
-  letter-spacing: -0.055em;
+  letter-spacing: var(--p42-track-5);
   line-height: 1;
   margin: 5rem 0 1rem;
 }
@@ -960,13 +980,13 @@ a {
 
 .level-pill {
   border: 1px solid var(--p42-border-soft);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   padding: 0.28rem 0.58rem;
 }
 
 .path-number {
   color: var(--p42-text-muted);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--p42-font-serif);
   font-size: 5rem;
   font-style: italic;
   line-height: 1;
@@ -1059,7 +1079,7 @@ a {
 }
 
 .progress-strip strong {
-  color: var(--lime);
+  color: var(--p42-text-accent);
   font-size: 1.05rem;
 }
 
@@ -1076,8 +1096,8 @@ a {
 }
 
 .progress-strip .button-secondary:hover {
-  background: white;
-  border-color: white;
+  background: var(--p42-surface-inverse);
+  border-color: var(--p42-surface-inverse);
 }
 
 .provider-dot {
@@ -1236,7 +1256,7 @@ a {
 
 .learning-path-number {
   color: var(--p42-text-muted);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--p42-font-serif);
   font-size: 3.5rem;
   font-style: italic;
 }
@@ -1305,7 +1325,7 @@ a {
 .path-facts span {
   background: var(--paper-strong);
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   color: var(--ink-soft);
   font-size: 0.73rem;
   font-weight: 750;
@@ -1333,7 +1353,7 @@ a {
   border-radius: 50%;
   color: var(--navy);
   display: flex;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--p42-font-mono);
   font-size: 1.4rem;
   font-weight: 950;
   height: 82px;
@@ -1391,7 +1411,7 @@ a {
 
 .module-index {
   color: var(--p42-text-muted);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--p42-font-mono);
   font-size: 0.8rem;
 }
 
@@ -1471,7 +1491,7 @@ a {
 
 .provider-pill {
   border: 1px solid var(--p42-border-soft);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   color: var(--ink-soft);
   font-size: 0.63rem;
   font-weight: 800;
@@ -1503,7 +1523,7 @@ a {
 
 .objectives h2 {
   font-size: 1.5rem;
-  letter-spacing: -0.035em;
+  letter-spacing: var(--p42-track-4);
   margin: 0 0 1rem;
 }
 
@@ -1533,7 +1553,7 @@ a {
 
 .lesson-block-index {
   color: var(--p42-text-muted);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--p42-font-mono);
   font-size: 0.68rem;
   padding-top: 0.45rem;
 }
@@ -1574,7 +1594,7 @@ a {
 
 .comparison-heading > span {
   border: 1px solid var(--navy);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   flex: 0 0 auto;
   font-size: 0.68rem;
   font-weight: 800;
@@ -1597,7 +1617,7 @@ a {
 }
 
 .comparison-status {
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   display: inline-block;
   font-size: 0.62rem;
   font-weight: 850;
@@ -1797,7 +1817,7 @@ a {
 
 .capstone-threshold {
   border: 1px solid var(--navy);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   flex: 0 0 auto;
   font-size: 0.68rem;
   font-weight: 800;
@@ -1846,7 +1866,7 @@ a {
 }
 
 .capstone-exemplar {
-  background: white;
+  background: var(--p42-surface-inverse);
   border: 1px solid var(--p42-info-border);
   border-radius: 12px;
   overflow: hidden;
@@ -1977,7 +1997,7 @@ a {
 .capstone-artifacts input,
 .capstone-reflection textarea,
 .rubric-row input {
-  background: white;
+  background: var(--p42-surface-inverse);
   border: 1px solid var(--p42-border-soft);
   border-radius: 10px;
   color: var(--ink);
@@ -2145,7 +2165,7 @@ a {
   border-left: 5px solid var(--cyan);
   border-radius: 0 var(--radius-small) var(--radius-small) 0;
   color: var(--p42-info-fg);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--p42-font-serif);
   font-size: 1.2rem;
   font-style: italic;
   line-height: 1.55;
@@ -2196,7 +2216,7 @@ a {
 .copy-code-control button {
   background: transparent;
   border: 1px solid currentColor;
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   color: inherit;
   cursor: pointer;
   font: inherit;
@@ -2218,7 +2238,7 @@ a {
 }
 
 .code-example code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--p42-font-mono);
   font-size: 0.82rem;
   line-height: 1.65;
 }
@@ -2273,7 +2293,7 @@ a {
 }
 
 .lesson-rail > div strong {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--p42-font-mono);
   font-size: 0.75rem;
 }
 
@@ -2305,7 +2325,7 @@ a {
 
 .lesson-rail a span {
   color: var(--p42-text-muted);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--p42-font-mono);
   font-size: 0.62rem;
 }
 
@@ -2434,7 +2454,7 @@ a {
 }
 
 .knowledge-check .eyebrow {
-  color: var(--lime);
+  color: var(--p42-text-accent);
 }
 
 .knowledge-check > p {
@@ -2450,13 +2470,13 @@ a {
 
 .check-heading h2 {
   font-size: clamp(2.3rem, 5vw, 4rem);
-  letter-spacing: -0.055em;
+  letter-spacing: var(--p42-track-5);
   margin: 0;
 }
 
 .pass-note {
   border: 1px solid var(--p42-border-soft);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   color: var(--p42-text-body);
   font-size: 0.67rem;
   font-weight: 780;
@@ -2484,8 +2504,8 @@ a {
 }
 
 .question-card legend span {
-  color: var(--lime);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--p42-text-accent);
+  font-family: var(--p42-font-mono);
   font-size: 0.65rem;
   margin-right: 0.6rem;
 }
@@ -2520,7 +2540,7 @@ a {
   border: 1px solid var(--p42-border-soft);
   border-radius: 50%;
   display: flex;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--p42-font-mono);
   font-size: 0.62rem;
   height: 24px;
   justify-content: center;
@@ -2570,8 +2590,8 @@ a {
 }
 
 .check-result > div:first-child > span {
-  color: var(--lime);
-  font-family: Georgia, "Times New Roman", serif;
+  color: var(--p42-text-accent);
+  font-family: var(--p42-font-serif);
   font-size: 2.3rem;
   font-style: italic;
 }
@@ -2587,13 +2607,13 @@ a {
 }
 
 .check-result .button-secondary {
-  background: white;
-  border-color: white;
+  background: var(--p42-surface-inverse);
+  border-color: var(--p42-surface-inverse);
   color: var(--navy);
 }
 
 .result-retry > div:first-child > span {
-  color: var(--orange);
+  color: var(--p42-text-emphasis);
 }
 
 .resource-controls {
@@ -2727,7 +2747,7 @@ a {
 
 .freshness-badge {
   border: 1px solid currentColor;
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   display: inline-flex;
   font-size: 0.62rem;
   font-weight: 850;
@@ -2789,7 +2809,7 @@ a {
 
 .empty-state h2,
 .empty-state h3 {
-  letter-spacing: -0.035em;
+  letter-spacing: var(--p42-track-4);
   margin-top: 0;
 }
 
@@ -2985,7 +3005,7 @@ a {
 }
 
 .profile-stats span {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--p42-font-serif);
   font-size: 3rem;
   font-style: italic;
   line-height: 1;
@@ -3021,7 +3041,7 @@ a {
 }
 
 .transcript-list > article > strong {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--p42-font-mono);
   font-size: 0.73rem;
   text-align: right;
 }
@@ -3149,7 +3169,7 @@ a {
 
 .attempt-passed,
 .attempt-not-passed {
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   display: inline-block;
   font-size: 0.65rem;
   font-weight: 800;
@@ -3258,7 +3278,7 @@ a {
 
 .about-number {
   color: var(--p42-text-muted);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--p42-font-serif);
   font-size: 3rem;
   font-style: italic;
 }
@@ -3337,8 +3357,8 @@ a {
 }
 
 .release-facts dd {
-  color: var(--lime);
-  font-family: Georgia, "Times New Roman", serif;
+  color: var(--p42-text-accent);
+  font-family: var(--p42-font-serif);
   font-size: clamp(1.6rem, 3vw, 2.5rem);
   margin: 0.55rem 0 0;
 }
@@ -3379,7 +3399,7 @@ a {
 }
 
 .provider-fact-section strong {
-  color: var(--lime);
+  color: var(--p42-text-accent);
 }
 
 .provider-fact-section span {
@@ -3480,7 +3500,7 @@ a {
 }
 
 .future-platform-banner aside strong {
-  color: var(--lime);
+  color: var(--p42-text-accent);
   display: block;
   font-size: 1.25rem;
   letter-spacing: -0.025em;
@@ -3528,12 +3548,12 @@ a {
 }
 
 .policy-status a {
-  color: var(--lime);
+  color: var(--p42-text-accent);
 }
 
 .policy-status .eyebrow,
 .policy-machine-readable .eyebrow {
-  color: var(--lime);
+  color: var(--p42-text-accent);
 }
 
 .policy-status dl {
@@ -3558,7 +3578,7 @@ a {
 }
 
 .policy-status dd {
-  color: var(--lime);
+  color: var(--p42-text-accent);
   font-size: 1.05rem;
   font-weight: 820;
   margin: 0.45rem 0 0;
@@ -3607,7 +3627,7 @@ a {
 
 .policy-fact-grid span {
   color: var(--cyan-deep);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--p42-font-serif);
   font-size: 2rem;
 }
 
@@ -3649,7 +3669,7 @@ a {
 .policy-lifecycle li::before {
   color: var(--cyan-deep);
   content: counter(policy-state, decimal-leading-zero);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--p42-font-serif);
 }
 
 .policy-lifecycle span {
@@ -3700,7 +3720,7 @@ a {
 
 .policy-control-grid article > strong {
   color: var(--cyan-deep);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--p42-font-serif);
   font-size: clamp(1.8rem, 3vw, 2.6rem);
 }
 
@@ -3787,7 +3807,7 @@ a {
 }
 
 .footer-grid strong {
-  color: var(--p42-primary);
+  color: var(--p42-text-emphasis);
   font-size: 0.7rem;
   letter-spacing: 0.08em;
   margin-bottom: 0.4rem;
@@ -4241,7 +4261,7 @@ a {
 
 .legal-toc h2 {
   font-size: clamp(1.5rem, 3vw, 2.2rem);
-  letter-spacing: -0.035em;
+  letter-spacing: var(--p42-track-4);
   margin: 0;
 }
 
@@ -4301,7 +4321,7 @@ a {
 }
 
 .legal-review-notice .eyebrow {
-  color: var(--lime);
+  color: var(--p42-text-accent);
 }
 
 .legal-review-notice dl {
@@ -4326,7 +4346,7 @@ a {
 }
 
 .legal-review-notice dd {
-  color: var(--lime);
+  color: var(--p42-text-accent);
   font-weight: 820;
   margin: 0.45rem 0 0;
   overflow-wrap: anywhere;
@@ -4641,7 +4661,7 @@ a {
 }
 
 .diagram-source-card strong {
-  color: var(--lime);
+  color: var(--p42-text-accent);
   font-size: 1.6rem;
 }
 
@@ -5144,7 +5164,7 @@ a {
 .mini-progress,
 .transcript-progress {
   background: var(--p42-interactive-muted);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   height: 8px;
   overflow: hidden;
 }
@@ -5173,7 +5193,7 @@ a {
 .open-source-banner h2 {
   font-size: clamp(2.3rem, 5vw, 4.5rem);
   font-weight: 840;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--p42-track-3);
   line-height: 1.05;
   margin: 0;
 }
@@ -5285,7 +5305,7 @@ a {
 
 .comparison-heading>span {
   border: 1px solid var(--navy);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   flex: 0 0 auto;
   font-size: 0.68rem;
   font-weight: 800;
@@ -5461,7 +5481,7 @@ a {
 }
 
 .lesson-rail>div strong {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--p42-font-mono);
   font-size: 0.75rem;
 }
 
@@ -5477,14 +5497,14 @@ a {
 }
 
 .check-result>div:first-child>span {
-  color: var(--lime);
-  font-family: Georgia, "Times New Roman", serif;
+  color: var(--p42-text-accent);
+  font-family: var(--p42-font-serif);
   font-size: 2.3rem;
   font-style: italic;
 }
 
 .result-retry>div:first-child>span {
-  color: var(--orange);
+  color: var(--p42-text-emphasis);
 }
 
 .resource-controls label>span {
@@ -5540,7 +5560,7 @@ a {
 
 .empty-state h2,
 .empty-state h3 {
-  letter-spacing: -0.035em;
+  letter-spacing: var(--p42-track-4);
   margin-top: 0;
 }
 
@@ -5617,7 +5637,7 @@ a {
 
 .migration-disposition {
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   font-size: 0.68rem;
   font-weight: 800;
   padding: 0.3rem 0.55rem;
@@ -5732,7 +5752,7 @@ a {
 }
 
 .transcript-list>article>strong {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--p42-font-mono);
   font-size: 0.73rem;
   text-align: right;
 }
@@ -5788,7 +5808,7 @@ a {
 
 .attempt-passed,
 .attempt-not-passed {
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   display: inline-block;
   font-size: 0.65rem;
   font-weight: 800;
@@ -5858,7 +5878,7 @@ a {
 
 .policy-status .eyebrow,
 .policy-machine-readable .eyebrow {
-  color: var(--lime);
+  color: var(--p42-text-accent);
 }
 
 .policy-section-heading>p:last-child {
@@ -5909,7 +5929,7 @@ a {
 
 .policy-control-grid article>strong {
   color: var(--cyan-deep);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--p42-font-serif);
   font-size: clamp(1.8rem, 3vw, 2.6rem);
 }
 
@@ -6132,7 +6152,7 @@ a {
 .account-state {
   background: var(--p42-surface-elevated);
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   display: inline-flex;
   font-size: 0.68rem;
   font-weight: 850;
@@ -6970,7 +6990,7 @@ html[data-project42-reduced-motion="true"] *::after {
 
 .diagram-viewer-trigger-label {
   background: var(--navy);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   color: var(--p42-text-title);
   font-size: 0.72rem;
   font-weight: 800;
@@ -7006,7 +7026,7 @@ html[data-project42-reduced-motion="true"] *::after {
 }
 
 .diagram-viewer-kicker {
-  color: var(--lime);
+  color: var(--p42-text-accent);
   font-size: 0.62rem;
   font-weight: 850;
   letter-spacing: 0.08em;
@@ -7025,9 +7045,9 @@ html[data-project42-reduced-motion="true"] *::after {
 .diagram-viewer-controls button,
 .diagram-viewer-controls output {
   align-items: center;
-  background: white;
-  border: 2px solid white;
-  border-radius: 999px;
+  background: var(--p42-surface-inverse);
+  border: 2px solid var(--p42-surface-inverse);
+  border-radius: var(--p42-radius-pill);
   color: var(--navy);
   display: inline-flex;
   font: inherit;
@@ -7228,7 +7248,7 @@ html[data-project42-reduced-motion="true"] *::after {
 
 .lesson-filmed em {
   background: var(--cyan);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   color: var(--navy);
   font-size: 0.6rem;
   font-style: normal;
@@ -7330,7 +7350,7 @@ html[data-project42-reduced-motion="true"] *::after {
 
 .class-segment-filmed {
   background: var(--cyan, #2bb8d6);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   color: var(--navy, #0b1225);
   font-size: 0.68rem;
   font-weight: 800;
@@ -7424,7 +7444,7 @@ html[data-project42-reduced-motion="true"] *::after {
 
 .diagram-progress-track {
   background: var(--slate-200);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   height: 4px;
   overflow: hidden;
   width: 100%;
@@ -7432,7 +7452,7 @@ html[data-project42-reduced-motion="true"] *::after {
 
 .diagram-progress-fill {
   background: var(--violet);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   height: 100%;
   width: 0%;
 }
@@ -7555,7 +7575,7 @@ html[data-project42-reduced-motion="true"] *::after {
 }
 
 .diagram-step-links a {
-  color: var(--violet);
+  color: var(--p42-text-emphasis);
   font-weight: 500;
 }
 
@@ -8290,7 +8310,7 @@ button.orchard-node:hover {
 
 .orchard-pending-badge {
   background: var(--orchard-pending-badge-bg);
-  border-radius: 999px;
+  border-radius: var(--p42-radius-pill);
   color: var(--orchard-pending-badge-text);
   font-size: 0.625rem;
   font-weight: 700;
@@ -8337,7 +8357,7 @@ button.orchard-node:hover {
 }
 
 .orchard-step-links a {
-  color: var(--violet);
+  color: var(--p42-text-emphasis);
   font-weight: 500;
 }
 
@@ -8468,8 +8488,8 @@ button.orchard-node:hover {
 }
 
 .support-index {
-  color: var(--p42-primary);
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  color: var(--p42-text-emphasis);
+  font-family: var(--p42-font-mono-display);
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -8510,10 +8530,10 @@ button.orchard-node:hover {
 .platform-kicker {
   background: var(--p42-interactive-muted);
   border: 1px solid var(--p42-card-border);
-  border-radius: 999px;
-  color: var(--p42-primary);
+  border-radius: var(--p42-radius-pill);
+  color: var(--p42-text-emphasis);
   display: inline-flex;
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-family: var(--p42-font-mono-display);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -8561,8 +8581,8 @@ button.orchard-node:hover {
 }
 
 .platform-card-index {
-  color: var(--p42-primary);
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  color: var(--p42-text-emphasis);
+  font-family: var(--p42-font-mono-display);
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -8595,8 +8615,8 @@ button.orchard-node:hover {
   background: var(--p42-surface-code);
   border: 1px solid var(--p42-card-border);
   border-radius: 10px;
-  color: var(--p42-primary);
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  color: var(--p42-text-emphasis);
+  font-family: var(--p42-font-mono-display);
   font-size: 0.82rem;
   overflow-x: auto;
   padding: 1.2rem;
@@ -8620,7 +8640,7 @@ button.orchard-node:hover {
 }
 
 .platform-documentation-card strong {
-  color: var(--p42-primary);
+  color: var(--p42-text-emphasis);
 }
 
 .platform-documentation-card:hover {
