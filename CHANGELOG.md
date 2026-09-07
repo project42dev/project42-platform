@@ -4,6 +4,20 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.105.0] - 2026-09-06
+
+### Changed
+
+- The product now ships its own theme and layout bundles, so a deployment has
+  a complete, intentional appearance with no theme gallery involved. A theme
+  folder dropped into a site's own repository takes precedence over everything
+  else, and naming it in `project42.config.json` is the only step: no sync, no
+  lock entry, no manifest, no code change.
+- Core CSS no longer carries appearance. The brand colours used as text, the
+  typefaces beside the heading face, the pill radius and the inverted surface
+  are tokens a theme owns rather than values the product names. A gate refuses
+  a colour literal, a typeface, or a brand colour used as text in core.
+
 ## [0.104.4] - 2026-09-06
 
 ### Added

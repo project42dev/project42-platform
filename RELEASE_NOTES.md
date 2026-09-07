@@ -1,4 +1,4 @@
-# Project 42 platform v0.104.4
+# Project 42 platform v0.105.0
 
 The product ships its own look, and core stops painting one.
 
