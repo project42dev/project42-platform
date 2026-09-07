@@ -65,7 +65,7 @@
     "prepare": "npm run build",
     "content:sync": "node scripts/sync-content.mjs",
     "content:check": "node scripts/sync-content.mjs --check",
-    "web:check": "node --test tests/web-distribution.test.mjs"
+    "web:check": "node --test tests/web-distribution.test.mjs && node web/scripts/theme-boundary-check.mjs"
   },
   "engines": {
     "node": ">=22"
