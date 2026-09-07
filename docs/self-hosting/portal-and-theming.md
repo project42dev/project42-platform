@@ -19,7 +19,7 @@ cp project42.config.example.json project42.config.json
 ```json
 {
   "$schema": "https://schema.project-42.dev/v1/portal-config.json",
-  "theme": "portal-default",
+  "theme": "06-galactic-guide",
   "availableThemes": [
     "06-galactic-guide",
     "01-cosmic-answer",
@@ -59,12 +59,15 @@ The platform core owns behavior, content contracts, routing, authentication,
 learner data, accessibility semantics, and stable component hooks. It does not
 contain named customer-theme selectors or theme artwork.
 
-The platform ships one theme of its own, `portal-default`: a plain white
-page, hairline rules, one action colour and system type, with no ornament. It
-is what a fresh install renders with, the way a fresh Hugo or Jekyll site
-renders with the generator’s stock theme. It is deliberately NOT a Gallery
-entry — a Gallery theme is a choice, and shipping one as the default made
-every new deployment wear another operator’s brand.
+**The platform ships no theme.** A static-site generator ships none either —
+you pull one. Every theme lives in a Gallery or in the deploying repository,
+never in the package. A product that bundles a theme makes every install wear
+whichever look it happened to bundle, so "the default look" and one operator’s
+brand become the same thing.
+
+A site that names a theme nothing provides fails `npm install` with the folder
+to create. Layout bundles are a different contract and the platform does still
+ship those.
 
 The Gallery owns complete versioned theme bundles. A bundle contains its
 manifest, tokens, component treatments, mark, hero artwork, and badges. The

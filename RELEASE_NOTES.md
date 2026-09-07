@@ -1,3 +1,39 @@
+# Project 42 platform v0.108.0
+
+The platform ships no theme.
+
+v0.105.0 put a theme inside the package and v0.106.x replaced it with a different one. Both were wrong in the same way. A static-site generator ships no theme — you pull one — and a product that bundles a theme makes every install wear whichever look it happened to bundle. "The default look" and one operator's brand become the same sentence, which is the exact thing the last five releases were spent trying to separate.
+
+`web/themes/` is gone. Not replaced, not made more generic: gone. A theme is a folder the SITE provides.
+
+**Resolution is now two rules.** The site's own `themes/<id>/`, then a bundle it already vendors at `public/themes/<id>/` (git-tracked, or recorded in `config/theme-bundles.lock.json`). There is no third rule. A site that names a theme nothing provides fails `npm install` and is told which folder to create, instead of quietly rendering somebody else's design.
+
+**`project42-portal create` requires `--theme`.** There is no default to fall back to, and inventing an id would only move the failure to `npm install`. Refusing at `create` is the honest place.
+
+**Layout bundles still ship.** They are a different contract — composition, not brand — and `web/layouts/` is untouched.
+
+## Breaking changes
+
+**A site that relied on the platform to supply its theme will fail to install.** That is the point of the release, and the error names the fix: drop the folder in at `themes/<id>/`, or pull it from your Gallery.
+
+Concretely, a site whose `theme` resolved to a platform-shipped bundle — `06-galactic-guide` on v0.105.0, `portal-default` on v0.106.x — must now provide that folder itself. A site that already vendors its bundles under `public/themes/` with a lock entry is unaffected: that is rule 2 and it is unchanged.
+
+`project42-portal create` without `--theme` now fails instead of scaffolding.
+
+## Migrations
+
+None. No database, API or content change.
+
+## Known limitations
+
+The appearance contract, the token vocabulary and `theme:boundary` are unchanged: core still declares no brand and still consumes the same 48 tokens. Nothing about this release makes a theme easier to write — it only stops the product from supplying one.
+
+## Rollback
+
+Pin v0.107.0 and the platform supplies `portal-default` again.
+
+---
+
 # Project 42 platform v0.107.0
 
 The site is usable on a phone.

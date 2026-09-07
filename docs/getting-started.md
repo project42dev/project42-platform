@@ -32,9 +32,10 @@ profile. `npm run doctor` reports anything a front-end repository is missing.
 
 `project42.config.json` is the declarative source of truth. Set:
 
-- `theme` to one installed theme bundle. A fresh install renders on
-  `portal-default`, the platform’s own stock theme; name a Gallery bundle such
-  as `06-galactic-guide` to change the whole look;
+- `theme` to a theme bundle THIS repository provides — a folder you dropped in
+  at `themes/<id>/`, or one already vendored at `public/themes/<id>/`. The
+  platform ships no theme, so a name nothing provides fails the install and
+  tells you which folder to create;
 - `layout.defaultPreset` to one installed layout bundle, such as `standard`;
 - `portal.canonicalOrigin` to the one public learner origin;
 - `portal.adminOrigin` to the separately protected Admin origin; and

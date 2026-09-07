@@ -16,7 +16,7 @@ separate deployments.
 ### 1. Scaffold your own front end (one command)
 ```bash
 npm ci
-npx project42-portal create "Your Academy"
+npx project42-portal create "Your Academy" --theme 06-galactic-guide
 ```
 That writes two repositories side by side: a front end holding your branding,
 configuration and release records, and a content repository that inherits this
