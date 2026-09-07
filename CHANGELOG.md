@@ -4,31 +4,17 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
-## [0.108.0] - 2026-09-07
-
-### Removed
-
-- `web/themes/` — the platform ships no theme at all. v0.105.0 put a Gallery
-  theme in the package and v0.106.x replaced it with a generic one; both were
-  wrong the same way. A static-site generator ships no theme, and a product
-  that bundles one makes every install wear whichever look it happened to
-  bundle. Themes live in a Gallery or in the deploying repository.
+## [0.109.0] - 2026-09-07
 
 ### Changed
 
-- Theme resolution is two rules, not three: the site's own `themes/<id>/`, then
-  a bundle it already vendors at `public/themes/<id>/` (git-tracked or recorded
-  in the bundle lock). A name nothing provides fails the install and says which
-  folder to create, rather than falling back to a bundled look.
-- `project42-portal create` requires `--theme`. There is no default to fall
-  back to, and inventing an id would only move the failure to `npm install`.
-- `doctor` checks the SELECTED theme as well as every theme in the menu, and no
-  longer counts a platform-shipped bundle as resolving one.
-
-### Unchanged
-
-- Layout bundles still ship with the platform. They are a different contract —
-  composition, not brand — and `web/layouts/` is untouched.
+- Reverts 0.108.0. The platform ships its theme bundles again, because a
+  deployment of the product is what carries the default appearance: install it,
+  deploy it, and it has a look. 0.108.0 removed them and required every site to
+  supply a theme before it could install, which left a fresh deployment with no
+  appearance at all.
+- `project42-portal create` no longer requires `--theme`; it falls back to the
+  bundle the product ships.
 
 ## [0.107.0] - 2026-09-07
 

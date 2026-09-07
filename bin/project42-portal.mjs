@@ -38,13 +38,17 @@ const platformRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 
 const webRoot = path.join(platformRoot, "web");
 const templateRoot = path.join(platformRoot, "web", "template");
 
-// The platform ships NO theme. A static-site generator ships none either: you
-// pull one. Shipping a theme in the package meant every install wore whichever
-// look the product happened to bundle, and "the default look" and one
-// operator's brand became the same thing. A theme is a folder the SITE
-// provides -- from a Gallery, or dropped straight into the repository.
-//
-// Layout bundles are a different contract and the platform still ships those.
+// The product ships its own theme and layout bundles. A site therefore has a
+// complete, intentional appearance the moment it is installed -- no Gallery
+// checkout, no sync step, no lock file, no network. The Gallery is where you
+// go for a DIFFERENT look, not for a look at all.
+const shippedThemesRoot = path.join(webRoot, "themes");
+
+// The theme a scaffold selects and an unconfigured install renders with: the
+// product's own stock bundle, the way a generator ships a stock theme. It is
+// deliberately not a Gallery entry -- a Gallery theme is a CHOICE, and making
+// one of them the default made every new site wear one operator's brand.
+const DEFAULT_THEME = "portal-default";
 const shippedLayoutsRoot = path.join(webRoot, "layouts");
 
 // Everything under web/ except template/, which is the seed for a NEW
@@ -454,18 +458,14 @@ async function prune(targetRoot, planned, tracked, isGitRepository) {
 //   1. themes/<id>/ in the site's own repository -- you downloaded a theme
 //      folder, dropped it in, and named it. Nothing else changes: no script,
 //      no manifest, no lock entry. This is the Hugo/Jekyll move.
-//   2. public/themes/<id>/ already installed, either git-tracked or recorded in
-//      config/theme-bundles.lock.json -- a site that pulled its bundles from a
-//      Gallery and vendors them.
-//
-// There is no third rule. The platform ships no theme, so a site that names one
-// nothing provides fails the install and is told which folder to create. That
-// is deliberate: a package-supplied fallback is how one operator's brand became
-// every new deployment's default look.
+//   2. public/themes/<id>/ already installed and tracked by git -- a site that
+//      predates (1) and vendors its Gallery-synced bundles. Left untouched so
+//      the Gallery sync keeps working as a convenience.
+//   3. web/themes/<id>/ shipped by the platform -- the default. Every install
+//      has one, so every install renders.
 //
 // public/themes/ is the rendered output of that decision and is a build input,
-// exactly like app/. Layout bundles DO still ship with the platform and keep
-// the third rule, resolving from web/layouts/.
+// exactly like app/. Layout bundles resolve the same way from layouts/.
 
 async function readdirSafe(directory) {
   try {
@@ -512,21 +512,16 @@ async function resolveBundle(kind, id, targetRoot, tracked, shippedRoot, manifes
   ) {
     return "vendored";
   }
-  // shippedRoot is null for themes: the platform ships none, so there is
-  // nothing to fall back to and the failure below is the correct outcome.
-  if (shippedRoot) {
-    const shipped = path.join(shippedRoot, id);
-    if (await exists(path.join(shipped, manifest))) {
-      await copyBundle(shipped, installed);
-      return "platform";
-    }
+  const shipped = path.join(shippedRoot, id);
+  if (await exists(path.join(shipped, manifest))) {
+    await copyBundle(shipped, installed);
+    return "platform";
   }
-  const available = shippedRoot
-    ? ` or name one the platform ships (${(await readdirSafe(shippedRoot)).join(", ") || "none"})`
-    : ", or pull it from your Gallery. The platform ships no theme";
+  const available = (await readdirSafe(shippedRoot)).join(", ") || "none";
   fail(
     `${kind} bundle "${id}" is named in project42.config.json but no folder ` +
-      `provides it. Drop the folder in at ${kind}/${id}/ in this repository${available}.`,
+      `provides it. Drop the folder in at ${kind}/${id}/ in this repository, or ` +
+      `name one the platform ships (${available}).`,
   );
   return "missing";
 }
@@ -553,7 +548,7 @@ async function resolveAppearance(targetRoot, config, tracked) {
   for (const id of themeIds) {
     origins[
       await resolveBundle(
-        "themes", id, targetRoot, tracked, null, "theme.json", lockedThemes,
+        "themes", id, targetRoot, tracked, shippedThemesRoot, "theme.json", lockedThemes,
       )
     ].push(id);
   }
@@ -721,8 +716,7 @@ async function create(name, flags) {
   }
 
   const organization = flags.get("org") ?? name;
-  const theme = flags.get("theme");
-  if (!theme) fail("name the theme this site renders: --theme <id>. The platform ships none.");
+  const theme = flags.get("theme") ?? DEFAULT_THEME;
   const origin = (flags.get("origin") ?? `https://${id}.example.org`).replace(/\/$/, "");
   const adminOrigin =
     flags.get("admin-origin") ?? origin.replace("https://", "https://admin.");
@@ -819,17 +813,16 @@ async function doctor(targetRoot) {
   }
   if (await exists(path.join(targetRoot, "project42.config.json"))) {
     const config = await readJson(path.join(targetRoot, "project42.config.json"));
-    // The selected theme is checked whether or not availableThemes lists it:
-    // availableThemes is the switcher's menu, `theme` is what the site renders.
-    for (const id of new Set([config.theme, ...(config.availableThemes ?? [])].filter(Boolean))) {
+    for (const id of config.availableThemes ?? [config.theme]) {
       const resolvable =
         (await exists(path.join(targetRoot, "themes", id, "theme.json"))) ||
-        (await exists(path.join(targetRoot, "public", "themes", id, "theme.json")));
+        (await exists(path.join(targetRoot, "public", "themes", id, "theme.json"))) ||
+        (await exists(path.join(shippedThemesRoot, id, "theme.json")));
       if (!resolvable) {
         findings.push(
           `theme "${id}" is named in project42.config.json but no folder provides it -- ` +
-            `drop the theme folder in at themes/${id}/, or pull it from your Gallery. ` +
-            `The platform ships no theme.`,
+            `drop the theme folder in at themes/${id}/, or name one the platform ships ` +
+            `(${(await readdirSafe(shippedThemesRoot)).join(", ") || "none"})`,
         );
       }
     }
