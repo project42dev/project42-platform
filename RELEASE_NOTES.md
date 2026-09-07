@@ -1,3 +1,45 @@
+# Project 42 platform v0.107.0
+
+The site is usable on a phone.
+
+It had a manifest, a service worker, `apple-mobile-web-app-capable` and `viewport-fit=cover`. Every box was ticked and it was still bad on an iPhone, because the tags were never what was wrong. What follows was measured on real iPhone SE, iPhone 15 and iPhone 15 Pro Max profiles, portrait and landscape, under WebKit -- the engine Mobile Safari actually uses.
+
+**Headings could not get smaller than a desktop size.** Every heading family is sized with a `clamp()` whose FLOOR is a desktop measurement -- `clamp(3.4rem, 7vw, 7.3rem)` cannot resolve below 54.4px, because on any phone the `7vw` term is smaller than the floor and the floor wins. A module page rendered a 54px heading with -0.075em tracking into a 226px column: one word per line, `document.scrollWidth` at 344px against a 320px viewport, and the last word clipped off the right edge. Phone type ramps now sit under `(max-width: 760px)`, and each is chosen to resolve to exactly the floor it replaces AT 760px -- so the seam is continuous and nothing at 761px or wider renders differently.
+
+**The navigation was the first screen.** At phone width the primary nav wrapped into a two-column block occupying roughly 330 of the 568 visible pixels on an iPhone SE, and "Start learning" was `display:none` on every phone. You landed on the site and saw the site map. The nav now collapses behind a 44px disclosure with the action restored as its first item. The links stay in the served HTML and are hidden with CSS, never conditionally rendered, so the link checker, the Pages export and crawlers still see every destination.
+
+**Nothing you had to tap was big enough to tap.** Nine footer links per page at 23.2px tall -- core declared the 44px minimum and `portal-default` reset it to 0 for a tighter desktop footer. The Field Guide card's only action at 45x18px. Module citations at 19px. Breadcrumbs at 18px. All are 44px on a phone now, and the footer minimum is restated in the bundle that gave it away.
+
+**The installed app had an invisible status bar.** `apple-mobile-web-app-status-bar-style: black-translucent` forces the clock and battery glyphs white, and `portal-default` paints a white ground. It is `default` now, which follows the system appearance on a light bundle and on a dark one; `viewport-fit=cover` still lets the page fill the cutout. `<body>` and `.site-footer` were each applying `safe-area-inset-bottom`, stacking two insets under the home indicator; the footer applies it once.
+
+**The home page cost 432.7 KB on cellular.** 90.6 KB of that was a decorative `hero.png`, fetched on the home page and on `/learn/`, and 99.9 KB was a `/guide/` RSC prefetch on every first paint for a link most readers never tap. A phone now gets the hero plate without the picture, and no `/guide/` link prefetches.
+
+**A gate so it cannot come back.** `web/tests/browser/mobile-viewport.spec.ts` runs under WebKit on an iPhone SE, from a new `mobile-webkit` Playwright project. It fails on horizontal overflow, on a heading wider than its own box, on any control under 44x44 CSS px, on a missing safe-area rule for a pinned element, on a nav that is not a disclosure at phone width, and on a text field small enough to make iOS zoom on focus. The chromium project ignores that file and the new project runs nothing else, so neither suite can pass at a width where it proves nothing.
+
+## Breaking changes
+
+None. Every rule added is scoped to `(max-width: 760px)` or is a new class that only renders at phone width, so no viewport of 761px or wider changes.
+
+Adopters running the browser suite in CI must install WebKit alongside Chromium: `npx playwright install --with-deps webkit`.
+
+## Migrations
+
+None. No database, API or content change.
+
+## Known limitations
+
+The safe-area half of the gate reads the CSSOM rather than computed styles. `env(safe-area-inset-*)` resolves to `0px` in every engine under Playwright -- there is no notch to emulate -- so a computed-style assertion would pass on a page with no safe-area handling at all. Whether the installed app genuinely clears the notch can only be confirmed on a device.
+
+`/guide/` still serves a 100 KB HTML document. That is a content-structure question, not a phone one, and is left.
+
+The hosted Entra sign-in page reached from `/profile/` carries controls below 44px. It is Microsoft's markup, not the portal's, and is excluded from the gate.
+
+## Rollback
+
+Pin the previous platform version. Nothing outside the package changes, so a site reverts by reinstalling.
+
+---
+
 # Project 42 platform v0.106.1
 
 The default theme stops being somebody else’s brand.
