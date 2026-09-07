@@ -2,9 +2,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap");
 
 /*
-  FALLBACK ONLY -- the Gallery bundle owns every --p42-* value below.
+  LAST RESORT ONLY -- the selected theme bundle owns every --p42-* value below.
 
-  This was an unlayered :root, so it competed with the Gallery's tokens.css on
+  This is the ONE place in core where a token may be given a literal value, and
+  it exists so there is exactly one place to look. Every other rule in this file
+  reads a token by name; none of them writes a colour, a typeface or an
+  elevation. `npm run theme:boundary` enforces that.
+
+  This was an unlayered :root, so it competed with the bundle's tokens.css on
   equal specificity and won or lost purely on stylesheet load order. In
   practice it overrode the selected theme: headings rendered in Inter instead
   of the theme's Bricolage Grotesque, and --p42-accent resolved to a grey
@@ -12,12 +17,13 @@
   accent-filled sections read as mismatched boxes cut out of the page.
 
   A cascade layer fixes it permanently: unlayered styles ALWAYS beat layered
-  ones regardless of load order, so the Gallery now wins every token it
-  defines, while anything it does not define (--radius, --shell, --shadow,
-  --danger, and the local aliases) still resolves from here. If the Gallery
-  stylesheet ever fails to load, these keep the site readable.
+  ones regardless of load order, so the bundle wins every token it defines,
+  while anything it does not define still resolves from here.
 
-  Do not add theme values here. Theme values belong in project42-gallery.
+  Adding a token here is how core hands a decision to the theme. Adding a
+  VALUE that is really a brand choice is not: the product's own appearance
+  lives in the bundle it ships, web/themes/06-galactic-guide, and alternatives
+  live in the Gallery. See docs/appearance-contract.md.
 */
 @layer p42-fallback {
 :root {

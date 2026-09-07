@@ -49,9 +49,12 @@ Project 42 separates curriculum intelligence, content storage, and presentation 
    - Eliminates cross-subdomain authentication drops and avoids brittle iframe/postMessage bridges.
 
 3. **Declarative Hugo/Jekyll-Style Theming**:
-   - The visual aesthetic is governed by `project42.config.json` via a single `"theme"` key. The generic portal loader resolves that ID to a complete, version-locked Gallery bundle; named customer-theme rules never live in platform core.
+   - The product **ships its own complete theme and layout bundles**, so a fresh install renders an intentional look with no Gallery checkout, no sync step, no lock file and no network.
+   - A theme is a **folder**. A deployer downloads one, drops it in at `themes/<id>/` in their own repository, and names it in the single `"theme"` key of `project42.config.json`. Nothing else changes — not the code, not a build script, not a manifest, not a lock entry. Resolution order: the site's own folder, then a git-tracked bundle it already vendors, then the platform default.
+   - The Gallery is where you go for a **different** look, not for a look at all. Pulling from it stays supported and hash-locked; it is never a prerequisite for building.
    - Layout is independently selected by bundle ID. Theme and layout bundles may change presentation only; content, behavior, routing, authentication, and learner-data contracts remain core-owned.
-   - Dynamic CSS variable mappings (`--paper`, `--paper-strong`, `--ink`, `--line`, `--orange`, `--lime`, `--cyan`) skin all components instantly.
+   - Core CSS owns structure and consumes tokens; it declares no brand. `npm run theme:boundary` fails the build on a colour literal, an accent used as text, a typeface named inline, a token pinned outside the fallback layer, or a new hardcoded radius or tracking value.
+   - The full division of ownership — what core owns, what a theme owns, and what a theme is guaranteed to be able to change — is [the appearance contract](appearance-contract.md).
 
 4. **Dedicated Standalone Portals**:
    - **Theme Gallery (`gallery.project-42.dev`)**: Completely independent, static catalog of complete theme bundles with isolated preview sandboxes. It is the editing and publishing source for manifests, tokens, component treatments, marks, hero artwork, and badges. Zero auth or learner profile overhead.
