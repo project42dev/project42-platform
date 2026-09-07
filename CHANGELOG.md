@@ -4,6 +4,51 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.107.0] - 2026-09-07
+
+### Added
+
+- A phone gate. `web/tests/browser/mobile-viewport.spec.ts` runs under WebKit
+  on an iPhone SE from a new `mobile-webkit` Playwright project and fails the
+  build on horizontal overflow, on any control under 44x44 CSS px, on a
+  missing safe-area rule for a pinned element, on a nav that is not a
+  disclosure at phone width, and on a text field small enough to make iOS zoom
+  on focus. The chromium project ignores that file and the new project runs
+  nothing else, so neither suite can pass at a width that proves nothing.
+- The primary navigation collapses behind a disclosure at 760px and below,
+  with the "Start learning" action restored inside it. The links stay in the
+  served HTML -- hiding is CSS, never conditional rendering -- so the link
+  checker, the GitHub Pages export and crawlers still see every destination.
+
+### Fixed
+
+- Heading families could not get smaller than a desktop size on a phone.
+  `clamp(3.4rem, 7vw, 7.3rem)` never resolves below 54.4px, because on any
+  phone width the `7vw` term is below the floor and the floor wins. A module
+  page therefore rendered a 54px heading with -0.075em tracking into a 226px
+  column and pushed `document.scrollWidth` to 344px against a 320px viewport,
+  clipping the last word off the screen. Phone ramps now sit under
+  `(max-width: 760px)` and each resolves to exactly the floor it replaces AT
+  760px, so nothing at 761px or wider changes.
+- Tap targets below the 44px minimum on every route: nine footer links at
+  23.2px (core declared 44px and `portal-default` reset it to 0 for a tighter
+  desktop footer), the Field Guide card's only action at 45x18px, module
+  citations at 19px, breadcrumbs at 18px.
+- `apple-mobile-web-app-status-bar-style` was `black-translucent`, which
+  forces the status-bar glyphs white. On `portal-default`'s white ground an
+  installed home-screen app had an invisible clock and battery. It is now
+  `default`, which follows the system appearance on a light bundle and on a
+  dark one; `viewport-fit=cover` still exposes the cutout to the page.
+- `<body>` and `.site-footer` each applied `safe-area-inset-bottom`, stacking
+  two insets under the home indicator in the installed app. The footer applies
+  it once.
+- The home page transferred 432.7 KB to an iPhone: 90.6 KB of decorative
+  `hero.png` (also fetched on `/learn/`) and a 99.9 KB `/guide/` RSC prefetch
+  on every first paint. The phone now gets the hero plate without the picture,
+  and no `/guide/` link prefetches.
+- `main.shell` carried 72px above and 128px below its content on a phone, and
+  `portal-default` gave the lesson panel a 2rem inset inside a 292px shell.
+
 ## [0.106.1] - 2026-09-07
 
 ### Fixed
