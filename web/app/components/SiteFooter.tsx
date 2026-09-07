@@ -40,7 +40,7 @@ export function SiteFooter() {
         <div>
           <strong>{text.exploreHeading}</strong>
           <Link href="/learn/paths">{text.links.paths}</Link>
-          <Link href="/guide">{text.links.guide}</Link>
+          <Link href="/guide" prefetch={false}>{text.links.guide}</Link>
           <Link href="/guide/diagrams">{text.links.diagrams}</Link>
           <a href={galleryUrl}>{text.links.gallery}</a>
         </div>

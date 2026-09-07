@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandMark } from "./BrandMark";
@@ -11,6 +12,36 @@ import { copy, galleryUrl } from "../../lib/copy";
 export function SiteHeader() {
   const pathname = usePathname();
   const text = copy.chrome.header;
+  // PHONE NAVIGATION.
+  //
+  // Above 760px the primary nav is a row and this state is inert -- the CSS
+  // shows the nav unconditionally. At or below 760px the row does not fit, and
+  // the previous behaviour was to wrap it into a two-column block that ate
+  // roughly 330 of the 568 visible pixels on an iPhone SE: you landed on the
+  // site and saw navigation, not content. So the nav collapses behind a
+  // disclosure there, and the "Start learning" action -- which used to be
+  // display:none on every phone -- comes back as the first item inside it.
+  //
+  // The links stay in the DOM and are hidden with CSS rather than being
+  // conditionally rendered, for the same reason HeaderMenu keeps its panel
+  // mounted: the link checker, the GitHub Pages export and crawlers all read
+  // the server HTML.
+  const [navOpen, setNavOpen] = useState(false);
+
+  // A client-side transition would otherwise leave the panel open over the
+  // page the reader just navigated to.
+  useEffect(() => {
+    setNavOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!navOpen) return undefined;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setNavOpen(false);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [navOpen]);
 
   // If in Admin Console, render dedicated AdminHeader
   if (pathname && pathname.startsWith("/admin")) {
@@ -18,7 +49,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="site-header">
+    <header className="site-header" data-nav-open={navOpen ? "true" : "false"}>
       <div className="shell header-inner">
         <Link className="brand" href="/" aria-label={text.homeLabel}>
           <BrandMark />
@@ -27,9 +58,12 @@ export function SiteHeader() {
             <strong>{text.brandStrong}</strong>
           </span>
         </Link>
-        <nav aria-label="Primary navigation">
+        <nav aria-label="Primary navigation" id="primary-navigation">
+          <Link className="nav-cta" href="/learn">
+            {text.startLearning}
+          </Link>
           <Link href="/learn">{text.nav.learn}</Link>
-          <Link href="/guide">{text.nav.guide}</Link>
+          <Link href="/guide" prefetch={false}>{text.nav.guide}</Link>
           <Link href="/guide/diagrams">{text.nav.diagrams}</Link>
           <HeaderMenu
             align="end"
@@ -68,6 +102,24 @@ export function SiteHeader() {
           </HeaderMenu>
         </nav>
         <div className="header-actions">
+          <button
+            aria-controls="primary-navigation"
+            aria-expanded={navOpen}
+            aria-label={text.navMenuLabel}
+            className="nav-toggle"
+            onClick={() => setNavOpen((current) => !current)}
+            type="button"
+          >
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 20 20">
+              <path
+                d="M3 5.5h14M3 10h14M3 14.5h14"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeWidth="1.8"
+              />
+            </svg>
+          </button>
           <Link className="header-action" href="/learn">
             {text.startLearning}
           </Link>

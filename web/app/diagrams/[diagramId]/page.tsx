@@ -127,7 +127,7 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
             {nextDiagram.title} →
           </Link>
         ) : (
-          <Link href="/guide">Back to the Field Guide →</Link>
+          <Link href="/guide" prefetch={false}>Back to the Field Guide →</Link>
         )}
       </nav>
     </main>

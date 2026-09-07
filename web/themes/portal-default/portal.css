@@ -358,3 +358,37 @@ html[data-theme="portal-default"] .header-menu-footer button:hover {
   background: var(--p42-interactive-muted);
   color: var(--p42-text-title);
 }
+
+/* ---------------------------------------------------------------------------
+ * Phone.
+ *
+ * Scoped to (max-width: 760px). Nothing at 761px or wider changes.
+ * ------------------------------------------------------------------------ */
+
+@media (max-width: 760px) {
+  /* This bundle trades core's 44px footer tap target for a tighter footer,
+     which is a fair call on a desktop. On a phone the footer is the main way
+     back into the site, so the minimum comes back. */
+  html[data-theme="portal-default"] .footer-grid a {
+    min-height: 44px;
+    padding-block: 0.4rem;
+  }
+
+  /* --p42-space-xl is 2rem. Inside a 292px shell that leaves a 226px column,
+     so the reading measure loses a fifth of the screen to the panel's own
+     inset. */
+  html[data-theme="portal-default"] .lesson-main,
+  html[data-theme="portal-default"] .provider-section,
+  html[data-theme="portal-default"] .self-host-section {
+    padding: var(--p42-space-md);
+  }
+
+  /* hero.png is 90.6 KB of decorative artwork, and it was fetched on the home
+     page AND on /learn/ -- the two most likely first pages -- where it renders
+     as a faint plate behind the copy. On cellular that is a fifth of the whole
+     page for ornament, so the phone gets the plate without the picture. */
+  html[data-theme="portal-default"] .hero-map,
+  html[data-theme="portal-default"] .portal-poster-hero {
+    background-image: none;
+  }
+}

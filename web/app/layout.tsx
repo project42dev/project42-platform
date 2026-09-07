@@ -38,9 +38,15 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: orgName,
-    // Lets the page paint behind the status bar. Only safe because every edge
-    // that matters is padded with env(safe-area-inset-*) in globals.css.
-    statusBarStyle: "black-translucent",
+    // "black-translucent" paints the page behind the status bar AND forces the
+    // clock, signal and battery glyphs to white. The shipped default theme is
+    // a white ground with a light header, so on an installed home-screen app
+    // that put white glyphs on white -- an invisible status bar. "default"
+    // follows the system appearance instead, so it stays legible on a light
+    // bundle and on a dark one. viewport-fit=cover still lets the page fill
+    // the cutout and home-indicator areas; the env() padding in globals.css
+    // still does the work.
+    statusBarStyle: "default",
   },
   formatDetection: { telephone: false },
   icons: {

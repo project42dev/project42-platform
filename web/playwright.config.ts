@@ -26,6 +26,17 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      // The phone gate belongs to the mobile-webkit project below. Run at
+      // 1280px it would pass without measuring anything it exists to measure.
+      testIgnore: /mobile-viewport/,
+    },
+    {
+      // Mobile Safari's engine, on the tightest supported viewport. Every other
+      // spec is tuned for a desktop width and would fail here for reasons that
+      // have nothing to do with the phone, so this project runs one file.
+      name: "mobile-webkit",
+      use: { ...devices["iPhone SE"] },
+      testMatch: /mobile-viewport/,
     },
   ],
   webServer: {
