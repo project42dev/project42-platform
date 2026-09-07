@@ -4,6 +4,28 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.106.0] - 2026-09-06
+
+### Added
+
+- `portal-default`, the theme the platform ships as its own default: a white
+  page, hairline rules, one action colour, system type and no ornament. It is
+  what a fresh install renders with, the way a fresh Hugo or Jekyll site
+  renders with the generator’s own stock theme. It is deliberately not a Gallery
+  entry.
+
+### Changed
+
+- The scaffolder and every unconfigured install now select `portal-default`
+  rather than `06-galactic-guide`. A Gallery theme is a CHOICE; shipping one
+  as the default made every new deployment wear another operator’s brand.
+- `materialise` now always resolves the SELECTED theme, whether or not
+  `availableThemes` lists it. `availableThemes` is the switcher’s menu;
+  `theme` is what the site renders. A site that offers the Gallery bundles but
+  renders the shipped default previously installed six bundles and not the one
+  it had actually selected, and rendered on fallback values with every gate
+  green.
+
 ## [0.105.0] - 2026-09-06
 
 ### Changed

@@ -43,6 +43,12 @@ const templateRoot = path.join(platformRoot, "web", "template");
 // checkout, no sync step, no lock file, no network. The Gallery is where you
 // go for a DIFFERENT look, not for a look at all.
 const shippedThemesRoot = path.join(webRoot, "themes");
+
+// The theme a scaffold selects and an unconfigured install renders with: the
+// product's own stock bundle, the way a generator ships a stock theme. It is
+// deliberately not a Gallery entry -- a Gallery theme is a CHOICE, and making
+// one of them the default made every new site wear one operator's brand.
+const DEFAULT_THEME = "portal-default";
 const shippedLayoutsRoot = path.join(webRoot, "layouts");
 
 // Everything under web/ except template/, which is the seed for a NEW
@@ -521,7 +527,15 @@ async function resolveBundle(kind, id, targetRoot, tracked, shippedRoot, manifes
 }
 
 async function resolveAppearance(targetRoot, config, tracked) {
-  const themeIds = [...new Set(config.availableThemes ?? [config.theme])].sort();
+  // The SELECTED theme is always resolved, whether or not availableThemes
+  // lists it. availableThemes is the switcher's menu; `theme` is what the site
+  // renders. A site that offers the Gallery bundles but renders the platform's
+  // own default names that default in `theme` and not in the menu, and a
+  // version of this line that read only availableThemes left exactly that site
+  // with no bundle for the theme it had actually selected.
+  const themeIds = [
+    ...new Set([config.theme, ...(config.availableThemes ?? [])].filter(Boolean)),
+  ].sort();
   const layoutIds = [
     ...new Set([
       ...(config.layout?.availablePresets ?? []),
@@ -702,7 +716,7 @@ async function create(name, flags) {
   }
 
   const organization = flags.get("org") ?? name;
-  const theme = flags.get("theme") ?? "06-galactic-guide";
+  const theme = flags.get("theme") ?? DEFAULT_THEME;
   const origin = (flags.get("origin") ?? `https://${id}.example.org`).replace(/\/$/, "");
   const adminOrigin =
     flags.get("admin-origin") ?? origin.replace("https://", "https://admin.");

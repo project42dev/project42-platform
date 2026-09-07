@@ -1,3 +1,43 @@
+# Project 42 platform v0.106.0
+
+The default theme stops being somebody else’s brand.
+
+v0.105.0 made the product ship its own appearance, and that was right. What it shipped as the default was `06-galactic-guide` -- a Gallery theme, copied into the package. So every fresh install rendered in one operator’s livery, and "the default look" and "the Galactic look" became the same sentence. A Gallery theme is a CHOICE. It cannot also be the thing you get when you have not chosen.
+
+**The platform now ships `portal-default`.** A white page, hairline rules, one slate-blue action colour, system type, no ornament. It is the stock theme in the sense Hugo and Jekyll mean it: what a brand-new site renders with before anybody has decided anything, complete enough that the first thing an operator sees is a finished site rather than an unstyled one. It is not in the Gallery and never will be.
+
+It is a complete bundle, not a placeholder. All 48 tokens core reads, every component treatment the portal renders, the heading ramp bound to the layout track tokens, and the four surfaces core stopped painting in v0.105.0 -- the hero plate, the landing ornament, the footer tap target, and the primary action fill. Every foreground/background pair it declares is at or above 4.5:1.
+
+**`project42-portal create` selects it,** with no `--theme` flag needed. `06-galactic-guide` still ships and is still a theme anyone can select; it is simply no longer what you get by default.
+
+**One fix made the swap a one-line change.** `materialise` resolved `availableThemes` and nothing else. `availableThemes` is the switcher’s menu; `theme` is what the site renders, and the two are not the same list -- a site that offers the six Gallery bundles but renders the shipped default names that default in `theme` alone. Such a site installed six bundles and not the one it had actually selected, then rendered on fallback values with every gate green. The selected theme is now always resolved, and `tests/web-distribution.test.mjs` fails if that regresses.
+
+Verified by building a real site both ways and reading computed styles off `/`, `/learn`, `/learn/paths` and `/about`, all 200: changing the one `"theme"` field moves the page ground, the body and heading typefaces, every heading colour, the primary action fill and shape, the eyebrow treatment and the card surface -- and changing it back restores the Galactic rendering exactly.
+
+## Breaking changes
+
+None for an existing site: it names its theme explicitly and keeps rendering it.
+
+A NEW scaffold now renders `portal-default` instead of `06-galactic-guide`. Pass `--theme 06-galactic-guide` to `project42-portal create`, or set the `theme` field afterwards, to get the previous behaviour.
+
+A site whose `theme` is not listed in `availableThemes` now installs that bundle, where before it silently did not. Nothing that worked stops working.
+
+## Migrations
+
+None. No database, API or content change.
+
+## Known limitations
+
+`portal-default` lands in `public/themes/` on every install, like `app/`. A consuming repository must git-ignore it: tracking a platform-shipped bundle makes `materialise` read it as vendored and refuse to refresh it, freezing the default at the version first committed. The scaffolder template already ignores `/public/themes/`; a site predating that template needs the entry added.
+
+The Gallery preview matrix does not yet carry `portal-default`, because the Gallery holds Gallery themes and this one is not one. Previewing the product default beside the themes on offer is unsolved.
+
+## Rollback
+
+Pin v0.105.0 and set `"theme": "06-galactic-guide"`. Nothing outside the package changes.
+
+---
+
 # Project 42 platform v0.105.0
 
 The product ships its own look, and core stops painting one.

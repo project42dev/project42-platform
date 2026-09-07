@@ -712,6 +712,55 @@ test("a site with no theme of its own renders the bundles the platform ships", (
   }
 });
 
+test("the selected theme is resolved even when availableThemes omits it", () => {
+  // availableThemes is the switcher's MENU. `theme` is what the site renders.
+  // A site that offers the Gallery bundles but renders the platform's own
+  // default names that default in `theme` alone -- and a materialiser that
+  // read only availableThemes installed six bundles and not the one the site
+  // had actually selected, so the page rendered on fallback values with every
+  // gate green.
+  const scratch = mkdtempSync(path.join(tmpdir(), "p42-selected-theme-"));
+  try {
+    const config = scaffoldConfig(["06-galactic-guide"]);
+    config.theme = "portal-default";
+    writeFileSync(
+      path.join(scratch, "project42.config.json"),
+      JSON.stringify(config, null, 2),
+      "utf8",
+    );
+    execFileSync(process.execPath, [cli, "materialise", "--target", scratch], { stdio: "pipe" });
+
+    assert.ok(
+      existsSync(path.join(scratch, "public", "themes", "portal-default", "portal.css")),
+      "the theme the site selected must be installed even though the menu omits it",
+    );
+    assert.ok(
+      existsSync(path.join(scratch, "public", "themes", "06-galactic-guide", "portal.css")),
+      "and every bundle the menu offers is still installed alongside it",
+    );
+
+    // lib/themeBrand.ts throws on a theme absent from this index, so the
+    // selected theme has to appear in it or the build fails at runtime.
+    const generated = readFileSync(path.join(scratch, "lib", "themeBundles.generated.ts"), "utf8");
+    assert.match(generated, /public\/themes\/portal-default\/theme\.json/);
+    assert.match(generated, /public\/themes\/06-galactic-guide\/theme\.json/);
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+});
+
+test("the scaffolder selects the platform's own default, not a Gallery theme", () => {
+  // A Gallery theme is a CHOICE. Shipping one as the default made every new
+  // site wear one operator's brand, which is the whole defect this closes.
+  const cliSource = readFileSync(cli, "utf8");
+  assert.match(cliSource, /const DEFAULT_THEME = "portal-default";/);
+  assert.match(cliSource, /flags\.get\("theme"\) \?\? DEFAULT_THEME/);
+  assert.ok(
+    existsSync(path.join(webDir, "themes", "portal-default", "theme.json")),
+    "and the platform must actually ship the bundle it defaults to",
+  );
+});
+
 test("naming a theme folder in the repository is the whole procedure for changing the look", () => {
   const scratch = mkdtempSync(path.join(tmpdir(), "p42-own-theme-"));
   try {

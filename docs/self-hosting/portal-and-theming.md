@@ -19,7 +19,7 @@ cp project42.config.example.json project42.config.json
 ```json
 {
   "$schema": "https://schema.project-42.dev/v1/portal-config.json",
-  "theme": "06-galactic-guide",
+  "theme": "portal-default",
   "availableThemes": [
     "06-galactic-guide",
     "01-cosmic-answer",
@@ -59,6 +59,13 @@ The platform core owns behavior, content contracts, routing, authentication,
 learner data, accessibility semantics, and stable component hooks. It does not
 contain named customer-theme selectors or theme artwork.
 
+The platform ships one theme of its own, `portal-default`: a plain white
+page, hairline rules, one action colour and system type, with no ornament. It
+is what a fresh install renders with, the way a fresh Hugo or Jekyll site
+renders with the generator’s stock theme. It is deliberately NOT a Gallery
+entry — a Gallery theme is a choice, and shipping one as the default made
+every new deployment wear another operator’s brand.
+
 The Gallery owns complete versioned theme bundles. A bundle contains its
 manifest, tokens, component treatments, mark, hero artwork, and badges. The
 portal installs a bundle from the Gallery, records the exact source revision and
@@ -66,7 +73,10 @@ file hashes, and loads it through generic theme hooks. The favicon and every
 browser-size alias are derived from the selected bundle's authoritative mark;
 they are not configured as unrelated organization assets.
 
-Changing only the `theme` value selects a different installed bundle. Theme
+Changing only the `theme` value selects a different installed bundle — the
+default the platform ships, or any bundle in `availableThemes`. `theme` is what
+the site renders; `availableThemes` is only the switcher’s menu, so the default
+need not appear in it. Theme
 installation or editing happens in the Gallery first, followed by the portal's
 sync/install process. Never copy a theme's CSS into platform core or edit page
 content to make a theme fit.
