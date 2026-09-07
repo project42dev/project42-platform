@@ -196,41 +196,62 @@ test("routes Learn to the landing page and keeps the path catalog distinct", asy
   );
 });
 
-test("uses only Galactic artwork and compact shell treatments on Learn", async ({
+test("uses only the selected bundle's artwork and shell treatments on Learn", async ({
   page,
 }) => {
-  for (const viewport of [
-    { width: 1440, height: 1000 },
-    { width: 390, height: 844 },
-  ]) {
-    await page.setViewportSize(viewport);
-    // Pointing the element at the artwork is not the same as the artwork
-    // arriving: the theme hero images 404ed behind a correct-looking
-    // background-image for five of the six bundles once already.
-    const heroArtwork = page.waitForResponse(
-      (response) =>
-        new RegExp(`/themes/${selectedTheme}/hero\\.png`).test(response.url()),
-      { timeout: 15_000 },
-    );
-    await page.goto("/learn");
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  // Pointing the element at the artwork is not the same as the artwork
+  // arriving: the theme hero images 404ed behind a correct-looking
+  // background-image for five of the six bundles once already.
+  const heroArtwork = page.waitForResponse(
+    (response) =>
+      new RegExp(`/themes/${selectedTheme}/hero\.png`).test(response.url()),
+    { timeout: 15_000 },
+  );
+  await page.goto("/learn");
 
-    const hero = page.locator(".hero-map");
-    await expect(hero).toHaveCSS(
-      "background-image",
-      new RegExp(`/themes/${selectedTheme}/hero\\.png`),
-    );
-    expect((await heroArtwork).status()).toBe(200);
-    await expect(hero.locator(":scope > *").first()).toHaveCSS("opacity", "0");
+  const hero = page.locator(".hero-map");
+  await expect(hero).toHaveCSS(
+    "background-image",
+    new RegExp(`/themes/${selectedTheme}/hero\.png`),
+  );
+  expect((await heroArtwork).status()).toBe(200);
+  await expect(hero.locator(":scope > *").first()).toHaveCSS("opacity", "0");
 
-    const decorations = await page.locator(".path-card").evaluateAll((cards) =>
-      cards.map((card) => getComputedStyle(card, "::after").content),
-    );
-    expect(decorations).toEqual(decorations.map(() => "none"));
+  const decorations = await page.locator(".path-card").evaluateAll((cards) =>
+    cards.map((card) => getComputedStyle(card, "::after").content),
+  );
+  expect(decorations).toEqual(decorations.map(() => "none"));
 
-    const footerLink = page.locator(".footer-grid > div:nth-child(2) a").first();
-    await expect(footerLink).toHaveCSS("min-height", "0px");
-    expect(await footerLink.evaluate((link) => link.getBoundingClientRect().height)).toBeLessThan(32);
-  }
+  // A desktop can afford the tighter footer this bundle asks for.
+  const footerLink = page.locator(".footer-grid > div:nth-child(2) a").first();
+  await expect(footerLink).toHaveCSS("min-height", "0px");
+  expect(await footerLink.evaluate((link) => link.getBoundingClientRect().height)).toBeLessThan(32);
+});
+
+test("drops the decorative artwork and restores the tap target on a phone", async ({
+  page,
+}) => {
+  // Both of these are deliberate divergences from the desktop treatment above,
+  // and both were defects until they were. The hero plate is 90.6 KB of pure
+  // ornament that a phone on cellular was fetching on the home page AND on
+  // /learn/; and the footer is the main way back into the site on a phone,
+  // where a 23.2px link is not a target anyone can hit.
+  await page.setViewportSize({ width: 390, height: 844 });
+  const requested: string[] = [];
+  page.on("request", (request) => requested.push(request.url()));
+  await page.goto("/learn");
+
+  await expect(page.locator(".hero-map")).toHaveCSS("background-image", "none");
+  expect(
+    requested.filter((url) => url.includes(`/themes/${selectedTheme}/hero.png`)),
+    "the decorative hero plate was fetched at phone width",
+  ).toEqual([]);
+
+  const footerLink = page.locator(".footer-grid > div:nth-child(2) a").first();
+  expect(
+    await footerLink.evaluate((link) => link.getBoundingClientRect().height),
+  ).toBeGreaterThanOrEqual(44);
 });
 
 const protectedRouteFamilies = [
@@ -355,6 +376,11 @@ test("keeps the About and profile disclosures aligned and inside the viewport", 
   ]) {
     await page.setViewportSize(viewport);
     await page.goto("/");
+
+    // At 760px and below the primary nav is collapsed behind the phone
+    // disclosure, so the About trigger is only reachable once it is opened.
+    const navToggle = page.locator(".nav-toggle");
+    if (await navToggle.isVisible()) await navToggle.click();
 
     const about = page.getByRole("button", { name: "About" });
     await about.click();

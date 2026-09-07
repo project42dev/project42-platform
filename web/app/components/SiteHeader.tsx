@@ -29,15 +29,26 @@ export function SiteHeader() {
   const [navOpen, setNavOpen] = useState(false);
 
   // A client-side transition would otherwise leave the panel open over the
-  // page the reader just navigated to.
-  useEffect(() => {
+  // page the reader just navigated to. Adjusted DURING render rather than in an
+  // effect: React re-runs this component before committing anything, so the
+  // panel is never painted open on the new page, and react-hooks'
+  // set-state-in-effect rule is satisfied.
+  const [openedOn, setOpenedOn] = useState(pathname);
+  if (openedOn !== pathname) {
+    setOpenedOn(pathname);
     setNavOpen(false);
-  }, [pathname]);
+  }
 
   useEffect(() => {
     if (!navOpen) return undefined;
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setNavOpen(false);
+      if (event.key !== "Escape") return;
+      // A HeaderMenu inside this panel closes itself on Escape and puts focus
+      // back on its own trigger. Collapsing the panel around that trigger in
+      // the same keystroke would drop a keyboard user at the top of the
+      // document, so the inner disclosure gets the key first.
+      if ((document.activeElement as HTMLElement | null)?.closest(".header-menu")) return;
+      setNavOpen(false);
     }
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);

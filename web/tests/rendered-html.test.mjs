@@ -390,7 +390,11 @@ test("still answers 404 for a learning path that was never published", async () 
 test("points the header's navigation links to relative routes", async () => {
   const home = await render("/");
   const html = await home.text();
-  const nav = /<nav aria-label="Primary navigation">([\s\S]*?)<\/nav>/.exec(html);
+  // Match the opening tag by its accessible name rather than verbatim: the
+  // element also carries the id the phone navigation disclosure targets, and
+  // pinning the exact attribute string made a required gate fail over adding
+  // one attribute.
+  const nav = /<nav [^>]*aria-label="Primary navigation"[^>]*>([\s\S]*?)<\/nav>/.exec(html);
   assert.ok(nav, "primary navigation is missing");
   assert.match(
     nav[1],
@@ -640,7 +644,7 @@ test("publishes accessible document landmarks and discovery metadata", async () 
   assert.match(html, /<html[^>]*lang="en"/);
   assert.match(html, /href="#main-content"/);
   assert.match(html, /id="main-content" tabindex="-1"/);
-  assert.match(html, /<nav aria-label="Primary navigation">/);
+  assert.match(html, /<nav [^>]*aria-label="Primary navigation"/);
   assert.match(html, /class="brand-mark"/);
   assert.match(html, /class="brand-mark-four"/);
   assert.match(html, /class="brand-mark-two"/);
