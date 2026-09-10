@@ -61,7 +61,7 @@ The repositories and the gating workflows are:
 
 | Repository | Gating workflows |
 |---|---|
-| `project42-platform` | `ci.yml`, `release.yml` (Signed release), `release-oci.yml` |
+| `project42-platform` | `ci.yml` (CI), `release.yml` (Signed release), `release-oci.yml` (Release Multi-Arch OCI Image) |
 | `project-42.dev` (the portal) | `ci.yml`, `deploy-pages.yml` |
 | `project42-gallery` | `deploy.yml` |
 | `admin.project-42.dev` | `deploy-pages.yml` |
@@ -155,9 +155,11 @@ version `1.1`.
 
 Also observed, and it matters: the deployed portal build is `b137d45`, the head
 of the portal's `main`, and that build pins `@project42/platform` at
-**`v0.109.0`**. The platform has since released **`v0.110.0`**, which contains
-the progress-persistence fixes relevant to criterion 5. **Those fixes are
-released but not deployed.** The site is up; the site is not current.
+**`v0.109.0`**. The platform has since tagged **`v0.110.0`**, which contains the
+progress-persistence fixes relevant to criterion 5. (That tag's OCI image
+published; its `Signed release` workflow failed — see criterion 1. The portal
+consumes the git tag, so the tag is available to pin regardless.) **Those fixes
+are released but not deployed.** The site is up; the site is not current.
 
 ---
 
@@ -176,7 +178,8 @@ sign-in and the authorised call are one observation, not two.
 
 - The OIDC redirect chain completing. Every step of the redirect can be correct
   and the resulting session still be rejected by the API. This exact mistake
-  stood as "sign-in verified" for weeks.
+  stood as "sign-in verified" from 2026-09-04 until a real module completion
+  was attempted on 2026-09-09.
 - `GET /v1/me/progress` returning **401 `missing_access_token`** when
   unauthenticated. That proves the endpoint is alive and the guard works. It
   says nothing about whether anyone can get past the guard.
@@ -368,8 +371,8 @@ since then is known to affect it.
 | 6a | The themes are correct | Observed — served `data-theme` matches config |
 | 6b | One config field switches the theme | Not re-observed today — last proven 2026-09-07 |
 
-Four of the six are not in a state anyone should call done. None of that is a
-reason to soften the criteria.
+Two fail outright, one is a platform version behind, and three have not been
+observed today. None of that is a reason to soften the criteria.
 
 ## Changing this page
 
