@@ -265,9 +265,18 @@ that will not survive a cache clear.
   and was in fact a one-off import of browser local storage from months
   earlier, carrying `source: browser-local-v1`.
 - A green sign-in check. Sign-in and persistence are different claims, and the
-  defect that broke this criterion lived entirely on the read path: a failed
-  hydration read silently disabled every subsequent write for the rest of the
-  session, so a learner who was correctly signed in wrote nothing all day.
+  defect that broke this criterion lived on the WRITE path, in two stacked
+  layers. The app PUTs `/v1/me/progress` stamped `account-backed-v1`; the
+  worker's allow-list named only `browser-local-v1` and
+  `project42-portable-json`, so every routine save was refused with a 400
+  (fixed in 02f18f7, v0.110.0). Widening that allow-list then exposed the layer
+  beneath it: `progress_imports` carries a CHECK constraint listing the same
+  two sources, and its INSERT shares a D1 batch with `module_progress`, so the
+  whole batch aborts and the 400 becomes a silent 500 (migration 0020). A
+  failed hydration read *also* disables writes for the session, but that is
+  resilience hardening, not this root cause — had hydration succeeded, every
+  write would still have failed. A regression gate built from the read-path
+  description would test hydration retry and miss both real faults.
 
 **Status, 2026-09-10 — FAILS.** This is the known failure, and it is still
 failing.
