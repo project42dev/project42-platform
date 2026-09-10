@@ -33,7 +33,7 @@ The signal in decision 2 is not a description; it is a workflow trigger in this 
 |---|---|
 | 1 | Weekly cron, Sundays 00:00 UTC |
 | 2 | Manual `workflow_dispatch` |
-| 3 | `repository_dispatch`, type `content_updated` — the webhook the maintenance system fires when an authoring run finishes |
+| 3 | `repository_dispatch`, type `content_updated` — the webhook the maintenance system's publication script is written to send when a run finishes. Read the paragraph below before treating this row as a description of behaviour. |
 
 Vector 3 is the trigger half of "the drop plus the trigger". The drop half is the content repository itself, which is the subject of [the canonical content split](canonical-content.md).
 
@@ -47,7 +47,9 @@ The downstream consequence of the boundary is that the platform's consumption of
 
 The two diverged, and the divergence is in this repository's own history rather than in anyone's account of it.
 
-Between 2026-08-19 and 2026-08-22, **81 publication merges landed in `project42-platform`** — pull requests on branches named `orchard/publication/track-1/…` and `orchard/publication/track-2/…`, plus a run of `[Orchard] Release vN` merges. Under decision 2 those items should have landed in the content repository. They landed in the product repository instead, for weeks, while the architecture document already said the drop goes to the content repository.
+Between 2026-08-19 and 2026-08-22, **81 publication merges landed in `project42-platform`** — pull requests on branches named `orchard/publication/track-1/…` and `orchard/publication/track-2/…`. Under decision 2 those items belong in the content repository. They went to the product repository instead, while the architecture document already said the drop goes to the content repository.
+
+Two spans matter and they are different lengths. The merges themselves fall in a four-day window; the **misdirected target persisted for a further fortnight**, until it was repointed on 2026-09-06. `[Orchard] Release` merges also appear in this repository's history over the same period; this record did not examine them and makes no claim about whether they belong here.
 
 Both halves were corrected on 2026-09-06 in the maintenance system's own repository: one commit repoints publication at the content repository and another repoints the 173 historical items that had already been published to the wrong target. Those commits are cited here as existing; their contents are internals and stay there.
 
