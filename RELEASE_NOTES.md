@@ -1,6 +1,6 @@
-# Project 42 platform v0.110.0
+# Project 42 platform v0.110.1
 
-Learner progress persists again.
+Learner progress persists again. v0.110.0 taught the API to accept the write; this release lets the database store it. Between the two, every routine save was a 500 rather than a 400, and the learner still lost the work.
 
 A signed-in learner completed a module, saw it recorded, reloaded, and it was gone. The front end saves progress by PUTting `/v1/me/progress` with `source: "account-backed-v1"`. The API accepted only `browser-local-v1` and `project42-portable-json`, so every routine save was refused with 400 `invalid_progress_import`. Reads were never affected, which is why this read as data loss rather than a rejected write. Production D1 showed exactly that shape: `module_progress` empty, `assessment_attempts` empty, and `learning_progress` frozen at revision 1 from 2026-07-30 -- the last write that arrived as an import and was therefore allowed.
 
@@ -30,6 +30,8 @@ Until the migration is applied, a deployment carrying the widened API returns 50
 The event log is appended before the projection tables are written. A save made against a deployment that had the widened API but not the migration left a `progress.imported` event with no matching `progress_imports` row. `src/learning-record-recovery.ts` is the path for reconciling those; this release does not run it.
 
 The PostgreSQL migration was authored but not executed against a live PostgreSQL during development -- no local instance was available -- so it is verified by the CI job that runs the self-host suite against the `postgres:17.10-alpine3.23` service, not by hand.
+
+v0.110.0 was tagged and deployed without its governance records: `package.json` was bumped and `self-host/compatibility.json`, the environment examples, the changelog and these notes were not. That tag therefore names a release whose artifact does not contain migration 0020. This version, not that tag, is the one to deploy.
 
 ## Rollback
 

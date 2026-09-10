@@ -4,24 +4,44 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.110.1] - 2026-09-10
+
+### Fixed
+
+- The database can now store the source 0.110.0 taught the API to accept.
+  `progress_imports.source` carries a `CHECK` of its own naming only the two
+  import sources, so a widened API alone turned the 400 into a constraint
+  violation and still lost the write. Every routine save from a signed-in
+  learner was a 500 between v0.110.0 and this release.
+  `migrations/0020_account_backed_progress_source.sql` recreates the table with
+  the widened constraint -- SQLite cannot alter a `CHECK` -- and
+  `self-host/postgres/014_account_backed_progress_source.sql` replaces it in
+  place for self-hosted deployments.
+
+### Changed
+
+- `tests/authoritative-progress-api.test.mjs` asserts that a save with
+  `source: "account-backed-v1"` is stored in `progress_imports` and read back,
+  rather than that the allow-list contains the value. The previous test passed
+  throughout the outage because nothing exercised the source the app sends.
+- 0.110.0 was released without its governance records. `self-host/compatibility.json`,
+  both self-host environment examples, this changelog and the release notes now
+  match the package version again.
+
 ## [0.110.0] - 2026-09-09
 
 ### Fixed
 
-- Progress saves from a signed-in learner are stored again. The front end PUTs
-  `/v1/me/progress` with `source: "account-backed-v1"`; that value was in no
-  contract, so the API refused every routine save with 400
+- The API accepts the write the signed-in front end actually makes. The app
+  PUTs `/v1/me/progress` with `source: "account-backed-v1"`; that value was in
+  no contract, so every routine save was refused with 400
   `invalid_progress_import`. Reads were unaffected, so the failure was silent
-  and looked like data loss. The source is accepted by `ProgressImportRequest`,
+  and looked like data loss. The source is added to `ProgressImportRequest`,
   the worker allow-list, `LearningProgressImportSource` and its runtime
-  validator, and the learning-event contract schema.
-- The `progress_imports.source` column constrained the same set independently,
-  so a widened API alone turned the 400 into a constraint violation and still
-  lost the write. `migrations/0020_account_backed_progress_source.sql` and
-  `self-host/postgres/014_account_backed_progress_source.sql` widen it to match
-  the contract.
-- A 400 on progress import now names the source it received, instead of saying
-  only that an import ID and source are required.
+  validator, and the learning-event contract schema. It did not persist until
+  0.110.1, which widened the column constraint as well.
+- A 400 on progress import names the source it received, instead of saying only
+  that an import ID and source are required.
 - `ProgressProvider` retries hydration with backoff and buffers work done while
   the store is not yet writable. A single failed read previously disabled
   writes for the rest of the session.
