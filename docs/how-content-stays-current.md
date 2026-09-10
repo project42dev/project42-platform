@@ -154,10 +154,11 @@ a SHA-256 of every installed file in `config/content.lock.json`.
 
 A site rebuilds on any of three triggers:
 
-1. a weekly schedule;
+1. a daily schedule;
 2. a manual operator run; and
 3. a `content_updated` repository event, dispatched when an authoring run
-   finishes.
+   finishes. Nothing dispatches that event today, so the daily schedule is what
+   actually carries a correction across.
 
 That third trigger is the handoff point between the maintenance system and the
 open-source product: the maintenance system's responsibility ends when it has

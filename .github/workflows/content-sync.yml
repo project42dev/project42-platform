@@ -144,7 +144,13 @@ jobs:
           CHANGED: ${{ steps.result.outputs.changed }}
         run: |
           set -euo pipefail
-          branch="content-sync/$UPSTREAM"
+          # One fixed branch, force-pushed, carrying whatever upstream currently
+          # says. A branch named per upstream sha would open a second pull
+          # request every time the curriculum moved while the first was still
+          # unmerged, and -- because actions/checkout fetches only the
+          # triggering ref -- --force-with-lease would have no tracking ref to
+          # lease against and would reject the second day's push outright.
+          branch=content-sync
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git switch --create "$branch"
@@ -159,20 +165,20 @@ jobs:
 
           Upstream: https://github.com/project42dev/project42-content/commit/$UPSTREAM
           Previous pin: $LOCKED"
-          git push --force-with-lease origin "$branch"
+          git push --force origin "$branch"
 
-          if [ -n "$(gh pr list --head "$branch" --state open --json number --jq '.[].number')" ]; then
-            echo "A pull request for $branch is already open."
-            exit 0
-          fi
-
-          gh pr create --base main --head "$branch" \
-            --title "chore(content): sync curriculum from project42-content@$(printf '%.7s' "$UPSTREAM")" \
-            --body "Automated curriculum sync.
+          title="chore(content): sync curriculum from project42-content@$(printf '%.7s' "$UPSTREAM")"
+          body="Automated curriculum sync.
 
           - Canonical head: \`$UPSTREAM\`
           - Previous pin: \`$LOCKED\`
           - Paths changed: $CHANGED
+          - Gates for this sync: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+
+          This branch is authored by GITHUB_TOKEN, so GitHub deliberately does not
+          start a \`pull_request\` CI run on it. The linked job above is the gate:
+          it verified the installed tree against its lock, built the site, and
+          reports the curriculum's currency in its final step.
 
           The curriculum is authored in project42-content. This pull request only
           installs it; \`content/\` is never edited in this repository.
@@ -180,6 +186,26 @@ jobs:
           If the currency gate is red, the curriculum's own review dates have
           expired. That is a finding about the content, not a sync failure -- the
           remedy is to re-read the sources upstream, never to hold this sync back."
+
+          # The push above is the part that matters: the curriculum is now in
+          # this repository and recoverable by hand even if nothing below works.
+          existing="$(gh pr list --head "$branch" --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            gh pr edit "$existing" --title "$title" --body "$body"
+            echo "Updated pull request #$existing."
+            exit 0
+          fi
+
+          if gh pr create --base main --head "$branch" --title "$title" --body "$body"; then
+            exit 0
+          fi
+
+          # Repository setting "Allow GitHub Actions to create and approve pull
+          # requests" is off by default in this organisation, and with it off
+          # gh pr create is refused however the token is scoped. Say which
+          # switch, rather than leaving an API error for someone to decode.
+          echo "::error::The sync is committed and pushed to the '$branch' branch, but this job could not open a pull request for it. Enable Settings -> Actions -> General -> Workflow permissions -> 'Allow GitHub Actions to create and approve pull requests' on project42dev/project42-platform, or open the pull request from '$branch' by hand. The curriculum itself is safe on that branch."
+          exit 1
 
       # Currency, last and deliberately. This asks whether the curriculum's own
       # review dates have expired, which is a fact about the content rather than
@@ -190,5 +216,10 @@ jobs:
       # job, loudly, on every day it is true.
       - name: Report curriculum currency
         run: |
-          npm test
-          npm run content:freshness
+          # Both, always, then fail. Chaining these with && let the first
+          # failure hide the second, and the number worth reading -- how many
+          # citations are actually overdue -- is the one the second prints.
+          status=0
+          npm run content:freshness || status=1
+          npm test || status=1
+          exit "$status"

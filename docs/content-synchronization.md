@@ -4,8 +4,8 @@ Project 42 Platform supports three independent vectors for keeping curriculum up
 
 ```text
                 ┌─────────────────────────────────┐
-                │ 1. Scheduled Weekly Cron        │
-                │    (Every Sunday 00:00 UTC)     │
+                │ 1. Scheduled Daily Cron         │
+                │    (Every day 03:00 UTC)        │
                 └────────────────┬────────────────┘
                                  │
 ┌────────────────────────┐       │       ┌────────────────────────┐
@@ -15,13 +15,16 @@ Project 42 Platform supports three independent vectors for keeping curriculum up
                                  │
                                  ▼
                 ┌─────────────────────────────────┐
-                │ Content Sync & Deployment Engine│
+                │ Content Sync Engine             │
                 │  • Pulls project42-content      │
                 │  • Records the upstream commit  │
+                │  • Proves the lock names that   │
+                │    commit, or fails             │
                 │  • Validates schemas & quizzes  │
                 │  • Builds static export bundle  │
-                │  • Deploys to configured target │
-                │  • Posts Deployment Summary     │
+                │  • Commits content/ and opens   │
+                │    a pull request               │
+                │  • Reports curriculum currency  │
                 └─────────────────────────────────┘
 ```
 
@@ -51,8 +54,15 @@ fails the build.
 
 ## The 3 Sync Vectors
 
-### Vector 1: Scheduled Weekly Cron
-Runs automatically on Sundays at midnight UTC (`0 0 * * 0`) in GitHub Actions (`.github/workflows/content-sync.yml`).
+### Vector 1: Scheduled Daily Cron
+Runs automatically every day at 03:00 UTC (`0 3 * * *`) in GitHub Actions
+(`.github/workflows/content-sync.yml`), so an upstream correction is at most a
+day from being proposed here without anyone touching a button.
+
+It was weekly until 2026-09-10, and weekly was too slow to be the only live
+vector: project42-content retracted a set of unearned review dates on
+2026-09-06 at 18:08 UTC, fifteen hours after that week's run, and the copy here
+kept serving the retracted dates until the next Sunday would have come round.
 
 ### Vector 2: Manual UI Trigger
 Operators can trigger an instant content pull and build by clicking **Run workflow** under the **Content Sync & Deployment** tab in GitHub Actions.
@@ -68,6 +78,48 @@ That maintenance system is operated by the project owner and is not part of the
 open-source product. For what it does, where material is sourced from, and who
 approves it before it reaches a learner, see
 [how the curriculum stays current](how-content-stays-current.md).
+
+> **This vector has no sender today.** The workflow listens for
+> `content_updated`, but as of 2026-09-10 `project42dev/project42-content` has
+> no `.github/workflows` directory, so nothing there dispatches the event. A
+> correction committed upstream by hand — which is what the 2026-09-06
+> retraction was — notifies this repository not at all, and is picked up by
+> Vector 1 on the next daily run. Wiring a sender needs a cross-repository token
+> held in the content repository, which it does not currently have.
+
+---
+
+## What lands, and what fails
+
+The sync is only useful if its result reaches `main`, and only trustworthy if a
+sync that did not happen cannot look like one that did.
+
+**It lands.** The job commits `content/` and `config/content.lock.json` to the
+`content-sync` branch and opens (or updates) a pull request. Until 2026-09-10 it
+did none of that: it installed the curriculum into the runner's working tree,
+validated it, built it, and exited. `contents: write` was declared and never
+used, so every run was discarded and `main` never moved — three scheduled runs
+reported success that way while `content/` sat a commit behind a retraction. The
+job has never deployed anything, despite an earlier version of this page saying
+it did.
+
+**It fails loudly.** Three separate conditions stop the run:
+
+- The lock does not name the upstream commit that was checked out. A real sync
+  always rewrites the lock to the commit it installed from, so any other value
+  means the install did not come from upstream, whatever the exit code said.
+- The pin was behind the canonical head and yet nothing changed. Commits between
+  the two did not reach `content/`.
+- A manual or webhook-triggered run produced no change at all. Those fire
+  because something was expected to move. Only an idle daily cron over an
+  unchanged upstream is allowed to be a no-op, and it says so in the log.
+
+Structural gates — `content:check` and the build — run **before** the pull
+request is opened, so a broken upstream never becomes a proposal. The currency
+gate runs **after** it, on purpose: whether review dates have expired is a fact
+about the content, not about the sync, and refusing to install overdue
+curriculum is exactly what leaves this copy asserting dates upstream has already
+withdrawn. It still fails the job, every day it is true.
 
 ---
 
