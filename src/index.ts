@@ -443,11 +443,20 @@ export type {
   ApprovalDecisionKind,
   ProgressEnvelope,
   ProgressImportRequest,
+  ProgressImportSource,
   Project42Role,
   RegistrationStatus,
   OwnerRecoveryProofRequest,
   RollbackAccountMergeRequest,
   UpdateLearnerProfileRequest,
+} from "./api-contract.js";
+// Values, not types: the front end sends ACCOUNT_BACKED_PROGRESS_SOURCE on
+// every routine save, and the worker validates against PROGRESS_IMPORT_SOURCES.
+// Both sides import from here so the two can never drift apart again.
+export {
+  ACCOUNT_BACKED_PROGRESS_SOURCE,
+  PROGRESS_IMPORT_SOURCES,
+  isProgressImportSource,
 } from "./api-contract.js";
 export {
   ADMIN_PAGE_DEFAULT_SIZE,

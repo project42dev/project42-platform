@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ACCOUNT_BACKED_PROGRESS_SOURCE,
   createEmptyProgress,
   recordAssessmentAttempt,
   recordCapstoneSubmission,
@@ -214,7 +215,10 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         signal: controller.signal,
         body: JSON.stringify({
           importId: crypto.randomUUID(),
-          source: "account-backed-v1",
+          // Shared with the worker's allow-list. Do not inline the literal:
+          // a hardcoded copy here that the worker did not accept is what made
+          // every save 400 and left production module_progress empty.
+          source: ACCOUNT_BACKED_PROGRESS_SOURCE,
           progress,
         }),
       })
