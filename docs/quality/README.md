@@ -17,9 +17,17 @@ The AB#5194 package distinguishes deterministic preflight evidence from human
 keyboard, assistive-technology, and moderated-usability evidence. A passing preflight
 is never a substitute for the required human sessions.
 
+## The definition of done
+
+The six acceptance criteria that decide whether the product is finished, what
+observation proves each one in production, and what has previously been
+mistaken for that proof: [definition-of-done.md](../definition-of-done.md).
+Its status blocks are dated and are honest about which criteria currently fail.
+
 ## Operational readiness
 
-**Verified 2026-09-06.**
+**Verified 2026-09-06.** This date covers the three signal runbooks below, not
+the acceptance criteria — see the definition of done for those.
 
 - [Operational signal-review runbook](../runbooks/project42-operational-signal-review.md)
 - [Incident-response runbook](../runbooks/project42-incident-response.md)

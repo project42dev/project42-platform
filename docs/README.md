@@ -12,6 +12,7 @@ is a separate decision.
 
 | If you want to | Read |
 |---|---|
+| Know when the product is finished, and what proves it | [definition-of-done.md](definition-of-done.md) |
 | Understand the ideas | [concepts/](concepts/) |
 | Run Project 42 yourself | [self-hosting/](self-hosting/) · [Theming & Portal Guide](self-hosting/portal-and-theming.md) |
 | Choose and wire up models | [models/](models/) |
