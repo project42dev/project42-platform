@@ -253,14 +253,46 @@ export interface ProgressEnvelope {
   synchronizedAt: string;
 }
 
+/**
+ * The source the signed-in front end stamps on its own routine progress
+ * writes. It is the ordinary case, and it was the one missing: until
+ * 2026-09-09 the accepted-source union named only the two *import* sources,
+ * so every save the app made was refused 400 invalid_progress_import while
+ * reads kept succeeding -- progress appeared to vanish on reload, and
+ * production D1 held zero rows in module_progress.
+ *
+ * It is a shared constant rather than a literal repeated in two places
+ * precisely because that divergence is what broke. The string was hardcoded
+ * in web/app/components/ProgressProvider.tsx and hardcoded again, with a
+ * different set of values, in the worker's allow-list, and nothing anywhere
+ * made the two agree.
+ */
+export const ACCOUNT_BACKED_PROGRESS_SOURCE = "account-backed-v1";
+
+/**
+ * Every source POST/PUT /v1/me/progress accepts. The worker validates against
+ * this list; it must not be restated as a literal array anywhere else.
+ */
+export const PROGRESS_IMPORT_SOURCES = [
+  "browser-local-v1",
+  "project42-portable-json",
+  ACCOUNT_BACKED_PROGRESS_SOURCE,
+] as const;
+
+export type ProgressImportSource = (typeof PROGRESS_IMPORT_SOURCES)[number];
+
+export function isProgressImportSource(
+  value: unknown,
+): value is ProgressImportSource {
+  return (
+    typeof value === "string" &&
+    (PROGRESS_IMPORT_SOURCES as readonly string[]).includes(value)
+  );
+}
+
 export interface ProgressImportRequest {
   importId: string;
-  // "account-backed-v1" is the ordinary case, and it was the one missing: the
-  // signed-in app pushing the learner's own progress as they work. Until
-  // 2026-09-09 this union named only the two import sources, so every routine
-  // write from the front end was refused 400 invalid_progress_import while
-  // reads succeeded -- progress appeared to vanish on reload.
-  source: "browser-local-v1" | "project42-portable-json" | "account-backed-v1";
+  source: ProgressImportSource;
   progress: LearnerProgress;
 }
 

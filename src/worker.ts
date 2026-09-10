@@ -71,6 +71,10 @@ import type {
   UpdateLearnerProfileRequest,
 } from "./api-contract.js";
 import {
+  PROGRESS_IMPORT_SOURCES,
+  isProgressImportSource,
+} from "./api-contract.js";
+import {
   ADMIN_CURSOR_MAX_LENGTH,
   ADMIN_PAGE_DEFAULT_SIZE,
   ADMIN_PAGE_MAX_SIZE,
@@ -10574,14 +10578,12 @@ async function handleRequest(
       const body = await readJson<ProgressImportRequest>(request);
       if (
         !body.importId ||
-        !["browser-local-v1", "project42-portable-json", "account-backed-v1"].includes(
-          body.source,
-        )
+        !isProgressImportSource(body.source)
       ) {
         throw new ApiFailure(
           400,
           "invalid_progress_import",
-          `Import ID and a supported source are required; received source ${JSON.stringify(body.source)}.`,
+          `Import ID and a supported source are required; received source ${JSON.stringify(body.source)}. Supported: ${PROGRESS_IMPORT_SOURCES.join(", ")}.`,
         );
       }
       const progress = await repository.importProgress({
