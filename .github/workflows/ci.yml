@@ -49,6 +49,32 @@ jobs:
       - run: npm ci
       - run: npm run check
 
+  # The platform vendors the curriculum from project42-content and pins it in
+  # config/content.lock.json. content:check verifies the installed tree against
+  # that PIN, so a tree that faithfully reproduces a retracted pin passes
+  # forever -- which is how project-42.dev kept serving a 2026-08-23 review date
+  # for four days after project42-content withdrew it on 2026-09-06. This job is
+  # the only check that compares what is served against upstream itself. It is
+  # separate from `verify` because `npm run check` must stay air-gapped
+  # (Principle 5) and this needs the content repository checked out.
+  content-currency:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Checkout canonical content repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: project42dev/project42-content
+          path: .content-upstream
+      - run: npm ci
+      - name: Every served review date must match project42-content
+        run: npm run content:currency -- --source .content-upstream
+
   self-host-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 20

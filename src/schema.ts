@@ -410,6 +410,10 @@ export function validateCatalog(catalog: Catalog): ValidationResult {
     if (resource.sources.length === 0) errors.push(`Resource ${resource.id} has no sources`);
     if (!isDateOnly(resource.lastVerified)) {
       errors.push(`Resource ${resource.id} has an invalid lastVerified date`);
+    } else if (isFutureDate(resource.lastVerified)) {
+      errors.push(
+        `Resource ${resource.id} has a lastVerified date in the future: ${resource.lastVerified}`,
+      );
     }
     validateSources(resource.sources, `Resource ${resource.id}`, errors);
   }
@@ -611,6 +615,10 @@ function validateComparisonMatrix(
   if (!matrix) return;
   if (!isDateOnly(matrix.asOf)) {
     errors.push(`Module ${module.id} comparison matrix has an invalid asOf date`);
+  } else if (isFutureDate(matrix.asOf)) {
+    errors.push(
+      `Module ${module.id} comparison matrix has an asOf date in the future: ${matrix.asOf}`,
+    );
   }
   if (!matrix.caveat.trim()) {
     errors.push(`Module ${module.id} comparison matrix needs a caveat`);
@@ -873,6 +881,10 @@ function validateSources(
     }
     if (!isDateOnly(source.lastVerified)) {
       errors.push(`${location} source has an invalid lastVerified date: ${source.title}`);
+    } else if (isFutureDate(source.lastVerified)) {
+      errors.push(
+        `${location} source has a lastVerified date in the future: ${source.title} (${source.lastVerified})`,
+      );
     }
   }
 }
@@ -881,4 +893,16 @@ function isDateOnly(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const date = new Date(`${value}T00:00:00.000Z`);
   return !Number.isNaN(date.valueOf()) && date.toISOString().startsWith(value);
+}
+
+// A review date claims that a person read that source on that day. The only
+// evidence for such a claim is history, so it cannot be dated after today:
+// nothing was reviewed on a day that has not happened. This is the rule that
+// would have stopped platform commit e7c857c, which set 171 files to
+// lastVerified 2026-08-23 in a commit authored on 2026-08-22 and left 84
+// resources and 66 modules asserting a review nobody performed. Mirrors
+// validateCurrencyShape in project42-content/scripts/validate-content.mjs, so
+// the two repositories reject the same records.
+function isFutureDate(value: string, asOf: number = Date.now()): boolean {
+  return new Date(`${value}T00:00:00.000Z`).valueOf() > asOf;
 }
