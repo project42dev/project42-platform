@@ -49,12 +49,20 @@
 //
 //   node scripts/check-content-currency.mjs
 //   node scripts/check-content-currency.mjs --source ../project42-content
+//
+// --root exists so the check can be pointed at a constructed pair of trees and
+// proved to fail. A gate nothing exercises is a gate nobody knows is working;
+// tests/content-currency.test.mjs uses it.
 
 import { execFileSync } from "node:child_process";
 import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 
-const root = path.resolve(import.meta.dirname, "..");
+const rootIndex = process.argv.indexOf("--root");
+const root =
+  rootIndex >= 0
+    ? path.resolve(process.argv[rootIndex + 1])
+    : path.resolve(import.meta.dirname, "..");
 const contentRoot = path.join(root, "content");
 const lockPath = path.join(root, "config", "content.lock.json");
 
@@ -251,8 +259,11 @@ console.log(
 );
 
 if (failures.length > 0) {
+  const dateDivergences = failures.filter((failure) => !failure.startsWith("pin drift"));
   console.error(
-    `\n${failures.length} divergence(s). The platform is serving review dates the content repository does not record. Re-sync with: npm run content:sync -- --source ${sourceRoot}`,
+    dateDivergences.length > 0
+      ? `\n${failures.length} divergence(s), ${dateDivergences.length} of them dates this platform serves that project42-content does not record. Re-sync with: npm run content:sync -- --source ${sourceRoot}`
+      : `\n${failures.length} divergence(s). Every served date still matches, but the pin is behind upstream, so the next upstream correction will be served stale. Re-sync with: npm run content:sync -- --source ${sourceRoot}`,
   );
   process.exit(1);
 }
