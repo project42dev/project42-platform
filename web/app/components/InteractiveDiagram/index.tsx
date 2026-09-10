@@ -97,11 +97,11 @@ const zoomStep = 25;
 /** Shared spring config for step transitions — snappy but not jarring */
 const stepSpring = { type: "spring" as const, stiffness: 300, damping: 30 };
 
-/** Fade + slide-up variants for step descriptions */
+/** Slide step descriptions without transiently reducing text contrast. */
 const descriptionVariants = {
-    enter: { opacity: 0, y: 12 },
-    center: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -12 },
+    enter: { y: 12 },
+    center: { y: 0 },
+    exit: { y: -12 },
 };
 
 /** Fade + slight scale for SVG container on step change */
