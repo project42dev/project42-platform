@@ -63,7 +63,7 @@ for (const reference of references) {
 
   // Absent is the only legal way to say "nobody has reviewed this". Anything
   // else that is not a date -- null, "", a placeholder -- is a broken record.
-  if (reference.lastVerified === undefined || reference.lastVerified === null) {
+  if (reference.lastVerified === undefined) {
     counts.unverified += 1;
     unverified.push(`${reference.contentId}: ${registration.id} has no recorded review`);
     continue;
