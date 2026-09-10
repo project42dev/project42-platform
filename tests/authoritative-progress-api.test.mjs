@@ -185,3 +185,81 @@ test("hosted progress promotes legacy snapshots and reads authoritative events",
     /learning events are immutable/,
   );
 });
+
+// The routine save the signed-in front end makes. v0.110.0 widened the API
+// contract, the worker allow-list, the learning-event source union and the
+// event schema to accept "account-backed-v1", but the source column it writes
+// carries a CHECK constraint of its own. Accepting a value the database then
+// refuses turns a 400 into a 500 and still loses the learner's work, so the
+// round trip -- not the allow-list -- is what this asserts.
+test("the source the signed-in app actually sends is stored, not just accepted", async (t) => {
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-28",
+    d1Databases: { PROJECT42_DB: "project42-account-backed-source" },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  await applyMigrations(database);
+  const repository = new D1Project42Repository(database, "progress-e2e");
+  const identity = {
+    issuer,
+    subject: "owner-subject",
+    email: "owner@example.test",
+    emailVerified: true,
+    displayName: "Owner",
+    issuedAt: Math.floor(Date.now() / 1_000),
+  };
+  const verifier = { verify: async () => identity };
+  const env = {
+    PROJECT42_DB: database,
+    INSTALLATION_ID: "progress-e2e",
+    ALLOWED_ORIGINS: origin,
+    BOOTSTRAP_OWNER_ISSUER: issuer,
+    BOOTSTRAP_OWNER_SUBJECT: identity.subject,
+    DOMAIN_APPROVAL_ENABLED: "false",
+    LEARNING_RECORD_ADAPTER: "cloudflare-d1",
+  };
+  const api = (path, init = {}) => {
+    const headers = new Headers(init.headers);
+    headers.set("authorization", "Bearer owner");
+    headers.set("origin", origin);
+    if (init.body) headers.set("content-type", "application/json");
+    return handleRequest(
+      new Request(`https://api.example.test${path}`, { ...init, headers }),
+      env,
+      verifier,
+      repository,
+    );
+  };
+
+  const session = await api("/v1/session", { method: "POST" });
+  assert.equal(session.status, 200);
+  const account = (await session.json()).account;
+
+  const saved = progress("Signed-in learner", "2026-09-09T12:00:00.000Z");
+  const response = await api("/v1/me/progress", {
+    method: "PUT",
+    body: JSON.stringify({
+      importId: "account-backed-save-1",
+      source: "account-backed-v1",
+      progress: saved,
+    }),
+  });
+  assert.equal(response.status, 200);
+
+  const stored = await database
+    .prepare(
+      `SELECT source FROM progress_imports
+        WHERE installation_id = ? AND user_id = ? AND id = ?`,
+    )
+    .bind("progress-e2e", account.id, "account-backed-save-1")
+    .first();
+  assert.equal(stored?.source, "account-backed-v1");
+
+  const readBack = await api("/v1/me/progress");
+  assert.equal(readBack.status, 200);
+  assert.deepEqual((await readBack.json()).progress.progress, saved);
+});

@@ -4,6 +4,28 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.110.0] - 2026-09-09
+
+### Fixed
+
+- Progress saves from a signed-in learner are stored again. The front end PUTs
+  `/v1/me/progress` with `source: "account-backed-v1"`; that value was in no
+  contract, so the API refused every routine save with 400
+  `invalid_progress_import`. Reads were unaffected, so the failure was silent
+  and looked like data loss. The source is accepted by `ProgressImportRequest`,
+  the worker allow-list, `LearningProgressImportSource` and its runtime
+  validator, and the learning-event contract schema.
+- The `progress_imports.source` column constrained the same set independently,
+  so a widened API alone turned the 400 into a constraint violation and still
+  lost the write. `migrations/0020_account_backed_progress_source.sql` and
+  `self-host/postgres/014_account_backed_progress_source.sql` widen it to match
+  the contract.
+- A 400 on progress import now names the source it received, instead of saying
+  only that an import ID and source are required.
+- `ProgressProvider` retries hydration with backoff and buffers work done while
+  the store is not yet writable. A single failed read previously disabled
+  writes for the rest of the session.
+
 ## [0.109.0] - 2026-09-07
 
 ### Changed

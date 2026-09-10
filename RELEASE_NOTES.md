@@ -1,3 +1,42 @@
+# Project 42 platform v0.110.0
+
+Learner progress persists again.
+
+A signed-in learner completed a module, saw it recorded, reloaded, and it was gone. The front end saves progress by PUTting `/v1/me/progress` with `source: "account-backed-v1"`. The API accepted only `browser-local-v1` and `project42-portable-json`, so every routine save was refused with 400 `invalid_progress_import`. Reads were never affected, which is why this read as data loss rather than a rejected write. Production D1 showed exactly that shape: `module_progress` empty, `assessment_attempts` empty, and `learning_progress` frozen at revision 1 from 2026-07-30 -- the last write that arrived as an import and was therefore allowed.
+
+`account-backed-v1` is now in all five places that have to agree: the API request type, the worker's allow-list, `LearningProgressImportSource` and its runtime validator, the learning-event contract schema, and the `progress_imports.source` column constraint. The database was the one that made the difference between a 400 and a 500: widening the API alone let the request through to an `INSERT` the column then refused, which still lost the learner's work. `tests/authoritative-progress-api.test.mjs` now asserts the round trip -- the value is stored and read back -- rather than that the allow-list contains it.
+
+Relabelling the app's writes as `browser-local-v1` would have been the smaller change and was rejected: it puts a false provenance on every record in an append-only event log.
+
+**A failed read no longer disables writing for the session.** `ProgressProvider` treated one unsuccessful hydration as permanent and refused every subsequent save. It now retries with backoff and buffers work done while the store is not yet writable, so a transient error costs a delay rather than a session.
+
+**The 400 says what it received.** It previously said only that an import ID and source are required, which is why a plain value mismatch presented as a mystery.
+
+## Breaking changes
+
+None. The change is additive: every source accepted before is still accepted.
+
+## Migrations
+
+Two, and both must be applied.
+
+- Hosted (Cloudflare D1): `migrations/0020_account_backed_progress_source.sql`. SQLite cannot alter a `CHECK`, so `progress_imports` is recreated and its rows copied. The table has no indexes or triggers of its own.
+- Self-hosted (PostgreSQL): `self-host/postgres/014_account_backed_progress_source.sql`, which replaces the column constraint in place.
+
+Until the migration is applied, a deployment carrying the widened API returns 500 on every routine progress save.
+
+## Known limitations
+
+The event log is appended before the projection tables are written. A save made against a deployment that had the widened API but not the migration left a `progress.imported` event with no matching `progress_imports` row. `src/learning-record-recovery.ts` is the path for reconciling those; this release does not run it.
+
+The PostgreSQL migration was authored but not executed against a live PostgreSQL during development -- no local instance was available -- so it is verified by the CI job that runs the self-host suite against the `postgres:17.10-alpine3.23` service, not by hand.
+
+## Rollback
+
+Pin the previous platform version. The migrations only widen a constraint, so a database that has taken them still satisfies the older code unless a row was written with the new source; rolling back after real `account-backed-v1` writes exist requires those rows to be relabelled or removed first.
+
+---
+
 # Project 42 platform v0.109.0
 
 The site is usable on a phone.
