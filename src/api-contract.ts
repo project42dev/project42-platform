@@ -255,7 +255,12 @@ export interface ProgressEnvelope {
 
 export interface ProgressImportRequest {
   importId: string;
-  source: "browser-local-v1" | "project42-portable-json";
+  // "account-backed-v1" is the ordinary case, and it was the one missing: the
+  // signed-in app pushing the learner's own progress as they work. Until
+  // 2026-09-09 this union named only the two import sources, so every routine
+  // write from the front end was refused 400 invalid_progress_import while
+  // reads succeeded -- progress appeared to vanish on reload.
+  source: "browser-local-v1" | "project42-portable-json" | "account-backed-v1";
   progress: LearnerProgress;
 }
 

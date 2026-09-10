@@ -10,6 +10,7 @@ import {
   type LearnerProgress,
 } from "@project42/platform";
 import { progressCatalog } from "../../lib/progressCatalog";
+import { hasLearningEvidence } from "../lib/progressMigration";
 import {
   createContext,
   useCallback,
@@ -80,6 +81,21 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   // Cleared on successful flush. Never read as a source of truth on mount.
   const unsyncedBuffer = useRef<BufferEntry | null>(null);
 
+  // HYDRATION RETRY. A failed read used to be terminal for the whole session.
+  // syncEnabled is set only inside the success handler below, and the sync
+  // effect returns early without it, so a single failed GET /v1/me/progress
+  // both blanked the learner's page and silently stopped every later change
+  // from ever being written. On 2026-09-09 the owner completed a module and
+  // nothing whatsoever reached D1: module_progress held zero rows while his
+  // own user row showed he had signed in that day.
+  //
+  // Retrying is the fix. Dropping the syncEnabled gate is NOT: that gate is
+  // protective, because writing before a successful read would push empty
+  // progress over the learner's real remote record and destroy it. Keep the
+  // gate, make the read keep trying.
+  const hydrationAttempt = useRef(0);
+  const [hydrationRetry, setHydrationRetry] = useState(0);
+
   useEffect(() => {
     currentProgress.current = progress;
   }, [progress]);
@@ -121,16 +137,43 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           lastSynchronized.current = JSON.stringify(normalized);
           setProgress(normalized);
           syncEnabled.current = true;
+          hydrationAttempt.current = 0;
           setSyncStatus("synced");
           setHydrated(true);
+          // A read that succeeds after earlier failures makes the session
+          // writable again; the reconnect effect below drains anything the
+          // learner completed while it was down.
         })
         .catch((caught) => {
           if (cancelled) return;
           if (caught instanceof DOMException && caught.name === "AbortError") return;
-          // Start with empty progress on fetch failure — account is the source of truth.
-          setProgress(createEmptyProgress());
+
+          // The account remains the source of truth, so we still do not write
+          // and we still show nothing we cannot vouch for -- but only on the
+          // FIRST attempt do we clear the view. Work the learner does while we
+          // are retrying is kept in memory and buffered, so a read that
+          // succeeds on a later attempt flushes it instead of losing it.
+          if (hydrationAttempt.current === 0) {
+            setProgress(createEmptyProgress());
+          } else if (hasLearningEvidence(currentProgress.current)) {
+            unsyncedBuffer.current = {
+              progress: currentProgress.current,
+              timestamp: Date.now(),
+            };
+          }
           setSyncStatus("error");
           setHydrated(true);
+
+          // Back off: 1s, 2s, 4s, 8s, 16s, then every 30s. A learner who leaves
+          // the tab open through a deploy or a dropped connection recovers on
+          // their own, and every module they complete meanwhile still lands.
+          hydrationAttempt.current += 1;
+          const attempt = hydrationAttempt.current;
+          const delay = attempt <= 5 ? 1000 * 2 ** (attempt - 1) : 30000;
+          window.setTimeout(() => {
+            if (cancelled) return;
+            setHydrationRetry((value) => value + 1);
+          }, delay);
         });
 
       return () => {
@@ -141,12 +184,22 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       cancelled = true;
       window.clearTimeout(hydrationTimer);
     };
-  }, [account, apiFetch]);
+  }, [account, apiFetch, hydrationRetry]);
 
   // Sync: when progress changes and we have an approved account, push to API.
   // On network error, buffer the unsynced progress in memory.
   useEffect(() => {
-    if (!hydrated || !account || account.state !== "approved" || !syncEnabled.current) {
+    if (!hydrated || !account || account.state !== "approved") {
+      return;
+    }
+    // Not yet writable, because no read has succeeded. Returning here used to
+    // DROP the change on the floor: the learner passed a knowledge check, the
+    // state updated in memory, and nothing ever recorded it. Buffer it instead,
+    // so the first successful hydration flushes it.
+    if (!syncEnabled.current) {
+      if (hasLearningEvidence(progress)) {
+        unsyncedBuffer.current = { progress, timestamp: Date.now() };
+      }
       return;
     }
     const serialized = JSON.stringify(progress);
