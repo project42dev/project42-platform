@@ -1,17 +1,22 @@
 name: Content Sync & Deployment
 
 on:
+  # Daily, not weekly. The curriculum is corrected by hand in project42-content
+  # and nothing there notifies this repository -- that repo has no
+  # .github/workflows at all, so the repository_dispatch vector below has never
+  # had a sender. A weekly cron was therefore the only live vector, and it is
+  # how a retraction landed upstream on 2026-09-06 at 18:08Z, fifteen hours
+  # after that week's run, and then sat unpulled while production served the
+  # retracted review dates.
   schedule:
-    - cron: '0 0 * * 0' # Vector 1: Weekly Sunday cron
-  workflow_dispatch:     # Vector 2: Manual UI trigger
-  repository_dispatch:   # Vector 3: Webhook from Orchard
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+  repository_dispatch:
     types: [content_updated]
 
 permissions:
   contents: write
-  issues: write
-  pages: write
-  id-token: write
+  pull-requests: write
 
 jobs:
   sync-and-deploy:
@@ -39,6 +44,22 @@ jobs:
           repository: project42dev/project42-content
           path: .content-upstream
 
+      # Recorded BEFORE the sync so the steps below can tell the one innocent
+      # explanation for "nothing changed" apart from the guilty ones:
+      #   pin already at upstream head + no diff -> genuinely current
+      #   pin behind upstream head     + no diff -> the sync did not take
+      - name: Record the pin and the canonical head
+        id: baseline
+        run: |
+          set -euo pipefail
+          locked="$(node -p "require('./config/content.lock.json').upstream.commit")"
+          upstream="$(git -C .content-upstream rev-parse HEAD)"
+          test -n "$locked"
+          test -n "$upstream"
+          echo "locked=$locked" >> "$GITHUB_OUTPUT"
+          echo "upstream=$upstream" >> "$GITHUB_OUTPUT"
+          echo "Pinned at $locked; canonical head is $upstream."
+
       # No `|| echo` here. The previous form swallowed every failure and printed
       # a success message, which is how content/ drifted from upstream by a
       # whole learning path and 100 KB of catalogue without anyone seeing it.
@@ -46,8 +67,128 @@ jobs:
       - name: Sync upstream content
         run: npm run content:sync -- --source .content-upstream
 
-      - name: Validate content schema and tests
-        run: npm test
+      # A sync that reached upstream ALWAYS rewrites the lock to the commit it
+      # installed from. If the lock does not now name the head that was checked
+      # out, the install did not come from the canonical repository, whatever
+      # the previous step's exit code said.
+      - name: Prove the sync installed from the canonical head
+        env:
+          UPSTREAM: ${{ steps.baseline.outputs.upstream }}
+        run: |
+          set -euo pipefail
+          installed="$(node -p "require('./config/content.lock.json').upstream.commit")"
+          if [ "$installed" != "$UPSTREAM" ]; then
+            echo "::error::content.lock.json records $installed after the sync but the canonical head is $UPSTREAM. The sync did not install from upstream."
+            exit 1
+          fi
+          echo "Lock now records the canonical head."
+
+      - name: Classify the result
+        id: result
+        env:
+          LOCKED: ${{ steps.baseline.outputs.locked }}
+          UPSTREAM: ${{ steps.baseline.outputs.upstream }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          changed="$(git status --porcelain -- content config/content.lock.json | wc -l | tr -d ' ')"
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+          echo "$changed path(s) changed."
+
+          if [ "$changed" -gt 0 ]; then
+            echo "outcome=changes" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Zero changes. Whether that is health or a silent failure depends on
+          # whether the pin had anything to catch up to.
+          if [ "$LOCKED" != "$UPSTREAM" ]; then
+            echo "::error::The pin was at $LOCKED and the canonical head is $UPSTREAM, yet the sync produced no change. Upstream commits between those two did not reach content/."
+            exit 1
+          fi
+
+          # An idle daily cron over an unchanged upstream is the one legitimate
+          # no-op. A person or a webhook asking for a sync is not: they fired
+          # because something was expected to move.
+          if [ "$EVENT" != "schedule" ]; then
+            echo "::error::$EVENT requested a sync but the curriculum was already at $UPSTREAM and nothing changed."
+            exit 1
+          fi
+
+          echo "outcome=current" >> "$GITHUB_OUTPUT"
+          echo "Curriculum already current at $UPSTREAM."
+
+      # Structural gates. These answer whether the installed tree is
+      # INSTALLABLE -- that it matches its own lock and still compiles -- so a
+      # broken upstream never becomes a pull request. Whether the curriculum is
+      # CURRENT is a different question, answered in the last step.
+      - name: Verify the installed tree against its lock
+        if: steps.result.outputs.outcome == 'changes'
+        run: npm run content:check
 
       - name: Build static site export
+        if: steps.result.outputs.outcome == 'changes'
         run: npm run build
+
+      # Everything above this line used to be thrown away. The job installed the
+      # curriculum into the runner's working tree, validated it, built it, and
+      # exited -- no commit, no push, no pull request -- so main never moved.
+      # Three scheduled runs reported success that way while content/ sat one
+      # commit behind a retraction. `contents: write` was declared and unused.
+      - name: Propose the sync as a pull request
+        if: steps.result.outputs.outcome == 'changes'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LOCKED: ${{ steps.baseline.outputs.locked }}
+          UPSTREAM: ${{ steps.baseline.outputs.upstream }}
+          CHANGED: ${{ steps.result.outputs.changed }}
+        run: |
+          set -euo pipefail
+          branch="content-sync/$UPSTREAM"
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git switch --create "$branch"
+          # Named paths only. .content-upstream is a checkout of another
+          # repository sitting in this working tree and must never be committed.
+          git add -- content config/content.lock.json
+          git commit --message "chore(content): sync curriculum from project42-content@$UPSTREAM
+
+          Installed by .github/workflows/content-sync.yml from the canonical
+          curriculum repository. Curriculum is authored upstream and is never
+          edited here.
+
+          Upstream: https://github.com/project42dev/project42-content/commit/$UPSTREAM
+          Previous pin: $LOCKED"
+          git push --force-with-lease origin "$branch"
+
+          if [ -n "$(gh pr list --head "$branch" --state open --json number --jq '.[].number')" ]; then
+            echo "A pull request for $branch is already open."
+            exit 0
+          fi
+
+          gh pr create --base main --head "$branch" \
+            --title "chore(content): sync curriculum from project42-content@$(printf '%.7s' "$UPSTREAM")" \
+            --body "Automated curriculum sync.
+
+          - Canonical head: \`$UPSTREAM\`
+          - Previous pin: \`$LOCKED\`
+          - Paths changed: $CHANGED
+
+          The curriculum is authored in project42-content. This pull request only
+          installs it; \`content/\` is never edited in this repository.
+
+          If the currency gate is red, the curriculum's own review dates have
+          expired. That is a finding about the content, not a sync failure -- the
+          remedy is to re-read the sources upstream, never to hold this sync back."
+
+      # Currency, last and deliberately. This asks whether the curriculum's own
+      # review dates have expired, which is a fact about the content rather than
+      # about the sync. It runs AFTER the pull request exists so that a
+      # stale-but-true curriculum still reaches this repository: refusing to
+      # install overdue content is precisely what leaves a copy quietly
+      # asserting dates that upstream has already retracted. It still fails the
+      # job, loudly, on every day it is true.
+      - name: Report curriculum currency
+        run: |
+          npm test
+          npm run content:freshness

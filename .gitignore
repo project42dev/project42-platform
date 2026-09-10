@@ -152,3 +152,7 @@ vite.config.ts.timestamp-*
 
 # Project 42 generated output
 src/generated/
+
+# A checkout of project42-content made by .github/workflows/content-sync.yml.
+# It is another repository sitting in this working tree; never commit it.
+.content-upstream/
