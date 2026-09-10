@@ -15,7 +15,7 @@ Why Project 42 is built the way it is. Planning material and the original intern
 | [The Orchard Boundary](orchard-boundary.md) | Why the content-maintenance system is private and not part of the open-source product, why its method is public and its implementation is not, and where its responsibility ends |
 | [The Canonical Content Split](canonical-content.md) | Why curriculum is a separate repository, and why the platform consumes it hash-locked |
 
-These four were backfilled on 2026-09-10 from the commit record and the code. Each one ends with a section naming what the record does **not** establish, because several of these decisions were made in conversation and only their outcome reached the repository.
+These four were backfilled on 2026-09-10 from the commit record and the code. Each ends with a section that separates three things: what the public record establishes, what is recorded in the private planning material and so cannot be reproduced here, and what is genuinely not written down anywhere that was searched. Where a rationale could not be established, the record says so rather than supplying a plausible one.
 
 ## Tooling and models
 

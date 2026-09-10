@@ -2,7 +2,7 @@
 
 **Last verified:** 2026-09-10
 
-Why curriculum is a separate repository rather than a directory in this one, and why the platform consumes it hash-locked at a named upstream commit instead of vendoring a copy. The *decision* was taken in August 2026 and the *reasoning for it was never written down*; what is recorded in detail is the completion of it two weeks later, and the constraints that completion had to satisfy. Section 6 is explicit about which is which.
+Why curriculum is a separate repository rather than a directory in this one, and why the platform consumes it hash-locked at a named upstream commit instead of vendoring a copy. The public trail is lopsided: the three commits that carried the split out have empty message bodies, while the commits that *completed* it two weeks later argue their constraints in detail. The reasoning behind the split itself is recorded privately, and section 6 says exactly where and what it does and does not settle.
 
 ---
 
@@ -10,7 +10,7 @@ Why curriculum is a separate repository rather than a directory in this one, and
 
 `project42-content` was created on 2026-08-20 with a single commit, `9f42200`, "initial canonical curriculum extraction from platform". That commit has no message body. The 3-layer architecture document that names the repository "THE CANONICAL CONTENT REPO" arrived two days later in `e18be2d`, and the three-vector sync workflow in `ac20ace`. Both of those commits also have empty bodies.
 
-So the shape was declared and the rationale was not. What the architecture document asserts, and still asserts, is the property the split is for:
+So in the public repositories the shape was declared and the rationale was not. It exists — see section 6 — in the private operations repository. What the architecture document asserts, and still asserts, is the property the split is for:
 
 > **2. THE CANONICAL CONTENT REPO (project42-content)** — Raw, host-agnostic, schema-validated curriculum data. Versioned releases. Contains NO frontend code, build scripts, or hosting bias.
 
@@ -52,19 +52,32 @@ Three properties, each traceable:
 
 | Commit | Repository | Date | Subject |
 |---|---|---|---|
-| `9f42200` | project42-content | 2026-08-20 | feat(content): initial canonical curriculum extraction from platform (no message body) |
-| `e18be2d` | project42-platform | 2026-08-22 | docs: add 3-layer architecture, content sync guide, and universal hosting runbooks (no message body) |
-| `ac20ace` | project42-platform | 2026-08-22 | feat(sync): add 3-vector content sync workflow and ingestion summary engine (no message body) |
-| `b4e7467` | project42-platform | 2026-09-05 | feat(content): pull the curriculum from the canonical repo |
+| `9f42200` | project42-content | 2026-08-20 | feat(content): initial canonical curriculum extraction from platform AB#8002 — no message body |
+| `e18be2d` | project42-platform | 2026-08-22 | docs: add 3-layer architecture, content sync guide, and universal hosting runbooks (AB#109) — no message body |
+| `ac20ace` | project42-platform | 2026-08-22 | feat(sync): add 3-vector content sync workflow and ingestion summary engine (AB#109) — no message body |
+| `b4e7467` | project42-platform | 2026-09-05 | feat(content): pull the curriculum from the canonical repo AB#6167 |
 | `44523b1` | project42-platform | 2026-09-05 | fix(content): finish the sync and unpin two curriculum snapshots |
-| `8f14569` | project42-platform | 2026-09-05 | Merge: platform consumes the canonical content repo |
+| `8f14569` | project42-platform | 2026-09-05 | Merge: platform consumes the canonical content repo AB#6167 |
 
-State checked on 2026-09-10: `config/content.lock.json` records schema version 1, source `project42-content`, upstream commit `bb00b9a6eeae80af450c893047c9affdc942a7e0`, `contentVersion` 0.42.0, and a per-file hash map; `scripts/sync-content.mjs` and the `content:check` gate are both present and `content:check` is in `npm run check`.
+Subjects are verbatim up to the em dash; the note after it is this record's.
 
-## 6. What this record does not establish
+State checked on 2026-09-10: `config/content.lock.json` records schema version 1, source `project42-content`, upstream commit `bb00b9a`, `contentVersion` 0.42.0, and a per-file hash map; `scripts/sync-content.mjs` and the `content:check` gate are both present and `content:check` is in `npm run check`.
 
-- **The reasoning for the split itself.** The three commits that created and declared it — `9f42200`, `e18be2d`, `ac20ace` — all have empty message bodies, and no design note, issue or decision record proposing the extraction was found in this repository or in `project42-content`. What section 1 quotes from the architecture document is an assertion of the intended property, not an argument for it. Everything in sections 2 to 4 is the reasoning for **how** the split was completed and locked, which is a different question and was recorded properly.
-- **Why 2026-08-20.** Nothing found dates the trigger for the extraction.
+**The lock is behind the content repository, and that is the mechanism working rather than failing.** On 2026-09-10 the content repository's `main` is at `55cce48`, two commits ahead of the locked `bb00b9a` — a currency correction that withdrew review dates that were never earned, and a test fix. The platform therefore installs, and serves, curriculum metadata that upstream has since retracted, and will keep doing so until a sync runs. A hash lock makes that visible in one command; a version pin would not have, because both sides can carry the same `contentVersion` while their bytes differ, which is exactly the failure section 1 describes. Whether the drift is intended at any given moment is an operational question this record does not answer.
+
+## 6. What this record does not establish, and what is recorded elsewhere
+
+**The reasoning for the split is recorded — privately, and not in any of the commits that carried it out.** Three private documents hold it, all in the operations repository where planning material lives by the deliberate decision described in [the docs index](../README.md):
+
+- **ADR-0002, *Use One Structured Canonical Content Model*** (2026-07-23). The context it argues from is drift: overlapping material stored as Markdown, standalone HTML and JavaScript data, with counts and versions already diverging. Its decision is to store authored public content once, schema-validated and version-controlled, with rendered pages, indexes, feeds, search documents and exports as generated artifacts that are never separately hand-maintained. It compares git-authored structured content against a headless CMS. It settles the *model*.
+- **ADR-0001, *Separate Private Operations, Hosted Site, and Open-Source Platform*** (2026-07-23). It settles the *repository boundaries* — and places canonical curriculum in the versioned platform package, which is the arrangement the August extraction later moved away from.
+- **A dedicated plan for the content repository and the open-source platform**, archived, which sets out the decoupled three-tier separation of curriculum data from the platform engine and from the maintenance system, with the end-to-end map.
+
+So the honest position is narrower than "the reasoning was never written down", and worth stating precisely: the *model* and the *tiering* were argued out in July; the *specific decision to make curriculum its own repository* — moving it out of the platform package where ADR-0001 had put it — is carried by the archived plan and by no commit message. The public record of it is this page.
+
+Genuinely not established:
+
+- **Why 2026-08-20, and on whose authority.** Nothing found dates or attributes the trigger for the extraction itself. Searched on 2026-09-10 across `project42-platform`, `project42-content`, and the private operations repository's `pmo/` and `docs/` trees.
 - **Why the extraction stopped half-finished.** `8f14569` states plainly that it was only half done and that every maintenance pass in between landed in the wrong place. It does not say why the second half was omitted, and nothing else found does either.
 - **Whether the adopter's inherited-content path has been exercised end to end by anyone other than its author.** `d0b9e95` and `01e164c` record it being proven on a generated site; no independent adoption is recorded here.
 

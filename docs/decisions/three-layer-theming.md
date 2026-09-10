@@ -51,7 +51,7 @@ The three-layer model was not reached in one step. The history is a genuine osci
 
 The two positions differ on what the Hugo/Jekyll analogy actually says. `b78b82b` read it as *the generator carries no theme*; `cce098f` read it as *a fresh site renders something*. The reinstated position is the second, and the deciding fact was operational rather than theoretical: the strict reading made a fresh deployment fail `npm install` before it could render anything.
 
-`b78b82b` never reached the live deployment. The downstream repository had already adopted a local `themes/portal-default/` to survive it, and removed that folder afterwards (`5c021fa`, then `b137d45`, both in `project-42.dev`) because a theme folder in the deployment is resolution rule 1 and therefore **shadowed** the product's copy of the same id — byte-identical then, but any later change the product made would silently never have reached that site.
+The downstream deployment did take the strict release, and the cost of it is visible in its history. `5c021fa` moved its platform pin to the theme-less release **and** added a local `themes/portal-default/` in the same commit, because otherwise the deployment would have failed to install. `8608521`, the same day, moved the pin on again to the reverting release, and `b137d45` then removed that local folder — because a theme folder in the deployment is resolution rule 1 and therefore **shadowed** the product's copy of the same id. The two were byte-identical at the time, so nothing rendered differently; the hazard was that any later change the product made to that bundle would silently never have reached the site. Whether the theme-less pin was ever deployed to production, as opposed to merely committed, is not established here.
 
 ## 4. What moved out of core, and why the split is where it is
 
@@ -81,21 +81,31 @@ The substantive pair is `--p42-text-accent` and `--p42-text-emphasis`. The reaso
 
 | Commit | Date | Subject |
 |---|---|---|
-| `03f4b31` | 2026-09-06 | refactor(web): take the brand out of core CSS |
-| `d913e97` | 2026-09-06 | feat(web): ship the appearance with the product |
-| `a4a4fbb` | 2026-09-06 | feat(web): let the bundle own the seven tokens core surrendered |
-| `85d8698` | 2026-09-06 | docs(architecture): write down who owns the look |
-| `3f7c070` | 2026-09-06 | feat(themes): ship a generic default theme instead of a Gallery one |
-| `b78b82b` | 2026-09-07 | feat(themes): ship no theme in the platform |
-| `cce098f` | 2026-09-07 | revert(themes): the product ships its theme again |
-| `5c021fa` | 2026-09-07 | feat(portal): own the theme this site renders (`project-42.dev`) |
-| `b137d45` | 2026-09-07 | chore(portal): drop the vendored copy of the shipped theme (`project-42.dev`) |
+| `03f4b31` | 2026-09-06 | refactor(web): take the brand out of core CSS AB#6167 |
+| `d913e97` | 2026-09-06 | feat(web): ship the appearance with the product AB#6167 |
+| `a4a4fbb` | 2026-09-06 | feat(web): let the bundle own the seven tokens core surrendered AB#6167 |
+| `85d8698` | 2026-09-06 | docs(architecture): write down who owns the look AB#6167 |
+| `3f7c070` | 2026-09-06 | feat(themes): ship a generic default theme instead of a Gallery one AB#6167 |
+| `b78b82b` | 2026-09-07 | feat(themes)!: ship no theme in the platform AB#6167 |
+| `cce098f` | 2026-09-07 | revert(themes)!: the product ships its theme again AB#6167 |
+| `5c021fa` | 2026-09-07 | feat(portal): own the theme this site renders AB#6167 (`project-42.dev`) |
+| `8608521` | 2026-09-07 | chore(platform): take v0.109.0 AB#6167 (`project-42.dev`) |
+| `b137d45` | 2026-09-07 | chore(portal): drop the vendored copy of the shipped theme AB#6167 (`project-42.dev`) |
+
+Subjects are verbatim; the `!` marks the breaking change.
 
 State checked on 2026-09-10: `web/themes/` holds `portal-default` and `06-galactic-guide`; `web/layouts/` holds `compact`, `standard` and `wide`; `resolveBundle` in `bin/project42-portal.mjs` implements the three rules in the order given above and fails with the folder-to-create message when none matches.
 
 `3f7c070` was verified by building a real site both ways and reading computed styles from four routes, all 200: changing the one `"theme"` field moves the page ground, the body and heading typefaces, every heading colour, the primary action fill and shape, the eyebrow treatment and the card surface — and changing it back restores the previous rendering exactly.
 
-## 7. What this record does not establish
+## 7. What this record does not establish, and what is recorded elsewhere
+
+**The "product carries built-in themes" position predates the September oscillation and has a private record behind it.** ADR-0012, *Permanent Six-Theme System and Hugo/Jekyll-Style Theme Generator Contract*, promotes the six evaluated visual directions to permanent built-in seed themes distributed with both the hosted platform and the self-host containers, standardises the vocabulary from "brands" to "themes", and defines the theme bundle as an isolated declarative folder. It is held in the private operations repository. Two things follow from its existence, both worth knowing before this argument is re-opened:
+
+- The step recorded as `b78b82b` — distributing no theme at all — departed from a previously accepted position, not merely from habit. Nothing found says the revert was made *because* of ADR-0012, and this page does not claim it was; the sequence is recorded, the causation is not.
+- The folder-shaped, one-config-field model in section 2 is not an invention of the September work. It was the contract before the code implemented it.
+
+Genuinely not established:
 
 - **Why the model had to be written down at all before it stabilised.** `85d8698` states the rule *"has been restated for weeks and was written down nowhere, so core kept reacquiring appearance"*. Where it was restated — conversation, review comments, chat — is not in the repository, so the earlier iterations of the argument are not recoverable here.
 - **Whether the three areas deliberately not theme-owned were debated.** [The appearance contract](../appearance-contract.md) names them; no record was found of the alternative being considered.

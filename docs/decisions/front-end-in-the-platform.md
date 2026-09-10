@@ -61,20 +61,29 @@ The platform therefore asserts a **distribution contract** — `tests/web-distri
 | Commit | Repository | Date | Subject |
 |---|---|---|---|
 | `3a2a7e3` | project42-platform | 2026-09-06 | refactor(platform): retire the dead rival portal-config model |
-| `d0b9e95` | project42-platform | 2026-09-06 | feat(platform): ship the front end, the adopter CLI, and a copy layer |
-| `01e164c` | project42-platform | 2026-09-06 | feat(platform): render the adopter's own catalogue, and prune what the product drops |
-| `31361be` | project-42.dev | 2026-09-06 | refactor: consume the front end from the platform instead of vendoring it |
+| `d0b9e95` | project42-platform | 2026-09-06 | feat(platform)!: ship the front end, the adopter CLI, and a copy layer |
+| `01e164c` | project42-platform | 2026-09-06 | feat(platform)!: render the adopter's own catalogue, and prune what the product drops |
+| `31361be` | project-42.dev | 2026-09-06 | refactor!: consume the front end from the platform instead of vendoring it |
 | `06cb488` | project-42.dev | 2026-09-06 | chore(portal): delete 43 orphan files nothing reads |
+
+Subjects are verbatim; the `!` marks the breaking change.
 
 State checked on 2026-09-10: `web/` holds 227 tracked files in this repository; `project-42.dev` tracks 145 files in total; the deployment's ignore file carries the ignore block and its own explanation of it; `bin/project42-portal.mjs` implements `create`, `materialise` and `doctor`.
 
 Both migration commits were verified before landing: `d0b9e95` by materialising `web/` into `project-42.dev` and running its full 20-gate check green, and `31361be` by `npm run verify` against the published tag — the browser suite asserts exact on-screen text and passed without a single expectation being edited.
 
-## 7. What this record does not establish
+## 7. What this record does not establish, and what is recorded elsewhere
 
-- **When the decision was taken, and by whom.** The commits state the reasoning at the moment of the change. No earlier design note, issue or decision record proposing the move was found in this repository or in `project-42.dev`, so this page cannot say whether it was argued out in advance or reached while classifying the boundary. Both migration commits describe classification work that preceded them.
-- **Whether alternatives were compared.** Only the chosen shape and its constraints are written down. No record was found of an evaluated alternative — a git submodule, a template repository, a generator that emits a standalone site — being weighed and rejected. The dependency-tree route is argued against in `d0b9e95`; the others are simply absent from the record.
-- **Whether 90% is a measurement or an estimate.** `31361be` says "roughly 90% product by authored weight" and says the classification was line by line. The classification output itself is not in the repository.
+**The earlier boundary this supersedes was a deliberate decision, not an accident.** The private decision record ADR-0001, *Separate Private Operations, Hosted Site, and Open-Source Platform* (2026-07-23), placed hosted presentation, branding and deployment in the hosted-site repository and reusable contracts and packages in the platform. The move recorded on this page reverses the presentation half of that split, on the evidence that almost none of what was sitting there was hosted-instance material. This page does not restate ADR-0001's own reasoning; it records what replaced part of it.
+
+**The classification behind "roughly 90%" exists and is private.** It is a 2026-09-05 analysis of the 329 files then tracked in the deployment repository, file by file, against four categories, with cross-repository content hashes and every generator script read to confirm what it writes. It is held in the private operations repository, which is where planning material lives by the deliberate decision described in [the docs index](../README.md). The figure is therefore derived from an enumeration rather than estimated, and the enumeration is not public.
+
+**The copy layer was an owner decision with options put to them**, not a shape chosen by whoever was editing. The same private analysis flags the marketing and policy copy fused into product templates as an open question gating roughly 70 KB of page code, and names it as blocking the rest of the migration. What shipped in `d0b9e95` is the resolution of that question.
+
+Genuinely not established:
+
+- **Whether alternative distribution shapes were weighed.** The dependency-tree route is argued against in `d0b9e95`. A git submodule, a template repository, or a generator emitting a standalone site are not mentioned in the commits, in this repository, or in the private classification analysis — searched on 2026-09-10 across `project42-platform`, `project-42.dev`, and the private operations repository's `pmo/` and `docs/` trees. Absence there is not proof they were never discussed; conversation is not indexed.
+- **Who decided, and on what date.** The commits carry the reasoning, not the authority. The private record establishes that the boundary question was live from 2026-09-05; it does not record a decision meeting or an approval for the move itself.
 
 ## Related
 
