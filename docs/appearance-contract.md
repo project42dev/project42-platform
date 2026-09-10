@@ -126,11 +126,29 @@ a bundle can make emphasis text legible in its palette without repainting a
 single surface.
 
 Rule 5 is a ratchet against `web/scripts/appearance-debt.json`, not an amnesty.
-Core still carries 102 hardcoded radius and letter-spacing values, 38 distinct.
+Core still carries 53 hardcoded radius and letter-spacing values, 28 distinct.
 None matches a step in any published layout ramp, so collapsing them would
 change the rendered page — a design decision for whoever owns the appearance,
 not a mechanical one. The gate fails on a new value or a higher count, so the
 list can only shrink.
+
+It shrank from 102 by publishing the steps core was already writing by hand.
+Nine values were the *whole* population of a step the ramp simply did not
+have: the control-scale radii below `--p42-radius-small`
+(`--p42-radius-4xs/3xs/2xs/xs`, 6/8/10/12px in Standard) and the loose end of
+the tracking ramp (`--p42-track-wide-1..5`, 0.02/0.04/0.06/0.08/0.12em in
+Standard) — `--p42-track-2..5` only ever went *tighter*, so every eyebrow,
+kicker and uppercase table header in the product was a bare literal no bundle
+could reach. Standard's values are exactly the literals they replaced, so the
+default composition renders unchanged; Compact and Wide scale them in step
+with the radius and tracking ramps they already publish.
+
+What is left is genuine drift with no step to land on: eleven distinct
+negative tracking values between −0.025em and −0.1em (27 occurrences), nine
+positive ones the wide ramp does not name (14), and eight radius entries (12)
+— the rem-valued corners, a stray `16px`, two `calc(var(--radius) − Npx)`
+deltas, and three multi-corner radii that are in fact already fully tokenised
+and counted only because the detector looks for a digit anywhere in the value.
 
 ## Rules for a deployer
 
