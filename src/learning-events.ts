@@ -109,7 +109,10 @@ export type LearningProgressImportSource =
   | "browser-local-v1"
   | "project42-portable-json"
   | "legacy-hosted-v1"
-  | "account-merge-v1";
+  | "account-merge-v1"
+  // The signed-in app's own continuous write. Absent until 2026-09-09, which
+  // made every ordinary progress save fail conformance and be refused.
+  | "account-backed-v1";
 
 export interface ImportProgressCommand extends LearningCommandBase {
   type: "progress.import";
@@ -568,6 +571,7 @@ function validateProgressImportPayload(
       "project42-portable-json",
       "legacy-hosted-v1",
       "account-merge-v1",
+      "account-backed-v1",
     ].includes(payload.source)
   ) {
     errors.push("progress import source is unsupported");

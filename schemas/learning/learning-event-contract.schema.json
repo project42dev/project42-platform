@@ -408,7 +408,8 @@
             "browser-local-v1",
             "project42-portable-json",
             "legacy-hosted-v1",
-            "account-merge-v1"
+            "account-merge-v1",
+            "account-backed-v1"
           ]
         },
         "sourceChecksum": { "$ref": "#/$defs/digest" },

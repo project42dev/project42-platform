@@ -10574,9 +10574,15 @@ async function handleRequest(
       const body = await readJson<ProgressImportRequest>(request);
       if (
         !body.importId ||
-        !["browser-local-v1", "project42-portable-json"].includes(body.source)
+        !["browser-local-v1", "project42-portable-json", "account-backed-v1"].includes(
+          body.source,
+        )
       ) {
-        throw new ApiFailure(400, "invalid_progress_import", "Import ID and source are required.");
+        throw new ApiFailure(
+          400,
+          "invalid_progress_import",
+          `Import ID and a supported source are required; received source ${JSON.stringify(body.source)}.`,
+        );
       }
       const progress = await repository.importProgress({
         account,
