@@ -108,6 +108,42 @@ Three areas are deliberately not theme-owned, and say so in
 
 ## The gate
 
+There are two, and they ask different questions. The boundary gate asks whether
+**core** has stolen appearance from the bundle. The correctness gate asks
+whether **the bundle** is a usable, accessible theme.
+
+### The correctness gate — are the bundles we ship correct?
+
+`node web/scripts/theme-correctness-check.mjs`, run by `npm run web:check` and
+so by `npm run check`. It measures every bundle under `web/themes/` against the
+full theme contract: the token vocabulary, the colour-literal boundary,
+declared polarity, 4.5:1 text contrast (WCAG 2.2 SC 1.4.3) and 3:1 non-text
+contrast for every border against the surface it actually borders (SC 1.4.11).
+`npm run themes:contrast` prints every measured pair with its ratio.
+
+It does not own those rules. project42-gallery does, in its
+`docs/THEME_CORRECTNESS_SPEC.md`, and its `checkBundle()` is vendored verbatim
+here under `web/scripts/vendor/project42-gallery/`, hash-locked against the
+Gallery commit it came from. A second implementation would be a second
+definition of "correct", free to drift; editing the vendored copy in place
+fails the build, and moving to a newer Gallery contract is a deliberate step:
+
+```bash
+node web/scripts/theme-correctness-check.mjs --vendor ../project42-gallery
+```
+
+This gate exists because of a defect it would have caught. The Gallery's
+validator scans `project42-gallery/themes/` and nothing else. `portal-default`
+is not a Gallery theme — it lives here, because the product's own default
+cannot be owned by the catalogue of alternatives — so the one bundle every
+fresh install and production itself renders with was the one bundle nothing
+measured. When the Gallery's seven themes were raised to 3:1 on 2026-09-11,
+`portal-default` was missed, and it was serving eight borders below the floor,
+the softest at 1.23:1. A rule only one repository enforces is a rule the other
+repository's artefacts do not have.
+
+### The boundary gate — has core stolen appearance?
+
 `npm run theme:boundary` fails the build on five things:
 
 | | Rule |

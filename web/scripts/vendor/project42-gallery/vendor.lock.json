@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "$comment": "Verbatim copies of project42-gallery's theme-correctness implementation, so this package measures its own bundles with the same code and the same thresholds rather than a second definition of correct. Do not hand-edit the vendored files: the gate verifies these digests before importing them. Re-vendor with `node web/scripts/theme-correctness-check.mjs --vendor ../project42-gallery`.",
+  "owner": "project42-gallery",
+  "repository": "https://github.com/project42dev/project42-gallery",
+  "commit": "2edf17f2ae38938563f90d8732563cbe76833a2e",
+  "normalisation": "utf8, BOM stripped, CRLF folded to LF, then sha256",
+  "files": {
+    "contrast.mjs": {
+      "source": "scripts/lib/contrast.mjs",
+      "sha256": "77ec035be40a49522049a22ebcba4a002127698fd0a633f972dadf2e8fdbc68c"
+    },
+    "theme-contract.mjs": {
+      "source": "scripts/lib/theme-contract.mjs",
+      "sha256": "5a2dabe77d621adf606d6a9c1bfb9d6e4c8d329da4a45f993bdc5ed48fbdfd19"
+    }
+  }
+}
