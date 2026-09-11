@@ -1,0 +1,103 @@
+name: Hosted smoke
+
+# The hosted leg of AB#5418 and the learner-progress persistence gate (T-02):
+# a real browser signs in to the deployed Project 42 through the hosted issuer,
+# records one module completion through PUT /v1/me/progress, reads it back from
+# a second, independently signed-in session (GET /v1/me/progress and the
+# module_progress rows in GET /v1/me/export), and removes it again.
+#
+# Runs:
+#   - on a schedule, so production is re-proven between deploys;
+#   - after every production deploy of the portal (project-42.dev's
+#     deploy-pages.yml calls this workflow once its deploy job succeeds);
+#   - from CI (ci.yml's hosted-identity-smoke job) on pushes to main;
+#   - on demand, e.g. straight after an API Worker deploy, which is performed by
+#     project42dev-ops tooling rather than by a workflow:
+#       gh workflow run hosted-smoke.yml -R project42dev/project42-platform
+#
+# It writes to one production account, so every run in this repository shares
+# a single concurrency group. Configuration is read from the CALLING
+# repository (GitHub resolves vars and inherited secrets there), so the names
+# below must be visible to every caller -- organization-level, scoped to
+# project42-platform and project-42.dev.
+
+on:
+  schedule:
+    - cron: "41 */6 * * *"
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      platform-ref:
+        description: >-
+          project42-platform ref whose smoke script runs. Empty means this
+          commit when run in project42-platform, otherwise main.
+        type: string
+        required: false
+        default: ""
+    secrets:
+      PROJECT42_HOSTED_SMOKE_EMAIL:
+        required: false
+      PROJECT42_HOSTED_SMOKE_PASSWORD:
+        required: false
+      PROJECT42_HOSTED_SMOKE_SUBJECT:
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  hosted-smoke:
+    name: Hosted sign-in and progress persistence
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: project42-hosted-smoke-account
+      cancel-in-progress: false
+    env:
+      PROJECT42_HOSTED_LEARN_ORIGIN: ${{ vars.PROJECT42_HOSTED_LEARN_ORIGIN }}
+      PROJECT42_HOSTED_API_ORIGIN: ${{ vars.PROJECT42_HOSTED_API_ORIGIN }}
+      PROJECT42_HOSTED_ISSUER: ${{ vars.PROJECT42_HOSTED_ISSUER }}
+      PROJECT42_HOSTED_SMOKE_EMAIL: ${{ secrets.PROJECT42_HOSTED_SMOKE_EMAIL }}
+      PROJECT42_HOSTED_SMOKE_PASSWORD: ${{ secrets.PROJECT42_HOSTED_SMOKE_PASSWORD }}
+      PROJECT42_HOSTED_SMOKE_SUBJECT: ${{ secrets.PROJECT42_HOSTED_SMOKE_SUBJECT }}
+    steps:
+      # A gate that skips when it is not configured looks exactly like a gate
+      # that passed. That is how the hosted leg went unexecuted from AB#5418
+      # until T-02. Here, missing configuration is a failure that names what is
+      # missing. (Forks and unconfigured clones are protected by the caller:
+      # ci.yml only calls this workflow when the enable variable is set, and
+      # GitHub does not run schedules on forks.)
+      - name: Require hosted smoke configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=()
+          for name in \
+            PROJECT42_HOSTED_LEARN_ORIGIN \
+            PROJECT42_HOSTED_API_ORIGIN \
+            PROJECT42_HOSTED_ISSUER \
+            PROJECT42_HOSTED_SMOKE_EMAIL \
+            PROJECT42_HOSTED_SMOKE_PASSWORD
+          do
+            if [ -z "${!name:-}" ]; then missing+=("$name"); fi
+          done
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error::The hosted smoke is not configured for ${GITHUB_REPOSITORY}. Missing: ${missing[*]}"
+            exit 1
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # Inside a called workflow, checkout defaults to the CALLER's
+          # repository; the smoke script lives here.
+          repository: project42dev/project42-platform
+          ref: ${{ inputs.platform-ref || (github.repository == 'project42dev/project42-platform' && github.sha || 'main') }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Verify hosted sign-in, secure session, and progress persistence
+        run: node scripts/smoke-hosted-browser-session.mjs

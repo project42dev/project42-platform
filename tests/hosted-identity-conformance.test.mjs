@@ -25,9 +25,26 @@ const scriptPath = join(
   "smoke-hosted-browser-session.mjs",
 );
 const workflowPath = join(repositoryRoot, ".github", "workflows", "ci.yml");
+const hostedWorkflowPath = join(
+  repositoryRoot,
+  ".github",
+  "workflows",
+  "hosted-smoke.yml",
+);
+const persistenceGatePath = join(
+  repositoryRoot,
+  "scripts",
+  "lib",
+  "hosted-progress-persistence.mjs",
+);
 
 const script = readFileSync(scriptPath, "utf8");
 const workflow = readFileSync(workflowPath, "utf8").replaceAll("\r\n", "\n");
+const hostedWorkflow = readFileSync(hostedWorkflowPath, "utf8").replaceAll(
+  "\r\n",
+  "\n",
+);
+const persistenceGate = readFileSync(persistenceGatePath, "utf8");
 
 test("the hosted provider leg proves an S256 PKCE authorization code flow", () => {
   assert.match(
@@ -122,13 +139,18 @@ test("the hosted provider leg is wired into CI behind an explicit configuration 
 
   assert.match(
     job,
-    /^    if: vars\.PROJECT42_HOSTED_IDENTITY_ENABLED == 'true'$/m,
-    "The hosted job must be gated so it does not fail forks and unconfigured clones.",
+    /^    if: vars\.PROJECT42_HOSTED_IDENTITY_ENABLED == 'true' && github\.event_name != 'pull_request'$/m,
+    "The hosted job must be gated so it does not fail forks and unconfigured clones, and must not write to production from a pull request.",
   );
   assert.match(
     job,
+    /^    uses: \.\/\.github\/workflows\/hosted-smoke\.yml$/m,
+    "The CI hosted job must run the shared hosted-smoke workflow, not a copy of it.",
+  );
+  assert.match(
+    hostedWorkflow,
     /node scripts\/smoke-hosted-browser-session\.mjs/,
-    "The hosted job must run the conformance script.",
+    "The hosted workflow must run the conformance script.",
   );
 
   // Credentials belong in secrets; origins and issuer are not sensitive.
@@ -136,10 +158,74 @@ test("the hosted provider leg is wired into CI behind an explicit configuration 
     "PROJECT42_HOSTED_SMOKE_EMAIL",
     "PROJECT42_HOSTED_SMOKE_PASSWORD",
   ]) {
+    const fromSecret = new RegExp(
+      `${secretName}: \\$\\{\\{ secrets\\.${secretName} \\}\\}`,
+    );
+    assert.match(job, fromSecret, `${secretName} must be passed from an Actions secret.`);
     assert.match(
-      job,
-      new RegExp(`${secretName}: \\$\\{\\{ secrets\\.${secretName} \\}\\}`),
-      `${secretName} must come from an Actions secret.`,
+      hostedWorkflow,
+      fromSecret,
+      `${secretName} must reach the hosted workflow from an Actions secret.`,
     );
   }
+});
+
+// T-02: signing in was never the product. The hosted leg must also write one
+// module completion and prove it persisted, on a schedule and after deploys.
+test("the hosted leg writes a completion and proves it persisted from a fresh session", () => {
+  assert.match(
+    script,
+    /import \{ runProgressPersistenceGate \} from "\.\/lib\/hosted-progress-persistence\.mjs"/,
+    "The hosted smoke must run the progress persistence gate.",
+  );
+  assert.match(
+    script,
+    /openFreshSession: async \(\) => \{[\s\S]*?signInAndVerify\(browser, "fresh"\)/,
+    "The read-back must come from a second, independently signed-in browser session.",
+  );
+  assert.match(
+    persistenceGate,
+    /"PUT", "\/v1\/me\/progress"/,
+    "The gate must write through the same route the front end saves through.",
+  );
+  assert.match(
+    persistenceGate,
+    /source: ACCOUNT_BACKED_PROGRESS_SOURCE/,
+    "The gate must send the source constant the front end sends.",
+  );
+  assert.match(
+    persistenceGate,
+    /"GET", "\/v1\/me\/export"/,
+    "The gate must check the module_progress rows, not only the event-log read.",
+  );
+  assert.match(persistenceGate, /export\?\.moduleProgress/);
+  assert.match(
+    persistenceGate,
+    /the response has no \\`progress\\` envelope/,
+    "A 200 with the wrong shape must fail the gate.",
+  );
+});
+
+test("the hosted workflow runs on a schedule, after portal deploys, and fails when unconfigured", () => {
+  assert.match(hostedWorkflow, /^  schedule:\n    - cron: "[^"]+"$/m);
+  assert.match(hostedWorkflow, /^  workflow_call:$/m);
+  assert.match(hostedWorkflow, /^  workflow_dispatch:$/m);
+  assert.match(
+    hostedWorkflow,
+    /^      group: project42-hosted-smoke-account$/m,
+    "Runs that write to the one production smoke account must not overlap.",
+  );
+  assert.match(
+    hostedWorkflow,
+    /repository: project42dev\/project42-platform/,
+    "A called workflow checks out the caller by default; it must check out the platform.",
+  );
+  // A scheduled or post-deploy gate that skips when unconfigured is
+  // indistinguishable from one that passed.
+  assert.doesNotMatch(
+    hostedWorkflow,
+    /^\s+if: vars\.PROJECT42_HOSTED_IDENTITY_ENABLED/m,
+    "The hosted workflow itself must fail, not skip, when it is not configured.",
+  );
+  assert.match(hostedWorkflow, /The hosted smoke is not configured/);
 });
