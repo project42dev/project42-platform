@@ -4,6 +4,40 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.111.0] - 2026-09-11
+
+Includes the changes tagged as 0.110.0, whose release job could not pass
+`release:check` because the compatibility record, changelog and release notes
+still named 0.109.0.
+
+### Fixed
+
+- Learner progress saves. The API contract accepts the front end's
+  `account-backed-v1` source, and D1 migration `0020` rebuilds
+  `progress_imports` with a `CHECK` that admits it (plus `legacy-hosted-v1` and
+  `account-merge-v1`), preserving rows. The Worker validates against the single
+  exported `PROGRESS_IMPORT_SOURCES` list and names the supported values when
+  it refuses one. A failed progress read no longer disables writes for the
+  session.
+- Served review dates are the ones `project42-content` records, not the
+  fabricated `2026-08-23` stamp it retracted on 2026-09-06. `content:currency`
+  compares the served dates with the content repository, and a null review
+  date is rejected as malformed.
+- Diagram step transitions keep text contrast.
+
+### Changed
+
+- Curriculum installed from `project42-content@d1fcc2b`: every stale
+  citation was re-read against the text citing it; `content:freshness`
+  reports 0 stale. `model-context-protocol-mcp` is authored.
+- Theme ramp steps core wrote by hand are published tokens; hardcoded radius
+  and tracking values in core fell from 102 to 53.
+
+### Added
+
+- `docs/definition-of-done.md` with the six acceptance criteria, and four
+  backfilled architecture decisions in `docs/decisions/`.
+
 ## [0.109.0] - 2026-09-07
 
 ### Changed

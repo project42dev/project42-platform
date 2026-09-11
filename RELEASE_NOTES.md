@@ -1,3 +1,43 @@
+# Project 42 platform v0.111.0
+
+The review dates the site shows are the ones the curriculum actually earned, and every one of them is current.
+
+**Served dates were ones the content repository had already disowned.** On 2026-08-22 a commit set every citation's review date to `2026-08-23` with no review behind it. `project42-content` rolled that back on 2026-09-06, but the platform's installed copy was synced the day before, so production kept telling learners that 598 sources were checked on a day nobody checked them. The platform now installs content that carries the true dates, and `content:currency` compares what the platform serves against `project42-content` directly, so the two copies cannot quietly diverge again. A null review date is rejected as malformed rather than read as "unknown".
+
+**Every stale claim was re-read, not re-dated.** Honest dates made 373 citations fail their review cadence. Each cited page was fetched and read against the text of the module or resource citing it; 390 citations were confirmed, 26 were repointed to where the same page now lives, two retired registry hosts were updated (`cursor.com/docs`, `owasp.github.io/API-Security`), and prose that a source no longer supports was corrected: MCP deprecated the sampling and logging client primitives in protocol `2026-07-28`, and Anthropic no longer documents a Console Evaluation tool. `content:freshness` reports 599 current, 0 stale, against `project42-content@d1fcc2b`.
+
+**Learner progress saves.** 0.110.0 accepted the front end's `account-backed-v1` source in the API contract, but a `CHECK` constraint on `progress_imports` still refused it inside the same D1 batch that writes `module_progress`, so every save failed with a 500. Migration `0020` rebuilds `progress_imports` in place with a `CHECK` that also admits `account-backed-v1`, `legacy-hosted-v1` and `account-merge-v1`, preserving existing rows, and the Worker now validates sources against the single exported `PROGRESS_IMPORT_SOURCES` list and names the supported values when it refuses one.
+
+**Also in this release**
+
+- `model-context-protocol-mcp` is authored: sourced technical content, a full instructor script, and four knowledge checks in place of template text.
+- The six acceptance criteria are written down in `docs/definition-of-done.md`, and `docs/decisions/` records the four architecture decisions that were previously only in session history.
+- The self-hosting theming guide describes the three-layer theme model that actually ships.
+- Hardcoded radius and tracking values in core fell from 102 to 53; the theme ramp steps core wrote by hand are published tokens.
+- Diagram step transitions keep text contrast.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+Apply `migrations/0020_account_backed_progress_source.sql` before deploying this Worker. Without it, every account-backed progress save is refused by the database. Hosted production already has `0017` through `0020` applied.
+
+## Known limitations
+
+The progress fix is D1-only. The PostgreSQL self-host schema (`self-host/postgres/001_initial.sql`) carries the same two-value `CHECK` on `progress_imports` and no PostgreSQL migration widens it yet, so account-backed saves on a PostgreSQL deployment are still refused.
+
+`0.110.0` was tagged without moving `self-host/compatibility.json`, the changelog or these notes past `0.109.0`, so its release job could not pass `release:check`. Its changes ship here.
+
+A 30-day review cadence covers 31 of 61 registered sources, so the dates confirmed on 2026-09-11 begin to fall due on 2026-10-11. `docs.vllm.ai` serves a Cloudflare challenge to automated readers; its citation was verified from the page's source in `vllm-project/vllm`. 21 modules in six learning paths are still template text.
+
+## Rollback
+
+Pin the previous platform version. The content and documentation changes revert with the package. Migration `0020` only admits additional source values and preserves every row, so it is safe to leave in place under 0.110.0.
+
+---
+
 # Project 42 platform v0.109.0
 
 The site is usable on a phone.
