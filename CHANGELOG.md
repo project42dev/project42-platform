@@ -4,6 +4,23 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.112.1] - 2026-09-11
+
+### Changed
+
+- Curriculum from `project42-content@2628dac`. The OpenAI and Gemini practice
+  paths no longer repeat one placeholder code sample across every section: 63
+  samples in 14 modules are rewritten to show each section's point on the
+  current Responses and Interactions APIs, reading model ids from
+  configuration. The Gemini API module explains when to use the Interactions
+  API versus the legacy `generateContent`, and compares `finishReason` against
+  the SDK's `FinishReason` enum instead of string literals.
+
+### Removed
+
+- `web/tests/production-progress-acceptance.test.mjs`. It imported a file that
+  exists only in the portal, and neither repository ran it.
+
 ## [0.112.0] - 2026-09-11
 
 ### Changed

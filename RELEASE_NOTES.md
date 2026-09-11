@@ -1,3 +1,27 @@
+# Project 42 platform v0.112.1
+
+Code samples in the OpenAI and Gemini practice paths teach what each section says.
+
+Fourteen modules had one generated sample — a `chat.completions` call with `gpt-4o` and `json_object`, or a single `generateContent` call — pasted into every section. All 63 are rewritten against documentation read on 2026-09-11: tool routing by execution owner, bounded tool loops matched by call id, strict schemas, side-effect safety, Codex sandboxing and approvals, evaluation contracts, moderation, and migration from Chat Completions to Responses. The Gemini modules move to the Interactions API, which Google made generally available in June 2026, and the Gemini API module explains when the legacy `generateContent` is still the right choice.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+As in 0.112.0: the hosted persistence gate needs its smoke account, secrets and variables before it can pass.
+
+## Rollback
+
+Pin 0.112.0.
+
+---
+
 # Project 42 platform v0.112.0
 
 Every module a learner can reach is real curriculum, and self-hosted installs save progress.
