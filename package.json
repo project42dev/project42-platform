@@ -66,7 +66,7 @@
     "content:sync": "node scripts/sync-content.mjs",
     "content:check": "node scripts/sync-content.mjs --check",
     "content:currency": "node scripts/check-content-currency.mjs",
-    "web:check": "node --test tests/web-distribution.test.mjs && node web/scripts/theme-boundary-check.mjs"
+    "web:check": "node --test tests/web-distribution.test.mjs && node web/scripts/theme-boundary-check.mjs && node web/scripts/layout-tokens-check.mjs"
   },
   "engines": {
     "node": ">=22"
