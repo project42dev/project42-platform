@@ -33,6 +33,25 @@ semantic versioning.
   nothing in either repository was measuring them. `npm run themes:contrast`
   prints every measured pair.
 
+## [0.112.2] - 2026-09-11
+
+### Fixed
+
+- Every border the shipped bundles draw now meets WCAG 2.2 SC 1.4.11. Eight
+  border pairs in `portal-default` — the bundle the portal serves — were below
+  3:1, the worst at 1.23:1, and the platform's frozen copy of
+  `06-galactic-guide` carried seven more from before the Gallery raised them.
+  Only lightness and alpha moved; every hue is unchanged.
+
+### Added
+
+- `web/scripts/theme-correctness-check.mjs`, wired into `web:check`, runs the
+  Gallery's own `checkBundle()` against every bundle the platform ships, so a
+  failing border is caught here instead of in a downstream site. The Gallery's
+  contract and contrast modules are vendored verbatim and hash-locked
+  (`web/scripts/vendor/project42-gallery/vendor.lock.json`); re-vendoring is a
+  deliberate step. `npm run themes:contrast` prints the full pair report.
+
 ## [0.112.1] - 2026-09-11
 
 ### Changed

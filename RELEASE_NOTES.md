@@ -1,3 +1,27 @@
+# Project 42 platform v0.112.2
+
+The borders the site actually draws are visible enough to see.
+
+`portal-default` is the bundle the portal serves, and eight of its border pairs failed the 3:1 non-text contrast minimum — a card edge at 1.23:1 against the card it sits on. The Gallery's seven themes were raised to 3:1 on 2026-09-11; nothing measured this one, because the Gallery's validator only scans the Gallery. The platform now runs that same validator over every bundle it ships, including the frozen `06-galactic-guide` copy, which carried seven more failures of its own. Only lightness and alpha changed; no hue moved.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+The `@layer p42-fallback` card border in `globals.css` is 1.68:1. It is the pre-theme last-resort value rather than a bundle, so this gate does not measure it, and it is owned by the boundary gate instead.
+
+## Rollback
+
+Pin 0.112.1.
+
+---
+
 # Project 42 platform v0.112.1
 
 Code samples in the OpenAI and Gemini practice paths teach what each section says.
