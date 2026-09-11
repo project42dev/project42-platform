@@ -15,7 +15,7 @@
     "supportedMajors": [
       17
     ],
-    "migrationHead": "013_account_notification_outbox.sql",
+    "migrationHead": "014_account_backed_progress_source.sql",
     "learningRecords": {
       "selectionVariable": "LEARNING_RECORD_ADAPTER",
       "contractVersion": "1.1",

@@ -6,6 +6,15 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Fixed
+
+- Self-hosted progress saves. PostgreSQL migration
+  `014_account_backed_progress_source.sql` widens the `progress_imports` source
+  `CHECK` to the set D1 migration `0020` admits, so `account-backed-v1` saves no
+  longer abort on the constraint. A new parity test fails if the D1 and
+  PostgreSQL source lists, the Worker's accepted sources, or the
+  learning-event contract drift apart.
+
 ### Added
 
 - `planUnsyncedProgressFlush`, the reconnect-flush decision the front end's
