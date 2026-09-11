@@ -4,6 +4,17 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [Unreleased]
+
+### Added
+
+- `planUnsyncedProgressFlush`, the reconnect-flush decision the front end's
+  `ProgressProvider` now delegates to. It hands back a merging updater rather
+  than the buffered record, and
+  `tests/progress-unsynced-flush.test.mjs` replays the page-load sequence that
+  lost data in 0.110.0 and 0.111.0, so this repository now catches that
+  regression without the downstream browser journeys.
+
 ## [0.111.1] - 2026-09-11
 
 ### Fixed
