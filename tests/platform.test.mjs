@@ -1604,8 +1604,10 @@ test("publishes the Gemini API tool-use and agent curriculum unit", () => {
       source.url.includes("/gemini-api/docs/function-calling"),
     ),
   );
+  // ADK's documentation moved from google.github.io/adk-docs to adk.dev; the
+  // old host now permanently redirects.
   assert.ok(
-    tools.sources.some((source) => source.url.startsWith("https://google.github.io/adk-docs/")),
+    tools.sources.some((source) => source.url.startsWith("https://adk.dev/")),
   );
 });
 

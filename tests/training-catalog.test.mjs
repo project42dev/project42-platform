@@ -1342,7 +1342,10 @@ test("coverage classifies every substantive module without overstating readiness
       trainingPackageCoverage.classReadyModuleCount,
   );
   assert.equal(trainingPackageCoverage.coverageStatus, "migration-active");
-  assert.equal(trainingPackageCoverage.modules.length, 69);
+  assert.equal(
+    trainingPackageCoverage.modules.length,
+    trainingPackageCoverage.substantiveModuleCount,
+  );
   assert.ok(
     trainingPackageCoverage.modules.every(
       (entry) =>
