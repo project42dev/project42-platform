@@ -3,6 +3,7 @@
 import {
   ACCOUNT_BACKED_PROGRESS_SOURCE,
   createEmptyProgress,
+  mergeLearnerProgress,
   recordAssessmentAttempt,
   recordCapstoneSubmission,
   recordModuleVisit,
@@ -268,8 +269,22 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       unsyncedBuffer.current = null;
       return;
     }
-    // Apply the buffered progress, which will trigger the sync effect above
-    setProgress(buffered.progress);
+    // MERGE the buffer into what the read returned; never replace with it.
+    // The buffer is built on whatever this provider held before its first
+    // successful read -- usually empty progress plus the one module the learner
+    // just finished. Applying it wholesale (as 0.110.0 did) threw away the
+    // learner's hydrated record and then PUT that partial record over their
+    // real one: complete seven modules on seven fresh page loads and the
+    // account kept only the seventh. mergeLearnerProgress keeps every attempt,
+    // completion and badge the read returned and adds only the evidence
+    // recorded while the session was not yet writable. The sync effect above
+    // then writes the merged record.
+    setProgress((current) =>
+      mergeLearnerProgress(current, buffered.progress, {
+        displayName: current.displayName,
+        sourceRecordPrefix: "unsynced",
+      }),
+    );
     unsyncedBuffer.current = null;
   }, [syncStatus]);
 
