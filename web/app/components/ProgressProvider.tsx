@@ -3,7 +3,7 @@
 import {
   ACCOUNT_BACKED_PROGRESS_SOURCE,
   createEmptyProgress,
-  mergeLearnerProgress,
+  planUnsyncedProgressFlush,
   recordAssessmentAttempt,
   recordCapstoneSubmission,
   recordModuleVisit,
@@ -253,39 +253,27 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
 
   // Reconnect: when syncStatus transitions from "error" back to "synced" (e.g. after
   // a page reload or account re-auth), flush any buffered progress.
+  //
+  // The decision lives in planUnsyncedProgressFlush (src/progress.ts), where
+  // tests/progress-unsynced-flush.test.mjs exercises it. It MERGES the buffer
+  // into what the read returned; it never replaces with it. The buffer is built
+  // on whatever this provider held before its first successful read -- usually
+  // empty progress plus the one module the learner just finished. Applying it
+  // wholesale (as 0.110.0 and 0.111.0 did) threw away the learner's hydrated
+  // record and then PUT that partial record over their real one: complete seven
+  // modules on seven fresh page loads and the account kept only the seventh.
+  // plan.apply is a state updater, so the merge runs against the hydrated
+  // record React holds; the sync effect above then writes the merged record.
   useEffect(() => {
-    if (
-      syncStatus !== "synced" ||
-      !syncEnabled.current ||
-      !unsyncedBuffer.current ||
-      flushInFlight.current
-    ) {
-      return;
-    }
-    const buffered = unsyncedBuffer.current;
-    // Only flush if the buffer is newer than what we last synced
-    const bufferedSerialized = JSON.stringify(buffered.progress);
-    if (bufferedSerialized === lastSynchronized.current) {
-      unsyncedBuffer.current = null;
-      return;
-    }
-    // MERGE the buffer into what the read returned; never replace with it.
-    // The buffer is built on whatever this provider held before its first
-    // successful read -- usually empty progress plus the one module the learner
-    // just finished. Applying it wholesale (as 0.110.0 did) threw away the
-    // learner's hydrated record and then PUT that partial record over their
-    // real one: complete seven modules on seven fresh page loads and the
-    // account kept only the seventh. mergeLearnerProgress keeps every attempt,
-    // completion and badge the read returned and adds only the evidence
-    // recorded while the session was not yet writable. The sync effect above
-    // then writes the merged record.
-    setProgress((current) =>
-      mergeLearnerProgress(current, buffered.progress, {
-        displayName: current.displayName,
-        sourceRecordPrefix: "unsynced",
-      }),
-    );
+    const plan = planUnsyncedProgressFlush({
+      writable: syncStatus === "synced" && syncEnabled.current,
+      flushInFlight: flushInFlight.current,
+      unsynced: unsyncedBuffer.current?.progress ?? null,
+      lastSynchronized: lastSynchronized.current,
+    });
+    if (plan.action === "wait") return;
     unsyncedBuffer.current = null;
+    if (plan.action === "merge") setProgress(plan.apply);
   }, [syncStatus]);
 
   const recordResult = useCallback(

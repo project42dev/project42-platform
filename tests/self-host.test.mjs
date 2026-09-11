@@ -933,6 +933,7 @@ test(
         "011_registration_boundary.sql",
         "012_admin_pagination_indexes.sql",
         "013_account_notification_outbox.sql",
+        "014_account_backed_progress_source.sql",
       ];
       // Node runs test files concurrently against the same CI PostgreSQL
       // service. Another migration integration test may acquire the advisory

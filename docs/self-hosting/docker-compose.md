@@ -86,6 +86,14 @@ Migration `008_authoritative_progress_imports.sql` adds schema-versioned
 `progress.imported` events. The API reads progress from the rebuilt event
 projection while retaining the older relational progress tables as compatibility
 read models for current exports and merge workflows.
+
+Migration `014_account_backed_progress_source.sql` widens the
+`progress_imports` source `CHECK` to match D1 migration `0020`: it admits
+`account-backed-v1`, the source every signed-in progress save carries, plus
+`legacy-hosted-v1` and `account-merge-v1`. Without it a self-hosted learner's
+routine saves fail on the constraint and record nothing. Existing rows are kept.
+`tests/progress-import-source-parity.test.mjs` fails if the D1 and PostgreSQL
+source lists drift apart again.
 The identity readiness probe follows the
 [official Keycloak health-check guidance](https://www.keycloak.org/observability/health)
 for its internal management port (verified 2026-07-27).

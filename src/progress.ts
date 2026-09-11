@@ -201,6 +201,64 @@ export function mergeLearnerProgress(
   };
 }
 
+/**
+ * What the signed-in front end does with progress it recorded while the
+ * session could not yet write -- before the first successful account read,
+ * or after a failed save -- once the session is writable again.
+ *
+ * - `wait`: not writable yet, nothing buffered, or a save is already in
+ *   flight. Keep the buffer; do nothing.
+ * - `discard`: the buffer is exactly the record last synchronized. Drop it.
+ * - `merge`: hand `apply` to the state setter. It merges the buffer INTO the
+ *   hydrated record the setter passes it; it never replaces that record.
+ *
+ * The plan returns an updater rather than the buffered record on purpose.
+ * 0.110.0 and 0.111.0 applied the buffer wholesale, and the buffer is built on
+ * whatever the provider held before its first read -- usually empty progress
+ * plus the one module just finished. The learner's hydrated record was
+ * discarded and that partial record was then written over the account: seven
+ * modules completed on seven fresh page loads left the account holding one.
+ * There is no record here to replace with, only the merge.
+ */
+export type UnsyncedProgressFlushPlan =
+  | { action: "wait" }
+  | { action: "discard" }
+  | {
+      action: "merge";
+      apply: (hydrated: LearnerProgress) => LearnerProgress;
+    };
+
+export function planUnsyncedProgressFlush(input: {
+  /** A read has succeeded and the session is currently synchronized. */
+  writable: boolean;
+  /** A save is in flight; its own failure path re-buffers. */
+  flushInFlight: boolean;
+  /** Progress recorded while the session could not write, if any. */
+  unsynced: LearnerProgress | null;
+  /** JSON of the record last read from or written to the account. */
+  lastSynchronized: string;
+}): UnsyncedProgressFlushPlan {
+  const unsynced = input.unsynced;
+  if (!input.writable || input.flushInFlight || !unsynced) {
+    return { action: "wait" };
+  }
+  if (JSON.stringify(unsynced) === input.lastSynchronized) {
+    return { action: "discard" };
+  }
+  return {
+    action: "merge",
+    // mergeLearnerProgress keeps every attempt, completion and badge the
+    // hydrated record holds and adds only the evidence the buffer carries. A
+    // buffered attempt whose id collides with a different hydrated one is kept
+    // under the "unsynced:" prefix rather than dropped.
+    apply: (hydrated) =>
+      mergeLearnerProgress(hydrated, unsynced, {
+        displayName: hydrated.displayName,
+        sourceRecordPrefix: "unsynced",
+      }),
+  };
+}
+
 export function recordAssessmentAttempt(
   progress: LearnerProgress,
   catalog: Catalog,

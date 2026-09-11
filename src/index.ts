@@ -32,6 +32,7 @@ export {
   createEmptyProgress,
   deriveBadges,
   mergeLearnerProgress,
+  planUnsyncedProgressFlush,
   recordAssessmentAttempt,
   recordCapstoneSubmission,
   recordModuleVisit,
@@ -289,6 +290,7 @@ export type {
   LearnerProgress,
   RecentModule,
   TranscriptEntry,
+  UnsyncedProgressFlushPlan,
 } from "./progress.js";
 export type {
   ConfiguredLearningRecordAdapter,
