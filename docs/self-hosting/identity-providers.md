@@ -112,11 +112,28 @@ server, or a mocked provider.
 
 The self-host leg provisions and removes its own ephemeral identity. The hosted
 leg cannot: signing in as a real user against a real hosted issuer needs a real
-test identity that already exists. It therefore runs only where one is configured,
-gated on the `PROJECT42_HOSTED_IDENTITY_ENABLED` repository variable so that forks
-and unconfigured clones are unaffected rather than failing.
+test identity that already exists.
 
-Configure the hosted leg with these repository variables:
+The hosted leg also proves learner progress persists (T-02). Signed in, it
+records one module completion through `PUT /v1/me/progress` exactly as the front
+end saves, signs in again in a fresh browser session, and requires the
+completion in `GET /v1/me/progress` and a `module_progress` row for it in
+`GET /v1/me/export`. It fails on any non-2xx and on a 200 whose body lacks the
+completion or has the wrong shape, then removes the test module so the next run
+starts clean. The test identity must therefore be **approved**.
+
+The hosted leg lives in `.github/workflows/hosted-smoke.yml`, which runs on a
+schedule, after each production portal deploy (called from the portal's deploy
+workflow), and from CI on pushes to `main` — never on pull requests, because it
+exercises the deployed service. CI calls it only when the
+`PROJECT42_HOSTED_IDENTITY_ENABLED` variable is `true`, so forks and
+unconfigured clones are unaffected. The scheduled and post-deploy runs do not
+skip: missing configuration fails the run and names what is missing. GitHub
+resolves variables and inherited secrets from the *calling* repository, so
+define the names below at organization level, visible to both the platform and
+the portal repositories.
+
+Configure the hosted leg with these variables:
 
 | Variable | Purpose |
 |---|---|
@@ -133,11 +150,16 @@ and these Actions secrets:
 | `PROJECT42_HOSTED_SMOKE_PASSWORD` | Test identity's password |
 | `PROJECT42_HOSTED_SMOKE_SUBJECT` | Optional expected immutable subject |
 
-Use a dedicated, non-owner test identity with no administrative rights. If the
-provider's sign-in form differs from the Entra External ID default, override
-`PROJECT42_HOSTED_USERNAME_SELECTOR`, `PROJECT42_HOSTED_PASSWORD_SELECTOR`, and
-`PROJECT42_HOSTED_SUBMIT_SELECTOR` rather than editing the script — the leg is
-provider-neutral by configuration.
+Use a dedicated, non-owner test identity with no administrative rights, and do
+not use it for anything else: the gate owns that account's progress for the
+first non-capstone catalogue module. The identity must sign in with an email and
+a password; a provider that sends a one-time code on every sign-in cannot be
+driven headlessly. If the provider's sign-in form differs from the Entra
+External ID default, override `PROJECT42_HOSTED_USERNAME_SELECTOR`,
+`PROJECT42_HOSTED_PASSWORD_SELECTOR`, and `PROJECT42_HOSTED_SUBMIT_SELECTOR`
+(and set `PROJECT42_HOSTED_STAY_SIGNED_IN_SELECTOR` if it interposes a "stay
+signed in?" page) rather than editing the script — the leg is provider-neutral
+by configuration.
 
 ## Deployment-time client provisioning
 
