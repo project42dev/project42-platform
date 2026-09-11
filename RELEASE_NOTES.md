@@ -1,3 +1,29 @@
+# Project 42 platform v0.111.1
+
+Progress completed while an account read is still pending is added to the learner's record instead of replacing it.
+
+0.110.0 fixed a real defect -- one failed `GET /v1/me/progress` ended every later write for the session -- by buffering what the learner did until a read succeeded. The flush was wrong. When the read came back, the provider applied the buffer with `setProgress(buffered.progress)`, and the buffer had been built on the empty progress the provider holds before its first read. The learner's hydrated record was thrown away and that partial record was written over it. Opening a module and answering before the read returns is enough: a learner who completed seven modules on seven page loads kept only the seventh.
+
+The flush now merges with `mergeLearnerProgress`, the same function account merges use, so every attempt, completion and badge the read returned is kept and only the evidence recorded while the session was not yet writable is added. The Project 42 portal's provider-journey and reliable-agent browser journeys fail on 0.110.0 and 0.111.0 and pass on this release.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None beyond 0.111.0. Deployments coming from 0.109.0 or earlier still need D1 migration `0020`.
+
+## Known limitations
+
+The platform's own suite does not exercise this path; the regression is caught by the portal's browser journeys. A platform-level test for the provider's hydration and flush ordering is owed.
+
+## Rollback
+
+Do not roll back to 0.110.0 or 0.111.0. Pin 0.109.0 if this release must be withdrawn.
+
+---
+
 # Project 42 platform v0.111.0
 
 The review dates the site shows are the ones the curriculum actually earned, and every one of them is current.

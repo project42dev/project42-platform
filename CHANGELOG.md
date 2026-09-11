@@ -4,6 +4,18 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.111.1] - 2026-09-11
+
+### Fixed
+
+- Progress recorded before the first successful account read no longer
+  overwrites the learner's record. Since 0.110.0 the provider buffered that
+  progress and, once the read succeeded, replaced the hydrated record with the
+  buffer -- empty progress plus the latest module -- then wrote it to the
+  account. Completing modules on fresh page loads left only the last one. The
+  buffer is now merged into the hydrated record with `mergeLearnerProgress`.
+  0.110.0 and 0.111.0 should not be deployed.
+
 ## [0.111.0] - 2026-09-11
 
 Includes the changes tagged as 0.110.0, whose release job could not pass
