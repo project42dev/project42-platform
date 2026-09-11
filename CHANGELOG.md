@@ -4,6 +4,35 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [Unreleased]
+
+### Fixed
+
+- **Accessibility (WCAG 2.2 SC 1.4.11).** Eight border tokens in
+  `portal-default` — the theme every fresh install and production itself
+  renders with — shipped below the 3:1 non-text contrast floor, the softest
+  hairline at 1.23:1. `--p42-card-border` and `--p42-border-soft` (1.34:1,
+  1.23:1), `--p42-secondary-btn-border` (1.96:1) and the four status callout
+  borders (1.69–1.85:1) are raised to at least 3:1 against the surface each
+  one actually borders. Only lightness and alpha moved; every hue and
+  saturation is unchanged, and no token that already passed was touched.
+- The frozen copy of `06-galactic-guide` in `web/themes/` is brought up to the
+  border values project42-gallery accepted for that theme on 2026-09-11
+  (gallery `fc7024a`), and its `theme.json` gains the seven contract tokens it
+  had been missing.
+
+### Added
+
+- `web/scripts/theme-correctness-check.mjs`, run by `npm run web:check` and so
+  by `npm run check`. It measures every bundle under `web/themes/` with
+  project42-gallery's own `checkBundle()`, vendored verbatim and hash-locked
+  under `web/scripts/vendor/project42-gallery/`, rather than with a second
+  implementation free to drift from it. This is the gap the defect above went
+  through: the Gallery's validator has always scanned `project42-gallery/
+  themes/` and nothing else, and the bundles this package ships live here, so
+  nothing in either repository was measuring them. `npm run themes:contrast`
+  prints every measured pair.
+
 ## [0.112.1] - 2026-09-11
 
 ### Changed
