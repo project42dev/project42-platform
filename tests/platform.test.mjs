@@ -137,6 +137,20 @@ test("rejects incomplete, ambiguous, or unsafe resource metadata", () => {
   }
 });
 
+test("rejects a lastVerified date claimed for a day that has not happened", () => {
+  const broken = structuredClone(starterCatalog);
+  const future = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
+  broken.resources[0].sources[0].lastVerified = future;
+
+  const validation = validateCatalog(broken);
+
+  assert.equal(validation.valid, false);
+  assert.ok(
+    validation.errors.some((error) => error.includes("date in the future")),
+    "a source dated after today must fail validation, not pass as freshly reviewed",
+  );
+});
+
 test("reports missing new resource arrays instead of throwing on legacy JSON", () => {
   const broken = structuredClone(starterCatalog);
   delete broken.resources[0].audience;
