@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.42.0",
-  "substantiveModuleCount": 69,
+  "substantiveModuleCount": 70,
   "classReadyModuleCount": 40,
-  "outlineOnlyModuleCount": 29,
+  "outlineOnlyModuleCount": 30,
   "renderedModuleCount": 1,
   "coverageStatus": "migration-active",
   "modules": [
@@ -407,6 +407,14 @@
       "classScriptId": "model-artifact-integrity-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/model-artifact-integrity/class-script.json"
+    },
+    {
+      "moduleId": "model-context-protocol-mcp",
+      "pathIds": [
+        "agentic-systems-and-mcp"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
     },
     {
       "moduleId": "model-identity-license-and-provenance",
