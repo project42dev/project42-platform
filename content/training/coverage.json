@@ -1,12 +1,28 @@
 {
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.42.0",
-  "substantiveModuleCount": 70,
+  "substantiveModuleCount": 91,
   "classReadyModuleCount": 40,
-  "outlineOnlyModuleCount": 30,
+  "outlineOnlyModuleCount": 51,
   "renderedModuleCount": 1,
   "coverageStatus": "migration-active",
   "modules": [
+    {
+      "moduleId": "advanced-rag-and-hybrid-search",
+      "pathIds": [
+        "rag-and-fine-tuning-engineering"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "agent-architecture-spectrum",
+      "pathIds": [
+        "agentic-systems-and-mcp"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
     {
       "moduleId": "agent-evaluation",
       "pathIds": [
@@ -28,6 +44,14 @@
       "classScriptId": "agent-observability-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/reliable-agent-workflows/agent-observability/class-script.json"
+    },
+    {
+      "moduleId": "agent-safety-and-spend-brakes",
+      "pathIds": [
+        "agentic-systems-and-mcp"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
     },
     {
       "moduleId": "agentic-ai-layers",
@@ -86,6 +110,14 @@
       }
     },
     {
+      "moduleId": "ai-compliance-and-crypto-receipts",
+      "pathIds": [
+        "ai-security-and-governance"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
       "moduleId": "ai-foundations-capstone",
       "pathIds": [
         "ai-foundations"
@@ -95,6 +127,14 @@
       "classScriptId": "ai-foundations-capstone-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/ai-foundations-capstone/class-script.json"
+    },
+    {
+      "moduleId": "ai-mental-models",
+      "pathIds": [
+        "ai-literacy-and-mental-models"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
     },
     {
       "moduleId": "ai-systems-and-use-cases",
@@ -230,6 +270,14 @@
       "classScriptPath": "content/training/self-hosted-model-operations/deployment-shape-and-operating-model/class-script.json"
     },
     {
+      "moduleId": "dpo-and-model-evaluation",
+      "pathIds": [
+        "rag-and-fine-tuning-engineering"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
       "moduleId": "endpoint-identity-network-and-secrets",
       "pathIds": [
         "self-hosted-model-operations"
@@ -266,6 +314,14 @@
       "moduleId": "execute-cross-provider-cutover",
       "pathIds": [
         "providers-in-practice"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "function-calling-and-tools",
+      "pathIds": [
+        "developer-and-practitioner-ai"
       ],
       "status": "outline-only",
       "instructorSchemaVersion": "1.1"
@@ -319,6 +375,30 @@
       "instructorSchemaVersion": "1.1"
     },
     {
+      "moduleId": "graph-rag-and-knowledge-graphs",
+      "pathIds": [
+        "rag-and-fine-tuning-engineering"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "guardrails-and-sandboxing",
+      "pathIds": [
+        "ai-security-and-governance"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "hardware-and-vram-calculator",
+      "pathIds": [
+        "self-hosted-and-aiops"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
       "moduleId": "hardware-runtime-and-capacity-planning",
       "pathIds": [
         "self-hosted-model-operations"
@@ -339,6 +419,14 @@
       "classScriptId": "language-models-and-generation-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/language-models-and-generation/class-script.json"
+    },
+    {
+      "moduleId": "lora-qlora-fine-tuning",
+      "pathIds": [
+        "rag-and-fine-tuning-engineering"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
     },
     {
       "moduleId": "mcp-architecture",
@@ -461,6 +549,14 @@
       "classScriptPath": "content/training/reliable-agent-workflows/multi-agent-handoffs/class-script.json"
     },
     {
+      "moduleId": "multi-agent-orchestration",
+      "pathIds": [
+        "agentic-systems-and-mcp"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
       "moduleId": "observability-cost-and-performance",
       "pathIds": [
         "self-hosted-model-operations"
@@ -470,6 +566,14 @@
       "classScriptId": "observability-cost-and-performance-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/observability-cost-and-performance/class-script.json"
+    },
+    {
+      "moduleId": "open-weights-and-quantization",
+      "pathIds": [
+        "self-hosted-and-aiops"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
     },
     {
       "moduleId": "openai-ecosystem-and-interfaces",
@@ -531,6 +635,14 @@
       "classScriptPath": "content/training/reliable-agent-workflows/orchestration-patterns/class-script.json"
     },
     {
+      "moduleId": "owasp-top-10-llm-attacks",
+      "pathIds": [
+        "ai-security-and-governance"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
       "moduleId": "plan-cross-provider-migration",
       "pathIds": [
         "providers-in-practice"
@@ -561,6 +673,14 @@
       "classScriptPath": "content/training/ai-foundations/privacy-safety-and-responsibility/class-script.json"
     },
     {
+      "moduleId": "production-vllm-and-ollama",
+      "pathIds": [
+        "self-hosted-and-aiops"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
       "moduleId": "prompt-anatomy-and-success-criteria",
       "pathIds": [
         "ai-foundations"
@@ -572,6 +692,14 @@
       "classScriptPath": "content/training/ai-foundations/prompt-anatomy-and-success-criteria/class-script.json"
     },
     {
+      "moduleId": "prompt-architecture",
+      "pathIds": [
+        "ai-literacy-and-mental-models"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
       "moduleId": "prompt-with-purpose",
       "pathIds": [
         "ai-foundations"
@@ -581,6 +709,14 @@
       "classScriptId": "prompt-with-purpose-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/ai-foundations/prompt-with-purpose/class-script.json"
+    },
+    {
+      "moduleId": "provider-sdk-patterns",
+      "pathIds": [
+        "developer-and-practitioner-ai"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
     },
     {
       "moduleId": "reliable-agent-capstone",
@@ -649,6 +785,14 @@
       "classScriptPath": "content/training/self-hosted-model-operations/self-hosted-model-operations-capstone/class-script.json"
     },
     {
+      "moduleId": "semantic-caching-and-ai-tracing",
+      "pathIds": [
+        "self-hosted-and-aiops"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
       "moduleId": "serving-api-and-compatibility-contracts",
       "pathIds": [
         "self-hosted-model-operations"
@@ -658,6 +802,30 @@
       "classScriptId": "serving-api-and-compatibility-contracts-class",
       "classScriptVersion": "1.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/serving-api-and-compatibility-contracts/class-script.json"
+    },
+    {
+      "moduleId": "structured-outputs-mastery",
+      "pathIds": [
+        "developer-and-practitioner-ai"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "token-economics-and-limits",
+      "pathIds": [
+        "ai-literacy-and-mental-models"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
+    },
+    {
+      "moduleId": "vector-embeddings-and-pgvector",
+      "pathIds": [
+        "developer-and-practitioner-ai"
+      ],
+      "status": "outline-only",
+      "instructorSchemaVersion": "1.1"
     },
     {
       "moduleId": "verification-and-iterative-improvement",

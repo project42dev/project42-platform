@@ -4,7 +4,38 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
-## [Unreleased]
+## [0.112.0] - 2026-09-11
+
+### Changed
+
+- Curriculum from `project42-content@d4c6d8e`. The 21 modules that were still
+  template text are authored: sourced technical content, instructor scripts and
+  at least five knowledge checks each, across AI literacy, agentic systems,
+  developer practice, self-hosted AIOps, RAG and fine-tuning, and AI security
+  and governance. No reachable module renders template scaffolding. Code
+  samples no longer use the retired `claude-3-7-sonnet-20250219`; they read the
+  model id from configuration. `content/training/coverage.json` regenerated.
+- `sharp` is overridden to `0.35.4`, clearing the high advisory that reached
+  `wrangler` and `miniflare` transitively. `npm audit` reports 0.
+
+### Added
+
+- `web/layouts/composition-tokens.json`, the declared layout-token list, and
+  `web/scripts/layout-tokens-check.mjs` in `web:check`: every layout bundle
+  must carry exactly those tokens, so a token added to one copy fails here
+  instead of in a downstream site.
+- A hosted progress-persistence gate. `scripts/smoke-hosted-browser-session.mjs`
+  now signs in, records a completion through `PUT /v1/me/progress`, re-reads it
+  in a fresh session and requires a `module_progress` row in the export, then
+  removes it. `hosted-smoke.yml` runs it every six hours and after deploys, and
+  fails rather than skips when its configuration is missing.
+
+### Security
+
+- `self-host/.trivyignore.yaml` defers CVE-2026-75595 (netty-handler in
+  `keycloak:26.7.3`, the newest tag) until 2026-12-01. The flaw is in Netty's
+  TLS ClientHello handling; Keycloak in both topologies serves plain HTTP
+  behind the gateway and terminates no TLS.
 
 ### Fixed
 

@@ -48,6 +48,7 @@
     "learnModuleIds": [
       "compare-provider-capabilities",
       "control-agent-actions",
+      "function-calling-and-tools",
       "gemini-tools-and-agent-loops",
       "safe-tool-use-workflow"
     ],
@@ -61,6 +62,12 @@
       "q-control-agent-3",
       "q-control-agent-4",
       "q-control-agent-5",
+      "q-dev-tools-1",
+      "q-dev-tools-2",
+      "q-dev-tools-3",
+      "q-dev-tools-4",
+      "q-dev-tools-5",
+      "q-dev-tools-6",
       "q-gemini-tools-1",
       "q-gemini-tools-2",
       "q-gemini-tools-3",
@@ -80,6 +87,7 @@
     "instructorPackageModuleIds": [
       "compare-provider-capabilities",
       "control-agent-actions",
+      "function-calling-and-tools",
       "gemini-tools-and-agent-loops",
       "safe-tool-use-workflow"
     ]

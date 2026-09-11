@@ -1,6 +1,6 @@
 {
   "name": "@project42/platform",
-  "version": "0.111.1",
+  "version": "0.112.0",
   "description": "Open-source content, assessment, and learning-record core for Project 42.",
   "type": "module",
   "main": "./dist/index.js",
@@ -98,7 +98,8 @@
   },
   "overrides": {
     "fast-uri": "^3.1.7",
-    "undici": "^7.29.1"
+    "undici": "^7.29.1",
+    "sharp": "0.35.4"
   },
   "bin": {
     "project42-portal": "./bin/project42-portal.mjs"

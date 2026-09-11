@@ -346,6 +346,38 @@
       "owner": "curriculum"
     },
     {
+      "id": "arxiv-abstracts",
+      "urlPrefix": "https://arxiv.org/abs/",
+      "publisher": "arXiv",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "elastic-docs",
+      "urlPrefix": "https://www.elastic.co/docs/",
+      "publisher": "Elastic",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "curriculum"
+    },
+    {
+      "id": "opensearch-docs",
+      "urlPrefix": "https://docs.opensearch.org/",
+      "publisher": "OpenSearch",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "curriculum"
+    },
+    {
+      "id": "microsoft-graphrag-docs",
+      "urlPrefix": "https://microsoft.github.io/graphrag/",
+      "publisher": "Microsoft",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "curriculum"
+    },
+    {
       "id": "cloudflare-developer-docs",
       "urlPrefix": "https://developers.cloudflare.com/",
       "publisher": "Cloudflare",
@@ -450,6 +482,70 @@
       "owner": "curriculum"
     },
     {
+      "id": "owasp-genai-security-project",
+      "urlPrefix": "https://genai.owasp.org/",
+      "publisher": "OWASP",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "owasp-genai-llm-top-10-source",
+      "urlPrefix": "https://github.com/GenAI-Security-Project/GenAI-LLM-Top10/",
+      "publisher": "OWASP",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "nist-nvlpubs",
+      "urlPrefix": "https://nvlpubs.nist.gov/nistpubs/",
+      "publisher": "NIST",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "eur-lex",
+      "urlPrefix": "https://eur-lex.europa.eu/",
+      "publisher": "European Union",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "nvidia-nemo-guardrails-docs",
+      "urlPrefix": "https://docs.nvidia.com/nemo/guardrails/",
+      "publisher": "NVIDIA",
+      "trustTier": "primary",
+      "reviewCadenceDays": 60,
+      "owner": "curriculum"
+    },
+    {
+      "id": "gvisor-docs",
+      "urlPrefix": "https://gvisor.dev/docs/",
+      "publisher": "gVisor",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "firecracker-site",
+      "urlPrefix": "https://firecracker-microvm.github.io/",
+      "publisher": "Firecracker",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "firecracker-repository-docs",
+      "urlPrefix": "https://github.com/firecracker-microvm/firecracker/",
+      "publisher": "Firecracker",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
       "id": "prometheus-documentation",
       "urlPrefix": "https://prometheus.io/docs/",
       "publisher": "Prometheus",
@@ -488,6 +584,94 @@
       "trustTier": "primary",
       "reviewCadenceDays": 30,
       "owner": "provider-deepseek"
+    },
+    {
+      "id": "owasp-genai-llm-risks",
+      "urlPrefix": "https://genai.owasp.org/llmrisk/",
+      "publisher": "OWASP",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "postgresql-docs",
+      "urlPrefix": "https://www.postgresql.org/docs/",
+      "publisher": "PostgreSQL Global Development Group",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "pgvector-repository",
+      "urlPrefix": "https://github.com/pgvector/pgvector",
+      "publisher": "pgvector",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "json-schema-2020-12",
+      "urlPrefix": "https://json-schema.org/draft/2020-12/",
+      "publisher": "JSON Schema",
+      "trustTier": "primary",
+      "reviewCadenceDays": 365,
+      "owner": "curriculum"
+    },
+    {
+      "id": "zod-docs",
+      "urlPrefix": "https://zod.dev/",
+      "publisher": "Zod",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "tooling"
+    },
+    {
+      "id": "hugging-face-blog",
+      "urlPrefix": "https://huggingface.co/blog/",
+      "publisher": "Hugging Face",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "ggml-org-github",
+      "urlPrefix": "https://github.com/ggml-org/",
+      "publisher": "ggml-org",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "vllm-github",
+      "urlPrefix": "https://github.com/vllm-project/vllm/",
+      "publisher": "vLLM",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "opentelemetry-genai-semconv",
+      "urlPrefix": "https://github.com/open-telemetry/semantic-conventions-genai/",
+      "publisher": "OpenTelemetry",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "ollama-docs",
+      "urlPrefix": "https://docs.ollama.com/",
+      "publisher": "Ollama",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "litellm-docs",
+      "urlPrefix": "https://docs.litellm.ai/",
+      "publisher": "LiteLLM",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
     }
   ]
 }

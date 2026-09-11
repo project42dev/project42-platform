@@ -1,3 +1,31 @@
+# Project 42 platform v0.112.0
+
+Every module a learner can reach is real curriculum, and self-hosted installs save progress.
+
+**The last 21 template modules are written.** Six learning paths — AI literacy and mental models, agentic systems and MCP, developer and practitioner AI, self-hosted AIOps, RAG and fine-tuning engineering, and AI security and governance — were made entirely of generated placeholder text. Each module now has sourced technical content, an instructor script whose captions and transcript match its cues, and at least five knowledge checks. Every citation was fetched and read on 2026-09-11 against the text that cites it. Two sources had moved on since the templates were written, and the modules follow the current versions: OWASP's 2026 Top 10 for LLM applications, and the EU AI Act dates as amended by Regulation (EU) 2026/1744.
+
+**Self-hosted PostgreSQL accepts the front end's saves.** D1 migration `0020` widened the `progress_imports` source `CHECK`; PostgreSQL never got the equivalent, so every signed-in save on a self-hosted install aborted on the constraint. Migration `014` brings it level, and a parity test fails if the two stores, the Worker and the learning-event contract disagree again.
+
+**The progress-flush regression is now caught here.** `planUnsyncedProgressFlush` holds the decision `ProgressProvider` makes when an account read finally succeeds, and a test replays the seven-page-load sequence that lost data in 0.110.0 and 0.111.0.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+PostgreSQL self-host: `014_account_backed_progress_source.sql`. D1: none beyond `0020`.
+
+## Known limitations
+
+The hosted persistence gate needs a password-capable smoke account, the `PROJECT42_HOSTED_SMOKE_*` secrets and the `PROJECT42_HOSTED_*` variables. Until they exist it fails on schedule by design. Keycloak `26.7.3` carries a deferred Netty advisory that is not reachable in the shipped topologies; see `self-host/.trivyignore.yaml`.
+
+## Rollback
+
+Pin 0.111.1. Do not roll back to 0.110.0 or 0.111.0. PostgreSQL `014` only widens a constraint and is safe to leave in place.
+
+---
+
 # Project 42 platform v0.111.1
 
 Progress completed while an account read is still pending is added to the learner's record instead of replacing it.
