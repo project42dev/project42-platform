@@ -4,6 +4,35 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [Unreleased]
+
+### Fixed
+
+- **`npm run test:pages` can now pass.** v0.115.0 wired the gate into the
+  template's `check` and the first site to run it failed deterministically:
+  `playwright.pages.config.ts` points the whole of `tests/browser` at the
+  exported artifact, and `galactic-conformance.spec.ts` asked it for
+  `/learner-data/policy` — a route handler a static export cannot have, because
+  `pages:export` writes that body to `learner-data/policy.json` and rewrites
+  the link. The spec now reads the href off the page and follows it, so the
+  same assertion holds on both surfaces and covers the guarantee that matters:
+  the button a learner clicks reaches the policy.
+- **`test:pages` no longer asserts against the live Admin site.** The same
+  whole-directory run navigated to `/admin`, where the artifact serves the
+  redirect `pages:export --retire-admin-routes` writes. That is not a failure —
+  the meta refresh took the browser out to the deployment's real Admin origin
+  over the public internet, and assertions written for a locally mocked portal
+  went on passing there. `tests/browser/support/surface.ts` probes for that
+  redirect and skips with the reason stated; `npm run test:browser` still
+  proves the portal against the live application. `tests/web-distribution.test.mjs`
+  gains a gate that reads the withheld routes out of the exporter and fails any
+  spec that reaches one without probing first.
+- `web/scripts/serve-github-pages.mjs` honours the `--port` that
+  `playwright.pages.config.ts` has always passed it. It read only `PAGES_PORT`,
+  so `PROJECT42_PLAYWRIGHT_PORT` moved the port Playwright waited on without
+  moving the port the artifact was served from, and `test:pages` could not run
+  beside anything already holding 48142.
+
 ## [0.115.0] - 2026-09-12
 
 ### Added

@@ -2,6 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 import portalConfig from "../../project42.config.json" with { type: "json" };
+import { skipWhenAdminIsRetired } from "./support/surface";
 
 // AuthProvider treats the deployment as configured when EITHER the environment
 // variable or portal.apiOrigin names an account API. This read used to consider
@@ -525,11 +526,16 @@ test.skip("completes GitHub linkage without exposing the provider token to Learn
 
 test("keeps protected owner administration keyboard-operable at a narrow viewport", async ({
   page,
+  request,
 }) => {
   test.skip(
     !hostedIdentityConfigured,
     "The owner-console journey requires account-API configuration.",
   );
+  // This journey visits /admin and /admin/logs. On the exported artifact those
+  // are redirects out to the deployment's real Admin origin, so every
+  // assertion below would be made against production over the internet.
+  await skipWhenAdminIsRetired(request);
 
   const account = {
     id: "owner-account",

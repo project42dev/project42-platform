@@ -11,6 +11,7 @@ import {
   expectNotColor,
   parseColor,
 } from "./support/colors";
+import { skipWhenAdminIsRetired } from "./support/surface";
 
 // Expected token values come from the SELECTED theme's own manifest rather
 // than a hardcoded Galactic palette. Those literals previously pinned the
@@ -592,14 +593,52 @@ const apiOrigin =
   }
 });
 
-test("serves the machine-readable policy and keeps admin theming isolated", async ({
+// WHICH SURFACE IS UNDER TEST.
+//
+// tests/browser is driven by two configs against two different things.
+// playwright.config.ts serves the live application, where /learner-data/policy
+// is a route handler. playwright.pages.config.ts serves the exported artifact,
+// where a route handler cannot exist: scripts/export-github-pages.mjs writes
+// the same body to learner-data/policy.json and rewrites the link that points
+// at it. Naming the live path here therefore failed `npm run test:pages`
+// deterministically, for a difference that is the export working as designed.
+//
+// Reading the href off the page asserts the guarantee that actually matters on
+// both surfaces -- the button a learner clicks reaches the policy -- and it
+// pins the rewrite: the serialised payload embedded in the exported HTML still
+// carries the un-rewritten path, so a hydration that reconciled the anchor
+// would publish a dead link and nothing else here would notice.
+test("the machine-readable policy is reachable from the link that offers it", async ({
   page,
   request,
 }) => {
-  const policyResponse = await request.get("/learner-data/policy");
-  expect(policyResponse.status()).toBe(200);
+  await page.goto("/learner-data");
+  const policyLink = page.locator(".policy-machine-readable a[href]");
+  await expect(policyLink).toBeVisible();
+
+  // Read the href React has settled on, not the one the document arrived with.
+  // Waiting for the fiber is the only way to tell those apart: before
+  // hydration the exported page always shows the rewritten path.
+  await page.waitForFunction(() => {
+    const link = document.querySelector(".policy-machine-readable a[href]");
+    return link !== null && Object.keys(link).some((key) => key.startsWith("__reactFiber"));
+  });
+
+  const href = await policyLink.getAttribute("href");
+  expect(href, "the learner-data page offers no policy link").toBeTruthy();
+
+  const policyResponse = await request.get(href!);
+  expect(policyResponse.status(), `the policy link points at ${href}, which does not serve`).toBe(
+    200,
+  );
   expect(policyResponse.headers()["content-type"]).toContain("application/json");
   expect(await policyResponse.json()).toMatchObject({ policyVersion: expect.any(String) });
+});
+
+test("keeps admin theming isolated from the learner site", async ({ page, request }) => {
+  // The exported artifact has no Admin portal to theme, and navigating to one
+  // that is not there leaves the artifact entirely. See support/surface.ts.
+  await skipWhenAdminIsRetired(request);
 
   await page.goto("/admin");
   await expect(page.locator(".admin-portal-root")).toHaveAttribute(

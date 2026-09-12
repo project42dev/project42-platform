@@ -6,7 +6,19 @@ import process from "node:process";
 
 const root = path.resolve(import.meta.dirname, "..", "dist", "pages");
 const hostname = process.env.PAGES_HOST ?? "127.0.0.1";
-const port = Number.parseInt(process.env.PAGES_PORT ?? "48142", 10);
+// playwright.pages.config.ts has always passed `--port`, and this script has
+// always read only PAGES_PORT, so the flag was accepted and ignored:
+// PROJECT42_PLAYWRIGHT_PORT moved the port Playwright waited on without moving
+// the port the artifact was served from, and `npm run test:pages` could not be
+// run beside anything else already holding 48142.
+const portFlag = process.argv.indexOf("--port");
+const port = Number.parseInt(
+  portFlag === -1 ? (process.env.PAGES_PORT ?? "48142") : (process.argv[portFlag + 1] ?? ""),
+  10,
+);
+if (!Number.isInteger(port) || port < 1024 || port > 65_535) {
+  throw new Error("The Pages artifact port must be an integer from 1024 to 65535.");
+}
 const contentTypes = new Map([
   [".css", "text/css; charset=utf-8"],
   [".html", "text/html; charset=utf-8"],

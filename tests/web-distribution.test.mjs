@@ -663,6 +663,72 @@ test("the template's check script runs the installed-app browser gate", () => {
   );
 });
 
+test("no browser spec asserts a surface the Pages export deliberately does not ship", () => {
+  // The gate wired into the template's `check` above could not pass anywhere.
+  // web/tests/browser is pointed at two different things: playwright.config.ts
+  // serves the live application, playwright.pages.config.ts serves the exported
+  // artifact. The export has no route handlers -- /learner-data/policy becomes
+  // a learner-data/policy.json file and the link to it is rewritten -- and
+  // --retire-admin-routes replaces /admin with a redirect to the deployment's
+  // own Admin origin. A spec that names either path outright therefore fails
+  // `npm run test:pages` for a reason that is the export working as designed,
+  // or -- worse, for /admin -- FOLLOWS the redirect and quietly asserts against
+  // the live Admin site over the internet.
+  //
+  // There is no React toolchain here, so this repository cannot run Playwright
+  // to find that out (see the header of this file). What it can do is hold the
+  // shape: read the routes the exporter withholds from the exporter itself, and
+  // require every spec that reaches one to probe the surface first.
+  const exporter = readFileSync(
+    path.join(webDir, "scripts", "export-github-pages.mjs"),
+    "utf8",
+  );
+  assert.match(
+    exporter,
+    /href="\/learner-data\/policy"', 'href="\/learner-data\/policy\.json"/,
+    "the exporter no longer rewrites the policy link; this gate is reading a stale contract",
+  );
+  assert.match(
+    exporter,
+    /\["\/admin", "\/admin\/logs", "\/admin\/settings"\]/,
+    "the exporter no longer retires the Admin routes; this gate is reading a stale contract",
+  );
+
+  const browserDir = path.join(webDir, "tests", "browser");
+  const specs = readdirSync(browserDir).filter((entry) => entry.endsWith(".spec.ts"));
+  assert.ok(specs.length > 0, "web/tests/browser ships no specs");
+
+  const offenders = [];
+  for (const spec of specs) {
+    const source = readFileSync(path.join(browserDir, spec), "utf8");
+
+    if (source.includes('"/learner-data/policy"')) {
+      offenders.push(
+        `${spec} names "/learner-data/policy". Read the href off the page instead: the ` +
+          "artifact serves that body at learner-data/policy.json.",
+      );
+    }
+
+    // One block per `test(`, which is the scope a skip guard covers. Indented
+    // too: a spec built out of `test.describe` blocks would otherwise be read
+    // as a single block and never checked at all.
+    for (const block of source.split(/^\s*test\(/m).slice(1)) {
+      if (!/["'`]\/admin(\/|["'`])/.test(block)) continue;
+      if (block.includes("skipWhenAdminIsRetired(")) continue;
+      offenders.push(
+        `${spec}: test(${block.split("\n")[0].trimEnd()} reaches /admin without calling ` +
+          "skipWhenAdminIsRetired() from tests/browser/support/surface.ts.",
+      );
+    }
+  }
+
+  assert.deepEqual(
+    offenders,
+    [],
+    `specs that cannot hold against the exported artifact:\n  ${offenders.join("\n  ")}`,
+  );
+});
+
 test("no client component pulls the whole catalogue into the browser", () => {
   // The progress API reads eight fields from the catalogue. A client component
   // that imports lib/catalog to get them ships every module body, knowledge
