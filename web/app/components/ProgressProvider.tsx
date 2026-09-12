@@ -188,12 +188,14 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           setProgress(stored.progress);
         }
       }
-      // The account owns the record from here. Clearing is best-effort and
-      // deliberately unconditional: a device key left behind after sign-in is a
-      // copy of learner progress that the profile page cannot show and the
-      // account-deletion workflow cannot reach.
-      if (storage) clearDeviceLocalProgress(storage);
-
+      // NOTE: the device key is NOT cleared here. It is cleared in the read's
+      // success handler below, once the account has actually taken the record
+      // over. Clearing it at this point would lose the learner's place outright
+      // on the sequence that matters most -- sign in (an OIDC redirect, so a
+      // full page load), GET /v1/me/progress fails, learner reloads: the seed
+      // above is gone with the old page, the in-memory buffer went with it, and
+      // the key that still held their place would have been deleted by a hand-
+      // off that never completed.
       setSyncStatus("checking");
       const controller = new AbortController();
       void apiFetch("/v1/me/progress", { signal: controller.signal })
@@ -247,6 +249,22 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           // account record itself and no write is provoked.
           lastSynchronized.current = JSON.stringify(normalized);
           setProgress(planAccountProgressHydration(normalized));
+          // THE HAND-OFF IS COMPLETE, so the device copy goes. The account has
+          // the record, the merge above has folded in whatever the device
+          // seeded, and the sync effect writes the result back. Leaving the key
+          // behind would be a copy of learner progress that the profile page
+          // cannot show and the account-deletion workflow cannot reach, sitting
+          // in what may be a shared browser.
+          //
+          // This is deliberately AFTER the read succeeds rather than before it.
+          // What remains is the GET-ok / PUT-fail / reload window, where the
+          // merged record is lost -- but that window is not new and not made
+          // worse here: it is the same one every in-session change already has,
+          // and the unsynced buffer and hydration retry exist to narrow it.
+          {
+            const accountStorage = deviceStorage();
+            if (accountStorage) clearDeviceLocalProgress(accountStorage);
+          }
           syncEnabled.current = true;
           hydrationAttempt.current = 0;
           setSyncStatus("synced");
@@ -328,8 +346,22 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   // `hasLearningEvidence` -- a visitor who reads a page and leaves gets no key
   // written at all. The key appears when they have done something worth
   // keeping, and not before.
+  // `syncStatus === "local-only"` -- and this one is NOT redundant with the
+  // account check, it is the one that stops this feature leaking an account
+  // record onto a shared device. On SIGN OUT, `account` becomes null and this
+  // effect re-runs immediately, while `progress` is still the full account
+  // record -- attempts, badges, display name -- because the hydration effect
+  // above only SCHEDULES its reset on a setTimeout(0). Without this guard the
+  // account record would be written to localStorage at the moment of signing
+  // out, and the empty progress that lands a tick later does not overwrite it,
+  // because empty progress has no evidence and takes the early return. The same
+  // path runs when a session renewal fails. `syncStatus` is still "synced" at
+  // that render and only becomes "local-only" in the same batch that sets the
+  // empty record, so keying on it makes the write follow the reset rather than
+  // race it.
   useEffect(() => {
     if (!hydrated) return;
+    if (syncStatus !== "local-only") return;
     if (account?.state === "approved") return;
     if (!hasLearningEvidence(progress)) return;
     const storage = deviceStorage();
@@ -337,7 +369,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     // A refused write (private mode, full quota) is not surfaced: the place is
     // still right in this tab, it just will not survive the reload.
     writeDeviceLocalProgress(storage, progress);
-  }, [account, hydrated, progress]);
+  }, [account, hydrated, progress, syncStatus]);
 
   // Sync: when progress changes and we have an approved account, push to API.
   // On network error, buffer the unsynced progress in memory.
