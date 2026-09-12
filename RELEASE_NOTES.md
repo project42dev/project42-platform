@@ -1,3 +1,37 @@
+# Project 42 platform v0.114.0
+
+The site keeps your place, and keeps your work.
+
+**One learner's account could be overwritten with another's empty record.** Reset progress, sign out while the save is still pending, and the next person to sign in on that browser had their account written over with an empty one. Every per-learner reference stayed armed at sign-out, so the pending save survived the change of learner and React never re-rendered to cancel it. Deterministic, not a race.
+
+**Work no longer dies on the way out.** Answering a question and immediately closing the tab, navigating away, or switching apps lost whatever sat inside the 800ms save delay, because nothing flushed on unload. It flushes now, on `pagehide` and on the page being hidden, with a transport that survives the document. A save the server rejects for a reason worth retrying is retried with backoff and on reconnect; one it rejects on content is not.
+
+**Resume where you left off, signed in or not.** The site remembers the module you were on and offers to continue it, and finishing a module offers the next one rather than the one just passed. A signed-out visitor's place lives in their browser and merges into their account when they sign in. Their account record is never written to the device.
+
+**Every learning path can be found by clicking.** Six paths and twenty-two modules — including everything authored on 11 September — existed, rendered and sat in the sitemap, but the paths page grouped by a field no path set and fell back to a hardcoded list that omitted them.
+
+**The About menu opens on tablets.** The header's nav row clipped its panel between 761 and 960 pixels in every browser: every tablet held upright.
+
+This release also carries an eighteen-project device matrix — Chromium, WebKit and Firefox across phones, tablets and desktop — that asserts the menus open unclipped, nothing scrolls sideways, tap targets are reachable and the installed-app surface resolves.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+Signing out inside the save delay still loses that record: the sign-out destroys the session server-side before the flush could land. A failed write followed by a reload can still lose work once the device copy has been cleared; the retry, the reconnect listener and the unload flush narrow that window rather than closing it. `keepalive` behaviour is held by a source assertion, not an end-to-end test — a browser harness cannot answer a request issued from a document being torn down.
+
+## Rollback
+
+Pin 0.113.0.
+
+---
+
 # Project 42 platform v0.113.0
 
 Signing in lasts, the header stops guessing, and work done during a session renewal is kept.

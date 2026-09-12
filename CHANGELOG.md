@@ -100,6 +100,60 @@ semantic versioning.
   nothing in either repository was measuring them. `npm run themes:contrast`
   prints every measured pair.
 
+## [0.114.0] - 2026-09-12
+
+### Fixed
+
+- A learner's account can no longer be overwritten with someone else's empty
+  record. Every per-learner ref, `syncEnabled` included, was left armed at sign
+  out: learner A resets, signs out inside the debounce, B signs in, the updater
+  returns B's empty record by the same reference, React does not re-render,
+  nothing cancels the pending save, and empty progress is written over B's
+  account. Deterministic, not a race. The no-account branch now clears them.
+- Work survives leaving the page. There was no unload flush, so answering and
+  then closing the tab lost whatever was inside the 800ms debounce. Progress is
+  flushed on `pagehide` and on `visibilitychange` to hidden, with `keepalive`.
+  `beforeunload` is deliberately not used: unreliable on mobile Safari, and it
+  disables the back/forward cache.
+- A failed save is retried. After a rejected write the provider set
+  `syncStatus="error"` and buffered, but the reconnect effect waits for
+  `"synced"` and the sync effect waits for `progress` to change, so nothing ever
+  re-armed it. Bounded backoff plus an `online` listener now do, and
+  `planProgressSaveRetry` classifies by status so a 400, 401, 403 or 409 is
+  never resent.
+- An import or a reset is no longer undone by a concurrent read. The hydration
+  union folded the old account record back in, so deliberate removals could
+  resurrect and a reset could silently not happen. Replacement intent is
+  tracked and cleared on the save that lands.
+- A rename made in the session survives hydration. The server returns the
+  display name from the last write, so a rename is durable once written; only
+  the client was discarding it.
+- `mergeLearnerProgress` compares records canonically instead of by
+  `JSON.stringify`, which was key-order sensitive.
+- Every learning path is reachable by browsing. `/learn/paths` grouped by focus
+  area, no path declared one, and the fallback was a hardcoded list of eight
+  ids — so six paths and 22 modules, including everything authored on
+  2026-09-11, could be reached only by knowing the URL. Paths are grouped
+  through `groupPathsByFocusArea`, which cannot drop one, and
+  `project42-content@0b41d22` sets `focusArea` on all fourteen.
+- The About menu opens on tablets. `.site-header nav { overflow-x: auto }`
+  coerces the other axis, clipping the panel between 761px and 960px — every
+  tablet held upright — in all three engines.
+
+### Added
+
+- Resume where you left off, signed in or out. The site records the module you
+  were on and offers "Continue: <title>" on the home page, `/learn` and the
+  profile; finishing a module resumes at the next unfinished one rather than
+  the one just passed. A signed-out visitor's place is kept in this browser and
+  merged into their account when they sign in; a signed-in learner's record is
+  never written to the device.
+- A device matrix: 18 Playwright projects across Chromium, WebKit and Firefox —
+  Pixel, Galaxy phone and tablet, iPhone SE and 14, iPad portrait and
+  landscape, desktop widths — asserting that both header menus open with no
+  clipping ancestor, navigation works, nothing overflows horizontally, tap
+  targets reach 44px, and the manifest, icons and service worker resolve.
+
 ## [0.113.0] - 2026-09-12
 
 ### Fixed
