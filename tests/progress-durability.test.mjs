@@ -25,9 +25,12 @@
 // web/tests/browser/progress-unload-flush.spec.ts, which runs under Playwright
 // in the portal.
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
+import { Miniflare } from "miniflare";
+import { D1Project42Repository, handleRequest } from "../dist/worker.js";
 import {
+  ACCOUNT_BACKED_PROGRESS_SOURCE,
   createEmptyProgress,
   mergeLearnerProgress,
   planAccountProgressHydration,
@@ -511,4 +514,135 @@ test("the first-mount window is covered by the hydration merge, not by effect or
     /the effect ordering is no longer load-bearing/,
     "The buffer's role must be stated where the buffer is declared.",
   );
+});
+
+// ---------------------------------------------------------------------------
+// The premise item 6 rests on.
+// ---------------------------------------------------------------------------
+
+test("a PUT that REMOVES progress is honoured by the API, so suppressing the client merge is worth doing", async (t) => {
+  // Everything above about imports and resets assumes the server replaces
+  // rather than merges -- that if the client stops unioning the old record back
+  // in, the removal actually sticks. That assumption was load-bearing and
+  // untested: tests/authoritative-progress-api.test.mjs round-trips an import,
+  // but its fixture is all-empty arrays, so it never drops a populated
+  // completedModuleIds or attempts and could not have caught a server-side
+  // union.
+  //
+  // It is not obvious from reading the code either. GET /v1/me/progress
+  // builds its answer by UNIONING the event projection's enrollments, completed
+  // modules and attempts into the stored snapshot. What makes a removal survive
+  // is that a `progress.imported` event RESETS that projection rather than
+  // appending to it, so the union is against nothing. That is a property of the
+  // event engine, two files away from the route, and nothing here would notice
+  // it changing.
+  const miniflare = new Miniflare({
+    compatibilityDate: "2026-07-28",
+    d1Databases: { PROJECT42_DB: "project42-progress-removal" },
+    d1Persist: false,
+    modules: true,
+    script: "export default { fetch() { return new Response('fixture'); } };",
+  });
+  t.after(() => miniflare.dispose());
+  const database = await miniflare.getD1Database("PROJECT42_DB");
+  const migrations = (await readdir(new URL("../migrations/", import.meta.url)))
+    .filter((name) => name.endsWith(".sql"))
+    .sort();
+  for (const migration of migrations) {
+    const sql = await readFile(new URL(`../migrations/${migration}`, import.meta.url), "utf8");
+    await database.exec(sql.replace(/\r?\n/g, " "));
+  }
+
+  const issuer = "https://issuer.example.test";
+  const origin = "https://learn.example.test";
+  const repository = new D1Project42Repository(database, "progress-removal");
+  const identity = {
+    issuer,
+    subject: "owner-subject",
+    email: "owner@example.test",
+    emailVerified: true,
+    displayName: "Owner",
+    issuedAt: Math.floor(Date.now() / 1_000),
+  };
+  const env = {
+    PROJECT42_DB: database,
+    INSTALLATION_ID: "progress-removal",
+    ALLOWED_ORIGINS: origin,
+    BOOTSTRAP_OWNER_ISSUER: issuer,
+    BOOTSTRAP_OWNER_SUBJECT: identity.subject,
+    DOMAIN_APPROVAL_ENABLED: "false",
+    LEARNING_RECORD_ADAPTER: "cloudflare-d1",
+  };
+  const api = (path, init = {}) => {
+    const headers = new Headers(init.headers);
+    headers.set("authorization", "Bearer owner");
+    headers.set("origin", origin);
+    if (init.body) headers.set("content-type", "application/json");
+    return handleRequest(
+      new Request(`https://api.example.test${path}`, { ...init, headers }),
+      env,
+      { verify: async () => identity },
+      repository,
+    );
+  };
+
+  const session = await api("/v1/session", { method: "POST" });
+  assert.equal(session.status, 200);
+
+  const put = async (importId, record) => {
+    const response = await api("/v1/me/progress", {
+      method: "PUT",
+      body: JSON.stringify({
+        importId,
+        source: ACCOUNT_BACKED_PROGRESS_SOURCE,
+        progress: record,
+      }),
+    });
+    assert.equal(response.status, 200, `PUT ${importId} must be accepted`);
+    return (await response.json()).progress.progress;
+  };
+  const get = async () => {
+    const response = await api("/v1/me/progress");
+    assert.equal(response.status, 200);
+    return (await response.json()).progress.progress;
+  };
+
+  // Two modules completed, then an import that deliberately drops the second.
+  const [kept, removed] = completableModules(2);
+  let full = completeModule(createEmptyProgress(), kept, 1);
+  full = completeModule(full, removed, 2);
+  await put("removal-seed", full);
+
+  const seeded = await get();
+  assert.ok(seeded.completedModuleIds.includes(removed.moduleId));
+  assert.equal(seeded.attempts.length, 2);
+
+  const reduced = completeModule(createEmptyProgress(), kept, 1);
+  await put("removal-import", reduced);
+
+  const afterImport = await get();
+  assert.ok(
+    !afterImport.completedModuleIds.includes(removed.moduleId),
+    "a module dropped by an import must not be returned by the next read",
+  );
+  assert.equal(
+    afterImport.attempts.length,
+    1,
+    "an attempt dropped by an import must not be unioned back in by the projection",
+  );
+  assert.ok(afterImport.completedModuleIds.includes(kept.moduleId), "the rest is kept");
+
+  // And the reset case: an empty record really does empty the account.
+  await put("removal-reset", createEmptyProgress());
+  const afterReset = await get();
+  assert.deepEqual(afterReset.completedModuleIds, []);
+  assert.deepEqual(afterReset.attempts, []);
+  assert.deepEqual(afterReset.startedPathIds, []);
+
+  // The displayName a save carries is what comes back -- not the account's
+  // users.display_name ("Owner" here). This is why carrying a pre-hydration
+  // rename (item 4) is worth doing rather than cosmetic.
+  const named = { ...createEmptyProgress(), displayName: "Renamed In Session" };
+  await put("removal-rename", named);
+  assert.equal((await get()).displayName, "Renamed In Session");
 });
