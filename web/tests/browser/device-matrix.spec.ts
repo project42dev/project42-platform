@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { NAV_SCROLL_BAND, SWEEP_WIDTHS } from "./support/devices";
+import { DEVICE_MATRIX, NAV_SCROLL_BAND, SWEEP_WIDTHS } from "./support/devices";
 
 // THE CROSS-DEVICE GATE.
 //
@@ -805,24 +805,63 @@ test.describe("the installed app", () => {
           return registration ? registration.scope : null;
         },
         undefined,
-        { timeout: 15_000 },
+        { timeout: 10_000 },
       )
       .then((handle) => handle.jsonValue())
       .catch(() => null);
 
-    expect(
-      scope,
-      `${device()}: no service worker registration after load -- the app cannot work offline once installed`,
-    ).not.toBeNull();
     if (scope === "unsupported") {
-      // Say it plainly rather than passing quietly.
       test.info().annotations.push({
         type: "engine-limit",
         description: `${device()}: this browser build exposes no navigator.serviceWorker, so registration cannot be proven here.`,
       });
       return;
     }
-    expect(String(scope), `${device()}: the worker is not registered at the site root`).toMatch(/\/$/);
+
+    if (scope) {
+      expect(String(scope), `${device()}: the worker is not registered at the site root`).toMatch(/\/$/);
+      return;
+    }
+
+    // NO REGISTRATION -- AND ON A LOCAL ORIGIN THAT IS THE DESIGN, NOT A BUG.
+    //
+    // ServiceWorkerRegistration.tsx returns early unless
+    // `window.location.origin` is the canonical origin, and the reason is in
+    // the file: a worker registered against localhost would serve cached
+    // responses back to `pages:serve` and to these very suites, so a run could
+    // be testing the previous build with no signal that it had happened.
+    //
+    // So this is the honest shape of the assertion. Everything that CAN be
+    // proven locally is proven above -- the worker is served, at the right
+    // media type, from the surface that ships it. The activation itself can
+    // only be proven on the canonical origin, and rather than pass quietly the
+    // test insists the origin really is the reason, and records the limit.
+    const canonicalOrigin = await page
+      .request.get("/sitemap.xml")
+      .then(async (response) => {
+        const match = /<loc>(https?:\/\/[^/<]+)/.exec(await response.text());
+        return match ? match[1] : null;
+      })
+      .catch(() => null);
+    const origin = new URL(page.url()).origin;
+
+    expect(
+      canonicalOrigin,
+      `${device()}: no canonical origin in the sitemap, so this test cannot tell a deliberate skip from a broken worker`,
+    ).not.toBeNull();
+    expect(
+      origin,
+      `${device()}: no service worker registered, and this IS the canonical origin -- so nothing explains it. ` +
+        "The app cannot work offline once installed.",
+    ).not.toBe(canonicalOrigin);
+
+    test.info().annotations.push({
+      type: "origin-limit",
+      description:
+        `${device()}: /sw.js is served here, but ServiceWorkerRegistration.tsx registers only on ${canonicalOrigin} ` +
+        `and this run is on ${origin}, on purpose -- a worker on a test origin would serve the previous build back ` +
+        "to the suite. Activation is therefore only observable on the canonical origin.",
+    });
   });
 
   test("the installed app renders the same header as the tab", async ({ page, context, browserName }) => {
@@ -1022,11 +1061,17 @@ test.describe("across every width", () => {
   });
 });
 
-// Engine is derived from the project name, and a project name that does not
-// start with an engine would silently route tests nowhere. Fail loudly instead.
+// A matrix project's name carries its engine, and `sweeps()` reads the name to
+// decide who owns the width sweep -- so a row renamed out of that shape would
+// quietly stop sweeping. Check the shape, but only for rows that are IN the
+// matrix: playwright.pages.config.ts runs part of this file under
+// "pages-installed-app", which is not a device and has no engine in its name.
 test.beforeAll(() => {
+  const row = DEVICE_MATRIX.find((entry) => entry.name === device());
+  if (!row) return;
   expect(
     ["chromium", "webkit", "firefox"],
-    "every device-matrix project name must start with its engine",
+    `the device-matrix project "${device()}" does not start with its engine`,
   ).toContain(engine());
+  expect(row.engine, `${device()} names one engine and runs another`).toBe(engine());
 });
