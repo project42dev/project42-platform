@@ -57,12 +57,23 @@ const submitSelector =
 const staySignedInSelector =
   process.env.PROJECT42_HOSTED_STAY_SIGNED_IN_SELECTOR?.trim() || "";
 
+// The sandbox stays ON by default: this browser types a real password into a
+// real identity provider, so an operator running the smoke from a workstation
+// gets the protection without having to ask for it. Hosted runners are the
+// exception -- current GitHub ubuntu images refuse unprivileged user
+// namespaces, so Chromium cannot build its sandbox and the launch dies with
+// "Target page, context or browser has been closed", a message that says
+// nothing about the cause. Opting out is therefore explicit, per-environment,
+// and named, rather than a default that quietly runs unsandboxed everywhere.
+const chromiumSandbox =
+  (process.env.PROJECT42_HOSTED_CHROMIUM_SANDBOX?.trim() || "on") !== "off";
+
 const issuerHost = new URL(issuer).host;
 const runId = gateRunId();
 
 let browser;
 try {
-  browser = await chromium.launch({ headless: true, chromiumSandbox: true });
+  browser = await chromium.launch({ headless: true, chromiumSandbox });
 
   // --- Session one: sign in and assert the session guarantees. ---
   const primary = await signInAndVerify(browser, "primary");

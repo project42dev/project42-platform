@@ -100,4 +100,11 @@ jobs:
       - name: Install browser
         run: npx playwright install --with-deps chromium
       - name: Verify hosted sign-in, secure session, and progress persistence
+        # GitHub's ubuntu images refuse the unprivileged user namespaces
+        # Chromium needs to build its own sandbox, so the launch dies here and
+        # nowhere else. The runner is ephemeral and the browser visits only our
+        # own origins and the configured issuer, so opting out is confined to
+        # this environment rather than becoming the script's default.
+        env:
+          PROJECT42_HOSTED_CHROMIUM_SANDBOX: "off"
         run: node scripts/smoke-hosted-browser-session.mjs
