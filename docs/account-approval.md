@@ -109,7 +109,9 @@ invitation to request an account, as though nothing had happened.** The
 distinction is `registrationPhaseForInvalidReceipt` in
 `web/app/lib/registrationStatus.ts`, fed by a storage marker that holds no
 identity and no secret — only the fact that a request was started in this
-browser.
+browser. The marker is written whenever a valid receipt is read, not only when
+the request button is pressed: "Sign in" creates a request too, and a stranger
+who pressed it would otherwise be the one left with no memory of asking.
 
 A declined person who signs in again gets `?auth=rejected` and a fresh receipt
 reporting `rejected` / `contact-owner`, so the decline is stated rather than

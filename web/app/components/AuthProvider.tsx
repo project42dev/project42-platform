@@ -16,6 +16,7 @@ import {
   registrationPhaseForInvalidReceipt,
   registrationRetryDelaySeconds,
   registrationWasRequestedHere,
+  rememberRegistrationRequest,
   type BrowserAuthOutcome,
   type RegistrationStatusReceipt,
 } from "../lib/registrationStatus";
@@ -286,6 +287,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const response = await apiFetch("/v1/registration/status");
         if (response.ok) {
           const receipt = parseRegistrationStatus(await response.json());
+          // A valid receipt is the proof that this browser has an open
+          // request, and it is recorded HERE rather than only at the request
+          // button because the button is not the only way to make one: "Sign
+          // in" and "Request an account" start the identical OIDC flow, so a
+          // stranger who pressed "Sign in" is just as pending and would
+          // otherwise be the one left with no memory of it when the owner's
+          // decision revokes the receipt.
+          rememberRegistrationRequest();
           setRegistration({
             phase: "current",
             receipt,

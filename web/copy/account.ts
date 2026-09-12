@@ -71,7 +71,7 @@ export const accountCopy = {
     eyebrow: "Existing learner",
     title: "Already have an account?",
     body:
-      "Sign in to reach your progress, transcript, and account settings. If you have never been approved on {org}, request access instead — signing in will only record the same pending request.",
+      "Sign in to reach your progress, transcript, and account settings. If you have never been approved on {org}, use Request access above instead: signing in records the same pending request, but without the terms acceptance the request form collects.",
     submitLabel: "Sign in",
     browseLabel: "Browse the learning catalog",
   },
