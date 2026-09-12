@@ -112,7 +112,7 @@ export function ProfileMenu({
         </p>
       ) : null}
       {unknown ? (
-        <p className="header-menu-identity" data-account-state="unknown">
+        <p className="header-menu-identity header-menu-unconfirmed">
           <span>
             {status === "error"
               ? "We could not check whether you are signed in."
