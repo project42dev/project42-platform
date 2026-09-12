@@ -160,7 +160,7 @@ async function createSignedInFixture(t, name) {
     );
   };
 
-  return { api, repository, sessionToken };
+  return { api, database, repository, sessionToken };
 }
 
 test("a healthy session reads as signed in", async (t) => {
@@ -212,6 +212,74 @@ test("a repository fault does not clear the session cookie or sign the reader ou
     "verify-request",
   );
   assert.ok(still, "The stored browser session must survive a failed read.");
+});
+
+test("reading the session slides the idle window and the cookie with it", async (t) => {
+  const { api, database, repository, sessionToken } = await createSignedInFixture(
+    t,
+    "slide",
+  );
+
+  const before = await repository.resolveBrowserSession(
+    sha256Hex(sessionToken),
+    new Date().toISOString(),
+    "before-request",
+  );
+  assert.ok(before);
+
+  // resolveBrowserSession used to touch only last_seen_at, so the "7-day
+  // sliding window" was a fixed one: an active learner was still signed out on
+  // day seven. Backdate the stored expiry to stand in for a session created a
+  // few days ago, then read it the way a page load does.
+  const aged = new Date(Date.parse(before.expiresAt) - 3 * 24 * 60 * 60 * 1_000)
+    .toISOString();
+  await database
+    .prepare(`UPDATE browser_sessions SET expires_at = ? WHERE id = ?`)
+    .bind(aged, before.id)
+    .run();
+
+  const response = await api("/v1/auth/session");
+  assert.equal(response.status, 200);
+  const body = await response.json();
+
+  assert.ok(
+    Date.parse(body.session.expiresAt) > Date.parse(aged),
+    "Reading the session must move the idle window forward.",
+  );
+  assert.equal(
+    body.session.absoluteExpiresAt,
+    before.absoluteExpiresAt,
+    "The absolute ceiling must not move.",
+  );
+  assert.ok(
+    Date.parse(body.session.expiresAt) <= Date.parse(before.absoluteExpiresAt),
+    "The slid window must never pass the absolute ceiling.",
+  );
+
+  // The browser has to be told, or it drops a cookie the server still honours.
+  const cookie = sessionCookieFrom(response);
+  assert.ok(cookie, "A slid session must re-issue the cookie with the new lifetime.");
+  assert.match(
+    cookie,
+    new RegExp(`^${sessionCookieName}=${sessionToken};`),
+    "The slide must not rotate the token -- two tabs would fight over it.",
+  );
+  const maxAge = Number(/Max-Age=(\d+)/.exec(cookie)?.[1]);
+  assert.ok(maxAge > 6 * 24 * 60 * 60, `Max-Age should be about seven days, got ${maxAge}.`);
+  assert.match(cookie, /Domain=\.example\.test/);
+  assert.match(cookie, /Secure/);
+  assert.match(cookie, /HttpOnly/);
+  assert.match(cookie, /SameSite=Lax/);
+
+  // A second read straight away is inside the one-hour granularity, so it
+  // must not write again or re-issue a cookie for no reason.
+  const again = await api("/v1/auth/session");
+  assert.equal(again.status, 200);
+  assert.equal(
+    sessionCookieFrom(again),
+    undefined,
+    "A session already at the top of its window must not be written again.",
+  );
 });
 
 test("a genuinely unknown session is cleared, with its security attributes intact", async (t) => {
