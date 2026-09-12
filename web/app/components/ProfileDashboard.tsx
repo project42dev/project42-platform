@@ -570,7 +570,17 @@ export function ProfileDashboard() {
           <button
             className="button button-danger"
             onClick={() => {
-              if (window.confirm(`Reset all ${orgName} account progress?`)) reset();
+              // The confirm has to name what is destroyed and where, because
+              // this is not a local clear: it writes an empty record over the
+              // account, the server replaces rather than merges, and there is
+              // no undo. "Reset all progress?" did not say any of that.
+              if (
+                window.confirm(
+                  `Permanently delete all ${progress.completedModuleIds.length} completed modules, ${progress.attempts.length} knowledge checks, ${progress.capstoneSubmissions?.length ?? 0} capstone submissions and ${progress.badges.length} badges from your ${orgName} account? This cannot be undone. Export your record first if you want to keep a copy.`,
+                )
+              ) {
+                reset();
+              }
             }}
             type="button"
           >

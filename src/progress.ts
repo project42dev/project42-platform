@@ -114,6 +114,43 @@ export function hasLearningEvidence(progress: LearnerProgress): boolean {
   );
 }
 
+/**
+ * Key-order-insensitive structural comparison.
+ *
+ * The collision checks below ask "is this the SAME record, or a different one
+ * wearing the same id?" -- a question about content, not about the order a
+ * particular producer happened to write the keys in. `JSON.stringify` equality
+ * answered the second question. Two byte-identical attempts that had been
+ * through different code paths -- one built by `recordAssessmentAttempt`, one
+ * round-tripped through `PUT /v1/me/progress` and rebuilt by the worker's
+ * projection, which assembles its fields in its own order -- would compare
+ * unequal, and the merge would keep BOTH: the account's copy and a duplicate
+ * under the `unsynced:` prefix. The learner sees the same knowledge check
+ * listed twice in their history, and every later merge carries the duplicate
+ * forward.
+ *
+ * Latent at the time of writing -- the orders happen to agree today -- so this
+ * is a correctness fix, not a bug fix, and the test that pins it constructs
+ * the reordering explicitly rather than relying on any producer to differ.
+ */
+function canonicalize(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => canonicalize(item)).join(",")}]`;
+  }
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return `{${Object.keys(record)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${canonicalize(record[key])}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "null";
+}
+
+export function isSameProgressRecord(left: unknown, right: unknown): boolean {
+  return canonicalize(left) === canonicalize(right);
+}
+
 export function mergeLearnerProgress(
   survivor: LearnerProgress,
   source: LearnerProgress,
@@ -131,7 +168,7 @@ export function mergeLearnerProgress(
     const existing = survivor.attempts.find(
       (candidate) => candidate.id === attempt.id,
     );
-    if (existing && JSON.stringify(existing) === JSON.stringify(attempt)) {
+    if (existing && isSameProgressRecord(existing, attempt)) {
       return null;
     }
     const id = `${options.sourceRecordPrefix}:${attempt.id}`;
@@ -149,7 +186,7 @@ export function mergeLearnerProgress(
     const existing = (survivor.capstoneSubmissions ?? []).find(
       (candidate) => candidate.id === submission.id,
     );
-    if (existing && JSON.stringify(existing) === JSON.stringify(submission)) {
+    if (existing && isSameProgressRecord(existing, submission)) {
       return null;
     }
     const id = `${options.sourceRecordPrefix}:${submission.id}`;
@@ -255,11 +292,20 @@ export function planUnsyncedProgressFlush(input: {
   unsynced: LearnerProgress | null;
   /** JSON of the record last read from or written to the account. */
   lastSynchronized: string;
+  /**
+   * A deliberate whole-record replacement (import/restore, or reset) is pending.
+   * The buffer is superseded either way: anything captured before the
+   * replacement is what the learner asked to discard, and anything captured
+   * after it is already a subset of the record now in state. Merging it back in
+   * is the same resurrection `planAccountProgressHydration` guards against.
+   */
+  pendingReplacement?: boolean;
 }): UnsyncedProgressFlushPlan {
   const unsynced = input.unsynced;
   if (!input.writable || input.flushInFlight || !unsynced) {
     return { action: "wait" };
   }
+  if (input.pendingReplacement) return { action: "discard" };
   if (JSON.stringify(unsynced) === input.lastSynchronized) {
     return { action: "discard" };
   }
@@ -275,6 +321,64 @@ export function planUnsyncedProgressFlush(input: {
         sourceRecordPrefix: "unsynced",
       }),
   };
+}
+
+/**
+ * What the front end does after a save fails.
+ *
+ * Until 2026-09-12 the answer was "nothing". The sync effect's catch buffered
+ * the record in memory and set `syncStatus` to "error", and then every path
+ * back out was closed: the reconnect effect only runs on a `syncStatus`
+ * transition and only acts when the status is "synced", and the sync effect
+ * itself only re-runs when `progress` changes. A learner whose save failed --
+ * a dropped connection, a Worker cold-start 502, a deploy in flight -- and who
+ * then closed the tab lost the work outright. Nothing had re-armed.
+ *
+ * So: retry on a timer, and retry when the browser says the network came back.
+ * Bounded, because an unbounded retry against a permanent failure is a loop
+ * that burns the learner's battery and tells them nothing.
+ *
+ * The status split is the part worth testing, and the part easiest to get
+ * wrong. The sync effect throws on `!response.ok`, so a 400 and a dropped
+ * connection arrive at the same catch. Retrying a 400 re-sends the identical
+ * body that was just rejected, forever: the payload is what the server
+ * objects to, and waiting does not change it. The same goes for 401/403 (the
+ * session is the problem; the hydration path handles that) and for 409
+ * `progress_import_conflict` (the importId is already bound to different
+ * progress -- only a new importId can clear it, which the next save mints).
+ * 408 and 429 are the two 4xx that DO mean "later", and every 5xx does.
+ *
+ * `status: null` means the request never produced a response at all -- offline,
+ * DNS, TLS, an aborted socket. That is the common case and it is retryable.
+ */
+export type ProgressSaveRetryPlan =
+  | { action: "give-up"; reason: "not-retryable" | "attempts-exhausted" }
+  | { action: "retry"; delayMs: number };
+
+/** Attempts to make before a failing save is abandoned. */
+export const PROGRESS_SAVE_MAX_ATTEMPTS = 6;
+
+export function planProgressSaveRetry(input: {
+  /** HTTP status of the failed save, or null when no response was produced. */
+  status: number | null;
+  /** Failures so far, including this one. 1 for the first failure. */
+  attempt: number;
+  maxAttempts?: number;
+}): ProgressSaveRetryPlan {
+  const status = input.status;
+  const retryableStatus =
+    status === null || status === 408 || status === 429 || status >= 500;
+  if (!retryableStatus) return { action: "give-up", reason: "not-retryable" };
+  const maxAttempts = input.maxAttempts ?? PROGRESS_SAVE_MAX_ATTEMPTS;
+  if (input.attempt >= maxAttempts) {
+    return { action: "give-up", reason: "attempts-exhausted" };
+  }
+  // The same shape as the hydration backoff above: 1s, 2s, 4s, 8s, 16s, then
+  // 30s. Deliberately identical so a learner sitting through an outage sees one
+  // rhythm rather than two interleaved ones.
+  const delayMs =
+    input.attempt <= 5 ? 1000 * 2 ** (input.attempt - 1) : 30000;
+  return { action: "retry", delayMs };
 }
 
 /**
@@ -314,11 +418,65 @@ export function planUnsyncedProgressFlush(input: {
  */
 export function planAccountProgressHydration(
   account: LearnerProgress,
+  options: {
+    /**
+     * A deliberate whole-record replacement -- an import/restore, or a reset --
+     * has been made in this session and has not yet been confirmed written.
+     *
+     * Both merge paths above are UNIONS, and a union is exactly wrong for a
+     * replacement. An import that deliberately drops a module, or a reset that
+     * drops everything, sets `lastSynchronized` to "" and puts the new record
+     * in state, and the PUT then waits out the 800ms debounce. A re-hydration
+     * landing inside that window -- which a session renewal provokes at any
+     * moment -- merged the account record back in and resurrected precisely
+     * what the learner had just removed. Worse for a reset: an empty record
+     * holds no evidence, so the short-circuit above did not even merge, it
+     * adopted the account record outright and the reset silently never
+     * happened. No error, no second confirm, and the learner has no way to
+     * tell which of the two records the account now holds.
+     *
+     * While a replacement is pending, a read is stale by construction: it is a
+     * picture of the account taken before the replacement reached it. The
+     * replacement wins, unchanged, and the caller still records the account
+     * record as `lastSynchronized` so the two differ and the save is provoked.
+     */
+    pendingReplacement?: boolean;
+    /**
+     * A display name the learner typed in this session that has not yet been
+     * confirmed written, if any.
+     *
+     * The account record is the survivor and its `displayName` wins, which is
+     * right for a name the learner set on some earlier visit and wrong for one
+     * they set ninety seconds ago. A rename is also not `hasLearningEvidence`
+     * -- correctly, it is not learning -- so on a fresh session the
+     * short-circuit above adopted the account record outright and the new name
+     * vanished from the field the learner had just typed it into, with no
+     * error. It was lost on the merge path too, for the ordinary reason that
+     * the survivor's name wins.
+     *
+     * The server does keep whatever `displayName` a save carries -- it is the
+     * PUT snapshot that `GET /v1/me/progress` returns, not the account's
+     * `users.display_name` -- so the rename is durable once written, and this
+     * is the only thing standing between the learner and that write.
+     *
+     * Passing it does mean the no-evidence short-circuit stops returning the
+     * account record by identity, so one write is provoked. That write is the
+     * point.
+     */
+    pendingDisplayName?: string | null;
+  } = {},
 ): (local: LearnerProgress) => LearnerProgress {
+  const displayNameFor = (fallback: string) =>
+    options.pendingDisplayName ?? fallback;
   return (local) => {
-    if (!hasLearningEvidence(local)) return account;
+    if (options.pendingReplacement) return local;
+    if (!hasLearningEvidence(local)) {
+      const displayName = displayNameFor(account.displayName);
+      if (displayName === account.displayName) return account;
+      return { ...account, displayName };
+    }
     return mergeLearnerProgress(account, local, {
-      displayName: account.displayName,
+      displayName: displayNameFor(account.displayName),
       sourceRecordPrefix: "unsynced",
     });
   };
