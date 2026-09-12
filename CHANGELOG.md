@@ -4,10 +4,51 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
-## [Unreleased]
+## [0.115.0] - 2026-09-12
+
+### Added
+
+- **Requesting an account is one step from the signed-out header.** The request
+  had always existed on `/account` and nothing in the site named it: signed
+  out, the only route was to open the profile menu, read past "Sign in", pick
+  "Account", and scroll past the card addressed to existing learners. Four
+  steps, none of them named for the thing being looked for. "Request access"
+  now sits in the header (`AccountRequestAction`) and in the profile menu, both
+  linking to `/account#request-account` — the same section, finally named. The
+  menu item is the phone route, since `.header-action` is hidden below 760px.
+  Both ride the existing three-state account rule through
+  `headerOffersAccountRequest()`, so they appear only on a settled "no
+  session": an in-flight or failed read is unknown, inviting an approved
+  learner to request an account would tell them their account does not exist,
+  and a self-host with no account service has nothing to request. `/account`
+  leads with the request when signed out, and the card now answers what
+  happens next, how long it takes and how you find out — with no invented
+  review time and no promise of a message, because neither exists. The copy
+  lives in `web/copy/account.ts`, so an adopter overrides it like every other
+  string.
+- `docs/account-approval.md` writes the approval path down end to end,
+  including what is automatic and what is deliberately not.
+- `tests/account-request-approval-path.test.mjs` drives the whole journey
+  against the real Worker in Miniflare and D1: a new identity lands pending
+  with a receipt and no session, the receipt authenticates nothing, an owner
+  approval unlocks the second sign-in, a decline says so. Production had never
+  exercised it — every `users` row was the owner's own, approved on sight.
 
 ### Fixed
 
+- **An approved learner is told they were approved.** An owner's decision
+  revokes the open request's receipt, so the waiting browser's next status
+  read is a 401 — indistinguishable from a browser that never asked. The front
+  end resolved that toward "never asked" on any visit that did not immediately
+  follow a callback, so an APPROVED learner returning to `/account` was shown
+  "Request a Project 42 account" as though nothing had happened: the answer had
+  arrived and the page could not tell.
+  `registrationPhaseForInvalidReceipt()` separates the two on a storage marker
+  that carries no identity and no secret. The marker is written by any browser
+  that successfully reads a receipt, not only by the browser that pressed the
+  request button — "Sign in" and "Request an account" start the identical OIDC
+  flow, so somebody who pressed "Sign in" is just as pending, and kept the same
+  dead end until now.
 - **The owner is told that somebody asked for an account.** Creating a
   registration request enqueued an owner fan-out, but the only caller of
   `dispatchAccountNotifications` was the owner-only dispatch route and the
@@ -24,97 +65,33 @@ semantic versioning.
   purges — a failed delivery leaves its row in the existing bounded retry
   states and is logged at `error`.
 
-- **Progress survives leaving the page.** The account save is debounced 800ms
-  and an ordinary `fetch` is cancelled when the document goes away, so
-  answering the last question of a module and then closing the tab, reloading,
-  or following a link off the site sent nothing — silently. `ProgressProvider`
-  now flushes the pending record on `pagehide` and on `visibilitychange` to
-  hidden (the signal that actually fires on iOS, where a tab is often killed
-  with no unload event at all), using `keepalive` so the request outlives the
-  document. `beforeunload` is deliberately not used: it is unreliable on Safari
-  and mobile, and registering one disqualifies the page from the back/forward
-  cache.
-- **A failed save now retries itself.** The failure path buffered the record
-  and set `syncStatus` to `"error"`, and every route back out was closed — the
-  reconnect effect fires only on a `syncStatus` transition and acts only on
-  `"synced"`, and the sync effect re-runs only when `progress` changes. A
-  learner whose save failed and who then closed the tab lost the work outright.
-  Saves now retry on a bounded backoff (1s, 2s, 4s, 8s, 16s, then give up) and
-  immediately on `online`. `planProgressSaveRetry` classifies by HTTP status
-  first, so a 400, 401, 403 or 409 is not resent — the payload or the session is
-  the problem and waiting does not change it — while 408, 429 and every 5xx are.
-- **An import or a reset is no longer undone by a concurrent read.** Both are
-  deliberate *removals*, and every merge in the provider is a union, so an
-  account read landing inside the 800ms debounce unioned the pre-import record
-  back in and resurrected exactly what the learner had dropped. A reset was
-  worse: an empty record holds no learning evidence, so the hydration
-  short-circuit adopted the account record outright and the reset silently
-  never happened. `planAccountProgressHydration` and `planUnsyncedProgressFlush`
-  now take a `pendingReplacement` flag that suppresses the union until the
-  replacement has been written. `ProfileDashboard`'s reset confirmation names
-  what it destroys, says it is permanent, and points at the export first.
-- **A rename made before the first read resolves is kept.** A rename is not
-  learning evidence, so the hydration short-circuit dropped it, and the merge
-  dropped it again because the survivor record's `displayName` wins.
-  `planAccountProgressHydration` accepts the pending name and carries it. The
-  API returns the `displayName` from the last saved snapshot rather than the
-  account's `users.display_name`, so the rename is durable once written.
-- **Signing out ends the session's write state, not just its view.** The
-  provider's per-learner state — the write gate `syncEnabled`, the unsynced
-  buffer, the last-synchronized record, and the pending-replacement,
-  pending-rename and pending-write refs added above — was never cleared when
-  the account went away, so it carried over to whoever signed in next on the
-  same tab. With a reset pending that was a deterministic overwrite: learner A
-  resets, signs out inside the debounce, learner B signs in, and B's account is
-  written with an empty record. The no-account branch of the hydration effect
-  now clears all of it, `syncEnabled` included.
-- A whole-record replacement the API refuses with a status no retry can fix
-  (400, 401, 403, 409) now releases its pending-replacement intent, so the next
-  read reinstates the account record. Without that release the learner was left
-  looking at an import that existed only in their tab, over an account that
-  still held the old record, with no route back.
-- `mergeLearnerProgress` compared collided attempts and capstone submissions
-  with `JSON.stringify` equality, which is key-order sensitive: the same record
-  rebuilt in a different key order would be treated as a different one and kept
-  twice, the second under the `unsynced:` prefix. It now compares canonically.
-  Latent at the time of the fix — no producer currently differs — so this is a
-  correctness fix rather than a bug fix.
+### Changed
 
-### Added
+- Two test surfaces that existed but ran nowhere are wired in, so a regression
+  in either stops shipping silently. `web/tests/registration-status.test.mjs`
+  joins `npm run web:check`. `npm run test:pages` joins the front-end
+  template's own `check`: it is the only surface that proves the service worker
+  and the manifest against the artifact a site actually ships, and it sat in no
+  `check` and no workflow. `tests/web-distribution.test.mjs` now asserts that
+  `check` names `test:pages` and not only `test:pages:artifact`, so the wiring
+  cannot come loose unnoticed. This reaches new adopters and re-materialised
+  sites; `project-42.dev`'s own `package.json` is hand-maintained in another
+  repository and needs the identical line there.
+- The daily cron in `wrangler.jsonc` is now also the longest an owner waits to
+  hear that somebody asked for an account.
 
-- `tests/progress-durability.test.mjs` pins all of the above, including an
-  end-to-end check through the Worker that a `PUT` which *removes* progress is
-  honoured by the next `GET` — the premise the import and reset fixes rest on,
-  and previously untested (the existing round-trip fixture used empty arrays,
-  so it could not have caught a server-side union).
-- `web/tests/browser/progress-unload-flush.spec.ts` measures, in a real
-  browser, that the unload flush fires and that a failed save retries with no
-  further interaction from the learner.
+### Removed
 
-- **Accessibility (WCAG 2.2 SC 1.4.11).** Eight border tokens in
-  `portal-default` — the theme every fresh install and production itself
-  renders with — shipped below the 3:1 non-text contrast floor, the softest
-  hairline at 1.23:1. `--p42-card-border` and `--p42-border-soft` (1.34:1,
-  1.23:1), `--p42-secondary-btn-border` (1.96:1) and the four status callout
-  borders (1.69–1.85:1) are raised to at least 3:1 against the surface each
-  one actually borders. Only lightness and alpha moved; every hue and
-  saturation is unchanged, and no token that already passed was touched.
-- The frozen copy of `06-galactic-guide` in `web/themes/` is brought up to the
-  border values project42-gallery accepted for that theme on 2026-09-11
-  (gallery `fc7024a`), and its `theme.json` gains the seven contract tokens it
-  had been missing.
-
-### Added
-
-- `web/scripts/theme-correctness-check.mjs`, run by `npm run web:check` and so
-  by `npm run check`. It measures every bundle under `web/themes/` with
-  project42-gallery's own `checkBundle()`, vendored verbatim and hash-locked
-  under `web/scripts/vendor/project42-gallery/`, rather than with a second
-  implementation free to drift from it. This is the gap the defect above went
-  through: the Gallery's validator has always scanned `project42-gallery/
-  themes/` and nothing else, and the bundles this package ships live here, so
-  nothing in either repository was measuring them. `npm run themes:contrast`
-  prints every measured pair.
+- `web/tests/registration-production-acceptance.test.mjs`, which imports
+  `./production/*` — files that exist only in a materialised install, not here.
+  It is structurally identical to `web/tests/production-progress-acceptance.test.mjs`,
+  removed in 0.112.1 for exactly this reason.
+- `web/tests/repository-governance.test.mjs` and the script it exclusively
+  exercises, `web/scripts/validate-repository-governance.mjs`. Nothing
+  referenced either one — not this package, not the template's `check`, not
+  materialise's output — and they validate an older heading and link scheme
+  that `governance-docs.test.mjs` already supersedes. Dead code, not merely
+  unwired.
 
 ## [0.114.2] - 2026-09-12
 

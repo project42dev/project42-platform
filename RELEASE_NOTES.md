@@ -1,3 +1,33 @@
+# Project 42 platform v0.115.0
+
+Asking for an account is something you can find, and the owner hears that you asked.
+
+**Requesting an account is one step from the signed-out header.** The request had always existed, on `/account`, and nothing in the site named it. Signed out, the route was: open the profile menu, read past "Sign in" — which starts the same flow but reads as something only an account holder does — choose "Account", then scroll past the card addressed to existing learners. Four steps, none of them named for the thing being looked for. "Request access" now sits in the header and in the profile menu, both going to that same section, which the page leads with when you are signed out and which says what happens next, how long it takes and how you find out. It is not a second path; it is the path that was already there, finally named. The offer appears only when the site is certain that nobody is signed in: an unknown session, or a self-host with no account service, does not show it, because inviting an approved learner to request an account tells them their account does not exist.
+
+**An approved learner was shown the request form again.** When an owner approves or declines a request, the waiting browser's receipt is revoked, so its next status check returns a 401 — the same answer a browser that never asked would get. The page resolved that toward "never asked" and offered a fresh request form to somebody whose answer had already arrived. It now remembers that this browser has an open request, in a marker holding no identity and no secret, and tells an approved learner to sign in. The marker is written by any browser that successfully reads a receipt, so it no longer matters whether the person pressed "Sign in" or "Request an account": both start the identical flow, and both leave you just as pending.
+
+**The owner is told that a request exists.** Creating a request enqueued a notification for the owner, but nothing drained that outbox except an owner opening the Admin console and dispatching by hand — which is almost certainly why the pending queue had never been used. The Worker's daily tick now drains owner-directed notifications, so that cadence is the longest an owner waits. Learner-directed notifications are still deliberately not sent: `/account` promises a learner that nothing is sent to them automatically and that signing in again is the answer, and that promise is kept.
+
+This release also wires in two test surfaces that existed and ran nowhere — including `test:pages`, the only thing that exercises the service worker and the manifest against the artifact a site actually ships — and deletes two files that nothing anywhere referenced.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+Owner alerts are delivered only where `ACCOUNT_NOTIFICATION_DELIVERY` is configured. On a self-host, and on any hosted deployment that never set delivery up, the drain logs that fact and does nothing, so the Admin console remains the way a request is noticed. Learners are still told nothing automatically, by design. The `test:pages` wiring reaches new adopters and re-materialised sites; `project-42.dev`'s own `package.json` is hand-maintained in a different repository and needs the same line added there. `web/tests/device-local-progress.test.mjs` and `web/tests/progress-reconciliation.test.mjs` stay unwired here: both import a catalog file that only a materialised install has, and the platform deliberately does not build `web/`.
+
+## Rollback
+
+Pin 0.114.2.
+
+---
+
 # Project 42 platform v0.114.2
 
 Follows 0.114.1. The device matrix carried an assertion marked as a known failure because no surface offered the last-opened module back. Resume shipped in 0.114.0, so that assertion started passing and Playwright failed it on all eighteen devices for passing — which is precisely what the annotation existed to do. The annotation is gone and the assertion now gates the feature on every device.
