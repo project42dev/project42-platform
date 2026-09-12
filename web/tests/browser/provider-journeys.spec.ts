@@ -109,6 +109,34 @@ const openAIModules = openAIPath.moduleIds.map((moduleId) => {
   return learningModule;
 });
 
+// Waits for the account-progress hydration read that ProgressProvider issues
+// on every account-gated page mount. Interacting before this resolves races
+// a real defect: the knowledge-check button has no `hydrated` gate (see
+// KnowledgeCheck.tsx), so a click that lands before hydration finishes
+// records the attempt onto the provider's initial empty progress; the
+// in-flight GET then *overwrites* that state outright (ProgressProvider.tsx's
+// hydration success handler is a plain `setProgress(normalized)`, not a
+// merge) and the completion is lost -- with no signal to the test except a
+// later assertion (badge, transcript, or count) coming up short. Under a
+// solo run the GET is fast enough that this window never opens; under
+// full-suite CPU contention it can. Waiting here removes the test's exposure
+// to that window; it does not depend on winning a race against app internals.
+async function waitForProgressHydration(page: Page): Promise<void> {
+  if (!apiOrigin) return;
+  await page
+    .waitForResponse(
+      (response) =>
+        response.request().method() === "GET" &&
+        new URL(response.url()).pathname === "/v1/me/progress",
+      { timeout: 15_000 },
+    )
+    .catch(() => {
+      // Nothing to wait for if the GET already resolved before this call
+      // (e.g. a page visited earlier in the same session). The subsequent
+      // interaction still only proceeds once the DOM it needs is present.
+    });
+}
+
 async function answerCorrectly(page: Page, learningModule: LearningModule) {
   const cards = page.locator(".question-card");
   await expect(cards).toHaveCount(
@@ -121,11 +149,21 @@ async function answerCorrectly(page: Page, learningModule: LearningModule) {
       .nth(question.answerIndex)
       .check();
   }
-  const progressWrite = page.waitForResponse(
-    (response) =>
-      response.request().method() === "PUT" &&
-      new URL(response.url()).pathname === "/v1/me/progress",
-  );
+  // Specific to THIS module's completion landing, not merely "a PUT to
+  // /v1/me/progress happened" -- the module-visit tracker (see
+  // ModuleVisitTracker.tsx) debounces its own write to the same endpoint,
+  // and a loose predicate can resolve on that write instead of the
+  // knowledge-check result.
+  const progressWrite = page.waitForResponse(async (response) => {
+    if (
+      response.request().method() !== "PUT" ||
+      new URL(response.url()).pathname !== "/v1/me/progress"
+    ) {
+      return false;
+    }
+    const body = response.request().postDataJSON() as { progress: LearnerProgress };
+    return body.progress.completedModuleIds.includes(learningModule.id);
+  });
   await page.getByRole("button", { name: "Check my answers" }).click();
   await progressWrite;
   await expect(page.getByText("Checkpoint passed")).toBeVisible();
@@ -245,10 +283,14 @@ test("renders provider routes and completes an accessible OpenAI journey", async
   ).toHaveCount(1);
 
   for (const learningModule of openAIModules) {
+    const hydration = waitForProgressHydration(page);
     await page.goto(`/learn/${openAIPath.id}/${learningModule.id}`);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
       learningModule.title,
     );
+    // Do not let a knowledge-check answer race the account-progress read
+    // that just landed above -- see waitForProgressHydration's comment.
+    await hydration;
     await answerCorrectly(page, learningModule);
   }
 
