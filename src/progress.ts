@@ -324,6 +324,116 @@ export function planAccountProgressHydration(
   };
 }
 
+export interface ResumeTarget {
+  pathId: string;
+  moduleId: string;
+  /**
+   * The recent module was already finished and this is the next unfinished one
+   * in the same path. The affordance reads the same either way; this exists so
+   * a caller can tell "carry on with what you were reading" from "you finished
+   * that one, here is the next" without recomputing the rule.
+   */
+  advancedFromCompleted: boolean;
+}
+
+/**
+ * Where "Continue" should send this learner, or null when there is nothing to
+ * resume and the page's ordinary start CTA should stand alone.
+ *
+ * THE RULE, and why it is this one:
+ *
+ * 1. MOST RECENT VISIT WINS. `recentModule` is a single slot that
+ *    `recordModuleVisit` overwrites on every module view, so "most recent"
+ *    needs no sorting here. Where two records meet -- a device-local one and
+ *    an account one -- `mergeLearnerProgress` already picks the later
+ *    `visitedAt`, so recency is decided once, in the merge, and this function
+ *    never sees the losing candidate. That is deliberate: a second recency
+ *    comparison here could disagree with the merge and the learner would get a
+ *    different answer depending on which surface they looked at.
+ *
+ * 2. A FINISHED MODULE RESUMES AT THE NEXT ONE, not the finished one. Sending
+ *    a learner back to a module they have already passed is the single most
+ *    annoying thing a resume control can do -- it reads as though the site
+ *    lost the completion. `path.moduleIds` is the authored order, so the next
+ *    unfinished module after it is what "where you left off" means once the
+ *    module is done. If everything after it is finished but something earlier
+ *    is not, we fall back to the first unfinished module in the path rather
+ *    than declaring the path over; a learner who skipped ahead still has
+ *    somewhere to go.
+ *
+ * 3. A STALE MODULE ID IS IGNORED. Content is versioned and modules do leave
+ *    the catalogue. A `recentModule` naming a path or module this catalogue no
+ *    longer has yields null, so the affordance disappears rather than
+ *    rendering a link to a 404. The module must be in `catalog.modules` AND in
+ *    its path's `moduleIds`: a module present in one but not the other is a
+ *    catalogue mid-migration, and a link built from half of it is still a dead
+ *    link.
+ *
+ * 4. A COMPLETED PATH RESUMES NOWHERE. Null, so the page falls back to its
+ *    ordinary CTA and the learner is pointed at new material instead of being
+ *    told to continue something with nothing left in it.
+ *
+ * WHAT MICROSOFT LEARN DOES (verified 2026-09-12 via the Microsoft Learn
+ * documentation and support answers, not from memory):
+ *
+ * - Its "Continue where you left off" prompt is SIGN-IN GATED. Microsoft's own
+ *   support answer is "Make sure you're signed in with your Microsoft account.
+ *   This allows Microsoft Learn to track your progress and offer 'Continue
+ *   where you left off' prompts", and the Learn FAQ lists "Track progress on
+ *   learning activities" as a benefit of signing in. A signed-out reader on
+ *   Microsoft Learn gets no progress tracking and no resume at all.
+ * - What it resumes to is the LAST VISITED PAGE: the Viva Learning integration
+ *   describes signed-in users continuing "from their last visited page of
+ *   content", which is rule 1 above.
+ * - Surfaces that group learning into Not Started / In Progress / Completed
+ *   offer "resume where you left off" against the IN PROGRESS set, which is
+ *   the spirit of rule 2.
+ * - Rule 2's chaining is NOT something Microsoft Learn reliably does, and this
+ *   is the one place we deliberately go further. A learner's complaint on
+ *   Microsoft Q&A -- "whenever I finish a module, it seems I'm almost never
+ *   prompted to continue with the syllabus in any kind of order ... rather
+ *   than offer to continue me to the next section" -- describes exactly the
+ *   dead end rule 2 exists to avoid. We chain within the authored path.
+ *
+ * The larger divergence is rule 0, which is not in this function: Project 42
+ * remembers a SIGNED-OUT visitor's place too, which Microsoft Learn does not.
+ * That is a product improvement and a privacy decision; see
+ * web/app/lib/deviceLocalProgress.ts for what is written and when.
+ */
+export function selectResumeTarget(
+  progress: LearnerProgress,
+  catalog: Catalog,
+): ResumeTarget | null {
+  const recent = progress.recentModule;
+  if (!recent) return null;
+
+  const path = catalog.paths.find((candidate) => candidate.id === recent.pathId);
+  if (!path) return null;
+
+  const knownModuleIds = new Set(catalog.modules.map((module) => module.id));
+  const position = path.moduleIds.indexOf(recent.moduleId);
+  if (position === -1 || !knownModuleIds.has(recent.moduleId)) return null;
+
+  const completed = new Set(progress.completedModuleIds);
+  const resumable = (moduleId: string) =>
+    knownModuleIds.has(moduleId) && !completed.has(moduleId);
+
+  if (!completed.has(recent.moduleId)) {
+    return {
+      pathId: path.id,
+      moduleId: recent.moduleId,
+      advancedFromCompleted: false,
+    };
+  }
+
+  const next =
+    path.moduleIds.slice(position + 1).find(resumable) ??
+    path.moduleIds.find(resumable);
+  if (!next) return null;
+
+  return { pathId: path.id, moduleId: next, advancedFromCompleted: true };
+}
+
 export function recordAssessmentAttempt(
   progress: LearnerProgress,
   catalog: Catalog,

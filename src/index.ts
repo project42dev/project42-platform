@@ -38,6 +38,7 @@ export {
   recordAssessmentAttempt,
   recordCapstoneSubmission,
   recordModuleVisit,
+  selectResumeTarget,
 } from "./progress.js";
 export {
   validateCatalog,
@@ -291,6 +292,7 @@ export type {
   EarnedBadge,
   LearnerProgress,
   RecentModule,
+  ResumeTarget,
   TranscriptEntry,
   UnsyncedProgressFlushPlan,
 } from "./progress.js";

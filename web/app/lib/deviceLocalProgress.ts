@@ -19,6 +19,8 @@ export interface DeviceLocalProgressRecovery {
 export interface DeviceLocalProgressStorage {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
+  /** Optional: only the signed-in hand-off clears the key, and only if it can. */
+  removeItem?(key: string): void;
 }
 
 export type DeviceLocalProgressReadResult =
@@ -149,4 +151,72 @@ export function readDeviceLocalProgress(
     );
   }
   return { status: "valid", progress: validation.progress };
+}
+
+/**
+ * WHAT THIS WRITES, AND THE POLICY IT IS KEPT INSIDE.
+ *
+ * docs/learner-data-policy.md governs the ACCOUNT record: identity, consent
+ * purposes, retention classes, export and verified deletion. It is silent on
+ * browser storage, because until now the front end kept none -- `ProgressProvider`
+ * hydrated from empty and read nothing back. This writer is the first thing to
+ * put a learner's progress on their own device, so it is deliberately scoped to
+ * stay clear of every invariant that policy does declare:
+ *
+ * - SIGNED-OUT ONLY. The caller never writes while an approved account is
+ *   connected. A signed-in learner's record is the account's, it already
+ *   carries `recentModule` through `recordModuleVisit`, and copying it to the
+ *   device would leave scores, badges and a display name sitting in a shared
+ *   browser after the session expired -- outside the retention classes and
+ *   outside the verified-deletion workflow the policy requires. Nothing here
+ *   is a second copy of an account record.
+ * - NO IDENTITY. A signed-out record has no issuer, subject, or email. The
+ *   policy's hard rule is that email is never an identity or merge key; this
+ *   key holds neither, so a device record can never become one.
+ * - NOTHING UNTIL THERE IS SOMETHING. The caller writes only when
+ *   `hasLearningEvidence` is true, so a visitor who reads the home page and
+ *   leaves has nothing stored under this key at all. A first visit that stores
+ *   nothing is what makes this proportionate rather than a tracking decision.
+ * - SAME SHAPE, SAME VALIDATOR. It is `LearnerProgress` under the existing
+ *   `project42.progress.v1` key, so `readDeviceLocalProgress` validates it on
+ *   the way back in and quarantines anything it cannot vouch for. No second
+ *   store, no second schema.
+ *
+ * OWNER DECISION STILL OPEN: this stores a signed-out learner's knowledge-check
+ * attempts and completions, not only their place, because that is the record
+ * `mergeLearnerProgress` is built to carry and narrowing it would mean a second
+ * shape. Storing visits only is a supportable alternative. Either way the
+ * learner-data page should say the key exists. See the report.
+ *
+ * Returns false when the browser refused the write -- Safari private mode
+ * throws on setItem, and a full quota throws too. A refused write is not an
+ * error the learner needs to see: their place is still correct in memory for
+ * this tab, it simply will not survive the reload.
+ */
+export function writeDeviceLocalProgress(
+  storage: DeviceLocalProgressStorage,
+  progress: LearnerProgress,
+): boolean {
+  try {
+    storage.setItem(deviceLocalProgressKey, JSON.stringify(progress));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Drop the signed-out record once an account has taken over as the source of
+ * truth, so the device stops holding a copy the learner cannot see or delete
+ * from their profile. Best-effort for the same reasons as the write.
+ */
+export function clearDeviceLocalProgress(
+  storage: DeviceLocalProgressStorage,
+): boolean {
+  try {
+    storage.removeItem?.(deviceLocalProgressKey);
+    return true;
+  } catch {
+    return false;
+  }
 }
