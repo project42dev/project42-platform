@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { devices, expect, test, type Page } from "@playwright/test";
 
 // THE PHONE GATE.
 //
@@ -287,4 +287,172 @@ test.describe("phone viewport", () => {
     }
     expect(offenders, `fields that trigger iOS focus zoom:\n${offenders.join("\n")}`).toEqual([]);
   });
+});
+
+// THE PROFILE DISCLOSURE ON A PHONE.
+//
+// The profile control in the header did nothing on an iPhone: you tapped it and
+// no menu appeared, in Mobile Safari and in the installed app alike, while the
+// same build worked on a desktop browser. The disclosure was never at fault --
+// `aria-expanded` flipped, the panel lost `hidden`, and its box was laid out on
+// screen. What was wrong is that the panel was laid out inside a CLIPPING
+// ANCESTOR:
+//
+//   .site-header { overflow-x: clip }
+//
+// and the panel is absolutely positioned at `top: calc(100% + 0.35rem)`, i.e.
+// deliberately hanging BELOW the header it lives in. Per CSS Overflow, `clip` on
+// one axis must clip that axis only; Chromium and Gecko implement that, which is
+// why the menu worked on a desktop. WebKit does not: a single-axis `clip` is
+// reported in the field to clip BOTH axes in Safari, so on iOS the panel was cut
+// off flush with the bottom edge of the header -- a menu that opens and is
+// instantly invisible. The declaration bought nothing measurable either: with it
+// removed, document.scrollWidth still equals the viewport at every width from
+// 320 to 1440, on every route the suite walks.
+//
+// The behavioural halves of this gate (tap, hit-test, navigate, keyboard) pass
+// on the broken code too, because Playwright's WebKit build honours single-axis
+// clip correctly -- exactly the gap that let this ship. The load-bearing test is
+// therefore the CLIPPING-ANCESTOR one, in the same spirit as the safe-area test
+// above: when an engine difference is not reproducible here, gate the CSS that
+// the engine difference acts on. The rule it encodes is not Safari trivia -- a
+// panel that is positioned outside its container must not have an ancestor that
+// clips in ANY axis -- so it is worth holding regardless of who is right.
+//
+// On the installed app specifically: no rule in globals.css and no component
+// branches on `(display-mode: standalone)`, and WebKit under Playwright cannot
+// emulate that media feature at all. The installed app therefore differs from a
+// Safari tab only in the browser chrome and in the safe-area insets, and both of
+// those are already covered -- the insets by the CSSOM test above, the viewport
+// by running this file on the two iPhone profiles below.
+
+const PROFILE_TRIGGER = ".header-actions .header-menu-trigger";
+const PROFILE_PANEL = ".header-actions .header-menu-panel";
+
+/** Every ancestor of the profile panel that clips in either axis. */
+async function clippingAncestors(page: Page): Promise<string[]> {
+  return page.evaluate((selector) => {
+    const panel = document.querySelector<HTMLElement>(selector);
+    if (!panel) return ["no profile panel in the document"];
+    const found: string[] = [];
+    for (let ancestor = panel.parentElement; ancestor; ancestor = ancestor.parentElement) {
+      // <html> and <body> are exempt. Clipping the document is the SUPPORTED
+      // way to stop a sideways scroll, and it cannot hide this panel: the
+      // document is taller than the header by the whole page.
+      if (ancestor === document.documentElement || ancestor === document.body) continue;
+      const styles = getComputedStyle(ancestor);
+      if (styles.overflowX === "visible" && styles.overflowY === "visible") continue;
+      const name = `${ancestor.tagName.toLowerCase()}${String(ancestor.className).trim() ? `.${String(ancestor.className).trim().split(/\s+/)[0]}` : ""}`;
+      found.push(`${name} {overflow-x: ${styles.overflowX}; overflow-y: ${styles.overflowY}}`);
+    }
+    return found;
+  }, PROFILE_PANEL);
+}
+
+function profileMenuContract(deviceLabel: string): void {
+  test(`${deviceLabel}: a tap opens the profile menu and its destinations are hit-testable`, async ({
+    page,
+  }) => {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    const trigger = page.locator(PROFILE_TRIGGER);
+    const panel = page.locator(PROFILE_PANEL);
+
+    // Shut on arrival, and every destination already in the served HTML -- the
+    // link checker and the Pages export read that, not the rendered box.
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+    await expect(panel).toBeHidden();
+    await expect(panel.locator("a")).not.toHaveCount(0);
+
+    // A real tap: touchstart/touchend and the click iOS synthesises from them,
+    // not an element.click(). The document-level dismissal listeners this
+    // component installs are touch listeners, so a synthetic click would not
+    // exercise them.
+    await trigger.tap();
+    await expect(trigger).toHaveAttribute("aria-expanded", "true");
+    await expect(panel).toBeVisible();
+
+    // Visible is not the same as reachable. A trial tap runs the whole
+    // actionability check -- including the hit test that fails naming whatever
+    // intercepts the point -- without following the link. "My progress" is a
+    // protected route, and following it signed out hands the browser to the
+    // identity provider, which is not this test's business.
+    await panel.getByRole("link", { name: "My progress" }).tap({ trial: true });
+    const underThePoint = await page.evaluate((selector) => {
+      const link = [...document.querySelectorAll<HTMLAnchorElement>(`${selector} a`)].find(
+        (candidate) => candidate.textContent?.trim() === "My progress",
+      );
+      if (!link) return "no My progress link";
+      const box = link.getBoundingClientRect();
+      const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+      return hit === link ? "My progress" : `${hit?.tagName.toLowerCase()}.${String(hit?.className ?? "").trim()}`;
+    }, PROFILE_PANEL);
+    expect(underThePoint, "something else is on top of the menu entry").toBe("My progress");
+
+    // Then a real tap, on the public destination in the same panel: the touch
+    // lands, the link navigates, and the panel's own click handler does not
+    // swallow it on the way.
+    await panel.getByRole("link", { name: "Account", exact: true }).tap();
+    await expect(page).toHaveURL(/\/account\/?$/);
+  });
+
+  test(`${deviceLabel}: nothing between the profile panel and the page clips it`, async ({
+    page,
+  }) => {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.locator(PROFILE_TRIGGER).tap();
+    await expect(page.locator(PROFILE_PANEL)).toBeVisible();
+
+    // The gate is only worth anything if the panel genuinely hangs outside the
+    // header. Measure that first, so a future layout change that tucks the
+    // panel inside cannot quietly make this test vacuous.
+    const overhang = await page.evaluate((selector) => {
+      const panel = document.querySelector<HTMLElement>(selector)!;
+      const header = panel.closest(".site-header")!;
+      return panel.getBoundingClientRect().bottom - header.getBoundingClientRect().bottom;
+    }, PROFILE_PANEL);
+    expect(overhang, "the profile panel no longer hangs below the header").toBeGreaterThan(0);
+
+    const clippers = await clippingAncestors(page);
+    expect(
+      clippers,
+      `the profile menu hangs ${Math.round(overhang)}px below the header, and these ancestors clip it:\n  ${clippers.join("\n  ")}\nSafari clips BOTH axes when either is clip/hidden, so on an iPhone this menu opens invisible. Clip somewhere that does not contain the panel.`,
+    ).toEqual([]);
+  });
+
+  test(`${deviceLabel}: the keyboard contract survives`, async ({ page }) => {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    const trigger = page.locator(PROFILE_TRIGGER);
+    const panel = page.locator(PROFILE_PANEL);
+
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+    await expect(trigger).toHaveAttribute("aria-expanded", "true");
+    await expect(panel).toBeVisible();
+
+    // Escape closes AND puts focus back on the trigger, or a keyboard user is
+    // dropped at the top of the document.
+    await page.keyboard.press("Escape");
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+    await expect(panel).toBeHidden();
+    await expect(trigger).toBeFocused();
+  });
+}
+
+// The tightest supported viewport, inherited from the mobile-webkit project.
+test.describe("the profile menu on a phone", () => {
+  profileMenuContract("iPhone SE");
+});
+
+// A notch-class handset -- the shape most people actually hold, and the one the
+// defect was reported on. Same engine, 390x664 rather than 320x568.
+//
+// The descriptor's fields are taken one by one rather than spread: Playwright
+// refuses `defaultBrowserType` inside a describe because it would force a new
+// worker, and the engine is already WebKit here -- this project runs nothing
+// else.
+const { deviceScaleFactor, hasTouch, isMobile, userAgent, viewport } = devices["iPhone 14"];
+
+test.describe("the profile menu on a notch-class iPhone", () => {
+  test.use({ deviceScaleFactor, hasTouch, isMobile, userAgent, viewport });
+  profileMenuContract("iPhone 14");
 });
