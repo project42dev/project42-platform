@@ -116,6 +116,15 @@ test.describe("resume where you left off", () => {
     await page.goto("/");
     await expect(continueLink(page)).toBeVisible();
 
+    // NOT ASSERTED HERE: the profile dashboard, which also renders the card.
+    // app/profile/layout.tsx wraps that route in RequireAuth, so a signed-out
+    // visitor is redirected to /v1/auth/start and never reaches the dashboard
+    // at all -- proving it needs credentials, which is exactly what this
+    // journey is written to avoid. It is covered by the wiring
+    // (ProfileDashboard renders <ProgressSnapshot />) and by the unit tests
+    // behind it, not by this spec. Asserting it here was tried and correctly
+    // failed against the sign-in redirect.
+
     // 6. And it actually returns them to the module.
     await continueLink(page).click();
     await expect(page).toHaveURL(new RegExp(`/learn/${PATH_ID}/${MODULE_ID}/?$`));
