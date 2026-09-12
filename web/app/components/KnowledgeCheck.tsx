@@ -31,6 +31,22 @@ export function KnowledgeCheck({
   );
   const completed = progress.completedModuleIds.includes(moduleId);
 
+  // There is deliberately NO `hydrated` gate here. It was tried on 2026-09-11
+  // as belt and braces for the hydration overwrite and measured, in the
+  // browser, to protect nothing: `hydrated` is already true before the account
+  // read that used to do the damage has even been issued. ProgressProvider
+  // turns it on as soon as it sees no approved account (see its no-account
+  // branch), which is the state every page load passes through while
+  // AuthProvider is still fetching /v1/auth/session. A learner who answers in
+  // that window -- the window the reported bug actually lives in -- sails
+  // straight past a `hydrated` check.
+  //
+  // tests/browser/progress-hydration-race.spec.ts pins that fact, so nobody
+  // re-adds the gate believing it is a safety net. What makes answering early
+  // safe is that the read MERGES rather than replaces
+  // (planAccountProgressHydration in ProgressProvider), and that has to be
+  // true on its own: a gate on the wrong flag is not narrower than the bug, it
+  // is beside it.
   const submit = () => {
     setSubmitted(true);
     recordResult(pathId, moduleId, result);
