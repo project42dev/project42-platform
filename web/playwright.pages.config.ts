@@ -38,6 +38,24 @@ export default defineConfig({
       use: { ...devices["iPhone SE"] },
       testMatch: /mobile-viewport/,
     },
+    {
+      // THE INSTALLED-APP SURFACE, on the artifact that is actually installed.
+      //
+      // The service worker is a file the Pages export writes, not a route the
+      // application serves, so `npm run test:browser` -- which drives the
+      // vinext server -- has no worker to register and skips that assertion
+      // saying so. This project is where it is proven: the same describe
+      // block, against the exported bytes this repository publishes.
+      //
+      // One engine is enough here. What is being measured is what the artifact
+      // contains -- the manifest, its icons, start_url and /sw.js -- and that
+      // is identical whichever browser asks for it. The per-device behaviour
+      // is the device matrix's job, against the live application.
+      name: "pages-installed-app",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: /device-matrix/,
+      grep: /the installed app/,
+    },
   ],
   webServer: {
     command: `node scripts/serve-github-pages.mjs --port ${port}`,
