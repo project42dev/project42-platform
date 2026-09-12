@@ -565,6 +565,16 @@ a {
   color: var(--p42-primary-fg);
 }
 
+/* Carries data-account-state so a test -- including the production acceptance
+   spec -- can tell signed-in, signed-out and not-yet-known apart from outside
+   the React tree. Purely structural: it takes over as the trigger's flex item,
+   so it has to centre its own content. */
+.profile-trigger-state {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+}
+
 .profile-icon {
   height: 22px;
   width: 22px;
