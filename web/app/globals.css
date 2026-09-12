@@ -273,10 +273,29 @@ a {
   text-transform: uppercase;
 }
 
+/* NOTHING HERE MAY CLIP.
+ *
+ * The header holds two disclosures -- the About menu and the profile menu --
+ * and both open a panel that is absolutely positioned BELOW the header
+ * (`.header-menu-panel { top: calc(100% + 0.35rem) }`). Any overflow value
+ * other than `visible` on this element, or on anything between it and the
+ * panel, cuts that panel off at the header's bottom edge.
+ *
+ * This rule used to carry `overflow-x: clip`. Chromium and Gecko implement
+ * single-axis clip to the letter and clipped only horizontally, so the menus
+ * worked on a desktop; WebKit clips BOTH axes, so on an iPhone the profile
+ * menu opened to nothing -- aria-expanded flipped, the panel was laid out,
+ * and none of it was painted. It also bought nothing: with it gone,
+ * document.scrollWidth still equals the viewport at every width from 320 to
+ * 1440, which `phone viewport > no route scrolls the page sideways` holds at
+ * the narrow end.
+ *
+ * If a future header genuinely overflows sideways, clip the thing that
+ * overflows, not the ancestor of every dropdown. `the profile menu ... >
+ * nothing between the profile panel and the page clips it` is the gate. */
 .site-header {
   background: var(--p42-surface);
   border-bottom: 1px solid rgba(17, 24, 39, 0.12);
-  overflow-x: clip;
   position: sticky;
   top: 0;
   z-index: 50;
