@@ -3888,13 +3888,42 @@ a {
     grid-template-columns: auto 1fr;
   }
 
+  /* THIS ROW CONTAINS THE ABOUT MENU, SO IT MAY NOT CLIP EITHER.
+   *
+   * The rule that lived here was `overflow-x: auto`, a sibling of the
+   * `overflow-x: clip` that broke the profile menu on iPhone -- and worse,
+   * because it broke the About menu in EVERY engine rather than one. CSS
+   * Overflow 3 is explicit: when one axis is `visible` and the other is not,
+   * the `visible` one COMPUTES to `auto`. So `overflow-x: auto` silently made
+   * this box clip and scroll VERTICALLY too, and the About panel is
+   * absolutely positioned at `top: calc(100% + 0.35rem)` -- deliberately
+   * hanging below the row it lives in. Measured at every width from 761 to
+   * 960 in Chromium, WebKit and Firefox: the panel hung ~319px below the nav,
+   * reported itself open, and what the page painted where its entries are was
+   * the page hero behind it.
+   *
+   * 761-960px is not an edge case. It is every iPad and Android tablet held
+   * upright (768, 800, 834) and several phones held sideways (780).
+   *
+   * It also bought nothing. Measured on this build at 761, 860 and 960px, the
+   * nav's scrollWidth EQUALS its clientWidth at every one of them (721/721,
+   * 820/820, 920/920): the four items are 44 + 74 + 87 + 58px plus three
+   * 27px gaps, about 345px in a 721px row at the tightest width in the band.
+   * There was never anything to scroll. `flex-wrap: wrap` -- the same answer
+   * the <=760px rule below already gives -- keeps the row honest if a longer
+   * label ever arrives, without clipping anything, and
+   * `across every width > the document never scrolls sideways` holds at all
+   * eighteen swept widths in all three engines without the overflow.
+   *
+   * `across every width > nothing clips either header panel` is the gate. */
   .site-header nav {
+    flex-wrap: wrap;
     grid-column: 1 / -1;
     grid-row: 2;
     justify-content: flex-start;
     min-width: 0;
-    overflow-x: auto;
     padding-bottom: 0.8rem;
+    row-gap: 0.25rem;
     width: 100%;
   }
 
@@ -3973,10 +4002,12 @@ a {
     min-width: 0;
   }
 
+  /* `overflow-x: visible` used to be restated here to undo the `auto` the
+     <=960px rule set. That rule no longer clips, so restating it would only
+     suggest something above still does. */
   .site-header nav {
     flex-wrap: wrap;
     gap: 1.2rem;
-    overflow-x: visible;
     row-gap: 0.25rem;
   }
 
