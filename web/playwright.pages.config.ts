@@ -29,6 +29,24 @@ export default defineConfig({
       // The phone gate belongs to the mobile-webkit project below. Run at
       // 1280px it would pass without measuring anything it exists to measure.
       testIgnore: /mobile-viewport/,
+      // WHAT THIS PROJECT IS FOR, and what it costs.
+      //
+      // Every other spec in tests/browser runs here, against the exported
+      // bytes rather than the server that produced them. That is deliberate:
+      // the export is not a copy of the application. It rewrites hrefs, adds a
+      // click handler that turns every in-site link into a full document load,
+      // retires the Admin routes, and serves directories rather than routes.
+      // A regression in any of those breaks the published site and nothing the
+      // live-server suite runs would see it.
+      //
+      // The price is that a spec written for a running application can assert
+      // something the artifact cannot have. That is a defect in the SPEC, not
+      // a reason to scope this project down to a list -- a list stops covering
+      // whatever is written next, silently. A spec that needs a live server
+      // probes the surface it was handed and skips with the reason stated
+      // (tests/browser/support/surface.ts, and device-matrix.spec.ts over
+      // /sw.js), so it still runs where the server exists and says out loud
+      // why it did not run here.
     },
     {
       // Mobile Safari's engine, on the tightest supported viewport. Every other
