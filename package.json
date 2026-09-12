@@ -70,7 +70,7 @@
     "themes:contrast": "node web/scripts/theme-correctness-check.mjs --report"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.18.0"
   },
   "license": "Apache-2.0",
   "keywords": [
