@@ -1,3 +1,29 @@
+# Project 42 platform v0.112.3
+
+The header menus open on an iPhone.
+
+The profile menu did nothing on iOS: the button reported itself expanded and the panel never appeared. `.site-header` carried `overflow-x: clip`, and the panels hang 188 pixels below a 67-pixel header. Chromium and Gecko clip only the axis named, so every desktop journey passed; WebKit clips both, so on iOS the panel was cut to nothing. The rule had been there since the front end first shipped and bought nothing — no header content reaches the right edge at any width from 320 to 1440.
+
+The mobile journeys now run on WebKit at iPhone SE and iPhone 14 sizes, tap with real touch events, and assert that no ancestor of a menu panel clips on either axis. The behavioural half of those tests passes even on the broken CSS, which is precisely how this reached a phone; the clip assertion is the one that fails.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+Verified by emulation and by the documented WebKit behaviour, not on a physical handset. A related rule, `.site-header nav { overflow-x: auto }`, still clips the About menu between 761px and 960px in every engine; that nav row is a deliberate horizontal scroller and wants its own change.
+
+## Rollback
+
+Pin 0.112.2.
+
+---
+
 # Project 42 platform v0.112.2
 
 The borders the site actually draws are visible enough to see.

@@ -33,6 +33,25 @@ semantic versioning.
   nothing in either repository was measuring them. `npm run themes:contrast`
   prints every measured pair.
 
+## [0.112.3] - 2026-09-11
+
+### Fixed
+
+- The profile and About menus open on iPhone. `.site-header` carried
+  `overflow-x: clip`; the panels hang 188px below a 67px header, and WebKit
+  clips both axes on a single-axis `clip`, so on iOS the panel was laid out,
+  `aria-expanded` flipped, and nothing painted. Chromium and Gecko clip one
+  axis, which is why every desktop journey passed. Removing it costs nothing:
+  no header content extends past the right edge at any width from 320 to 1440.
+
+### Added
+
+- `web/tests/browser/mobile-viewport.spec.ts` gains iPhone SE and iPhone 14
+  WebKit journeys: a real tap opens the profile menu and its destinations are
+  hit-testable, the keyboard contract survives, and — the load-bearing one —
+  no ancestor of the panel clips on either axis. The behavioural tests pass on
+  the broken CSS; the clip assertion is what catches it.
+
 ## [0.112.2] - 2026-09-11
 
 ### Fixed
