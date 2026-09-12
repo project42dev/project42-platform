@@ -17,6 +17,7 @@
 // corresponding defect and watching the named test fail -- see the branch
 // report for the output.
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   createEmptyProgress,
@@ -252,5 +253,72 @@ test("the next module is skipped when it too is already complete", () => {
     target.moduleId,
     moduleIds[2],
     "the rule must walk past finished modules rather than stopping at the first one after the recent module",
+  );
+});
+
+// ---------------------------------------------------------------------------
+// WHEN the device key is cleared, which is the half of the hand-off that has
+// no other gate.
+// ---------------------------------------------------------------------------
+
+test("the device key is cleared only once the account read has succeeded", async () => {
+  // Added 2026-09-12, during the integration of fix/progress-durability, after
+  // planting the defect and finding NOTHING failed.
+  //
+  // resume-where-you-left-off.spec.ts pins the OUTCOME of the hand-off and says
+  // so in its own comment: the pre-sign-in place reaches the account and the
+  // device key is then cleared. On a successful GET -- which is the only GET
+  // that spec routes -- clearing the key before the read and clearing it after
+  // produce identical outcomes, so moving the clear earlier leaves all three
+  // browser tests green. Moving it into the `deviceRecordSeeded` block IS
+  // caught, but only because that block is skipped on a normal page load and
+  // the key then never clears at all; that is a different defect.
+  //
+  // The ordering is what the resume work's own comment calls the sequence that
+  // matters most: sign in (an OIDC redirect, so a full page load), GET
+  // /v1/me/progress fails, learner reloads. The seed is gone with the old page
+  // and the in-memory buffer with it, so the device key is the only surviving
+  // copy of where the learner had got to -- and a clear issued before the read
+  // resolved would have deleted it on behalf of a hand-off that never
+  // completed. There is no browser test for that sequence, so this is the gate.
+  const provider = await readFile(
+    new URL("../web/app/components/ProgressProvider.tsx", import.meta.url),
+    "utf8",
+  );
+
+  const seedStart = provider.indexOf("const deviceRecordSeeded");
+  const readStart = provider.indexOf('setSyncStatus("checking")');
+  const failureStart = provider.indexOf(".catch((caught)");
+  assert.ok(
+    seedStart > 0 && readStart > seedStart && failureStart > readStart,
+    "the hydration effect must still be findable, or this note is stale",
+  );
+
+  const beforeTheRead = provider.slice(seedStart, readStart);
+  assert.doesNotMatch(
+    beforeTheRead,
+    /clearDeviceLocalProgress\(/,
+    "Nothing on the signed-in path may clear the device key before the account read is issued: a read that then fails would leave the learner with no copy of their place at all.",
+  );
+
+  const successHandler = provider.slice(readStart, failureStart);
+  const clears = successHandler.split("clearDeviceLocalProgress(").length - 1;
+  assert.equal(
+    clears,
+    1,
+    "The read's success handler must clear the device key exactly once -- that is the hand-off completing.",
+  );
+  assert.ok(
+    successHandler.indexOf("clearDeviceLocalProgress(") >
+      successHandler.indexOf("lastSynchronized.current = JSON.stringify(normalized)"),
+    "The clear must come after the account record has been adopted, not before it.",
+  );
+
+  // And the failure handler must not clear it either: a read that failed is
+  // precisely when the key is the learner's only remaining copy.
+  assert.doesNotMatch(
+    provider.slice(failureStart),
+    /clearDeviceLocalProgress\([^)]*\);[\s\S]{0,400}?setSyncStatus\("error"\)/,
+    "A failed hydration read must leave the device key alone.",
   );
 });
