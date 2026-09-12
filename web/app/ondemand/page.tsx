@@ -6,19 +6,14 @@ import {
 import { getLearningModule, siteCatalog } from "../../lib/catalog";
 import { getInstructorRendering, instructorRenderings } from "../lib/instructorMedia";
 import { orgName } from "../../lib/copy";
+import { groupPathsByFocusArea } from "../../lib/focusAreaGroups";
+import { defaultFocusAreas } from "../../lib/focusAreas";
 
 export const metadata: Metadata = {
   title: "On-demand classroom",
   description:
     `Instructor-led lessons on demand: the same ${orgName} modules organized by Focus Area, taught on video with captions and a full transcript.`,
 };
-
-interface FocusAreaItem {
-  id: string;
-  number: number;
-  title: string;
-  summary: string;
-}
 
 interface LearningPathWithFocus {
   id: string;
@@ -46,48 +41,9 @@ interface OnDemandPathEntry {
   filmed?: OnDemandLesson;
 }
 
-const defaultFocusAreas: FocusAreaItem[] = [
-  {
-    id: "ai-literacy-and-foundations",
-    number: 1,
-    title: "AI Literacy & Foundations",
-    summary: "Core mental models, language model generation, prompt anatomy, context tokens, verification, and privacy without assuming technical experience.",
-  },
-  {
-    id: "developer-and-practitioner-ai",
-    number: 2,
-    title: "Developer & Practitioner AI",
-    summary: "Provider-neutral evaluation, capability comparison, structured outputs, function calling, and hands-on practice across Anthropic, OpenAI, and Google Gemini.",
-  },
-  {
-    id: "frontier-agentic-systems-and-mcp",
-    number: 3,
-    title: "Frontier Agentic Systems & MCP",
-    summary: "Bounded agent loops, tool authority, memory boundaries, Model Context Protocol (MCP) architecture, multi-agent handoffs, and scored capstone.",
-  },
-  {
-    id: "retrieval-rag-and-fine-tuning",
-    number: 4,
-    title: "Retrieval, RAG & Fine-Tuning",
-    summary: "Advanced retrieval architectures, hybrid search, embedding stores, knowledge graphs, and LoRA/QLoRA fine-tuning.",
-  },
-  {
-    id: "self-hosted-and-aiops",
-    number: 5,
-    title: "Self-Hosted, Open-Weight & AIOps",
-    summary: "Open-weight model selection, vLLM/Ollama serving, VRAM calculations, artifact integrity, endpoint security, and disaster recovery.",
-  },
-  {
-    id: "ai-security-and-governance",
-    number: 6,
-    title: "AI Security, Red-Teaming & Governance",
-    summary: "OWASP Top 10 for LLMs, sandboxing, guardrails, compliance frameworks, and cryptographic audit receipts.",
-  },
-];
-
 export default function OnDemandPage() {
-  const focusAreas = defaultFocusAreas;
   const rawPaths = siteCatalog.paths as unknown as LearningPathWithFocus[];
+  const pathGroups = groupPathsByFocusArea(rawPaths, defaultFocusAreas);
 
   const paths: OnDemandPathEntry[] = rawPaths.map((path) => {
     const lessons: OnDemandLesson[] = path.moduleIds.flatMap((moduleId) => {
@@ -147,22 +103,14 @@ export default function OnDemandPage() {
       </p>
 
       <div className="focus-areas-container">
-        {focusAreas.map((area: FocusAreaItem) => {
-          const areaEntries = paths.filter(({ path }: OnDemandPathEntry) => {
-            if (path.focusArea) return path.focusArea === area.id;
-            if (area.id === "ai-literacy-and-foundations") return path.id === "ai-foundations" || path.id === "agentic-ai-literacy";
-            if (area.id === "developer-and-practitioner-ai") return path.id.includes("practice") || path.id === "providers-in-practice";
-            if (area.id === "frontier-agentic-systems-and-mcp") return path.id === "reliable-agent-workflows";
-            if (area.id === "self-hosted-and-aiops") return path.id === "self-hosted-model-operations";
-            return false;
-          });
-
-          if (areaEntries.length === 0) return null;
+        {pathGroups.map((area) => {
+          const areaPathIds = new Set(area.paths.map((path) => path.id));
+          const areaEntries = paths.filter(({ path }: OnDemandPathEntry) => areaPathIds.has(path.id));
 
           return (
             <section className="focus-area-group" key={area.id} aria-labelledby={`focus-area-ondemand-${area.id}`}>
               <div className="focus-area-header">
-                <p className="eyebrow">Focus Area {String(area.number).padStart(2, "0")}</p>
+                <p className="eyebrow">{area.number === null ? "More paths" : `Focus Area ${String(area.number).padStart(2, "0")}`}</p>
                 <h2 id={`focus-area-ondemand-${area.id}`}>{area.title}</h2>
                 <p>{area.summary}</p>
               </div>
