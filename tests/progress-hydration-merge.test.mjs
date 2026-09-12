@@ -370,10 +370,36 @@ test("the provider declares itself hydrated before it knows the account, so no b
     new URL("../web/app/components/ProgressProvider.tsx", import.meta.url),
     "utf8",
   );
+  // 2026-09-12: this used to pin the branch body verbatim as
+  //   setProgress(createEmptyProgress()); setHydrated(true);
+  // and the resume work changed that body -- the no-account branch now
+  // hydrates from the device-local record when there is one, and only falls
+  // back to empty progress when there is not.
+  //
+  // The note above does not rest on the branch setting EMPTY progress. It rests
+  // on the branch declaring hydration SYNCHRONOUSLY, without waiting to hear
+  // from the account, because that is what makes `hydrated` already true
+  // throughout the window the reported bug lives in. So that is what is pinned
+  // now, and the assertion is still specific enough to fail if setHydrated ever
+  // moves out of this branch or behind an await: the window is bounded, and a
+  // separate assertion below keeps it from being satisfied by some later,
+  // unrelated setHydrated call.
+  const noAccountBranch = provider.match(
+    /if \(!account \|\| account\.state !== "approved"\) \{([\s\S]{0,1600}?)\n      \}/,
+  );
+  assert.ok(
+    noAccountBranch,
+    "The no-account branch must still exist in the hydration effect, or this note is stale.",
+  );
   assert.match(
-    provider,
-    /if \(!account \|\| account\.state !== "approved"\) \{\s*setProgress\(createEmptyProgress\(\)\);\s*setHydrated\(true\);/,
+    noAccountBranch[1],
+    /setHydrated\(true\);/,
     "The no-account branch must still be the one that declares hydration, or this note is stale.",
+  );
+  assert.doesNotMatch(
+    noAccountBranch[1],
+    /await|\.then\(/,
+    "The no-account branch must declare hydration synchronously; awaiting anything here would move the window the note describes.",
   );
   assert.match(
     provider,
