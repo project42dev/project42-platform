@@ -327,9 +327,13 @@ test("the provider hydrates through the tested plan, never by replacing state", 
     new URL("../web/app/components/ProgressProvider.tsx", import.meta.url),
     "utf8",
   );
+  // The call takes options as of 2026-09-12 (pendingReplacement,
+  // pendingDisplayName), so this matches the call rather than one exact
+  // spelling of it. What it still refuses is below: any form of replacing
+  // state with the account record, which is the defect this pin exists for.
   assert.match(
     provider,
-    /setProgress\(planAccountProgressHydration\(normalized\)\)/,
+    /setProgress\(\s*planAccountProgressHydration\(\s*normalized\b/,
     "ProgressProvider must apply the hydration read with the plan's merging updater.",
   );
   // The line this replaced, and every spelling of it.
