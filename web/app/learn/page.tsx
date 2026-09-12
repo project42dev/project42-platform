@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { siteCatalog } from "../../lib/catalog";
 import { orgName } from "../../lib/copy";
+import { ProgressSnapshot } from "../components/ProgressSnapshot";
 
 export const metadata: Metadata = {
   title: "Learn",
@@ -67,6 +68,18 @@ export default function LearnPage() {
           whenever you like: your progress does not care which one you picked.
         </p>
       </header>
+
+      {/*
+        Resume, above the chooser. This page's job is the choice between the
+        two renderings, and for a learner who has already made that choice the
+        page's job is to get out of the way and hand them back their place --
+        which is the complaint this answers: /learn shipped a fixed "Begin the
+        first module" CTA pointing at a hardcoded module, and that is a start
+        control, not a resume control. The CTA is still at the foot of the page,
+        unchanged, for everyone who has not started; this card appears above it
+        only for someone who has.
+      */}
+      <ProgressSnapshot />
 
       <section className="section shell" aria-label="Choose how you want to learn">
         <div className="pillar-grid">

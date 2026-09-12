@@ -64,7 +64,14 @@ export default defineConfig({
           // table strips that field so a row can state its engine once, and a
           // Firefox row has no descriptor to take it from at all.
           use: { browserName: entry.engine, ...entry.use },
-          testMatch: /device-matrix/,
+          // The resume journey joins the matrix rather than staying on the
+          // desktop project alone. It is written to assert on names and roles
+          // rather than on a layout, so it passes at any width -- and resume is
+          // exactly the kind of feature that breaks on a phone and nowhere
+          // else, because it depends on localStorage surviving a reload in a
+          // browser that partitions and evicts storage far more aggressively
+          // than a desktop one does. PROJECT42_DEVICE_MATRIX=off drops both.
+          testMatch: /device-matrix|resume-where-you-left-off/,
           // The width sweep resizes the viewport, so it belongs to one project
           // per engine and would be a no-op everywhere else. Filtering it out
           // here rather than skipping it inside the spec keeps 45 "skipped"

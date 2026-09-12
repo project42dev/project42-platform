@@ -4,6 +4,7 @@ import { siteCatalog } from "../lib/catalog";
 import { diagramCatalog } from "./lib/diagrams";
 import { getThemeAssets } from "../lib/theme";
 import { copy } from "../lib/copy";
+import { ProgressSnapshot } from "./components/ProgressSnapshot";
 
 export default function Home() {
   const themeAssets = getThemeAssets();
@@ -49,6 +50,18 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/*
+        Resume sits directly under the hero, above everything the site wants to
+        tell you, because a returning learner's first question is "where was I"
+        and the answer should not be below the fold. It renders NOTHING for a
+        visitor with nothing to resume -- see ProgressSnapshot -- so a first
+        visit still opens on the hero and then the strip, unchanged. The fixed
+        "Begin the first module" CTA at the foot of this page is untouched and
+        unconditional; the two never contradict each other because this card
+        only ever appears for someone who has already begun.
+      */}
+      <ProgressSnapshot />
 
       <section className="progress-strip shell" aria-label={text.strip.label}>
         <div>

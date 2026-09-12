@@ -15,6 +15,11 @@ import {
 import { progressCatalog } from "../../lib/progressCatalog";
 import { hasLearningEvidence } from "../lib/progressMigration";
 import {
+  clearDeviceLocalProgress,
+  readDeviceLocalProgress,
+  writeDeviceLocalProgress,
+} from "../lib/deviceLocalProgress";
+import {
   createContext,
   useCallback,
   useContext,
@@ -69,6 +74,19 @@ interface BufferEntry {
   timestamp: number;
 }
 
+/**
+ * The browser's own store, or null where there isn't one (SSR, and a browser
+ * that refuses localStorage outright -- Safari with site data blocked throws on
+ * the property access itself, not merely on setItem).
+ */
+function deviceStorage(): Storage | null {
+  try {
+    return typeof window === "undefined" ? null : window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const { account, apiFetch } = useAuth();
   const [progress, setProgress] = useState<LearnerProgress>(() => createEmptyProgress());
@@ -103,20 +121,99 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     currentProgress.current = progress;
   }, [progress]);
 
-  // Hydration: if an approved account is connected, fetch progress from the API.
-  // Otherwise, start with empty progress. No localStorage reads.
+  // REMEMBERING THE PLACE, SIGNED IN OR NOT.
+  //
+  // Until 2026-09-12 this effect's comment read "start with empty progress. No
+  // localStorage reads", and it meant it: a signed-out visitor who read half a
+  // module and came back the next day was met by a site that had never heard of
+  // them, and a signed-in learner's place depended entirely on the account
+  // round-trip landing. web/app/lib/deviceLocalProgress.ts had a reader,
+  // a validator and a quarantine path since the front end shipped, and nothing
+  // called any of it.
+  //
+  // Now:
+  //
+  // SIGNED OUT -- the device record IS the record. Read it, validate it through
+  // the existing reader (a record this catalogue cannot vouch for is
+  // quarantined, not shown), and hydrate from it. `setProgress` and
+  // `setHydrated` land in one batch so the write effect below never sees the
+  // empty initial state and overwrite the stored record with it.
+  //
+  // SIGNED IN -- the account is the source of truth, and the device record is
+  // seeded into state ONCE before the GET resolves so that the read's own
+  // merge, planAccountProgressHydration, folds it into the account record
+  // through mergeLearnerProgress. That is the existing merge path and not a new
+  // mechanism: the account is the survivor, so its whole history is kept; the
+  // device record is the source, so a place the learner reached before signing
+  // in is added; `recentModule` resolves by the later `visitedAt` inside the
+  // merge. Once an account has taken over, the device key is cleared and the
+  // write effect below stops writing -- an account record must not sit in a
+  // shared browser after the session ends.
+  const deviceRecordSeeded = useRef(false);
   useEffect(() => {
     let cancelled = false;
     const hydrationTimer = window.setTimeout(() => {
       if (cancelled) return;
 
+      const storage = deviceStorage();
+
       if (!account || account.state !== "approved") {
-        setProgress(createEmptyProgress());
+        // A session still resolving is NOT yet a signed-out visitor. Hydrating
+        // from the device record here is still right -- it is this browser's
+        // own record either way -- and if an account lands a moment later the
+        // seed below has already happened, which is what the account merge
+        // wants. What must not happen is treating "loading" as "nobody", which
+        // is why the storage read is unconditional rather than gated on it.
+        const stored = storage
+          ? readDeviceLocalProgress(storage, progressCatalog)
+          : ({ status: "missing" } as const);
+        if (stored.status === "valid") deviceRecordSeeded.current = true;
+        setProgress(
+          stored.status === "valid" ? stored.progress : createEmptyProgress(),
+        );
         setHydrated(true);
         setSyncStatus("local-only");
         return;
       }
 
+      // Signed in. Seed the device record into state once, so the account read
+      // below merges it rather than arriving to an empty session and having
+      // nothing of the learner's pre-sign-in place to keep.
+      //
+      // ON A NORMAL PAGE LOAD THIS IS A FALLBACK, NOT THE MECHANISM, and that
+      // was measured rather than assumed. AuthProvider starts at status
+      // "loading" with a null account, so the no-account branch above runs
+      // FIRST on every load and has already put the device record into state by
+      // the time an account lands here; `deviceRecordSeeded` is true and this
+      // block is skipped. Disabling this block alone changes nothing that any
+      // test can see. Disabling the read above alone also changes nothing for a
+      // signed-in learner, because then this block is the one that runs. It
+      // takes disabling BOTH to lose the hand-off -- which is what
+      // resume-where-you-left-off.spec.ts was checked against.
+      //
+      // It is kept because the two are not the same condition: the branch above
+      // fires when there is no approved account, this one when there is. An
+      // AuthProvider that ever resolved an account without passing through a
+      // null-account render -- a cached session, a server-rendered identity --
+      // would skip the branch above entirely, and this is what keeps the
+      // hand-off working when it does.
+      if (!deviceRecordSeeded.current) {
+        deviceRecordSeeded.current = true;
+        const stored = storage
+          ? readDeviceLocalProgress(storage, progressCatalog)
+          : ({ status: "missing" } as const);
+        if (stored.status === "valid") {
+          setProgress(stored.progress);
+        }
+      }
+      // NOTE: the device key is NOT cleared here. It is cleared in the read's
+      // success handler below, once the account has actually taken the record
+      // over. Clearing it at this point would lose the learner's place outright
+      // on the sequence that matters most -- sign in (an OIDC redirect, so a
+      // full page load), GET /v1/me/progress fails, learner reloads: the seed
+      // above is gone with the old page, the in-memory buffer went with it, and
+      // the key that still held their place would have been deleted by a hand-
+      // off that never completed.
       setSyncStatus("checking");
       const controller = new AbortController();
       void apiFetch("/v1/me/progress", { signal: controller.signal })
@@ -170,6 +267,22 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           // account record itself and no write is provoked.
           lastSynchronized.current = JSON.stringify(normalized);
           setProgress(planAccountProgressHydration(normalized));
+          // THE HAND-OFF IS COMPLETE, so the device copy goes. The account has
+          // the record, the merge above has folded in whatever the device
+          // seeded, and the sync effect writes the result back. Leaving the key
+          // behind would be a copy of learner progress that the profile page
+          // cannot show and the account-deletion workflow cannot reach, sitting
+          // in what may be a shared browser.
+          //
+          // This is deliberately AFTER the read succeeds rather than before it.
+          // What remains is the GET-ok / PUT-fail / reload window, where the
+          // merged record is lost -- but that window is not new and not made
+          // worse here: it is the same one every in-session change already has,
+          // and the unsynced buffer and hydration retry exist to narrow it.
+          {
+            const accountStorage = deviceStorage();
+            if (accountStorage) clearDeviceLocalProgress(accountStorage);
+          }
           syncEnabled.current = true;
           hydrationAttempt.current = 0;
           setSyncStatus("synced");
@@ -232,6 +345,49 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       window.clearTimeout(hydrationTimer);
     };
   }, [account, apiFetch, hydrationRetry]);
+
+  // KEEP THE PLACE ON THE DEVICE, for a visitor with no account.
+  //
+  // The three guards are the whole privacy argument, so none of them is
+  // incidental:
+  //
+  // `!hydrated` -- writing before the read above has landed would put the empty
+  // initial state over the stored record and lose exactly what this feature
+  // exists to keep. This is the ordering that makes the feature work at all.
+  //
+  // an approved account -- the account is authoritative and already carries
+  // `recentModule` through recordModuleVisit. Copying it to the device would
+  // leave scores, badges and a display name in a shared browser after the
+  // session expired, outside the retention classes and outside the verified
+  // deletion workflow docs/learner-data-policy.md requires.
+  //
+  // `hasLearningEvidence` -- a visitor who reads a page and leaves gets no key
+  // written at all. The key appears when they have done something worth
+  // keeping, and not before.
+  // `syncStatus === "local-only"` -- and this one is NOT redundant with the
+  // account check, it is the one that stops this feature leaking an account
+  // record onto a shared device. On SIGN OUT, `account` becomes null and this
+  // effect re-runs immediately, while `progress` is still the full account
+  // record -- attempts, badges, display name -- because the hydration effect
+  // above only SCHEDULES its reset on a setTimeout(0). Without this guard the
+  // account record would be written to localStorage at the moment of signing
+  // out, and the empty progress that lands a tick later does not overwrite it,
+  // because empty progress has no evidence and takes the early return. The same
+  // path runs when a session renewal fails. `syncStatus` is still "synced" at
+  // that render and only becomes "local-only" in the same batch that sets the
+  // empty record, so keying on it makes the write follow the reset rather than
+  // race it.
+  useEffect(() => {
+    if (!hydrated) return;
+    if (syncStatus !== "local-only") return;
+    if (account?.state === "approved") return;
+    if (!hasLearningEvidence(progress)) return;
+    const storage = deviceStorage();
+    if (!storage) return;
+    // A refused write (private mode, full quota) is not surfaced: the place is
+    // still right in this tab, it just will not survive the reload.
+    writeDeviceLocalProgress(storage, progress);
+  }, [account, hydrated, progress, syncStatus]);
 
   // Sync: when progress changes and we have an approved account, push to API.
   // On network error, buffer the unsynced progress in memory.
@@ -406,6 +562,10 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   );
 
   const reset = useCallback(() => {
+    // Clear the device key too, or "reset" would leave the record it just
+    // cleared on screen sitting in the browser, ready to come back on reload.
+    const storage = deviceStorage();
+    if (storage) clearDeviceLocalProgress(storage);
     setProgress(createEmptyProgress());
   }, []);
 

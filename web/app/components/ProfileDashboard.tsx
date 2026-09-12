@@ -14,6 +14,7 @@ import { useMemo, useState, type ChangeEvent } from "react";
 import { clientCrossDomainHref } from "../lib/subdomainLinks";
 import { useAuth } from "./AuthProvider";
 import { useProgress } from "./ProgressProvider";
+import { ProgressSnapshot } from "./ProgressSnapshot";
 import { orgName } from "../../lib/copy";
 
 export function ProfileDashboard() {
@@ -211,6 +212,14 @@ export function ProfileDashboard() {
           </p>
         )}
       </section>
+
+      {/*
+        The dashboard's "Continue learning" link goes to /learn/paths -- a list,
+        not a place. This card names the module and links straight to it, and
+        renders nothing when there is nothing to resume, so a learner who has
+        just made an account still sees the profile they came for.
+      */}
+      <ProgressSnapshot />
 
       <section className="profile-card profile-identity">
         <p className="eyebrow">Learner profile</p>
