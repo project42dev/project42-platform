@@ -3,6 +3,12 @@
 import Link from "next/link";
 import { useAuth } from "./AuthProvider";
 import { HeaderMenu } from "./HeaderMenu";
+import {
+  headerAccountName,
+  headerAccountPresentation,
+  headerOffersRetry,
+  headerOffersSignIn,
+} from "../lib/headerAccountPresentation";
 
 interface ProfileMenuProps {
   accountHref: string;
@@ -48,42 +54,74 @@ function initialsFor(name: string): string {
  * name to take them from. Profile photos were removed in September 2026: they
  * appeared only here and on the account page, and carried an entire
  * object-storage dependency for a single avatar.
+ *
+ * There are three states here, not two -- see lib/headerAccountPresentation.
+ * While the account read is in flight, and when it has failed, the menu says
+ * neither "Signed in as" nor "Sign in": the session lives in an HttpOnly
+ * cookie this code cannot read, so a failed read is not evidence of being
+ * signed out. Offering "Sign in" in that state is what made a signed-in reader
+ * sign in again on every visit.
  */
 export function ProfileMenu({
   accountHref,
   profileHref,
   learnerDataHref,
 }: ProfileMenuProps) {
-  const { configured, status, account, signIn, signOut } = useAuth();
-  const signedIn = status === "signed-in" && Boolean(account);
-  const name = account?.displayName ?? account?.primaryEmail ?? null;
+  const { configured, status, account, signIn, signOut, refreshAccount } =
+    useAuth();
+  const presentation = headerAccountPresentation(status, account);
+  const signedIn = presentation === "signed-in";
+  const unknown = presentation === "unknown";
+  const name = headerAccountName(status, account);
+  const offersSignIn = headerOffersSignIn(status, account);
+  const offersRetry = headerOffersRetry(status, account);
 
-  const initials = signedIn && name ? initialsFor(name) : "";
-  const trigger = initials ? (
-    <span aria-hidden="true" className="profile-initials">
-      {initials}
+  const initials = name ? initialsFor(name) : "";
+  // data-account-state is the one stable hook a test -- including the
+  // production acceptance spec that runs against the live site -- can read to
+  // tell the three states apart from outside the React tree.
+  const trigger = (
+    <span className="profile-trigger-state" data-account-state={presentation}>
+      {initials ? (
+        <span aria-hidden="true" className="profile-initials">
+          {initials}
+        </span>
+      ) : (
+        <ProfileIcon />
+      )}
     </span>
-  ) : (
-    <ProfileIcon />
   );
 
   return (
     <HeaderMenu
       accessibleLabel={
-        signedIn && name ? `Your account, ${name}` : "Account and profile"
+        name
+          ? `Your account, ${name}`
+          : unknown
+            ? "Account and profile, sign-in not confirmed"
+            : "Account and profile"
       }
       align="end"
       label={trigger}
       triggerClassName="profile-trigger"
     >
-      {signedIn && name ? (
+      {name ? (
         <p className="header-menu-identity">
           <span>Signed in as</span>
           <strong>{name}</strong>
         </p>
       ) : null}
+      {unknown ? (
+        <p className="header-menu-identity header-menu-unconfirmed">
+          <span>
+            {status === "error"
+              ? "We could not check whether you are signed in."
+              : "Checking whether you are signed in…"}
+          </span>
+        </p>
+      ) : null}
       <ul className="header-menu-list">
-        {!signedIn ? (
+        {offersSignIn ? (
           <li>
             {configured ? (
               <button onClick={() => void signIn()} type="button">
@@ -92,6 +130,13 @@ export function ProfileMenu({
             ) : (
               <Link href={accountHref}>Sign in</Link>
             )}
+          </li>
+        ) : null}
+        {offersRetry ? (
+          <li>
+            <button onClick={() => void refreshAccount()} type="button">
+              Try again
+            </button>
           </li>
         ) : null}
         <li>

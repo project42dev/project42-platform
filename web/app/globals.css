@@ -565,6 +565,16 @@ a {
   color: var(--p42-primary-fg);
 }
 
+/* Carries data-account-state so a test -- including the production acceptance
+   spec -- can tell signed-in, signed-out and not-yet-known apart from outside
+   the React tree. Purely structural: it takes over as the trigger's flex item,
+   so it has to centre its own content. */
+.profile-trigger-state {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+}
+
 .profile-icon {
   height: 22px;
   width: 22px;
@@ -6798,6 +6808,15 @@ a {
 .auth-callback {
   margin: 4rem 0 8rem;
   max-width: 760px;
+}
+
+/* Shown when the account read failed on a protected page. The guard used to
+   send the reader straight to the identity provider here, which re-prompted
+   for credentials over what was usually a momentary network failure. */
+.auth-recovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 @media (max-width: 860px){

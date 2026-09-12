@@ -2140,8 +2140,11 @@ class D1Project42Repository {
     // 7-day sliding window with 30-day absolute maximum.
     // A learning site holds progress, not payment details;
     // the threat model does not warrant an aggressive timeout.
-    const expiresAt = addSeconds(input.now, 7 * 24 * 60 * 60);
-    const absoluteExpiresAt = addSeconds(input.now, 30 * 24 * 60 * 60);
+    const expiresAt = addSeconds(input.now, BROWSER_SESSION_IDLE_SECONDS);
+    const absoluteExpiresAt = addSeconds(
+      input.now,
+      BROWSER_SESSION_ABSOLUTE_SECONDS,
+    );
     const authenticatedAt = input.identity.authenticatedAt;
     if (
       typeof authenticatedAt !== "number" ||
@@ -2331,6 +2334,61 @@ class D1Project42Repository {
       expiresAt: row.expires_at,
       absoluteExpiresAt: row.absolute_expires_at,
     };
+  }
+
+  /**
+   * Slides the idle window forward from `now`, never past the absolute
+   * ceiling, and answers the expiry the session actually has afterwards.
+   *
+   * resolveBrowserSession touches only last_seen_at, so for as long as this
+   * did not exist the "7-day sliding window" the comment on createBrowserSession
+   * promises was a fixed 7-day window: a learner who used the site every day
+   * was still signed out on the seventh, because the only thing that ever
+   * moved expires_at was POST /v1/auth/renew, and the client only calls that
+   * from a timer that needs the page to stay open for the whole week.
+   *
+   * The token is not rotated here. Rotation belongs to /v1/auth/renew, where
+   * the client expects a new cookie and handles the 409 that two tabs racing
+   * produce; doing it on every page load would turn an ordinary second tab
+   * into a sign-out.
+   */
+  async extendBrowserSession(input: {
+    session: ResolvedBrowserSession;
+    now: string;
+    thresholdSeconds: number;
+    idleSeconds: number;
+  }): Promise<{ expiresAt: string; absoluteExpiresAt: string }> {
+    const unchanged = {
+      expiresAt: input.session.expiresAt,
+      absoluteExpiresAt: input.session.absoluteExpiresAt,
+    };
+    const target = addSeconds(input.now, input.idleSeconds);
+    // The absolute ceiling always wins. A session that has run its thirty days
+    // ends, however active the reader has been.
+    const next =
+      Date.parse(target) < Date.parse(input.session.absoluteExpiresAt)
+        ? target
+        : input.session.absoluteExpiresAt;
+    const gainSeconds = Math.floor(
+      (Date.parse(next) - Date.parse(input.session.expiresAt)) / 1000,
+    );
+    if (!Number.isFinite(gainSeconds) || gainSeconds < input.thresholdSeconds) {
+      return unchanged;
+    }
+    const result = await this.db
+      .prepare(
+        // Guarded on revoked_at and on the current expiry so a concurrent
+        // revoke or a slower racing request can never move the expiry
+        // backwards or resurrect a session somebody has just signed out of.
+        `UPDATE browser_sessions
+            SET expires_at = ?
+          WHERE id = ? AND installation_id = ? AND revoked_at IS NULL
+            AND expires_at < ? AND expires_at > ?`,
+      )
+      .bind(next, input.session.id, this.installationId, next, input.now)
+      .run();
+    if (!result.meta?.changes) return unchanged;
+    return { expiresAt: next, absoluteExpiresAt: input.session.absoluteExpiresAt };
   }
 
   async createRegistrationRequest(input: {
@@ -8490,6 +8548,22 @@ function supportsTransactionalPostcondition(
   );
 }
 
+// The browser session's idle window and its absolute ceiling.
+//
+// "Sliding" is load-bearing: the window is measured from the last time the
+// reader used the site, not from the sign-in. A learner who visits every few
+// days must stay signed in indefinitely, up to the absolute maximum, and only
+// a genuinely idle browser is asked to sign in again. The slide happens on
+// GET /v1/auth/session -- see extendBrowserSession and the route that calls
+// it -- because that is the one request every page load makes.
+const BROWSER_SESSION_IDLE_SECONDS = 7 * 24 * 60 * 60;
+const BROWSER_SESSION_ABSOLUTE_SECONDS = 30 * 24 * 60 * 60;
+
+// Sliding on every single read would write to D1 on every page load for no
+// benefit. An hour of granularity on a seven-day window is indistinguishable
+// to the reader and costs one UPDATE per hour of active use.
+const BROWSER_SESSION_SLIDE_THRESHOLD_SECONDS = 60 * 60;
+
 function addSeconds(value: string, seconds: number): string {
   const parsed = Date.parse(value);
   if (!Number.isFinite(parsed) || !Number.isSafeInteger(seconds) || seconds < 0) {
@@ -10219,13 +10293,26 @@ async function handleRequest(
         now,
         { targetAccountId: account.id },
       );
-      return json(
+      // This is the request every page load makes, so it is where the idle
+      // window slides. Without it the window never moved and every learner was
+      // signed out seven days after signing in, however often they visited.
+      const slid =
+        browserSession && sessionToken
+          ? await repository.extendBrowserSession({
+            session: browserSession,
+            now,
+            thresholdSeconds: BROWSER_SESSION_SLIDE_THRESHOLD_SECONDS,
+            idleSeconds: BROWSER_SESSION_IDLE_SECONDS,
+          })
+          : null;
+      const response = json(
         {
           account: accountStateDisclosure(account),
           session: browserSession
             ? {
-              expiresAt: browserSession.expiresAt,
-              absoluteExpiresAt: browserSession.absoluteExpiresAt,
+              expiresAt: slid?.expiresAt ?? browserSession.expiresAt,
+              absoluteExpiresAt:
+                slid?.absoluteExpiresAt ?? browserSession.absoluteExpiresAt,
             }
             : null,
         },
@@ -10233,6 +10320,24 @@ async function handleRequest(
         requestId,
         origin,
       );
+      // The cookie has to slide with the record or the browser drops it while
+      // the server still holds a live session -- which looks to the reader
+      // exactly like being signed out, and is the defect this fixes.
+      // Same token, so no rotation and no race with a second tab; only the
+      // lifetime changes, and every security attribute is re-asserted by
+      // createHostCookie.
+      if (slid && sessionToken && slid.expiresAt !== browserSession?.expiresAt) {
+        response.headers.append(
+          "set-cookie",
+          createHostCookie(
+            BROWSER_SESSION_COOKIE,
+            sessionToken,
+            secondsUntil(now, slid.expiresAt),
+            env.SESSION_COOKIE_DOMAIN,
+          ),
+        );
+      }
+      return response;
     }
     if (request.method === "POST" && url.pathname === "/v1/auth/renew") {
       if (!browserSession) {
