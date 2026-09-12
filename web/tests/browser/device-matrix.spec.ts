@@ -282,15 +282,18 @@ async function discoverJourney(page: Page): Promise<{ path: string; module: stri
   expect(path, "/learn/paths links to no learning path at all").not.toBeNull();
 
   await page.goto(`${path}/`, { waitUntil: "domcontentloaded" });
-  const module = await page.evaluate((pathRoute) => {
+  // Named journeyModule, not module: Next lint refuses an assignment to
+  // `module` in any file it checks, and the site materialises this spec into
+  // its own tree where that rule runs.
+  const journeyModule = await page.evaluate((pathRoute) => {
     const link = [...document.querySelectorAll<HTMLAnchorElement>("main a")]
       .map((candidate) => new URL(candidate.href, location.href).pathname.replace(/\/$/, ""))
       .find((route) => route.startsWith(`${pathRoute}/`));
     return link ?? null;
   }, path!);
-  expect(module, `${path} links to none of its own modules`).not.toBeNull();
+  expect(journeyModule, `${path} links to none of its own modules`).not.toBeNull();
 
-  cachedJourney = { path: path!, module: module! };
+  cachedJourney = { path: path!, module: journeyModule! };
   return cachedJourney;
 }
 

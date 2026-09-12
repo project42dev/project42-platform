@@ -1,3 +1,21 @@
+# Project 42 platform v0.114.1
+
+A one-word fix on top of 0.114.0: the new device-matrix spec named a local variable `module`, and Next's lint refuses that in any file it checks. The site materialises these specs into its own tree, so 0.114.0 could not pass the site's verify at all. Nothing else changed.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Rollback
+
+Pin 0.113.0; 0.114.0 cannot be consumed by the site.
+
+---
+
 # Project 42 platform v0.114.0
 
 The site keeps your place, and keeps your work.

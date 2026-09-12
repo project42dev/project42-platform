@@ -100,6 +100,14 @@ semantic versioning.
   nothing in either repository was measuring them. `npm run themes:contrast`
   prints every measured pair.
 
+## [0.114.1] - 2026-09-12
+
+### Fixed
+
+- The device-matrix spec named a local `module`, which Next's lint refuses in
+  any file it checks. The site materialises these specs into its own tree, so
+  0.114.0 failed the site's own `npm run verify` at lint before a browser ran.
+
 ## [0.114.0] - 2026-09-12
 
 ### Fixed
