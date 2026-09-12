@@ -94,6 +94,7 @@
     "@types/pg": "8.15.5",
     "ajv": "8.20.0",
     "miniflare": "4.20260722.0",
+    "playwright": "1.62.0",
     "typescript": "5.9.3",
     "wrangler": "4.114.0"
   },
