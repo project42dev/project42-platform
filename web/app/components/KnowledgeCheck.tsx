@@ -37,9 +37,11 @@ export function KnowledgeCheck({
   // read that used to do the damage has even been issued. ProgressProvider
   // turns it on as soon as it sees no approved account (see its no-account
   // branch), which is the state every page load passes through while
-  // AuthProvider is still fetching /v1/auth/session. A learner who answers in
-  // that window -- the window the reported bug actually lives in -- sails
-  // straight past a `hydrated` check.
+  // AuthProvider is still fetching /v1/auth/session -- and it never turns back
+  // off, so it is also true through every later read the provider makes,
+  // including the mid-session re-hydration that was actually destroying work.
+  // A learner answering in either window sails straight past a `hydrated`
+  // check.
   //
   // tests/browser/progress-hydration-race.spec.ts pins that fact, so nobody
   // re-adds the gate believing it is a safety net. What makes answering early

@@ -318,4 +318,18 @@ test("a module passed while a mid-session account read is in flight is not disca
 
   await expect(page.getByText("Checkpoint passed")).toBeVisible();
   await expectMergedWrite(writes);
+
+  // The record the held read answered with is stale in a second way: it also
+  // predates the module visit this session already saved. After the merge,
+  // `lastSynchronized` is that stale record -- deliberately, so the merged
+  // write goes out -- and the write that follows must carry everything the
+  // session had, not just the answer that raced the read.
+  const merged = writes.at(-1) as LearnerProgress;
+  expect(
+    merged.recentModule?.moduleId,
+    "the visit recorded earlier in this session must not be rolled back by a stale read",
+  ).toBe(journey.learningModule.id);
+  expect([...merged.startedPathIds].sort()).toEqual(
+    [...new Set([history.pathId, journey.pathId])].sort(),
+  );
 });

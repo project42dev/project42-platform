@@ -2,12 +2,18 @@
 //
 // ProgressProvider's GET /v1/me/progress success handler was a plain
 // setProgress(normalized): it REPLACED whatever the session held with the
-// account record. Nothing gates a learner's first interaction on that read
+// account record. Nothing gates a learner's interaction on that read
 // finishing, so a knowledge check answered while the GET was in flight had its
-// attempt and its module completion thrown away when the response landed --
-// and thrown away silently, because the sync effect returns early while
-// `!hydrated`, so the change never reached the unsynced buffer either. A fast
-// local server closes the window; a phone on a contended network does not.
+// attempt and its module completion thrown away when the response landed.
+//
+// On the session's FIRST read the unsynced buffer happens to catch that and
+// the reconnect flush puts it back. On every read after it -- and the provider
+// re-reads whenever the account object changes identity, which a session
+// renewal does mid-session -- the session is already writable, so the change
+// is sitting in a debounced save that the replace cancels on its way past:
+// nothing buffered, nothing written, no error. That distinction was measured
+// by planting the replace back and watching which browser test broke
+// (web/tests/browser/progress-hydration-race.spec.ts), not inferred.
 //
 // This is the same shape as the 0.110.0 / 0.111.0 loss that
 // tests/progress-unsynced-flush.test.mjs pins, with the two records the other
@@ -257,6 +263,37 @@ test("a module visit recorded before the read resolves is evidence and survives"
   assert.equal(merged.recentModule?.moduleId, visited.moduleId);
   assert.ok(merged.startedPathIds.includes(visited.pathId));
   assert.ok(merged.completedModuleIds.includes(accountModule.moduleId));
+});
+
+test("a steady-state re-hydration costs at most one idempotent write, and converges", () => {
+  // The ordinary mid-session re-read: a session renewal hands the provider a
+  // new account object, the read returns exactly what this session already
+  // holds, and the learner has evidence -- so the short-circuit does NOT
+  // apply and the merge runs. The merged record carries the same data but
+  // mergeLearnerProgress's own key order, which will not match the JSON the
+  // provider stored in `lastSynchronized`, so the sync effect writes once.
+  //
+  // Once is fine. Twice would be a loop: a write that changes the record that
+  // provokes the next write. Pinned here because the provider has no other
+  // brake on it.
+  const [module] = completableModules(1);
+  let account = accountRecord([module]);
+  account = recordModuleVisit(account, starterCatalog, {
+    pathId: module.pathId,
+    moduleId: module.moduleId,
+    visitedAt: new Date(Date.UTC(2026, 8, 11, 12, 0)).toISOString(),
+  });
+  assert.equal(hasLearningEvidence(account), true, "the short-circuit must not be what is under test");
+
+  const once = planAccountProgressHydration(account)(structuredClone(account));
+  const twice = planAccountProgressHydration(once)(structuredClone(once));
+
+  assert.deepEqual(once, account, "the merge must not change the data, only its shape");
+  assert.equal(
+    JSON.stringify(twice),
+    JSON.stringify(once),
+    "a second re-hydration of the merged record must be byte-identical: one write, not a loop",
+  );
 });
 
 test("the hydration merge and the reconnect flush compose without duplicating anything", () => {

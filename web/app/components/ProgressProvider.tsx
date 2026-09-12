@@ -190,12 +190,16 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           // losing it.
           //
           // The evidence test used to come second, behind
-          // `hydrationAttempt.current === 0`, which made the FIRST failed read
-          // the mirror image of the success handler's old plain replace: a
-          // knowledge check answered while that first GET was in flight was
-          // blanked here and never buffered, because the sync effect returns
-          // early while `!hydrated` and so had no chance to buffer it either.
-          // Same window, same silence, failure branch.
+          // `hydrationAttempt.current === 0`. That did not lose the work --
+          // the sync effect had already buffered it, and blanking state with
+          // an empty record left the buffer alone -- but it took the learner's
+          // progress off their screen for the whole backoff, up to thirty
+          // seconds, and only the flush firing on a later successful read put
+          // it back. Showing nothing we cannot vouch for is worth doing when
+          // there is nothing of the learner's to show; it is not worth doing
+          // to work they can see they just did. Testing for evidence first
+          // keeps it visible, and keeps the buffer as the backstop rather than
+          // the only copy.
           if (hasLearningEvidence(currentProgress.current)) {
             unsyncedBuffer.current = {
               progress: currentProgress.current,
