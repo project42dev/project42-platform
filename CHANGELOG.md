@@ -4,10 +4,25 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
-## [Unreleased]
+## [0.115.1] - 2026-09-12
 
 ### Fixed
 
+- **`account-registration.spec.ts` asserts the fact the request card states,
+  not the sentence that used to carry it.** v0.115.0 moved the card's
+  hard-coded bullets into the overridable copy layer, and the bullet "A new
+  request starts as pending and does not create an authenticated learner
+  session" became `web/copy/account.ts` `request.steps[1]`: "It does not sign
+  you in: a pending browser holds a request receipt and nothing else." The
+  claim is the same and the words are not, and the spec was still matching the
+  old words — which is what turned the portal's v0.115.0 deploy red. It now
+  matches the claim, scoped to `#request-account` so a step mentioning sign-in
+  elsewhere on the page cannot satisfy it. No product change: the
+  `!configured`, `unavailable` and `error` branches of `AccountDashboard` are
+  byte-identical to 0.114.2. It survived the v0.115.0 release because a local
+  tree can hold a stale front end — `app/` materialised from 0.114.x while
+  `node_modules` already had 0.115.0 — so re-materialise before trusting a
+  local pass on a platform bump.
 - **`npm run test:pages` can now pass.** v0.115.0 wired the gate into the
   template's `check` and the first site to run it failed deterministically:
   `playwright.pages.config.ts` points the whole of `tests/browser` at the

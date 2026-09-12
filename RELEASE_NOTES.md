@@ -1,3 +1,33 @@
+# Project 42 platform v0.115.1
+
+Two test fixes on top of 0.115.0. Nothing a learner sees changed; what changed is that the gates now assert what the site actually ships.
+
+**A spec was still asserting words 0.115.0 had rewritten.** The request card has always had to state one thing before anybody presses the button: asking is not signing in. 0.115.0 moved the card's bullets into `web/copy/account.ts` so an adopter can override them, and that sentence came out the other side reading "It does not sign you in: a pending browser holds a request receipt and nothing else." Same claim, different words — and `account-registration.spec.ts` was still looking for the old ones. That is the failure that turned the portal's 0.115.0 deploy red, and it is a test fix, not a product fix: the `!configured`, `unavailable` and `error` branches of the account dashboard are byte-identical to 0.114.2, so a visitor whose account service is unreachable sees exactly what they saw before. The assertion now matches the claim and is scoped to the request card, so a future step mentioning sign-in somewhere else on the page cannot quietly satisfy it.
+
+It reached the release at all because a local verification tree can hold a stale front end: `app/` materialised from 0.114.x while `node_modules` already held 0.115.0, so the test read the previous card and passed. CI installs clean, re-materialises, and finds the truth. Re-materialise before trusting a local pass on a platform bump.
+
+**The exported-artifact gate is now one a site can pass.** 0.115.0 added `npm run test:pages` to the template's `check`, and the first time that line was ever executed it failed deterministically, as it would have for every adopter. The config points the whole of `tests/browser` at the static export, and two specs asked it for things the export deliberately does not have. Worse than the red test: the specs that navigated to `/admin` followed the retirement redirect off the artifact and onto the deployment's real Admin origin over the public internet, where assertions written against a locally mocked portal went on passing. `tests/browser/support/surface.ts` now probes for that redirect and skips with the reason stated, and `tests/web-distribution.test.mjs` reads the withheld routes out of the exporter itself and fails any spec that reaches one without probing first — so the gate is checked by something other than the next person to remember it. `npm run test:browser` still proves the portal against the live application.
+
+`web/scripts/serve-github-pages.mjs` also honours the `--port` its Playwright config has always passed it, so `test:pages` can run beside anything already holding 48142.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+`project-42.dev`'s `package.json` is hand-maintained in a different repository and still does not run `test:pages`; adding that line is a separate change, not part of this pin. Owner alerts remain limited to deployments that configured `ACCOUNT_NOTIFICATION_DELIVERY`, and learners are still told nothing automatically, both by design and both unchanged from 0.115.0.
+
+## Rollback
+
+Pin 0.114.2. 0.115.0 is not a rollback target: a site whose CI installs clean cannot pass its own checks on it, which is the defect this release exists to fix.
+
+---
+
 # Project 42 platform v0.115.0
 
 Asking for an account is something you can find, and the owner hears that you asked.
