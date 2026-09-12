@@ -13,6 +13,14 @@ export const ACCOUNT_NOTIFICATION_KINDS = [
   "learner-revoked",
 ] as const;
 
+// The only owner-directed kind. Every other kind is addressed to the learner
+// whose account it concerns, and the outbox proves that structurally: an
+// owner alert is the one kind whose recipient is not its subject. A caller
+// that must send owner mail without sending learner mail filters on this.
+export const ACCOUNT_NOTIFICATION_OWNER_KINDS = [
+  "owner-registration-alert",
+] as const;
+
 export const ACCOUNT_NOTIFICATION_STATES = [
   "pending",
   "delivering",
