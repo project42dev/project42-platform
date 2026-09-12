@@ -51,9 +51,12 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
     if (presentation === "unknown" && status === "error") {
         return (
-            <section className="auth-callback auth-recovery" role="status">
+            <section className="auth-callback auth-recovery">
                 <h1>We could not check your sign-in</h1>
-                <p>
+                {/* The live region is the message alone. Wrapping the buttons in
+                    one announces the whole panel on every re-render and trips
+                    the axe rule about interactive content inside a status. */}
+                <p role="status">
                     {error ??
                         "The account service could not be reached. Your sign-in was not cleared."}
                 </p>
