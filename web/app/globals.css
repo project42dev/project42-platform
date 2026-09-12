@@ -6810,6 +6810,15 @@ a {
   max-width: 760px;
 }
 
+/* Shown when the account read failed on a protected page. The guard used to
+   send the reader straight to the identity provider here, which re-prompted
+   for credentials over what was usually a momentary network failure. */
+.auth-recovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
 @media (max-width: 860px){
   .registration-status-grid {
     grid-template-columns: 1fr;
