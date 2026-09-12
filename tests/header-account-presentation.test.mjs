@@ -12,6 +12,7 @@ import test from "node:test";
 import {
   headerAccountName,
   headerAccountPresentation,
+  headerOffersAccountRequest,
   headerOffersRetry,
   headerOffersSignIn,
 } from "../web/app/lib/headerAccountPresentation.ts";
@@ -83,4 +84,35 @@ test("the name falls back to the email and never renders blank", () => {
 test("an unrecognised status fails to unknown rather than to signed out", () => {
   assert.equal(headerAccountPresentation("something-new", null), "unknown");
   assert.equal(headerOffersSignIn("something-new", null), false);
+});
+
+// "Request access" is the affordance the owner could not find. Putting it in
+// the header means the header now has a second thing it can wrongly claim, and
+// this one is worse than the first: offering "Sign in" to somebody who is
+// already signed in is an annoyance, but offering "Request an account" to them
+// says their account does not exist.
+test("the account request is offered only on a settled no-session answer", () => {
+  assert.equal(headerOffersAccountRequest("signed-out", null), true);
+});
+
+test("an unresolved or failed read never invites a request", () => {
+  for (const status of ["loading", "signing-in", "error"]) {
+    assert.equal(headerOffersAccountRequest(status, null), false, status);
+  }
+  // And never once an account is loaded, in either shape the provider can be
+  // in: a named account, or a signed-in status whose body arrived empty.
+  assert.equal(headerOffersAccountRequest("signed-in", account), false);
+  assert.equal(headerOffersAccountRequest("signed-in", null), false);
+  assert.equal(headerOffersAccountRequest("error", account), false);
+  assert.equal(headerOffersAccountRequest("something-new", null), false);
+});
+
+test("an unconfigured deployment offers no account to request", () => {
+  // "unavailable" settles as signed-out for the sign-in control, because there
+  // is genuinely no session to have. But there is no account service either,
+  // so a request affordance would lead to a page explaining that nothing is
+  // wired up. The two controls part company on exactly this status.
+  assert.equal(headerAccountPresentation("unavailable", null), "signed-out");
+  assert.equal(headerOffersSignIn("unavailable", null), true);
+  assert.equal(headerOffersAccountRequest("unavailable", null), false);
 });

@@ -6,12 +6,20 @@ import { HeaderMenu } from "./HeaderMenu";
 import {
   headerAccountName,
   headerAccountPresentation,
+  headerOffersAccountRequest,
   headerOffersRetry,
   headerOffersSignIn,
 } from "../lib/headerAccountPresentation";
+import { copy } from "../../lib/copy";
 
 interface ProfileMenuProps {
   accountHref: string;
+  /**
+   * Where "Request access" goes. Below 760px the header's own request action
+   * is display:none, so this menu item is the phone's only one-step route to
+   * the request.
+   */
+  accountRequestHref: string;
   profileHref: string;
   learnerDataHref: string;
 }
@@ -64,6 +72,7 @@ function initialsFor(name: string): string {
  */
 export function ProfileMenu({
   accountHref,
+  accountRequestHref,
   profileHref,
   learnerDataHref,
 }: ProfileMenuProps) {
@@ -75,6 +84,12 @@ export function ProfileMenu({
   const name = headerAccountName(status, account);
   const offersSignIn = headerOffersSignIn(status, account);
   const offersRetry = headerOffersRetry(status, account);
+  // "Sign in" starts an OIDC flow. That is not the same thing as asking for an
+  // account, even though the server treats them identically -- a person with
+  // no account who presses "Sign in" gets a pending registration and a page
+  // they did not ask for. Naming the other door is the whole fix.
+  const offersAccountRequest =
+    configured && headerOffersAccountRequest(status, account);
 
   const initials = name ? initialsFor(name) : "";
   // data-account-state is the one stable hook a test -- including the
@@ -130,6 +145,13 @@ export function ProfileMenu({
             ) : (
               <Link href={accountHref}>Sign in</Link>
             )}
+          </li>
+        ) : null}
+        {offersAccountRequest ? (
+          <li>
+            <Link href={accountRequestHref}>
+              {copy.account.header.requestAccess}
+            </Link>
           </li>
         ) : null}
         {offersRetry ? (

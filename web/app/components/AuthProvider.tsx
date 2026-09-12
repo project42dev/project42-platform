@@ -10,9 +10,12 @@ import {
   type ReactNode,
 } from "react";
 import {
+  forgetRegistrationRequest,
   parseRegistrationStatus,
   readBrowserAuthOutcome,
+  registrationPhaseForInvalidReceipt,
   registrationRetryDelaySeconds,
+  registrationWasRequestedHere,
   type BrowserAuthOutcome,
   type RegistrationStatusReceipt,
 } from "../lib/registrationStatus";
@@ -293,16 +296,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
         if (response.status === 401) {
-          const phase: RegistrationPhase =
-            outcome === "error" || outcome === "invalid"
-              ? "provider-error"
-              : outcome === "unavailable"
-                ? "account-unavailable"
-                : outcome === "pending"
-                  ? "none"
-                  : expectedReceipt
-                    ? "expired"
-                    : "none";
+          const phase: RegistrationPhase = registrationPhaseForInvalidReceipt(
+            outcome,
+            expectedReceipt || registrationWasRequestedHere(),
+          );
           setRegistration({ phase, receipt: null, retryAt: null });
           setError(null);
           setStatus("signed-out");
@@ -359,6 +356,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAccount(body.account);
       setSession(body.session ?? null);
       setRegistration(emptyRegistration);
+      // The request is spent. Leaving the marker would tell this learner, on
+      // some later visit after signing out, that they have a request waiting.
+      forgetRegistrationRequest();
       setError(null);
       setStatus("signed-in");
     } catch (caught) {

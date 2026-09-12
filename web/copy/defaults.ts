@@ -16,6 +16,7 @@ import { roadmapCopy } from "./roadmap";
 import { releasesCopy } from "./releases";
 import { legalCopy } from "./legal";
 import { learnerDataCopy } from "./learnerData";
+import { accountCopy } from "./account";
 
 export const copyDefaults = {
   meta: metaCopy,
@@ -28,4 +29,5 @@ export const copyDefaults = {
   releases: releasesCopy,
   legal: legalCopy,
   learnerData: learnerDataCopy,
+  account: accountCopy,
 };

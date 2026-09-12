@@ -6,6 +6,10 @@ import { usePathname } from "next/navigation";
 import { BrandMark } from "./BrandMark";
 import { HeaderMenu, MenuChevron } from "./HeaderMenu";
 import { ProfileMenu } from "./ProfileMenu";
+import {
+  ACCOUNT_REQUEST_FRAGMENT,
+  AccountRequestAction,
+} from "./AccountRequestAction";
 import { AdminHeader } from "../admin/components/AdminHeader";
 import { copy, galleryUrl } from "../../lib/copy";
 
@@ -134,8 +138,14 @@ export function SiteHeader() {
           <Link className="header-action" href="/learn">
             {text.startLearning}
           </Link>
+          {/* Signed-out only, and only once the account read has settled --
+              see AccountRequestAction. Below 760px .header-action is
+              display:none, so the phone path is the same item inside the
+              profile menu. */}
+          <AccountRequestAction href={`/account${ACCOUNT_REQUEST_FRAGMENT}`} />
           <ProfileMenu
             accountHref="/account"
+            accountRequestHref={`/account${ACCOUNT_REQUEST_FRAGMENT}`}
             learnerDataHref="/learner-data"
             profileHref="/profile"
           />

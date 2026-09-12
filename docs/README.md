@@ -45,6 +45,7 @@ them as a breaking change until proven otherwise.
 - [learning-record-recovery.md](learning-record-recovery.md)
 - [badge-credentials.md](badge-credentials.md)
 - [browser-sessions.md](browser-sessions.md)
+- [account-approval.md](account-approval.md)
 - [account-notifications.md](account-notifications.md)
 - [owner-administration-pagination.md](owner-administration-pagination.md)
 

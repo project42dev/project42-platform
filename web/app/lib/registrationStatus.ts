@@ -103,6 +103,84 @@ export function parseRegistrationStatus(
   };
 }
 
+/**
+ * The one thing this browser remembers about having asked for an account.
+ *
+ * It holds no identity, no state and no secret -- only the fact that a request
+ * was started here, which the person who started it already knows. The receipt
+ * itself is an HttpOnly cookie no script can read, so without this marker the
+ * front end has no way to tell "asked, and the answer has landed" apart from
+ * "never asked".
+ */
+export const REGISTRATION_REQUESTED_STORAGE_KEY =
+  "project42.registration-requested.v1";
+
+/**
+ * Remember that a request was started in this browser. Called at the moment
+ * the person presses "Request an account", before the redirect.
+ */
+export function rememberRegistrationRequest(): void {
+  try {
+    localStorage.setItem(REGISTRATION_REQUESTED_STORAGE_KEY, "1");
+  } catch {
+    // Private browsing, blocked storage, or no DOM at all. The marker is a
+    // convenience; losing it only restores the previous behaviour.
+  }
+}
+
+/** Whether this browser remembers starting a request. */
+export function registrationWasRequestedHere(): boolean {
+  try {
+    return localStorage.getItem(REGISTRATION_REQUESTED_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Forget it. Called once the account is actually signed in: the request is
+ * spent, and leaving the marker would tell a learner who later signs out that
+ * they have a request outstanding.
+ */
+export function forgetRegistrationRequest(): void {
+  try {
+    localStorage.removeItem(REGISTRATION_REQUESTED_STORAGE_KEY);
+  } catch {
+    // Nothing to clean up if storage is unavailable.
+  }
+}
+
+/**
+ * Which card /account shows when the registration receipt comes back 401.
+ *
+ * The subtle case, and the one this function exists to get right: an owner
+ * decision REVOKES the open request's receipt (changeAccountState clears
+ * active_registration_request_id and revokes every registration_requests row).
+ * So the moment a request is approved or declined, the waiting browser's next
+ * status read is a 401 -- the same 401 a browser that never asked for anything
+ * gets.
+ *
+ * Treating those two as one thing is what made the approved learner's page
+ * quietly revert to "Request a Project 42 account", as though the request they
+ * made had never happened. The answer had arrived; the page just could not
+ * tell. `requestedHere` separates them: a browser that remembers starting a
+ * request is told its receipt is finished and to sign in to find out, which is
+ * true and is the only way to find out.
+ */
+export function registrationPhaseForInvalidReceipt(
+  outcome: BrowserAuthOutcome,
+  requestedHere: boolean,
+): "provider-error" | "account-unavailable" | "expired" | "none" {
+  if (outcome === "error" || outcome === "invalid") return "provider-error";
+  if (outcome === "unavailable") return "account-unavailable";
+  // A callback that just said "pending" and a receipt that immediately reads
+  // invalid is a contradiction, not a decided request. Offering the request
+  // again is the only honest thing left.
+  if (outcome === "pending") return "none";
+  if (outcome === "rejected" || outcome === "success") return "expired";
+  return requestedHere ? "expired" : "none";
+}
+
 export function readBrowserAuthOutcome(search: string): BrowserAuthOutcome {
   const values = new URLSearchParams(search).getAll("auth");
   if (values.length === 0) return null;

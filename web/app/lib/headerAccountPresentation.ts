@@ -92,6 +92,30 @@ export function headerOffersSignIn(
 }
 
 /**
+ * Whether the header should offer "Request access" -- the affordance for
+ * somebody who does not have an account yet.
+ *
+ * It rides the same three-state rule as the sign-in control, and for a sharper
+ * reason. In the unknown state the reader may well be a signed-in, approved
+ * learner whose account read has not landed; inviting them to request an
+ * account would tell them their account does not exist. So this is offered
+ * only on a settled "there is no session" answer.
+ *
+ * `unavailable` is excluded even though it settles as signed-out: it means the
+ * deployment has no account service configured, so there is no registration to
+ * request and the link would lead to a page explaining that nothing is wired
+ * up. A self-host mid-configuration must not advertise a door that opens onto
+ * a notice.
+ */
+export function headerOffersAccountRequest(
+  status: HeaderAuthStatus,
+  account: HeaderAccountIdentity | null | undefined,
+): boolean {
+  if (status === "unavailable") return false;
+  return headerAccountPresentation(status, account) === "signed-out";
+}
+
+/**
  * Whether the header should offer a retry. Only when the read actually failed
  * -- an in-flight read will resolve on its own and a retry button beside it
  * would just be noise.

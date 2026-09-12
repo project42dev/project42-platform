@@ -15,6 +15,7 @@ import {
   type FormEvent,
 } from "react";
 import { learnerDataPolicy } from "../lib/learnerDataPolicy";
+import { rememberRegistrationRequest } from "../lib/registrationStatus";
 import { clientCrossDomainHref } from "../lib/subdomainLinks";
 import {
   useAuth,
@@ -27,7 +28,7 @@ import {
   validateProfilePreferences,
   type ProfilePreferences,
 } from "./ProfilePreferencesProvider";
-import { orgName } from "../../lib/copy";
+import { copy, orgName } from "../../lib/copy";
 
 interface DomainRule {
   id: string;
@@ -286,55 +287,46 @@ function AccountRequestCard({
         acceptedAt: new Date().toISOString(),
       }),
     );
+    // So this browser can still tell "I asked and the answer landed" from "I
+    // never asked" after an owner decision revokes the receipt.
+    rememberRegistrationRequest();
     void signIn("/account");
   }
 
+  const text = copy.account.request;
   return (
+    // id="request-account" is the header's "Request access" target. It is on
+    // the section rather than on the terms checkbox it used to sit on, so the
+    // reader lands on the heading and the explanation instead of halfway down
+    // a card whose first paragraph they never see.
     <section
       className="profile-card account-card registration-card"
       aria-labelledby="request-access-title"
+      id="request-account"
     >
-      <p className="eyebrow">New learner</p>
-      <h2 id="request-access-title">Request a {orgName} account</h2>
-      <p>
-        If you are new to {orgName}, request an account and accept the
-        learner-data terms once as part of that request.
-      </p>
-      <ul className="registration-expectations">
-        <li>
-          A new request starts as pending and does not create an authenticated
-          learner session.
-        </li>
-        <li>
-          Course participation begins after an owner approves the request and
-          you complete a new secure sign-in.
-        </li>
-        <li>
-          Hosted progress, scores, transcripts, and badges become available only
-          after approval and a new secure sign-in.
-        </li>
-        <li>
-          A reviewed exact-domain rule may approve a verified address
-          automatically; otherwise an owner decides the request.
-        </li>
-        <li>
-          The identity provider currently asks for a one-time code sent to
-          your email rather than a password. {orgName} does not create,
-          store, or require a separate password.
-        </li>
-      </ul>
-      <div className="terms-acceptance-field" id="request-account">
+      <p className="eyebrow">{text.eyebrow}</p>
+      <h2 id="request-access-title">{text.title}</h2>
+      <p>{text.intro}</p>
+      <h3 className="registration-subheading">
+        {text.whatHappensNextHeading}
+      </h3>
+      <ol className="registration-expectations">
+        {text.steps.map((step) => (
+          <li key={step}>{step}</li>
+        ))}
+      </ol>
+      <h3 className="registration-subheading">{text.waitTimeHeading}</h3>
+      <p>{text.waitTime}</p>
+      <h3 className="registration-subheading">{text.howYouAreToldHeading}</h3>
+      <p>{text.howYouAreTold}</p>
+      <div className="terms-acceptance-field">
         <label className="terms-acceptance-label">
           <input
             type="checkbox"
             checked={termsAccepted}
             onChange={(e) => setTermsAccepted(e.target.checked)}
           />
-          <span>
-            {orgName} records your learning progress so you can resume where
-            you left off and receive credit for completed work. I understand
-            and agree.
-          </span>
+          <span>{text.termsLabel}</span>
         </label>
       </div>
       <AccountExpectationLinks />
@@ -345,7 +337,7 @@ function AccountRequestCard({
           onClick={handleRequestAccount}
           type="button"
         >
-          Request an account
+          {text.submitLabel}
         </button>
       </div>
     </section>
@@ -623,31 +615,14 @@ export function AccountDashboard() {
   }
 
   if (status === "signed-out") {
+    // Order matters here, and it used to be the other way round. A signed-out
+    // visitor who arrives on this page is far more likely to be somebody
+    // without an account than somebody with one -- an approved learner keeps a
+    // session -- and the owner's report was that finding the request took a
+    // while. So the request (or the status of one already made) comes first,
+    // and "already have an account?" sits underneath it.
     return (
       <div className="account-dashboard">
-        <section
-          className="profile-card account-card"
-          aria-labelledby="sign-in-title"
-        >
-          <p className="eyebrow">Existing learner</p>
-          <h2 id="sign-in-title">Sign in to your account</h2>
-          <p>
-            Already have a {orgName} account? Sign in to access your
-            progress, transcript, and account settings.
-          </p>
-          <div className="button-row">
-            <button
-              className="button button-primary"
-              onClick={() => void signIn("/account")}
-              type="button"
-            >
-              Sign in
-            </button>
-            <Link className="button button-secondary" href="/learn/paths">
-              Browse the learning catalog
-            </Link>
-          </div>
-        </section>
         {registration.phase === "none" ? (
           <AccountRequestCard signIn={signIn} />
         ) : (
@@ -658,6 +633,26 @@ export function AccountDashboard() {
             signOut={signOut}
           />
         )}
+        <section
+          className="profile-card account-card"
+          aria-labelledby="sign-in-title"
+        >
+          <p className="eyebrow">{copy.account.signIn.eyebrow}</p>
+          <h2 id="sign-in-title">{copy.account.signIn.title}</h2>
+          <p>{copy.account.signIn.body}</p>
+          <div className="button-row">
+            <button
+              className="button button-primary"
+              onClick={() => void signIn("/account")}
+              type="button"
+            >
+              {copy.account.signIn.submitLabel}
+            </button>
+            <Link className="button button-secondary" href="/learn/paths">
+              {copy.account.signIn.browseLabel}
+            </Link>
+          </div>
+        </section>
         <ProfilePreferencesEditor hosted={false} />
       </div>
     );

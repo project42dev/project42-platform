@@ -599,6 +599,21 @@ a {
   text-decoration: none;
 }
 
+/* "Request access" sits beside "Start learning" for signed-out readers only.
+   Two filled pills would read as two equally weighted calls to action and the
+   learning catalogue is still the front door, so this one is outlined. */
+.header-action-quiet {
+  background: transparent;
+  border: 1px solid var(--p42-card-border);
+  color: var(--ink);
+}
+
+.header-action-quiet:hover {
+  background: var(--p42-interactive-muted);
+  border-color: var(--p42-primary);
+  color: var(--p42-text-emphasis);
+}
+
 .hero {
   align-items: center;
   display: grid;
@@ -6319,6 +6334,16 @@ a {
 
 .registration-expectations li::marker {
   color: var(--accent);
+}
+
+/* The request card now answers three questions in order -- what happens, how
+   long, how you find out -- so it needs a heading level below the card's h2. */
+.registration-subheading {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: var(--p42-track-wide-1);
+  margin: 1.5rem 0 0.4rem;
+  text-transform: uppercase;
 }
 
 .registration-status-grid {

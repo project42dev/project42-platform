@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandMark } from "../../components/BrandMark";
+import { ACCOUNT_REQUEST_FRAGMENT } from "../../components/AccountRequestAction";
 import { ProfileMenu } from "../../components/ProfileMenu";
 import { orgName } from "../../../lib/copy";
 import { clientCrossDomainHref } from "../../lib/subdomainLinks";
@@ -85,6 +86,9 @@ export function AdminHeader() {
           </a>
           <ProfileMenu
             accountHref={clientCrossDomainHref("/account")}
+            accountRequestHref={clientCrossDomainHref(
+              `/account${ACCOUNT_REQUEST_FRAGMENT}`,
+            )}
             learnerDataHref={clientCrossDomainHref("/learner-data")}
             profileHref={clientCrossDomainHref("/profile")}
           />

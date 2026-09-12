@@ -6,10 +6,12 @@ import {
 } from "../components/AccountDashboard";
 import { orgName } from "../../lib/copy";
 
+// "My account" told a visitor without an account that this page was not for
+// them, which is the opposite of true: this is where an account is asked for.
 export const metadata: Metadata = {
-  title: "My account",
+  title: "Request access or sign in",
   description:
-    `${orgName} profile, approval status, and owner administration.`,
+    `Request a ${orgName} account, check an existing request, or sign in. Accounts are granted by owner review.`,
 };
 
 export default function AccountPage() {
