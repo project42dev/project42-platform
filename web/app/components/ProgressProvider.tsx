@@ -179,6 +179,24 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       // Signed in. Seed the device record into state once, so the account read
       // below merges it rather than arriving to an empty session and having
       // nothing of the learner's pre-sign-in place to keep.
+      //
+      // ON A NORMAL PAGE LOAD THIS IS A FALLBACK, NOT THE MECHANISM, and that
+      // was measured rather than assumed. AuthProvider starts at status
+      // "loading" with a null account, so the no-account branch above runs
+      // FIRST on every load and has already put the device record into state by
+      // the time an account lands here; `deviceRecordSeeded` is true and this
+      // block is skipped. Disabling this block alone changes nothing that any
+      // test can see. Disabling the read above alone also changes nothing for a
+      // signed-in learner, because then this block is the one that runs. It
+      // takes disabling BOTH to lose the hand-off -- which is what
+      // resume-where-you-left-off.spec.ts was checked against.
+      //
+      // It is kept because the two are not the same condition: the branch above
+      // fires when there is no approved account, this one when there is. An
+      // AuthProvider that ever resolved an account without passing through a
+      // null-account render -- a cached session, a server-rendered identity --
+      // would skip the branch above entirely, and this is what keeps the
+      // hand-off working when it does.
       if (!deviceRecordSeeded.current) {
         deviceRecordSeeded.current = true;
         const stored = storage

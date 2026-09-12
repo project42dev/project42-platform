@@ -20,6 +20,11 @@
 // owner asked us to match.
 import portalConfig from "../../project42.config.json" with { type: "json" };
 import { expect, test, type Page } from "@playwright/test";
+import {
+  createEmptyProgress,
+  recordModuleVisit,
+  type LearnerProgress,
+} from "@project42/platform";
 import { siteCatalog } from "../../lib/catalog";
 
 const apiOrigin =
@@ -36,14 +41,16 @@ const PATH_ID = "ai-foundations";
 const MODULE_ID = "language-models-and-generation";
 
 const moduleTitle = (() => {
-  const module = siteCatalog.modules.find((entry) => entry.id === MODULE_ID);
-  if (!module) {
+  // Not `module`: @next/next/no-assign-module-variable rejects that name, and
+  // the site repo lints this file.
+  const found = siteCatalog.modules.find((entry) => entry.id === MODULE_ID);
+  if (!found) {
     throw new Error(
       `This site's catalogue has no module "${MODULE_ID}". Pick one it has, ` +
         "rather than asserting on a title no page will ever render.",
     );
   }
-  return module.title;
+  return found.title;
 })();
 
 /**
@@ -157,5 +164,115 @@ test.describe("resume where you left off", () => {
 
     await page.goto("/");
     await expect(page.getByText(/^Continue:/)).toHaveCount(0);
+  });
+
+  test("signing in carries the device record into the account through the existing merge", async ({
+    page,
+  }) => {
+    // THE HAND-OFF. This is the half of build requirement 1 that the signed-out
+    // journey above cannot reach: a place reached before signing in must end up
+    // in the ACCOUNT. It is written as a browser test because what can break is
+    // the provider's ORDERING -- read the device, then the account, then merge,
+    // then clear -- and no unit test of mergeLearnerProgress alone would notice
+    // the device record never being read in the first place.
+    //
+    // WHAT IT PINS, precisely, because this was measured by planting rather
+    // than assumed: it asserts the OUTCOME -- the pre-sign-in place reaches the
+    // account and the device key is then cleared -- not any single code path.
+    // Two paths carry the record into the merge and either one suffices: the
+    // no-account branch of the hydration effect (which runs first on every load,
+    // while AuthProvider is still at status "loading"), and the explicit seed in
+    // the signed-in branch. Disabling either alone leaves this test green;
+    // disabling both fails it. Planting the old `setProgress(normalized)`
+    // replace also leaves it green, because the unsynced buffer then carries the
+    // record instead -- so the merge itself is pinned by
+    // tests/progress-hydration-merge.test.mjs, not here.
+    //
+    // It needs no real credentials: the account service is routed, exactly as
+    // foundations-journey.spec.ts routes it.
+    test.skip(!apiOrigin, "This deployment declares no account service to route.");
+
+    // A device record holding a place and nothing else -- the state a
+    // signed-out reader is left in by the journey above.
+    const deviceRecord = recordModuleVisit(
+      createEmptyProgress(),
+      siteCatalog,
+      { pathId: PATH_ID, moduleId: MODULE_ID, visitedAt: new Date().toISOString() },
+    );
+    await page.addInitScript(
+      ([key, value]) => window.localStorage.setItem(key, value),
+      [DEVICE_KEY, JSON.stringify(deviceRecord)] as const,
+    );
+
+    // The account knows nothing yet. Whatever it is PUT is the merge's work.
+    let accountRecord = createEmptyProgress("Test Learner");
+    const writes: LearnerProgress[] = [];
+    await page.route(`${apiOrigin}/**`, async (route) => {
+      const request = route.request();
+      if (request.method() === "OPTIONS") {
+        await route.fulfill({ status: 204 });
+        return;
+      }
+      const { pathname } = new URL(request.url());
+      const json = (body: unknown) =>
+        route.fulfill({
+          status: 200,
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+        });
+
+      if (pathname === "/v1/auth/session") {
+        await json({
+          account: {
+            id: "test-learner",
+            installationId: "test-install",
+            identity: { issuer: "https://example.test", subject: "test-learner" },
+            displayName: "Test Learner",
+            primaryEmail: null,
+            emailVerified: true,
+            state: "approved",
+            roles: ["learner"],
+            createdAt: new Date(0).toISOString(),
+            updatedAt: new Date(0).toISOString(),
+          },
+        });
+        return;
+      }
+      if (pathname === "/v1/me/progress" && request.method() === "GET") {
+        await json({ progress: { revision: 1, progress: accountRecord } });
+        return;
+      }
+      if (pathname === "/v1/me/progress" && request.method() === "PUT") {
+        const body = request.postDataJSON() as { progress: LearnerProgress };
+        accountRecord = body.progress;
+        writes.push(body.progress);
+        await json({ progress: { revision: writes.length + 1 } });
+        return;
+      }
+      await json({});
+    });
+
+    await page.goto("/learn");
+
+    // The learner is offered their pre-sign-in place, signed in.
+    await expect(continueLink(page)).toBeVisible();
+
+    // And it reached the account: the merge produced a record that differs from
+    // the empty one the read returned, so the sync effect wrote it back. This
+    // is the assertion that fails if the seed is removed -- the card could
+    // still render from a device read that was never merged.
+    await expect
+      .poll(() => writes.at(-1)?.recentModule?.moduleId ?? null, {
+        message: "the pre-sign-in place must be PUT to the account",
+      })
+      .toBe(MODULE_ID);
+
+    // The hand-off completed, so the device copy is gone: an account record
+    // must not be left sitting in what may be a shared browser.
+    await expect
+      .poll(() => page.evaluate((key) => window.localStorage.getItem(key), DEVICE_KEY), {
+        message: "the device key must be cleared once the account has the record",
+      })
+      .toBeNull();
   });
 });

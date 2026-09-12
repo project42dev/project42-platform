@@ -51,13 +51,16 @@ export function ProgressSnapshot() {
   const resume = selectResumeTarget(progress, progressCatalog);
   if (!resume) return null;
 
-  const module = progressCatalog.modules.find(
+  // `resumeModule`, not `module`: @next/next/no-assign-module-variable rejects
+  // the latter outright, and this file is linted in the site repo rather than
+  // in the platform one.
+  const resumeModule = progressCatalog.modules.find(
     (candidate) => candidate.id === resume.moduleId,
   );
   // selectResumeTarget only returns modules this catalogue has, so this is
   // belt-and-braces rather than a live branch -- but rendering "Continue:
   // undefined" would be worse than rendering nothing.
-  if (!module) return null;
+  if (!resumeModule) return null;
 
   const completed = progress.completedModuleIds.length;
   const total = progressCatalog.modules.length;
@@ -83,7 +86,7 @@ export function ProgressSnapshot() {
         <span style={{ width: `${Math.round((completed / total) * 100)}%` }} />
       </div>
       <Link href={`/learn/${resume.pathId}/${resume.moduleId}`}>
-        Continue: {module.title} →
+        Continue: {resumeModule.title} →
       </Link>
     </section>
   );
