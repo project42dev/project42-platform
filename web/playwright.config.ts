@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { DEVICE_MATRIX } from "./tests/browser/support/devices";
 
 const port = Number(process.env.PROJECT42_PLAYWRIGHT_PORT ?? "48142");
 if (!Number.isInteger(port) || port < 1024 || port > 65_535) {
@@ -28,7 +29,10 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
       // The phone gate belongs to the mobile-webkit project below. Run at
       // 1280px it would pass without measuring anything it exists to measure.
-      testIgnore: /mobile-viewport/,
+      // The device matrix owns its own projects for the same reason: one more
+      // pass of it at 1280px in Chromium proves nothing the matrix has not
+      // already proved on nine other profiles.
+      testIgnore: /mobile-viewport|device-matrix/,
     },
     {
       // Mobile Safari's engine, on the tightest supported viewport. Every other
@@ -38,6 +42,36 @@ export default defineConfig({
       use: { ...devices["iPhone SE"] },
       testMatch: /mobile-viewport/,
     },
+    // THE DEVICE MATRIX.
+    //
+    // One project per row of tests/browser/support/devices.ts, each running
+    // device-matrix.spec.ts and nothing else -- the other suites are written
+    // for a desktop width and would fail on a phone for reasons that have
+    // nothing to do with the phone.
+    //
+    // The project NAME is the device name the spec puts in every failure, so
+    // `npx playwright test --project webkit-ipad-portrait` reruns exactly the
+    // thing that broke.
+    //
+    // PROJECT42_DEVICE_MATRIX=off drops the matrix for a local iteration loop
+    // on one of the other suites. It is deliberately opt-OUT: a matrix you
+    // have to remember to switch on is a matrix that stops running.
+    ...(process.env.PROJECT42_DEVICE_MATRIX === "off"
+      ? []
+      : DEVICE_MATRIX.map((entry) => ({
+          name: entry.name,
+          // `browserName` rather than a descriptor's `defaultBrowserType`: the
+          // table strips that field so a row can state its engine once, and a
+          // Firefox row has no descriptor to take it from at all.
+          use: { browserName: entry.engine, ...entry.use },
+          testMatch: /device-matrix/,
+          // The width sweep resizes the viewport, so it belongs to one project
+          // per engine and would be a no-op everywhere else. Filtering it out
+          // here rather than skipping it inside the spec keeps 45 "skipped"
+          // lines -- which mean nothing -- out of every run summary. The skips
+          // that remain are the ones that carry a reason worth reading.
+          ...(entry.sweepsWidths ? {} : { grepInvert: /across every width/ }),
+        }))),
   ],
   webServer: {
     command: `npm run start -- --hostname 127.0.0.1 --port ${port}`,
