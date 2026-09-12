@@ -33,6 +33,48 @@ semantic versioning.
   nothing in either repository was measuring them. `npm run themes:contrast`
   prints every measured pair.
 
+## [0.113.0] - 2026-09-12
+
+### Fixed
+
+- Signing in lasts. `createBrowserSession` described a seven-day sliding
+  window and nothing ever slid it: the read path only touched `last_seen_at`,
+  and the sole extension was a timer scheduled seven days out, which needs the
+  tab open for a week. Every learner was hard-expired seven days after signing
+  in, however often they used the site. `GET /v1/auth/session` now extends the
+  session, capped by its absolute expiry, writing only when the gain exceeds an
+  hour, and re-issues the cookie with the new lifetime. The token is not
+  rotated, so a second tab cannot lose the race.
+- The header stops claiming you are signed out when it does not know. Any
+  failed session read — a 502, an HTML error page, a dropped connection — set
+  `status="error"`, and the profile menu treated every status except
+  `signed-in` as signed out. The account state is now three-valued, and an
+  error offers "Try again", which re-reads the session, rather than "Sign in",
+  which destroys it.
+- A failed session read no longer drags the learner through a full credential
+  prompt. `RequireAuth` started a sign-in from an effect on `error` as well as
+  a settled signed-out, and `/v1/auth/start` carries `prompt=login` with
+  `max_age=0`, a forced re-authentication. One failed read on `/profile` was
+  enough. Only a settled signed-out starts a sign-in now; a failed read shows a
+  recovery panel.
+- Progress recorded during a session renewal survives it. The hydration
+  handler replaced local state with the account record; when a renewal
+  (`409` → `refreshAccount`) triggered a second read while syncing was already
+  on, it cancelled the debounced write of whatever the learner had just
+  answered. Hydration now merges through `mergeLearnerProgress`, the same path
+  the unsynced flush uses, and a failed read buffers instead of blanking.
+
+### Added
+
+- `web/app/lib/headerAccountPresentation.ts`, the three-state account rule,
+  with `data-account-state` published on the profile trigger so a deployed site
+  can be checked from outside.
+- Tests: `tests/header-account-presentation.test.mjs`,
+  `tests/browser-session-survives-failed-read.test.mjs` (Miniflare + D1: a
+  repository fault must not clear the cookie, and the slide must not rotate the
+  token), `tests/progress-hydration-merge.test.mjs`, and
+  `web/tests/browser/progress-hydration-race.spec.ts`.
+
 ## [0.112.3] - 2026-09-11
 
 ### Fixed

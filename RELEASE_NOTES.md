@@ -1,3 +1,31 @@
+# Project 42 platform v0.113.0
+
+Signing in lasts, the header stops guessing, and work done during a session renewal is kept.
+
+**The seven-day sliding window never slid.** The read path updated only `last_seen_at`; the only thing that extended a session was a timer scheduled seven days ahead, which requires the tab to stay open for a week. So every learner was hard-expired a week after signing in no matter how often they came back. Reading the session now extends it, capped by its absolute expiry, writing only when the gain is worth a write, and re-issues the cookie. The token is not rotated, so two tabs cannot race.
+
+**The header claimed "signed out" whenever it did not know.** The session lives in an HttpOnly cookie no script can read, so the front end must ask the API — and any failed read, including a 502 or a dropped connection, set an error state that the profile menu rendered as signed out. Worse, the route guard started a sign-in from that same error state, and the sign-in request forces a full credential prompt. A single failed read was enough to be thrown at a login screen while holding a perfectly valid session. The account state is three-valued now: signed in, signed out, or unknown, and unknown offers "Try again" rather than destroying the session.
+
+**Progress recorded during a renewal survives it.** When a session renews mid-visit, the app re-reads the account; that response used to replace local state and cancel the pending write of whatever had just been answered. It merges now, through the same function the offline flush uses.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+iOS 16.4 and later give a home-screen app its own cookie store, so a sign-in performed in Safari does not reach the installed app; signing in once inside the installed app is the mitigation, and nothing in this repository can change that. A 401 `account_not_registered` — a session that resolves against no active identity row — still presents to the client as signed out.
+
+## Rollback
+
+Pin 0.112.3. The session extension is a Worker change: rolling back the Worker restores the old expiry behaviour without data loss.
+
+---
+
 # Project 42 platform v0.112.3
 
 The header menus open on an iPhone.
