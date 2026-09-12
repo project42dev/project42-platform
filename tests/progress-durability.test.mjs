@@ -517,6 +517,76 @@ test("the first-mount window is covered by the hydration merge, not by effect or
 });
 
 // ---------------------------------------------------------------------------
+// Cross-learner safety of the new per-session state.
+// ---------------------------------------------------------------------------
+
+test("signing out clears every per-learner ref, so the next learner on this tab is not written over", () => {
+  // Every ref the durability fixes added is per-learner, and the no-account
+  // branch of the hydration effect is the only place the provider learns that
+  // the learner is gone.
+  //
+  // The concrete loss, not a theoretical one: A resets their progress, then
+  // signs out inside the 800ms debounce. B signs in on the same tab. B's read
+  // resolves and `pendingReplacement` is still true, so the hydration updater
+  // returns B's local record -- the empty one -- unchanged, and being the same
+  // reference React does not even re-render. `lastSynchronized` becomes B's
+  // account record, the empty record differs from it, and `syncEnabled` was
+  // never cleared, so the debounced save writes EMPTY PROGRESS OVER B'S
+  // ACCOUNT. A's reset, executed against B.
+  //
+  // `syncEnabled` is the pre-existing half of this and the line that matters
+  // most: it is the "no read has succeeded, do not write" gate, and that is
+  // true of B until B's own read succeeds.
+  const start = providerSource.indexOf(
+    'if (!account || account.state !== "approved") {',
+  );
+  const branch = providerSource.slice(
+    start,
+    providerSource.indexOf('setSyncStatus("checking")'),
+  );
+  assert.ok(start > 0 && branch.length > 0, "the no-account branch must be findable");
+  const required = [
+    ["syncEnabled.current = false;", "the write gate must close, or the next learner inherits permission to write"],
+    ["pendingReplacement.current = false;", "a pending reset or import must not apply to the next learner"],
+    ["pendingDisplayName.current = null;", "one learner's pending name must not reach another's record"],
+    ["pendingWrite.current = null;", "one learner's unsaved record must not be flushed to another's account"],
+    ["unsyncedBuffer.current = null;", "one learner's buffered work must not be merged into another's record"],
+    ['lastSynchronized.current = "";', "the previous account record must not be mistaken for the next one"],
+  ];
+  for (const [cleared, why] of required) {
+    assert.ok(branch.includes(cleared), `Signing out must clear \`${cleared}\` -- ${why}`);
+  }
+});
+
+test("a replacement the API permanently refused stops suppressing the hydration merge", () => {
+  // replaceProgress promises that "if the API rejects it, the next hydration
+  // will restore the server state". The replace intent made that false: with
+  // the flag stuck on after a 400 or a 409, every later read is ignored and the
+  // learner is left looking at an import that exists only in this tab, over an
+  // account that still holds the old record, with no way back.
+  //
+  // Only the not-retryable case releases it. Running out of retries must NOT:
+  // that record is still the learner's intent, and `online` or the unload flush
+  // can still deliver it.
+  const giveUp = providerSource.slice(
+    providerSource.indexOf('if (plan.action === "give-up")'),
+  );
+  assert.ok(
+    giveUp.indexOf('if (plan.reason === "not-retryable")') > -1,
+    "the give-up path must distinguish a permanent refusal from an exhausted retry",
+  );
+  const permanent = giveUp.slice(0, giveUp.indexOf("return;"));
+  assert.ok(
+    permanent.includes("pendingReplacement.current = false;"),
+    "A save the API permanently refused must release the replace intent.",
+  );
+  assert.ok(
+    permanent.includes('plan.reason === "not-retryable"'),
+    "Only a permanent refusal may release it; an exhausted retry must not.",
+  );
+});
+
+// ---------------------------------------------------------------------------
 // The premise item 6 rests on.
 // ---------------------------------------------------------------------------
 

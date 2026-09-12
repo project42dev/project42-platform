@@ -172,6 +172,38 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         setProgress(createEmptyProgress());
         setHydrated(true);
         setSyncStatus("local-only");
+        // SIGNING OUT MUST END THE SESSION'S WRITE STATE, NOT JUST ITS VIEW.
+        //
+        // Everything below is per-learner, and this branch is the only place
+        // the provider learns that the learner is gone. Leaving any of it set
+        // hands one learner's state to whoever signs in next ON THIS TAB, and
+        // the account-scoped refs make that concrete rather than theoretical:
+        //
+        // A resets their progress, then signs out inside the 800ms debounce.
+        // B signs in. B's read resolves and `pendingReplacement` is still
+        // true, so the hydration updater returns B's local record -- the empty
+        // one -- unchanged, and because it is the same reference React does not
+        // even re-render. `lastSynchronized` becomes B's account record, the
+        // empty record differs from it, and `syncEnabled` was never cleared, so
+        // the debounced save writes EMPTY PROGRESS OVER B'S ACCOUNT. A's reset,
+        // executed against B.
+        //
+        // `syncEnabled` is the pre-existing half of this and the most important
+        // line here: it is the gate described above -- "no read has succeeded,
+        // do not write" -- and that is true of B until B's own read succeeds.
+        // Without clearing it the gate silently carries A's permission over.
+        syncEnabled.current = false;
+        pendingReplacement.current = false;
+        pendingDisplayName.current = null;
+        pendingWrite.current = null;
+        unsyncedBuffer.current = null;
+        lastSynchronized.current = "";
+        saveAttempt.current = 0;
+        hydrationAttempt.current = 0;
+        if (saveRetryTimer.current !== null) {
+          window.clearTimeout(saveRetryTimer.current);
+          saveRetryTimer.current = null;
+        }
         return;
       }
 
@@ -479,7 +511,21 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
             status: caught instanceof ProgressSaveError ? caught.status : null,
             attempt: saveAttempt.current,
           });
-          if (plan.action === "give-up") return;
+          if (plan.action === "give-up") {
+            if (plan.reason === "not-retryable") {
+              // The API refused this record and will refuse it again. Hand
+              // authority back to the account: a replacement the server would
+              // not take must stop suppressing the hydration merge, or the
+              // learner is left looking at an import that exists only in this
+              // tab, over an account that still holds the old record, with no
+              // way back. This is what replaceProgress's own comment promises
+              // -- "if the API rejects it, the next hydration will restore the
+              // server state" -- and without this line the flag made that
+              // promise false.
+              pendingReplacement.current = false;
+            }
+            return;
+          }
           saveRetryTimer.current = window.setTimeout(() => {
             saveRetryTimer.current = null;
             setSaveRetry((value) => value + 1);
@@ -597,8 +643,10 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       const next = structuredClone(replacement);
       if (account?.state === "approved") {
         // When account-backed, the API is authoritative. Replace locally and let
-        // the sync effect push it. If the API rejects it, the next hydration will
-        // restore the server state.
+        // the sync effect push it. If the API refuses it outright -- a status no
+        // retry can fix -- the intent below is released in the save's catch and
+        // the next hydration merges the account record back in, so the learner
+        // is not stranded looking at an import that exists only in this tab.
         //
         // An import is a REPLACEMENT, which means it can REMOVE. Every merge in
         // this provider is a union, so a read of the account landing inside the

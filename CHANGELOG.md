@@ -43,6 +43,20 @@ semantic versioning.
   `planAccountProgressHydration` accepts the pending name and carries it. The
   API returns the `displayName` from the last saved snapshot rather than the
   account's `users.display_name`, so the rename is durable once written.
+- **Signing out ends the session's write state, not just its view.** The
+  provider's per-learner state — the write gate `syncEnabled`, the unsynced
+  buffer, the last-synchronized record, and the pending-replacement,
+  pending-rename and pending-write refs added above — was never cleared when
+  the account went away, so it carried over to whoever signed in next on the
+  same tab. With a reset pending that was a deterministic overwrite: learner A
+  resets, signs out inside the debounce, learner B signs in, and B's account is
+  written with an empty record. The no-account branch of the hydration effect
+  now clears all of it, `syncEnabled` included.
+- A whole-record replacement the API refuses with a status no retry can fix
+  (400, 401, 403, 409) now releases its pending-replacement intent, so the next
+  read reinstates the account record. Without that release the learner was left
+  looking at an import that existed only in their tab, over an account that
+  still held the old record, with no route back.
 - `mergeLearnerProgress` compared collided attempts and capstone submissions
   with `JSON.stringify` equality, which is key-order sensitive: the same record
   rebuilt in a different key order would be treated as a different one and kept
