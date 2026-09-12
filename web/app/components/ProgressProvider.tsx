@@ -3,6 +3,7 @@
 import {
   ACCOUNT_BACKED_PROGRESS_SOURCE,
   createEmptyProgress,
+  planAccountProgressHydration,
   planUnsyncedProgressFlush,
   recordAssessmentAttempt,
   recordCapstoneSubmission,
@@ -136,8 +137,39 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
             ...remote,
             capstoneSubmissions: remote.capstoneSubmissions ?? [],
           };
+          // HYDRATION MUST NOT DISCARD WORK ALREADY DONE THIS SESSION.
+          // Until 2026-09-11 this line handed the normalized account record
+          // straight to the state setter: a plain replace. Nothing gates the
+          // learner's interaction on the read finishing, so a knowledge check
+          // answered while this GET was in flight recorded its attempt and
+          // completion into state, and then this handler threw both away when
+          // the response landed.
+          //
+          // On the FIRST read the buffer below covers that: the sync effect
+          // re-runs when the account lands, cannot write yet, and buffers, and
+          // the reconnect flush merges it back. It is the SECOND read and
+          // every one after -- a re-hydration, which this effect performs
+          // every time the `account` object changes identity, and AuthProvider
+          // hands it a new one whenever the scheduled session renewal comes
+          // back 409 -- that was destroying work outright. `syncEnabled` is
+          // true by then, so the change takes the debounced-save path instead
+          // of the buffer, and this replace cancels that pending save as it
+          // goes: nothing buffered, nothing written, nothing said. Mid-session,
+          // while the learner is working. A fast local server makes the window
+          // small; a phone on a contended network holds it open for seconds.
+          //
+          // planAccountProgressHydration merges instead, through the same
+          // mergeLearnerProgress call the reconnect flush uses: the account is
+          // the survivor so its whole history is kept, the in-session record is
+          // the source so its evidence is added, and an in-session attempt whose
+          // id collides with a different account attempt is kept under the
+          // "unsynced:" prefix rather than dropped. `lastSynchronized` stays the
+          // account record below, so when the merge adds anything the sync
+          // effect writes the result back and the learner's work reaches D1.
+          // When the learner has done nothing yet the updater returns the
+          // account record itself and no write is provoked.
           lastSynchronized.current = JSON.stringify(normalized);
-          setProgress(normalized);
+          setProgress(planAccountProgressHydration(normalized));
           syncEnabled.current = true;
           hydrationAttempt.current = 0;
           setSyncStatus("synced");
@@ -151,17 +183,30 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           if (caught instanceof DOMException && caught.name === "AbortError") return;
 
           // The account remains the source of truth, so we still do not write
-          // and we still show nothing we cannot vouch for -- but only on the
-          // FIRST attempt do we clear the view. Work the learner does while we
-          // are retrying is kept in memory and buffered, so a read that
-          // succeeds on a later attempt flushes it instead of losing it.
-          if (hydrationAttempt.current === 0) {
-            setProgress(createEmptyProgress());
-          } else if (hasLearningEvidence(currentProgress.current)) {
+          // and we still show nothing we cannot vouch for -- but we clear the
+          // view only when there is nothing of the learner's in it. Work the
+          // learner does while we are retrying is kept in memory and buffered,
+          // so a read that succeeds on a later attempt flushes it instead of
+          // losing it.
+          //
+          // The evidence test used to come second, behind
+          // `hydrationAttempt.current === 0`. That did not lose the work --
+          // the sync effect had already buffered it, and blanking state with
+          // an empty record left the buffer alone -- but it took the learner's
+          // progress off their screen for the whole backoff, up to thirty
+          // seconds, and only the flush firing on a later successful read put
+          // it back. Showing nothing we cannot vouch for is worth doing when
+          // there is nothing of the learner's to show; it is not worth doing
+          // to work they can see they just did. Testing for evidence first
+          // keeps it visible, and keeps the buffer as the backstop rather than
+          // the only copy.
+          if (hasLearningEvidence(currentProgress.current)) {
             unsyncedBuffer.current = {
               progress: currentProgress.current,
               timestamp: Date.now(),
             };
+          } else if (hydrationAttempt.current === 0) {
+            setProgress(createEmptyProgress());
           }
           setSyncStatus("error");
           setHydrated(true);

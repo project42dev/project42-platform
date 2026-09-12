@@ -177,16 +177,13 @@ function remoteOnly(
   return additions(remote, local);
 }
 
-export function hasLearningEvidence(progress: LearnerProgress): boolean {
-  return (
-    progress.startedPathIds.length > 0 ||
-    progress.completedModuleIds.length > 0 ||
-    progress.attempts.length > 0 ||
-    (progress.capstoneSubmissions?.length ?? 0) > 0 ||
-    progress.badges.length > 0 ||
-    Boolean(progress.recentModule)
-  );
-}
+// Single definition, in the platform package, because planAccountProgressHydration
+// and planUnsyncedProgressFlush both turn on it: if this predicate and the one
+// the planners use ever drifted apart, the front end would think a record was
+// empty while the planner treated it as evidence (or the reverse), and the
+// difference is a learner's work. Re-exported here so existing importers of
+// this module keep working.
+export { hasLearningEvidence } from "@project42/platform";
 
 export function createProgressMigrationPreview(
   local: LearnerProgress,

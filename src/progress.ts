@@ -96,6 +96,24 @@ export function createEmptyProgress(displayName = "Explorer"): LearnerProgress {
   };
 }
 
+/**
+ * Does this record hold anything a learner would notice losing?
+ *
+ * Deliberately broad: a started path or a recent-module visit counts, not just
+ * a graded attempt. The front end asks this before it lets a record be
+ * replaced, and "the learner opened a module" is work the account should keep.
+ */
+export function hasLearningEvidence(progress: LearnerProgress): boolean {
+  return (
+    progress.startedPathIds.length > 0 ||
+    progress.completedModuleIds.length > 0 ||
+    progress.attempts.length > 0 ||
+    (progress.capstoneSubmissions?.length ?? 0) > 0 ||
+    progress.badges.length > 0 ||
+    Boolean(progress.recentModule)
+  );
+}
+
 export function mergeLearnerProgress(
   survivor: LearnerProgress,
   source: LearnerProgress,
@@ -256,6 +274,53 @@ export function planUnsyncedProgressFlush(input: {
         displayName: hydrated.displayName,
         sourceRecordPrefix: "unsynced",
       }),
+  };
+}
+
+/**
+ * What the signed-in front end does with the account record when
+ * GET /v1/me/progress resolves and the learner has already been working.
+ *
+ * Returns a state updater, for the same reason planUnsyncedProgressFlush does:
+ * the only record that may be replaced is one holding nothing, and whether
+ * that is true can only be decided against the state React actually holds at
+ * the moment the setter runs -- not against a ref sampled when the response
+ * arrived. Everything else is a merge.
+ *
+ * The merge is deliberately the SAME call the reconnect flush makes -- account
+ * as survivor, the in-session record as source, collisions kept under the
+ * "unsynced:" prefix -- because it is the same question: work recorded while
+ * the session could not yet write is being reunited with the account. Only the
+ * trigger differs (a read landing, rather than the session becoming writable).
+ *
+ * 2026-09-11: before this existed, the hydration handler replaced state with
+ * the account record outright. A learner who answered a knowledge check while
+ * a read was in flight had the attempt AND the completion discarded. On the
+ * first read of a session the unsynced buffer happens to catch that; on every
+ * later read -- and the provider re-reads whenever the account object changes
+ * identity, which a session renewal does mid-session -- it does not, because
+ * the session is writable by then and the change is sitting in a debounced
+ * save that the replace cancels on its way past. Nothing buffered, nothing
+ * written, no error. This is the third record-replacing defect in this area
+ * (see the 0.110.0 / 0.111.0 note above): the rule is that nothing here
+ * replaces a record that holds evidence, ever.
+ *
+ * Note the asymmetry that makes the short-circuit safe rather than merely
+ * convenient: when local holds no evidence the updater returns the account
+ * record ITSELF, so the caller's `lastSynchronized` (the JSON of that same
+ * record) still matches and no write is provoked. When local does hold
+ * evidence the merged record differs, and the sync effect writes it back --
+ * which is exactly how the learner's pre-hydration work reaches the account.
+ */
+export function planAccountProgressHydration(
+  account: LearnerProgress,
+): (local: LearnerProgress) => LearnerProgress {
+  return (local) => {
+    if (!hasLearningEvidence(local)) return account;
+    return mergeLearnerProgress(account, local, {
+      displayName: account.displayName,
+      sourceRecordPrefix: "unsynced",
+    });
   };
 }
 
