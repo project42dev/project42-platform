@@ -116,8 +116,24 @@ test.describe("learner account request and private status receipt", () => {
     await expect(
       page.getByRole("button", { name: "Request an account" }),
     ).toBeVisible();
+    // The one fact this card must state before anybody presses the button:
+    // asking is not signing in. It used to be a bullet reading "A new request
+    // starts as pending and does not create an authenticated learner session";
+    // v0.115.0 moved the card's words into the overridable copy layer, where
+    // the same fact is now the second step of "What happens after you ask"
+    // (copy/account.ts, request.steps[1]) and reads "It does not sign you in:
+    // a pending browser holds a request receipt and nothing else". So the
+    // claim is unchanged and the sentence carrying it is not -- match the
+    // claim, scoped to the request card so a future step mentioning sign-in
+    // elsewhere on the page cannot satisfy this.
+    //
+    // The stale wording survived the release because local verification ran
+    // against a working tree whose app/ had been materialised from v0.114.x
+    // while node_modules already held v0.115.0: the test was reading the old
+    // card. Re-materialise (npm run app:materialise) before trusting a local
+    // pass on a platform bump.
     await expect(
-      page.getByText(/does not create an authenticated learner session/i),
+      page.locator("#request-account").getByText(/does not sign you in/i),
     ).toBeVisible();
     await expect(
       page.getByText(/learner data, consent, retention, and recovery/i),
