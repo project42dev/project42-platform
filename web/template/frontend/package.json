@@ -46,7 +46,7 @@
     "test:browser": "playwright test",
     "test:pages": "playwright test --config playwright.pages.config.ts",
     "test:pages:artifact": "node --test tests/github-pages-export.test.mjs",
-    "check": "npm run deferrals:check && npm run themes:check && npm run facts:check && npm run releases:check && npm run brand:check && npm run theme:boundary && npm run surface:check && npm run tokens:check && npm run pwa:check && npm run diagrams:check && npm run workflows:check && npm run governance:check && npm run release:validate && npm run lint && npm run typecheck && npm run build && npm run perf:check && npm run test:rendered && npm run test:links && npm run test:browser && npm run pages:export && npm run test:pages:artifact",
+    "check": "npm run deferrals:check && npm run themes:check && npm run facts:check && npm run releases:check && npm run brand:check && npm run theme:boundary && npm run surface:check && npm run tokens:check && npm run pwa:check && npm run diagrams:check && npm run workflows:check && npm run governance:check && npm run release:validate && npm run lint && npm run typecheck && npm run build && npm run perf:check && npm run test:rendered && npm run test:links && npm run test:browser && npm run pages:export && npm run test:pages && npm run test:pages:artifact",
     "audit": "npm run audit:production",
     "audit:production": "npm audit --omit=dev --audit-level=critical",
     "verify": "npm run audit && npm run check",

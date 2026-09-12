@@ -644,6 +644,25 @@ test("the scaffold approves the install scripts its own build depends on", () =>
   }
 });
 
+test("the template's check script runs the installed-app browser gate", () => {
+  // playwright.pages.config.ts exists to prove the service worker and manifest
+  // against the exported Pages artifact -- the only surface that exercises what
+  // actually ships, per its own "pages-installed-app" project comment. A
+  // template package.json shipped that config and the "test:pages" script that
+  // drives it, but wired neither into `check` nor any workflow, so a broken
+  // service worker passed every gate a consuming site ran. `check` already
+  // runs `pages:export` first, so `dist/pages` exists by the time this runs.
+  const manifest = JSON.parse(
+    readFileSync(path.join(webDir, "template", "frontend", "package.json"), "utf8"),
+  );
+  assert.ok(manifest.scripts["test:pages"], "the template must declare test:pages");
+  assert.match(
+    manifest.scripts.check,
+    /npm run test:pages(?!:artifact)\b/,
+    "check must run test:pages itself, not only test:pages:artifact's static-file assertions",
+  );
+});
+
 test("no client component pulls the whole catalogue into the browser", () => {
   // The progress API reads eight fields from the catalogue. A client component
   // that imports lib/catalog to get them ships every module body, knowledge
