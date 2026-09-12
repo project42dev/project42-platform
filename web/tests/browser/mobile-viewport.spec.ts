@@ -336,6 +336,10 @@ async function clippingAncestors(page: Page): Promise<string[]> {
     if (!panel) return ["no profile panel in the document"];
     const found: string[] = [];
     for (let ancestor = panel.parentElement; ancestor; ancestor = ancestor.parentElement) {
+      // <html> and <body> are exempt. Clipping the document is the SUPPORTED
+      // way to stop a sideways scroll, and it cannot hide this panel: the
+      // document is taller than the header by the whole page.
+      if (ancestor === document.documentElement || ancestor === document.body) continue;
       const styles = getComputedStyle(ancestor);
       if (styles.overflowX === "visible" && styles.overflowY === "visible") continue;
       const name = `${ancestor.tagName.toLowerCase()}${String(ancestor.className).trim() ? `.${String(ancestor.className).trim().split(/\s+/)[0]}` : ""}`;
@@ -442,12 +446,13 @@ test.describe("the profile menu on a phone", () => {
 // A notch-class handset -- the shape most people actually hold, and the one the
 // defect was reported on. Same engine, 390x664 rather than 320x568.
 //
-// `defaultBrowserType` is dropped from the descriptor on purpose: Playwright
-// refuses it inside a describe because it would force a new worker, and the
-// engine is already WebKit here -- this project runs nothing else.
-const { defaultBrowserType: _iPhone14Engine, ...iPhone14 } = devices["iPhone 14"];
+// The descriptor's fields are taken one by one rather than spread: Playwright
+// refuses `defaultBrowserType` inside a describe because it would force a new
+// worker, and the engine is already WebKit here -- this project runs nothing
+// else.
+const { deviceScaleFactor, hasTouch, isMobile, userAgent, viewport } = devices["iPhone 14"];
 
 test.describe("the profile menu on a notch-class iPhone", () => {
-  test.use(iPhone14);
+  test.use({ deviceScaleFactor, hasTouch, isMobile, userAgent, viewport });
   profileMenuContract("iPhone 14");
 });
