@@ -1,3 +1,23 @@
+# Project 42 platform v0.114.2
+
+Follows 0.114.1. The device matrix carried an assertion marked as a known failure because no surface offered the last-opened module back. Resume shipped in 0.114.0, so that assertion started passing and Playwright failed it on all eighteen devices for passing — which is precisely what the annotation existed to do. The annotation is gone and the assertion now gates the feature on every device.
+
+The one remaining annotated failure is genuine and unchanged: on a phone in landscape the open navigation fills the viewport, so the About panel opens below the fold. That is an information-architecture decision, not a defect a test should settle.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Rollback
+
+Pin 0.113.0.
+
+---
+
 # Project 42 platform v0.114.1
 
 A one-word fix on top of 0.114.0: the new device-matrix spec named a local variable `module`, and Next's lint refuses that in any file it checks. The site materialises these specs into its own tree, so 0.114.0 could not pass the site's verify at all. Nothing else changed.

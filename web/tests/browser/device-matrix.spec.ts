@@ -556,38 +556,16 @@ async function resumeAffordances(
 }
 
 test("a module you opened is offered back to you when you return", async ({ page }) => {
-  // KNOWN, UNFIXED, AND REPORTED RATHER THAN PAPERED OVER.
+  // Resume shipped in v0.114.0, and this gate says so on every device rather
+  // than on one. It was annotated failing while the feature did not exist --
+  // the visit was recorded, ProgressSnapshot rendered exactly the right
+  // control, and nothing mounted it -- so the run turned red the moment the
+  // feature landed. That is what the annotation was for.
   //
-  // There is no resume affordance on any surface, on any device. The visit IS
-  // recorded -- ModuleVisitTracker -> recordVisit -> recentModule -- and the
-  // component that would render it, ProgressSnapshot, produces exactly the
-  // right thing ("Continue <module title> ->", linked to the module). It is
-  // never mounted: nothing in the application imports it. The only other
-  // "Continue" in the header/chrome is on /profile, and it is a fixed link to
-  // /learn/paths that names no module.
-  //
-  // Nothing reads the device-local record either. ProgressProvider's hydration
-  // says so in as many words -- "Otherwise, start with empty progress. No
-  // localStorage reads." -- and readDeviceLocalProgress, which exists and is
-  // unit-tested, is called by no component. So a reload starts from nothing
-  // even in the cases where the in-memory record would have survived.
-  //
-  // Marked FAILING rather than deleted or skipped: the assertion runs on every
-  // device, prints which surfaces were searched and what was found, and the
-  // run turns RED the moment someone ships the feature and leaves this
-  // annotation behind. Whether resume belongs on the home page, on /learn, or
-  // in the header is a product decision, which is why this is not a fix.
-  // P42_SHOW_RESUME_EVIDENCE=1 drops the annotation so the run prints the
-  // measurement -- which surfaces were searched and what was on each -- as a
-  // real failure. That is how the evidence in this comment was gathered, and
-  // how to re-gather it when someone asks whether it is still true.
-  if (!process.env.P42_SHOW_RESUME_EVIDENCE) {
-    test.fail(
-      true,
-      `${device()}: no surface offers the last-opened module back. ProgressSnapshot -- the only component that ` +
-        "renders it -- is imported by nothing. See the comment above this test.",
-    );
-  }
+  // The control pass below is what keeps this honest: /learn ships a fixed
+  // start call to action pointing at the very module this test picks, so a
+  // naive check for a link to that module passes on a site with no resume
+  // feature at all. It did, on this test's first run.
 
   const journey = await discoverJourney(page);
 

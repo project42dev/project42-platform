@@ -100,6 +100,17 @@ semantic versioning.
   nothing in either repository was measuring them. `npm run themes:contrast`
   prints every measured pair.
 
+## [0.114.2] - 2026-09-12
+
+### Fixed
+
+- The device matrix's resume assertion is no longer annotated as a known
+  failure. It was marked failing while no surface offered the last-opened
+  module back; resume shipped in 0.114.0, so the assertion passed and
+  Playwright failed it on all eighteen devices for passing. That is exactly
+  what the annotation was for — it turned the run red the moment the feature
+  landed — and this is the other half of it.
+
 ## [0.114.1] - 2026-09-12
 
 ### Fixed
