@@ -117,27 +117,32 @@ A declined person who signs in again gets `?auth=rejected` and a fresh receipt
 reporting `rejected` / `contact-owner`, so the decline is stated rather than
 failing as a generic error. Their account is not reopened as pending.
 
-## What is not automatic
+## What is automatic, and what is deliberately not
 
 Creating a registration request atomically enqueues two notifications in the
 account outbox: a receipt for the learner and a fan-out to every approved
 owner. An owner decision enqueues the learner's decision notification.
 
-**Nothing drains that outbox on a schedule.** The only caller of
-`dispatchAccountNotifications` in shipped code is
-`POST /v1/admin/notifications/dispatch`, an owner-only route; the Worker's
-`scheduled()` handler runs audit-detail and deletion-receipt purges and nothing
-else. So unless an owner explicitly dispatches, no message is sent for a new
-request and none is sent for a decision — which is why the copy on `/account`
-tells people to come back and sign in rather than to wait for an email.
+Through 0.114.2 nothing drained that outbox on a schedule: the only caller of
+`dispatchAccountNotifications` was the owner-only
+`POST /v1/admin/notifications/dispatch`, so a request nobody dispatched was a
+request nobody was told about. That is the likeliest reason the pending queue
+above had never been used by a real person.
 
-Two consequences worth deciding on deliberately:
+The Worker's `scheduled()` handler now drains **owner-directed notifications
+only** — `drainOwnerAccountNotifications` in `src/worker.ts`, one bounded page
+per cron tick, filtered to `ACCOUNT_NOTIFICATION_OWNER_KINDS`. The two
+consequences are therefore now split on purpose:
 
-1. **The owner is not told a request exists.** Requests accumulate in the
-   pending queue until somebody opens the Admin console.
-2. **The learner is not told the decision.** The second sign-in is the only
-   signal.
+1. **The owner is told a request exists**, on the next tick after it is made,
+   if that deployment has an `ACCOUNT_NOTIFICATION_DELIVERY` binding. Without
+   one the drain logs that delivery is not configured and does nothing: a
+   self-host that never set up mail must not start erroring every tick.
+2. **The learner is still not told the decision.** The second sign-in remains
+   the only signal, which is exactly what `web/copy/account.ts` promises them:
+   "nothing is sent to you automatically, so do not wait for a message". The
+   learner rows stay queued in the outbox, unsent and untouched by the tick,
+   and only an owner pressing dispatch sends them.
 
-Wiring `dispatchAccountNotifications` into `scheduled()` would close both. It
-is not done here because it would start sending mail from a deployment whose
-operator has not asked for that, and the delivery Worker is billed per message.
+The hosted cron runs once a day, so a request made just after a tick waits
+until the next one, and at most ten owner alerts leave per tick.

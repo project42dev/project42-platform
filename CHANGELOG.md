@@ -8,6 +8,22 @@ semantic versioning.
 
 ### Fixed
 
+- **The owner is told that somebody asked for an account.** Creating a
+  registration request enqueued an owner fan-out, but the only caller of
+  `dispatchAccountNotifications` was the owner-only dispatch route and the
+  Worker's `scheduled()` handler ran retention purges and nothing else, so the
+  outbox was never drained and a request sat in the pending queue until
+  somebody happened to open the Admin console. The scheduled handler now calls
+  `drainOwnerAccountNotifications`, which dispatches
+  `ACCOUNT_NOTIFICATION_OWNER_KINDS` only. Learner-directed notifications are
+  deliberately still not sent by the tick: `/account` promises a learner that
+  nothing is sent to them automatically and that signing in again is the
+  answer, and that promise is kept. The drain is a logged no-op where no
+  `ACCOUNT_NOTIFICATION_DELIVERY` binding is configured, is bounded to one
+  dispatch page per tick, and never throws into the tick it shares with the
+  purges — a failed delivery leaves its row in the existing bounded retry
+  states and is logged at `error`.
+
 - **Progress survives leaving the page.** The account save is debounced 800ms
   and an ordinary `fetch` is cancelled when the document goes away, so
   answering the last question of a module and then closing the tab, reloading,

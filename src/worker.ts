@@ -153,6 +153,8 @@ import {
 import {
   ACCOUNT_NOTIFICATION_CONTRACT_VERSION,
   ACCOUNT_NOTIFICATION_DISPATCH_MAX_ITEMS,
+  ACCOUNT_NOTIFICATION_KINDS,
+  ACCOUNT_NOTIFICATION_OWNER_KINDS,
   ACCOUNT_NOTIFICATION_TEMPLATE_VERSION,
   DisabledAccountNotificationAdapter,
   ServiceBindingAccountNotificationAdapter,
@@ -1214,17 +1216,23 @@ class D1Project42Repository {
   private async expandAccountNotificationFanouts(input: {
     now: string;
     limit: number;
+    kinds: readonly AccountNotificationKind[];
   }): Promise<void> {
+    // Every fan-out written today is an owner alert, but the kind filter is
+    // applied here rather than assumed: a caller that asked for one kind must
+    // not have a later fan-out kind expanded into its run by surprise.
+    const kindPlaceholders = input.kinds.map(() => "?").join(", ");
     const fanouts = await this.db
       .prepare(
         `SELECT id, subject_user_id, kind, state, cursor_owner_user_id,
                 recipient_cutoff_at, revision, created_at
            FROM account_notification_fanouts
           WHERE installation_id = ? AND state = 'pending'
+            AND kind IN (${kindPlaceholders})
           ORDER BY created_at, id
           LIMIT ?`,
       )
-      .bind(this.installationId, Math.min(input.limit, 4))
+      .bind(this.installationId, ...input.kinds, Math.min(input.limit, 4))
       .all<AccountNotificationFanoutRow>();
     const ownerPageSize = 20;
     for (const fanout of fanouts.results) {
@@ -1406,6 +1414,11 @@ class D1Project42Repository {
     now: string;
     limit?: number;
     deliveryDeadlineMs?: number;
+    // Restricts the run to these kinds. Omitted means every kind, which is
+    // what the owner-initiated dispatch route asks for. A scheduled drain
+    // passes ACCOUNT_NOTIFICATION_OWNER_KINDS so that learner-directed rows
+    // are neither claimed, delivered, recovered, nor otherwise touched.
+    kinds?: readonly AccountNotificationKind[];
   }): Promise<AccountNotificationDispatchSummary> {
     if (input.adapter instanceof DisabledAccountNotificationAdapter) {
       throw new ApiFailure(
@@ -1425,9 +1438,25 @@ class D1Project42Repository {
       normalizeAccountNotificationDeliveryDeadlineMs(
         input.deliveryDeadlineMs,
       );
+    const kinds = input.kinds ?? ACCOUNT_NOTIFICATION_KINDS;
+    // An empty filter selects nothing. Saying so is the honest reading of
+    // "these kinds"; widening it back to every kind would send the mail the
+    // caller just asked not to send.
+    if (kinds.length === 0) {
+      return {
+        recovered: 0,
+        claimed: 0,
+        delivered: 0,
+        retryable: 0,
+        deadLetter: 0,
+        outcomeUnknown: 0,
+      };
+    }
+    const kindPlaceholders = kinds.map(() => "?").join(", ");
     await this.expandAccountNotificationFanouts({
       now: input.now,
       limit,
+      kinds,
     });
     const expiredLeases = await this.db
       .prepare(
@@ -1435,10 +1464,11 @@ class D1Project42Repository {
            FROM account_notifications
           WHERE installation_id = ? AND state = 'delivering'
             AND lease_expires_at <= ?
+            AND kind IN (${kindPlaceholders})
           ORDER BY lease_expires_at, created_at, id
           LIMIT ?`,
       )
-      .bind(this.installationId, input.now, limit)
+      .bind(this.installationId, input.now, ...kinds, limit)
       .all<{
         id: string;
         kind: AccountNotificationKind;
@@ -1500,10 +1530,11 @@ class D1Project42Repository {
           WHERE installation_id = ?
             AND state IN ('pending', 'retryable')
             AND available_at <= ?
+            AND kind IN (${kindPlaceholders})
           ORDER BY available_at, created_at, id
           LIMIT ?`,
       )
-      .bind(this.installationId, input.now, limit)
+      .bind(this.installationId, input.now, ...kinds, limit)
       .all<{ id: string }>();
     const summary: AccountNotificationDispatchSummary = {
       recovered,
@@ -11539,6 +11570,91 @@ async function purgeExpiredDeletionReceipts(
     .run();
 }
 
+// The account-notification outbox had no drain on a schedule: the only caller
+// of dispatchAccountNotifications was the owner-only dispatch route, so a
+// deployment whose owner never pressed it never told the owner that a request
+// existed, and the pending queue grew unattended (docs/account-approval.md).
+//
+// This drains owner alerts only. Learner-directed kinds stay in the outbox
+// untouched, because /account promises a learner that nothing is sent to them
+// and that signing in again is how they learn the decision (web/copy/account.ts)
+// - starting to mail learners from a scheduled tick would break that promise
+// silently. The owner is the one recipient who has no other signal at all.
+//
+// Bounded at one dispatch page per tick and never throwing: a scheduled tick
+// is shared with the retention purges, and a delivery failure must not take
+// them down with it. Rows survive a failed tick in their own retryable or
+// dead-letter state, which the outbox already bounds to five attempts.
+async function drainOwnerAccountNotifications(
+  env: WorkerEnvironment,
+  now: string,
+  requestId: string = crypto.randomUUID(),
+): Promise<AccountNotificationDispatchSummary | null> {
+  if (!env.ACCOUNT_NOTIFICATION_DELIVERY) {
+    // A self-host or a hosted deployment that never configured delivery is
+    // not broken, and must not spend every tick raising an error about it.
+    console.info(
+      JSON.stringify({
+        level: "info",
+        requestId,
+        action: "account-notification.scheduled-drain",
+        code: "account_notification_delivery_not_configured",
+      }),
+    );
+    return null;
+  }
+  try {
+    const repository = new D1Project42Repository(
+      env.PROJECT42_DB,
+      env.INSTALLATION_ID,
+      undefined,
+      readAccountMergeConsentRequirements(env.ACCOUNT_MERGE_REQUIRED_CONSENTS),
+      env.SESSION_ENCRYPTION_KEY,
+    );
+    const summary = await repository.dispatchAccountNotifications({
+      adapter: new ServiceBindingAccountNotificationAdapter(
+        env.ACCOUNT_NOTIFICATION_DELIVERY,
+      ),
+      actor: { kind: "system" },
+      requestId,
+      now,
+      limit: ACCOUNT_NOTIFICATION_DISPATCH_MAX_ITEMS,
+      kinds: ACCOUNT_NOTIFICATION_OWNER_KINDS,
+    });
+    if (
+      summary.retryable > 0 ||
+      summary.deadLetter > 0 ||
+      summary.outcomeUnknown > 0
+    ) {
+      // The per-row privacy-safe audit events record the same outcome, but a
+      // query nobody runs is not an alert. An owner alert that did not arrive
+      // is the failure this whole path exists to prevent, so it is logged at
+      // error level where the Worker's log stream will show it.
+      console.error(
+        JSON.stringify({
+          level: "error",
+          requestId,
+          action: "account-notification.scheduled-drain",
+          code: "account_notification_scheduled_drain_incomplete",
+          ...summary,
+        }),
+      );
+    }
+    return summary;
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        level: "error",
+        requestId,
+        action: "account-notification.scheduled-drain",
+        code: "account_notification_scheduled_drain_failed",
+        message: error instanceof Error ? error.message : String(error),
+      }),
+    );
+    return null;
+  }
+}
+
 export {
   assertAuditMetadataIsSafe,
   AUDIT_DETAIL_RETAIN_DAYS,
@@ -11547,6 +11663,7 @@ export {
   DELETION_RECEIPT_RETAIN_DAYS,
   GithubIdentityLinkAdapter,
   OidcJwtVerifier,
+  drainOwnerAccountNotifications,
   handleRequest,
   purgeExpiredAuditDetail,
   purgeExpiredDeletionReceipts,
@@ -11564,5 +11681,6 @@ export default {
     const now = new Date().toISOString();
     ctx.waitUntil(purgeExpiredAuditDetail(env.PROJECT42_DB, now));
     ctx.waitUntil(purgeExpiredDeletionReceipts(env.PROJECT42_DB, now));
+    ctx.waitUntil(drainOwnerAccountNotifications(env, now));
   },
 } satisfies ExportedHandler<WorkerEnvironment>;

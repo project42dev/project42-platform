@@ -61,6 +61,27 @@ queued work. Controlled scheduler code can invoke the repository with explicit
 `system` audit provenance; the HTTP route always records the authenticated
 owner's opaque user and identity keys.
 
+## The scheduled drain
+
+The hosted Worker's `scheduled()` handler drains owner-directed notifications
+on every cron tick, with `system` audit provenance. It sends nothing else:
+`dispatchAccountNotifications` takes an optional `kinds` filter, the scheduled
+caller passes `ACCOUNT_NOTIFICATION_OWNER_KINDS`, and the filter applies to
+fan-out expansion, lease recovery, and claiming alike, so a learner-directed
+row is not delivered, claimed, recovered, or otherwise modified by a tick. An
+owner is the one recipient with no other signal that a request exists; a
+learner is told to return and sign in, and `/account` promises them nothing is
+sent automatically.
+
+The drain is a no-op on a deployment with no `ACCOUNT_NOTIFICATION_DELIVERY`
+binding. It logs that at `info` and returns without claiming a row, because an
+installation that never configured mail is correctly configured, not broken.
+It processes at most one dispatch page (ten notifications) per tick, and it
+never throws into the tick it shares with the retention purges: a failed
+delivery leaves its row in the ordinary bounded `retryable` state for a later
+tick, and both an incomplete run and an unexpected failure are logged at
+`error` with the outbox summary.
+
 ## State, concurrency, and recovery
 
 Every notification has one explicit state:
