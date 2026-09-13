@@ -20,9 +20,10 @@
 // 500, on a 200 without the completion, and on a response of the wrong shape.
 //
 // It is deliberately provider-neutral. Every provider-specific detail (issuer,
-// sign-in form selectors, the optional "stay signed in" interstitial) is read
-// from configuration rather than hardcoded, so the same conformance leg can be
-// pointed at any hosted OIDC provider without editing this file.
+// authorization origin, sign-in form selectors, the pages a provider
+// interposes between the password and the return) is read from configuration
+// rather than hardcoded, so the same conformance leg can be pointed at any
+// hosted OIDC provider without editing this file.
 //
 // This script never provisions or deletes an identity. The hosted test identity
 // is expected to already exist and to be approved; that keeps the credential
@@ -53,10 +54,32 @@ const passwordSelector =
 const submitSelector =
   process.env.PROJECT42_HOSTED_SUBMIT_SELECTOR?.trim() ||
   'input[type="submit"], button[type="submit"], #idSIButton9, #kc-login';
-// Optional: a provider that interposes a "stay signed in?" page after the
-// password. When set, the control it names is clicked if that page appears.
-const staySignedInSelector =
-  process.env.PROJECT42_HOSTED_STAY_SIGNED_IN_SELECTOR?.trim() || "";
+// Optional: the provider pages that stand between the password and our return.
+// A first sign-in on Entra External ID is asked to consent to the application
+// ("Permissions requested" — Cancel, Accept); other providers interpose a
+// "stay signed in?" prompt; a provider may interpose both. This names the
+// control that CONTINUES on such a page, and it is applied repeatedly rather
+// than once, because one page is not a guarantee of only one page.
+//
+// The selector must not match anything on the password page. It may share an
+// id with the password page's own submit control -- Entra uses #idSIButton9
+// for the password page's "Sign in", the consent page's "Accept" and the
+// "stay signed in?" page's "Yes" -- so the password page is waited out before
+// the selector is consulted at all. Without that, the button just pressed
+// satisfies the wait and is pressed a second time.
+//
+// PROJECT42_HOSTED_STAY_SIGNED_IN_SELECTOR is the retired name, honoured so
+// an existing deployment's configuration keeps working. It described only one
+// of the pages this handles, which is why nobody thought to set it for
+// consent.
+const interstitialSelector =
+  process.env.PROJECT42_HOSTED_INTERSTITIAL_SELECTOR?.trim() ||
+  process.env.PROJECT42_HOSTED_STAY_SIGNED_IN_SELECTOR?.trim() ||
+  'input[type="submit"][value="Accept"], #idSIButton9';
+
+// A provider that keeps interposing pages is a failure to report, not a loop
+// to ride out.
+const maximumInterstitials = 4;
 
 // The sandbox stays ON by default: this browser types a real password into a
 // real identity provider, so an operator running the smoke from a workstation
@@ -301,14 +324,7 @@ async function signInAndVerify(browser, label) {
     { waitUntil: "domcontentloaded", timeout: 120_000 },
   );
   await page.locator(submitSelector).first().click();
-  if (staySignedInSelector) {
-    const prompt = page.locator(staySignedInSelector).first();
-    const outcome = await Promise.race([
-      landed.then(() => "landed"),
-      prompt.waitFor({ state: "visible", timeout: 120_000 }).then(() => "prompt"),
-    ]);
-    if (outcome === "prompt") await prompt.click();
-  }
+  await clearInterstitials(page, landed, label);
   await landed;
 
   assert.ok(
@@ -378,6 +394,60 @@ async function signInAndVerify(browser, label) {
   await page.goto(`${learnOrigin}/robots.txt`, { waitUntil: "domcontentloaded" });
 
   return { context, page };
+}
+
+/**
+ * Continue past whatever the provider puts between the password and our
+ * return, until the browser is back on Learn.
+ *
+ * `landed` is the navigation this is racing; it is awaited with both handlers
+ * attached so that a timeout on it settles this race rather than surfacing as
+ * an unhandled rejection, and is then rethrown by the caller's own `await`.
+ */
+async function clearInterstitials(page, landed, label) {
+  if (!interstitialSelector) return;
+  const settled = landed.then(
+    () => "landed",
+    () => "landed",
+  );
+  // The password page's submit control may share the interstitial's selector,
+  // so wait for that page to go before looking for one.
+  await Promise.race([
+    settled,
+    page
+      .locator(passwordSelector)
+      .first()
+      .waitFor({ state: "detached", timeout: 120_000 })
+      .then(
+        () => "gone",
+        () => "gone",
+      ),
+  ]);
+  for (let remaining = maximumInterstitials; remaining > 0; remaining -= 1) {
+    const control = page.locator(interstitialSelector).first();
+    const outcome = await Promise.race([
+      settled,
+      control.waitFor({ state: "visible", timeout: 120_000 }).then(
+        () => "interstitial",
+        () => "landed",
+      ),
+    ]);
+    if (outcome === "landed") return;
+    console.log(
+      `[${label}] Continuing past a provider interstitial: ${await page.title()}`,
+    );
+    await control.click();
+    // Do not go looking for the next page until this one has gone. A control
+    // still on screen while its navigation runs would otherwise be clicked
+    // again on the very next pass.
+    await Promise.race([
+      settled,
+      control.waitFor({ state: "detached", timeout: 120_000 }).then(
+        () => "gone",
+        () => "gone",
+      ),
+    ]);
+  }
 }
 
 function signedOutEntry(page) {

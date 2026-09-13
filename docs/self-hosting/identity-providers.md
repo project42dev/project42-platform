@@ -158,9 +158,19 @@ a password; a provider that sends a one-time code on every sign-in cannot be
 driven headlessly. If the provider's sign-in form differs from the Entra
 External ID default, override `PROJECT42_HOSTED_USERNAME_SELECTOR`,
 `PROJECT42_HOSTED_PASSWORD_SELECTOR`, and `PROJECT42_HOSTED_SUBMIT_SELECTOR`
-(and set `PROJECT42_HOSTED_STAY_SIGNED_IN_SELECTOR` if it interposes a "stay
-signed in?" page) rather than editing the script — the leg is provider-neutral
-by configuration.
+rather than editing the script — the leg is provider-neutral by configuration.
+
+Providers put pages between the password and the return: Entra External ID
+asks a first-time signer to consent to the application ("Permissions
+requested"), others interpose "stay signed in?", and some do both.
+`PROJECT42_HOSTED_INTERSTITIAL_SELECTOR` names the control that *continues* on
+such a page, and the gate applies it repeatedly until the browser is back on
+Learn. It defaults to Entra's Accept/Yes control. Two rules for any value you
+set: it must name the affirmative control, not the cancel one — on Entra's
+consent page Cancel precedes Accept in the DOM, so a generic
+`input[type=submit]` selects the wrong one — and it must not match any control
+on the password page. (The retired `PROJECT42_HOSTED_STAY_SIGNED_IN_SELECTOR`
+is still honoured; it described only one of the pages this handles.)
 
 A provider's authorization endpoint need not live on its issuer's host, and
 OIDC discovery exists because it may not. Microsoft Entra External ID is one
