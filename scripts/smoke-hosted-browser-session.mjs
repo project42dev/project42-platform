@@ -31,6 +31,7 @@
 // progress on that one account, and it removes that before it exits.
 
 import assert from "node:assert/strict";
+import path from "node:path";
 import { chromium } from "playwright";
 import { runProgressPersistenceGate } from "./lib/hosted-progress-persistence.mjs";
 
@@ -68,8 +69,21 @@ const staySignedInSelector =
 const chromiumSandbox =
   (process.env.PROJECT42_HOSTED_CHROMIUM_SANDBOX?.trim() || "on") !== "off";
 
+// Where a failing run leaves its screenshots. This gate drives a browser on a
+// machine nobody is watching, so when it fails the only thing left is a
+// Playwright timeout that names a selector or a URL pattern and says nothing
+// about what the page actually was. Capturing the page at the moment of
+// failure turns one CI run into a diagnosis instead of the start of a guessing
+// loop.
+const diagnosticDirectory =
+  process.env.PROJECT42_HOSTED_DIAGNOSTIC_DIR?.trim() || "smoke-diagnostics";
+
 const issuerHost = new URL(issuer).host;
 const runId = gateRunId();
+
+// Every page this run opens, so a failure anywhere -- sign-in, the persistence
+// gate, sign-out -- can be described rather than merely reported.
+const openedPages = [];
 
 let browser;
 try {
@@ -129,13 +143,63 @@ try {
       `again (revision ${gate.revisionAfterCleanup}` +
       `${gate.preCleaned ? "; residue from an earlier run was cleaned first" : ""}).`,
   );
+} catch (failure) {
+  await describeFailure(failure);
+  throw failure;
 } finally {
   await browser?.close();
+}
+
+/**
+ * Print what each still-open page actually was when the run failed, and save a
+ * screenshot of it.
+ *
+ * Nothing here may leak the smoke identity's password:
+ *  - the URL is printed as origin + pathname with only the NAMES of its query
+ *    parameters, because a failure on the OIDC callback sits on a URL carrying
+ *    a live authorization `code`;
+ *  - the DOM excerpt is `innerText`, which is rendered text and therefore
+ *    cannot contain an `<input>`'s value, rather than `innerHTML`, which can;
+ *  - password fields are emptied before the screenshot, so not even a masked
+ *    field of the right length is photographed.
+ */
+async function describeFailure(failure) {
+  console.error("--- hosted smoke failure diagnostics ---");
+  console.error(`${failure?.name ?? "Error"}: ${failure?.message ?? failure}`);
+  for (const { label, page } of openedPages) {
+    if (page.isClosed()) continue;
+    try {
+      const url = new URL(page.url());
+      const parameters = [...new Set(url.searchParams.keys())];
+      console.error(`[${label}] url: ${url.origin}${url.pathname}`);
+      console.error(
+        `[${label}] query parameter names: ${parameters.join(", ") || "(none)"}`,
+      );
+      console.error(`[${label}] title: ${await page.title()}`);
+      const text = await page.evaluate(() => {
+        for (const field of document.querySelectorAll("input[type=password]")) {
+          field.value = "";
+        }
+        return document.body?.innerText ?? "";
+      });
+      console.error(
+        `[${label}] visible text (first 1500 characters):\n` +
+          `${text.replace(/\n{3,}/g, "\n\n").trim().slice(0, 1500)}`,
+      );
+      const file = path.join(diagnosticDirectory, `${label}.png`);
+      await page.screenshot({ path: file, fullPage: true });
+      console.error(`[${label}] screenshot: ${file}`);
+    } catch (caught) {
+      console.error(`[${label}] could not be described: ${caught?.message ?? caught}`);
+    }
+  }
+  console.error("--- end hosted smoke failure diagnostics ---");
 }
 
 async function signInAndVerify(browser, label) {
   const context = await browser.newContext();
   const page = await context.newPage();
+  openedPages.push({ label, page });
 
   const authorizationRequests = [];
   const callbackResponses = [];

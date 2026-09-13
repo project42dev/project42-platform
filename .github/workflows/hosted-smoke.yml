@@ -108,3 +108,15 @@ jobs:
         env:
           PROJECT42_HOSTED_CHROMIUM_SANDBOX: "off"
         run: node scripts/smoke-hosted-browser-session.mjs
+      # A headless browser that fails on a hosted provider's own pages leaves
+      # nothing behind but a timeout. The script prints the final URL, title and
+      # visible text; this keeps the picture too, so the next failure is read
+      # rather than reproduced.
+      - name: Keep the failing pages
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: hosted-smoke-diagnostics
+          path: smoke-diagnostics/
+          if-no-files-found: ignore
+          retention-days: 7

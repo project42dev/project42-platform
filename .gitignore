@@ -152,3 +152,7 @@ vite.config.ts.timestamp-*
 
 # Project 42 generated output
 src/generated/
+
+# Failure screenshots from scripts/smoke-hosted-browser-session.mjs. Anchored,
+# so it cannot match a path under web/ or bin/ (see the note at the top).
+/smoke-diagnostics
