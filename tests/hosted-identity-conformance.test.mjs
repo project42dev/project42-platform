@@ -120,8 +120,32 @@ test("the hosted provider leg asserts the same session guarantees as the self-ho
     "The hosted leg must assert the session is invalidated on sign-out.",
   );
 
-  // The browser must be launched sandboxed, matching the self-host smoke legs.
-  assert.match(script, /chromiumSandbox: true/);
+  // The browser must be sandboxed unless an environment explicitly and by name
+  // says otherwise, matching the self-host smoke legs.
+  //
+  // This used to pin the literal `chromiumSandbox: true`, which stopped being
+  // true when the launch became configurable so that GitHub's ubuntu images --
+  // which refuse the unprivileged user namespaces Chromium needs to build its
+  // own sandbox -- could run the leg at all. Pinning one spelling of the
+  // default is not the guarantee worth having; what matters is that the
+  // default is sandboxed and that turning it off takes a named, deliberate
+  // act. So that is what is asserted, in the script and in the one workflow
+  // that opts out.
+  assert.match(
+    script,
+    /PROJECT42_HOSTED_CHROMIUM_SANDBOX\?\.trim\(\) \|\| "on"/,
+    "The hosted leg must launch sandboxed unless an environment opts out by name.",
+  );
+  assert.match(
+    script,
+    /chromium\.launch\(\{ headless: true, chromiumSandbox \}\)/,
+    "The hosted leg must pass the resolved sandbox setting to the launch.",
+  );
+  assert.match(
+    hostedWorkflow,
+    /^          PROJECT42_HOSTED_CHROMIUM_SANDBOX: "off"$/m,
+    "The hosted runner's sandbox opt-out must be scoped to the step that needs it.",
+  );
   assert.doesNotMatch(script, /ignoreHTTPSErrors/);
   assert.doesNotMatch(script, /--no-sandbox/);
 });
