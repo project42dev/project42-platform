@@ -162,15 +162,14 @@ a bundle can make emphasis text legible in its palette without repainting a
 single surface.
 
 Rule 5 is a ratchet against `web/scripts/appearance-debt.json`, not an amnesty.
-Core still carries 53 hardcoded radius and letter-spacing values, 28 distinct.
-None matches a step in any published layout ramp, so collapsing them would
-change the rendered page — a design decision for whoever owns the appearance,
-not a mechanical one. The gate fails on a new value or a higher count, so the
-list can only shrink.
+The baseline is now **0**: core carries no hardcoded radius or letter-spacing
+value outside the fallback layer, and the gate fails the build on a single new
+one. The gate fails on a new value or a higher count, so the list can only
+shrink — it can never grow back from here.
 
-It shrank from 102 by publishing the steps core was already writing by hand.
-Nine values were the *whole* population of a step the ramp simply did not
-have: the control-scale radii below `--p42-radius-small`
+It shrank from 102 to 53 (T-18, first pass) by publishing the steps core was
+already writing by hand. Nine values were the *whole* population of a step the
+ramp simply did not have: the control-scale radii below `--p42-radius-small`
 (`--p42-radius-4xs/3xs/2xs/xs`, 6/8/10/12px in Standard) and the loose end of
 the tracking ramp (`--p42-track-wide-1..5`, 0.02/0.04/0.06/0.08/0.12em in
 Standard) — `--p42-track-2..5` only ever went *tighter*, so every eyebrow,
@@ -179,12 +178,65 @@ could reach. Standard's values are exactly the literals they replaced, so the
 default composition renders unchanged; Compact and Wide scale them in step
 with the radius and tracking ramps they already publish.
 
-What is left is genuine drift with no step to land on: eleven distinct
-negative tracking values between −0.025em and −0.1em (27 occurrences), nine
-positive ones the wide ramp does not name (14), and eight radius entries (12)
-— the rem-valued corners, a stray `16px`, two `calc(var(--radius) − Npx)`
-deltas, and three multi-corner radii that are in fact already fully tokenised
-and counted only because the detector looks for a digit anywhere in the value.
+The second pass (T-18, AB#6167) took the remaining 53 down to 0. One value
+population — display h1s and oversized glyphs (3.2–7.3rem) carrying tracking
+tighter than any published step — was, like the first pass, the whole
+population of a step the ramp did not have, so it gained one:
+`--p42-track-6` (−0.075em in Standard, −0.08em Compact, −0.07em Wide, matching
+the existing ±0.005em layout offset and the ramp's step size). Everything else
+was mapped to the *nearest* existing step; several sit exactly at the
+midpoint between two steps (≤0.01em either way), which is read as "within
+tolerance" and rounded toward zero (the smaller-magnitude step) rather than
+treated as absent. A few sit further out and are noted below as visible but
+accepted drift.
+
+| Hardcoded value | Occurrences | Mapped to | Distance from step | Note |
+|---|---|---|---|---|
+| `border-radius: 0 var(--radius-small) var(--radius-small) 0` | 3 | *(no change)* | — | Already fully tokenised; `theme-boundary-check.mjs`'s geometry exemption only matched a lone `0`/`50%`, so a multi-corner shorthand built entirely from zero-and-token corners still tripped rule 5. Widened the exemption instead of touching the CSS. |
+| `border-radius: 0.65rem` (10.4px) | 1 | `--p42-radius-2xs` (10px) | 0.4px | |
+| `border-radius: 0.6rem` (9.6px) | 1 | `--p42-radius-2xs` (10px) | 0.4px | |
+| `border-radius: 0.85rem` (13.6px) | 1 | `--p42-radius-small` (14px) | 0.4px | |
+| `border-radius: 0.8rem` (12.8px) | 2 | `--p42-radius-xs` (12px) | 0.8px | |
+| `border-radius: 16px` | 2 | `--p42-radius-small` (14px) | 2px | Between `xs` (12px, 4px away) and `small` (14px); `small` is nearer. No token added — only 2 occurrences of this exact literal, below the ≥3 bar. |
+| `border-radius: calc(var(--radius) - 10px)` | 1 | `--p42-radius-small` | 0px in Standard (24−10=14=14) | Was already responsive to `--radius`; the media-query override of `--radius` at ≤760px (line ~4022) no longer applies here since this rule is a static token now, not a calc off `--radius`. |
+| `border-radius: calc(var(--radius) - 8px)` | 1 | `--p42-radius-small` (14px) | 2px in Standard (24−8=16) | Same rationale as the stray `16px` above — it rendered the same value. |
+| `letter-spacing: -0.025em` | 1 | `--p42-track-3` (−0.02em) | 0.005em | |
+| `letter-spacing: -0.03em` | 2 | `--p42-track-4` (−0.035em) | 0.005em | |
+| `letter-spacing: -0.04em` | 3 | `--p42-track-4` (−0.035em) | 0.005em | |
+| `letter-spacing: -0.045em` | 7 | `--p42-track-4` (−0.035em) | 0.01em (tie with track-5, −0.055em) | Highest-frequency remainder; exact midpoint between track-4 and track-5. Rounded toward zero. 0.01em on a 2rem heading is ≈0.3px per letter-gap — not a visible regression. |
+| `letter-spacing: -0.05em` | 5 | `--p42-track-5` (−0.055em) | 0.005em | |
+| `letter-spacing: -0.06em` | 3 | `--p42-track-5` (−0.055em) | 0.005em | |
+| `letter-spacing: -0.065em` | 1 | `--p42-track-5` (−0.055em) | 0.01em (tie with the new track-6, −0.075em) | Rounded toward zero. |
+| `letter-spacing: -0.07em` | 1 | `--p42-track-6` (−0.075em, new) | 0.005em | |
+| `letter-spacing: -0.075em` | 2 | `--p42-track-6` (−0.075em, new) | exact | |
+| `letter-spacing: -0.08em` | 1 | `--p42-track-6` (−0.075em, new) | 0.005em | |
+| `letter-spacing: -0.1em` | 1 | `--p42-track-6` (−0.075em, new) | 0.025em | Accepted drift, noted — the single occurrence is below the ≥3 bar to warrant its own step, and it already sat furthest from every prior step (0.045em from track-5). |
+| `letter-spacing: 0.035em` | 1 | `--p42-track-wide-2` (0.04em) | 0.005em | |
+| `letter-spacing: 0.045em` | 1 | `--p42-track-wide-2` (0.04em) | 0.005em | |
+| `letter-spacing: 0.05em` | 3 | `--p42-track-wide-2` (0.04em) | 0.01em (tie with wide-3, 0.06em) | Rounded toward zero. |
+| `letter-spacing: 0.07em` | 4 | `--p42-track-wide-3` (0.06em) | 0.01em (tie with wide-4, 0.08em) | Rounded toward zero. |
+| `letter-spacing: 0.09em` | 1 | `--p42-track-wide-4` (0.08em) | 0.01em | |
+| `letter-spacing: 0.1em` | 1 | `--p42-track-wide-4` (0.08em) | 0.02em (tie with wide-5, 0.12em) | Rounded toward zero. |
+| `letter-spacing: 0.11em` | 1 | `--p42-track-wide-5` (0.12em) | 0.01em | |
+| `letter-spacing: 0.14em` | 1 | `--p42-track-wide-5` (0.12em) | 0.02em | Accepted drift, noted. |
+| `letter-spacing: 0.16em` | 1 | `--p42-track-wide-5` (0.12em) | 0.04em | Accepted drift, noted — the largest single gap in this pass; only 1 occurrence, below the ≥3 bar. |
+
+The tie-break rule, stated once: when a value sits exactly equidistant between
+two steps, it snaps to the step nearer zero (the smaller-magnitude tracking).
+`--p42-track-6` is the one place this pass added a token, because unlike every
+tie above, the affected population (hero `h1`s and oversized display glyphs,
+`--p42-step-5`-sized text) had no step on *either* side within tolerance —
+the same "whole population of a missing rung" condition the first pass used
+to justify `--p42-radius-4xs..xs` and `--p42-track-wide-1..5`. It was added to
+`web/layouts/composition-tokens.json` and all three layout bundles
+(`compact`, `standard`, `wide`) together with `layout-tokens-check.mjs`'s
+sorted-list requirement, and to the `p42-fallback` layer in
+`web/app/globals.css` so a site on a layout bundle that predates it still
+renders. **`project42-gallery` vendors these bundles and must re-sync**
+(`npm run sync:platform-layouts --ref <platform-sha>`) to pick up the new
+token; until it does, its own copies fall back to whatever it already
+declares for the affected selectors, unaffected by this change since the
+Gallery does not consume this file.
 
 ## Rules for a deployer
 
