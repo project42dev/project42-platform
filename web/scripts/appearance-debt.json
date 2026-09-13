@@ -1,33 +1,4 @@
 {
-  "$comment": "Hardcoded radius and letter-spacing values core still carries. Each matches no step in any published layout ramp, so collapsing it would change the rendered page. The gate fails on a new value or a higher count: this list may only shrink.",
-  "values": {
-    "border-radius: 0 var(--radius-small) var(--radius-small) 0": 3,
-    "border-radius: 0.65rem": 1,
-    "border-radius: 0.6rem": 1,
-    "border-radius: 0.85rem": 1,
-    "border-radius: 0.8rem": 2,
-    "border-radius: 16px": 2,
-    "border-radius: calc(var(--radius) - 10px)": 1,
-    "border-radius: calc(var(--radius) - 8px)": 1,
-    "letter-spacing: -0.025em": 1,
-    "letter-spacing: -0.03em": 2,
-    "letter-spacing: -0.045em": 7,
-    "letter-spacing: -0.04em": 3,
-    "letter-spacing: -0.05em": 5,
-    "letter-spacing: -0.065em": 1,
-    "letter-spacing: -0.06em": 3,
-    "letter-spacing: -0.075em": 2,
-    "letter-spacing: -0.07em": 1,
-    "letter-spacing: -0.08em": 1,
-    "letter-spacing: -0.1em": 1,
-    "letter-spacing: 0.035em": 1,
-    "letter-spacing: 0.045em": 1,
-    "letter-spacing: 0.05em": 3,
-    "letter-spacing: 0.07em": 4,
-    "letter-spacing: 0.09em": 1,
-    "letter-spacing: 0.11em": 1,
-    "letter-spacing: 0.14em": 1,
-    "letter-spacing: 0.16em": 1,
-    "letter-spacing: 0.1em": 1
-  }
+  "$comment": "Hardcoded radius and letter-spacing values core still carries, mapped to the nearest step in the published layout ramp (see T-18, AB#6167, and docs/appearance-contract.md). The baseline is 0: the gate fails on ANY hardcoded radius or tracking value appearing here, not just a higher count.",
+  "values": {}
 }

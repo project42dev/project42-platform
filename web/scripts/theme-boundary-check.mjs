@@ -25,10 +25,10 @@
 // Rule 5 is a ratchet, not an amnesty. scripts/appearance-debt.json records
 // every hardcoded radius and tracking value core still carries, with counts.
 // The gate fails on a new value or a higher count, so the debt can only be
-// paid down. Each of those values is drift that has no matching step in any
-// published layout ramp; collapsing them to the ramp would change the rendered
-// page, which is a design decision for whoever owns the appearance, not a
-// mechanical one for this script.
+// paid down. As of T-18's second pass (AB#6167) the baseline is 0: every
+// remaining hardcoded value has been mapped to the nearest step in the
+// published layout ramp (docs/appearance-contract.md has the value-by-value
+// table), so a single new literal now fails the build outright.
 
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -189,8 +189,13 @@ lines.forEach((line, i) => {
 
     // 5 -- hardcoded radius and tracking, ratcheted against the baseline.
     if (/^border(?:-[a-z]+)*-radius$/.test(property) && /\d/.test(bare)) {
-      // A circle is geometry, not a brand decision.
-      if (!/^\s*(?:0|50%)\s*$/.test(bare.trim())) {
+      // A circle is geometry, not a brand decision. A multi-corner shorthand
+      // built entirely from `0` and token references (e.g.
+      // `0 var(--radius-small) var(--radius-small) 0`) is fully tokenised
+      // already -- stripping the var() calls left only the zero corners
+      // behind, so this is not a hardcoded value either, just several of
+      // them side by side.
+      if (!/^\s*(?:0|50%)(?:\s+(?:0|50%))*\s*$/.test(bare.trim())) {
         const key = `${property}: ${value.trim()}`;
         debt[key] = (debt[key] ?? 0) + 1;
       }
@@ -209,7 +214,7 @@ if (process.argv.includes("--record")) {
     `${JSON.stringify(
       {
         $comment:
-          "Hardcoded radius and letter-spacing values core still carries. Each matches no step in any published layout ramp, so collapsing it would change the rendered page. The gate fails on a new value or a higher count: this list may only shrink.",
+          "Hardcoded radius and letter-spacing values core still carries, mapped to the nearest step in the published layout ramp (see T-18, AB#6167, and docs/appearance-contract.md). The baseline is 0: the gate fails on ANY hardcoded radius or tracking value appearing here, not just a higher count.",
         values: sorted,
       },
       null,
