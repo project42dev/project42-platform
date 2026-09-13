@@ -6,8 +6,36 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Added
+
+- **A sixth tracking step, `--p42-track-6`, joins the published layout ramp.**
+  T-18's first pass left 53 hardcoded radius/letter-spacing values needing a
+  design decision. Each is now mapped to the nearest step in the published
+  layout ramp (mapping table and tie-break rule — round toward zero on an
+  exact midpoint — recorded in `docs/appearance-contract.md`), except one
+  population that was the whole population of a step the ramp did not have:
+  display h1s and oversized glyphs (3.2–7.3rem) carrying tracking tighter
+  than any published step. That population gained its own step (-0.075em
+  Standard, -0.08em Compact, -0.07em Wide, matching the ramp's existing
+  layout offset and step size), added to
+  `web/layouts/composition-tokens.json`, all three layout bundles, and the
+  `p42-fallback` layer in `globals.css` so a stale layout bundle still
+  renders. **project42-gallery vendors these bundles and needs
+  `npm run sync:platform-layouts --ref v0.116.0` to pick up the new token.**
+
 ### Changed
 
+- **`web/scripts/appearance-debt.json`'s baseline is now `{}`.** T-18's
+  hardcoded-radius/tracking gate previously tolerated a recorded baseline of
+  pre-existing debt; with the last 53 values mapped onto the ramp (see
+  Added, above), the gate now fails on any hardcoded radius or tracking
+  value, not only a regression against that baseline. A detector false
+  positive was fixed alongside this: a multi-corner border-radius shorthand
+  built entirely from `0` and token references (for example
+  `0 var(--radius-small) var(--radius-small) 0`) was flagged as hardcoded
+  because stripping the `var()` calls left multiple zeros behind and the
+  geometry exemption only matched a single bare `0`/`50%`; the exemption is
+  now widened instead.
 - **The hosted smoke says which provider page it clicked past.** Entra titles
   the consent page, the "stay signed in?" page and the password page alike
   ("Sign in to your account"), so `smoke-hosted-browser-session.mjs` logged the
