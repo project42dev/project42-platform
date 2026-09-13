@@ -78,7 +78,27 @@ const chromiumSandbox =
 const diagnosticDirectory =
   process.env.PROJECT42_HOSTED_DIAGNOSTIC_DIR?.trim() || "smoke-diagnostics";
 
-const issuerHost = new URL(issuer).host;
+// The origin the browser is expected to reach to sign in.
+//
+// This is NOT the issuer, and assuming it was is what made this gate
+// unrunnable. OIDC never promises that a provider's authorization endpoint
+// lives on its issuer's host -- discovery exists precisely because it may not
+// -- and Microsoft Entra External ID is a provider where it does not. This
+// tenant's own discovery document states
+//   issuer:                https://<tenant-id>.ciamlogin.com/<tenant-id>/v2.0
+//   authorization_endpoint https://<tenant-name>.ciamlogin.com/<tenant-id>/...
+// from BOTH of its login hosts: one authority, two hosts, and the `iss` the
+// tokens carry is the tenant-id form whichever host signed the reader in.
+//
+// So the issuer is asserted where it is actually observable and actually
+// meaningful -- on the resolved session's identity below, which is the `iss`
+// claim the API verified -- and this names only the front door. It defaults to
+// the issuer's origin, so every provider that does co-locate the two
+// (Keycloak, and the self-host reference) needs no configuration and behaves
+// exactly as before.
+const authorizationOrigin = new URL(
+  process.env.PROJECT42_HOSTED_AUTHORIZATION_ORIGIN?.trim() || issuer,
+).origin;
 const runId = gateRunId();
 
 // Every page this run opens, so a failure anywhere -- sign-in, the persistence
@@ -209,8 +229,8 @@ async function signInAndVerify(browser, label) {
     if (!request.isNavigationRequest()) return;
     const url = new URL(request.url());
     // The authorization request is the first navigation that leaves our own
-    // origins for the configured hosted issuer.
-    if (url.host === issuerHost && url.searchParams.has("client_id")) {
+    // origins for the provider's authorization origin.
+    if (url.origin === authorizationOrigin && url.searchParams.has("client_id")) {
       authorizationRequests.push(url);
     }
   });
@@ -228,18 +248,18 @@ async function signInAndVerify(browser, label) {
   await page.goto(`${learnOrigin}/account/`, { waitUntil: "domcontentloaded" });
   await signedOutEntry(page).click();
 
-  await page.waitForURL(`**${issuerHost}/**`);
+  await page.waitForURL(`${authorizationOrigin}/**`);
 
   // --- Assert the request that left our origin is a real PKCE code flow. ---
   assert.ok(
     authorizationRequests.length > 0,
-    `[${label}] The browser never issued an authorization request to the hosted issuer.`,
+    `[${label}] The browser never issued an authorization request to ${authorizationOrigin}.`,
   );
   const authorization = authorizationRequests[0];
   assert.equal(
-    authorization.host,
-    issuerHost,
-    "The authorization request did not go to the configured hosted issuer.",
+    authorization.origin,
+    authorizationOrigin,
+    "The authorization request did not go to the configured hosted authorization origin.",
   );
   assert.equal(
     authorization.searchParams.get("response_type"),

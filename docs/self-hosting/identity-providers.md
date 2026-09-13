@@ -140,7 +140,8 @@ Configure the hosted leg with these variables:
 | `PROJECT42_HOSTED_IDENTITY_ENABLED` | Set to `true` to run the hosted leg |
 | `PROJECT42_HOSTED_LEARN_ORIGIN` | Deployed Learn origin to sign in through |
 | `PROJECT42_HOSTED_API_ORIGIN` | Deployed API origin owning the callback |
-| `PROJECT42_HOSTED_ISSUER` | Exact expected `iss`; the authorization request must reach it |
+| `PROJECT42_HOSTED_ISSUER` | Exact expected `iss` on the resolved session |
+| `PROJECT42_HOSTED_AUTHORIZATION_ORIGIN` | Optional. Origin the browser must reach to sign in, when the provider does not host its authorization endpoint on the issuer's host. Defaults to the issuer's origin |
 
 and these Actions secrets:
 
@@ -160,6 +161,18 @@ External ID default, override `PROJECT42_HOSTED_USERNAME_SELECTOR`,
 (and set `PROJECT42_HOSTED_STAY_SIGNED_IN_SELECTOR` if it interposes a "stay
 signed in?" page) rather than editing the script — the leg is provider-neutral
 by configuration.
+
+A provider's authorization endpoint need not live on its issuer's host, and
+OIDC discovery exists because it may not. Microsoft Entra External ID is one
+such provider: its discovery document advertises an `issuer` of
+`https://<tenant-id>.ciamlogin.com/<tenant-id>/v2.0` while its
+`authorization_endpoint` is on `https://<tenant-name>.ciamlogin.com/`, and the
+`iss` its tokens carry is the tenant-id form either way. Set
+`PROJECT42_HOSTED_AUTHORIZATION_ORIGIN` to the origin of the provider's
+advertised `authorization_endpoint` when the two differ; leave it unset when
+they do not. `PROJECT42_HOSTED_ISSUER` stays the exact expected `iss`, which
+the gate asserts on the session the API resolved rather than on the address the
+browser visited.
 
 ## Deployment-time client provisioning
 

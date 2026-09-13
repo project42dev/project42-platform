@@ -74,9 +74,19 @@ test("the hosted provider leg proves an S256 PKCE authorization code flow", () =
 test("the hosted provider leg runs against a real issuer, not a stub", () => {
   assert.match(
     script,
-    /authorization\.host,\s*\n?\s*issuerHost/,
-    "The hosted leg must assert the authorization request reached the configured issuer.",
+    /authorization\.origin,\s*\n?\s*authorizationOrigin/,
+    "The hosted leg must assert the authorization request reached the configured authorization origin.",
   );
+  // The authorization origin defaults to the issuer's, so a deployment whose
+  // provider co-locates them cannot be pointed at a third party by omission.
+  assert.match(
+    script,
+    /PROJECT42_HOSTED_AUTHORIZATION_ORIGIN\?\.trim\(\) \|\| issuer/,
+    "The hosted leg's authorization origin must default to the issuer's origin.",
+  );
+  // This is the assertion that makes the leg real rather than a redirect test:
+  // the `iss` the API verified on the token, not the address the browser was
+  // sent to. The two are different values and only this one is the issuer.
   assert.match(
     script,
     /identity\.issuer,\s*\n?\s*issuer/,
