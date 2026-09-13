@@ -4,6 +4,21 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [Unreleased]
+
+### Changed
+
+- **The hosted smoke says which provider page it clicked past.** Entra titles
+  the consent page, the "stay signed in?" page and the password page alike
+  ("Sign in to your account"), so `smoke-hosted-browser-session.mjs` logged the
+  same line whether or not a learner would have been asked to consent. Each
+  interstitial now also logs its heading, a 200-character excerpt with email
+  addresses redacted, and `consent page: yes|no` (matched on "Permissions
+  requested" / "not published by Microsoft"). Logging only: every read is
+  bounded to two seconds and a failed read never fails the smoke. The smoke
+  account may already hold its own consent, so `consent page: no` here is
+  regression detection, not proof that new learners are no longer asked.
+
 ## [0.115.1] - 2026-09-12
 
 ### Fixed

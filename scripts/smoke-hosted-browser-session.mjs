@@ -396,6 +396,43 @@ async function signInAndVerify(browser, label) {
   return { context, page };
 }
 
+function redactInterstitialText(text) {
+  return String(text ?? "")
+    .replace(/[^\s@<>"'()]+@[^\s@<>"'()]+/g, "<email>")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Describe a provider interstitial for the log without failing the smoke:
+ * every read is bounded and a failed read is simply empty.
+ */
+async function describeInterstitial(page) {
+  const read = async (reader) => {
+    try {
+      return redactInterstitialText(await reader());
+    } catch {
+      return "";
+    }
+  };
+  const heading = await read(() =>
+    page
+      .locator('h1, h2, [role="heading"], #pageTitle, .title')
+      .first()
+      .textContent({ timeout: 2_000 }),
+  );
+  const body = await read(() =>
+    page.locator("body").innerText({ timeout: 2_000 }),
+  );
+  return {
+    heading: heading.slice(0, 160),
+    consent: /permissions requested|not published by microsoft/i.test(
+      `${heading} ${body}`,
+    ),
+    excerpt: body.slice(0, 200),
+  };
+}
+
 /**
  * Continue past whatever the provider puts between the password and our
  * return, until the browser is back on Learn.
@@ -433,8 +470,16 @@ async function clearInterstitials(page, landed, label) {
       ),
     ]);
     if (outcome === "landed") return;
+    // Entra titles every one of these pages "Sign in to your account", so the
+    // title alone cannot tell a consent page from "stay signed in?". Log the
+    // page's own heading and a short excerpt, emails redacted, and say plainly
+    // whether it is the consent page.
+    const described = await describeInterstitial(page);
     console.log(
-      `[${label}] Continuing past a provider interstitial: ${await page.title()}`,
+      `[${label}] Continuing past a provider interstitial: ${redactInterstitialText(await page.title())}` +
+        ` | heading: ${described.heading || "<none>"}` +
+        ` | consent page: ${described.consent ? "yes" : "no"}` +
+        ` | text: ${described.excerpt || "<none>"}`,
     );
     await control.click();
     // Do not go looking for the next page until this one has gone. A control
