@@ -4,6 +4,33 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [Unreleased]
+
+### Fixed
+
+- **An unhandled Worker error is no longer invisible in Workers Logs.**
+  `handleRequest`'s catch-all turned every unrecognized exception into a bare
+  500 and discarded the original error's name, message, and stack — only the
+  generic `internal_error` code and the request's raw pathname were logged.
+  That is why a D1 CHECK-constraint failure on `progress_imports` produced no
+  trace an operator could act on: `wrangler tail` showed a request id and
+  nothing else. The catch-all now logs a structured `console.error` (request
+  id, method, a route *pattern* with dynamic segments collapsed to `:id`,
+  status, code, and — for unrecognized errors only — the error's name,
+  message, and stack, redacted through `redactSensitive()` in case the
+  underlying error echoes back a token, cookie, password, or email). The
+  client-facing response is unchanged: still only a generic message and the
+  request id, never the error's own text. **If you have a saved Workers Logs
+  query against this line**, the catch-all's `path` key is now `route` (same
+  meaning, pattern instead of raw path), and `drainOwnerAccountNotifications`'s
+  `account_notification_scheduled_drain_failed` line dropped its plain
+  `message` field in favor of the same `errorName`/`errorMessage`/`errorStack`
+  shape. `scheduled()`'s two retention purges had the identical failure mode
+  one layer up — a rejected `ctx.waitUntil` promise is simply swallowed with
+  no structure to correlate
+  against — and now log the same way, independently per task, so one broken
+  purge does not silence the other or the notification drain.
+
 ## [0.115.1] - 2026-09-12
 
 ### Fixed

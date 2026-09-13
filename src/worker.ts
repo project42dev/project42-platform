@@ -493,6 +493,89 @@ class ApiFailure extends Error {
   }
 }
 
+// Turns a request pathname into a route pattern safe for logging: any segment
+// that could carry a caller-supplied value (a UUID, a mergeCaseId, a GitHub
+// node id, an installation id, ...) is collapsed to ":id" so the structured
+// error log below never has to reason about which segments are identifiers
+// and which are literal route words. Only lowercase-and-hyphen segments (the
+// literal words every route in this file is built from, e.g. "me",
+// "account-merges", "complete") pass through unchanged.
+function routePatternFor(pathname: string): string {
+  return pathname
+    .split("/")
+    .map((segment) =>
+      segment === "" || /^([a-z-]+|v[0-9]+|transcript\.csv)$/.test(segment)
+        ? segment
+        : ":id",
+    )
+    .join("/");
+}
+
+// An unrecognized error's message/stack can itself echo back caller-supplied
+// content - a D1 driver error quoting the offending row, a third-party
+// client library embedding the request it failed on. Visibility into what
+// broke must not become a second way for a bearer token, a cookie, a
+// password, or an email address to leave the Worker. This is a best-effort
+// scrub, not a guarantee for arbitrary text: it targets the shapes that
+// actually show up in error messages (auth headers, key/secret-looking
+// assignments, emails, long opaque tokens) and leaves everything else -
+// including the useful diagnostic text ("CHECK constraint failed on
+// progress_imports") - intact.
+const SENSITIVE_PATTERNS: RegExp[] = [
+  // Authorization headers and bearer tokens quoted back verbatim.
+  /\bBearer\s+[^\s"']+/gi,
+  // key=value / key: value pairs whose key names a credential.
+  /\b(token|secret|password|passwd|api[_-]?key|access[_-]?key|cookie|session(?:[_-]?id)?|authorization)\b\s*[:=]\s*[^\s,;"'&]+/gi,
+  // Common provider secret-key prefixes (e.g. Stripe-style sk-live-...).
+  /\bsk-[A-Za-z0-9_-]{8,}/g,
+  // Email addresses.
+  /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g,
+  // Long opaque hex/base64-ish runs (session ids, digests, JWT segments).
+  // Requires at least one digit so it does not eat pure-alpha identifiers -
+  // this codebase has class/function names past 32 characters (e.g.
+  // ServiceBindingAccountNotificationAdapter), and those must survive in a
+  // stack trace.
+  /\b(?=[A-Za-z0-9_-]*[0-9])[A-Za-z0-9_-]{32,}\b/g,
+];
+const LOG_TEXT_MAX_LENGTH = 2000;
+
+function redactSensitive(text: string): string {
+  let redacted = text;
+  for (const pattern of SENSITIVE_PATTERNS) {
+    redacted = redacted.replace(pattern, "[redacted]");
+  }
+  return redacted.length > LOG_TEXT_MAX_LENGTH
+    ? `${redacted.slice(0, LOG_TEXT_MAX_LENGTH)}...[truncated]`
+    : redacted;
+}
+
+// AB#6167: an unhandled exception here used to become a bare 500 with no
+// trace of what broke - the catch below logged only the request id, method,
+// path, and the generic "internal_error" code, discarding the original
+// error's name/message/stack entirely. That is why a D1 CHECK-constraint
+// failure on progress_imports was invisible in Workers Logs for weeks: the
+// operator had a request id and nothing to correlate it against. This
+// captures the underlying error for exactly the "we don't recognize this"
+// branch (a recognized ApiFailure/InvalidAdminCursorError/
+// InvalidAdminPageSizeError already carries an intentional, client-safe
+// code and message, so there is nothing hidden to recover for those) and
+// logs it server-side only, redacted - the client response never gets more
+// than the request id and a generic message regardless.
+function internalErrorLogDetail(error: unknown): {
+  errorName: string;
+  errorMessage: string;
+  errorStack?: string;
+} {
+  if (error instanceof Error) {
+    return {
+      errorName: error.name,
+      errorMessage: redactSensitive(error.message),
+      ...(error.stack ? { errorStack: redactSensitive(error.stack) } : {}),
+    };
+  }
+  return { errorName: typeof error, errorMessage: redactSensitive(String(error)) };
+}
+
 const BROWSER_IDENTITY_TOKEN_CLOCK_TOLERANCE_SECONDS = 60;
 
 class OidcJwtVerifier implements IdentityVerifier {
@@ -11426,14 +11509,21 @@ async function handleRequest(
         "The request could not be completed.",
       );
     }
+    // Unrecognized errors are the ones nobody already gave a client-safe code
+    // and message to, so they are the only ones whose name/message/stack are
+    // worth recovering server-side. Never include request query params,
+    // body, cookies, tokens, or emails here - only what identifies WHERE the
+    // request was (method + route pattern) and WHAT broke (the error itself).
+    const isUnrecognized = failure.code === "internal_error";
     console.error(
       JSON.stringify({
         level: failure.status >= 500 ? "error" : "warn",
         requestId,
         method: request.method,
-        path: new URL(request.url).pathname,
+        route: routePatternFor(new URL(request.url).pathname),
         status: failure.status,
         code: failure.code,
+        ...(isUnrecognized ? internalErrorLogDetail(error) : {}),
         ...(failure.diagnostic
           ? { identityTokenDiagnostic: failure.diagnostic }
           : {}),
@@ -11648,7 +11738,7 @@ async function drainOwnerAccountNotifications(
         requestId,
         action: "account-notification.scheduled-drain",
         code: "account_notification_scheduled_drain_failed",
-        message: error instanceof Error ? error.message : String(error),
+        ...internalErrorLogDetail(error),
       }),
     );
     return null;
@@ -11667,6 +11757,7 @@ export {
   handleRequest,
   purgeExpiredAuditDetail,
   purgeExpiredDeletionReceipts,
+  redactSensitive,
 };
 
 export default {
@@ -11679,8 +11770,41 @@ export default {
     ctx: ExecutionContext,
   ): void {
     const now = new Date().toISOString();
-    ctx.waitUntil(purgeExpiredAuditDetail(env.PROJECT42_DB, now));
-    ctx.waitUntil(purgeExpiredDeletionReceipts(env.PROJECT42_DB, now));
-    ctx.waitUntil(drainOwnerAccountNotifications(env, now));
+    const requestId = crypto.randomUUID();
+    // AB#6167: same problem as handleRequest's catch-all, just reached from
+    // the scheduled trigger instead of an HTTP request. ctx.waitUntil does
+    // not surface a rejected promise anywhere an operator would see it - a
+    // thrown error here used to vanish (Cloudflare logs an unhandled
+    // rejection with no structure, no request id, no route to correlate
+    // against). Each task gets its own requestId-tagged log entry with the
+    // task name, error name/message/stack, matching the fetch-path fix.
+    const logScheduledTaskFailure = (task: string, code: string) => (error: unknown) => {
+      console.error(
+        JSON.stringify({
+          level: "error",
+          requestId,
+          action: task,
+          code,
+          ...internalErrorLogDetail(error),
+        }),
+      );
+    };
+    ctx.waitUntil(
+      purgeExpiredAuditDetail(env.PROJECT42_DB, now).catch(
+        logScheduledTaskFailure(
+          "audit-detail.scheduled-purge",
+          "audit_detail_scheduled_purge_failed",
+        ),
+      ),
+    );
+    ctx.waitUntil(
+      purgeExpiredDeletionReceipts(env.PROJECT42_DB, now).catch(
+        logScheduledTaskFailure(
+          "deletion-receipt.scheduled-purge",
+          "deletion_receipt_scheduled_purge_failed",
+        ),
+      ),
+    );
+    ctx.waitUntil(drainOwnerAccountNotifications(env, now, requestId));
   },
 } satisfies ExportedHandler<WorkerEnvironment>;
