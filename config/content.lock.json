@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "96db98ce18efafcfc6714ef132af8834bda394ab"
+    "commit": "ba31835bb822b1d9aaa64c9fe374426e63ccc5dd"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -54,7 +54,7 @@
     "modules/anthropic-claude-practice/claude-api-and-sdk-workflows.json": "26be9af0eb5e6fa547c9e444364a4b6b909025d5f845ea3af7d0433b92953944",
     "modules/anthropic-claude-practice/claude-evaluation-and-observability.json": "9eb2a9a58d6968a933a833dbdc1b9f297daa1ed054a43c44e1eeafcf8c86aaae",
     "modules/anthropic-claude-practice/claude-prompting-in-practice.json": "6840bce2fdc3aea9c0359ac038495183a5781ed0b8f0f1ce8fc27374882a2105",
-    "modules/anthropic-claude-practice/claude-safety-and-trust-boundaries.json": "02bc13caf924c8ad84824defdf26ffccecf7a99e6cbd828271218961722c72c9",
+    "modules/anthropic-claude-practice/claude-safety-and-trust-boundaries.json": "db84566eb0918ae17fc5e4ec4d5795c80ce19248c30caa2ff03dafe8d297b9a0",
     "modules/anthropic-claude-practice/claude-tools-and-agent-loops.json": "4d9359e81cc2e49215611393369066ed90e0a1294860c3292ab338c7d738832e",
     "modules/anthropic-claude-practice/migrating-to-and-from-claude.json": "8dd6091e1074028e5e85f109fc5fdafb30e8a3ed37d1b3aa5c14d0cae667a237",
     "modules/developer-and-practitioner-ai/function-calling-and-tools.json": "b5b7813ecf9695cc97585b2e67c2d107539ee9b50a11272ce3a3b02a95b3cac6",
