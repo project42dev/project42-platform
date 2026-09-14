@@ -1,3 +1,31 @@
+# Project 42 platform v0.116.0
+
+An unhandled Worker error is now visible in Workers Logs, a sixth tracking step joins the published layout ramp, and the hosted smoke names each provider interstitial it passes.
+
+**An unhandled Worker error was invisible in Workers Logs.** `handleRequest`'s catch-all turned every unrecognized exception into a bare 500 and discarded the original error's name, message, and stack — only a generic `internal_error` code and the request's raw pathname were logged. That is why a D1 CHECK-constraint failure on `progress_imports` produced no trace an operator could act on: `wrangler tail` showed a request id and nothing else. The catch-all now logs a structured `console.error` with the request id, method, a route *pattern* with dynamic segments collapsed to `:id`, status, code, and — for unrecognized errors only — the error's name, message, and stack, redacted through `redactSensitive()` in case the underlying error echoes back a token, cookie, password, or email. The client-facing response is unchanged: still only a generic message and the request id, never the error's own text. `scheduled()`'s two retention purges had the identical failure mode one layer up — a rejected `ctx.waitUntil` promise was simply swallowed with no structure to correlate against — and now log the same way, independently per task, so one broken purge does not silence the other or the notification drain.
+
+**A sixth tracking step, `--p42-track-6`, joins the published layout ramp.** T-18's first pass left 53 hardcoded radius/letter-spacing values needing a design decision; each is now mapped to the nearest step in the published ramp (mapping table and tie-break rule in `docs/appearance-contract.md`), except one population that was the whole population of a step the ramp did not have: display h1s and oversized glyphs carrying tracking tighter than any published step. `web/scripts/appearance-debt.json`'s baseline is now `{}` — the gate fails on any hardcoded radius or tracking value, not only a regression. **project42-gallery vendors these bundles and needs `npm run sync:platform-layouts --ref v0.116.0` to pick up the new token.**
+
+**The hosted smoke says which provider page it clicked past.** Entra titles the consent page, the "stay signed in?" page and the password page alike ("Sign in to your account"), so `smoke-hosted-browser-session.mjs` logged the same line whether or not a learner would have been asked to consent. Each interstitial now also logs its heading, a 200-character excerpt with email addresses redacted, and `consent page: yes|no`. Logging only, bounded to two seconds per read, and a failed read never fails the smoke.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+Two operator-facing Workers Logs keys changed on the catch-all and the drain-failure line, named here for anyone with a saved query: the catch-all's `path` key is now `route` (same meaning, pattern instead of raw path), and `drainOwnerAccountNotifications`'s `account_notification_scheduled_drain_failed` line dropped its plain `message` field in favor of the same `errorName`/`errorMessage`/`errorStack` shape used elsewhere in this release.
+
+## Known limitations
+
+project42-gallery has not yet run `npm run sync:platform-layouts --ref v0.116.0`, and the portal's platform pin is still v0.115.1 — both are follow-ups to this release, not part of it. Owner alerts remain limited to deployments that configured `ACCOUNT_NOTIFICATION_DELIVERY`, unchanged from 0.115.x.
+
+## Rollback
+
+Pin 0.115.1. Nothing in this release touches a database migration or the self-host compatibility contract beyond the version string.
+
+---
+
 # Project 42 platform v0.115.1
 
 Two test fixes on top of 0.115.0. Nothing a learner sees changed; what changed is that the gates now assert what the site actually ships.
