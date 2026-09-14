@@ -1,3 +1,26 @@
+# Project 42 platform v0.116.1
+
+The hosted smoke now proves a learner keeps their place, and the Claude safety module's code example no longer teaches the unsafe pattern it warns against.
+
+**The hosted smoke never proved "continue where you left off".** It only ever wrote and read back a finished module. The persistence gate now records a visit to an unfinished module exactly as the front end does, requires a fresh signed-in session to read back `recentModule`, and requires `selectResumeTarget` to send the learner back to it. A store that keeps completions but loses the learner's place now fails the gate by name.
+
+**The Claude safety module's example concatenated untrusted retrieved text into the user message.** That contradicted the section's own guidance. The example now keeps policy in the system prompt and returns the document through a `tool_use` / `tool_result` exchange (content project42-content@ba31835).
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None. The gate change affects only operators running `scripts/smoke-hosted-browser-session.mjs`: it now opens one more fresh session and makes one more progress write, both cleaned up.
+
+## Known limitations
+
+The portal's platform pin is still v0.116.0; bumping it to v0.116.1 is a follow-up to this release.
+
+## Rollback
+
+Pin 0.116.0. Nothing in this release touches a database migration or the self-host compatibility contract beyond the version string.
 # Project 42 platform v0.116.0
 
 An unhandled Worker error is now visible in Workers Logs, a sixth tracking step joins the published layout ramp, and the hosted smoke names each provider interstitial it passes.
