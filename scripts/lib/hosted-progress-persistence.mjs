@@ -38,6 +38,8 @@
 import {
   ACCOUNT_BACKED_PROGRESS_SOURCE,
   recordAssessmentAttempt,
+  recordModuleVisit,
+  selectResumeTarget,
   starterCatalog,
 } from "../../dist/index.js";
 
@@ -240,6 +242,24 @@ function assertCompletion(progress, { moduleId, attemptId }, label) {
   }
 }
 
+// "Keep my place": the unfinished module the learner was last in must survive
+// the write, and "Continue" must send them back to it -- not merely a stored
+// field, but the answer the resume control actually computes.
+function assertPlace(progress, catalog, { pathId, moduleId }, label) {
+  const recent = progress.recentModule;
+  if (recent?.moduleId !== moduleId || recent?.pathId !== pathId) {
+    fail(
+      `${label}: HTTP 200, but recentModule is ${JSON.stringify(recent ?? null)}, not ${pathId}/${moduleId}. The learner's place was not kept.`,
+    );
+  }
+  const resume = selectResumeTarget(progress, catalog);
+  if (resume?.moduleId !== moduleId) {
+    fail(
+      `${label}: recentModule is stored, but Continue would send the learner to ${JSON.stringify(resume)} instead of ${moduleId}.`,
+    );
+  }
+}
+
 async function removeGateModule({ client, label, moduleId, now, newImportId, fallback }) {
   let current = fallback;
   try {
@@ -280,7 +300,7 @@ export async function runProgressPersistenceGate({
   }
   const { pathId, moduleId } = selectGateModule(catalog);
   const attemptId = `${GATE_ATTEMPT_PREFIX}${runId}`;
-  const target = { moduleId, attemptId };
+  const target = { moduleId, attemptId, place: { pathId, moduleId } };
   const summary = { pathId, moduleId, attemptId, preCleaned: false };
 
   // 1. Baseline.
@@ -305,24 +325,42 @@ export async function runProgressPersistenceGate({
     "Baseline",
   );
 
-  // 3. One completion, built and sent exactly as the front end builds it.
-  const completedAt = now();
-  const next = recordAssessmentAttempt(baseline.progress, catalog, {
-    attemptId,
-    pathId,
-    moduleId,
-    completedAt,
-    result: { correct: 1, total: 1, scorePercent: 100, passed: true, feedback: [] },
-  });
-  if (!next.completedModuleIds.includes(moduleId)) {
-    fail(`recordAssessmentAttempt did not complete ${moduleId}; the gate cannot write it.`);
-  }
-
   let attemptedWrite = false;
   let freshSession;
   let gateError;
   try {
+    // 3. Keep my place. Open the module without finishing it, exactly as the
+    //    front end records a visit, then prove a fresh session is sent back to it.
     attemptedWrite = true;
+    const visited = recordModuleVisit(baseline.progress, catalog, {
+      pathId,
+      moduleId,
+      visitedAt: now(),
+    });
+    const placed = await writeProgress(
+      primary,
+      "Visit PUT /v1/me/progress",
+      visited,
+      newImportId(),
+    );
+    assertPlace(placed.progress, catalog, target.place, "Visit PUT /v1/me/progress response");
+    const placeSession = await openFreshSession();
+    const placeRead = await readProgress(placeSession, "Fresh-session place GET /v1/me/progress");
+    assertPlace(placeRead.progress, catalog, target.place, "Fresh-session place GET /v1/me/progress");
+    summary.placeKept = true;
+
+    // 4. One completion, built on the record the learner now has, exactly as
+    //    the front end builds it.
+    const next = recordAssessmentAttempt(placed.progress, catalog, {
+      attemptId,
+      pathId,
+      moduleId,
+      completedAt: now(),
+      result: { correct: 1, total: 1, scorePercent: 100, passed: true, feedback: [] },
+    });
+    if (!next.completedModuleIds.includes(moduleId)) {
+      fail(`recordAssessmentAttempt did not complete ${moduleId}; the gate cannot write it.`);
+    }
     const written = await writeProgress(
       primary,
       "Completion PUT /v1/me/progress",
@@ -332,7 +370,7 @@ export async function runProgressPersistenceGate({
     assertCompletion(written.progress, target, "Completion PUT /v1/me/progress response");
     summary.revisionAfterWrite = written.revision;
 
-    // 4. A fresh session must see it, in the record and in module_progress.
+    // 5. A fresh session must see it, in the record and in module_progress.
     freshSession = await openFreshSession();
     const reread = await readProgress(freshSession, "Fresh-session GET /v1/me/progress");
     assertCompletion(reread.progress, target, "Fresh-session GET /v1/me/progress");

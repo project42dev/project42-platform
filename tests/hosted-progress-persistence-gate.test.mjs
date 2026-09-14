@@ -60,6 +60,10 @@ function fakeAccountApi(faults = {}) {
         });
       }
       const current = envelope();
+      if (faults.dropRecentModule && sessionName === "fresh") {
+        // A store that keeps completions but loses where the learner was.
+        delete current.progress.recentModule;
+      }
       if (faults.flatShape) return reply(200, { progress: current.progress });
       if (faults.noEnvelope) return reply(200, { revision: current.revision });
       return reply(200, { progress: current });
@@ -135,7 +139,12 @@ test("(a) an API that persists the completion passes, and cleanup leaves nothing
   assert.equal(summary.moduleId, moduleId);
   assert.equal(summary.attemptId, `${GATE_ATTEMPT_PREFIX}mock-run-0001`);
   assert.equal(summary.preCleaned, false);
-  assert.equal(api.freshSessions, 1, "the read-back must come from a fresh session");
+  assert.equal(
+    api.freshSessions,
+    2,
+    "both read-backs (the kept place, then the completion) must come from fresh sessions",
+  );
+  assert.equal(summary.placeKept, true);
   assert.ok(
     api.store.writes.some((write) => write.completion && write.session === "primary"),
     "the gate must actually have written a completion",
@@ -145,6 +154,17 @@ test("(a) an API that persists the completion passes, and cleanup leaves nothing
 
   // Repeatable: a second run on the same account passes too.
   await runProgressPersistenceGate(api.gateInput("mock-run-0002"));
+  assert.equal(hasGateResidue(api.store.progress, moduleId), false);
+});
+
+test("keep my place: a store that loses the learner's unfinished module fails the gate, and cleanup still runs", async () => {
+  const api = fakeAccountApi({ dropRecentModule: true });
+  await assert.rejects(
+    runProgressPersistenceGate(api.gateInput()),
+    new RegExp(
+      `Fresh-session place GET /v1/me/progress: HTTP 200, but recentModule is null, not ${pathId}/${moduleId}\\. The learner's place was not kept\\.`,
+    ),
+  );
   assert.equal(hasGateResidue(api.store.progress, moduleId), false);
 });
 
@@ -164,7 +184,7 @@ test("(b) a 500 on the fresh-session read fails the gate, and cleanup still runs
   const api = fakeAccountApi({ getStatus: { fresh: 500 } });
   await assert.rejects(
     runProgressPersistenceGate(api.gateInput()),
-    /Fresh-session GET \/v1\/me\/progress: GET \/v1\/me\/progress returned HTTP 500/,
+    /Fresh-session (place )?GET \/v1\/me\/progress: GET \/v1\/me\/progress returned HTTP 500/,
   );
   // The fresh session could not read, so cleanup fell back to the baseline
   // record; the completion must still have been removed.
@@ -369,7 +389,10 @@ test("the real worker without migration 0020 -- production until 2026-09-10 -- f
       openFreshSession: async () => worker.client("session-two"),
       runId: "worker-run-regressed",
     }),
-    /Completion PUT \/v1\/me\/progress: PUT \/v1\/me\/progress returned HTTP 500/,
+    // Withholding 0020 breaks every account-backed write, so the first write the
+    // gate makes -- now the visit that records the learner's place -- is the one
+    // that surfaces the CHECK constraint.
+    /(Visit|Completion) PUT \/v1\/me\/progress: PUT \/v1\/me\/progress returned HTTP 500/,
   );
   assert.equal(await worker.countModuleRows(), 0, "the regressed schema writes no module_progress row");
 });

@@ -4,6 +4,19 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [Unreleased]
+
+### Added
+
+- **The hosted persistence gate now proves a learner keeps their place.**
+  Before completing its module, the gate records a visit to it exactly as the
+  front end does (`recordModuleVisit`), writes it, and requires a fresh signed-in
+  session to read back `recentModule` pointing at that unfinished module — and
+  `selectResumeTarget` to send the learner back to it. Until now production only
+  ever proved a finished module persisted, never "continue where you left off".
+  A store that keeps completions but loses the learner's place now fails the
+  gate by name.
+
 ## [0.116.0] - 2026-09-13
 
 ### Added
