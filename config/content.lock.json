@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "4c41c9ea71658f1810059a369792b2ca1f7ec08f"
+    "commit": "9adbc9148439e9dbf31b80a4d3675d2e3f2fd3a4"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -78,7 +78,7 @@
     "modules/provider-comparison/compare-provider-capabilities.json": "0f6ba989d744d8962bcb97fc048055711e2d5af10221e8bbdc1640e0d71e6151",
     "modules/provider-comparison/execute-cross-provider-cutover.json": "7ba2cea423670bf9527206a9887fa2080df0a188a5f8e53d76d39d37d84d4308",
     "modules/provider-comparison/plan-cross-provider-migration.json": "2ca5f4973a2e7d3ad5e2f0084ceb9783b8cd4790334a63392ce762789baa35b8",
-    "modules/rag-and-fine-tuning-engineering/advanced-rag-and-hybrid-search.json": "3abce2ceba923eb323f1e231474834bfc2b427277c4d05e00b8eeba1ee53c9ba",
+    "modules/rag-and-fine-tuning-engineering/advanced-rag-and-hybrid-search.json": "b52ebfde2f737ea6af1e004a722a8666d6b63ba2c2b4017a627ea7a48b5f35ef",
     "modules/rag-and-fine-tuning-engineering/dpo-and-model-evaluation.json": "d403c26037f812db19539e7cb0f3e7b30e8356cf5a7071522133fed1e2bde4d7",
     "modules/rag-and-fine-tuning-engineering/graph-rag-and-knowledge-graphs.json": "f43fa88d17b431e806d4f358a1365e01cd244921b63754feeca76bc8a1f0d77f",
     "modules/rag-and-fine-tuning-engineering/lora-qlora-fine-tuning.json": "c523c6fa0e44cb9574b0cec2dce79f1671ddd73f59dfb571c21f33bdb34a0c00",
