@@ -4,6 +4,13 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.116.2] - 2026-09-17
+
+### Fixed
+
+- Synced the factually reviewed AI mental models lesson from project42-content, preserving its learner activity and instructor script.
+- Refreshed the platform content pin to the canonical curriculum after unsafe Orchard resource drafts were reverted.
+
 ## [0.116.1] - 2026-09-14
 
 ### Added
