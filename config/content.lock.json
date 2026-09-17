@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "ba31835bb822b1d9aaa64c9fe374426e63ccc5dd"
+    "commit": "d213012bc3f819a1505434796a3e66af82c9c82a"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -44,7 +44,7 @@
     "modules/ai-foundations/verification-and-iterative-improvement.json": "bfe79cad32e8b0bd25ce4d43c06f6ceac70e2d08aa4756d0435f9d424f074d57",
     "modules/ai-foundations/what-ai-does.json": "a9e599285e880dac2028069b959e17cc82dd10157d1f4e552c89714e82d3bbf3",
     "modules/ai-foundations/writing-and-transformation-workflow.json": "87f6bfa96244312ed62b2d641b63cd8c1abe38b9598255df2740af6a1fc35560",
-    "modules/ai-literacy-and-mental-models/ai-mental-models.json": "a0c8f70d414d71661ca4affc7dccd9a9ef1d66ba9e54b7ff12e1dcdb12c9536e",
+    "modules/ai-literacy-and-mental-models/ai-mental-models.json": "4fe4aa1420bf85293f5c91049a453fe09084256297bf51f3b14ac4601783263d",
     "modules/ai-literacy-and-mental-models/prompt-architecture.json": "169c54569fe2920a1afc2707d5fed329a80b5ae8f70d4e65ab15bab887305a01",
     "modules/ai-literacy-and-mental-models/token-economics-and-limits.json": "1a2fde63d38154713971c5c465e69f030956f9a68dda657e45ea35cd52ee80df",
     "modules/ai-security-and-governance/ai-compliance-and-crypto-receipts.json": "4232e4b44ed4e62ac9fe0a325791c1b2669e6d902ceb90388e4b864519ac4f28",
