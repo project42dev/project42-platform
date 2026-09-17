@@ -1,6 +1,6 @@
 # Project 42 platform v0.116.2
 
-The AI mental models lesson now explains that repeated agreement measures observed output stability, not factual truth or the underlying token distribution. Its learner activity and instructor script remain attached. The platform pins the validated canonical content at project42-content@d213012bc3f819a1505434796a3e66af82c9c82a.
+The AI mental models lesson now explains that repeated agreement measures observed output stability, not factual truth or the underlying token distribution. Its learner activity and instructor script remain attached. The catalogue no longer promises guaranteed structured output, and the Orchard and agent-orchestration diagrams reflect the current lifecycle. The platform pins the validated canonical content at project42-content@4c41c9ea71658f1810059a369792b2ca1f7ec08f.
 
 ## Breaking changes
 

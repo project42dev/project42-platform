@@ -2,19 +2,19 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "d213012bc3f819a1505434796a3e66af82c9c82a"
+    "commit": "4c41c9ea71658f1810059a369792b2ca1f7ec08f"
   },
   "contentVersion": "0.42.0",
   "files": {
-    "catalog.json": "15c943fd51d57247a75bc80318ee658c2f54981e26af4ff33b76a72e83c1108a",
-    "diagrams/agent-orchestration.mmd": "c44fcba43ca4c1b90cbafe1a6941c03a3bf829292f01d89fff15ee7d324642a8",
-    "diagrams/catalogue.json": "5673e169bbbc912a931fbb20f59ba3e3fd515380b756bb5c0a156ad3b664a873",
+    "catalog.json": "04430c5eb1cd6ed36a69bf3a2692e79c55d37cb07c1cf6c00f109fdd7b54bce9",
+    "diagrams/agent-orchestration.mmd": "9c916bea4b29e448bceae7758d1fff3867c2e99da51b3e89237397c05c95c72a",
+    "diagrams/catalogue.json": "c21969fe08a95809a828aa5bacad3754c3f542b294fcf86df5c6dcad8a6f60d0",
     "diagrams/content-freshness-release.mmd": "e2ffa6894a362a2ce0e76506c9c94ea7afed095938a59619967ef41436eb3485",
     "diagrams/cost-and-capacity-management.mmd": "a50cf355bd46f30b6d1f02d67c348f2e8272106f33a5c979e25fc61b80a84738",
     "diagrams/grounded-answer-workflow.mmd": "695373c14bff83c3868c7a5de4bf01ac7526fbf638add2cbc194e95913f7a65f",
     "diagrams/learning-evidence-loop.mmd": "bb7320b9964e2fac205eb30ebda50d9078a9abdfda571e41c7775f9b7088c63c",
     "diagrams/multi-agent-handoff.mmd": "4656b3b0f5a5e871cd1c944a180c57caef1da8f5764c93556d47776759504eb8",
-    "diagrams/orchard-lifecycle.mmd": "688ba9a6364d406e54fa25940f88535db30dc843f78f6603bacb5cb8c34e7906",
+    "diagrams/orchard-lifecycle.mmd": "532337a36b5a5b189f509cf6349054f1c304420e4bda5b0dc658ba66213702e3",
     "diagrams/prompt-contract.mmd": "b9363b897918e4dbf1754d38ce7d190f719a7a74cade87d3e4dc6fe7c141b9bd",
     "diagrams/provider-selection.mmd": "1699442d4a4b5e31636d95eab8800fb3f83ce0ca499ebb7cbd6cfe1552e58779",
     "diagrams/safe-agent-loop.mmd": "3b1a5b83b184a9ff4ce362ef7d253f7f13bb7ee9fc3d668c686bac7e0fe6728d",
