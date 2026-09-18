@@ -1,3 +1,23 @@
+# Project 42 platform v0.116.5
+
+The AI Glossary, Prompt Checklist, and Provider Decision Card now include concrete definitions and examples, representative evaluation steps, and relevant dated primary sources. These edits address review findings for September Orchard items 9268–9270. This release pins canonical content at project42-content@ab57247471396fe8e4de7a18b0fca1a38577af8d.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+Consumer sites must update their platform pins to v0.116.5 to serve these corrections. Orchard still holds the generated drafts without Gate 2 evidence; the other September findings remain unresolved.
+
+## Rollback
+
+Pin v0.116.4. No database migration is involved.
+
 # Project 42 platform v0.116.4
 
 The Agent Safety Checklist now gives concrete permission, approval, postcondition, and recovery checks grounded in OWASP guidance. This release pins canonical content at project42-content@4baa7c26223c1c8bdec5c2e911f3d413bbb628e4.
