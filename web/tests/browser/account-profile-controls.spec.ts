@@ -743,12 +743,14 @@ test.describe("hosted profile and learner-data controls", () => {
     ).toBeVisible();
 
 
-    await page
-      .getByRole("switch", { name: "Product improvement" })
-      .check();
+    const productImprovementSwitch = page.getByRole("switch", {
+      name: "Product improvement",
+    });
+    await productImprovementSwitch.click();
     await expect(
       page.getByText("Consent could not be updated. Your previous decision is unchanged."),
     ).toBeVisible();
+    await expect(productImprovementSwitch).not.toBeChecked();
 
     await page.getByRole("button", { name: "Download my data" }).click();
     await expect(
