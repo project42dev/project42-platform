@@ -51,7 +51,7 @@ const assertedTokenNames = [
   "--p42-text-muted",
 ] as const;
 
-const galacticTokens: Record<string, string> = Object.fromEntries(
+const selectedThemeTokens: Record<string, string> = Object.fromEntries(
   assertedTokenNames
     .filter((name) => themeManifest.tokens?.[name])
     .map((name) => [name, themeManifest.tokens![name]!]),
@@ -319,8 +319,8 @@ test("uses Galactic presentation without Gallery specimen content", async ({
   const computedTokens = await page.locator("html").evaluate((element, names) => {
     const styles = getComputedStyle(element);
     return Object.fromEntries(names.map((name) => [name, styles.getPropertyValue(name).trim()]));
-  }, Object.keys(galacticTokens));
-  expect(computedTokens).toEqual(galacticTokens);
+  }, Object.keys(selectedThemeTokens));
+  expect(computedTokens).toEqual(selectedThemeTokens);
 });
 
 // Theme is deployment-owned: it comes from project42.config.json only, so a
@@ -331,7 +331,7 @@ test("discards a stale browser theme in favour of the configured theme", async (
   page,
 }) => {
   await page.addInitScript(() => {
-    window.localStorage.setItem("project42.theme.v1", "01-cosmic-answer");
+    window.localStorage.setItem("project42.theme.v1", "obsolete-customer-theme");
   });
   await page.goto("/");
 

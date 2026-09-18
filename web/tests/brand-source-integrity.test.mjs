@@ -108,30 +108,6 @@ test("the selected theme bundle scopes its rules to its own id", () => {
   );
 });
 
-// Galactic is currently the only bundle with real component CSS -- the other
-// five ship a ~70-byte placeholder portal.css (tokens and hero art only). Its
-// specific ornament/hero rules are therefore asserted only when Galactic is
-// the selected theme, rather than unconditionally, which previously pinned the
-// whole portal to that one theme.
-test("Galactic bundle removes default landing ornaments and uses its hero token", { skip: selectedTheme !== "06-galactic-guide" }, () => {
-  const styles = fs.readFileSync(
-    path.resolve(`public/themes/${selectedTheme}/portal.css`),
-    "utf8",
-  );
-  assert.match(
-    styles,
-    /html\[data-theme="06-galactic-guide"\] \.path-card::after\s*\{\s*content:\s*none;/,
-  );
-  assert.match(
-    styles,
-    /html\[data-theme="06-galactic-guide"\] \.hero-map\s*\{[^}]*var\(--p42-hero-image\)/s,
-  );
-  assert.match(
-    styles,
-    /html\[data-theme="06-galactic-guide"\] \.footer-grid a\s*\{[^}]*min-height:\s*0;[^}]*padding-block:\s*0\.2rem;/s,
-  );
-});
-
 test("core contains no named customer theme or layout implementation", () => {
   const core = [
     fs.readFileSync(path.resolve("app/globals.css"), "utf8"),

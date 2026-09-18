@@ -174,13 +174,13 @@ test("materialise installs the application and generates the theme-bundle index"
   try {
     writeFileSync(
       path.join(scratch, "project42.config.json"),
-      JSON.stringify(scaffoldConfig(["05-open-orbit", "06-galactic-guide"]), null, 2),
+      JSON.stringify(scaffoldConfig(["customer-theme", "portal-default"]), null, 2),
       "utf8",
     );
-    // 05-open-orbit is a theme this site downloaded and dropped into its own
+    // customer-theme is a theme this site downloaded and dropped into its own
     // repository. Nothing registers it: the folder being there, and the name
     // being in the config, is the whole mechanism.
-    dropThemeFolder(scratch, "05-open-orbit");
+    dropThemeFolder(scratch, "customer-theme");
     execFileSync(process.execPath, [cli, "materialise", "--target", scratch], { stdio: "pipe" });
 
     assert.ok(existsSync(path.join(scratch, "app", "layout.tsx")));
@@ -199,23 +199,23 @@ test("materialise installs the application and generates the theme-bundle index"
     );
 
     const generated = readFileSync(path.join(scratch, "lib", "themeBundles.generated.ts"), "utf8");
-    assert.match(generated, /public\/themes\/05-open-orbit\/theme\.json/);
-    assert.match(generated, /public\/themes\/06-galactic-guide\/theme\.json/);
+    assert.match(generated, /public\/themes\/customer-theme\/theme\.json/);
+    assert.match(generated, /public\/themes\/portal-default\/theme\.json/);
     assert.ok(
       !/01-cosmic-answer/.test(generated),
       "only the configured themes may be indexed; a fixed six-theme list was the defect this replaced",
     );
 
     // Both bundles are installed and renderable, from two different origins:
-    // 05-open-orbit from this repository's own themes/ folder, 06-galactic-guide
+    // customer-theme from this repository's own themes/ folder, portal-default
     // from the platform. Neither needed a Gallery checkout or a lock entry.
     assert.equal(
-      readFileSync(path.join(scratch, "public", "themes", "05-open-orbit", "tokens.css"), "utf8"),
+      readFileSync(path.join(scratch, "public", "themes", "customer-theme", "tokens.css"), "utf8"),
       DROPPED_IN,
       "a theme folder in the site's own repository wins",
     );
     assert.ok(
-      existsSync(path.join(scratch, "public", "themes", "06-galactic-guide", "portal.css")),
+      existsSync(path.join(scratch, "public", "themes", "portal-default", "portal.css")),
       "and the platform's shipped default supplies anything the site did not drop in",
     );
 
@@ -235,7 +235,7 @@ test("materialise refuses to overwrite a git-tracked file", () => {
     git("config", "user.name", "test");
     writeFileSync(
       path.join(scratch, "project42.config.json"),
-      JSON.stringify(scaffoldConfig(["06-galactic-guide"]), null, 2),
+      JSON.stringify(scaffoldConfig(["portal-default"]), null, 2),
       "utf8",
     );
     mkdirSync(path.join(scratch, "app"), { recursive: true });
@@ -271,7 +271,7 @@ test("create produces a front-end repository and a content repository, inheritan
         "--org",
         "Example Academy",
         "--theme",
-        "05-open-orbit",
+        "customer-theme",
         "--origin",
         "https://learn.example.org",
       ],
@@ -282,7 +282,7 @@ test("create produces a front-end repository and a content repository, inheritan
     const content = path.join(scratch, "example-academy-content");
 
     const config = JSON.parse(readFileSync(path.join(frontend, "project42.config.json"), "utf8"));
-    assert.equal(config.theme, "05-open-orbit");
+    assert.equal(config.theme, "customer-theme");
     assert.equal(config.organization.name, "Example Academy");
     assert.equal(config.portal.canonicalOrigin, "https://learn.example.org");
     assert.equal(config.portal.adminOrigin, "https://admin.learn.example.org");
@@ -380,7 +380,7 @@ test("materialise renders the catalogue the adopter's content repository publish
     const frontend = path.join(scratch, "frontend");
     const content = path.join(scratch, "frontend-content");
     mkdirSync(frontend, { recursive: true });
-    const config = scaffoldConfig(["06-galactic-guide"]);
+    const config = scaffoldConfig(["portal-default"]);
     config.content = { customContentDir: "../frontend-content" };
     writeFileSync(
       path.join(frontend, "project42.config.json"),
@@ -423,7 +423,7 @@ test("materialise uses the platform catalogue only when none is configured", () 
   try {
     writeFileSync(
       path.join(scratch, "project42.config.json"),
-      JSON.stringify(scaffoldConfig(["06-galactic-guide"]), null, 2),
+      JSON.stringify(scaffoldConfig(["portal-default"]), null, 2),
       "utf8",
     );
     execFileSync(process.execPath, [cli, "materialise", "--target", scratch], { stdio: "pipe" });
@@ -446,7 +446,7 @@ test("a configured content repository that has not been built fails the install"
     const frontend = path.join(scratch, "frontend");
     mkdirSync(path.join(scratch, "frontend-content"), { recursive: true });
     mkdirSync(frontend, { recursive: true });
-    const config = scaffoldConfig(["06-galactic-guide"]);
+    const config = scaffoldConfig(["portal-default"]);
     config.content = { customContentDir: "../frontend-content" };
     writeFileSync(
       path.join(frontend, "project42.config.json"),
@@ -475,7 +475,7 @@ test("a malformed merged catalogue fails the install", () => {
     const frontend = path.join(scratch, "frontend");
     const content = path.join(scratch, "frontend-content");
     mkdirSync(frontend, { recursive: true });
-    const config = scaffoldConfig(["06-galactic-guide"]);
+    const config = scaffoldConfig(["portal-default"]);
     config.content = { customContentDir: "../frontend-content" };
     writeFileSync(
       path.join(frontend, "project42.config.json"),
@@ -520,7 +520,7 @@ test("materialise removes a product file the product no longer ships", () => {
     git("config", "user.name", "test");
     writeFileSync(
       path.join(scratch, "project42.config.json"),
-      JSON.stringify(scaffoldConfig(["06-galactic-guide"]), null, 2),
+      JSON.stringify(scaffoldConfig(["portal-default"]), null, 2),
       "utf8",
     );
     writeFileSync(path.join(scratch, ".gitignore"), "/app/\n/lib/\n", "utf8");
@@ -572,7 +572,7 @@ test("materialise refuses to prune an unshipped file the consumer has not ignore
     git("config", "user.name", "test");
     writeFileSync(
       path.join(scratch, "project42.config.json"),
-      JSON.stringify(scaffoldConfig(["06-galactic-guide"]), null, 2),
+      JSON.stringify(scaffoldConfig(["portal-default"]), null, 2),
       "utf8",
     );
     writeFileSync(path.join(scratch, ".gitignore"), "/lib/\n", "utf8");
@@ -599,7 +599,7 @@ test("materialise prunes nothing outside a git repository", () => {
   try {
     writeFileSync(
       path.join(scratch, "project42.config.json"),
-      JSON.stringify(scaffoldConfig(["06-galactic-guide"]), null, 2),
+      JSON.stringify(scaffoldConfig(["portal-default"]), null, 2),
       "utf8",
     );
     mkdirSync(path.join(scratch, "app", "retired"), { recursive: true });
@@ -767,17 +767,17 @@ test("a site with no theme of its own renders the bundles the platform ships", (
   try {
     writeFileSync(
       path.join(scratch, "project42.config.json"),
-      JSON.stringify(scaffoldConfig(["06-galactic-guide"]), null, 2),
+      JSON.stringify(scaffoldConfig(["portal-default"]), null, 2),
       "utf8",
     );
     execFileSync(process.execPath, [cli, "materialise", "--target", scratch], { stdio: "pipe" });
 
     for (const relative of [
-      ["public", "themes", "06-galactic-guide", "theme.json"],
-      ["public", "themes", "06-galactic-guide", "tokens.css"],
-      ["public", "themes", "06-galactic-guide", "portal.css"],
-      ["public", "themes", "06-galactic-guide", "hero.png"],
-      ["public", "themes", "06-galactic-guide", "mark.svg"],
+      ["public", "themes", "portal-default", "theme.json"],
+      ["public", "themes", "portal-default", "tokens.css"],
+      ["public", "themes", "portal-default", "portal.css"],
+      ["public", "themes", "portal-default", "hero.png"],
+      ["public", "themes", "portal-default", "mark.svg"],
       ["public", "layouts", "standard", "layout.css"],
       ["public", "layouts", "standard", "layout.json"],
       ["public", "layouts", "compact", "layout.css"],
@@ -792,8 +792,8 @@ test("a site with no theme of its own renders the bundles the platform ships", (
     }
 
     assert.equal(
-      readFileSync(path.join(scratch, "public", "themes", "06-galactic-guide", "tokens.css"), "utf8"),
-      readFileSync(path.join(webDir, "themes", "06-galactic-guide", "tokens.css"), "utf8"),
+      readFileSync(path.join(scratch, "public", "themes", "portal-default", "tokens.css"), "utf8"),
+      readFileSync(path.join(webDir, "themes", "portal-default", "tokens.css"), "utf8"),
       "and it must be the platform's bundle byte for byte, not a reconstruction",
     );
   } finally {
@@ -810,8 +810,9 @@ test("the selected theme is resolved even when availableThemes omits it", () => 
   // gate green.
   const scratch = mkdtempSync(path.join(tmpdir(), "p42-selected-theme-"));
   try {
-    const config = scaffoldConfig(["06-galactic-guide"]);
+    const config = scaffoldConfig(["customer-theme"]);
     config.theme = "portal-default";
+    dropThemeFolder(scratch, "customer-theme");
     writeFileSync(
       path.join(scratch, "project42.config.json"),
       JSON.stringify(config, null, 2),
@@ -824,7 +825,7 @@ test("the selected theme is resolved even when availableThemes omits it", () => 
       "the theme the site selected must be installed even though the menu omits it",
     );
     assert.ok(
-      existsSync(path.join(scratch, "public", "themes", "06-galactic-guide", "portal.css")),
+      existsSync(path.join(scratch, "public", "themes", "customer-theme", "portal.css")),
       "and every bundle the menu offers is still installed alongside it",
     );
 
@@ -832,13 +833,15 @@ test("the selected theme is resolved even when availableThemes omits it", () => 
     // selected theme has to appear in it or the build fails at runtime.
     const generated = readFileSync(path.join(scratch, "lib", "themeBundles.generated.ts"), "utf8");
     assert.match(generated, /public\/themes\/portal-default\/theme\.json/);
-    assert.match(generated, /public\/themes\/06-galactic-guide\/theme\.json/);
+    assert.match(generated, /public\/themes\/customer-theme\/theme\.json/);
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }
 });
 
 test("the scaffolder selects the platform's own default, not a Gallery theme", () => {
+  assert.deepEqual(readdirSync(path.join(webDir, "themes")).sort(), ["portal-default"],
+    "only portal-default may ship in the platform");
   // A Gallery theme is a CHOICE. Shipping one as the default made every new
   // site wear one operator's brand, which is the whole defect this closes.
   const cliSource = readFileSync(cli, "utf8");
@@ -856,14 +859,16 @@ test("naming a theme folder in the repository is the whole procedure for changin
     // Start on the shipped default.
     writeFileSync(
       path.join(scratch, "project42.config.json"),
-      JSON.stringify(scaffoldConfig(["06-galactic-guide"]), null, 2),
+      JSON.stringify(scaffoldConfig(["portal-default"]), null, 2),
       "utf8",
     );
     execFileSync(process.execPath, [cli, "materialise", "--target", scratch], { stdio: "pipe" });
     const shipped = readFileSync(
-      path.join(scratch, "public", "themes", "06-galactic-guide", "portal.css"),
+      path.join(scratch, "public", "themes", "portal-default", "portal.css"),
       "utf8",
     );
+    const invariantPaths = ["app/page.tsx", "copy/defaults.ts", "public/layouts/standard/layout.css", "public/layouts/standard/layout.json"];
+    const before = invariantPaths.map((file) => readFileSync(path.join(scratch, file), "utf8"));
 
     // Drop a folder in and change ONE field. No script, no lock, no code.
     dropThemeFolder(scratch, "house-style");
@@ -881,6 +886,15 @@ test("naming a theme folder in the repository is the whole procedure for changin
     assert.notEqual(shipped, DROPPED_IN);
     const generated = readFileSync(path.join(scratch, "lib", "themeBundles.generated.ts"), "utf8");
     assert.match(generated, /public\/themes\/house-style\/theme\.json/);
+    assert.deepEqual(invariantPaths.map((file) => readFileSync(path.join(scratch, file), "utf8")), before,
+      "switching the theme must preserve page content and layout files");
+
+    writeFileSync(path.join(scratch, "project42.config.json"),
+      JSON.stringify(scaffoldConfig(["portal-default"]), null, 2), "utf8");
+    execFileSync(process.execPath, [cli, "materialise", "--target", scratch], { stdio: "pipe" });
+    assert.equal(readFileSync(path.join(scratch, "public", "themes", "portal-default", "portal.css"), "utf8"), shipped);
+    assert.doesNotMatch(readFileSync(path.join(scratch, "lib", "themeBundles.generated.ts"), "utf8"), /house-style/);
+    assert.deepEqual(invariantPaths.map((file) => readFileSync(path.join(scratch, file), "utf8")), before);
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }
@@ -904,7 +918,7 @@ test("a theme no folder provides is reported, not silently rendered unstyled", (
       }
     });
     assert.match(stderr, /themes\/not-a-theme\//);
-    assert.match(stderr, /06-galactic-guide/, "and it must say what the platform does ship");
+    assert.match(stderr, /portal-default/, "and it must say what the platform does ship");
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }
@@ -920,22 +934,22 @@ test("a Gallery-synced bundle survives the next install, tracked or not", () => 
   try {
     writeFileSync(
       path.join(scratch, "project42.config.json"),
-      JSON.stringify(scaffoldConfig(["06-galactic-guide"]), null, 2),
+      JSON.stringify(scaffoldConfig(["gallery-example"]), null, 2),
       "utf8",
     );
 
     // What themes:sync leaves behind: the bundle in public/, and a lock naming it.
-    const installed = path.join(scratch, "public", "themes", "06-galactic-guide");
+    const installed = path.join(scratch, "public", "themes", "gallery-example");
     mkdirSync(path.join(installed, "badges"), { recursive: true });
-    writeFileSync(path.join(installed, "theme.json"), JSON.stringify({ id: "06-galactic-guide" }), "utf8");
+    writeFileSync(path.join(installed, "theme.json"), JSON.stringify({ id: "gallery-example" }), "utf8");
     writeFileSync(path.join(installed, "tokens.css"), "/* from the Gallery */\n", "utf8");
     mkdirSync(path.join(scratch, "config"), { recursive: true });
     writeFileSync(
       path.join(scratch, "config", "theme-bundles.lock.json"),
       JSON.stringify({
         gallery: { commit: "0".repeat(40) },
-        selectedTheme: "06-galactic-guide",
-        themes: { "06-galactic-guide": { files: {} } },
+        selectedTheme: "gallery-example",
+        themes: { "gallery-example": { files: {} } },
         selectedLayout: "standard",
         layouts: {},
       }),
