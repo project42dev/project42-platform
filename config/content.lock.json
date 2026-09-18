@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "77a2923fa31e4d8457a129c55cf00241b7a4df14"
+    "commit": "a0e2590b7f2d93315b54cdd63da184bdd4b0128a"
   },
   "contentVersion": "0.42.0",
   "files": {
-    "catalog.json": "b72038e49c07a7f69ea195ce1d7e33b471aa5457396defd9f71ba247a3ced9fa",
+    "catalog.json": "304d623b1d2e05a3cb986814f9839d5de18b5ba53b13440b47dd9b76fdd0eaa4",
     "diagrams/agent-orchestration.mmd": "9c916bea4b29e448bceae7758d1fff3867c2e99da51b3e89237397c05c95c72a",
     "diagrams/catalogue.json": "c21969fe08a95809a828aa5bacad3754c3f542b294fcf86df5c6dcad8a6f60d0",
     "diagrams/content-freshness-release.mmd": "e2ffa6894a362a2ce0e76506c9c94ea7afed095938a59619967ef41436eb3485",
@@ -89,7 +89,6 @@
     "modules/reliable-agent-workflows/mcp-trust-and-security.json": "4acc68585c0bb809de4594da25ec30f003f3313a393f2463d1269a387c446573",
     "modules/reliable-agent-workflows/memory-boundaries.json": "b3f07f96f9efb1369db2e0a231461f43bb76801d2266160702c605838bf198ee",
     "modules/reliable-agent-workflows/multi-agent-handoffs.json": "cc8a25fce3b49bf4363af85403e8b8978a94741852c08f4efb6835feedcf98d2",
-    "modules/reliable-agent-workflows/operate-and-recover-agent-systems.json": "ca4fec0c6a42ea218f4f2290a2066f03fe0f5e27270a833436b3e24f04eb2b18",
     "modules/reliable-agent-workflows/orchestration-patterns.json": "6c87cd4542f5eca59367701c5f31aaa53c1d9d043b799f7229a252acb9bdd209",
     "modules/reliable-agent-workflows/reliable-agent-capstone.json": "f609461c231576c19268418afeb7a486cb252c4635fa5992377e89911adc0baa",
     "modules/self-hosted-and-aiops/hardware-and-vram-calculator.json": "f5d1bce42ebf4ecabfdcb7b22077676c998b3e301aca1bcaf22cfbeaad781776",

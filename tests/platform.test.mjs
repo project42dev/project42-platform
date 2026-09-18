@@ -1666,7 +1666,7 @@ test("publishes a balanced source-backed provider comparison matrix", () => {
   );
   assert.ok(path);
   assert.ok(module);
-  assert.equal(path.moduleIds[3], module.id);
+  assert.equal(path.moduleIds[4], module.id);
   assert.ok(module.prerequisites.includes("choose-a-provider"));
   assert.equal(module.sections.length, 5);
   assert.ok(module.activity?.instructions.length >= 5);
@@ -1810,12 +1810,14 @@ test("restores a v0.20 provider learner record after migration modules are appen
   priorCatalog.modules = priorCatalog.modules.filter(
     (module) => !addedIds.has(module.id),
   );
+  const priorChoice = priorCatalog.modules.find((module) => module.id === "choose-a-provider");
+  priorChoice.prerequisites = priorChoice.prerequisites.filter((id) => id !== "gemini-ecosystem-and-interfaces");
   const priorPath = priorCatalog.paths.find(
     (candidate) => candidate.id === "providers-in-practice",
   );
   assert.ok(priorPath);
   priorPath.moduleIds = priorPath.moduleIds.filter(
-    (moduleId) => !addedIds.has(moduleId),
+    (moduleId) => !addedIds.has(moduleId) && moduleId !== "gemini-ecosystem-and-interfaces",
   );
   assert.deepEqual(validateCatalog(priorCatalog), { valid: true, errors: [] });
   assert.deepEqual(priorPath.moduleIds, [

@@ -8,7 +8,7 @@ semantic versioning.
 
 ### Fixed
 
-- Completed provider comparison, OpenAI practice, bounded agent loop, and agent result review lessons; retained incident operations under its own module ID.
+- Completed provider comparison, OpenAI practice, and bounded agent loop lessons with dated evidence and corrected terminal behavior.
 
 ## [0.116.6] - 2026-09-18
 
