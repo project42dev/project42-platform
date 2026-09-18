@@ -3,8 +3,9 @@ import {
   generatedInstructorRenderings,
   generatedTrainingPackageCoverage,
 } from "./generated/training-packages.js";
+import type { ClassScriptPackage } from "./training-package.js";
 
-export const classScriptPackages = generatedClassScriptPackages;
+export const classScriptPackages: ClassScriptPackage[] = generatedClassScriptPackages;
 export const trainingPackageCoverage = generatedTrainingPackageCoverage;
 
 // Which lessons have been filmed. Generated from project42-content, so a
