@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "9adbc9148439e9dbf31b80a4d3675d2e3f2fd3a4"
+    "commit": "a8678408d761bd7133a694b98d8f8ff3fc2080e1"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -93,7 +93,7 @@
     "modules/reliable-agent-workflows/reliable-agent-capstone.json": "f609461c231576c19268418afeb7a486cb252c4635fa5992377e89911adc0baa",
     "modules/self-hosted-and-aiops/hardware-and-vram-calculator.json": "f5d1bce42ebf4ecabfdcb7b22077676c998b3e301aca1bcaf22cfbeaad781776",
     "modules/self-hosted-and-aiops/open-weights-and-quantization.json": "05f165f367f01a7e0af250aae139b402016cfad3fb102041f3b5089b0364a9d3",
-    "modules/self-hosted-and-aiops/production-vllm-and-ollama.json": "5f3cd509c883087b4fa965fad2d4c383fc152e95377ba3fad3e3f93ba387f52b",
+    "modules/self-hosted-and-aiops/production-vllm-and-ollama.json": "ef5e42f4462924c83dd639569f7386c509eab50629da09edb00ea13a4094ebe6",
     "modules/self-hosted-and-aiops/semantic-caching-and-ai-tracing.json": "d663ee89acc63e65a80597ffc61fcba9022e2e2e9c34130521f26e0894e536c0",
     "modules/self-hosted-model-operations/deployment-shape-and-operating-model.json": "e0fa1aa39e3c5f39fc9ab67f0b3eb8ab3b8d25e2e22dd9200b0cb62ea578001f",
     "modules/self-hosted-model-operations/endpoint-identity-network-and-secrets.json": "6adb90f4b8c76eabf5cb6054992cfba310b2e80a4c5c9213e4e682c468fb5da7",

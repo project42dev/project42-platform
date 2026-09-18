@@ -4,6 +4,12 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.116.3] - 2026-09-18
+
+### Fixed
+
+- Synced the reviewed vLLM and Ollama lesson from project42-content@a867840, adding offline model staging for Ollama and correcting unsupported defaults and memory wording.
+
 ## [0.116.2] - 2026-09-17
 
 ### Fixed
