@@ -95,7 +95,6 @@ jobs:
       - name: Scaffold a front end, proving the adopter path still works
         run: |
           node bin/project42-portal.mjs create "Smoke Academy" \
-            --theme 06-galactic-guide \
             --origin https://smoke.example.test \
             --dir "$RUNNER_TEMP/smoke-frontend"
           test -f "$RUNNER_TEMP/smoke-frontend/smoke-academy/project42.config.json"
