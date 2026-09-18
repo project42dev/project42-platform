@@ -275,6 +275,7 @@
         "agent-evaluation",
         "agent-observability",
         "review-agent-results",
+        "operate-and-recover-agent-systems",
         "reliable-agent-capstone"
       ],
       "badge": {
@@ -1223,252 +1224,235 @@
     },
     {
       "id": "review-agent-results",
-      "title": "Operate, Recover, and Improve Agent Systems",
-      "summary": "Classify failures across the full agent stack, contain impact, reconcile uncertain actions, recover safely, and turn incidents into verified improvements.",
+      "title": "Review Agent Results Against Evidence",
+      "summary": "Check an agent result against the work order, source evidence, real postconditions, and safety boundaries before accepting or publishing it.",
       "level": "intermediate",
       "providers": [
         "provider-neutral"
       ],
-      "estimatedMinutes": 56,
+      "estimatedMinutes": 35,
       "objectives": [
-        "Distinguish model, prompt, tool, retrieval, data, policy, orchestration, and infrastructure failures.",
-        "Triage severity and contain unsafe action, data exposure, cost, and cascading retries.",
-        "Recover with reconciliation, idempotency, rollback, replay, and human escalation.",
-        "Convert operational evidence into tests, controls, runbook updates, and measured improvement."
+        "Compare the delivered result with every requirement and acceptance criterion.",
+        "Trace material claims to source evidence and distinguish observation from inference.",
+        "Check tool actions, permissions, tests, and real postconditions before declaring success.",
+        "Choose accept, request changes, or escalate with a reproducible evidence packet."
       ],
       "prerequisites": [
         "agent-observability"
       ],
       "sections": [
         {
-          "id": "classify-before-changing",
-          "title": "Classify the failed boundary before changing the model",
+          "id": "review-contract",
+          "title": "Start with the work order",
           "paragraphs": [
-            "Model failures include unsupported or incorrect generation. Prompt failures encode ambiguous or conflicting behavior. Tool failures include bad contracts, authorization, execution, or postconditions. Retrieval and data failures include missing, stale, poisoned, malformed, or cross-tenant evidence.",
-            "Policy failures allow forbidden action or block required escalation. Orchestration failures misroute, loop, race, or lose state. Infrastructure failures include capacity, network, dependency, credential, storage, and deployment faults. Several classes can occur in one incident, so record evidence instead of forcing one convenient cause."
+            "Read the original outcome, scope, constraints, and acceptance criteria before reading the agent summary. List each required artifact and the evidence that would prove it exists. A fluent summary does not close an unverified requirement.",
+            "Compare the delivered files or external state with the work order. Record omissions, scope changes, and assumptions as separate findings rather than treating them as completed work."
           ]
         },
         {
-          "id": "triage-and-contain",
-          "title": "Triage impact and contain first",
+          "id": "review-evidence",
+          "title": "Trace claims and actions",
           "paragraphs": [
-            "Assess affected users, tenants, data, permissions, external actions, money, availability, and legal or safety obligations. Set severity from actual and credible potential impact, not from how fluent the agent output looks.",
-            "Contain by pausing the workflow or one tool, revoking credentials, disabling a route, reducing concurrency, switching to a safe fallback, or requiring manual approval. Preserve secret-safe traces, configuration versions, request IDs, and postcondition evidence before mutable state disappears."
-          ],
-          "callout": "When the real-world outcome is unknown, do not classify the action as failed and retry it blindly."
-        },
-        {
-          "id": "reconcile-and-recover",
-          "title": "Reconcile before retry, rollback, or replay",
-          "paragraphs": [
-            "A transport timeout does not prove that a write failed. Query the system of record with an idempotency key or correlation ID, compare the intended and actual postcondition, then choose accept, compensate, retry, rollback, or escalate.",
-            "Retry only transient failures with exponential backoff, jitter, provider guidance, and a total budget. Do not retry validation, authorization, policy, or deterministic conflict failures unchanged. Roll back through a tested reversible path and verify the restored state."
-          ],
-          "code": {
-            "language": "text",
-            "label": "Recovery decision",
-            "code": "if outcome == UNKNOWN: reconcile system_of_record\nif unauthorized or policy_blocked: stop + escalate\nif transient and retry_budget > 0: backoff + idempotent retry\nif harmful change and rollback_tested: rollback + verify\notherwise: preserve evidence + human decision"
-          }
-        },
-        {
-          "id": "runbook-and-communication",
-          "title": "Give responders a decision-ready runbook",
-          "paragraphs": [
-            "A runbook names triggers, severity, owner, communication channel, dashboards and queries, containment choices, credentials and approvals, reconciliation steps, rollback or fallback, validation, escalation, and closure criteria. Commands should be safe to copy and explicit about targets.",
-            "Status updates distinguish confirmed facts, hypotheses, actions, impact, and next decision. Notify affected people under the organization's incident and privacy obligations without exposing secrets or unsupported blame."
+            "For factual claims, open the cited source and confirm that it supports the precise claim and date. Label unsupported statements and inferences. For code or configuration, inspect the diff and run the specified checks in the intended environment.",
+            "For a consequential tool action, inspect authorization, arguments, execution record, and the system of record. A tool response or model assertion alone does not prove the real postcondition. If the outcome is uncertain, preserve the correlation key and reconcile before retrying."
           ]
         },
         {
-          "id": "learn-and-improve",
-          "title": "Close only after recovery evidence and prevention work",
+          "id": "review-authority",
+          "title": "Check authority independently of success",
           "paragraphs": [
-            "Verify user-visible recovery, external postconditions, queues and retries, permissions, data isolation, cost, and monitoring. A green health endpoint alone may miss incomplete work or a duplicated side effect.",
-            "Write a blameless timeline and contributing factors, add the smallest reproducing case to the evaluation suite, improve the control at the failed boundary, rehearse the changed runbook, and measure recurrence. Track follow-up work to completion rather than treating the post-incident review as closure."
+            "An action can succeed and still violate the work order. Review the identity used, the resource it addressed, the permission boundary, and the approval that covered that particular operation. OWASP Excessive Agency distinguishes excessive functionality, permissions, and autonomy; inspect all three instead of treating a tool response as permission.",
+            "Use a synthetic account-isolation case to confirm that the action cannot cross into another account. Check the downstream authorization decision as well as the bridge arguments. If an approval allowed a draft, evidence of delivery establishes an effect but not authority to send. Record the failed boundary and escalate to the responsible owner; a reviewer must not invent permission to reverse or repeat the action."
+          ]
+        },
+        {
+          "id": "review-tests",
+          "title": "Match test evidence to the delivered revision",
+          "paragraphs": [
+            "Record the exact artifact revision, test inputs, environment, expected outcome, and observed outcome. Reproduce the check that matters to the acceptance criterion. A formatting test cannot establish factual accuracy, and a successful unit test cannot establish that a deployment reached users. Compare the test scope with the claim before recording the criterion as verified.",
+            "Include failure cases that could invalidate acceptance: an unsupported citation, denied operation, incorrect account, unavailable dependency, or uncertain write result. Keep unavailable evidence marked unknown rather than converting it into a pass. When a repair changes behavior, repeat the affected check and connected checks that could regress. Keep the earlier result so the evidence shows what changed and why the final decision is justified."
+          ]
+        },
+        {
+          "id": "review-decision",
+          "title": "Make a reviewable decision",
+          "paragraphs": [
+            "Accept only when the required artifacts and postconditions are observed and remaining risks meet the work order. Request changes for a reproducible defect; escalate when evidence, authority, or impact is uncertain. Record the exact failing criterion and the smallest evidence needed for a new review.",
+            "Do not turn a failed test, an absent citation, or a missing artifact into approval because the answer sounds plausible. Keep the original result and review findings so a revised result can be compared honestly."
           ]
         }
       ],
       "activity": {
-        "id": "activity-agent-incident-runbook",
-        "title": "Triage and recover a multi-boundary agent incident",
+        "id": "activity-review-agent-results",
+        "title": "Audit an agent delivery",
         "instructions": [
-          "Use a scenario where an agent times out after a consequential tool call, retrieves stale data, and produces an unsupported completion claim.",
-          "Build a timeline and classify model, prompt, tool, retrieval, data, policy, orchestration, and infrastructure evidence without assuming one root cause.",
-          "Write the severity, containment, reconciliation, retry, rollback, communication, escalation, validation, and closure steps.",
-          "Convert the incident into regression cases, a control change, a runbook rehearsal, an owner, and a recurrence metric."
+          "Take an agent work order, its result, source links, a tool trace, and a test report. Build a row for each acceptance criterion and mark it verified, failed, or unknown.",
+          "Open at least two material sources, inspect one consequential action in the system of record, and reproduce one test or postcondition check.",
+          "Issue an accept, request-changes, or escalate decision with precise evidence and the next action for each failed or unknown criterion."
         ],
         "evidence": [
-          "A failure-classification matrix, incident timeline, impact and severity decision, and executable triage/recovery runbook.",
-          "Reconciliation and rollback evidence plus tracked evaluation, control, rehearsal, and monitoring improvements."
+          "A criterion-to-artifact matrix with citations, test results, tool authorization, and observed postconditions.",
+          "A decision record that separates verified facts, missing evidence, defects, and risks."
         ],
-        "reflectionPrompt": "Which symptom looked like a model failure until the trace exposed a different failed boundary?"
+        "reflectionPrompt": "Which claim seemed complete until you checked the source or real postcondition?"
       },
       "instructorScript": {
         "schemaVersion": "1.1",
-        "estimatedSeconds": 1680,
+        "estimatedSeconds": 37,
         "cues": [
           {
-            "id": "cue-operations-classify",
+            "id": "cue-result-contract",
             "kind": "narration",
-            "sectionId": "classify-before-changing",
-            "text": "Classify model, prompt, tool, retrieval, data, policy, orchestration, and infrastructure evidence before choosing a fix."
+            "sectionId": "review-contract",
+            "text": "Begin with acceptance criteria and observable artifacts, not the agent summary."
           },
           {
-            "id": "cue-operations-contain",
+            "id": "cue-result-evidence",
             "kind": "narration",
-            "sectionId": "triage-and-contain",
-            "text": "Assess actual and potential impact, contain unsafe behavior, and preserve secret-safe evidence before it changes."
+            "sectionId": "review-evidence",
+            "text": "Open cited sources and verify material claims, tests, permissions, and real postconditions."
           },
           {
-            "id": "cue-operations-recover",
+            "id": "cue-result-authority",
             "kind": "narration",
-            "sectionId": "reconcile-and-recover",
-            "text": "Reconcile unknown outcomes before bounded retry, compensation, rollback, replay, or escalation."
+            "sectionId": "review-authority",
+            "text": "Check the identity, resource, permission, and approval independently of the observed effect. Successful delivery cannot authorize itself."
           },
           {
-            "id": "cue-operations-visual",
+            "id": "cue-result-tests",
+            "kind": "narration",
+            "sectionId": "review-tests",
+            "text": "Match each test to the acceptance criterion and exact delivered revision. Reproduce relevant checks, include failure cases, and preserve unknown outcomes."
+          },
+          {
+            "id": "cue-result-visual",
             "kind": "visual",
-            "sectionId": "reconcile-and-recover",
-            "text": "Move an uncertain tool action through contain, reconcile, decide, recover, verify, and close states.",
-            "accessibilityAlternative": "A static decision table lists evidence and allowed actions for contain, reconcile, decide, recover, verify, and close. Reduced-motion mode shows every state."
+            "sectionId": "review-evidence",
+            "text": "Show a criterion-to-evidence table with verified, failed, and unknown rows.",
+            "accessibilityAlternative": "A static table lists each acceptance criterion, its evidence, and verified, failed, or unknown status."
           },
           {
-            "id": "cue-operations-runbook",
+            "id": "cue-result-decision",
             "kind": "narration",
-            "sectionId": "runbook-and-communication",
-            "text": "Use a target-specific runbook and communicate confirmed facts, hypotheses, impact, actions, and required decisions separately."
+            "sectionId": "review-decision",
+            "text": "Record accept, request changes, or escalate with exact criterion-level evidence."
           },
           {
-            "id": "cue-operations-improve",
-            "kind": "narration",
-            "sectionId": "learn-and-improve",
-            "text": "Close after user-visible recovery, then turn the incident into regression tests, control changes, rehearsal, and recurrence measures."
-          },
-          {
-            "id": "cue-operations-prompt",
+            "id": "cue-result-prompt",
             "kind": "learner-prompt",
-            "sectionId": "reconcile-and-recover",
-            "text": "Ask learners why a timeout after a write must be classified as unknown rather than failed."
+            "sectionId": "review-decision",
+            "text": "Ask learners what they would do when an external tool outcome is unknown."
           },
           {
-            "id": "cue-operations-pause",
-            "kind": "pause",
-            "sectionId": "runbook-and-communication",
-            "text": "Allow three minutes to add one exact rollback target and one human escalation trigger."
-          },
-          {
-            "id": "cue-operations-checkpoint",
+            "id": "cue-result-checkpoint",
             "kind": "checkpoint",
-            "sectionId": "learn-and-improve",
-            "text": "Check that closure proves the external postcondition and assigns every prevention action."
+            "sectionId": "review-decision",
+            "text": "Check that every accepted criterion has an observed artifact or postcondition."
           },
           {
-            "id": "cue-operations-activity",
-            "kind": "learner-prompt",
-            "text": "Guide failure classification, containment, reconciliation, rollback, communication, and prevention work."
-          },
-          {
-            "id": "cue-operations-assessment",
+            "id": "cue-result-assessment",
             "kind": "assessment-handoff",
-            "text": "Begin the check after the learner can recover without duplicate impact or unsupported completion claims."
+            "text": "Begin the check after the learner can separate verified results from missing evidence and uncertain actions."
           }
         ],
-        "transcript": "Classify model, prompt, tool, retrieval, data, policy, orchestration, and infrastructure evidence before choosing a fix. Assess actual and potential impact, contain unsafe behavior, and preserve secret-safe evidence before it changes. Reconcile unknown outcomes before bounded retry, compensation, rollback, replay, or escalation. Use a target-specific runbook and communicate confirmed facts, hypotheses, impact, actions, and required decisions separately. Close after user-visible recovery, then turn the incident into regression tests, control changes, rehearsal, and recurrence measures.",
+        "transcript": "Begin with acceptance criteria and observable artifacts, not the agent summary. Open cited sources and verify material claims, tests, permissions, and real postconditions. Check the identity, resource, permission, and approval independently of the observed effect. Successful delivery cannot authorize itself. Match each test to the acceptance criterion and exact delivered revision. Reproduce relevant checks, include failure cases, and preserve unknown outcomes. Record accept, request changes, or escalate with exact criterion-level evidence. Begin the check after the learner can separate verified results from missing evidence and uncertain actions.",
         "captions": [
           {
-            "cueId": "cue-operations-classify",
+            "cueId": "cue-result-contract",
             "startSeconds": 0,
-            "endSeconds": 300,
-            "text": "Classify model, prompt, tool, retrieval, data, policy, orchestration, and infrastructure evidence before choosing a fix."
+            "endSeconds": 5,
+            "text": "Begin with acceptance criteria and observable artifacts, not the agent summary."
           },
           {
-            "cueId": "cue-operations-contain",
-            "startSeconds": 330,
-            "endSeconds": 630,
-            "text": "Assess actual and potential impact, contain unsafe behavior, and preserve secret-safe evidence before it changes."
+            "cueId": "cue-result-evidence",
+            "startSeconds": 5,
+            "endSeconds": 10,
+            "text": "Open cited sources and verify material claims, tests, permissions, and real postconditions."
           },
           {
-            "cueId": "cue-operations-recover",
-            "startSeconds": 660,
-            "endSeconds": 990,
-            "text": "Reconcile unknown outcomes before bounded retry, compensation, rollback, replay, or escalation."
+            "cueId": "cue-result-authority",
+            "startSeconds": 10,
+            "endSeconds": 17,
+            "text": "Check the identity, resource, permission, and approval independently of the observed effect. Successful delivery cannot authorize itself."
           },
           {
-            "cueId": "cue-operations-runbook",
-            "startSeconds": 1020,
-            "endSeconds": 1320,
-            "text": "Use a target-specific runbook and communicate confirmed facts, hypotheses, impact, actions, and required decisions separately."
+            "cueId": "cue-result-tests",
+            "startSeconds": 17,
+            "endSeconds": 26,
+            "text": "Match each test to the acceptance criterion and exact delivered revision. Reproduce relevant checks, include failure cases, and preserve unknown outcomes."
           },
           {
-            "cueId": "cue-operations-improve",
-            "startSeconds": 1350,
-            "endSeconds": 1620,
-            "text": "Close after user-visible recovery, then turn the incident into regression tests, control changes, rehearsal, and recurrence measures."
+            "cueId": "cue-result-decision",
+            "startSeconds": 26,
+            "endSeconds": 30,
+            "text": "Record accept, request changes, or escalate with exact criterion-level evidence."
+          },
+          {
+            "cueId": "cue-result-assessment",
+            "startSeconds": 30,
+            "endSeconds": 37,
+            "text": "Begin the check after the learner can separate verified results from missing evidence and uncertain actions."
           }
         ],
-        "reducedMotionAlternative": "Present failure classification and recovery as static decision and runbook tables with focus highlighting."
+        "reducedMotionAlternative": "Show a static criterion-to-evidence table with verified, failed, and unknown rows."
       },
       "knowledgeCheck": {
         "passPercent": 80,
         "questions": [
           {
             "id": "q-review-agent-1",
-            "prompt": "An agent gives the wrong answer because the retriever returned an expired policy. What is the primary failed boundary?",
+            "prompt": "What should a reviewer compare an agent result against first?",
             "choices": [
-              "Retrieval or data freshness",
-              "Model style",
-              "Infrastructure capacity",
-              "User interface"
+              "The agent summary",
+              "The original acceptance criteria",
+              "The number of tool calls"
             ],
-            "answerIndex": 0,
-            "explanation": "The evidence source was stale; changing model wording would not repair the failed retrieval/data boundary."
+            "answerIndex": 1,
+            "explanation": "The work order defines what completion requires."
           },
           {
             "id": "q-review-agent-2",
-            "prompt": "A write request times out after reaching the server. What should happen before retry?",
+            "prompt": "A tool times out after a write request. What proves whether the action happened?",
             "choices": [
-              "Assume failure",
-              "Change models",
-              "Reconcile the idempotency key and actual postcondition",
-              "Retry without a limit"
+              "The timeout alone",
+              "The model summary",
+              "A check in the system of record using a correlation key"
             ],
             "answerIndex": 2,
-            "explanation": "The outcome is unknown until the system of record proves whether the side effect occurred."
+            "explanation": "Unknown external outcomes must be reconciled before retry or acceptance."
           },
           {
             "id": "q-review-agent-3",
-            "prompt": "Which failure should not be retried unchanged?",
+            "prompt": "A cited page does not support a material claim. What is the review result?",
             "choices": [
-              "A transient 503 within budget",
-              "A validation or authorization rejection",
-              "A connection reset before any request",
-              "A provider-directed retry-after response"
+              "Request a correction or supporting evidence",
+              "Accept because a URL is present",
+              "Ignore the claim if the format is valid"
             ],
-            "answerIndex": 1,
-            "explanation": "Deterministic validation and authorization failures require corrected input or authority, not repetition."
+            "answerIndex": 0,
+            "explanation": "A citation is useful only if it supports the exact claim."
           },
           {
             "id": "q-review-agent-4",
-            "prompt": "What is the first priority when an agent may still be taking unsafe actions?",
+            "prompt": "When should a reviewer accept the delivery?",
             "choices": [
-              "Write the postmortem",
-              "Increase concurrency",
-              "Contain the workflow or affected capability",
-              "Tune the prompt"
+              "When it sounds complete",
+              "When each required artifact and postcondition is observed",
+              "When the agent says tests passed"
             ],
-            "answerIndex": 2,
-            "explanation": "Containment limits ongoing impact before diagnosis and long-term remediation."
+            "answerIndex": 1,
+            "explanation": "Acceptance rests on observed evidence for the work order."
           },
           {
             "id": "q-review-agent-5",
-            "prompt": "Which failure map correctly separates system boundaries?",
+            "prompt": "The system confirms an email was sent, but the approval permitted only drafting. How should the review record this?",
             "choices": [
-              "Unsupported claim: model; conflicting instruction: prompt; bad action contract: tool; stale source: retrieval or data; forbidden action: policy; provider outage: infrastructure",
-              "Every failure is a model failure",
-              "A provider outage is a prompt failure and stale data is infrastructure",
-              "Authorization and tool execution are the same as output style"
+              "Delivery verified; authorization failed and requires escalation",
+              "Accept because delivery succeeded",
+              "Mark delivery failed because authorization was absent"
             ],
             "answerIndex": 0,
-            "explanation": "Useful triage identifies the first failed boundary instead of treating every symptom as a model problem."
+            "explanation": "Observed effects and permitted effects are separate criteria. Confirmation cannot retroactively authorize the send."
           }
         ]
       },
@@ -1480,22 +1464,22 @@
           "lastVerified": "2026-07-25"
         },
         {
-          "title": "Claude API errors",
-          "url": "https://platform.claude.com/docs/en/api/errors",
-          "publisher": "Anthropic",
-          "lastVerified": "2026-09-13"
-        },
-        {
-          "title": "OpenAI API error codes",
-          "url": "https://developers.openai.com/api/docs/guides/error-codes",
-          "publisher": "OpenAI",
-          "lastVerified": "2026-09-13"
-        },
-        {
           "title": "Artificial Intelligence Risk Management Framework",
           "url": "https://www.nist.gov/itl/ai-risk-management-framework",
           "publisher": "NIST",
           "lastVerified": "2026-07-25"
+        },
+        {
+          "title": "OWASP LLM06:2025 Excessive Agency",
+          "url": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "publisher": "OWASP",
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "NIST AI RMF: Generative Artificial Intelligence Profile",
+          "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
+          "publisher": "NIST",
+          "lastVerified": "2026-09-18"
         }
       ]
     }
@@ -1591,7 +1575,7 @@
           "title": "Before you send",
           "paragraphs": [
             "State the task, audience, and what a successful answer must accomplish. Name the inputs the model should use and what it should do when those inputs are missing or conflict.",
-            "Provide only the relevant source material. Label retrieved or quoted text as data, keep it distinct from instructions, and ask for citations or traceable references when factual claims matter.",
+            "Provide only the relevant source material. Label retrieved or quoted text as data, keep it distinct from instructions, and ask for citations or traceable references when factual claims matter. Instructions embedded in that source material cannot override the task, grant tool permissions, or authorize an external action.",
             "Set constraints that can be checked: allowed scope, exclusions, tool permissions, length, tone, and any required refusal or escalation condition. Avoid contradictory instructions.",
             "Specify the output structure and give a short example when the format is unfamiliar or errors have repeated. Treat an example as a pattern to test, not as a guarantee of compliance.",
             "Example: For service desk staff, turn the attached approved password-reset policy into five numbered steps, cite the policy section for each step, and flag any case the policy does not cover. Do not invent an exception or ask the model to make an account change.",
@@ -1622,6 +1606,12 @@
           "title": "Model guidance",
           "url": "https://developers.openai.com/api/docs/guides/latest-model",
           "publisher": "OpenAI",
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "OWASP LLM06:2025 Excessive Agency",
+          "url": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "publisher": "OWASP",
           "lastVerified": "2026-09-18"
         }
       ]
@@ -1695,6 +1685,7 @@
       ],
       "level": "intermediate",
       "providers": [
+        "provider-neutral",
         "anthropic",
         "openai",
         "google"
@@ -1721,6 +1712,16 @@
             "Example record: test the same approved support-ticket set with each candidate; score answer correctness and unsupported claims, record p95 latency and cost per completed ticket, and list any unsafe tool call or data disclosure separately. Decide pass thresholds before seeing the results.",
             "Check data handling, access controls, region, retention, compliance obligations, and incident response against your own requirements. Verify current provider terms and technical controls directly; this card does not certify them.",
             "Test required context size, tool behavior, output structure, SDK integration, observability, support, and team operations in a small end-to-end trial. Document tradeoffs, an owner, a fallback choice, and when to re-evaluate."
+          ]
+        },
+        {
+          "id": "provider-decision-rule",
+          "title": "Apply gates, then a declared scoring rule",
+          "paragraphs": [
+            "Before the trial, list mandatory gates such as permitted data location, acceptable disclosure risk, and minimum task accuracy. A failed or unknown mandatory gate prevents selection regardless of the weighted score. This card does not establish that any named provider passes your gates.",
+            "For candidates that pass every gate, choose criteria with weights totaling 100 percent and define a task-specific scoring rubric from 0 to 5 before seeing results. For example: task quality 40 percent, latency 20 percent, cost per completed task 20 percent, and operational fit 20 percent. Define observable anchors for zero, three, and five on each criterion; keep the same anchors for every candidate.",
+            "Compute total = sum(weight_percent x score / 5), producing a score from 0 to 100. Scores of 4, 3, 5, and 4 under the example weights produce 80. Record missing measurements as unknown, not zero or an invented estimate, and complete them before making a final selection.",
+            "Predeclare the minimum acceptable total and tie-break rule. For this illustrative trial, require at least 75, choose the highest scoring eligible candidate, and break a tie using lower measured cost per completed task. If none passes, revise the design or run further trials instead of declaring a winner. Record the chosen provider, rejected alternatives, evidence, owner, fallback, and re-evaluation trigger. These weights and thresholds are an example policy, not a universal ranking or a NIST requirement."
           ]
         }
       ],

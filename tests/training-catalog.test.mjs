@@ -1180,7 +1180,8 @@ test("publishes complete agent evaluation, operations, and capstone packages", (
   const expectedWordCounts = new Map([
     ["agent-evaluation", 940],
     ["agent-observability", 955],
-    ["review-agent-results", 945],
+    ["review-agent-results", 1419],
+    ["operate-and-recover-agent-systems", 945],
     ["reliable-agent-capstone", 1178],
   ]);
 
@@ -1200,7 +1201,7 @@ test("publishes complete agent evaluation, operations, and capstone packages", (
     });
     assert.equal(script.spokenWordCount, expectedWordCount);
     assert.equal(script.releaseStatus, "draft");
-    assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+    assert.equal(script.provenance.canonicalContentVersion, moduleId === "review-agent-results" ? "0.42.0" : "0.41.0");
     assert.equal(script.provenance.approvals.length, 0);
     for (const section of module.sections) {
       assert.ok(

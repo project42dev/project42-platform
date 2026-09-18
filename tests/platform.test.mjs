@@ -1908,21 +1908,22 @@ test("publishes the MCP orchestration and handoff curriculum unit", () => {
   assert.ok(evaluation?.prerequisites.includes("multi-agent-handoffs"));
 });
 
-test("publishes the evaluation observability and operations curriculum unit", () => {
+test("publishes distinct evaluation, observability, review, and operations modules", () => {
   const path = starterCatalog.paths.find(
     (candidate) => candidate.id === "reliable-agent-workflows",
   );
   assert.ok(path);
-  assert.deepEqual(path.moduleIds.slice(8, 11), [
+  assert.deepEqual(path.moduleIds.slice(8, 12), [
     "agent-evaluation",
     "agent-observability",
     "review-agent-results",
+    "operate-and-recover-agent-systems",
   ]);
 
   const modules = new Map(
     starterCatalog.modules.map((module) => [module.id, module]),
   );
-  for (const [index, moduleId] of path.moduleIds.slice(8, 11).entries()) {
+  for (const [index, moduleId] of path.moduleIds.slice(8, 12).entries()) {
     const module = modules.get(moduleId);
     assert.ok(module);
     assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
@@ -1956,9 +1957,10 @@ test("publishes a calibrated evidence-mapped reliable-agent capstone", () => {
   );
   assert.ok(path);
   assert.ok(module?.capstone);
-  assert.equal(path.moduleIds.length, 12);
+  assert.equal(path.moduleIds.length, 13);
   assert.equal(path.moduleIds.at(-1), module.id);
   assert.ok(module.prerequisites.includes("review-agent-results"));
+  assert.ok(module.prerequisites.includes("operate-and-recover-agent-systems"));
   assert.equal(module.sections.length, 6);
   assert.equal(module.knowledgeCheck.questions.length, 5);
   assert.equal(module.instructorScript?.schemaVersion, "1.1");
