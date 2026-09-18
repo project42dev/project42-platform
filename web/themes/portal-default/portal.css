@@ -392,3 +392,18 @@ html[data-theme="portal-default"] .header-menu-footer button:hover {
     background-image: none;
   }
 }
+
+/* Preserve readable text after opacity compositing and in accent-filled CTAs. */
+html[data-theme="portal-default"] .pillar-learn > .card-index {
+  color: var(--p42-text-muted);
+  opacity: 1;
+}
+
+html[data-theme="portal-default"] .button.button-primary {
+  background: var(--p42-primary);
+  color: var(--p42-primary-fg);
+}
+
+html[data-theme="portal-default"] .button.button-primary:hover {
+  background: var(--p42-primary-hover);
+}

@@ -1,6 +1,8 @@
-# Project 42 platform v0.117.0
+# Project 42 platform v0.117.1
 
 Adds the Enterprise workspace layout beside Standard, Compact and Wide. Visitors can choose a layout in the account menu; the correct bundle loads and the selection survives reload. The platform-owned portal-default now uses the Warm Campus palette without changing content or selecting a different layout.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
 
 ## Breaking changes
 
@@ -17,6 +19,8 @@ Update the platform dependency, materialise the portal, and rebuild. All shipped
 # Project 42 platform v0.116.14
 
 Updates the complete reliable-agent learner journey contract to thirteen modules, with explicit review, operations, and capstone ordering. Preserves assessment, badge, account progress, accessibility, and transcript assertions. Includes all v0.116.12 curriculum repairs and the v0.116.13 public-type correction. Canonical content: project42-content@3fb86dda79c282b4885437e017bdf0d41a1a1ce4.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
 
 ## Breaking changes
 
@@ -38,6 +42,8 @@ Pin v0.116.11, the previous deployed site release. No database migration is invo
 
 Preserves the published ClassScriptPackage type at the generated catalog boundary, so class segments without visual metadata type-check in adopter on-demand pages. Includes all v0.116.12 curriculum repairs. Canonical content: project42-content@3fb86dda79c282b4885437e017bdf0d41a1a1ce4.
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None. Optional fields retain their declared public contract.
@@ -57,6 +63,8 @@ Pin v0.116.11, the previous deployed site release. No database migration is invo
 # Project 42 platform v0.116.12
 
 Publishes sixteen September lesson repairs, including executable-example failure handling, activity evidence, technical corrections, and caption alignment. Restores result review under its existing module ID and preserves operations instruction in a separate module, with complete class packages for both. Completes the provider decision scoring guide, clarifies source-material authority boundaries, and renders checklist resources with accessible list semantics. Canonical content: project42-content@3fb86dda79c282b4885437e017bdf0d41a1a1ce4.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
 
 ## Breaking changes
 
@@ -78,6 +86,8 @@ Pin v0.116.11. No database migration is involved.
 
 Publishes reviewed September corrections to prompt architecture, provider SDK patterns, and semantic caching/tracing. The canonical content preserves existing assessment question IDs, removes internal correction notes from learner-facing prose, and aligns semantic caching captions with narration. Canonical content: project42-content@2655c4ea6f8710cabf793d67f5f311c1d61ecac4.
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None.
@@ -97,6 +107,8 @@ Pin v0.116.10. No database migration is involved.
 # Project 42 platform v0.116.10
 
 Removes an OpenAI announcement URL that returned HTTP 403 to the public site's link checker. The 256-dimensional MTEB example remains supported by the already-cited OpenAI embeddings guide. Canonical content: project42-content@69bcd9c040eed4a12fd4d522a8aa3944d550c919.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
 
 ## Breaking changes
 
@@ -118,6 +130,8 @@ Pin v0.116.9. No database migration is involved.
 
 Corrects the vector embeddings and pgvector lesson after the September Orchard draft failed assessment review. The lesson distinguishes Anthropic's Voyage AI documentation from an Anthropic embedding API, accurately describes Google's Embedding 2 identifier and preview endpoint listing, records normalization and query conventions in its schema example, scopes the partial index by dimension, and includes PostgreSQL 17 ordering guidance. Canonical content: project42-content@a99d38909c6a9ef078c66a4ff0cb91c8ad231e9d.
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None.
@@ -137,6 +151,8 @@ Pin v0.116.8. No database migration is involved.
 # Project 42 platform v0.116.8
 
 Removes a redundant OpenAI Models API citation that returned HTTP 403 to the public site's link checker. The OpenAI overview and models documentation remain. Canonical content: project42-content@d5754bdeca6386eafcffdc1c1cd25d5242168878.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
 
 ## Breaking changes
 
@@ -158,6 +174,8 @@ Pin v0.116.7. No database migration is involved.
 
 Provider comparison now includes Gemini and a dated evidence exercise. OpenAI practice adds tool and availability checks. The bounded agent loop exercises all five terminal states. This release pins canonical content at project42-content@a9a5e6668186c68e8e9ba414f20fa187d976ea4b.
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None.
@@ -177,6 +195,8 @@ Pin v0.116.6. No database migration is involved.
 # Project 42 platform v0.116.5
 
 The AI Glossary, Prompt Checklist, and Provider Decision Card now include concrete definitions and examples, representative evaluation steps, and relevant dated primary sources. These edits address review findings for September Orchard items 9268–9270. This release pins canonical content at project42-content@ab57247471396fe8e4de7a18b0fca1a38577af8d.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
 
 ## Breaking changes
 
@@ -198,6 +218,8 @@ Pin v0.116.4. No database migration is involved.
 
 The Agent Safety Checklist now gives concrete permission, approval, postcondition, and recovery checks grounded in OWASP guidance. This release pins canonical content at project42-content@4baa7c26223c1c8bdec5c2e911f3d413bbb628e4.
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None.
@@ -218,6 +240,8 @@ Pin v0.116.3. No database migration is involved.
 
 The vLLM and Ollama lesson now explains how to stage Ollama models before disconnecting a host, distinguishes local model storage from cloud-feature controls, and removes an unsupported vLLM memory-default claim. This release pins canonical content at project42-content@a8678408d761bd7133a694b98d8f8ff3fc2080e1.
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None.
@@ -237,6 +261,8 @@ Pin v0.116.2. No database migration is involved.
 # Project 42 platform v0.116.2
 
 The AI mental models lesson now explains that repeated agreement measures observed output stability, not factual truth or the underlying token distribution. Its learner activity and instructor script remain attached. The catalogue no longer promises guaranteed structured output, and the Orchard and agent-orchestration diagrams reflect the current lifecycle. The platform pins the validated canonical content at project42-content@4c41c9ea71658f1810059a369792b2ca1f7ec08f.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
 
 ## Breaking changes
 
@@ -262,6 +288,8 @@ The hosted smoke now proves a learner keeps their place, and the Claude safety m
 
 **The Claude safety module's example concatenated untrusted retrieved text into the user message.** That contradicted the section's own guidance. The example now keeps policy in the system prompt and returns the document through a `tool_use` / `tool_result` exchange (content project42-content@ba31835).
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None.
@@ -286,6 +314,8 @@ An unhandled Worker error is now visible in Workers Logs, a sixth tracking step 
 **A sixth tracking step, `--p42-track-6`, joins the published layout ramp.** T-18's first pass left 53 hardcoded radius/letter-spacing values needing a design decision; each is now mapped to the nearest step in the published ramp (mapping table and tie-break rule in `docs/appearance-contract.md`), except one population that was the whole population of a step the ramp did not have: display h1s and oversized glyphs carrying tracking tighter than any published step. `web/scripts/appearance-debt.json`'s baseline is now `{}` — the gate fails on any hardcoded radius or tracking value, not only a regression. **project42-gallery vendors these bundles and needs `npm run sync:platform-layouts --ref v0.116.0` to pick up the new token.**
 
 **The hosted smoke says which provider page it clicked past.** Entra titles the consent page, the "stay signed in?" page and the password page alike ("Sign in to your account"), so `smoke-hosted-browser-session.mjs` logged the same line whether or not a learner would have been asked to consent. Each interstitial now also logs its heading, a 200-character excerpt with email addresses redacted, and `consent page: yes|no`. Logging only, bounded to two seconds per read, and a failed read never fails the smoke.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
 
 ## Breaking changes
 
@@ -317,6 +347,8 @@ It reached the release at all because a local verification tree can hold a stale
 
 `web/scripts/serve-github-pages.mjs` also honours the `--port` its Playwright config has always passed it, so `test:pages` can run beside anything already holding 48142.
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None.
@@ -347,6 +379,8 @@ Asking for an account is something you can find, and the owner hears that you as
 
 This release also wires in two test surfaces that existed and ran nowhere — including `test:pages`, the only thing that exercises the service worker and the manifest against the artifact a site actually ships — and deletes two files that nothing anywhere referenced.
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None.
@@ -371,6 +405,8 @@ Follows 0.114.1. The device matrix carried an assertion marked as a known failur
 
 The one remaining annotated failure is genuine and unchanged: on a phone in landscape the open navigation fills the viewport, so the About panel opens below the fold. That is an information-architecture decision, not a defect a test should settle.
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None.
@@ -388,6 +424,8 @@ Pin 0.113.0.
 # Project 42 platform v0.114.1
 
 A one-word fix on top of 0.114.0: the new device-matrix spec named a local variable `module`, and Next's lint refuses that in any file it checks. The site materialises these specs into its own tree, so 0.114.0 could not pass the site's verify at all. Nothing else changed.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
 
 ## Breaking changes
 
@@ -419,6 +457,8 @@ The site keeps your place, and keeps your work.
 
 This release also carries an eighteen-project device matrix — Chromium, WebKit and Firefox across phones, tablets and desktop — that asserts the menus open unclipped, nothing scrolls sideways, tap targets are reachable and the installed-app surface resolves.
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None.
@@ -447,6 +487,8 @@ Signing in lasts, the header stops guessing, and work done during a session rene
 
 **Progress recorded during a renewal survives it.** When a session renews mid-visit, the app re-reads the account; that response used to replace local state and cancel the pending write of whatever had just been answered. It merges now, through the same function the offline flush uses.
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None.
@@ -473,6 +515,8 @@ The profile menu did nothing on iOS: the button reported itself expanded and the
 
 The mobile journeys now run on WebKit at iPhone SE and iPhone 14 sizes, tap with real touch events, and assert that no ancestor of a menu panel clips on either axis. The behavioural half of those tests passes even on the broken CSS, which is precisely how this reached a phone; the clip assertion is the one that fails.
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None.
@@ -497,6 +541,8 @@ The borders the site actually draws are visible enough to see.
 
 `portal-default` is the bundle the portal serves, and eight of its border pairs failed the 3:1 non-text contrast minimum — a card edge at 1.23:1 against the card it sits on. The Gallery's seven themes were raised to 3:1 on 2026-09-11; nothing measured this one, because the Gallery's validator only scans the Gallery. The platform now runs that same validator over every bundle it ships, including the frozen `06-galactic-guide` copy, which carried seven more failures of its own. Only lightness and alpha changed; no hue moved.
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None.
@@ -520,6 +566,8 @@ Pin 0.112.1.
 Code samples in the OpenAI and Gemini practice paths teach what each section says.
 
 Fourteen modules had one generated sample — a `chat.completions` call with `gpt-4o` and `json_object`, or a single `generateContent` call — pasted into every section. All 63 are rewritten against documentation read on 2026-09-11: tool routing by execution owner, bounded tool loops matched by call id, strict schemas, side-effect safety, Codex sandboxing and approvals, evaluation contracts, moderation, and migration from Chat Completions to Responses. The Gemini modules move to the Interactions API, which Google made generally available in June 2026, and the Gemini API module explains when the legacy `generateContent` is still the right choice.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
 
 ## Breaking changes
 
@@ -549,6 +597,8 @@ Every module a learner can reach is real curriculum, and self-hosted installs sa
 
 **The progress-flush regression is now caught here.** `planUnsyncedProgressFlush` holds the decision `ProgressProvider` makes when an account read finally succeeds, and a test replays the seven-page-load sequence that lost data in 0.110.0 and 0.111.0.
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None.
@@ -574,6 +624,8 @@ Progress completed while an account read is still pending is added to the learne
 0.110.0 fixed a real defect -- one failed `GET /v1/me/progress` ended every later write for the session -- by buffering what the learner did until a read succeeded. The flush was wrong. When the read came back, the provider applied the buffer with `setProgress(buffered.progress)`, and the buffer had been built on the empty progress the provider holds before its first read. The learner's hydrated record was thrown away and that partial record was written over it. Opening a module and answering before the read returns is enough: a learner who completed seven modules on seven page loads kept only the seventh.
 
 The flush now merges with `mergeLearnerProgress`, the same function account merges use, so every attempt, completion and badge the read returned is kept and only the evidence recorded while the session was not yet writable is added. The Project 42 portal's provider-journey and reliable-agent browser journeys fail on 0.110.0 and 0.111.0 and pass on this release.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
 
 ## Breaking changes
 
@@ -610,6 +662,8 @@ The review dates the site shows are the ones the curriculum actually earned, and
 - The self-hosting theming guide describes the three-layer theme model that actually ships.
 - Hardcoded radius and tracking values in core fell from 102 to 53; the theme ramp steps core wrote by hand are published tokens.
 - Diagram step transitions keep text contrast.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
 
 ## Breaking changes
 
@@ -650,6 +704,8 @@ It had a manifest, a service worker, `apple-mobile-web-app-capable` and `viewpor
 **The home page cost 432.7 KB on cellular.** 90.6 KB of that was a decorative `hero.png`, fetched on the home page and on `/learn/`, and 99.9 KB was a `/guide/` RSC prefetch on every first paint for a link most readers never tap. A phone now gets the hero plate without the picture, and no `/guide/` link prefetches.
 
 **A gate so it cannot come back.** `web/tests/browser/mobile-viewport.spec.ts` runs under WebKit on an iPhone SE, from a new `mobile-webkit` Playwright project. It fails on horizontal overflow, on a heading wider than its own box, on any control under 44x44 CSS px, on a missing safe-area rule for a pinned element, on a nav that is not a disclosure at phone width, and on a text field small enough to make iOS zoom on focus. The chromium project ignores that file and the new project runs nothing else, so neither suite can pass at a width where it proves nothing.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
 
 ## Breaking changes
 
@@ -699,6 +755,8 @@ Core fills `.cta`, `.pillar-reference` and `.pillar-ondemand` with the accent, t
 
 And one gate: the browser conformance suite derived every colour and the heading face from the selected bundle, but still asserted `toContain("Inter")` for the body face -- 06-galactic-guide’s own. Any bundle naming another body face failed a required gate for no reason beyond not being that theme, which is the very defect that suite was rewritten to remove. It now reads `--p42-font-body` like the rest.
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None for an existing site: it names its theme explicitly and keeps rendering it.
@@ -740,6 +798,8 @@ Both halves are the same defect: appearance had no single owner.
 **A gate keeps it out.** `npm run theme:boundary` fails on a colour literal, a brand colour used as text, a typeface named inline, a token pinned to a literal outside the fallback layer, and any new hardcoded radius or letter-spacing. Run against core as it stood before this release it reports 65 violations; against core as it stands now, none.
 
 Verified unchanged: 121,231 computed style values across 15 routes, captured from real builds before and after, differ in one place -- an in-flight transition opacity sampled microseconds apart.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
 
 ## Breaking changes
 
@@ -793,6 +853,8 @@ The projection is one function in `bin/project42-portal.mjs`. A progress feature
 
 No file under `migrations/` was added or changed since v0.104.2.
 
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
+
 ## Breaking changes
 
 None.
@@ -807,6 +869,8 @@ Revert consuming sites to v0.104.2. They regain 2.5 MB of client payload and los
 # Project 42 platform v0.116.6
 
 The Anthropic in Practice lesson now teaches and assesses how to choose among chat, the Console playground, the Messages API, Claude Code, and Managed Agents. It adds a practical exercise, context and tool boundaries, and a dated availability check. This release pins canonical content at project42-content@fbdc401d7548aa985d1e99b19b768e3c36e1286b and addresses September Orchard item 9271 through a reviewed editorial correction.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. Browser accessibility checks cover the actual rendered states.
 
 ## Breaking changes
 

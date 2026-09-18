@@ -4,6 +4,10 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.117.1] - 2026-09-18
+
+- Fix rendered Warm Campus label and primary-action contrast, including accent-filled callouts. No content or layout changes.
+
 ## [0.117.0] - 2026-09-18
 
 ### Added
