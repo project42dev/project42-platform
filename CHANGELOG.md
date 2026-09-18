@@ -4,6 +4,12 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.116.13] - 2026-09-18
+
+### Fixed
+
+- Stabilized the public class-script catalog type so optional visual metadata remains optional when new classes are installed.
+
 ## [0.116.12] - 2026-09-18
 
 ### Fixed
