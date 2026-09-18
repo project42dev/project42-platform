@@ -780,6 +780,10 @@ test("a site with no theme of its own renders the bundles the platform ships", (
       ["public", "themes", "06-galactic-guide", "mark.svg"],
       ["public", "layouts", "standard", "layout.css"],
       ["public", "layouts", "standard", "layout.json"],
+      ["public", "layouts", "compact", "layout.css"],
+      ["public", "layouts", "wide", "layout.css"],
+      ["public", "layouts", "enterprise", "layout.css"],
+      ["public", "layouts", "enterprise", "layout.json"],
     ]) {
       assert.ok(
         existsSync(path.join(scratch, ...relative)),

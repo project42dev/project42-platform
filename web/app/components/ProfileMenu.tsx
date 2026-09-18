@@ -11,6 +11,7 @@ import {
   headerOffersSignIn,
 } from "../lib/headerAccountPresentation";
 import { copy } from "../../lib/copy";
+import { LayoutSelector } from "./LayoutSelector";
 
 interface ProfileMenuProps {
   accountHref: string;
@@ -171,6 +172,7 @@ export function ProfileMenu({
           <Link href={learnerDataHref}>Learner data</Link>
         </li>
       </ul>
+      <LayoutSelector />
       {configured && signedIn ? (
         <div className="header-menu-footer">
           <button onClick={() => void signOut()} type="button">

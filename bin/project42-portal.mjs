@@ -538,7 +538,7 @@ async function resolveAppearance(targetRoot, config, tracked) {
   ].sort();
   const layoutIds = [
     ...new Set([
-      ...(config.layout?.availablePresets ?? []),
+      ...(config.layout?.availablePresets ?? await readdirSafe(shippedLayoutsRoot)),
       config.layout?.defaultPreset ?? "standard",
     ]),
   ].sort();

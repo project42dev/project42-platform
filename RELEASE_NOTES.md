@@ -1,3 +1,19 @@
+# Project 42 platform v0.117.0
+
+Adds the Enterprise workspace layout beside Standard, Compact and Wide. Visitors can choose a layout in the account menu; the correct bundle loads and the selection survives reload. The platform-owned portal-default now uses the Warm Campus palette without changing content or selecting a different layout.
+
+## Breaking changes
+
+None. The default layout remains Standard; theme identity remains deployment-owned. Repository-owned appearance overrides retain precedence.
+
+## Migrations
+
+None.
+
+## Adoption
+
+Update the platform dependency, materialise the portal, and rebuild. All shipped layouts are installed unless availablePresets explicitly narrows them. Gallery must sync the released canonical bundles before presenting updated previews.
+
 # Project 42 platform v0.116.14
 
 Updates the complete reliable-agent learner journey contract to thirteen modules, with explicit review, operations, and capstone ordering. Preserves assessment, badge, account progress, accessibility, and transcript assertions. Includes all v0.116.12 curriculum repairs and the v0.116.13 public-type correction. Canonical content: project42-content@3fb86dda79c282b4885437e017bdf0d41a1a1ce4.

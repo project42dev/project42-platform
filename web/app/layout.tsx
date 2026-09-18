@@ -9,7 +9,7 @@ import { ProfilePreferencesProvider } from "./components/ProfilePreferencesProvi
 import { CanonicalOriginEnforcer } from "./components/CanonicalOriginEnforcer";
 import { ServiceWorkerRegistration } from "./components/ServiceWorkerRegistration";
 import { getThemeAssets } from "../lib/theme";
-import { getLayoutAssets } from "../lib/layout";
+import { getAvailableLayouts, getLayoutAssets } from "../lib/layout";
 import { getThemeBrandColors } from "../lib/themeBrand";
 import { copy, orgName, canonicalOrigin } from "../lib/copy";
 import { getBrandAssets } from "../lib/branding";
@@ -115,6 +115,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link data-project42-theme-tokens rel="stylesheet" href={themeAssets.tokensCss} />
         <link data-project42-theme-components rel="stylesheet" href={themeAssets.componentsCss} />
         <link data-project42-layout rel="stylesheet" href={layoutAssets.stylesheet} />
+        {getAvailableLayouts().filter((preset) => preset.id !== configuredLayout).map((preset) => (
+          <link key={preset.id} data-project42-layout-option={preset.id} rel="stylesheet" href={getLayoutAssets(preset.id).stylesheet} />
+        ))}
         <script
           dangerouslySetInnerHTML={{
             // Theme is DEPLOYMENT-owned: it comes from project42.config.json
@@ -126,7 +129,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             // Layout density IS a per-visitor preference and is read from
             // storage with the configured preset as the fallback. The two
             // axes are independent, and they are deliberately NOT symmetric.
-            __html: `(function(){try{var defaultTheme="${configuredTheme}";var defaultLayout="${configuredLayout}";var l=localStorage.getItem("project42.layout.v1")||defaultLayout;localStorage.removeItem("project42.theme.v1");document.documentElement.setAttribute("data-theme",defaultTheme);document.documentElement.setAttribute("data-layout",l);}catch(e){}})();`,
+            __html: `(function(){var l=${JSON.stringify(configuredLayout)};try{var saved=localStorage.getItem("project42.layout.v1");if(${JSON.stringify(getAvailableLayouts().map((preset) => preset.id))}.includes(saved))l=saved;localStorage.removeItem("project42.theme.v1");}catch(e){}document.documentElement.setAttribute("data-theme",${JSON.stringify(configuredTheme)});document.documentElement.setAttribute("data-layout",l);})();`,
           }}
         />
       </head>
