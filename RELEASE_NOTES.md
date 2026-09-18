@@ -1,6 +1,8 @@
-# Project 42 platform v0.117.0
+# Project 42 platform v0.117.1
 
 Adds the Enterprise workspace layout beside Standard, Compact and Wide. Visitors can choose a layout in the account menu; the correct bundle loads and the selection survives reload. The platform-owned portal-default now uses the Warm Campus palette without changing content or selecting a different layout.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. No content or layout changes.
 
 ## Breaking changes
 

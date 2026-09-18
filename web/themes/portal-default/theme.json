@@ -4,7 +4,7 @@
   "tagline": "The theme a fresh install renders with.",
   "description": "The platform default: warm paper surfaces, restrained burgundy actions and system typography. Its color palette is independent of layout and content.",
   "author": "Project 42 Core Team",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "polarity": "light",
   "font": "ui-sans-serif, system-ui, sans-serif",
   "assets": {
