@@ -1,3 +1,23 @@
+# Project 42 platform v0.116.2
+
+The AI mental models lesson now explains that repeated agreement measures observed output stability, not factual truth or the underlying token distribution. Its learner activity and instructor script remain attached. The catalogue no longer promises guaranteed structured output, and the Orchard and agent-orchestration diagrams reflect the current lifecycle. The platform pins the validated canonical content at project42-content@4c41c9ea71658f1810059a369792b2ca1f7ec08f.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+The consumer sites must update their platform pins to v0.116.2 to serve this curriculum.
+
+## Rollback
+
+Pin v0.116.1. No database migration is involved.
+
 # Project 42 platform v0.116.1
 
 The hosted smoke now proves a learner keeps their place, and the Claude safety module's code example no longer teaches the unsafe pattern it warns against.
