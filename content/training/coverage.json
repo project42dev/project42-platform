@@ -337,7 +337,8 @@
     {
       "moduleId": "gemini-ecosystem-and-interfaces",
       "pathIds": [
-        "google-gemini-practice"
+        "google-gemini-practice",
+        "providers-in-practice"
       ],
       "status": "outline-only",
       "instructorSchemaVersion": "1.1"

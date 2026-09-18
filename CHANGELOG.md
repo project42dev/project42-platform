@@ -4,6 +4,12 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.116.9] - 2026-09-18
+
+### Fixed
+
+- Corrected the embeddings lesson's provider labeling, Gemini identifier explanation, pgvector schema and PostgreSQL 17 guidance, and instructor caption timing.
+
 ## [0.116.8] - 2026-09-18
 
 ### Fixed
