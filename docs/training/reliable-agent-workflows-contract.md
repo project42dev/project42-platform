@@ -3,7 +3,7 @@
 The Reliable Agent Workflows path teaches one accountable operating method, not
 one provider SDK or agent framework. A learner moves from a bounded work order to
 typed tools, governed context and memory, explicit protocol and trust boundaries,
-measured orchestration choices, evaluation, observability, incident recovery, and
+measured orchestration choices, evaluation, observability, result review, incident recovery, and
 a human-reviewed capstone.
 
 The machine-readable source is
@@ -14,6 +14,12 @@ against `schemas/training/learning-path-contract.schema.json`.
 
 The contract fixes the module order and the evidence that each module must leave
 behind. It also defines nine system boundaries:
+
+The thirteen-module sequence keeps result review and incident recovery separate.
+`review-agent-results` produces a criterion-to-evidence matrix and an acceptance,
+correction, or escalation decision. `operate-and-recover-agent-systems` follows it
+with incident classification, containment, reconciliation, and verified recovery.
+The capstone requires both kinds of evidence.
 
 1. Identity and authorization remain in trusted application and identity systems.
 2. Tool execution remains in a validating, authorizing, auditable executor.

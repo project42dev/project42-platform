@@ -307,6 +307,22 @@ a {
   z-index: 50;
 }
 
+.layout-selector-label {
+  display: block;
+  margin-bottom: var(--p42-space-xs);
+}
+
+#site-layout {
+  width: 100%;
+  min-height: var(--p42-control-height);
+  padding: var(--p42-control-padding);
+  border: 1px solid var(--p42-border-soft);
+  border-radius: var(--p42-radius-small);
+  background: var(--p42-surface-card);
+  color: var(--p42-text-body);
+  font: inherit;
+}
+
 @supports (backdrop-filter: blur(16px)) {
   .site-header {
     backdrop-filter: blur(16px);

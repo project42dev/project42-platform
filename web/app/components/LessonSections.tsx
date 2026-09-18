@@ -1,7 +1,7 @@
 import type { LessonSection } from "@project42/platform";
 import { CopyCodeButton } from "./CopyCodeButton";
 
-export function LessonSections({ sections }: { sections: LessonSection[] }) {
+export function LessonSections({ sections, checklist = false }: { sections: LessonSection[]; checklist?: boolean }) {
   return (
     <div className="lesson-sections">
       {sections.map((section, index) => (
@@ -9,7 +9,11 @@ export function LessonSections({ sections }: { sections: LessonSection[] }) {
           <div className="lesson-block-index">{String(index + 1).padStart(2, "0")}</div>
           <div>
             <h2>{section.title}</h2>
-            {section.paragraphs.map((paragraph) => (
+            {checklist ? (
+              <ul aria-label={`${section.title} checklist`}>
+                {section.paragraphs.map((paragraph) => <li key={paragraph}>{paragraph}</li>)}
+              </ul>
+            ) : section.paragraphs.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
             {section.callout ? <aside className="lesson-callout">{section.callout}</aside> : null}

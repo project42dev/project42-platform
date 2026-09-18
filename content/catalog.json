@@ -104,7 +104,7 @@
     {
       "id": "self-hosted-and-aiops",
       "title": "Self-Hosted Models & Enterprise AIOps",
-      "summary": "Open-weight models (Llama 3, DeepSeek, Mistral), GGUF/AWQ quantization, GPU VRAM sizing, vLLM, and OpenTelemetry.",
+      "summary": "A focused track for open-weight model selection, quantization, GPU sizing, serving runtimes, caching, and tracing. For the full endpoint lifecycle, including artifact provenance, access, evaluation, updates, incident response, and recovery, continue with Self-Hosted Model Operations.",
       "audience": "DevOps, SREs, and enterprise infrastructure operators running private AI.",
       "level": "advanced",
       "moduleIds": [
@@ -207,12 +207,13 @@
     {
       "id": "providers-in-practice",
       "title": "Providers in Practice",
-      "summary": "Compare Anthropic and OpenAI practice, then evaluate Google and other providers through cross-provider capability and migration work.",
+      "summary": "Compare Anthropic, OpenAI, and Google product surfaces before evaluating cross-provider capabilities and migration work.",
       "audience": "Practitioners choosing tools or supporting a mixed-provider team.",
       "level": "intermediate",
       "moduleIds": [
         "anthropic-in-practice",
         "openai-in-practice",
+        "gemini-ecosystem-and-interfaces",
         "choose-a-provider",
         "compare-provider-capabilities",
         "plan-cross-provider-migration",
@@ -274,6 +275,7 @@
         "agent-evaluation",
         "agent-observability",
         "review-agent-results",
+        "operate-and-recover-agent-systems",
         "reliable-agent-capstone"
       ],
       "badge": {
@@ -306,7 +308,7 @@
     {
       "id": "self-hosted-model-operations",
       "title": "Self-Hosted Model Operations",
-      "summary": "Select, verify, deploy, evaluate, observe, update, roll back, and recover a self-hosted model endpoint.",
+      "summary": "The full endpoint operations path: select, verify, deploy, evaluate, observe, update, roll back, and recover a self-hosted model endpoint. Self-Hosted Models & Enterprise AIOps is the shorter specialist track for model selection, sizing, serving runtimes, caching, and tracing.",
       "audience": "Practitioners and operators responsible for open-weight or otherwise self-managed model services across workstations, edge, on-premises, and cloud environments.",
       "level": "advanced",
       "moduleIds": [
@@ -352,17 +354,26 @@
       "sections": [
         {
           "id": "anthropic-surfaces",
-          "title": "One provider, several operating surfaces",
+          "title": "Choose the surface from the work",
           "paragraphs": [
-            "Claude can be used through conversational products, APIs, and coding-agent tools. These surfaces differ in authentication, billing, context packaging, tools, and operational control.",
-            "Choose the surface from the workflow: interactive thinking, application integration, or repository execution."
+            "Use claude.ai chat for a person working interactively. The Claude Console playground is an interactive developer test environment; it is not the same product or billing path as claude.ai chat. Use the Messages API when an application must control requests, conversation state, and its own tool loop. Use Claude Code when the task needs an agent to inspect and change a codebase through its supported interfaces. Managed Agents provide a hosted agent harness for longer-running application workflows.",
+            "Write down who operates the workflow, where its state lives, which tools can act, and how the result is reviewed. These are selection criteria, not interchangeable names for one product."
+          ]
+        },
+        {
+          "id": "anthropic-boundaries",
+          "title": "Set context and tool boundaries",
+          "paragraphs": [
+            "For a direct Messages API workflow, the application supplies the relevant messages and defines the tools available for that request. With client-side tools, the application executes a returned tool call and sends the tool result back; the model does not execute the application function itself.",
+            "As a course practice rule, supply only task-relevant context, give tools the narrowest useful scope, and require a person to review actions with external impact. For Claude Code, define the repository and files the agent may change and the tests or review evidence that prove completion."
           ]
         },
         {
           "id": "anthropic-current",
-          "title": "Treat model details as volatile",
+          "title": "Verify current availability before choosing",
           "paragraphs": [
-            "Model names, context limits, pricing, and regional availability change. Link to current official documentation instead of embedding long-lived routing rules without a verification date."
+            "Start with the official Models overview for the exact current model ID and its documented capabilities. Check the API overview and supported-regions page for access from the relevant location, then check the actual account and deployment platform for availability, limits, and billing. Record the URLs, the UTC check date, and any account-specific result in the work order.",
+            "Model names, context limits, prices, feature support, and regional availability can change. If the official page or account does not establish a detail, mark it unknown and test or ask the provider before making it a routing rule."
           ]
         }
       ],
@@ -390,17 +401,73 @@
             ],
             "answerIndex": 1,
             "explanation": "Source links and verification dates make changing claims auditable."
+          },
+          {
+            "id": "q-anthropic-3",
+            "prompt": "An application needs Claude to request a customer lookup. What controls the lookup?",
+            "choices": [
+              "Claude executes the application function without an integration",
+              "The application defines the tool, executes the returned request, and sends back the result",
+              "The chat product automatically grants the application database access"
+            ],
+            "answerIndex": 1,
+            "explanation": "Client-side tool use is an application-controlled round trip; the model returns a structured request."
           }
         ]
       },
       "sources": [
         {
-          "title": "Claude documentation",
-          "url": "https://platform.claude.com/docs/",
+          "title": "Claude Platform documentation",
+          "url": "https://platform.claude.com/docs/en/home",
           "publisher": "Anthropic",
-          "lastVerified": "2026-09-13"
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "Using the Messages API",
+          "url": "https://platform.claude.com/docs/en/build-with-claude/working-with-messages",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "Tool use with Claude",
+          "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "Models overview",
+          "url": "https://platform.claude.com/docs/en/models/overview",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "API overview and availability",
+          "url": "https://platform.claude.com/docs/en/api/overview",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "Claude Code overview",
+          "url": "https://code.claude.com/docs/en/overview",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-09-18"
         }
-      ]
+      ],
+      "activity": {
+        "id": "activity-anthropic-workflow-map",
+        "title": "Map one workflow to a Claude surface",
+        "instructions": [
+          "Choose one task: an individual drafting a memo, an application answering support questions with a lookup tool, or a codebase change with tests. Name the operator, data, allowed tools, and required review.",
+          "Compare claude.ai chat, the Console playground, the Messages API, Claude Code, and Managed Agents. Select one primary surface and explain why the others do not meet this task as well.",
+          "For the selected surface, list the minimum task context and tool permissions. Mark any external action that needs human review.",
+          "Open the official model and availability documentation. Record the exact pages and UTC check date, then confirm the chosen model or feature in the actual account or mark it unknown."
+        ],
+        "evidence": [
+          "A decision table that names the chosen surface, operator, state owner, tool boundary, review point, and rejected alternatives.",
+          "A dated availability note with official URLs and an account check or an explicit unknown."
+        ],
+        "reflectionPrompt": "Which fact would change your surface choice, and how would you verify it before deployment?"
+      }
     },
     {
       "id": "openai-in-practice",
@@ -434,8 +501,38 @@
           "paragraphs": [
             "When software consumes model output, use structured contracts, validation, retries, and observable failure behavior instead of parsing unconstrained prose."
           ]
+        },
+        {
+          "id": "openai-tools",
+          "title": "Tools are an application boundary",
+          "paragraphs": [
+            "An API model can request a tool call, but the application selects which tools are exposed, validates arguments, checks authorization, executes the operation, and returns the result. Treat tool output as untrusted data; a requested call is not permission to write files, send messages, or spend money.",
+            "A structured response constrains shape. Validate schema and business rules, then check the real postcondition after any consequential action. A well-formed response alone does not prove the action was safe or successful."
+          ]
+        },
+        {
+          "id": "openai-current-options",
+          "title": "Verify the surface and model at the time of use",
+          "paragraphs": [
+            "Before choosing a model or feature, consult the dated official model and API documentation, compare it with the models and permissions enabled for your own account, and record the checked date. Check the relevant ChatGPT workspace controls or Codex environment separately; an API feature listing does not prove it is available in every product surface.",
+            "Test a representative request in the intended environment and record model identifier, tool permissions, output contract, latency, cost, and failure behavior. Recheck when the provider changes a model, endpoint, or account policy."
+          ]
         }
       ],
+      "activity": {
+        "id": "activity-openai-surface-boundaries",
+        "title": "Route a workflow through the right OpenAI surface",
+        "instructions": [
+          "For one research question, one software integration, and one repository change, select ChatGPT, the API, or Codex and explain the account and permission boundary for each.",
+          "For the API integration, define an output schema and one tool contract; write the argument, authorization, and postcondition checks the application must enforce.",
+          "Check official model and API documentation and the actual account or environment, record the verification date, and run a representative request before making an availability claim."
+        ],
+        "evidence": [
+          "A three-row surface decision table with distinct permissions and data controls.",
+          "A validated output and tool-call contract with an observed test result, model identifier, and verification date."
+        ],
+        "reflectionPrompt": "Which tool decision belongs to the application rather than to the model?"
+      },
       "knowledgeCheck": {
         "passPercent": 80,
         "questions": [
@@ -460,6 +557,28 @@
             ],
             "answerIndex": 0,
             "explanation": "The surfaces differ in interaction, integration, permissions, and operations."
+          },
+          {
+            "id": "q-openai-3",
+            "prompt": "A model requests a file-writing tool call with valid JSON. What must happen before the write?",
+            "choices": [
+              "Execute it because the JSON is valid",
+              "Validate arguments and authorization against application policy",
+              "Assume the model already checked permissions"
+            ],
+            "answerIndex": 1,
+            "explanation": "The application controls tool execution and must verify authorization and arguments independently."
+          },
+          {
+            "id": "q-openai-4",
+            "prompt": "How should a team verify that a model and tool are available for its API workflow?",
+            "choices": [
+              "Rely on a remembered model name",
+              "Use a ChatGPT screenshot as proof of API access",
+              "Check dated official documentation and the actual account, then test the intended workflow"
+            ],
+            "answerIndex": 2,
+            "explanation": "Documentation, account access, and an observed test establish availability for the intended surface."
           }
         ]
       },
@@ -475,6 +594,12 @@
           "url": "https://learn.chatgpt.com/docs/",
           "publisher": "OpenAI",
           "lastVerified": "2026-09-13"
+        },
+        {
+          "title": "Models documentation",
+          "url": "https://platform.openai.com/docs/models",
+          "publisher": "OpenAI",
+          "lastVerified": "2026-09-18"
         }
       ]
     },
@@ -497,7 +622,8 @@
       ],
       "prerequisites": [
         "anthropic-in-practice",
-        "openai-in-practice"
+        "openai-in-practice",
+        "gemini-ecosystem-and-interfaces"
       ],
       "sections": [
         {
@@ -512,10 +638,33 @@
           "id": "independence",
           "title": "Independence can improve review",
           "paragraphs": [
-            "For important review, a different model family can reduce correlated blind spots. Independence does not replace tests or expert judgment, but it adds a useful perspective."
+            "For important review, compare independently produced answers from more than one model family and measure where they agree or fail against a human-reviewed rubric. Different families may still share errors; their disagreement is a prompt for investigation, not proof that one answer is correct."
+          ]
+        },
+        {
+          "id": "three-provider-evidence",
+          "title": "Build a dated three-provider comparison",
+          "paragraphs": [
+            "For Anthropic, OpenAI, and Google, record the exact product surface, model identifier, account and region availability, tool permissions, data controls, rate limits, and cost from each provider's current official documentation. Check those claims in the account that will run the work; product and API capabilities are not interchangeable.",
+            "Use the same representative task set and scoring rubric for all three. Include quality, refusal and error behavior, latency, total cost, security requirements, and operational fit. Record the test date and distinguish a documented capability from one you observed."
           ]
         }
       ],
+      "activity": {
+        "id": "activity-three-provider-decision",
+        "title": "Defend a provider choice with comparable evidence",
+        "instructions": [
+          "Choose one real workflow and define success, data classification, allowed tools, latency, budget, and a scored quality rubric before comparing providers.",
+          "Use current official Anthropic, OpenAI, and Google documentation to identify a suitable surface and model for each. Record the exact source URL and date, and mark account or region access that you have not verified as unknown.",
+          "Run the same representative cases where access permits, record observed outcomes and costs separately from documented claims, and explain the chosen provider and a fallback.",
+          "For an important review case, compare two model families against the human rubric; document shared errors and disagreements without treating agreement as validation."
+        ],
+        "evidence": [
+          "A dated three-provider decision table with source links, access checks, common test cases, scores, and unknowns.",
+          "A decision rationale and independent-review comparison that identify limitations and a fallback."
+        ],
+        "reflectionPrompt": "Which provider claim changed when you checked the actual account or the same test case?"
+      },
       "knowledgeCheck": {
         "passPercent": 80,
         "questions": [
@@ -539,7 +688,7 @@
               "To avoid writing tests"
             ],
             "answerIndex": 1,
-            "explanation": "Cross-family review adds independence but still requires objective checks."
+            "explanation": "Different families can offer another perspective, but shared errors are possible and the result still needs objective checks."
           }
         ]
       },
@@ -549,6 +698,24 @@
           "url": "https://www.nist.gov/itl/ai-risk-management-framework",
           "publisher": "NIST",
           "lastVerified": "2026-07-23"
+        },
+        {
+          "title": "Claude models overview",
+          "url": "https://platform.claude.com/docs/en/models/overview",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "OpenAI models documentation",
+          "url": "https://platform.openai.com/docs/models",
+          "publisher": "OpenAI",
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "Gemini API models",
+          "url": "https://ai.google.dev/gemini-api/docs/models",
+          "publisher": "Google",
+          "lastVerified": "2026-09-18"
         }
       ]
     },
@@ -602,7 +769,7 @@
           "code": {
             "language": "text",
             "label": "Provider-neutral agent loop",
-            "code": "while budget.remaining > 0:\n  observation = inspect_environment()\n  decision = model.choose(allowed_actions, state, observation)\n  if decision.kind == \"finish\" and verifier.accepts(state, observation): return COMPLETE\n  if decision.kind == \"escalate\": return NEEDS_HUMAN\n  result = execute_authorized(decision.action)\n  state = record_transition(state, decision, result)\nreturn BUDGET_EXHAUSTED"
+            "code": "while budget.remaining > 0:\n  observation = inspect_environment()\n  if observation.requests_unauthorized_action: return POLICY_BLOCKED\n  if repeated_no_progress(state, observation): return NEEDS_HUMAN\n  decision = model.choose(allowed_actions, state, observation)\n  if decision.kind == \"finish\":\n    if verifier.accepts(state, observation): return COMPLETE\n    state = record_rejected_finish(state, observation)\n    continue\n  if decision.kind == \"escalate\": return NEEDS_HUMAN\n  if decision.kind != \"act\" or not authorized(decision.action): return POLICY_BLOCKED\n  result = execute_authorized(decision.action)\n  if result.outcome_unknown: return FAILED_WITH_RECOVERY_EVIDENCE(record_for_reconciliation(state, result))\n  state = record_transition(state, decision, result)\nreturn BUDGET_EXHAUSTED"
           }
         },
         {
@@ -621,12 +788,12 @@
         "instructions": [
           "Choose a multi-step task and write its success contract, allowed actions, trusted observations, and approval boundaries.",
           "Define the loop state and the deterministic controller that selects complete, continue, escalate, or stop.",
-          "Simulate a normal completion, three identical no-progress transitions, a budget exhaustion, and an untrusted observation containing an instruction.",
+          "Simulate five cases: verified completion; three identical no-progress transitions ending in needs-human; budget exhaustion; an untrusted instruction requesting an unauthorized action ending in policy-blocked; and a tool failure with an unknown external outcome ending in failed-with-recovery-evidence.",
           "Record the exact evidence and terminal state produced by each scenario."
         ],
         "evidence": [
           "A state-transition table with budgets, approvals, success evidence, and five terminal states.",
-          "A simulation log proving deterministic termination for completion, no progress, budget exhaustion, and untrusted instructions."
+          "A five-case simulation log showing the evidence and terminal state for complete, needs-human, budget-exhausted, policy-blocked, and failed-with-recovery-evidence, including reconciliation data for the uncertain tool outcome."
         ],
         "reflectionPrompt": "Which condition must be enforced by code because a prompt alone cannot guarantee it?"
       },
@@ -1057,252 +1224,235 @@
     },
     {
       "id": "review-agent-results",
-      "title": "Operate, Recover, and Improve Agent Systems",
-      "summary": "Classify failures across the full agent stack, contain impact, reconcile uncertain actions, recover safely, and turn incidents into verified improvements.",
+      "title": "Review Agent Results Against Evidence",
+      "summary": "Check an agent result against the work order, source evidence, real postconditions, and safety boundaries before accepting or publishing it.",
       "level": "intermediate",
       "providers": [
         "provider-neutral"
       ],
-      "estimatedMinutes": 56,
+      "estimatedMinutes": 35,
       "objectives": [
-        "Distinguish model, prompt, tool, retrieval, data, policy, orchestration, and infrastructure failures.",
-        "Triage severity and contain unsafe action, data exposure, cost, and cascading retries.",
-        "Recover with reconciliation, idempotency, rollback, replay, and human escalation.",
-        "Convert operational evidence into tests, controls, runbook updates, and measured improvement."
+        "Compare the delivered result with every requirement and acceptance criterion.",
+        "Trace material claims to source evidence and distinguish observation from inference.",
+        "Check tool actions, permissions, tests, and real postconditions before declaring success.",
+        "Choose accept, request changes, or escalate with a reproducible evidence packet."
       ],
       "prerequisites": [
         "agent-observability"
       ],
       "sections": [
         {
-          "id": "classify-before-changing",
-          "title": "Classify the failed boundary before changing the model",
+          "id": "review-contract",
+          "title": "Start with the work order",
           "paragraphs": [
-            "Model failures include unsupported or incorrect generation. Prompt failures encode ambiguous or conflicting behavior. Tool failures include bad contracts, authorization, execution, or postconditions. Retrieval and data failures include missing, stale, poisoned, malformed, or cross-tenant evidence.",
-            "Policy failures allow forbidden action or block required escalation. Orchestration failures misroute, loop, race, or lose state. Infrastructure failures include capacity, network, dependency, credential, storage, and deployment faults. Several classes can occur in one incident, so record evidence instead of forcing one convenient cause."
+            "Read the original outcome, scope, constraints, and acceptance criteria before reading the agent summary. List each required artifact and the evidence that would prove it exists. A fluent summary does not close an unverified requirement.",
+            "Compare the delivered files or external state with the work order. Record omissions, scope changes, and assumptions as separate findings rather than treating them as completed work."
           ]
         },
         {
-          "id": "triage-and-contain",
-          "title": "Triage impact and contain first",
+          "id": "review-evidence",
+          "title": "Trace claims and actions",
           "paragraphs": [
-            "Assess affected users, tenants, data, permissions, external actions, money, availability, and legal or safety obligations. Set severity from actual and credible potential impact, not from how fluent the agent output looks.",
-            "Contain by pausing the workflow or one tool, revoking credentials, disabling a route, reducing concurrency, switching to a safe fallback, or requiring manual approval. Preserve secret-safe traces, configuration versions, request IDs, and postcondition evidence before mutable state disappears."
-          ],
-          "callout": "When the real-world outcome is unknown, do not classify the action as failed and retry it blindly."
-        },
-        {
-          "id": "reconcile-and-recover",
-          "title": "Reconcile before retry, rollback, or replay",
-          "paragraphs": [
-            "A transport timeout does not prove that a write failed. Query the system of record with an idempotency key or correlation ID, compare the intended and actual postcondition, then choose accept, compensate, retry, rollback, or escalate.",
-            "Retry only transient failures with exponential backoff, jitter, provider guidance, and a total budget. Do not retry validation, authorization, policy, or deterministic conflict failures unchanged. Roll back through a tested reversible path and verify the restored state."
-          ],
-          "code": {
-            "language": "text",
-            "label": "Recovery decision",
-            "code": "if outcome == UNKNOWN: reconcile system_of_record\nif unauthorized or policy_blocked: stop + escalate\nif transient and retry_budget > 0: backoff + idempotent retry\nif harmful change and rollback_tested: rollback + verify\notherwise: preserve evidence + human decision"
-          }
-        },
-        {
-          "id": "runbook-and-communication",
-          "title": "Give responders a decision-ready runbook",
-          "paragraphs": [
-            "A runbook names triggers, severity, owner, communication channel, dashboards and queries, containment choices, credentials and approvals, reconciliation steps, rollback or fallback, validation, escalation, and closure criteria. Commands should be safe to copy and explicit about targets.",
-            "Status updates distinguish confirmed facts, hypotheses, actions, impact, and next decision. Notify affected people under the organization's incident and privacy obligations without exposing secrets or unsupported blame."
+            "For factual claims, open the cited source and confirm that it supports the precise claim and date. Label unsupported statements and inferences. For code or configuration, inspect the diff and run the specified checks in the intended environment.",
+            "For a consequential tool action, inspect authorization, arguments, execution record, and the system of record. A tool response or model assertion alone does not prove the real postcondition. If the outcome is uncertain, preserve the correlation key and reconcile before retrying."
           ]
         },
         {
-          "id": "learn-and-improve",
-          "title": "Close only after recovery evidence and prevention work",
+          "id": "review-authority",
+          "title": "Check authority independently of success",
           "paragraphs": [
-            "Verify user-visible recovery, external postconditions, queues and retries, permissions, data isolation, cost, and monitoring. A green health endpoint alone may miss incomplete work or a duplicated side effect.",
-            "Write a blameless timeline and contributing factors, add the smallest reproducing case to the evaluation suite, improve the control at the failed boundary, rehearse the changed runbook, and measure recurrence. Track follow-up work to completion rather than treating the post-incident review as closure."
+            "An action can succeed and still violate the work order. Review the identity used, the resource it addressed, the permission boundary, and the approval that covered that particular operation. OWASP Excessive Agency distinguishes excessive functionality, permissions, and autonomy; inspect all three instead of treating a tool response as permission.",
+            "Use a synthetic account-isolation case to confirm that the action cannot cross into another account. Check the downstream authorization decision as well as the bridge arguments. If an approval allowed a draft, evidence of delivery establishes an effect but not authority to send. Record the failed boundary and escalate to the responsible owner; a reviewer must not invent permission to reverse or repeat the action."
+          ]
+        },
+        {
+          "id": "review-tests",
+          "title": "Match test evidence to the delivered revision",
+          "paragraphs": [
+            "Record the exact artifact revision, test inputs, environment, expected outcome, and observed outcome. Reproduce the check that matters to the acceptance criterion. A formatting test cannot establish factual accuracy, and a successful unit test cannot establish that a deployment reached users. Compare the test scope with the claim before recording the criterion as verified.",
+            "Include failure cases that could invalidate acceptance: an unsupported citation, denied operation, incorrect account, unavailable dependency, or uncertain write result. Keep unavailable evidence marked unknown rather than converting it into a pass. When a repair changes behavior, repeat the affected check and connected checks that could regress. Keep the earlier result so the evidence shows what changed and why the final decision is justified."
+          ]
+        },
+        {
+          "id": "review-decision",
+          "title": "Make a reviewable decision",
+          "paragraphs": [
+            "Accept only when the required artifacts and postconditions are observed and remaining risks meet the work order. Request changes for a reproducible defect; escalate when evidence, authority, or impact is uncertain. Record the exact failing criterion and the smallest evidence needed for a new review.",
+            "Do not turn a failed test, an absent citation, or a missing artifact into approval because the answer sounds plausible. Keep the original result and review findings so a revised result can be compared honestly."
           ]
         }
       ],
       "activity": {
-        "id": "activity-agent-incident-runbook",
-        "title": "Triage and recover a multi-boundary agent incident",
+        "id": "activity-review-agent-results",
+        "title": "Audit an agent delivery",
         "instructions": [
-          "Use a scenario where an agent times out after a consequential tool call, retrieves stale data, and produces an unsupported completion claim.",
-          "Build a timeline and classify model, prompt, tool, retrieval, data, policy, orchestration, and infrastructure evidence without assuming one root cause.",
-          "Write the severity, containment, reconciliation, retry, rollback, communication, escalation, validation, and closure steps.",
-          "Convert the incident into regression cases, a control change, a runbook rehearsal, an owner, and a recurrence metric."
+          "Take an agent work order, its result, source links, a tool trace, and a test report. Build a row for each acceptance criterion and mark it verified, failed, or unknown.",
+          "Open at least two material sources, inspect one consequential action in the system of record, and reproduce one test or postcondition check.",
+          "Issue an accept, request-changes, or escalate decision with precise evidence and the next action for each failed or unknown criterion."
         ],
         "evidence": [
-          "A failure-classification matrix, incident timeline, impact and severity decision, and executable triage/recovery runbook.",
-          "Reconciliation and rollback evidence plus tracked evaluation, control, rehearsal, and monitoring improvements."
+          "A criterion-to-artifact matrix with citations, test results, tool authorization, and observed postconditions.",
+          "A decision record that separates verified facts, missing evidence, defects, and risks."
         ],
-        "reflectionPrompt": "Which symptom looked like a model failure until the trace exposed a different failed boundary?"
+        "reflectionPrompt": "Which claim seemed complete until you checked the source or real postcondition?"
       },
       "instructorScript": {
         "schemaVersion": "1.1",
-        "estimatedSeconds": 1680,
+        "estimatedSeconds": 37,
         "cues": [
           {
-            "id": "cue-operations-classify",
+            "id": "cue-result-contract",
             "kind": "narration",
-            "sectionId": "classify-before-changing",
-            "text": "Classify model, prompt, tool, retrieval, data, policy, orchestration, and infrastructure evidence before choosing a fix."
+            "sectionId": "review-contract",
+            "text": "Begin with acceptance criteria and observable artifacts, not the agent summary."
           },
           {
-            "id": "cue-operations-contain",
+            "id": "cue-result-evidence",
             "kind": "narration",
-            "sectionId": "triage-and-contain",
-            "text": "Assess actual and potential impact, contain unsafe behavior, and preserve secret-safe evidence before it changes."
+            "sectionId": "review-evidence",
+            "text": "Open cited sources and verify material claims, tests, permissions, and real postconditions."
           },
           {
-            "id": "cue-operations-recover",
+            "id": "cue-result-authority",
             "kind": "narration",
-            "sectionId": "reconcile-and-recover",
-            "text": "Reconcile unknown outcomes before bounded retry, compensation, rollback, replay, or escalation."
+            "sectionId": "review-authority",
+            "text": "Check the identity, resource, permission, and approval independently of the observed effect. Successful delivery cannot authorize itself."
           },
           {
-            "id": "cue-operations-visual",
+            "id": "cue-result-tests",
+            "kind": "narration",
+            "sectionId": "review-tests",
+            "text": "Match each test to the acceptance criterion and exact delivered revision. Reproduce relevant checks, include failure cases, and preserve unknown outcomes."
+          },
+          {
+            "id": "cue-result-visual",
             "kind": "visual",
-            "sectionId": "reconcile-and-recover",
-            "text": "Move an uncertain tool action through contain, reconcile, decide, recover, verify, and close states.",
-            "accessibilityAlternative": "A static decision table lists evidence and allowed actions for contain, reconcile, decide, recover, verify, and close. Reduced-motion mode shows every state."
+            "sectionId": "review-evidence",
+            "text": "Show a criterion-to-evidence table with verified, failed, and unknown rows.",
+            "accessibilityAlternative": "A static table lists each acceptance criterion, its evidence, and verified, failed, or unknown status."
           },
           {
-            "id": "cue-operations-runbook",
+            "id": "cue-result-decision",
             "kind": "narration",
-            "sectionId": "runbook-and-communication",
-            "text": "Use a target-specific runbook and communicate confirmed facts, hypotheses, impact, actions, and required decisions separately."
+            "sectionId": "review-decision",
+            "text": "Record accept, request changes, or escalate with exact criterion-level evidence."
           },
           {
-            "id": "cue-operations-improve",
-            "kind": "narration",
-            "sectionId": "learn-and-improve",
-            "text": "Close after user-visible recovery, then turn the incident into regression tests, control changes, rehearsal, and recurrence measures."
-          },
-          {
-            "id": "cue-operations-prompt",
+            "id": "cue-result-prompt",
             "kind": "learner-prompt",
-            "sectionId": "reconcile-and-recover",
-            "text": "Ask learners why a timeout after a write must be classified as unknown rather than failed."
+            "sectionId": "review-decision",
+            "text": "Ask learners what they would do when an external tool outcome is unknown."
           },
           {
-            "id": "cue-operations-pause",
-            "kind": "pause",
-            "sectionId": "runbook-and-communication",
-            "text": "Allow three minutes to add one exact rollback target and one human escalation trigger."
-          },
-          {
-            "id": "cue-operations-checkpoint",
+            "id": "cue-result-checkpoint",
             "kind": "checkpoint",
-            "sectionId": "learn-and-improve",
-            "text": "Check that closure proves the external postcondition and assigns every prevention action."
+            "sectionId": "review-decision",
+            "text": "Check that every accepted criterion has an observed artifact or postcondition."
           },
           {
-            "id": "cue-operations-activity",
-            "kind": "learner-prompt",
-            "text": "Guide failure classification, containment, reconciliation, rollback, communication, and prevention work."
-          },
-          {
-            "id": "cue-operations-assessment",
+            "id": "cue-result-assessment",
             "kind": "assessment-handoff",
-            "text": "Begin the check after the learner can recover without duplicate impact or unsupported completion claims."
+            "text": "Begin the check after the learner can separate verified results from missing evidence and uncertain actions."
           }
         ],
-        "transcript": "Classify model, prompt, tool, retrieval, data, policy, orchestration, and infrastructure evidence before choosing a fix. Assess actual and potential impact, contain unsafe behavior, and preserve secret-safe evidence before it changes. Reconcile unknown outcomes before bounded retry, compensation, rollback, replay, or escalation. Use a target-specific runbook and communicate confirmed facts, hypotheses, impact, actions, and required decisions separately. Close after user-visible recovery, then turn the incident into regression tests, control changes, rehearsal, and recurrence measures.",
+        "transcript": "Begin with acceptance criteria and observable artifacts, not the agent summary. Open cited sources and verify material claims, tests, permissions, and real postconditions. Check the identity, resource, permission, and approval independently of the observed effect. Successful delivery cannot authorize itself. Match each test to the acceptance criterion and exact delivered revision. Reproduce relevant checks, include failure cases, and preserve unknown outcomes. Record accept, request changes, or escalate with exact criterion-level evidence. Begin the check after the learner can separate verified results from missing evidence and uncertain actions.",
         "captions": [
           {
-            "cueId": "cue-operations-classify",
+            "cueId": "cue-result-contract",
             "startSeconds": 0,
-            "endSeconds": 300,
-            "text": "Classify model, prompt, tool, retrieval, data, policy, orchestration, and infrastructure evidence before choosing a fix."
+            "endSeconds": 5,
+            "text": "Begin with acceptance criteria and observable artifacts, not the agent summary."
           },
           {
-            "cueId": "cue-operations-contain",
-            "startSeconds": 330,
-            "endSeconds": 630,
-            "text": "Assess actual and potential impact, contain unsafe behavior, and preserve secret-safe evidence before it changes."
+            "cueId": "cue-result-evidence",
+            "startSeconds": 5,
+            "endSeconds": 10,
+            "text": "Open cited sources and verify material claims, tests, permissions, and real postconditions."
           },
           {
-            "cueId": "cue-operations-recover",
-            "startSeconds": 660,
-            "endSeconds": 990,
-            "text": "Reconcile unknown outcomes before bounded retry, compensation, rollback, replay, or escalation."
+            "cueId": "cue-result-authority",
+            "startSeconds": 10,
+            "endSeconds": 17,
+            "text": "Check the identity, resource, permission, and approval independently of the observed effect. Successful delivery cannot authorize itself."
           },
           {
-            "cueId": "cue-operations-runbook",
-            "startSeconds": 1020,
-            "endSeconds": 1320,
-            "text": "Use a target-specific runbook and communicate confirmed facts, hypotheses, impact, actions, and required decisions separately."
+            "cueId": "cue-result-tests",
+            "startSeconds": 17,
+            "endSeconds": 26,
+            "text": "Match each test to the acceptance criterion and exact delivered revision. Reproduce relevant checks, include failure cases, and preserve unknown outcomes."
           },
           {
-            "cueId": "cue-operations-improve",
-            "startSeconds": 1350,
-            "endSeconds": 1620,
-            "text": "Close after user-visible recovery, then turn the incident into regression tests, control changes, rehearsal, and recurrence measures."
+            "cueId": "cue-result-decision",
+            "startSeconds": 26,
+            "endSeconds": 30,
+            "text": "Record accept, request changes, or escalate with exact criterion-level evidence."
+          },
+          {
+            "cueId": "cue-result-assessment",
+            "startSeconds": 30,
+            "endSeconds": 37,
+            "text": "Begin the check after the learner can separate verified results from missing evidence and uncertain actions."
           }
         ],
-        "reducedMotionAlternative": "Present failure classification and recovery as static decision and runbook tables with focus highlighting."
+        "reducedMotionAlternative": "Show a static criterion-to-evidence table with verified, failed, and unknown rows."
       },
       "knowledgeCheck": {
         "passPercent": 80,
         "questions": [
           {
             "id": "q-review-agent-1",
-            "prompt": "An agent gives the wrong answer because the retriever returned an expired policy. What is the primary failed boundary?",
+            "prompt": "What should a reviewer compare an agent result against first?",
             "choices": [
-              "Retrieval or data freshness",
-              "Model style",
-              "Infrastructure capacity",
-              "User interface"
+              "The agent summary",
+              "The original acceptance criteria",
+              "The number of tool calls"
             ],
-            "answerIndex": 0,
-            "explanation": "The evidence source was stale; changing model wording would not repair the failed retrieval/data boundary."
+            "answerIndex": 1,
+            "explanation": "The work order defines what completion requires."
           },
           {
             "id": "q-review-agent-2",
-            "prompt": "A write request times out after reaching the server. What should happen before retry?",
+            "prompt": "A tool times out after a write request. What proves whether the action happened?",
             "choices": [
-              "Assume failure",
-              "Change models",
-              "Reconcile the idempotency key and actual postcondition",
-              "Retry without a limit"
+              "The timeout alone",
+              "The model summary",
+              "A check in the system of record using a correlation key"
             ],
             "answerIndex": 2,
-            "explanation": "The outcome is unknown until the system of record proves whether the side effect occurred."
+            "explanation": "Unknown external outcomes must be reconciled before retry or acceptance."
           },
           {
             "id": "q-review-agent-3",
-            "prompt": "Which failure should not be retried unchanged?",
+            "prompt": "A cited page does not support a material claim. What is the review result?",
             "choices": [
-              "A transient 503 within budget",
-              "A validation or authorization rejection",
-              "A connection reset before any request",
-              "A provider-directed retry-after response"
+              "Request a correction or supporting evidence",
+              "Accept because a URL is present",
+              "Ignore the claim if the format is valid"
             ],
-            "answerIndex": 1,
-            "explanation": "Deterministic validation and authorization failures require corrected input or authority, not repetition."
+            "answerIndex": 0,
+            "explanation": "A citation is useful only if it supports the exact claim."
           },
           {
             "id": "q-review-agent-4",
-            "prompt": "What is the first priority when an agent may still be taking unsafe actions?",
+            "prompt": "When should a reviewer accept the delivery?",
             "choices": [
-              "Write the postmortem",
-              "Increase concurrency",
-              "Contain the workflow or affected capability",
-              "Tune the prompt"
+              "When it sounds complete",
+              "When each required artifact and postcondition is observed",
+              "When the agent says tests passed"
             ],
-            "answerIndex": 2,
-            "explanation": "Containment limits ongoing impact before diagnosis and long-term remediation."
+            "answerIndex": 1,
+            "explanation": "Acceptance rests on observed evidence for the work order."
           },
           {
             "id": "q-review-agent-5",
-            "prompt": "Which failure map correctly separates system boundaries?",
+            "prompt": "The system confirms an email was sent, but the approval permitted only drafting. How should the review record this?",
             "choices": [
-              "Unsupported claim: model; conflicting instruction: prompt; bad action contract: tool; stale source: retrieval or data; forbidden action: policy; provider outage: infrastructure",
-              "Every failure is a model failure",
-              "A provider outage is a prompt failure and stale data is infrastructure",
-              "Authorization and tool execution are the same as output style"
+              "Delivery verified; authorization failed and requires escalation",
+              "Accept because delivery succeeded",
+              "Mark delivery failed because authorization was absent"
             ],
             "answerIndex": 0,
-            "explanation": "Useful triage identifies the first failed boundary instead of treating every symptom as a model problem."
+            "explanation": "Observed effects and permitted effects are separate criteria. Confirmation cannot retroactively authorize the send."
           }
         ]
       },
@@ -1314,22 +1464,22 @@
           "lastVerified": "2026-07-25"
         },
         {
-          "title": "Claude API errors",
-          "url": "https://platform.claude.com/docs/en/api/errors",
-          "publisher": "Anthropic",
-          "lastVerified": "2026-09-13"
-        },
-        {
-          "title": "OpenAI API error codes",
-          "url": "https://developers.openai.com/api/docs/guides/error-codes",
-          "publisher": "OpenAI",
-          "lastVerified": "2026-09-13"
-        },
-        {
           "title": "Artificial Intelligence Risk Management Framework",
           "url": "https://www.nist.gov/itl/ai-risk-management-framework",
           "publisher": "NIST",
           "lastVerified": "2026-07-25"
+        },
+        {
+          "title": "OWASP LLM06:2025 Excessive Agency",
+          "url": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "publisher": "OWASP",
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "NIST AI RMF: Generative Artificial Intelligence Profile",
+          "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
+          "publisher": "NIST",
+          "lastVerified": "2026-09-18"
         }
       ]
     }
@@ -1353,7 +1503,7 @@
       "prerequisites": [],
       "owner": "project42-editorial",
       "reviewCadenceDays": 90,
-      "lastVerified": "2026-07-23",
+      "lastVerified": "2026-09-18",
       "tags": [
         "glossary",
         "concepts",
@@ -1364,20 +1514,34 @@
           "id": "glossary-core",
           "title": "Core terms",
           "paragraphs": [
-            "Model: a system that generates or evaluates outputs from learned patterns and current input.",
-            "Prompt: instructions and context supplied to a model.",
-            "Context window: the limited working material available for one interaction.",
-            "Agent: a model-driven system that can select tools and act in a loop.",
-            "Evaluation: a repeatable method for measuring output against explicit criteria."
+            "Model: a trained component that maps an input to a prediction or generated output. Its behavior depends on its training and the input supplied at use time.",
+            "Prompt: the instructions and context supplied for one model request. Separate trusted instructions from quoted, retrieved, or user supplied material that should be treated as data.",
+            "Context window: the amount of input and generated material a model can use in one request. It is a limit on working context, not a guarantee that every included fact will be used correctly.",
+            "Agent: an application that lets a model choose among permitted actions, observe results, and continue toward a bounded goal. The application still owns permissions, limits, and stopping rules.",
+            "Tool: a callable function exposed to a model for retrieving information or taking an action. The host decides which tools are available and enforces authority outside the model.",
+            "Retrieval: selecting information from a separate source for a task. Retrieval-augmented generation uses retrieved material alongside a model when producing an answer; a retrieved passage can still be irrelevant or wrong.",
+            "Evaluation: a repeatable test of output or behavior against stated criteria on representative cases. A passing score on a small test set is evidence for those cases, not proof that every future result is correct."
           ]
         }
       ],
       "sources": [
         {
-          "title": "Artificial Intelligence Risk Management Framework",
-          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "title": "AI Risk Management Framework Core: Measure",
+          "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
           "publisher": "NIST",
-          "lastVerified": "2026-07-23"
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "Model Context Protocol tools",
+          "url": "https://modelcontextprotocol.io/specification/2025-11-25/server/tools",
+          "publisher": "Model Context Protocol",
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+          "url": "https://arxiv.org/abs/2005.11401",
+          "publisher": "arXiv",
+          "lastVerified": "2026-09-18"
         }
       ]
     },
@@ -1385,7 +1549,7 @@
       "id": "prompt-checklist",
       "slug": "prompt-checklist",
       "title": "Prompt Checklist",
-      "summary": "A compact preflight for tasks, context, constraints, output, and verification.",
+      "summary": "A practical preflight for tasks, evidence, examples, constraints, output, and testing.",
       "category": "Checklist",
       "format": "checklist",
       "audience": [
@@ -1399,7 +1563,7 @@
       "prerequisites": [],
       "owner": "project42-editorial",
       "reviewCadenceDays": 90,
-      "lastVerified": "2026-09-13",
+      "lastVerified": "2026-09-18",
       "tags": [
         "prompting",
         "checklist",
@@ -1410,11 +1574,12 @@
           "id": "prompt-preflight",
           "title": "Before you send",
           "paragraphs": [
-            "State the outcome and audience.",
-            "Supply the trusted context and source of truth.",
-            "Name constraints, exclusions, and permissions.",
-            "Specify the output format.",
-            "Define how the result will be checked."
+            "State the task, audience, and what a successful answer must accomplish. Name the inputs the model should use and what it should do when those inputs are missing or conflict.",
+            "Provide only the relevant source material. Label retrieved or quoted text as data, keep it distinct from instructions, and ask for citations or traceable references when factual claims matter. Instructions embedded in that source material cannot override the task, grant tool permissions, or authorize an external action.",
+            "Set constraints that can be checked: allowed scope, exclusions, tool permissions, length, tone, and any required refusal or escalation condition. Avoid contradictory instructions.",
+            "Specify the output structure and give a short example when the format is unfamiliar or errors have repeated. Treat an example as a pattern to test, not as a guarantee of compliance.",
+            "Example: For service desk staff, turn the attached approved password-reset policy into five numbered steps, cite the policy section for each step, and flag any case the policy does not cover. Do not invent an exception or ask the model to make an account change.",
+            "Test the draft prompt on representative normal, ambiguous, and adverse inputs against explicit success criteria. Inspect factual support and failure cases, revise one cause at a time, and retest before reuse."
           ]
         }
       ],
@@ -1423,13 +1588,31 @@
           "title": "Prompt engineering overview",
           "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview",
           "publisher": "Anthropic",
-          "lastVerified": "2026-09-13"
+          "lastVerified": "2026-09-18"
         },
         {
           "title": "Prompting best practices",
           "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
           "publisher": "Anthropic",
-          "lastVerified": "2026-09-13"
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "Define success criteria and build evaluations",
+          "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "Model guidance",
+          "url": "https://developers.openai.com/api/docs/guides/latest-model",
+          "publisher": "OpenAI",
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "OWASP LLM06:2025 Excessive Agency",
+          "url": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "publisher": "OWASP",
+          "lastVerified": "2026-09-18"
         }
       ]
     },
@@ -1437,7 +1620,7 @@
       "id": "agent-safety-checklist",
       "slug": "agent-safety-checklist",
       "title": "Agent Safety Checklist",
-      "summary": "Permission, data, verification, logging, and rollback questions before an agent acts.",
+      "summary": "A practical preflight for agent tool permissions, untrusted inputs, approvals, and action verification.",
       "category": "Checklist",
       "format": "checklist",
       "audience": [
@@ -1453,7 +1636,7 @@
       ],
       "owner": "project42-editorial",
       "reviewCadenceDays": 90,
-      "lastVerified": "2026-07-23",
+      "lastVerified": "2026-09-18",
       "tags": [
         "agents",
         "safety",
@@ -1464,20 +1647,27 @@
           "id": "agent-preflight",
           "title": "Before granting tools",
           "paragraphs": [
-            "Limit tools and credentials to the task.",
-            "Separate read, reversible write, external communication, and destructive permissions.",
-            "Validate untrusted input and tool output.",
-            "Record material actions.",
-            "Require human approval and rollback for high-consequence changes."
+            "List the exact tools the task needs. Give each tool only the operations and downstream permissions needed for that task; use the acting user's scope where possible. Do not give a read task a credential that can write or delete.",
+            "Classify each tool action before enabling it: read; write that can be reversed; external communication or spending; and destructive or hard-to-reverse change. For this checklist, a material action changes stored data or configuration, sends information outside the system, spends money, or changes access. Record its actor, arguments, approval, result, and correlation ID without logging secrets.",
+            "Treat retrieved pages, documents, messages, and tool responses as untrusted data. An instruction inside them cannot grant a tool permission or override the user's task. Validate tool arguments in code against the permitted operation and scope before execution.",
+            "Require a human decision before a high-impact action such as publishing externally, changing production access, deleting data, or making a substantial purchase. Show the exact target and effect the person is approving; enforce the decision in the tool layer, not only in the prompt.",
+            "For each material write, define a postcondition before execution and check it afterward in the system that owns the result. For example, read back a database row by its key, GET the updated API object by ID, or inspect the outbound service's message receipt. If the call times out, inspect that state before retrying so an action that already succeeded is not repeated.",
+            "Choose and test a recovery path appropriate to the action: rollback for a reversible change, compensation for an external effect, or a documented manual recovery when neither is possible. Record an unresolved or uncertain outcome and stop further dependent actions until it is reconciled."
           ]
         }
       ],
       "sources": [
         {
-          "title": "Artificial Intelligence Risk Management Framework",
-          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
-          "publisher": "NIST",
-          "lastVerified": "2026-07-23"
+          "title": "LLM06:2025 Excessive Agency",
+          "url": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/",
+          "publisher": "OWASP",
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "LLM01:2025 Prompt Injection",
+          "url": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+          "publisher": "OWASP",
+          "lastVerified": "2026-09-18"
         }
       ]
     },
@@ -1485,7 +1675,7 @@
       "id": "provider-decision-card",
       "slug": "provider-decision-card",
       "title": "Provider Decision Card",
-      "summary": "A reusable comparison card for quality, cost, data, tools, and operations.",
+      "summary": "A starting card for comparing providers on a defined workload, with quality, risk, cost, and operating evidence.",
       "category": "Decision tool",
       "format": "decision-path",
       "audience": [
@@ -1495,6 +1685,7 @@
       ],
       "level": "intermediate",
       "providers": [
+        "provider-neutral",
         "anthropic",
         "openai",
         "google"
@@ -1504,7 +1695,7 @@
       ],
       "owner": "project42-editorial",
       "reviewCadenceDays": 90,
-      "lastVerified": "2026-07-23",
+      "lastVerified": "2026-09-18",
       "tags": [
         "providers",
         "models",
@@ -1515,20 +1706,37 @@
           "id": "provider-scorecard",
           "title": "Score the actual workflow",
           "paragraphs": [
-            "Representative task quality and failure modes.",
-            "Latency, throughput, and total cost.",
-            "Context, tool use, and structured output.",
-            "Data handling, identity, region, and compliance.",
-            "SDK, observability, support, and team familiarity."
+            "Define the workload, acceptance criteria, risk tolerance, and deployment constraints before looking at provider names. Record which criteria are mandatory and which are weighted preferences.",
+            "Run the same representative task set for each candidate using the intended prompt, tools, data, and configuration. Include difficult and adverse cases; record failures and uncertainty, not only an average score.",
+            "Measure task quality, safety and trustworthiness, latency, throughput, and total cost at the expected volume. Keep the test cases, scoring method, dates, and model or API versions with the decision record.",
+            "Example record: test the same approved support-ticket set with each candidate; score answer correctness and unsupported claims, record p95 latency and cost per completed ticket, and list any unsafe tool call or data disclosure separately. Decide pass thresholds before seeing the results.",
+            "Check data handling, access controls, region, retention, compliance obligations, and incident response against your own requirements. Verify current provider terms and technical controls directly; this card does not certify them.",
+            "Test required context size, tool behavior, output structure, SDK integration, observability, support, and team operations in a small end-to-end trial. Document tradeoffs, an owner, a fallback choice, and when to re-evaluate."
+          ]
+        },
+        {
+          "id": "provider-decision-rule",
+          "title": "Apply gates, then a declared scoring rule",
+          "paragraphs": [
+            "Before the trial, list mandatory gates such as permitted data location, acceptable disclosure risk, and minimum task accuracy. A failed or unknown mandatory gate prevents selection regardless of the weighted score. This card does not establish that any named provider passes your gates.",
+            "For candidates that pass every gate, choose criteria with weights totaling 100 percent and define a task-specific scoring rubric from 0 to 5 before seeing results. For example: task quality 40 percent, latency 20 percent, cost per completed task 20 percent, and operational fit 20 percent. Define observable anchors for zero, three, and five on each criterion; keep the same anchors for every candidate.",
+            "Compute total = sum(weight_percent x score / 5), producing a score from 0 to 100. Scores of 4, 3, 5, and 4 under the example weights produce 80. Record missing measurements as unknown, not zero or an invented estimate, and complete them before making a final selection.",
+            "Predeclare the minimum acceptable total and tie-break rule. For this illustrative trial, require at least 75, choose the highest scoring eligible candidate, and break a tie using lower measured cost per completed task. If none passes, revise the design or run further trials instead of declaring a winner. Record the chosen provider, rejected alternatives, evidence, owner, fallback, and re-evaluation trigger. These weights and thresholds are an example policy, not a universal ranking or a NIST requirement."
           ]
         }
       ],
       "sources": [
         {
-          "title": "Artificial Intelligence Risk Management Framework",
-          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "title": "AI Risk Management Framework Core: Measure",
+          "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
           "publisher": "NIST",
-          "lastVerified": "2026-07-23"
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "Define success criteria and build evaluations",
+          "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-09-18"
         }
       ]
     },

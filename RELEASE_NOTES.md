@@ -1,3 +1,241 @@
+# Project 42 platform v0.117.1
+
+Adds the Enterprise workspace layout beside Standard, Compact and Wide. Visitors can choose a layout in the account menu; the correct bundle loads and the selection survives reload. The platform-owned portal-default now uses the Warm Campus palette without changing content or selecting a different layout.
+
+Rendered contrast correction: restore full-opacity muted labels and explicitly pair primary button fills with foreground text, including accent callouts. No content or layout changes.
+
+## Breaking changes
+
+None. The default layout remains Standard; theme identity remains deployment-owned. Repository-owned appearance overrides retain precedence.
+
+## Migrations
+
+None.
+
+## Adoption
+
+Update the platform dependency, materialise the portal, and rebuild. All shipped layouts are installed unless availablePresets explicitly narrows them. Gallery must sync the released canonical bundles before presenting updated previews.
+
+# Project 42 platform v0.116.14
+
+Updates the complete reliable-agent learner journey contract to thirteen modules, with explicit review, operations, and capstone ordering. Preserves assessment, badge, account progress, accessibility, and transcript assertions. Includes all v0.116.12 curriculum repairs and the v0.116.13 public-type correction. Canonical content: project42-content@3fb86dda79c282b4885437e017bdf0d41a1a1ce4.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+Class packages remain draft text packages. Production reconciliation follows verified website deployment.
+
+## Rollback
+
+Pin v0.116.11, the previous deployed site release. No database migration is involved.
+
+# Project 42 platform v0.116.13
+
+Preserves the published ClassScriptPackage type at the generated catalog boundary, so class segments without visual metadata type-check in adopter on-demand pages. Includes all v0.116.12 curriculum repairs. Canonical content: project42-content@3fb86dda79c282b4885437e017bdf0d41a1a1ce4.
+
+## Breaking changes
+
+None. Optional fields retain their declared public contract.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+Class packages remain draft text packages. Production reconciliation follows verified website deployment.
+
+## Rollback
+
+Pin v0.116.11, the previous deployed site release. No database migration is involved.
+
+# Project 42 platform v0.116.12
+
+Publishes sixteen September lesson repairs, including executable-example failure handling, activity evidence, technical corrections, and caption alignment. Restores result review under its existing module ID and preserves operations instruction in a separate module, with complete class packages for both. Completes the provider decision scoring guide, clarifies source-material authority boundaries, and renders checklist resources with accessible list semantics. Canonical content: project42-content@3fb86dda79c282b4885437e017bdf0d41a1a1ce4.
+
+## Breaking changes
+
+None. Existing review module and assessment question IDs are preserved.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+Class packages remain draft text packages; no synthesized media or independent approval is claimed. Orchard reconciliation follows verified site deployment.
+
+## Rollback
+
+Pin v0.116.11. No database migration is involved.
+
+# Project 42 platform v0.116.11
+
+Publishes reviewed September corrections to prompt architecture, provider SDK patterns, and semantic caching/tracing. The canonical content preserves existing assessment question IDs, removes internal correction notes from learner-facing prose, and aligns semantic caching captions with narration. Canonical content: project42-content@2655c4ea6f8710cabf793d67f5f311c1d61ecac4.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+51 modules remain outline-only. These lessons were corrected directly in canonical content; Orchard's generated Gate 2 records still require reconciliation and are not recorded as Orchard-published.
+
+## Rollback
+
+Pin v0.116.10. No database migration is involved.
+
+# Project 42 platform v0.116.10
+
+Removes an OpenAI announcement URL that returned HTTP 403 to the public site's link checker. The 256-dimensional MTEB example remains supported by the already-cited OpenAI embeddings guide. Canonical content: project42-content@69bcd9c040eed4a12fd4d522a8aa3944d550c919.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+51 modules remain outline-only. Orchard's generated 9266 draft remains held after assessment review; this release publishes the separately reviewed canonical correction.
+
+## Rollback
+
+Pin v0.116.9. No database migration is involved.
+
+# Project 42 platform v0.116.9
+
+Corrects the vector embeddings and pgvector lesson after the September Orchard draft failed assessment review. The lesson distinguishes Anthropic's Voyage AI documentation from an Anthropic embedding API, accurately describes Google's Embedding 2 identifier and preview endpoint listing, records normalization and query conventions in its schema example, scopes the partial index by dimension, and includes PostgreSQL 17 ordering guidance. Canonical content: project42-content@a99d38909c6a9ef078c66a4ff0cb91c8ad231e9d.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+51 modules remain outline-only. Orchard's generated 9266 draft remains held after assessment review; this release publishes the separately reviewed canonical correction.
+
+## Rollback
+
+Pin v0.116.8. No database migration is involved.
+
+# Project 42 platform v0.116.8
+
+Removes a redundant OpenAI Models API citation that returned HTTP 403 to the public site's link checker. The OpenAI overview and models documentation remain. Canonical content: project42-content@d5754bdeca6386eafcffdc1c1cd25d5242168878.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+51 modules remain outline-only. September Orchard queue reconciliation remains open.
+
+## Rollback
+
+Pin v0.116.7. No database migration is involved.
+
+# Project 42 platform v0.116.7
+
+Provider comparison now includes Gemini and a dated evidence exercise. OpenAI practice adds tool and availability checks. The bounded agent loop exercises all five terminal states. This release pins canonical content at project42-content@a9a5e6668186c68e8e9ba414f20fa187d976ea4b.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+51 modules remain outline-only. The agent result review lesson and existing September Orchard queue items still require repair or reconciliation; this release does not mark them published by Orchard.
+
+## Rollback
+
+Pin v0.116.6. No database migration is involved.
+
+# Project 42 platform v0.116.5
+
+The AI Glossary, Prompt Checklist, and Provider Decision Card now include concrete definitions and examples, representative evaluation steps, and relevant dated primary sources. These edits address review findings for September Orchard items 9268–9270. This release pins canonical content at project42-content@ab57247471396fe8e4de7a18b0fca1a38577af8d.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+Consumer sites must update their platform pins to v0.116.5 to serve these corrections. Orchard still holds the generated drafts without Gate 2 evidence; the other September findings remain unresolved.
+
+## Rollback
+
+Pin v0.116.4. No database migration is involved.
+
+# Project 42 platform v0.116.4
+
+The Agent Safety Checklist now gives concrete permission, approval, postcondition, and recovery checks grounded in OWASP guidance. This release pins canonical content at project42-content@4baa7c26223c1c8bdec5c2e911f3d413bbb628e4.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+Consumer sites must update their platform pins to v0.116.4 to serve this correction. The other September Orchard findings still need editorial work and publication.
+
+## Rollback
+
+Pin v0.116.3. No database migration is involved.
+
+# Project 42 platform v0.116.3
+
+The vLLM and Ollama lesson now explains how to stage Ollama models before disconnecting a host, distinguishes local model storage from cloud-feature controls, and removes an unsupported vLLM memory-default claim. This release pins canonical content at project42-content@a8678408d761bd7133a694b98d8f8ff3fc2080e1.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+Consumer sites must update their platform pins to v0.116.3 to serve this correction. Other September Orchard findings remain unpublished.
+
+## Rollback
+
+Pin v0.116.2. No database migration is involved.
+
 # Project 42 platform v0.116.2
 
 The AI mental models lesson now explains that repeated agreement measures observed output stability, not factual truth or the underlying token distribution. Its learner activity and instructor script remain attached. The catalogue no longer promises guaranteed structured output, and the Orchard and agent-orchestration diagrams reflect the current lifecycle. The platform pins the validated canonical content at project42-content@4c41c9ea71658f1810059a369792b2ca1f7ec08f.
@@ -568,3 +806,22 @@ Unchanged from v0.104.0: publishing a content change to a site is three commands
 ## Rollback
 
 Revert consuming sites to v0.104.2. They regain 2.5 MB of client payload and lose nothing else.
+# Project 42 platform v0.116.6
+
+The Anthropic in Practice lesson now teaches and assesses how to choose among chat, the Console playground, the Messages API, Claude Code, and Managed Agents. It adds a practical exercise, context and tool boundaries, and a dated availability check. This release pins canonical content at project42-content@fbdc401d7548aa985d1e99b19b768e3c36e1286b and addresses September Orchard item 9271 through a reviewed editorial correction.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+Consumer sites must update their platform pins to v0.116.6 to serve this lesson. Orchard still holds its generated draft without Gate 2 evidence; the other September findings remain unresolved.
+
+## Rollback
+
+Pin v0.116.5. No database migration is involved.

@@ -1666,7 +1666,7 @@ test("publishes a balanced source-backed provider comparison matrix", () => {
   );
   assert.ok(path);
   assert.ok(module);
-  assert.equal(path.moduleIds[3], module.id);
+  assert.equal(path.moduleIds[4], module.id);
   assert.ok(module.prerequisites.includes("choose-a-provider"));
   assert.equal(module.sections.length, 5);
   assert.ok(module.activity?.instructions.length >= 5);
@@ -1810,12 +1810,14 @@ test("restores a v0.20 provider learner record after migration modules are appen
   priorCatalog.modules = priorCatalog.modules.filter(
     (module) => !addedIds.has(module.id),
   );
+  const priorChoice = priorCatalog.modules.find((module) => module.id === "choose-a-provider");
+  priorChoice.prerequisites = priorChoice.prerequisites.filter((id) => id !== "gemini-ecosystem-and-interfaces");
   const priorPath = priorCatalog.paths.find(
     (candidate) => candidate.id === "providers-in-practice",
   );
   assert.ok(priorPath);
   priorPath.moduleIds = priorPath.moduleIds.filter(
-    (moduleId) => !addedIds.has(moduleId),
+    (moduleId) => !addedIds.has(moduleId) && moduleId !== "gemini-ecosystem-and-interfaces",
   );
   assert.deepEqual(validateCatalog(priorCatalog), { valid: true, errors: [] });
   assert.deepEqual(priorPath.moduleIds, [
@@ -1906,21 +1908,22 @@ test("publishes the MCP orchestration and handoff curriculum unit", () => {
   assert.ok(evaluation?.prerequisites.includes("multi-agent-handoffs"));
 });
 
-test("publishes the evaluation observability and operations curriculum unit", () => {
+test("publishes distinct evaluation, observability, review, and operations modules", () => {
   const path = starterCatalog.paths.find(
     (candidate) => candidate.id === "reliable-agent-workflows",
   );
   assert.ok(path);
-  assert.deepEqual(path.moduleIds.slice(8, 11), [
+  assert.deepEqual(path.moduleIds.slice(8, 12), [
     "agent-evaluation",
     "agent-observability",
     "review-agent-results",
+    "operate-and-recover-agent-systems",
   ]);
 
   const modules = new Map(
     starterCatalog.modules.map((module) => [module.id, module]),
   );
-  for (const [index, moduleId] of path.moduleIds.slice(8, 11).entries()) {
+  for (const [index, moduleId] of path.moduleIds.slice(8, 12).entries()) {
     const module = modules.get(moduleId);
     assert.ok(module);
     assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
@@ -1954,9 +1957,10 @@ test("publishes a calibrated evidence-mapped reliable-agent capstone", () => {
   );
   assert.ok(path);
   assert.ok(module?.capstone);
-  assert.equal(path.moduleIds.length, 12);
+  assert.equal(path.moduleIds.length, 13);
   assert.equal(path.moduleIds.at(-1), module.id);
   assert.ok(module.prerequisites.includes("review-agent-results"));
+  assert.ok(module.prerequisites.includes("operate-and-recover-agent-systems"));
   assert.equal(module.sections.length, 6);
   assert.equal(module.knowledgeCheck.questions.length, 5);
   assert.equal(module.instructorScript?.schemaVersion, "1.1");

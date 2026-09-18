@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0",
   "canonicalContentVersion": "0.42.0",
-  "substantiveModuleCount": 91,
-  "classReadyModuleCount": 40,
+  "substantiveModuleCount": 92,
+  "classReadyModuleCount": 41,
   "outlineOnlyModuleCount": 51,
   "renderedModuleCount": 1,
   "coverageStatus": "migration-active",
@@ -337,7 +337,8 @@
     {
       "moduleId": "gemini-ecosystem-and-interfaces",
       "pathIds": [
-        "google-gemini-practice"
+        "google-gemini-practice",
+        "providers-in-practice"
       ],
       "status": "outline-only",
       "instructorSchemaVersion": "1.1"
@@ -624,6 +625,17 @@
       "instructorSchemaVersion": "1.1"
     },
     {
+      "moduleId": "operate-and-recover-agent-systems",
+      "pathIds": [
+        "reliable-agent-workflows"
+      ],
+      "status": "class-ready-draft",
+      "instructorSchemaVersion": "1.1",
+      "classScriptId": "operate-and-recover-agent-systems-class",
+      "classScriptVersion": "1.0.0",
+      "classScriptPath": "content/training/reliable-agent-workflows/operate-and-recover-agent-systems/class-script.json"
+    },
+    {
       "moduleId": "orchestration-patterns",
       "pathIds": [
         "reliable-agent-workflows"
@@ -748,7 +760,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "review-agent-results-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/reliable-agent-workflows/review-agent-results/class-script.json"
     },
     {

@@ -4,6 +4,93 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.117.1] - 2026-09-18
+
+- Fix rendered Warm Campus label and primary-action contrast, including accent-filled callouts. No content or layout changes.
+
+## [0.117.0] - 2026-09-18
+
+### Added
+
+- Enterprise layout, independent visitor layout selector, and stylesheet/preference consistency checks (AB#9293).
+
+### Changed
+
+- Warm Campus color palette for the platform-owned default theme; content and layout remain independent (AB#9293).
+- Materialisation installs all offered built-in layouts by default.
+
+## [0.116.14] - 2026-09-18
+
+### Fixed
+
+- Updated the complete learner journey to verify thirteen modules, including distinct result-review and incident-operations lessons, badge completion, and transcript exports.
+
+## [0.116.13] - 2026-09-18
+
+### Fixed
+
+- Stabilized the public class-script catalog type so optional visual metadata remains optional when new classes are installed.
+
+## [0.116.12] - 2026-09-18
+
+### Fixed
+
+- Published sixteen September curriculum repairs and aligned review/operations class packages, activities, examples, transcripts, and captions.
+
+## [0.116.11] - 2026-09-18
+
+### Fixed
+
+- Published reviewed prompt architecture, provider SDK, and semantic caching lesson corrections with stable assessment IDs, clean learner-facing prose, and aligned captions.
+
+## [0.116.10] - 2026-09-18
+
+### Fixed
+
+- Removed a blocked redundant source URL from the embeddings lesson while keeping the supported benchmark claim.
+
+## [0.116.9] - 2026-09-18
+
+### Fixed
+
+- Corrected the embeddings lesson's provider labeling, Gemini identifier explanation, pgvector schema and PostgreSQL 17 guidance, and instructor caption timing.
+
+## [0.116.8] - 2026-09-18
+
+### Fixed
+
+- Removed an OpenAI source URL that returned HTTP 403 to the site link checker; retained official overview and model documentation.
+
+## [0.116.7] - 2026-09-18
+
+### Fixed
+
+- Completed provider comparison, OpenAI practice, and bounded agent loop lessons with dated evidence and corrected terminal behavior.
+
+## [0.116.6] - 2026-09-18
+
+### Fixed
+
+- Completed the Anthropic in Practice catalogue lesson with a workflow-mapping activity, explicit context and tool boundaries, a dated availability check, and a matching knowledge check.
+
+## [0.116.5] - 2026-09-18
+
+### Fixed
+
+- Expanded the AI Glossary, Prompt Checklist, and Provider Decision Card with reviewed definitions, examples, evaluation steps, and dated primary sources.
+
+## [0.116.4] - 2026-09-18
+
+### Fixed
+
+- Updated the Agent Safety Checklist with specific OWASP sources, defined action categories, concrete postcondition checks, and appropriate recovery choices.
+
+## [0.116.3] - 2026-09-18
+
+### Fixed
+
+- Synced the reviewed vLLM and Ollama lesson from project42-content@a867840, adding offline model staging for Ollama and correcting unsupported defaults and memory wording.
+
 ## [0.116.2] - 2026-09-17
 
 ### Fixed

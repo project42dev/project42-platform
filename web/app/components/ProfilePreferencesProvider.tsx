@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { applyLayoutPreference } from "../../lib/layout";
 
 export interface ProfilePreferences {
   locale: string;
@@ -102,8 +103,9 @@ export function ProfilePreferencesProvider({
     // browser value must never override the configured public presentation.
     // Layout density remains a browser preference.
     if (typeof window !== "undefined") {
-      const activeLayout = localStorage.getItem("project42.layout.v1") || "standard";
-      document.documentElement.setAttribute("data-layout", activeLayout);
+      let savedLayout: string | null = null;
+      try { savedLayout = localStorage.getItem("project42.layout.v1"); } catch { /* Storage can be unavailable. */ }
+      applyLayoutPreference(savedLayout);
     }
 
     return () => window.clearTimeout(timer);
