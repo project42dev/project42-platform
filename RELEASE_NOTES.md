@@ -1,3 +1,23 @@
+# Project 42 platform v0.116.10
+
+Removes an OpenAI announcement URL that returned HTTP 403 to the public site's link checker. The 256-dimensional MTEB example remains supported by the already-cited OpenAI embeddings guide. Canonical content: project42-content@69bcd9c040eed4a12fd4d522a8aa3944d550c919.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+51 modules remain outline-only. Orchard's generated 9266 draft remains held after assessment review; this release publishes the separately reviewed canonical correction.
+
+## Rollback
+
+Pin v0.116.9. No database migration is involved.
+
 # Project 42 platform v0.116.9
 
 Corrects the vector embeddings and pgvector lesson after the September Orchard draft failed assessment review. The lesson distinguishes Anthropic's Voyage AI documentation from an Anthropic embedding API, accurately describes Google's Embedding 2 identifier and preview endpoint listing, records normalization and query conventions in its schema example, scopes the partial index by dimension, and includes PostgreSQL 17 ordering guidance. Canonical content: project42-content@a99d38909c6a9ef078c66a4ff0cb91c8ad231e9d.

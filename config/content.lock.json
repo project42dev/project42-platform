@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "a99d38909c6a9ef078c66a4ff0cb91c8ad231e9d"
+    "commit": "69bcd9c040eed4a12fd4d522a8aa3944d550c919"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -60,7 +60,7 @@
     "modules/developer-and-practitioner-ai/function-calling-and-tools.json": "b5b7813ecf9695cc97585b2e67c2d107539ee9b50a11272ce3a3b02a95b3cac6",
     "modules/developer-and-practitioner-ai/provider-sdk-patterns.json": "c3553e15305f10ad211ecc907cf828b4839ef35f4dc62c7d4a6dd3dff765a466",
     "modules/developer-and-practitioner-ai/structured-outputs-mastery.json": "1321d8bf961b2a6d0b14219532b199ecd9d52affb65968ae66dc818c800fa3e3",
-    "modules/developer-and-practitioner-ai/vector-embeddings-and-pgvector.json": "b7eadd1c45b26949dbc1998ede9ba64eb3fa87c6a0a89ae04ab186c69b6e5208",
+    "modules/developer-and-practitioner-ai/vector-embeddings-and-pgvector.json": "5b5eaae9db48a88992cdec113f90d07ee3a49240a81062e8802385323c662d90",
     "modules/google-gemini-practice/gemini-api-and-sdk-workflows.json": "00fbfa574ebf585ccdff1e830555da900b59509be9c15ffa6aeeeb3ce7f64349",
     "modules/google-gemini-practice/gemini-ecosystem-and-interfaces.json": "7a577741606c03a8610c43c9599cf1820bbf8810cc88ae64f004e710010396bf",
     "modules/google-gemini-practice/gemini-evaluation-and-observability.json": "febfe2055f1f6c710fb7b1387f7d5c85a4ae19657df50d948d035edea44130df",
