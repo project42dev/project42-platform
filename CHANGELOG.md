@@ -4,6 +4,12 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.116.12] - 2026-09-18
+
+### Fixed
+
+- Published sixteen September curriculum repairs and aligned review/operations class packages, activities, examples, transcripts, and captions.
+
 ## [0.116.11] - 2026-09-18
 
 ### Fixed

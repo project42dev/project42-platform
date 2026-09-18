@@ -1,3 +1,23 @@
+# Project 42 platform v0.116.12
+
+Publishes sixteen September lesson repairs, including executable-example failure handling, activity evidence, technical corrections, and caption alignment. Restores result review under its existing module ID and preserves operations instruction in a separate module, with complete class packages for both. Canonical content: project42-content@13cbf1164452e2d01f2bce066f36eed4bd7833af.
+
+## Breaking changes
+
+None. Existing review module and assessment question IDs are preserved.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+Class packages remain draft text packages; no synthesized media or independent approval is claimed. Orchard reconciliation follows verified site deployment.
+
+## Rollback
+
+Pin v0.116.11. No database migration is involved.
+
 # Project 42 platform v0.116.11
 
 Publishes reviewed September corrections to prompt architecture, provider SDK patterns, and semantic caching/tracing. The canonical content preserves existing assessment question IDs, removes internal correction notes from learner-facing prose, and aligns semantic caching captions with narration. Canonical content: project42-content@2655c4ea6f8710cabf793d67f5f311c1d61ecac4.
