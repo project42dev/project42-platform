@@ -394,7 +394,7 @@ html[data-theme="portal-default"] .header-menu-footer button:hover {
 }
 
 /* Preserve readable text after opacity compositing and in accent-filled CTAs. */
-html[data-theme="portal-default"] .pillar-learn > .card-index {
+html[data-theme="portal-default"] :is(.pillar-learn, .pillar-selfpaced) > .card-index {
   color: var(--p42-text-muted);
   opacity: 1;
 }
