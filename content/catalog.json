@@ -104,7 +104,7 @@
     {
       "id": "self-hosted-and-aiops",
       "title": "Self-Hosted Models & Enterprise AIOps",
-      "summary": "Open-weight models (Llama 3, DeepSeek, Mistral), GGUF/AWQ quantization, GPU VRAM sizing, vLLM, and OpenTelemetry.",
+      "summary": "A focused track for open-weight model selection, quantization, GPU sizing, serving runtimes, caching, and tracing. For the full endpoint lifecycle, including artifact provenance, access, evaluation, updates, incident response, and recovery, continue with Self-Hosted Model Operations.",
       "audience": "DevOps, SREs, and enterprise infrastructure operators running private AI.",
       "level": "advanced",
       "moduleIds": [
@@ -207,12 +207,13 @@
     {
       "id": "providers-in-practice",
       "title": "Providers in Practice",
-      "summary": "Compare Anthropic and OpenAI practice, then evaluate Google and other providers through cross-provider capability and migration work.",
+      "summary": "Compare Anthropic, OpenAI, and Google product surfaces before evaluating cross-provider capabilities and migration work.",
       "audience": "Practitioners choosing tools or supporting a mixed-provider team.",
       "level": "intermediate",
       "moduleIds": [
         "anthropic-in-practice",
         "openai-in-practice",
+        "gemini-ecosystem-and-interfaces",
         "choose-a-provider",
         "compare-provider-capabilities",
         "plan-cross-provider-migration",
@@ -306,7 +307,7 @@
     {
       "id": "self-hosted-model-operations",
       "title": "Self-Hosted Model Operations",
-      "summary": "Select, verify, deploy, evaluate, observe, update, roll back, and recover a self-hosted model endpoint.",
+      "summary": "The full endpoint operations path: select, verify, deploy, evaluate, observe, update, roll back, and recover a self-hosted model endpoint. Self-Hosted Models & Enterprise AIOps is the shorter specialist track for model selection, sizing, serving runtimes, caching, and tracing.",
       "audience": "Practitioners and operators responsible for open-weight or otherwise self-managed model services across workstations, edge, on-premises, and cloud environments.",
       "level": "advanced",
       "moduleIds": [
@@ -499,8 +500,38 @@
           "paragraphs": [
             "When software consumes model output, use structured contracts, validation, retries, and observable failure behavior instead of parsing unconstrained prose."
           ]
+        },
+        {
+          "id": "openai-tools",
+          "title": "Tools are an application boundary",
+          "paragraphs": [
+            "An API model can request a tool call, but the application selects which tools are exposed, validates arguments, checks authorization, executes the operation, and returns the result. Treat tool output as untrusted data; a requested call is not permission to write files, send messages, or spend money.",
+            "A structured response constrains shape. Validate schema and business rules, then check the real postcondition after any consequential action. A well-formed response alone does not prove the action was safe or successful."
+          ]
+        },
+        {
+          "id": "openai-current-options",
+          "title": "Verify the surface and model at the time of use",
+          "paragraphs": [
+            "Before choosing a model or feature, consult the dated official model and API documentation, compare it with the models and permissions enabled for your own account, and record the checked date. Check the relevant ChatGPT workspace controls or Codex environment separately; an API feature listing does not prove it is available in every product surface.",
+            "Test a representative request in the intended environment and record model identifier, tool permissions, output contract, latency, cost, and failure behavior. Recheck when the provider changes a model, endpoint, or account policy."
+          ]
         }
       ],
+      "activity": {
+        "id": "activity-openai-surface-boundaries",
+        "title": "Route a workflow through the right OpenAI surface",
+        "instructions": [
+          "For one research question, one software integration, and one repository change, select ChatGPT, the API, or Codex and explain the account and permission boundary for each.",
+          "For the API integration, define an output schema and one tool contract; write the argument, authorization, and postcondition checks the application must enforce.",
+          "Check official model and API documentation and the actual account or environment, record the verification date, and run a representative request before making an availability claim."
+        ],
+        "evidence": [
+          "A three-row surface decision table with distinct permissions and data controls.",
+          "A validated output and tool-call contract with an observed test result, model identifier, and verification date."
+        ],
+        "reflectionPrompt": "Which tool decision belongs to the application rather than to the model?"
+      },
       "knowledgeCheck": {
         "passPercent": 80,
         "questions": [
@@ -525,6 +556,28 @@
             ],
             "answerIndex": 0,
             "explanation": "The surfaces differ in interaction, integration, permissions, and operations."
+          },
+          {
+            "id": "q-openai-3",
+            "prompt": "A model requests a file-writing tool call with valid JSON. What must happen before the write?",
+            "choices": [
+              "Execute it because the JSON is valid",
+              "Validate arguments and authorization against application policy",
+              "Assume the model already checked permissions"
+            ],
+            "answerIndex": 1,
+            "explanation": "The application controls tool execution and must verify authorization and arguments independently."
+          },
+          {
+            "id": "q-openai-4",
+            "prompt": "How should a team verify that a model and tool are available for its API workflow?",
+            "choices": [
+              "Rely on a remembered model name",
+              "Use a ChatGPT screenshot as proof of API access",
+              "Check dated official documentation and the actual account, then test the intended workflow"
+            ],
+            "answerIndex": 2,
+            "explanation": "Documentation, account access, and an observed test establish availability for the intended surface."
           }
         ]
       },
@@ -540,6 +593,18 @@
           "url": "https://learn.chatgpt.com/docs/",
           "publisher": "OpenAI",
           "lastVerified": "2026-09-13"
+        },
+        {
+          "title": "Models documentation",
+          "url": "https://platform.openai.com/docs/models",
+          "publisher": "OpenAI",
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "Models API reference",
+          "url": "https://platform.openai.com/docs/api-reference/models",
+          "publisher": "OpenAI",
+          "lastVerified": "2026-09-18"
         }
       ]
     },
@@ -562,7 +627,8 @@
       ],
       "prerequisites": [
         "anthropic-in-practice",
-        "openai-in-practice"
+        "openai-in-practice",
+        "gemini-ecosystem-and-interfaces"
       ],
       "sections": [
         {
@@ -577,10 +643,33 @@
           "id": "independence",
           "title": "Independence can improve review",
           "paragraphs": [
-            "For important review, a different model family can reduce correlated blind spots. Independence does not replace tests or expert judgment, but it adds a useful perspective."
+            "For important review, compare independently produced answers from more than one model family and measure where they agree or fail against a human-reviewed rubric. Different families may still share errors; their disagreement is a prompt for investigation, not proof that one answer is correct."
+          ]
+        },
+        {
+          "id": "three-provider-evidence",
+          "title": "Build a dated three-provider comparison",
+          "paragraphs": [
+            "For Anthropic, OpenAI, and Google, record the exact product surface, model identifier, account and region availability, tool permissions, data controls, rate limits, and cost from each provider's current official documentation. Check those claims in the account that will run the work; product and API capabilities are not interchangeable.",
+            "Use the same representative task set and scoring rubric for all three. Include quality, refusal and error behavior, latency, total cost, security requirements, and operational fit. Record the test date and distinguish a documented capability from one you observed."
           ]
         }
       ],
+      "activity": {
+        "id": "activity-three-provider-decision",
+        "title": "Defend a provider choice with comparable evidence",
+        "instructions": [
+          "Choose one real workflow and define success, data classification, allowed tools, latency, budget, and a scored quality rubric before comparing providers.",
+          "Use current official Anthropic, OpenAI, and Google documentation to identify a suitable surface and model for each. Record the exact source URL and date, and mark account or region access that you have not verified as unknown.",
+          "Run the same representative cases where access permits, record observed outcomes and costs separately from documented claims, and explain the chosen provider and a fallback.",
+          "For an important review case, compare two model families against the human rubric; document shared errors and disagreements without treating agreement as validation."
+        ],
+        "evidence": [
+          "A dated three-provider decision table with source links, access checks, common test cases, scores, and unknowns.",
+          "A decision rationale and independent-review comparison that identify limitations and a fallback."
+        ],
+        "reflectionPrompt": "Which provider claim changed when you checked the actual account or the same test case?"
+      },
       "knowledgeCheck": {
         "passPercent": 80,
         "questions": [
@@ -604,7 +693,7 @@
               "To avoid writing tests"
             ],
             "answerIndex": 1,
-            "explanation": "Cross-family review adds independence but still requires objective checks."
+            "explanation": "Different families can offer another perspective, but shared errors are possible and the result still needs objective checks."
           }
         ]
       },
@@ -614,6 +703,24 @@
           "url": "https://www.nist.gov/itl/ai-risk-management-framework",
           "publisher": "NIST",
           "lastVerified": "2026-07-23"
+        },
+        {
+          "title": "Claude models overview",
+          "url": "https://platform.claude.com/docs/en/models/overview",
+          "publisher": "Anthropic",
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "OpenAI models documentation",
+          "url": "https://platform.openai.com/docs/models",
+          "publisher": "OpenAI",
+          "lastVerified": "2026-09-18"
+        },
+        {
+          "title": "Gemini API models",
+          "url": "https://ai.google.dev/gemini-api/docs/models",
+          "publisher": "Google",
+          "lastVerified": "2026-09-18"
         }
       ]
     },
@@ -667,7 +774,7 @@
           "code": {
             "language": "text",
             "label": "Provider-neutral agent loop",
-            "code": "while budget.remaining > 0:\n  observation = inspect_environment()\n  decision = model.choose(allowed_actions, state, observation)\n  if decision.kind == \"finish\" and verifier.accepts(state, observation): return COMPLETE\n  if decision.kind == \"escalate\": return NEEDS_HUMAN\n  result = execute_authorized(decision.action)\n  state = record_transition(state, decision, result)\nreturn BUDGET_EXHAUSTED"
+            "code": "while budget.remaining > 0:\n  observation = inspect_environment()\n  if observation.requests_unauthorized_action: return POLICY_BLOCKED\n  if repeated_no_progress(state, observation): return NEEDS_HUMAN\n  decision = model.choose(allowed_actions, state, observation)\n  if decision.kind == \"finish\":\n    if verifier.accepts(state, observation): return COMPLETE\n    state = record_rejected_finish(state, observation)\n    continue\n  if decision.kind == \"escalate\": return NEEDS_HUMAN\n  if decision.kind != \"act\" or not authorized(decision.action): return POLICY_BLOCKED\n  result = execute_authorized(decision.action)\n  if result.outcome_unknown: return FAILED_WITH_RECOVERY_EVIDENCE(record_for_reconciliation(state, result))\n  state = record_transition(state, decision, result)\nreturn BUDGET_EXHAUSTED"
           }
         },
         {
@@ -686,12 +793,12 @@
         "instructions": [
           "Choose a multi-step task and write its success contract, allowed actions, trusted observations, and approval boundaries.",
           "Define the loop state and the deterministic controller that selects complete, continue, escalate, or stop.",
-          "Simulate a normal completion, three identical no-progress transitions, a budget exhaustion, and an untrusted observation containing an instruction.",
+          "Simulate five cases: verified completion; three identical no-progress transitions ending in needs-human; budget exhaustion; an untrusted instruction requesting an unauthorized action ending in policy-blocked; and a tool failure with an unknown external outcome ending in failed-with-recovery-evidence.",
           "Record the exact evidence and terminal state produced by each scenario."
         ],
         "evidence": [
           "A state-transition table with budgets, approvals, success evidence, and five terminal states.",
-          "A simulation log proving deterministic termination for completion, no progress, budget exhaustion, and untrusted instructions."
+          "A five-case simulation log showing the evidence and terminal state for complete, needs-human, budget-exhausted, policy-blocked, and failed-with-recovery-evidence, including reconciliation data for the uncertain tool outcome."
         ],
         "reflectionPrompt": "Which condition must be enforced by code because a prompt alone cannot guarantee it?"
       },
