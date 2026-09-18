@@ -4,6 +4,12 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.116.6] - 2026-09-18
+
+### Fixed
+
+- Completed the Anthropic in Practice catalogue lesson with a workflow-mapping activity, explicit context and tool boundaries, a dated availability check, and a matching knowledge check.
+
 ## [0.116.5] - 2026-09-18
 
 ### Fixed

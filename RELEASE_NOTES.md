@@ -628,3 +628,22 @@ Unchanged from v0.104.0: publishing a content change to a site is three commands
 ## Rollback
 
 Revert consuming sites to v0.104.2. They regain 2.5 MB of client payload and lose nothing else.
+# Project 42 platform v0.116.6
+
+The Anthropic in Practice lesson now teaches and assesses how to choose among chat, the Console playground, the Messages API, Claude Code, and Managed Agents. It adds a practical exercise, context and tool boundaries, and a dated availability check. This release pins canonical content at project42-content@fbdc401d7548aa985d1e99b19b768e3c36e1286b and addresses September Orchard item 9271 through a reviewed editorial correction.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+Consumer sites must update their platform pins to v0.116.6 to serve this lesson. Orchard still holds its generated draft without Gate 2 evidence; the other September findings remain unresolved.
+
+## Rollback
+
+Pin v0.116.5. No database migration is involved.
