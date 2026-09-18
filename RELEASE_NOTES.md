@@ -1,6 +1,6 @@
 # Project 42 platform v0.116.12
 
-Publishes sixteen September lesson repairs, including executable-example failure handling, activity evidence, technical corrections, and caption alignment. Restores result review under its existing module ID and preserves operations instruction in a separate module, with complete class packages for both. Canonical content: project42-content@13cbf1164452e2d01f2bce066f36eed4bd7833af.
+Publishes sixteen September lesson repairs, including executable-example failure handling, activity evidence, technical corrections, and caption alignment. Restores result review under its existing module ID and preserves operations instruction in a separate module, with complete class packages for both. Canonical content: project42-content@12454f64dca3a5f2a5564d2af3deade93e7cea0f.
 
 ## Breaking changes
 

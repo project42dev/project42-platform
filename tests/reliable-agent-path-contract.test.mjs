@@ -45,7 +45,7 @@ test("reliable agent path contract validates and matches the catalog sequence", 
     contract.moduleSequence.map((entry) => entry.moduleId),
     path.moduleIds,
   );
-  assert.equal(contract.moduleSequence.length, 12);
+  assert.equal(contract.moduleSequence.length, 13);
 });
 
 test("every module is prerequisite-connected and leaves mastery evidence", () => {
