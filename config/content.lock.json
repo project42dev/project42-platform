@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "69bcd9c040eed4a12fd4d522a8aa3944d550c919"
+    "commit": "2655c4ea6f8710cabf793d67f5f311c1d61ecac4"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -45,7 +45,7 @@
     "modules/ai-foundations/what-ai-does.json": "a9e599285e880dac2028069b959e17cc82dd10157d1f4e552c89714e82d3bbf3",
     "modules/ai-foundations/writing-and-transformation-workflow.json": "87f6bfa96244312ed62b2d641b63cd8c1abe38b9598255df2740af6a1fc35560",
     "modules/ai-literacy-and-mental-models/ai-mental-models.json": "4fe4aa1420bf85293f5c91049a453fe09084256297bf51f3b14ac4601783263d",
-    "modules/ai-literacy-and-mental-models/prompt-architecture.json": "169c54569fe2920a1afc2707d5fed329a80b5ae8f70d4e65ab15bab887305a01",
+    "modules/ai-literacy-and-mental-models/prompt-architecture.json": "98a3540cd60d78acdbc069a51105eb5667a6319b86a6f9b8aff2f3661474d2c8",
     "modules/ai-literacy-and-mental-models/token-economics-and-limits.json": "1a2fde63d38154713971c5c465e69f030956f9a68dda657e45ea35cd52ee80df",
     "modules/ai-security-and-governance/ai-compliance-and-crypto-receipts.json": "4232e4b44ed4e62ac9fe0a325791c1b2669e6d902ceb90388e4b864519ac4f28",
     "modules/ai-security-and-governance/guardrails-and-sandboxing.json": "26cfc4cc62b24c9bb36f24451bcb7e3fdf067b4b0e543695b13c8fbc91755b27",
@@ -58,7 +58,7 @@
     "modules/anthropic-claude-practice/claude-tools-and-agent-loops.json": "4d9359e81cc2e49215611393369066ed90e0a1294860c3292ab338c7d738832e",
     "modules/anthropic-claude-practice/migrating-to-and-from-claude.json": "8dd6091e1074028e5e85f109fc5fdafb30e8a3ed37d1b3aa5c14d0cae667a237",
     "modules/developer-and-practitioner-ai/function-calling-and-tools.json": "b5b7813ecf9695cc97585b2e67c2d107539ee9b50a11272ce3a3b02a95b3cac6",
-    "modules/developer-and-practitioner-ai/provider-sdk-patterns.json": "c3553e15305f10ad211ecc907cf828b4839ef35f4dc62c7d4a6dd3dff765a466",
+    "modules/developer-and-practitioner-ai/provider-sdk-patterns.json": "ade12e1d5bd046fe0a24c241ffa1ee3b343c82569b12b607cc8dc5cdad3a9ac5",
     "modules/developer-and-practitioner-ai/structured-outputs-mastery.json": "1321d8bf961b2a6d0b14219532b199ecd9d52affb65968ae66dc818c800fa3e3",
     "modules/developer-and-practitioner-ai/vector-embeddings-and-pgvector.json": "5b5eaae9db48a88992cdec113f90d07ee3a49240a81062e8802385323c662d90",
     "modules/google-gemini-practice/gemini-api-and-sdk-workflows.json": "00fbfa574ebf585ccdff1e830555da900b59509be9c15ffa6aeeeb3ce7f64349",
@@ -94,7 +94,7 @@
     "modules/self-hosted-and-aiops/hardware-and-vram-calculator.json": "f5d1bce42ebf4ecabfdcb7b22077676c998b3e301aca1bcaf22cfbeaad781776",
     "modules/self-hosted-and-aiops/open-weights-and-quantization.json": "05f165f367f01a7e0af250aae139b402016cfad3fb102041f3b5089b0364a9d3",
     "modules/self-hosted-and-aiops/production-vllm-and-ollama.json": "ef5e42f4462924c83dd639569f7386c509eab50629da09edb00ea13a4094ebe6",
-    "modules/self-hosted-and-aiops/semantic-caching-and-ai-tracing.json": "d663ee89acc63e65a80597ffc61fcba9022e2e2e9c34130521f26e0894e536c0",
+    "modules/self-hosted-and-aiops/semantic-caching-and-ai-tracing.json": "16bc9322b3e5427d99030f92b319c3192d527b8653d3f4692d048954dd59c07f",
     "modules/self-hosted-model-operations/deployment-shape-and-operating-model.json": "e0fa1aa39e3c5f39fc9ab67f0b3eb8ab3b8d25e2e22dd9200b0cb62ea578001f",
     "modules/self-hosted-model-operations/endpoint-identity-network-and-secrets.json": "6adb90f4b8c76eabf5cb6054992cfba310b2e80a4c5c9213e4e682c468fb5da7",
     "modules/self-hosted-model-operations/evaluate-the-exact-serving-build.json": "0c1d9098e4de6863472a2b2a68fc4727aa3754defa0f813810f9a69e10cabc77",

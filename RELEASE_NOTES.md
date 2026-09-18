@@ -1,3 +1,23 @@
+# Project 42 platform v0.116.11
+
+Publishes reviewed September corrections to prompt architecture, provider SDK patterns, and semantic caching/tracing. The canonical content preserves existing assessment question IDs, removes internal correction notes from learner-facing prose, and aligns semantic caching captions with narration. Canonical content: project42-content@2655c4ea6f8710cabf793d67f5f311c1d61ecac4.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+51 modules remain outline-only. These lessons were corrected directly in canonical content; Orchard's generated Gate 2 records still require reconciliation and are not recorded as Orchard-published.
+
+## Rollback
+
+Pin v0.116.10. No database migration is involved.
+
 # Project 42 platform v0.116.10
 
 Removes an OpenAI announcement URL that returned HTTP 403 to the public site's link checker. The 256-dimensional MTEB example remains supported by the already-cited OpenAI embeddings guide. Canonical content: project42-content@69bcd9c040eed4a12fd4d522a8aa3944d550c919.
