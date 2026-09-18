@@ -4,6 +4,12 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.116.5] - 2026-09-18
+
+### Fixed
+
+- Expanded the AI Glossary, Prompt Checklist, and Provider Decision Card with reviewed definitions, examples, evaluation steps, and dated primary sources.
+
 ## [0.116.4] - 2026-09-18
 
 ### Fixed
