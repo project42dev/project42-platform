@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "adc865bc450a41bdcd5d632184bba4c7f3595ec9"
+    "commit": "2655c4ea6f8710cabf793d67f5f311c1d61ecac4"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -94,7 +94,7 @@
     "modules/self-hosted-and-aiops/hardware-and-vram-calculator.json": "f5d1bce42ebf4ecabfdcb7b22077676c998b3e301aca1bcaf22cfbeaad781776",
     "modules/self-hosted-and-aiops/open-weights-and-quantization.json": "05f165f367f01a7e0af250aae139b402016cfad3fb102041f3b5089b0364a9d3",
     "modules/self-hosted-and-aiops/production-vllm-and-ollama.json": "ef5e42f4462924c83dd639569f7386c509eab50629da09edb00ea13a4094ebe6",
-    "modules/self-hosted-and-aiops/semantic-caching-and-ai-tracing.json": "955e1d23e7c2deafbaef3c54d91f3490c6763f3faa2acf98efc6f725cfc9f19b",
+    "modules/self-hosted-and-aiops/semantic-caching-and-ai-tracing.json": "16bc9322b3e5427d99030f92b319c3192d527b8653d3f4692d048954dd59c07f",
     "modules/self-hosted-model-operations/deployment-shape-and-operating-model.json": "e0fa1aa39e3c5f39fc9ab67f0b3eb8ab3b8d25e2e22dd9200b0cb62ea578001f",
     "modules/self-hosted-model-operations/endpoint-identity-network-and-secrets.json": "6adb90f4b8c76eabf5cb6054992cfba310b2e80a4c5c9213e4e682c468fb5da7",
     "modules/self-hosted-model-operations/evaluate-the-exact-serving-build.json": "0c1d9098e4de6863472a2b2a68fc4727aa3754defa0f813810f9a69e10cabc77",

@@ -1,6 +1,6 @@
 # Project 42 platform v0.116.11
 
-Publishes reviewed September corrections to prompt architecture, provider SDK patterns, and semantic caching/tracing. The canonical content preserves existing assessment question IDs and removes internal correction notes from learner-facing prose. Canonical content: project42-content@adc865bc450a41bdcd5d632184bba4c7f3595ec9.
+Publishes reviewed September corrections to prompt architecture, provider SDK patterns, and semantic caching/tracing. The canonical content preserves existing assessment question IDs, removes internal correction notes from learner-facing prose, and aligns semantic caching captions with narration. Canonical content: project42-content@2655c4ea6f8710cabf793d67f5f311c1d61ecac4.
 
 ## Breaking changes
 

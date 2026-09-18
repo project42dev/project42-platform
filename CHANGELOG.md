@@ -8,7 +8,7 @@ semantic versioning.
 
 ### Fixed
 
-- Published reviewed prompt architecture, provider SDK, and semantic caching lesson corrections with stable assessment IDs and clean learner-facing prose.
+- Published reviewed prompt architecture, provider SDK, and semantic caching lesson corrections with stable assessment IDs, clean learner-facing prose, and aligned captions.
 
 ## [0.116.10] - 2026-09-18
 
