@@ -1,6 +1,6 @@
 # Project 42 platform v0.116.7
 
-Provider comparison now includes Gemini and a dated evidence exercise. OpenAI practice adds tool and availability checks. The bounded agent loop exercises all five terminal states. This release pins canonical content at project42-content@a0e2590b7f2d93315b54cdd63da184bdd4b0128a.
+Provider comparison now includes Gemini and a dated evidence exercise. OpenAI practice adds tool and availability checks. The bounded agent loop exercises all five terminal states. This release pins canonical content at project42-content@a9a5e6668186c68e8e9ba414f20fa187d976ea4b.
 
 ## Breaking changes
 
