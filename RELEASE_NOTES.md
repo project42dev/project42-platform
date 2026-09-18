@@ -1,3 +1,23 @@
+# Project 42 platform v0.116.3
+
+The vLLM and Ollama lesson now explains how to stage Ollama models before disconnecting a host, distinguishes local model storage from cloud-feature controls, and removes an unsupported vLLM memory-default claim. This release pins canonical content at project42-content@a8678408d761bd7133a694b98d8f8ff3fc2080e1.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+Consumer sites must update their platform pins to v0.116.3 to serve this correction. Other September Orchard findings remain unpublished.
+
+## Rollback
+
+Pin v0.116.2. No database migration is involved.
+
 # Project 42 platform v0.116.2
 
 The AI mental models lesson now explains that repeated agreement measures observed output stability, not factual truth or the underlying token distribution. Its learner activity and instructor script remain attached. The catalogue no longer promises guaranteed structured output, and the Orchard and agent-orchestration diagrams reflect the current lifecycle. The platform pins the validated canonical content at project42-content@4c41c9ea71658f1810059a369792b2ca1f7ec08f.
