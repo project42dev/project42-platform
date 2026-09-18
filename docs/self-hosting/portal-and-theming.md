@@ -137,26 +137,16 @@ generator's stock theme. This layer was briefly removed in v0.108.0 — every si
 then had to supply a theme before it could install, which left a fresh
 deployment with no appearance at all — and restored in v0.109.0.
 
-The default is **`portal-default`**: a white page, hairline rules, one
-slate-blue action colour, system type, no ornament. `project42-portal create`
-selects it unless you pass `--theme`. It is deliberately not a Gallery theme —
-a Gallery theme is a *choice*, and shipping one as the default made every new
-deployment wear another operator's brand.
+The platform ships exactly one theme bundle: **`portal-default`**.
+`project42-portal create` selects it unless you pass `--theme`.
 
-> **The package currently ships two theme bundles, not one.** Alongside
-> `portal-default` it still carries `06-galactic-guide`, which is a Gallery
-> theme and one specific operator's brand. It predates `portal-default`, was
-> not removed when the generic default was introduced, and both the
-> distribution tests and the installer's own error message now name it — a
-> site that names an unprovided theme is told it may "name one the platform
-> ships (06-galactic-guide, portal-default)".
->
-> This sits awkwardly against the stated intent that a Gallery theme is a
-> *choice* and should not be shipped as part of the product. Until it is
-> resolved: `portal-default` is the default and the one to build on.
-> Selecting `06-galactic-guide` from the package gives you a frozen copy that
-> does not track the Gallery — take it from the Gallery under the lock (§2.3)
-> if you actually want that theme.
+Additional themes belong to the adopting site. Supply a custom bundle in the
+site repository's `themes/<id>/` folder, or install a Gallery bundle into the
+site's `public/themes/<id>/` under the Gallery lock. Never install customer or
+Gallery themes into the platform's `web/themes/` directory.
+
+Platform checks validate the shipped default and use site-owned test fixtures
+for other themes; they must not require a bundled Gallery theme.
 
 ### 2.2 Your own theme (the normal case for an adopter)
 
