@@ -4,6 +4,12 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.116.4] - 2026-09-18
+
+### Fixed
+
+- Updated the Agent Safety Checklist with specific OWASP sources, defined action categories, concrete postcondition checks, and appropriate recovery choices.
+
 ## [0.116.3] - 2026-09-18
 
 ### Fixed

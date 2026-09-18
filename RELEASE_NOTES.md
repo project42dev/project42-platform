@@ -1,3 +1,23 @@
+# Project 42 platform v0.116.4
+
+The Agent Safety Checklist now gives concrete permission, approval, postcondition, and recovery checks grounded in OWASP guidance. This release pins canonical content at project42-content@4baa7c26223c1c8bdec5c2e911f3d413bbb628e4.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+Consumer sites must update their platform pins to v0.116.4 to serve this correction. The other September Orchard findings still need editorial work and publication.
+
+## Rollback
+
+Pin v0.116.3. No database migration is involved.
+
 # Project 42 platform v0.116.3
 
 The vLLM and Ollama lesson now explains how to stage Ollama models before disconnecting a host, distinguishes local model storage from cloud-feature controls, and removes an unsupported vLLM memory-default claim. This release pins canonical content at project42-content@a8678408d761bd7133a694b98d8f8ff3fc2080e1.
