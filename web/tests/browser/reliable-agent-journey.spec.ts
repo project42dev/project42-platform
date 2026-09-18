@@ -142,14 +142,19 @@ test("completes, revises, badges, and exports the reliable-agent journey", async
   test.setTimeout(180_000);
   test.skip(!apiOrigin, "The API-backed learner journey requires account-API configuration.");
   await installJourneyApi(page);
-  expect(modules).toHaveLength(12);
+  expect(modules).toHaveLength(13);
+  expect(modules.slice(-3).map((module) => module.id)).toEqual([
+    "review-agent-results",
+    "operate-and-recover-agent-systems",
+    "reliable-agent-capstone",
+  ]);
   const capstoneModule = modules.at(-1);
   if (!capstoneModule?.capstone) {
     throw new Error("Reliable-agent capstone contract is missing");
   }
 
   await page.goto(`/learn/${path.id}`);
-  await expect(page.locator(".module-list li")).toHaveCount(12);
+  await expect(page.locator(".module-list li")).toHaveCount(13);
   await expect(
     page.getByRole("heading", { level: 1, name: path.title }),
   ).toBeVisible();
@@ -250,13 +255,13 @@ test("completes, revises, badges, and exports the reliable-agent journey", async
   await expect(page.getByText(/Saved to your transcript/)).toBeVisible();
 
   await page.goto(`/learn/${path.id}`);
-  await expect(page.locator(".module-list .module-complete")).toHaveCount(12);
+  await expect(page.locator(".module-list .module-complete")).toHaveCount(13);
 
   await page.goto("/profile");
-  await expect(page.getByText("12 of 12 modules")).toBeVisible();
+  await expect(page.getByText("13 of 13 modules")).toBeVisible();
   await expect(
     page.locator(".profile-stats div").filter({ hasText: "Knowledge checks" }),
-  ).toContainText("12");
+  ).toContainText("13");
   await expect(
     page.locator(".profile-stats div").filter({ hasText: "Capstone submissions" }),
   ).toContainText("2");
@@ -280,7 +285,7 @@ test("completes, revises, badges, and exports the reliable-agent journey", async
   const jsonPath = await jsonDownload.path();
   if (!jsonPath) throw new Error("JSON download path is unavailable");
   const record = JSON.parse(await readFile(jsonPath, "utf8"));
-  expect(record.learner.completedModuleIds).toHaveLength(12);
+  expect(record.learner.completedModuleIds).toHaveLength(13);
   expect(record.learner.capstoneSubmissions).toHaveLength(2);
   expect(
     record.learner.capstoneSubmissions[1].criterionScores.every(

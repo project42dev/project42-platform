@@ -1,3 +1,23 @@
+# Project 42 platform v0.116.14
+
+Updates the complete reliable-agent learner journey contract to thirteen modules, with explicit review, operations, and capstone ordering. Preserves assessment, badge, account progress, accessibility, and transcript assertions. Includes all v0.116.12 curriculum repairs and the v0.116.13 public-type correction. Canonical content: project42-content@3fb86dda79c282b4885437e017bdf0d41a1a1ce4.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+Class packages remain draft text packages. Production reconciliation follows verified website deployment.
+
+## Rollback
+
+Pin v0.116.11, the previous deployed site release. No database migration is involved.
+
 # Project 42 platform v0.116.13
 
 Preserves the published ClassScriptPackage type at the generated catalog boundary, so class segments without visual metadata type-check in adopter on-demand pages. Includes all v0.116.12 curriculum repairs. Canonical content: project42-content@3fb86dda79c282b4885437e017bdf0d41a1a1ce4.
