@@ -1,3 +1,23 @@
+# Project 42 platform v0.116.7
+
+Provider comparison now includes Gemini and a dated evidence exercise. OpenAI practice adds tool and availability checks. The bounded agent loop exercises all five terminal states. Agent result review now matches its stable ID, while incident operations has its own module. This release pins canonical content at project42-content@77a2923fa31e4d8457a129c55cf00241b7a4df14.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+52 modules remain outline-only. Existing September Orchard queue items require reconciliation; this release does not mark them published by Orchard.
+
+## Rollback
+
+Pin v0.116.6. No database migration is involved.
+
 # Project 42 platform v0.116.5
 
 The AI Glossary, Prompt Checklist, and Provider Decision Card now include concrete definitions and examples, representative evaluation steps, and relevant dated primary sources. These edits address review findings for September Orchard items 9268–9270. This release pins canonical content at project42-content@ab57247471396fe8e4de7a18b0fca1a38577af8d.
