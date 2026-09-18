@@ -4,6 +4,12 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.117.2] - 2026-09-18
+
+- Correct About, platform quickstart, offline, and learner-data information against the deployed architecture.
+- Honor the configured API origin when describing account-backed records.
+- Repair installation, theme/layout, identity and synchronization documentation; preserve all curriculum and learning reference material.
+
 ## [0.117.1] - 2026-09-18
 
 - Fix rendered Warm Campus label and primary-action contrast, including accent-filled callouts. No content or layout changes.

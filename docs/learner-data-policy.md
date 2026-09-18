@@ -4,9 +4,11 @@ Project 42 applications use `LearnerDataPolicyV1` as the portable contract for
 identity, lifecycle, consent, retention, export, deletion, recovery, tenancy, and
 authorization. The default is exported as `defaultLearnerDataPolicy`.
 
-The contract does not enable accounts by itself. `accountBackedRecords` remains
-`planned` until an application has authenticated identity, a conforming record-store
-adapter, authorization checks, backup/restore evidence, and learner-facing controls.
+The default contract reports `accountBackedRecords: "available"` for the shipped
+capability. A deployment still needs authenticated identity, a conforming
+record-store adapter, authorization, recovery evidence and learner controls.
+The portal reports whether its account API is configured; the policy alone
+does not configure or establish the health of that service.
 
 ## Required invariants
 

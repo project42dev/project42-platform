@@ -5,7 +5,7 @@ import { orgName } from "../../lib/copy";
 export const metadata: Metadata = {
   title: "Offline",
   description:
-    "You are offline. Pages you have already opened remain available; the rest return when your connection does.",
+    "You are offline. Previously cached public pages may remain readable. Account actions need a connection.",
   robots: { index: false, follow: false },
 };
 
@@ -20,9 +20,9 @@ export default function OfflinePage() {
         <p className="eyebrow">No connection</p>
         <h1>You are offline</h1>
         <p>
-          {orgName} could not reach the network. Anything you have already
-          opened on this device stays available, and progress saved locally is
-          kept until a connection returns.
+          {orgName} could not reach the network. Previously cached public pages may still be readable. Sign-in, account
+          changes and durable progress saves need a connection; confirm your
+          progress with the account service after reconnecting.
         </p>
       </header>
       <p>
