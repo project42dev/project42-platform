@@ -1,3 +1,23 @@
+# Project 42 platform v0.116.9
+
+Corrects the vector embeddings and pgvector lesson after the September Orchard draft failed assessment review. The lesson distinguishes Anthropic's Voyage AI documentation from an Anthropic embedding API, accurately describes Google's Embedding 2 identifier and preview endpoint listing, records normalization and query conventions in its schema example, scopes the partial index by dimension, and includes PostgreSQL 17 ordering guidance. Canonical content: project42-content@a99d38909c6a9ef078c66a4ff0cb91c8ad231e9d.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+51 modules remain outline-only. Orchard's generated 9266 draft remains held after assessment review; this release publishes the separately reviewed canonical correction.
+
+## Rollback
+
+Pin v0.116.8. No database migration is involved.
+
 # Project 42 platform v0.116.8
 
 Removes a redundant OpenAI Models API citation that returned HTTP 403 to the public site's link checker. The OpenAI overview and models documentation remain. Canonical content: project42-content@d5754bdeca6386eafcffdc1c1cd25d5242168878.
