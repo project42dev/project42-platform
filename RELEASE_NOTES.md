@@ -1,3 +1,23 @@
+# Project 42 platform v0.116.8
+
+Removes a redundant OpenAI Models API citation that returned HTTP 403 to the public site's link checker. The OpenAI overview and models documentation remain. Canonical content: project42-content@d5754bdeca6386eafcffdc1c1cd25d5242168878.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None.
+
+## Known limitations
+
+51 modules remain outline-only. September Orchard queue reconciliation remains open.
+
+## Rollback
+
+Pin v0.116.7. No database migration is involved.
+
 # Project 42 platform v0.116.7
 
 Provider comparison now includes Gemini and a dated evidence exercise. OpenAI practice adds tool and availability checks. The bounded agent loop exercises all five terminal states. This release pins canonical content at project42-content@a9a5e6668186c68e8e9ba414f20fa187d976ea4b.
