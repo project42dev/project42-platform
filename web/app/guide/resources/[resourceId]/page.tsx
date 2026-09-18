@@ -119,7 +119,7 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
       </dl>
       <ContentUseNotice artifact="resource" />
       <div className="resource-body">
-        <LessonSections sections={resource.sections} />
+        <LessonSections sections={resource.sections} checklist={resource.format === "checklist"} />
         <aside className="source-panel">
           <p className="eyebrow">Primary sources</p>
           {resource.sources.map((source) => (

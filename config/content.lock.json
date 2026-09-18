@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "12454f64dca3a5f2a5564d2af3deade93e7cea0f"
+    "commit": "3fb86dda79c282b4885437e017bdf0d41a1a1ce4"
   },
   "contentVersion": "0.42.0",
   "files": {
-    "catalog.json": "f7bc128569514b493dedabad1592c491ca9d801156750ea166c6e4def3415a88",
+    "catalog.json": "159024648b75bca933764d9cf4e4d41257cd4aebd9aad035625ec45e3aeab943",
     "diagrams/agent-orchestration.mmd": "9c916bea4b29e448bceae7758d1fff3867c2e99da51b3e89237397c05c95c72a",
     "diagrams/catalogue.json": "c21969fe08a95809a828aa5bacad3754c3f542b294fcf86df5c6dcad8a6f60d0",
     "diagrams/content-freshness-release.mmd": "e2ffa6894a362a2ce0e76506c9c94ea7afed095938a59619967ef41436eb3485",
