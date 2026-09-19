@@ -21,7 +21,7 @@
         "agentic-systems-and-mcp"
       ],
       "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "instructorSchemaVersion": "1.0"
     },
     {
       "moduleId": "agent-evaluation",
