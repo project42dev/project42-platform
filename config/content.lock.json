@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "4afd4b1670adf7b901d1ebb7c1db81ac14315197"
+    "commit": "711a4a2abdfaf87d49d2889f765aad368e19bcb7"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -28,7 +28,7 @@
     "modules/agentic-ai-literacy/agentic-product-comparison.json": "d8378f1666bd0d788d0cfca217857f8204192f30a69fa29898f7baf10ba3ff2c",
     "modules/agentic-ai-literacy/agentic-tools-state-authority.json": "bb7bb483892e69eee3c2760b9a0041f5733127377d170b82a7681dde36ac0d1c",
     "modules/agentic-systems-and-mcp/agent-architecture-spectrum.json": "da7ec670840f3d5defc77ae239e6ca7855868b434233ede6d2cf1cfc4154f5a0",
-    "modules/agentic-systems-and-mcp/agent-safety-and-spend-brakes.json": "757aac9aa6c5585a20ba5baffbc93024c4ae3b746da7426d6adac616cb375707",
+    "modules/agentic-systems-and-mcp/agent-safety-and-spend-brakes.json": "f778bb9299adce25f9f7ef84b6df079dd4303bf5461d94b722e1b2fed2f14d19",
     "modules/agentic-systems-and-mcp/model-context-protocol-mcp.json": "cf6c664088951acd120e9e3c6eb7d71d12bcd2c720f249d1a94b1ed43726d207",
     "modules/agentic-systems-and-mcp/multi-agent-orchestration.json": "d7107389108fe5459718c9b0f642b28387bf919a75679b55d85f0dba87b4d7e9",
     "modules/ai-foundations/agents-and-guardrails.json": "5c09055267107bc6ae6a1e5bcfd71053266e1030d0bde752c7d4e3d0afd2cd21",
