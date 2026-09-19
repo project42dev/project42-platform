@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "87282e7c42f15cce0c5370a7f85c2a009f5ca1f5"
+    "commit": "c254be3869e4077037b75ae6a14a3d3b7db23112"
   },
   "contentVersion": "0.42.0",
   "files": {
-    "catalog.json": "da02e22e604ebed6996fcf34b6073b109fa0dde5b0ea7c3f9615b95a1281bbb6",
+    "catalog.json": "38fb185eeace2ec478fa86f9e8b304defd3d0f49762a54f4beeeb6baadf3fb98",
     "diagrams/agent-orchestration.mmd": "9c916bea4b29e448bceae7758d1fff3867c2e99da51b3e89237397c05c95c72a",
     "diagrams/catalogue.json": "c21969fe08a95809a828aa5bacad3754c3f542b294fcf86df5c6dcad8a6f60d0",
     "diagrams/content-freshness-release.mmd": "e2ffa6894a362a2ce0e76506c9c94ea7afed095938a59619967ef41436eb3485",
@@ -15,6 +15,7 @@
     "diagrams/learning-evidence-loop.mmd": "bb7320b9964e2fac205eb30ebda50d9078a9abdfda571e41c7775f9b7088c63c",
     "diagrams/lessons/learning-evidence-loop.json": "e0fc7e576813a3d9413acfad58451332fd94cacc733ccafe72d97975073306e4",
     "diagrams/lessons/safe-agent-loop.json": "ff842862caf852619899ccd176361b849e999263859515cce56f14a079f025c4",
+    "diagrams/lessons/tool-trust-boundaries.json": "fedf4528a9e079feda272ac9d2046dcd33c9051d856c5c83ed72e7162946c068",
     "diagrams/multi-agent-handoff.mmd": "4656b3b0f5a5e871cd1c944a180c57caef1da8f5764c93556d47776759504eb8",
     "diagrams/orchard-lifecycle.mmd": "532337a36b5a5b189f509cf6349054f1c304420e4bda5b0dc658ba66213702e3",
     "diagrams/prompt-contract.mmd": "b9363b897918e4dbf1754d38ce7d190f719a7a74cade87d3e4dc6fe7c141b9bd",
@@ -33,7 +34,7 @@
     "modules/ai-foundations/agents-and-guardrails.json": "34a11cf2ebc467179cf0c3daffed435e561b68f5bb341533ef01b5d62f38f545",
     "modules/ai-foundations/ai-foundations-capstone.json": "b4ca7c5925e765cd9ad54bc7f04744b37f396538835f3eefc0b23e732f9a33fe",
     "modules/ai-foundations/ai-systems-and-use-cases.json": "1412588d057dc58d42a98b695b8694cc87c7079ecc7690b995172f853ff98924",
-    "modules/ai-foundations/coding-and-analysis-workflow.json": "785fd64f2ea62a1c7c65531df85ab6e98fe7b7beba5bed3e29d57a1a4b81d4c9",
+    "modules/ai-foundations/coding-and-analysis-workflow.json": "d27bd12fcb79e5b708881fb6a4c84640f410fee1ffdf8763c70222e2fd82e5c4",
     "modules/ai-foundations/context-and-evidence-construction.json": "08f0eaf32ceda7ecf001ad5785de401e96288b5683b260dee03375e8110d62fa",
     "modules/ai-foundations/context-tokens-and-modalities.json": "01989cfed64d3476e917b8138cdddb50e59facd936200d2cbfda4fd179775120",
     "modules/ai-foundations/examples-and-output-contracts.json": "55ac16034b8670bdbc3ca7fe589b935904ceefa368945eda4e1305a6f603fbe0",
@@ -126,7 +127,7 @@
     "resource-packs/troubleshooting-operations-playbooks.json": "8753e90f52f9580c751f433aac6124f4f2a2083adb0e3f58aa681fedd4af31ce",
     "resources/ai-service-operations/ai-gateway-vs-direct-provider-decision.json": "f090eb7200401969d36db6f04ac2976e1f2fae38b96b05e9b3ab87dc4fc50851",
     "resources/ai-service-operations/ai-service-authentication-and-billing-readiness.json": "42f10a4c69dce24df94288d0330da99f104aa0ff031d0d6dd1b18dbfe641c6b4",
-    "resources/ai-service-operations/generative-ai-cost-control-runbook.json": "3f29dc1fdd51e9a041e079f9bfe1ce5972bae895971e2ca67cdcb2aa83971552",
+    "resources/ai-service-operations/generative-ai-cost-control-runbook.json": "498489e346726d18102c75e957446782f9d988db78a3393b3e6ee7c1eafafd74",
     "resources/ai-service-operations/observability-platform-selection-guide.json": "faa4b01cdd17540e551879de6d0b2bae14b7469303901bae824e0f3034208f97",
     "resources/coding-agents/ai-assisted-code-review-checklist.json": "2f7a4803f081fc76c7d072ccd0e6303cd09d2ff2ce041fe6a877764a1bd2a8d2",
     "resources/coding-agents/coding-agent-permission-boundaries.json": "111785c54dba200c7ebfdbfff5b8115cee591336cdf2eed1d2334e9e2f6245c4",

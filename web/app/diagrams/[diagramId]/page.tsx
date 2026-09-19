@@ -9,6 +9,7 @@ import { InteractiveDiagramClient } from "../../components/InteractiveDiagramCli
 import { OrchardLifecycleDiagramClient } from "../../components/OrchardLifecycleDiagramClient";
 import learningEvidenceLessonJSON from "@project42/platform/content/diagrams/lessons/learning-evidence-loop.json";
 import safeAgentLessonJSON from "@project42/platform/content/diagrams/lessons/safe-agent-loop.json";
+import toolTrustLessonJSON from "@project42/platform/content/diagrams/lessons/tool-trust-boundaries.json";
 import { diagramCatalog, getDiagram } from "../../lib/diagrams";
 import { getDiagramSteps } from "../../lib/diagramSteps";
 
@@ -47,8 +48,9 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
 
   const isLearningEvidenceLoop = diagramId === LEARNING_EVIDENCE_LOOP_ID;
   const isSafeAgentLoop = diagramId === "safe-agent-loop";
-  const isNativeLesson = isLearningEvidenceLoop || isSafeAgentLoop;
-  const safeAgentLesson = safeAgentLessonJSON as SafeAgentLessonContent;
+  const isToolTrust = diagramId === "tool-trust-boundaries";
+  const isNativeLesson = isLearningEvidenceLoop || isSafeAgentLoop || isToolTrust;
+  const safeAgentLesson = (isToolTrust ? toolTrustLessonJSON : safeAgentLessonJSON) as SafeAgentLessonContent;
   const lesson = learningEvidenceLessonJSON as LearningEvidenceLessonContent;
   const steps = isNativeLesson ? [] : getDiagramSteps(diagramId);
   const position = diagramCatalog.findIndex((entry) => entry.id === diagram.id);
@@ -94,7 +96,7 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
 
       <figure className="diagram-figure">
         <div className="diagram-canvas">
-          {isSafeAgentLoop ? (
+          {isSafeAgentLoop || isToolTrust ? (
             <><span className="visually-hidden">{safeAgentLesson.altText}</span><SafeAgentLesson data={safeAgentLesson} /></>
           ) : isLearningEvidenceLoop ? (
             <><span className="visually-hidden">{lesson.altText}</span><LearningEvidenceLesson data={lesson} /></>
