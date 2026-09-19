@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "1be817aed68c226b790c41a7174f21e042edb5dc"
+    "commit": "b7511c281291bf05f05796c28594004fbd824042"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -13,6 +13,7 @@
     "diagrams/cost-and-capacity-management.mmd": "a50cf355bd46f30b6d1f02d67c348f2e8272106f33a5c979e25fc61b80a84738",
     "diagrams/grounded-answer-workflow.mmd": "695373c14bff83c3868c7a5de4bf01ac7526fbf638add2cbc194e95913f7a65f",
     "diagrams/learning-evidence-loop.mmd": "bb7320b9964e2fac205eb30ebda50d9078a9abdfda571e41c7775f9b7088c63c",
+    "diagrams/lessons/learning-evidence-loop.json": "e0fc7e576813a3d9413acfad58451332fd94cacc733ccafe72d97975073306e4",
     "diagrams/multi-agent-handoff.mmd": "4656b3b0f5a5e871cd1c944a180c57caef1da8f5764c93556d47776759504eb8",
     "diagrams/orchard-lifecycle.mmd": "532337a36b5a5b189f509cf6349054f1c304420e4bda5b0dc658ba66213702e3",
     "diagrams/prompt-contract.mmd": "b9363b897918e4dbf1754d38ce7d190f719a7a74cade87d3e4dc6fe7c141b9bd",
@@ -132,7 +133,7 @@
     "resources/coding-agents/implementation-evidence-loop.json": "c2312d70a6296c58554c8757030e43f6860e18cd2c3b7a86a17e0a5872157f78",
     "resources/coding-agents/repository-orientation-checklist.json": "7eb94f35bdd2e0ef4664474bf40cacbcbf0235a71e8173026fa0c22e3836f3a5",
     "resources/coding-agents/test-debug-handoff.json": "9c9e162f31d3de292a2ed4f841f191ee861530fa715d2c80876439addb0ba955",
-    "resources/coding-tools/aider-operating-card.json": "2871622770ec5edc0a17d6fbaa94d1fcb59788634db404d8afda814f1547a714",
+    "resources/coding-tools/aider-operating-card.json": "5793532c93fd6a29fb66c650dc102abbd7693c11bf929826e944fff2e3f4fc26",
     "resources/coding-tools/claude-code-operating-card.json": "9860e0addb2d6bbd2334fa8edac64cb3b5ef3c1a1b0e0566fcd1c152d1741ed8",
     "resources/coding-tools/cline-operating-card.json": "2af168458acf6621368b0c86bc0bc87111721de24a73e6151f2b65350f2f0ede",
     "resources/coding-tools/codex-cli-operating-card.json": "6abdc6940f1a8fcd11d9cca4668aac86428a1c591ff04e1a44ac01ac996407be",
@@ -157,7 +158,7 @@
     "resources/mcp-orchestration/mcp-server-trust-review.json": "96b7f43ea11adfa324f64d6dbe22d81dccb85110186247243825d94aee5d6e13",
     "resources/mcp-orchestration/orchestration-pattern-decision-guide.json": "2d2613a98001cf52344854edb4c4d3737fd5a37a4b3ab80e17ab195a9d42cd07",
     "resources/mcp-orchestration/tool-contract-design-template.json": "57c64ed85dc9a42114ab147673a44e2720509f323bd0f4a1744e56cf12c6efc3",
-    "resources/model-provider-decisions/current-model-family-selection-matrix.json": "9b3f9924d4e66b19220bf90e80b73353388be118da968a24a31cb439f35c81cb",
+    "resources/model-provider-decisions/current-model-family-selection-matrix.json": "83f47a9be44330445951f54334c011340de30dc41cb137394661e5b9acd9d249",
     "resources/model-provider-decisions/hosted-vs-self-hosted-model-decision.json": "7ca7eba15777685f191a4e5082e89b676734aa85590111e56fcccf9d693d0bc7",
     "resources/model-provider-decisions/microsoft-foundry-model-deployment-decision.json": "0ac45629d60eee862b854bb52a1d8b888884887b3f2e8bf340bb305b20ab7f33",
     "resources/model-provider-decisions/open-weight-model-adoption-gate.json": "c345f7da984c1fcde28ae2dc3cdb7d101f23b334bba6f3ac8e5c101b26966ad0",
@@ -167,7 +168,7 @@
     "resources/practical-workflow-recipes/documentation-backfill-workflow.json": "a3d83c13525770062d22c7d90bd1ebe26c945aecd4229bf8f8dbd008c7610788",
     "resources/practical-workflow-recipes/legacy-codebase-refactor-workflow.json": "a155358efce30d466dfda8dc9cc3e015152eed1b8e4ec8ea0904d2f7925bc474",
     "resources/prompting-context/context-refresh-runbook.json": "0468ddca55e977977b835c71425b7f4cf4eda66617983f6753d93e092b475cb5",
-    "resources/prompting-context/context-selection-checklist.json": "50dcedf0968afca9cf5be08506126c7d47c0adf98c236ea683dbf381d16fa4d6",
+    "resources/prompting-context/context-selection-checklist.json": "f8cc73b34a5059893e7c24e1877041e7f10ff92969bd5fcd7446939758419112",
     "resources/prompting-context/prompt-pattern-decision-guide.json": "2bb6a04c8540b22df4ea1f3cd79b32dc152c85fa8be06a4b5cf0fed55f0635f4",
     "resources/prompting-context/reusable-prompt-template-pack.json": "bb0043cb7e5f093cf9354ae0755152cdafe893982fceeb8d4da2c4dbca4482ec",
     "resources/prompting-context/structured-output-contract.json": "ee85739cd6d750853fda0d13106c4ef1268a94226e8abe5e6ff152e02ed642d9",
@@ -206,7 +207,7 @@
     "resources/troubleshooting-operations/ai-incident-triage.json": "ddd20d798b6fce485908d86f9d74105911fde630edc62104b0df5d12d454242f",
     "resources/troubleshooting-operations/ai-rollback-and-incident-closeout.json": "5e310a16ddf77d95f9203ea9f22714ceecb115790c5e9e9e2b1be27b513925cf",
     "resources/troubleshooting-operations/context-quality-regression-triage.json": "8c9ed52fb8b5c571db21ed5e0b1b423766fd26d55d0fc7d371cf13ddcad1f27d",
-    "source-registry.json": "5699295fc55f45c614f54bfce0de9ece4d1d468fddc4ec406228b4aef68cad1c",
+    "source-registry.json": "0fd44a78e387477a6e60e6faaf816997a281e19e1fc12537db678a3fcdc5241b",
     "training/agentic-ai-literacy/delivery-contract.json": "02aa762a549b3926d07e1b9a5d64c811b32f2369e19c36f6769fd9a2798df1e3",
     "training/ai-foundations/agents-and-guardrails/alternatives/en-US-reduced-motion.md": "5d86cf5e12257f455c42d5081608e5e300645587e325e8f91ea33c7feedd1e07",
     "training/ai-foundations/agents-and-guardrails/alternatives/en-US-text-only.md": "439c140da891fcddd20c70d69dbb2f174a19402315bf6bd0beef0957a21c8307",

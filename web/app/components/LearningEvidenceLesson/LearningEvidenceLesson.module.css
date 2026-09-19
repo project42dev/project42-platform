@@ -1,0 +1,373 @@
+.lesson {
+  --lesson-border: var(--border-color, color-mix(in srgb, currentColor 24%, transparent));
+  --lesson-surface: var(--surface-color, inherit);
+  --lesson-soft: var(--surface-subtle, color-mix(in srgb, currentColor 6%, transparent));
+  --lesson-medium: var(--surface-emphasis, color-mix(in srgb, currentColor 12%, transparent));
+  --lesson-button: var(--button-background, var(--lesson-soft));
+  display: grid;
+  gap: 1.25rem;
+  max-width: 100%;
+  color: inherit;
+}
+
+.header,
+.detail,
+.progressBlock {
+  border: 1px solid var(--lesson-border);
+  border-radius: 0.75rem;
+  background: var(--lesson-surface);
+  color: inherit;
+}
+
+.header,
+.detail {
+  padding: clamp(1rem, 3vw, 1.75rem);
+}
+
+.header h2,
+.detail h3,
+.artifact h4,
+.pathStatus h4 {
+  margin-block: 0.25rem 0.6rem;
+  line-height: 1.2;
+}
+
+.header p,
+.detail p {
+  max-width: 75ch;
+}
+
+.category,
+.stageLabel,
+.artifactLabel {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.notice {
+  border-inline-start: 0.3rem solid currentColor;
+  margin-block-end: 0;
+  padding: 0.75rem 1rem;
+  background: var(--lesson-soft);
+  font-weight: 600;
+}
+
+.progressBlock {
+  padding: 0.8rem 1rem;
+}
+
+.progressText {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-block-end: 0.45rem;
+}
+
+.progressBlock progress {
+  display: block;
+  width: 100%;
+  height: 0.75rem;
+  accent-color: currentColor;
+}
+
+.flow {
+  max-width: 100%;
+}
+
+.nodeList {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nodeItem {
+  min-width: 0;
+  border: 1px solid var(--lesson-border);
+  border-radius: 0.65rem;
+  background: var(--lesson-surface);
+  color: inherit;
+}
+
+.nodeButton {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: start;
+  width: 100%;
+  min-height: 5.5rem;
+  border: 0;
+  border-radius: 0.6rem;
+  padding: 0.8rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.nodeButton[aria-pressed="true"] {
+  outline: 0.2rem solid currentColor;
+  outline-offset: -0.2rem;
+  background: var(--lesson-medium);
+}
+
+.nodeButton strong,
+.nodeButton small {
+  display: block;
+}
+
+.nodeButton small {
+  margin-block-start: 0.25rem;
+  line-height: 1.35;
+}
+
+.nodeNumber {
+  display: inline-grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-weight: 700;
+}
+
+.links {
+  margin: 0;
+  border-block-start: 1px solid var(--lesson-border);
+  padding: 0.65rem 0.8rem 0.75rem 1.7rem;
+  font-size: 0.78rem;
+}
+
+.links li + li {
+  margin-block-start: 0.4rem;
+}
+
+.detail {
+  min-width: 0;
+}
+
+.detailHeader {
+  border-block-end: 1px solid var(--lesson-border);
+  margin-block-end: 1rem;
+  padding-block-end: 0.75rem;
+}
+
+.detailHeader h3:focus {
+  outline: 0.2rem solid currentColor;
+  outline-offset: 0.25rem;
+}
+
+.artifacts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem;
+}
+
+.artifact {
+  min-width: 0;
+  margin-block-start: 1rem;
+  border: 1px solid var(--lesson-border);
+  border-radius: 0.6rem;
+  padding: 1rem;
+  background: var(--lesson-soft);
+  color: inherit;
+}
+
+.artifacts .artifact {
+  margin-block-start: 0;
+}
+
+.artifact blockquote {
+  margin: 0.75rem 0;
+  border-inline-start: 0.25rem solid currentColor;
+  padding-inline-start: 1rem;
+  font-style: normal;
+}
+
+.fields,
+.sourceMetadata {
+  display: grid;
+  gap: 0.6rem;
+  margin-block: 0.8rem 0;
+}
+
+.fields div,
+.sourceMetadata div {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.4fr) minmax(0, 1fr);
+  gap: 0.75rem;
+  border-block-start: 1px solid var(--lesson-border);
+  padding-block-start: 0.55rem;
+}
+
+.fields dt,
+.sourceMetadata dt {
+  font-weight: 700;
+}
+
+.fields dd,
+.sourceMetadata dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.attribution {
+  font-size: 0.88rem;
+  font-style: italic;
+}
+
+.choices {
+  display: grid;
+  gap: 0.75rem;
+  margin-block-start: 1rem;
+  border: 1px solid var(--lesson-border);
+  border-radius: 0.65rem;
+  padding: 1rem;
+}
+
+.choices legend {
+  padding-inline: 0.35rem;
+  font-weight: 700;
+}
+
+.choiceButton,
+.primaryAction,
+.footerActions button {
+  border: 1px solid currentColor;
+  border-radius: 0.45rem;
+  padding: 0.75rem 1rem;
+  background: var(--lesson-button);
+  color: inherit;
+  font: inherit;
+  font-weight: 650;
+  text-align: start;
+  cursor: pointer;
+}
+
+.choiceButton:hover,
+.primaryAction:hover,
+.footerActions button:hover {
+  background: var(--lesson-medium);
+}
+
+.feedback,
+.pathStatus {
+  margin-block-start: 1rem;
+  border: 2px solid currentColor;
+  border-radius: 0.6rem;
+  padding: 1rem;
+  background: var(--lesson-soft);
+  color: inherit;
+}
+
+.feedback p {
+  margin-block-end: 0;
+}
+
+.pathStatus ul {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pathStatus li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.25rem 0.75rem;
+  border-block-start: 1px solid var(--lesson-border);
+  padding-block-start: 0.6rem;
+}
+
+.pathStatus li small {
+  grid-column: 2;
+}
+
+.badgeResult {
+  display: grid;
+  gap: 0.3rem;
+  border: 1px dashed currentColor;
+  padding: 0.8rem;
+}
+
+.primaryAction {
+  margin-block-start: 1rem;
+}
+
+.footerActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.nodeButton:focus-visible,
+.choiceButton:focus-visible,
+.primaryAction:focus-visible,
+.footerActions button:focus-visible {
+  outline: 0.2rem solid currentColor;
+  outline-offset: 0.2rem;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 64rem) {
+  .nodeList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 40rem) {
+  .nodeList {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .nodeItem {
+    width: 100%;
+  }
+
+  .nodeButton {
+    min-height: 0;
+  }
+
+  .fields div,
+  .sourceMetadata div,
+  .pathStatus li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pathStatus li small {
+    grid-column: 1;
+  }
+
+  .progressText {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+}
+
+@media (forced-colors: active) {
+  .nodeButton[aria-pressed="true"],
+  .feedback,
+  .pathStatus {
+    forced-color-adjust: auto;
+  }
+}

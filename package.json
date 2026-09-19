@@ -16,7 +16,8 @@
       "types": "./dist/self-host/account-notification-adapter.d.ts",
       "import": "./dist/self-host/account-notification-adapter.js"
     },
-    "./content/diagrams/catalogue.json": "./content/diagrams/catalogue.json"
+    "./content/diagrams/catalogue.json": "./content/diagrams/catalogue.json",
+    "./content/diagrams/lessons/learning-evidence-loop.json": "./content/diagrams/lessons/learning-evidence-loop.json"
   },
   "files": [
     ".dev.vars.example",
