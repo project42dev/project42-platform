@@ -377,6 +377,33 @@ test("publishes five source-backed research and verification field guides", () =
     "template": "Output or action: [WHAT WILL BE USED OR DONE]\nAffected people and systems: [SCOPE]\nCredible harms: [SAFETY, RIGHTS, PRIVACY, MONEY, OPERATIONS, SECURITY]\nReversibility and recovery time: [ASSESSMENT]\nConsequence level: [LOW | MODERATE | HIGH]\nRequired evidence: [SOURCES, TESTS, REPRODUCTION]\nRequired reviewer: [PEER | DOMAIN EXPERT | SECURITY | LEGAL | OWNER]\nApproval before action: [ROLE OR NONE]\nExecution boundary: [READ-ONLY | REVERSIBLE | PRIVILEGED | EXTERNAL]\nMonitoring and stop signal: [OBSERVABLE CONDITION]\nRollback or recovery: [TESTED PROCEDURE]\nDecision: [APPROVE | REVISE | REJECT | ESCALATE]"
   }
 };
+  const originalSourceUrls = {
+  "source-authority-ladder": [
+    "https://www.nist.gov/itl/ai-risk-management-framework",
+    "https://www.ala.org/acrl/standards/ilframework",
+    "https://www.w3.org/TR/prov-overview/"
+  ],
+  "claim-decomposition-map": [
+    "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
+    "https://developers.openai.com/api/docs/guides/evaluation-best-practices",
+    "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+  ],
+  "citation-support-checklist": [
+    "https://developers.openai.com/api/docs/guides/citation-formatting",
+    "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool",
+    "https://ai.google.dev/gemini-api/docs/google-search"
+  ],
+  "fact-verification-workflow": [
+    "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
+    "https://developers.openai.com/api/docs/guides/evaluation-best-practices",
+    "https://ai.google.dev/responsible/docs/evaluation"
+  ],
+  "consequence-based-review-gate": [
+    "https://www.nist.gov/itl/ai-risk-management-framework",
+    "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
+    "https://ai.google.dev/responsible/docs/evaluation"
+  ]
+};
   const resources = starterCatalog.resources.filter((resource) =>
     expected.has(resource.id),
   );
@@ -410,7 +437,9 @@ test("publishes five source-backed research and verification field guides", () =
       resource.sections.some((section) => section.code?.code.includes("[")),
       `${resource.id} must include a safe reusable record`,
     );
-    assert.equal(resource.sources.length, 3);
+    const sourceUrls = new Set(resource.sources.map((source) => source.url));
+    assert.equal(sourceUrls.size, resource.sources.length, resource.id + " has duplicate sources");
+    for (const url of originalSourceUrls[resource.id]) assert.ok(sourceUrls.has(url), resource.id + " lost original source " + url);
     assert.ok(
       resource.sources.every((source) => /^\d{4}-\d{2}-\d{2}$/.test(source.lastVerified)),
     );
