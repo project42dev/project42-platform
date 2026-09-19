@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "0e2ca57b374f786370fa98f5ffaa653075bc7d51"
+    "commit": "a26284af7fdeefae500b78765f2fc92a5d9a753a"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -158,7 +158,7 @@
     "resources/mcp-orchestration/agent-handoff-evidence-contract.json": "ed59905e7276ea3b6f893bbef37c35da35d1217906c899646f56a53aeeb65ca3",
     "resources/mcp-orchestration/mcp-primitives-reference.json": "4203ecf8c9ca0e3d289052a1b747262bfae98bb2672ec70026a97e484b857165",
     "resources/mcp-orchestration/mcp-server-trust-review.json": "96b7f43ea11adfa324f64d6dbe22d81dccb85110186247243825d94aee5d6e13",
-    "resources/mcp-orchestration/orchestration-pattern-decision-guide.json": "2d2613a98001cf52344854edb4c4d3737fd5a37a4b3ab80e17ab195a9d42cd07",
+    "resources/mcp-orchestration/orchestration-pattern-decision-guide.json": "4378caf38079997d69ca95e74ac86150e1a73027c972186f5c089eae1b74ff84",
     "resources/mcp-orchestration/tool-contract-design-template.json": "efc1283ae23b62bcb58b5d87b8d4ec6e9cd569f8f4ccbcfe4dbd40d1577fee09",
     "resources/model-provider-decisions/current-model-family-selection-matrix.json": "83f47a9be44330445951f54334c011340de30dc41cb137394661e5b9acd9d249",
     "resources/model-provider-decisions/hosted-vs-self-hosted-model-decision.json": "7ca7eba15777685f191a4e5082e89b676734aa85590111e56fcccf9d693d0bc7",
