@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "e55d737d78b62d41212e9492c6fd38185345ae8d"
+    "commit": "dea37b4755e6bacf2af4cd7b62983059632401a3"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -151,9 +151,9 @@
     "resources/coding-tools/roo-code-operating-card.json": "c36fd17e46f837b7f11b7af9c3c46594fe8e466429f2538a6a3cc34feafd1447",
     "resources/coding-tools/windsurf-operating-card.json": "5b07f1b2167011dae840a3703b33923fb86abeb3324830ff877c623c17412dc3",
     "resources/evaluation-safety/bounded-ai-red-team-exercise.json": "0a1bf0707be87a86a661bf88aafcbb2b3da4bf5c9227433d1b257db0d54c66b3",
-    "resources/evaluation-safety/evaluation-plan-charter.json": "28fb04130bd713364eaebcadb00d727975c1fa29d4e1fd7882e201fbb7c9f2d5",
-    "resources/evaluation-safety/evidence-based-evaluation-rubric.json": "c25cb9a1241df02570a19dc237cf90748fd35e8247e9daf5db1f213ba93f9b05",
-    "resources/evaluation-safety/human-controlled-ai-release-gate.json": "bcbf478cc3c8e89270494109e7b5ca593fca918f5c68c33adfde4708345209df",
+    "resources/evaluation-safety/evaluation-plan-charter.json": "c23719642d29290cc912db762831539daffd8912780f3bd06a2ca150840978a2",
+    "resources/evaluation-safety/evidence-based-evaluation-rubric.json": "26452bff8c499ea85ba4ddd26b2a6c44a66b1c11cb48c96eaa02c3c1b9ca720a",
+    "resources/evaluation-safety/human-controlled-ai-release-gate.json": "d1692ceda183b2001c9e31ecd968ec95a0b20075f6442ba342cf9e3be3159ff2",
     "resources/evaluation-safety/representative-evaluation-dataset.json": "7da5af806d868a0304d8987cddf23c8088ef46a5d7bcce83c60a83477883a065",
     "resources/mcp-orchestration/agent-handoff-evidence-contract.json": "3a499af6d470bd3f33bbc47c49b2991d59ffe15c3caac4a4311cc172f28f6084",
     "resources/mcp-orchestration/mcp-primitives-reference.json": "4203ecf8c9ca0e3d289052a1b747262bfae98bb2672ec70026a97e484b857165",
