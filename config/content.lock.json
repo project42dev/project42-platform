@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "76f263302482420cc677a706556bb62d43420dc1"
+    "commit": "9957a61d4e1fce4d6a8ada3318544b81782408df"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -24,7 +24,7 @@
     "diagrams/tool-trust-boundaries.mmd": "a3401e369dcd11f479b6cc04f3580e3d44b0c08542fca9596f2858013c1887be",
     "modules/agentic-ai-literacy/agentic-ai-layers.json": "8738bc25753d1a230bf100b8e985ac4490b9910bd4e4d5e3e2c8c87a1830830e",
     "modules/agentic-ai-literacy/agentic-classification-capstone.json": "fdd4e8ddbfcd05781d6986c14cb544ad1eb2e1af85d284c221a6de3b732fab89",
-    "modules/agentic-ai-literacy/agentic-control-flow.json": "9b9d74f3a2dbc255f22d86c46585fe0b71bf6998784ccabf19a331fc373b3c65",
+    "modules/agentic-ai-literacy/agentic-control-flow.json": "1f36268ab448d8d7f6f120923283730e9730830967f666bbbbdbca4abf96db99",
     "modules/agentic-ai-literacy/agentic-product-comparison.json": "8322ffcc2253cf7a081f33a3b6cdfc243f7fa8956b56ff3bc8c8238136d4f965",
     "modules/agentic-ai-literacy/agentic-tools-state-authority.json": "ba052121db1ae224952ac6a8ffc1b6b2714f59dd68b600c97df48dc146c5c3e4",
     "modules/agentic-systems-and-mcp/agent-architecture-spectrum.json": "f0a3801a79185ecf19a4589c42c2675aebf45f06485397fda05d305aa62eb31e",

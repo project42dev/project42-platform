@@ -24,6 +24,13 @@ const requiredSections = {
   "agentic-product-comparison": ["comparison-unit", "comparison-evidence", "comparison-families", "comparison-freshness"],
   "agentic-classification-capstone": ["capstone-scope", "capstone-evidence", "capstone-compare", "capstone-review"],
 };
+const questionPrefixes = {
+  "agentic-ai-layers": "q-agentic-layers",
+  "agentic-control-flow": "q-agentic-control",
+  "agentic-tools-state-authority": "q-agentic-authority",
+  "agentic-product-comparison": "q-agentic-comparison",
+  "agentic-classification-capstone": "q-agentic-capstone",
+};
 
 test("publishes the complete five-stage agentic-AI learning path", () => {
   assert.ok(path);
@@ -62,7 +69,17 @@ test("connects every module through one prerequisite chain", () => {
     assert.ok(module.activity?.instructions.length >= 4);
     assert.ok(module.activity?.evidence.length >= 2);
     assert.equal(module.knowledgeCheck.passPercent, 80);
-    assert.equal(module.knowledgeCheck.questions.length, 5);
+    const questions = module.knowledgeCheck.questions;
+    assert.ok(questions.length >= 5, `${id} must retain at least five assessment questions`);
+    assert.equal(new Set(questions.map((question) => question.id)).size, questions.length);
+    for (let number = 1; number <= 5; number += 1) {
+      assert.ok(questions.some((question) => question.id === `${questionPrefixes[id]}-${number}`));
+    }
+    for (const question of questions) {
+      assert.ok(question.prompt.trim() && question.explanation.trim());
+      assert.ok(Number.isInteger(question.answerIndex));
+      assert.ok(question.answerIndex >= 0 && question.answerIndex < question.choices.length);
+    }
     assert.ok(new Set(module.knowledgeCheck.questions.map((q) => q.answerIndex)).size >= 2);
     assert.deepEqual(
       module.prerequisites,
