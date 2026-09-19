@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "ffacf703e95e8cf27a42724e40c94ced9e5a1706"
+    "commit": "8693cf06a01cbdcae3cc5fcdca5e1b50ff0bbe3d"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -128,7 +128,7 @@
     "resources/ai-service-operations/ai-gateway-vs-direct-provider-decision.json": "b3014756e2cc6bba165a38871f4c7868fd1564fe0f7045d70dcdc29e2a366586",
     "resources/ai-service-operations/ai-service-authentication-and-billing-readiness.json": "a76e996975fb7a5104ae04a6f0b4d4e72b37cb42ee2df82ba8f3c26396ffbf4d",
     "resources/ai-service-operations/generative-ai-cost-control-runbook.json": "498489e346726d18102c75e957446782f9d988db78a3393b3e6ee7c1eafafd74",
-    "resources/ai-service-operations/observability-platform-selection-guide.json": "faa4b01cdd17540e551879de6d0b2bae14b7469303901bae824e0f3034208f97",
+    "resources/ai-service-operations/observability-platform-selection-guide.json": "23976b8be8d171810867b8541a36dd56ba78d6981692d766d0a4690b3486ec3a",
     "resources/coding-agents/ai-assisted-code-review-checklist.json": "2f7a4803f081fc76c7d072ccd0e6303cd09d2ff2ce041fe6a877764a1bd2a8d2",
     "resources/coding-agents/coding-agent-permission-boundaries.json": "111785c54dba200c7ebfdbfff5b8115cee591336cdf2eed1d2334e9e2f6245c4",
     "resources/coding-agents/coding-agent-work-plan-template.json": "c1d977baf69617b0cc6e184450675b40a373775d7158a1d8d4fa3a070d6b96dd",
@@ -261,9 +261,9 @@
     "training/ai-foundations/ai-systems-and-use-cases/supplementary-reading.md": "1fbaa15d886194a65140db5f795e55a05d59d486aa8ccf8e9396ae40c7056628",
     "training/ai-foundations/ai-systems-and-use-cases/transcripts/en-US.md": "526231ea4f854b4302700ad8e901e76d47c5af20bbe4d19e0da7b8929caa8999",
     "training/ai-foundations/coding-and-analysis-workflow/alternatives/en-US-reduced-motion.md": "db0b5b466da7e7eebdad90a6b10a843003a9e77fa4fd480f51a6912a154681b2",
-    "training/ai-foundations/coding-and-analysis-workflow/alternatives/en-US-text-only.md": "b3e44f6fc04f63660d8457d2ed1dca17cec8ec0f76c9244463d27781035f5a16",
-    "training/ai-foundations/coding-and-analysis-workflow/captions/en-US.vtt": "638c5fdb4427b53bca7b501d208a4ef4827661defb9f86aac1b2d0eb0586967e",
-    "training/ai-foundations/coding-and-analysis-workflow/class-script.json": "b937379d84fba911fe1af11eaca4319f12cf05831fb3698a839af55f6a8a09c3",
+    "training/ai-foundations/coding-and-analysis-workflow/alternatives/en-US-text-only.md": "d22753c0345c700e0a7e6a1149533321c75168d7511fad8a416fd1e6031a9c37",
+    "training/ai-foundations/coding-and-analysis-workflow/captions/en-US.vtt": "f3d92e1e6b1361f739f1bf56843e76fe714e73e068caadc0b4a21fdd450dea92",
+    "training/ai-foundations/coding-and-analysis-workflow/class-script.json": "e6413e986b39cdecc64ac2883df23494ed81fc36447d3ad39bd961fd155acb13",
     "training/ai-foundations/coding-and-analysis-workflow/diagrams/bounded-task-loop.mmd": "89b896218d72af2836dde88ffef52b69c90c07260b572141a7ab5f21218196e3",
     "training/ai-foundations/coding-and-analysis-workflow/diagrams/recovery-path.mmd": "15c995a97a63d821f87af960cf96273504352de907bc69d139465ea06228802c",
     "training/ai-foundations/coding-and-analysis-workflow/diagrams/verification-stack.mmd": "3758e974ea4cedd73cb00f3da0051b99eeac416a25b8f64f7d8711aef9157671",
@@ -273,10 +273,10 @@
     "training/ai-foundations/coding-and-analysis-workflow/images/bounded-task.svg": "506426e552741040a2f665e0616976aa9b1dcc49d2abc9c3969b3d66f7772488",
     "training/ai-foundations/coding-and-analysis-workflow/images/inspectable-increments.svg": "39b8f059de6f10cd58eff73844978a0e9ea651ac444c4d7214259d910fab5c86",
     "training/ai-foundations/coding-and-analysis-workflow/images/recovery-loop.svg": "1d6b921570d3a9f88093587b772dca04bacb8f45bc3d6f21fbc1f00e42603084",
-    "training/ai-foundations/coding-and-analysis-workflow/integrity.json": "6cb040e83111694cb5f626df57831aa3e5352ed8c3e450a730a5018c93b7f0d7",
+    "training/ai-foundations/coding-and-analysis-workflow/integrity.json": "30150342a2501701f060f3a50012b147bbf7f7f27c6e08f1fe7f3332dff2f381",
     "training/ai-foundations/coding-and-analysis-workflow/lab/README.md": "35bc1e45b910241a9cfe78845fcab32a3e64ae7c05dd63c345b0f7cd2af5accb",
     "training/ai-foundations/coding-and-analysis-workflow/supplementary-reading.md": "fdf1185779a7a818eb8fae4ea4bd1ea361097c7c7345de6779e6590de42d49e5",
-    "training/ai-foundations/coding-and-analysis-workflow/transcripts/en-US.md": "80dcd07cf518caf7d5aaf6079435c7e8809c7a861f0c449ec7d8378e9049c224",
+    "training/ai-foundations/coding-and-analysis-workflow/transcripts/en-US.md": "f030cf5b3e62b896d25550ea5345955b7411aec927d6d8d1e383d095c7aaa134",
     "training/ai-foundations/context-and-evidence-construction/alternatives/en-US-reduced-motion.md": "ff851bc6edde55f94a4f5aea761c35848074d49bc427ed954290a2eae8863b28",
     "training/ai-foundations/context-and-evidence-construction/alternatives/en-US-text-only.md": "a69411f55290d5d3a8dac76299dc43c396c4d6c14d190d73b09f36ab1d8fab20",
     "training/ai-foundations/context-and-evidence-construction/captions/en-US.vtt": "38ef1204a2b2f6787c8627cc5b5136e3647d38a64d896e90ab9eeb19a6c13388",
