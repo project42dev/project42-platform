@@ -1,3 +1,29 @@
+# Project 42 platform v0.117.3
+
+Installs canonical curriculum from project42-content commit
+3ce0443e5996e47dfd07e6bfa17fe63c7a52f2f8: the AI Glossary, introductory
+AI and language-model lessons, and evaluation-dataset guide now include supplied
+worked examples, learner practice and explained answers. The language-model and
+evaluation exercises include independently executed Python with documented output.
+
+## Breaking changes
+
+None. Content IDs and public schemas are unchanged.
+
+## Migrations
+
+None. Adopters update the platform pin, materialise and rebuild.
+
+## Known limitations
+
+This is the first four-item content-audit repair batch. The remaining curriculum,
+visual and instructor-package audit work is still open. Synthetic evaluation
+fixtures demonstrate grading mechanics, not measured performance of a real model.
+
+## Rollback
+
+Restore platform v0.117.2 and rebuild the site. No database migration is involved.
+
 # Project 42 platform v0.117.2
 
 Repairs public information and operator documentation. The learner-data page now
