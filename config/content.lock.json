@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "2b3f8f20502ccde8ed8f7c56d8bbe2b7dd694b8c"
+    "commit": "3f6e84cdb8e00cf44b51d9b33b6d897705b74cec"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -161,7 +161,7 @@
     "resources/mcp-orchestration/orchestration-pattern-decision-guide.json": "4378caf38079997d69ca95e74ac86150e1a73027c972186f5c089eae1b74ff84",
     "resources/mcp-orchestration/tool-contract-design-template.json": "efc1283ae23b62bcb58b5d87b8d4ec6e9cd569f8f4ccbcfe4dbd40d1577fee09",
     "resources/model-provider-decisions/current-model-family-selection-matrix.json": "83f47a9be44330445951f54334c011340de30dc41cb137394661e5b9acd9d249",
-    "resources/model-provider-decisions/hosted-vs-self-hosted-model-decision.json": "7ca7eba15777685f191a4e5082e89b676734aa85590111e56fcccf9d693d0bc7",
+    "resources/model-provider-decisions/hosted-vs-self-hosted-model-decision.json": "d7c260ff5415f496ea898cba7fa45b8f6dd5d44a76cf16114d36a34a997e6c81",
     "resources/model-provider-decisions/microsoft-foundry-model-deployment-decision.json": "0ac45629d60eee862b854bb52a1d8b888884887b3f2e8bf340bb305b20ab7f33",
     "resources/model-provider-decisions/open-weight-model-adoption-gate.json": "c345f7da984c1fcde28ae2dc3cdb7d101f23b334bba6f3ac8e5c101b26966ad0",
     "resources/model-provider-decisions/role-based-model-routing-evaluation.json": "d27a3b103ad2998ceeed584fdef331ce6ecf69d666b1848d6e460725295d511e",
