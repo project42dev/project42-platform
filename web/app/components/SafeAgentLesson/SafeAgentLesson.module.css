@@ -1,0 +1,396 @@
+.lesson {
+  --lesson-border: var(--border-color, color-mix(in srgb, currentColor 24%, transparent));
+  --lesson-surface: var(--surface-color, inherit);
+  --lesson-soft: var(--surface-subtle, color-mix(in srgb, currentColor 6%, transparent));
+  --lesson-medium: var(--surface-emphasis, color-mix(in srgb, currentColor 12%, transparent));
+  --lesson-button: var(--button-background, var(--lesson-soft));
+  display: grid;
+  gap: 1.25rem;
+  max-width: 100%;
+  color: inherit;
+}
+
+.header,
+.status,
+.detail,
+.sources,
+.textAlternative,
+.diagram {
+  border: 1px solid var(--lesson-border);
+  border-radius: 0.75rem;
+  background: var(--lesson-surface);
+  color: inherit;
+}
+
+.header,
+.detail,
+.sources {
+  padding: clamp(1rem, 3vw, 1.75rem);
+}
+
+.header h2,
+.detail h3,
+.artifact h4,
+.practice h4,
+.sources h3 {
+  margin-block: 0.25rem 0.6rem;
+  line-height: 1.2;
+}
+
+.header p,
+.detail p,
+.sources p {
+  max-width: 75ch;
+}
+
+.category,
+.stageLabel,
+.artifactLabel {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.notice {
+  border-inline-start: 0.3rem solid currentColor;
+  margin-block-end: 0;
+  padding: 0.75rem 1rem;
+  background: var(--lesson-soft);
+  font-weight: 650;
+}
+
+.status {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+}
+
+.diagram {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-rows: minmax(3rem, auto);
+  gap: 0.55rem;
+  align-items: stretch;
+  padding: clamp(0.65rem, 2vw, 1rem);
+}
+
+.diagramNode,
+.diagramEdge {
+  grid-column: var(--diagram-column) / span var(--diagram-span);
+  grid-row: var(--diagram-row);
+  min-width: 0;
+}
+
+.diagramNode {
+  display: grid;
+  gap: 0.25rem;
+  align-content: center;
+  min-height: 4.75rem;
+  border: 1px solid currentColor;
+  border-radius: 0.6rem;
+  padding: 0.7rem;
+  background: var(--lesson-soft);
+  color: inherit;
+  font: inherit;
+  font-size: max(0.875rem, 14px);
+  line-height: 1.3;
+  text-align: start;
+  cursor: pointer;
+}
+
+.diagramNode span {
+  font-size: max(0.875rem, 14px);
+}
+
+.diagramNode[data-kind="decision"] {
+  border-width: 2px;
+  border-radius: 1rem 0.45rem;
+}
+
+.diagramNode[data-kind="terminal"] {
+  border-style: double;
+  border-width: 3px;
+}
+
+.diagramNode[aria-pressed="true"] {
+  outline: 0.2rem solid currentColor;
+  outline-offset: 0.15rem;
+  background: var(--lesson-medium);
+}
+
+.diagramEdge {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr) auto minmax(0, auto);
+  gap: 0.35rem;
+  align-items: center;
+  align-self: center;
+  min-height: 2.5rem;
+  border-block: 1px solid var(--lesson-border);
+  padding: 0.35rem 0.45rem;
+  background: var(--lesson-surface);
+  font-size: max(0.875rem, 14px);
+  line-height: 1.25;
+}
+
+.edgeFrom,
+.edgeTo {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.edgeRoute {
+  justify-self: center;
+  border: 1px solid var(--lesson-border);
+  border-radius: 999px;
+  padding: 0.15rem 0.45rem;
+  background: var(--lesson-soft);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.arrow {
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.textAlternative {
+  padding: 0.85rem 1rem;
+}
+
+.textAlternative summary {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.textAlternative p {
+  margin-block-end: 0;
+  max-width: 85ch;
+}
+
+.detail {
+  min-width: 0;
+}
+
+.detailHeader {
+  border-block-end: 1px solid var(--lesson-border);
+  margin-block-end: 1rem;
+  padding-block-end: 0.75rem;
+}
+
+.detailHeader h3:focus {
+  outline: 0.2rem solid currentColor;
+  outline-offset: 0.25rem;
+}
+
+.artifacts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem;
+}
+
+.artifact,
+.practice,
+.feedback {
+  min-width: 0;
+  border: 1px solid var(--lesson-border);
+  border-radius: 0.6rem;
+  padding: 1rem;
+  background: var(--lesson-soft);
+  color: inherit;
+}
+
+.fields {
+  display: grid;
+  gap: 0.6rem;
+  margin-block: 0.8rem 0;
+}
+
+.fields div {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.4fr) minmax(0, 1fr);
+  gap: 0.75rem;
+  border-block-start: 1px solid var(--lesson-border);
+  padding-block-start: 0.55rem;
+}
+
+.fields dt {
+  font-weight: 700;
+}
+
+.fields dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.practice {
+  margin-block-start: 1rem;
+}
+
+.practice fieldset {
+  display: grid;
+  gap: 0.75rem;
+  margin-block-start: 1rem;
+  border: 1px solid var(--lesson-border);
+  border-radius: 0.55rem;
+  padding: 1rem;
+}
+
+.practice legend {
+  padding-inline: 0.35rem;
+  font-weight: 700;
+}
+
+.choiceButton,
+.retryButton,
+.footerActions button {
+  border: 1px solid currentColor;
+  border-radius: 0.45rem;
+  padding: 0.75rem 1rem;
+  background: var(--lesson-button);
+  color: inherit;
+  font: inherit;
+  font-weight: 650;
+  line-height: 1.35;
+  text-align: start;
+  cursor: pointer;
+}
+
+.choiceButton:hover,
+.retryButton:hover,
+.footerActions button:hover {
+  background: var(--lesson-medium);
+}
+
+.feedback {
+  margin-block-start: 1rem;
+  border-width: 2px;
+  border-color: currentColor;
+}
+
+.feedback p {
+  margin-block-end: 0.8rem;
+}
+
+.sources ul {
+  display: grid;
+  gap: 0.85rem;
+  margin-block-end: 0;
+  padding-inline-start: 1.25rem;
+}
+
+.sources li span {
+  display: block;
+  margin-block-start: 0.15rem;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.sources li p {
+  margin-block: 0.25rem 0;
+}
+
+.footerActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.diagramNode:focus-visible,
+.choiceButton:focus-visible,
+.retryButton:focus-visible,
+.footerActions button:focus-visible,
+.textAlternative summary:focus-visible,
+.sources a:focus-visible {
+  outline: 0.2rem solid currentColor;
+  outline-offset: 0.2rem;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 64rem) {
+  .diagram {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .diagramNode,
+  .diagramEdge {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 40rem) {
+  .status {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .diagram {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .diagramNode,
+  .diagramEdge {
+    grid-column: 1;
+    grid-row: auto;
+    width: 100%;
+  }
+
+  .diagramNode {
+    min-height: 0;
+    font-size: max(0.875rem, 14px);
+  }
+
+  .diagramEdge {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.3rem 0.5rem;
+  }
+
+  .edgeFrom {
+    grid-column: 1;
+  }
+
+  .edgeRoute {
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .arrow {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .edgeTo {
+    grid-column: 1 / -1;
+    border-block-start: 1px dotted var(--lesson-border);
+    padding-block-start: 0.3rem;
+  }
+
+  .fields div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (forced-colors: active) {
+  .diagramNode[aria-pressed="true"],
+  .feedback,
+  .edgeRoute {
+    forced-color-adjust: auto;
+  }
+}
+

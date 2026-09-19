@@ -823,6 +823,11 @@ function validateSections(
     ) {
       errors.push(`${location} section ${section.id} has an incomplete code example`);
     }
+    if (section.callout !== undefined && typeof section.callout !== "string") {
+      errors.push(
+        `${location} section ${section.id} has an invalid callout; expected a string or undefined`,
+      );
+    }
   }
 }
 

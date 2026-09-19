@@ -149,11 +149,7 @@ async function validateManifest(manifest) {
     if (resource.sources.length < (manifest.minimumSourcesPerResource ?? 1)) {
       errors.push(`${location} resource ${resource.id} has too few sources`);
     }
-    if (
-      !resource.sections.some((section) =>
-        /^Expected (result|evidence) and verification$/i.test(section.title),
-      )
-    ) {
+    if (!hasVerificationGuidance(resource)) {
       errors.push(`${location} resource ${resource.id} lacks an acceptance section`);
     }
     if (!resource.sections.some((section) => section.code?.code.trim())) {

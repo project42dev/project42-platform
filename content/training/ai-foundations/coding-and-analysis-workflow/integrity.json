@@ -3,24 +3,24 @@
   "classScript": {
     "id": "coding-and-analysis-workflow-class",
     "version": "1.0.0",
-    "sha256": "9d2a36567a34e540bdf605afd689aa6df98630e53513a553ec3ac9fb987b86db"
+    "sha256": "e6413e986b39cdecc64ac2883df23494ed81fc36447d3ad39bd961fd155acb13"
   },
   "artifacts": [
     {
       "path": "captions/en-US.vtt",
-      "sha256": "ddcec59337608aa5796014ce2d4a03a9fea61e35f9fe9fbf498412d74d20d60d"
+      "sha256": "f3d92e1e6b1361f739f1bf56843e76fe714e73e068caadc0b4a21fdd450dea92"
     },
     {
       "path": "transcripts/en-US.md",
-      "sha256": "36bfca60e6f1b5eee589de7bfd28d2074f135ccc762a2913f62a86954e24068d"
+      "sha256": "f030cf5b3e62b896d25550ea5345955b7411aec927d6d8d1e383d095c7aaa134"
     },
     {
       "path": "alternatives/en-US-reduced-motion.md",
-      "sha256": "1b7a2e78a51a60354683483357fadfb0f878617fa51a35a9276e435ea84e7020"
+      "sha256": "db0b5b466da7e7eebdad90a6b10a843003a9e77fa4fd480f51a6912a154681b2"
     },
     {
       "path": "alternatives/en-US-text-only.md",
-      "sha256": "15cf80046fdea18a867a7205140da3a8dd9afb546279f9498151cfb322693a2a"
+      "sha256": "d22753c0345c700e0a7e6a1149533321c75168d7511fad8a416fd1e6031a9c37"
     }
   ]
 }

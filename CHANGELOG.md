@@ -4,6 +4,11 @@ All notable reusable platform changes are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and released versions use
 semantic versioning.
 
+## [0.117.3] - 2026-09-19
+
+- Install canonical glossary, beginner AI, language-model and evaluation-dataset repairs from project42-content@3ce0443.
+- Include supplied practice, explained answer keys and verified Python examples without changing content IDs or schemas.
+
 ## [0.117.2] - 2026-09-18
 
 - Correct About, platform quickstart, offline, and learner-data information against the deployed architecture.

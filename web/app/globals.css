@@ -9037,3 +9037,13 @@ button.orchard-node:hover {
     min-width: 44px;
   }
 }
+
+.lesson-block > div > p,
+.lesson-block > div > ul > li,
+.lesson-block > div > aside.lesson-callout {
+  overflow-wrap: anywhere;
+}
+
+.lesson-block > div > aside.lesson-callout {
+  white-space: pre-line;
+}

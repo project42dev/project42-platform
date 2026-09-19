@@ -1,12 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { LearningEvidenceLesson } from "../../components/LearningEvidenceLesson";
+import type { LearningEvidenceLessonContent } from "../../components/LearningEvidenceLesson";
+import { SafeAgentLesson } from "../../components/SafeAgentLesson";
+import type { SafeAgentLessonContent } from "../../components/SafeAgentLesson";
 import { InteractiveDiagramClient } from "../../components/InteractiveDiagramClient";
 import { OrchardLifecycleDiagramClient } from "../../components/OrchardLifecycleDiagramClient";
+import learningEvidenceLessonJSON from "@project42/platform/content/diagrams/lessons/learning-evidence-loop.json";
+import safeAgentLessonJSON from "@project42/platform/content/diagrams/lessons/safe-agent-loop.json";
+import toolTrustLessonJSON from "@project42/platform/content/diagrams/lessons/tool-trust-boundaries.json";
 import { diagramCatalog, getDiagram } from "../../lib/diagrams";
 import { getDiagramSteps } from "../../lib/diagramSteps";
 
 const REACT_DIAGRAM_IDS = new Set(["orchard-lifecycle"]);
+const LEARNING_EVIDENCE_LOOP_ID = "learning-evidence-loop";
 
 interface DiagramPageProps {
   params: Promise<{ diagramId: string }>;
@@ -37,7 +45,14 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
   const { diagramId } = await params;
   const diagram = getDiagram(diagramId);
   if (!diagram) notFound();
-  const steps = getDiagramSteps(diagramId);
+
+  const isLearningEvidenceLoop = diagramId === LEARNING_EVIDENCE_LOOP_ID;
+  const isSafeAgentLoop = diagramId === "safe-agent-loop";
+  const isToolTrust = diagramId === "tool-trust-boundaries";
+  const isNativeLesson = isLearningEvidenceLoop || isSafeAgentLoop || isToolTrust;
+  const safeAgentLesson = (isToolTrust ? toolTrustLessonJSON : safeAgentLessonJSON) as SafeAgentLessonContent;
+  const lesson = learningEvidenceLessonJSON as LearningEvidenceLessonContent;
+  const steps = isNativeLesson ? [] : getDiagramSteps(diagramId);
   const position = diagramCatalog.findIndex((entry) => entry.id === diagram.id);
   const previousDiagram = position > 0 ? diagramCatalog[position - 1] : undefined;
   const nextDiagram =
@@ -57,60 +72,78 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
           <h1>{diagram.title}</h1>
           <p>{diagram.summary}</p>
         </div>
-        <div className="diagram-source-card">
-          <span>Editable source</span>
-          <strong>Mermaid</strong>
-          <a
-            href={`/diagrams/${diagram.id}.svg`}
-            rel="noreferrer"
-            target="_blank"
-          >
-            Open full-size SVG ↗
-          </a>
-          <a href={`/diagrams/${diagram.source}`} download>
-            Download .mmd source
-          </a>
-        </div>
+        {isNativeLesson ? (
+          <div className="diagram-source-card">
+            <span>Interactive lesson</span>
+          </div>
+        ) : (
+          <div className="diagram-source-card">
+            <span>Editable source</span>
+            <strong>Mermaid</strong>
+            <a
+              href={`/diagrams/${diagram.id}.svg`}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Open full-size SVG ↗
+            </a>
+            <a href={`/diagrams/${diagram.source}`} download>
+              Download .mmd source
+            </a>
+          </div>
+        )}
       </header>
 
       <figure className="diagram-figure">
         <div className="diagram-canvas">
-          {REACT_DIAGRAM_IDS.has(diagram.id) ? (
+          {isSafeAgentLoop || isToolTrust ? (
+            <><span className="visually-hidden">{safeAgentLesson.altText}</span><SafeAgentLesson data={safeAgentLesson} /></>
+          ) : isLearningEvidenceLoop ? (
+            <><span className="visually-hidden">{lesson.altText}</span><LearningEvidenceLesson data={lesson} /></>
+          ) : REACT_DIAGRAM_IDS.has(diagram.id) ? (
             <>
               <span className="visually-hidden">{diagram.altText}</span>
-              <OrchardLifecycleDiagramClient alt={diagram.altText} category={diagram.category} steps={steps} title={diagram.title} />
+              <OrchardLifecycleDiagramClient
+                alt={diagram.altText}
+                category={diagram.category}
+                steps={steps}
+                title={diagram.title}
+              />
             </>
           ) : (
-            <InteractiveDiagramClient alt={diagram.altText} category={diagram.category} height={900} src={`/diagrams/${diagram.id}.svg`} steps={steps} title={diagram.title} width={1440} />
+            <InteractiveDiagramClient
+              alt={diagram.altText}
+              category={diagram.category}
+              height={900}
+              src={`/diagrams/${diagram.id}.svg`}
+              steps={steps}
+              title={diagram.title}
+              width={1440}
+            />
           )}
         </div>
-        <figcaption>{diagram.caption}</figcaption>
+        <figcaption>{isSafeAgentLoop ? safeAgentLesson.caption : isLearningEvidenceLoop ? lesson.caption : diagram.caption}</figcaption>
       </figure>
 
-      <div className="diagram-explanation-grid">
-        <section aria-labelledby="diagram-explanation">
-          <p className="eyebrow">Read the visual</p>
-          <h2 id="diagram-explanation">What this shows</h2>
-          <p>{diagram.description}</p>
-        </section>
-        <section aria-labelledby="diagram-takeaways">
-          <p className="eyebrow">Carry this forward</p>
-          <h2 id="diagram-takeaways">Key takeaways</h2>
-          <ul>
-            {diagram.takeaways.map((takeaway) => (
-              <li key={takeaway}>{takeaway}</li>
-            ))}
-          </ul>
-        </section>
-      </div>
+      {!isNativeLesson && (
+        <div className="diagram-explanation-grid">
+          <section aria-labelledby="diagram-explanation">
+            <p className="eyebrow">Read the visual</p>
+            <h2 id="diagram-explanation">What this shows</h2>
+            <p>{diagram.description}</p>
+          </section>
+          <section aria-labelledby="diagram-takeaways">
+            <p className="eyebrow">Carry this forward</p>
+            <h2 id="diagram-takeaways">Key takeaways</h2>
+            <ul>
+              {diagram.takeaways.map((takeaway) => (
+                <li key={takeaway}>{takeaway}</li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      )}
 
-      {/*
-        This was a <nav aria-label="More visual guides"> containing exactly one
-        anchor -- "← Browse every visual guide" -- a back link wearing a
-        forward name. On a catalogue of sequential visual guides there was no
-        way to reach the next one without returning to the index first. The
-        neighbours are real links now, and the name describes what is here.
-      */}
       <nav className="diagram-next" aria-label="Nearby visual guides">
         {previousDiagram ? (
           <Link href={`/guide/diagrams/${previousDiagram.id}`}>
@@ -127,7 +160,9 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
             {nextDiagram.title} →
           </Link>
         ) : (
-          <Link href="/guide" prefetch={false}>Back to the Field Guide →</Link>
+          <Link href="/guide" prefetch={false}>
+            Back to the Field Guide →
+          </Link>
         )}
       </nav>
     </main>

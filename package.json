@@ -1,6 +1,6 @@
 {
   "name": "@project42/platform",
-  "version": "0.117.2",
+  "version": "0.117.3",
   "description": "Open-source content, assessment, and learning-record core for Project 42.",
   "type": "module",
   "main": "./dist/index.js",
@@ -16,7 +16,10 @@
       "types": "./dist/self-host/account-notification-adapter.d.ts",
       "import": "./dist/self-host/account-notification-adapter.js"
     },
-    "./content/diagrams/catalogue.json": "./content/diagrams/catalogue.json"
+    "./content/diagrams/catalogue.json": "./content/diagrams/catalogue.json",
+    "./content/diagrams/lessons/learning-evidence-loop.json": "./content/diagrams/lessons/learning-evidence-loop.json",
+    "./content/diagrams/lessons/safe-agent-loop.json": "./content/diagrams/lessons/safe-agent-loop.json",
+    "./content/diagrams/lessons/tool-trust-boundaries.json": "./content/diagrams/lessons/tool-trust-boundaries.json"
   },
   "files": [
     ".dev.vars.example",
