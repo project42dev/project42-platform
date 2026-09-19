@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "dea37b4755e6bacf2af4cd7b62983059632401a3"
+    "commit": "68563f6b8689c15c1f7ade3482ea38b9ca8601fe"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -150,16 +150,16 @@
     "resources/coding-tools/opencode-operating-card.json": "85e0435bb5c49c91bcb4cda0350301b07ba254503f776c98c323b7da5c4aa91f",
     "resources/coding-tools/roo-code-operating-card.json": "c36fd17e46f837b7f11b7af9c3c46594fe8e466429f2538a6a3cc34feafd1447",
     "resources/coding-tools/windsurf-operating-card.json": "5b07f1b2167011dae840a3703b33923fb86abeb3324830ff877c623c17412dc3",
-    "resources/evaluation-safety/bounded-ai-red-team-exercise.json": "0a1bf0707be87a86a661bf88aafcbb2b3da4bf5c9227433d1b257db0d54c66b3",
+    "resources/evaluation-safety/bounded-ai-red-team-exercise.json": "bbbd2d9f1c843752ba0c96ce9665cd93138302f58849e0668c96c3fd9d3a53e2",
     "resources/evaluation-safety/evaluation-plan-charter.json": "c23719642d29290cc912db762831539daffd8912780f3bd06a2ca150840978a2",
     "resources/evaluation-safety/evidence-based-evaluation-rubric.json": "26452bff8c499ea85ba4ddd26b2a6c44a66b1c11cb48c96eaa02c3c1b9ca720a",
     "resources/evaluation-safety/human-controlled-ai-release-gate.json": "d1692ceda183b2001c9e31ecd968ec95a0b20075f6442ba342cf9e3be3159ff2",
     "resources/evaluation-safety/representative-evaluation-dataset.json": "7da5af806d868a0304d8987cddf23c8088ef46a5d7bcce83c60a83477883a065",
-    "resources/mcp-orchestration/agent-handoff-evidence-contract.json": "3a499af6d470bd3f33bbc47c49b2991d59ffe15c3caac4a4311cc172f28f6084",
+    "resources/mcp-orchestration/agent-handoff-evidence-contract.json": "ed59905e7276ea3b6f893bbef37c35da35d1217906c899646f56a53aeeb65ca3",
     "resources/mcp-orchestration/mcp-primitives-reference.json": "4203ecf8c9ca0e3d289052a1b747262bfae98bb2672ec70026a97e484b857165",
     "resources/mcp-orchestration/mcp-server-trust-review.json": "96b7f43ea11adfa324f64d6dbe22d81dccb85110186247243825d94aee5d6e13",
     "resources/mcp-orchestration/orchestration-pattern-decision-guide.json": "2d2613a98001cf52344854edb4c4d3737fd5a37a4b3ab80e17ab195a9d42cd07",
-    "resources/mcp-orchestration/tool-contract-design-template.json": "57c64ed85dc9a42114ab147673a44e2720509f323bd0f4a1744e56cf12c6efc3",
+    "resources/mcp-orchestration/tool-contract-design-template.json": "f97d8261f015a844418ec787cea8fc4b05f986da2381aa64c3335980fe9d278b",
     "resources/model-provider-decisions/current-model-family-selection-matrix.json": "83f47a9be44330445951f54334c011340de30dc41cb137394661e5b9acd9d249",
     "resources/model-provider-decisions/hosted-vs-self-hosted-model-decision.json": "7ca7eba15777685f191a4e5082e89b676734aa85590111e56fcccf9d693d0bc7",
     "resources/model-provider-decisions/microsoft-foundry-model-deployment-decision.json": "0ac45629d60eee862b854bb52a1d8b888884887b3f2e8bf340bb305b20ab7f33",
