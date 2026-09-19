@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "563bfcdce62f87c12cdea9b722839397285fd473"
+    "commit": "900b0620578929eca7b238fb84827bd292a4ecb8"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -186,7 +186,7 @@
     "resources/provider-workflows/openai-evaluation-error-triage.json": "5b28c856395c6d62468d9e646339f84e3414f8e595c811f8ddb389a949a79999",
     "resources/provider-workflows/openai-responses-api-request.json": "8d7c9136dbc9de89fcf21d6d7fd2904d20f9105dcd7e70b79cd673f6f8e199d2",
     "resources/provider-workflows/openai-tools-structured-output.json": "72c137dc4f3025668880f9ce08988c339bae1c9bc7bb498b11e7604ac7aaae9d",
-    "resources/research-verification/citation-support-checklist.json": "756df53fe4b275d6f6b7a4ee1d7cb92375abd3e53a0ecc15d1ba6b8a54afd1c6",
+    "resources/research-verification/citation-support-checklist.json": "6208e6f0b2c70431b213b8572b148b8af2fcc6c661bcbe986f40e029cd70b403",
     "resources/research-verification/claim-decomposition-map.json": "e188fa0cb76dc91c5af24fc0dbb3dd257b8f4a3cf3fc301806786de0cbc9d6c2",
     "resources/research-verification/consequence-based-review-gate.json": "a7db05a7afd35e0e79e90d39b2f9baed2e0fbf837532bcadf67eb373b6a6a3a3",
     "resources/research-verification/fact-verification-workflow.json": "5bc96ad2c9fa51b787433a7b305c5b097730a6b295493d8cd216627026859cca",

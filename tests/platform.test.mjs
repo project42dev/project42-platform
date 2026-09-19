@@ -392,7 +392,14 @@ test("publishes five source-backed research and verification field guides", () =
     const sectionIds = new Set(resource.sections.map((section) => section.id));
     assert.equal(sectionIds.size, resource.sections.length, resource.id + " has duplicate sections");
     for (const id of contract.sectionIds) assert.ok(sectionIds.has(id), resource.id + " lost section " + id);
-    assert.ok(resource.sections.some((section) => section.code?.code.includes(contract.template)), resource.id + " lost original reusable template");
+    for (const originalLine of contract.template.split("\n")) {
+      const separator = originalLine.indexOf(": ");
+      const label = originalLine.slice(0, separator);
+      const options = originalLine.slice(separator + 2).replace(/[\[\]]/g, "").split(" | ");
+      const templateLine = resource.sections.flatMap((section) => section.code?.code.split("\n") ?? []).find((line) => line.startsWith(label + ": "));
+      assert.ok(templateLine, resource.id + " lost original template field " + label);
+      for (const option of options) assert.ok(templateLine.includes(option), resource.id + " lost original template option " + option);
+    }
     assert.ok(
       resource.sections.some((section) =>
         section.title.toLowerCase().includes("expected evidence"),
