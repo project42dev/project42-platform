@@ -215,7 +215,17 @@ test("publishes six source-backed prompting and context field guides", () => {
     );
     assert.ok(
       resource.sections.some((section) =>
-        section.title.toLowerCase().includes("expected result and verification"),
+        section.id === "expected-result-and-verification"
+          ? (Array.isArray(section.paragraphs) &&
+              section.paragraphs.some(
+                (paragraph) =>
+                  typeof paragraph === "string" && paragraph.trim().length > 0,
+              )) ||
+            (section.code?.code?.trim().length > 0 &&
+              section.code?.label?.toLowerCase().includes("expected"))
+          : section.title
+              .toLowerCase()
+              .includes("expected result and verification"),
       ),
       `${resource.id} must state its expected result and verification`,
     );
@@ -271,7 +281,50 @@ test("prompting and context templates preserve safety and evidence boundaries", 
     (section) => section.id === "define-output-envelope",
   )?.code?.code;
   assert.ok(envelope);
-  assert.equal(JSON.parse(envelope).contractVersion, "1.0");
+  const schema = JSON.parse(envelope);
+  assert.equal(
+    schema.$schema,
+    "https://json-schema.org/draft/2020-12/schema",
+  );
+  assert.equal(schema.type, "object");
+  assert.equal(schema.additionalProperties, false);
+  assert.deepEqual(schema.required, [
+    "contractVersion",
+    "status",
+    "result",
+    "evidence",
+    "assumptions",
+    "warnings",
+    "nextAction",
+  ]);
+  assert.equal(schema.required.length, 7);
+  assert.equal(schema.properties.contractVersion.const, "1.0");
+  assert.deepEqual(schema.properties.status.enum, [
+    "complete",
+    "needs-input",
+    "blocked",
+  ]);
+  assert.equal(schema.properties.evidence.minItems, 1);
+  assert.equal(schema.properties.evidence.items.type, "object");
+  assert.deepEqual(schema.properties.evidence.items.required, [
+    "claim",
+    "source",
+  ]);
+
+  const validationLab = structured?.sections.find(
+    (section) => section.id === "run-validation-lab",
+  );
+  assert.equal(validationLab?.code?.language, "python");
+  assert.ok(validationLab?.code?.code.includes("Draft202012Validator"));
+  assert.ok(validationLab?.code?.code.includes("def validate_case"));
+  assert.ok(validationLab?.code?.code.includes("variation-changed-outcome"));
+
+  const expectedOutput = structured?.sections.find(
+    (section) => section.id === "expected-result-and-verification",
+  );
+  assert.equal(expectedOutput?.code?.language, "text");
+  assert.ok(expectedOutput?.code?.code.trim().length > 0);
+  assert.ok(expectedOutput?.code?.code.includes("all-fixtures: PASS"));
 });
 
 test("publishes five source-backed research and verification field guides", () => {
