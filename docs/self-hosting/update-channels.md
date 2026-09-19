@@ -13,7 +13,7 @@ for the commands.
 
 | Profile | Purpose | Status in this repository |
 | --- | --- | --- |
-| Local learning | Static/public content plus device-local records, no accounts | Not part of this repository's release-unit or update-channel model |
+| Public browsing | Static/public content without an account | Available; durable participation requires the account service. Device-local progress and its transfer flow are retired |
 | Reference self-host | Containerized app, PostgreSQL, object storage, and standards-based OIDC | Implemented: `self-host/compose.yaml` (HTTP evaluation) and `self-host/compose.https.yaml` (HTTPS profile). The current compatibility manifest declares `supportLevel: "evaluation"`, not `"production"` |
 | Hosted Project42dev | Managed deployment using the same public domain contracts | Operated by Project42dev outside this repository; not a release unit this repository ships |
 | Custom enterprise | Alternate identity, storage, or analytics adapters | Not a distinct shipped profile; a custom adapter must satisfy the same conformance boundary described in [Identity providers](identity-providers.md) and [Cloudflare D1 deployment](cloudflare-d1.md) |
