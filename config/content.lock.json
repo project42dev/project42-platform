@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "68563f6b8689c15c1f7ade3482ea38b9ca8601fe"
+    "commit": "0e2ca57b374f786370fa98f5ffaa653075bc7d51"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -159,7 +159,7 @@
     "resources/mcp-orchestration/mcp-primitives-reference.json": "4203ecf8c9ca0e3d289052a1b747262bfae98bb2672ec70026a97e484b857165",
     "resources/mcp-orchestration/mcp-server-trust-review.json": "96b7f43ea11adfa324f64d6dbe22d81dccb85110186247243825d94aee5d6e13",
     "resources/mcp-orchestration/orchestration-pattern-decision-guide.json": "2d2613a98001cf52344854edb4c4d3737fd5a37a4b3ab80e17ab195a9d42cd07",
-    "resources/mcp-orchestration/tool-contract-design-template.json": "f97d8261f015a844418ec787cea8fc4b05f986da2381aa64c3335980fe9d278b",
+    "resources/mcp-orchestration/tool-contract-design-template.json": "efc1283ae23b62bcb58b5d87b8d4ec6e9cd569f8f4ccbcfe4dbd40d1577fee09",
     "resources/model-provider-decisions/current-model-family-selection-matrix.json": "83f47a9be44330445951f54334c011340de30dc41cb137394661e5b9acd9d249",
     "resources/model-provider-decisions/hosted-vs-self-hosted-model-decision.json": "7ca7eba15777685f191a4e5082e89b676734aa85590111e56fcccf9d693d0bc7",
     "resources/model-provider-decisions/microsoft-foundry-model-deployment-decision.json": "0ac45629d60eee862b854bb52a1d8b888884887b3f2e8bf340bb305b20ab7f33",
