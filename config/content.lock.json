@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "7e802889320b26cf00cbd953653a64cf8ae7d161"
+    "commit": "7ec584237ab2cdecf16f1220bbfa1c852ea72724"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -168,7 +168,7 @@
     "resources/practical-workflow-recipes/bug-from-stack-trace-workflow.json": "1873576e3dcc7c8996375d33715328a3b6d35d86c5351f595e23f20cae240bb1",
     "resources/practical-workflow-recipes/critic-loop-workflow.json": "5b6bb6e8817d8f6d50fa29b49481a301e4f94f69ce0acf7cd0563f09752fae74",
     "resources/practical-workflow-recipes/documentation-backfill-workflow.json": "b3ce42dc259554d5100ef50bfa817446e11de766b94ffc7d1ca69143322b1823",
-    "resources/practical-workflow-recipes/legacy-codebase-refactor-workflow.json": "a155358efce30d466dfda8dc9cc3e015152eed1b8e4ec8ea0904d2f7925bc474",
+    "resources/practical-workflow-recipes/legacy-codebase-refactor-workflow.json": "75c556a4ef148bdcae3a805f1c9678f27dc83c7b6a5b4cf4891f9f3b531519cc",
     "resources/prompting-context/context-refresh-runbook.json": "66b499a497ee293be81fccc225510ce76230c474d7744ba2d788c68c19304de8",
     "resources/prompting-context/context-selection-checklist.json": "f8cc73b34a5059893e7c24e1877041e7f10ff92969bd5fcd7446939758419112",
     "resources/prompting-context/prompt-pattern-decision-guide.json": "66236c61687f28264e4f4e8794b8fc864af9816549b7b5e0a91352885ff1df20",
