@@ -6,8 +6,10 @@ without touching a line of the product.
 The model is Hugo's and Jekyll's. The product ships a complete, intentional
 look. Someone who wants a different one downloads a theme folder, drops it into
 their own repository, and changes one field in `project42.config.json`. Nothing
-else changes: not the code, not a build script, not a manifest, not a lock file,
-and no network call to anywhere.
+in core needs editing. The bundle must include its manifest and assets.
+Materialise it, regenerate brand assets and rebuild the site. Gallery sync
+also records an installation lock; package installation needs network access
+or staged dependencies.
 
 ## Three things, not two
 
@@ -15,7 +17,7 @@ and no network call to anywhere.
 Markup, routes, layout mechanics, behaviour, data, accessibility affordances.
 Core owns no brand.
 
-**The default theme** — a complete bundle under `web/themes/`, shipped inside
+**The default theme** — the sole bundle `web/themes/portal-default/`, shipped inside
 `@project42/platform`. This is the product's own appearance, and it is what a
 fresh install renders. It exists so a site is never unstyled and never depends
 on a service being reachable to have a look at all.
@@ -68,7 +70,7 @@ Gallery. An absent lock is a site that never went there, not a broken site:
 
 ## What a theme is guaranteed to be able to change
 
-Everything visual, through two files:
+Appearance without changing content or layout, through two files:
 
 - **`tokens.css`** — the palette, the typefaces, elevation, status colours,
   overlays. Declared on `:root[data-theme="<id>"]`.
