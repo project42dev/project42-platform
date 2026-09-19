@@ -31,6 +31,10 @@ part of the supported workflow.
 
 ## Content and evidence requirements
 
+Author curriculum changes in `project42-content`. The platform's `content/`
+tree is a locked distribution copy; synchronize an accepted upstream revision
+rather than editing that copy directly.
+
 - Use primary sources for volatile product, model, or provider claims.
 - Include `lastVerified`, `sources`, and a responsible content owner.
 - Keep core concepts provider-neutral; describe provider-specific behavior explicitly.

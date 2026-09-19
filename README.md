@@ -16,36 +16,49 @@ separate deployments.
 ### 1. Scaffold your own front end (one command)
 ```bash
 npm ci
-npx project42-portal create "Your Academy"
+node bin/project42-portal.mjs create "Your Academy"
 ```
 That writes two repositories side by side: a front end holding your branding,
 configuration and release records, and a content repository that inherits this
 project's curriculum while keeping your own modules. Then:
 
 ```bash
-cd your-academy-content && npm install && npm run content:sync
-cd ../your-academy   && npm install          # installs and materialises the app
-npm run themes:sync -- --source ../project42-gallery
-npm run bootstrap && npm run build
-npm run pages:build && npm run pages:serve   # static preview on :4173
+cd your-academy-content
+npm install
+npm run content:sync
+npm run content:build
+cd ../your-academy
+npm install
+npm run bootstrap
+npm run pages:build
+npm run pages:serve
 ```
 The front-end application itself lives in this repository under `web/` and is
 installed into your repository by `project42-portal materialise`, which the
 scaffolded `postinstall` runs for you. Your repository tracks configuration,
 not application code.
 
-### 2. Turnkey Docker Compose Deployment
+The platform supplies the default theme. No Gallery checkout or sync is required.
+See [getting started](docs/getting-started.md) for prerequisites and configuration.
+
+### 2. Reference Docker Compose Deployment
 ```bash
-cd self-host
-docker compose up -d
+cp self-host/.env.example self-host/.env
+# Configure secrets and origins before starting.
+docker compose --env-file self-host/.env -f self-host/compose.yaml up --build -d
 ```
-- **Web Portal**: `http://localhost:3000`
+- **Web Portal**: served separately, or through the documented opt-in web profile
 - **Platform API**: `http://localhost:8787`
 - **Identity & SSO (Keycloak)**: `http://localhost:8080`
 
+The basic stack is for HTTP API evaluation. Follow the
+[Compose guide](docs/self-hosting/docker-compose.md) for the web build context
+and HTTPS browser-session profile.
+
 ### 3. White-Label Theming & Custom Courses
 Custom presentation is selected in `project42.config.json`. Themes are complete,
-versioned Gallery bundles and layouts are separate installable bundles; neither
+bundles supplied by the platform default, the adopting site, or optional Gallery
+installation. Layouts are selected independently; themes never alter layout. Neither
 changes core content, behavior, authentication, or learner-data contracts. See
 the [Portal Theming & Self-Hosting Guide](docs/self-hosting/portal-and-theming.md).
 

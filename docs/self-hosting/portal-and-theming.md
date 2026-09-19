@@ -6,8 +6,9 @@ from, in the order the installer resolves it.
 
 The short version: **a fresh install already has a look.** The platform ships
 its own theme, so `npm install` on a scaffolded site produces a complete,
-rendered portal with no Gallery checkout, no sync step, no lock file and no
-network. Changing that look is a folder and one config field.
+portal appearance with no Gallery checkout, Gallery sync or Gallery lock.
+Installing dependencies still needs network access or a staged package cache.
+Changing appearance is a bundle and configuration change followed by a rebuild.
 
 Throughout this runbook a path written `./like-this` is relative to **your**
 front-end repository. An unprefixed path such as `web/themes/` is inside the
@@ -281,8 +282,8 @@ theme hooks — never by core reaching for a bundle by name.
 ## 5. Layout bundles
 
 `layout.defaultPreset` is an installed layout bundle id. The platform ships
-`standard`, `wide` and `compact` in `web/layouts/`; the Gallery publishes the
-same three, and an adopter layout uses the identical declarative contract —
+`standard`, `wide`, `compact` and `enterprise` in `web/layouts/`. The Gallery
+currently publishes the first three, and an adopter layout uses the identical declarative contract —
 `layout.json` plus `layout.css`, resolved by the same three rules as themes and
 hash-locked in the same file.
 
@@ -317,21 +318,24 @@ curriculum without modifying core files:
 
 ## 7. Running turnkey with Docker Compose
 
-The self-hosted stack lives in `self-host/` and brings up four services — the
-web portal, PostgreSQL, Keycloak for identity and SSO, and the platform API:
+The reference stack lives in `self-host/`. The basic profile starts PostgreSQL,
+Keycloak and the API. The web service is opt-in and builds from a separate
+scaffolded front-end checkout:
 
 ```bash
-cd self-host
-docker compose up -d
+cp self-host/.env.example self-host/.env
+# Configure secrets and origins in self-host/.env before starting.
+docker compose --env-file self-host/.env -f self-host/compose.yaml up --build -d
 ```
 
-- **Web portal**: `http://localhost:3000`
+- **Web portal**: served separately; use the documented optional web profile
 - **Platform API**: `http://localhost:8787`
 - **Identity & SSO (Keycloak)**: `http://localhost:8080`
 
-`compose.https.yaml` is the TLS-terminating variant; copy `env.https.example`
-alongside it. `self-host/compatibility.json` records the version matrix the
-stack is validated against.
+Use the [Compose runbook](docker-compose.md) for the web profile, TLS setup,
+identity provisioning and recovery checks. The HTTPS environment template is
+`self-host/env.https.example`. The compatibility manifest records the tested
+matrix and evaluation support level.
 
 ---
 
@@ -342,12 +346,14 @@ Project 42 is engineered with **zero external CDN dependencies**:
 - **Offline fonts** — embedded system font stacks; no font CDN.
 - **Embedded SVG icons** — all icons bundled into the templates.
 - **Bundled diagrams** — visual architecture guides render offline.
-- **Local progress** — zero-config mode stores learner progress in browser
-  `localStorage` when no platform API is reachable.
+- **Learning records** — durable progress requires the configured API, identity
+  provider and record store. Browser-local progress and its transfer flow are retired.
 
 Appearance is offline by construction too: the platform ships its bundles inside
 the package, and a Gallery bundle, once synced, lives in your repository under
-the lock. Nothing is fetched at render time.
+the lock. Theme assets are served locally. Stage packages, container images,
+curriculum and any media before disconnecting, and test with external networking
+disabled. External links and remote identity services still need connectivity.
 
 ---
 

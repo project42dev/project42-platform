@@ -7,7 +7,7 @@ export const releasesCopy = {
   eyebrow: "Releases",
   heading: "What shipped, and when.",
   lede:
-    "Every release of the public site, taken straight from the changelog in the repository. The versions below come from the tagged packages themselves, not from copy someone remembered to update.",
+    "Release entries come from the site changelog. The current versions below are generated from this deployment's package manifests and installed curriculum; platform updates can occur between named site releases.",
   versionsLabel: "Current {org} versions",
   versions: {
     site: "Site",

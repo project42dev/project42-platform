@@ -42,8 +42,7 @@ documentation moves faster than a standards framework. Anthropic and OpenAI
 platform documentation carry a 30-day cadence; the NIST AI Risk Management
 Framework carries 180.
 
-**Every module in the shipped curriculum cites its sources.** At the time of
-writing that is 88 of 88 modules. Citations are part of the module file, not a
+**Every module in the shipped curriculum cites its sources.** The deployed module total is published in the site's release facts. Citations are part of the module file, not a
 bibliography bolted on afterwards, and they name the publisher and the exact
 URL.
 

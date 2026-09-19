@@ -4,8 +4,8 @@ Project 42 Platform supports three independent vectors for keeping curriculum up
 
 ```text
                 ┌─────────────────────────────────┐
-                │ 1. Scheduled Weekly Cron        │
-                │    (Every Sunday 00:00 UTC)     │
+                │ 1. Scheduled Daily Check        │
+                │    (Daily 00:00 UTC)     │
                 └────────────────┬────────────────┘
                                  │
 ┌────────────────────────┐       │       ┌────────────────────────┐
@@ -15,15 +15,28 @@ Project 42 Platform supports three independent vectors for keeping curriculum up
                                  │
                                  ▼
                 ┌─────────────────────────────────┐
-                │ Content Sync & Deployment Engine│
+                │ Content Sync & Validation│
                 │  • Pulls project42-content      │
                 │  • Records the upstream commit  │
                 │  • Validates schemas & quizzes  │
-                │  • Builds static export bundle  │
-                │  • Deploys to configured target │
-                │  • Posts Deployment Summary     │
+                │  • Builds platform package  │
+                │  • Does not publish or deploy │
+                │  • Reports validation results     │
                 └─────────────────────────────────┘
 ```
+
+
+## Publication boundary
+
+Despite its historical name, the Content Sync & Deployment workflow validates
+in a temporary runner workspace. It does not commit the synchronized result,
+publish a platform release or deploy the public site. Its daily currency guard
+detects divergence from upstream. A green synchronization run is not evidence
+that the deployed portal has adopted that revision.
+
+Publication requires a reviewed synchronization commit, platform release,
+consumer dependency update, site validation and deployment. Adopters follow the
+same explicit build/release boundary for their own content overlays.
 
 ## What "upstream" means
 
@@ -51,16 +64,15 @@ fails the build.
 
 ## The 3 Sync Vectors
 
-### Vector 1: Scheduled Weekly Cron
-Runs automatically on Sundays at midnight UTC (`0 0 * * 0`) in GitHub Actions (`.github/workflows/content-sync.yml`).
+### Vector 1: Scheduled Daily Check
+Runs daily at midnight UTC (`0 0 * * *`) in GitHub Actions (`.github/workflows/content-sync.yml`).
 
 ### Vector 2: Manual UI Trigger
-Operators can trigger an instant content pull and build by clicking **Run workflow** under the **Content Sync & Deployment** tab in GitHub Actions.
+Operators can trigger a runner-local content pull and build by clicking **Run workflow** under the **Content Sync & Deployment** tab in GitHub Actions.
 
 ### Vector 3: Event-Driven Upstream Webhook
 When the upstream maintenance system finishes an authoring run, it dispatches a
-repository event (`content_updated`) to trigger immediate ingestion and
-deployment. This is the handoff point: that system's responsibility ends when it
+repository event (`content_updated`) to trigger runner-local synchronization and validation. This is the handoff point: that system's responsibility ends when it
 has dropped content into `project42-content` and fired this event. Everything
 after the event is this repository's job.
 

@@ -44,7 +44,7 @@ export const homeCopy = {
         "Checklists, explainers, provider maps, and decision tools with visible verification dates and sources.",
       resourcesSuffix: "starter resources",
       diagramsSuffix: "source-first visual guides",
-      extra: ["Anthropic, OpenAI, and Google coverage", "Provider-neutral core concepts"],
+      extra: ["Commercial APIs, open-weight and local models", "Provider-neutral core concepts"],
       link: "Open the Field Guide →",
     },
   },
@@ -63,7 +63,7 @@ export const homeCopy = {
     eyebrow: "Open Source & Self-Hosting",
     heading: "Run {org} Inside Your Organization",
     body:
-      "Deploy the complete, host-agnostic Project 42 platform in your own cloud, air-gapped intranet, or local server. Customize with your organization's branding, overlay internal courses, and sync with upstream curriculum updates.",
+      "Run Project 42 with the documented hosting profiles, your own identity service, site theme, and learner-record store. Overlay internal courses and review upstream updates before adoption. Disconnected deployments require you to stage dependencies, images, and media in advance.",
     platformLink: "View Open-Source Platform on GitHub →",
     platformHref: "https://github.com/project42dev/project42-platform",
     runbookLink: "Read Self-Hosting Runbook",

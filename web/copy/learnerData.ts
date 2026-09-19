@@ -60,7 +60,7 @@ export const learnerDataCopy = {
         number: "03",
         title: "Portable storage",
         body:
-          "The hosted profile uses Sites-managed D1. The supported self-host reference uses PostgreSQL under the same contract tests.",
+          "The hosted profile uses Cloudflare D1. The self-host reference uses PostgreSQL under the same learner-record contract tests.",
       },
     ],
   },

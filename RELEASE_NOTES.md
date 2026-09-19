@@ -1,3 +1,27 @@
+# Project 42 platform v0.117.2
+
+Repairs public information and operator documentation. The learner-data page now
+recognizes an API origin supplied in site configuration, matching sign-in behavior.
+Setup instructions build the content repository first and do not require Gallery.
+Courses, lessons, Field Guides and model/tool/concept learning material are unchanged.
+
+## Breaking changes
+
+None.
+
+## Migrations
+
+None. Adopters update the platform pin, materialise and rebuild.
+
+## Known limitations
+
+Reference self-host profiles remain evaluation profiles. Documentation does not
+claim that legal review, every video, or every deployment qualification is complete.
+
+## Rollback
+
+Restore the preceding platform pin and rebuild the site. No database change is involved.
+
 # Project 42 platform v0.117.1
 
 Adds the Enterprise workspace layout beside Standard, Compact and Wide. Visitors can choose a layout in the account menu; the correct bundle loads and the selection survives reload. The platform-owned portal-default now uses the Warm Campus palette without changing content or selecting a different layout.

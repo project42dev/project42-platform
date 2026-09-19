@@ -2,11 +2,12 @@
 
 **This is the one location for public Project 42 documentation.** It lives in
 `project42-platform` because that is the main open-source repository, and
-because the platform is already where content and contracts are canonical
-rather than copied between sites.
+because the platform owns reusable software and contracts. Canonical curriculum
+lives in `project42-content` and is distributed through the platform package.
 
-It is a location, not a website. Nothing here is published yet, and publishing
-is a separate decision.
+These public documents are published in this GitHub repository and linked from
+the portal's Platform & Docs page. There is no separate generated documentation
+website. Use the navigation below to find the current guide.
 
 ## Start here
 

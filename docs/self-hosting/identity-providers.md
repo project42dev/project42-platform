@@ -1,95 +1,33 @@
 # Configure an identity provider
 
-Project 42 delegates sign-in to an OpenID Connect (OIDC) provider. It never stores
-passwords. The application account is keyed by the token's immutable `iss` (issuer)
-and `sub` (subject) claims; email is contact and approval-policy data only.
+Reviewed against the current browser-session implementation on 2026-09-18.
 
-## Required provider capabilities
+Project 42 uses an API-owned OpenID Connect Authorization Code flow with S256
+PKCE. The public browser receives an opaque, host-only session cookie; provider
+tokens and client secrets do not belong in the browser. Accounts are keyed by
+immutable issuer and subject, never by email.
 
-Use a provider that supports:
+## Register and configure the provider
 
-- OIDC Authorization Code flow with PKCE for the browser client;
-- signed JWT access tokens for the Project 42 API;
-- a stable subject for the lifetime of an account;
-- an issuer, API audience, and HTTPS JSON Web Key Set (JWKS) endpoint;
-- short-lived access tokens; and
-- a trustworthy boolean claim indicating whether the primary email was verified.
+Register the API callback as `https://<api-host>/v1/auth/callback`. Configure the
+exact issuer, authorization/token/logout endpoints, client ID and redirect URI
+on the API. Store the client secret, if required, and session-encryption key in
+the secret manager. Follow [browser sessions](../browser-sessions.md) for the
+complete variables, signed-token requirements, origin policy and cookie rules.
 
-Do not configure implicit flow, password grant, client secrets in the browser, or
-email as the account identifier.
+The portal needs its API origin through `portal.apiOrigin` in
+`project42.config.json` or the build-time
+`NEXT_PUBLIC_PROJECT42_API_ORIGIN` override. It does not need a separate
+browser-owned OIDC client or a client secret.
 
-## API configuration
+The API also supports its documented bearer-token boundary for applicable
+clients. Do not confuse that configuration with the browser-session flow.
 
-The Worker reads the following non-secret values:
-
-| Variable | Purpose |
-|---|---|
-| `OIDC_ISSUER` | Exact accepted `iss` claim |
-| `OIDC_AUDIENCE` | Exact API audience |
-| `OIDC_JWKS_URL` | HTTPS signing-key endpoint |
-| `OIDC_EMAIL_CLAIM` | Claim containing the primary email |
-| `OIDC_EMAIL_VERIFIED_CLAIM` | Boolean verification claim |
-| `INSTALLATION_ID` | Stable identifier that scopes every record |
-| `ALLOWED_ORIGINS` | Comma-separated exact frontend origins |
-| `BOOTSTRAP_OWNER_ISSUER` | First owner's immutable issuer |
-| `BOOTSTRAP_OWNER_SUBJECT` | First owner's immutable subject |
-| `GITHUB_LINK_CLIENT_ID` | Optional GitHub App or OAuth App client ID for account linkage |
-| `GITHUB_LINK_REDIRECT_URI` | Exact Learn callback URL; its origin must be allowed |
-
-The public `wrangler.jsonc` and `.dev.vars.example` contain local placeholders.
-Keep real resource IDs in private deployment inventory and secrets in the platform
-secret manager. Store `GITHUB_LINK_CLIENT_SECRET` only as a Worker or platform
-secret.
-
-## Browser configuration
-
-The Learn client needs only public OIDC metadata:
-
-- authority/issuer;
-- client ID;
-- API audience and scope;
-- API origin; and
-- the exact Learn redirect and post-logout URLs.
-
-The client registration is public and uses PKCE. Do not create or embed a client
-secret.
-
-## Provider notes
-
-### Microsoft Entra External ID
-
-Create an external tenant and separate public browser/API registrations. Configure
-the browser registration for Authorization Code with PKCE, expose an API scope, and
-map a verified-email claim appropriate to the selected user flow. Use the tenant's
-exact issuer; do not accept common or multi-tenant issuer aliases.
-
-### Keycloak
-
-Create a realm, a public client for Learn, and a separate API audience/client.
-Disable direct-access grants, require PKCE, and verify that the access token includes
-the intended audience and a stable subject.
-
-The reference Compose `test` profile runs a real Keycloak authorization-code
-journey through the Project 42 callback. It creates an ephemeral verified test
-identity, proves S256 PKCE and nonce validation, resolves the server-side session,
-rotates it, signs out, and removes the provider identity. The test container uses
-only the private Compose network. It does not relax the product requirement that
-browser-session authorization, token, callback, and logout endpoints use HTTPS.
-
-### Authentik
-
-Create an OAuth2/OpenID provider and public application, require PKCE, and configure
-the API audience and email-verification property mapping. Keep signing-key rotation
-and the published JWKS endpoint enabled.
-
-### Okta or Auth0
-
-Create a single-page/public application and a custom authorization server or API
-audience. Require Authorization Code with PKCE. Confirm the access token—not only
-the ID token—contains the API audience and configured email-verification claim.
-
-Other conforming OIDC providers work when they satisfy the same contract. Provider
-names are examples, not hard-coded adapters.
+Use the [client provisioning contract](identity-client-provisioning.md) to
+create or validate the provider registration. Provider-specific setup must
+produce the same signed identity and verified-email claims. The reference
+Compose profiles use Keycloak; the hosted deployment is independently configured.
+Passing one provider's tests does not automatically qualify every OIDC provider.
 
 ## Sign-in conformance coverage
 

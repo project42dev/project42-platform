@@ -40,7 +40,7 @@ const themeBackground = themeManifest.tokens["--p42-bg"];
 const organizationName = portalConfig.organization.name;
 
 const hostedIdentityConfigured = Boolean(
-  process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN,
+  (process.env.NEXT_PUBLIC_PROJECT42_API_ORIGIN ?? portalConfig.portal.apiOrigin ?? "").trim(),
 );
 
 // Request the canonical form of a route. next.config.ts sets trailingSlash, so
@@ -130,7 +130,7 @@ test("renders canonical versions, counts, providers, licenses, and project links
   }
   assert.ok(
     html.includes(
-      `${releaseFacts.counts.providerImplementations} named provider implementations`,
+      `${releaseFacts.counts.providerImplementations} named provider tags`,
     ),
   );
   for (const provider of releaseFacts.providers) {
@@ -198,6 +198,10 @@ test("renders the learner-data disclosure and machine-readable policy", async ()
     hostedIdentityConfigured ? /Available/ : /Not enabled/,
     "the disclosure page must describe this build's real record capability",
   );
+  if (hostedIdentityConfigured) {
+    assert.doesNotMatch(html, /This deployment has not configured its account service/);
+    assert.match(html, /Approved accounts save progress/);
+  }
   assert.match(html, /email address is never your account key/i);
   assert.match(html, /Consent and choice/);
   assert.match(html, /Retention and recovery/);

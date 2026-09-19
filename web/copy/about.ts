@@ -20,25 +20,25 @@ export const aboutCopy = {
       number: "02",
       title: "Concepts before vendors",
       body:
-        "We teach ideas that transfer, then explain how Anthropic, OpenAI, Google, and other selected providers implement them.",
+        "We teach ideas that transfer across commercial APIs, open-weight models, and local tools. Compare providers and deployment options against the task, evidence, privacy needs, and operating cost.",
     },
     {
       number: "03",
       title: "Evidence before freshness claims",
       body:
-        "Volatile material carries sources and verification dates. Future automation will propose evidence-backed updates, never publish unchecked AI output.",
+        "Volatile material carries sources and verification dates. Scheduled maintenance checks discover gaps and propose corrections. Human review and release checks govern publication; a proposal is not a published update.",
     },
     {
       number: "04",
       title: "Hosted now, portable by design",
       body:
-        "Project42dev operates the first instance. The platform core and starter curriculum are open so teams can eventually run and extend their own.",
+        "Project42dev operates this instance. The open-source platform includes an adopter scaffold and reference deployment profiles so teams can run their own site, identity service, and learner-record store.",
     },
     {
       number: "05",
       title: "One course, two ways to take it",
       body:
-        "Every module can be read or watched. An instructor-led lesson is a second rendering of the same material, not a second course, so both carry the same knowledge check, cite the same sources, and land in the same record. A correction reaches the reader and the viewer together.",
+        "Written modules are available throughout the curriculum. Instructor-led video is available where media has been produced; scripts and transcripts do not mean a video is published. Both delivery modes use the same module objectives, knowledge check, sources, and learning record.",
     },
   ],
   facts: {
@@ -59,13 +59,13 @@ export const aboutCopy = {
       modules: "Assessed modules",
       activities: "Evidence activities",
       questions: "Reviewed questions",
-      providers: "Provider scopes",
+      providers: "Curriculum provider tags",
     },
     providerSection: {
-      eyebrow: "Coverage without tunnel vision",
-      heading: "Core ideas first, implementations second.",
+      eyebrow: "Curriculum metadata",
+      heading: "Provider tags in this release.",
       summarySuffix:
-        "named provider implementations sit beside a provider-neutral core.",
+        "named provider tags sit beside the provider-neutral tag. These catalogue tags are not a complete inventory of the models and tools discussed in the material.",
       coverageLabel: "Current provider coverage",
     },
     links: {
@@ -85,10 +85,10 @@ export const aboutCopy = {
     learnAction: "Start learning",
   },
   future: {
-    eyebrow: "Coming next",
+    eyebrow: "Run your own deployment",
     heading: "Deploy {org} for your own people—and keep it current.",
     body:
-      "{org} is becoming a complete, supported open-source distribution that organizations can run for their own employees, students, or communities. Local identity, branding, configuration, private learner records, and custom content stay under the operator's control while governed update previews make upstream software and curriculum improvements available without overwriting those local choices.",
+      "Organizations can scaffold and operate their own {org} deployment using the documented reference profiles. Identity, site configuration, themes, private learner records, and custom content stay under the operator's control. Upstream software and curriculum updates are versioned and reviewed before adoption. Production operations and support remain the operator's responsibility.",
     asideLabel: "How {org} is made",
     asideHeading: "AI learning, created and maintained with AI.",
     asideBody:

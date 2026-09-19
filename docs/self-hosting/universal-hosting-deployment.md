@@ -4,25 +4,12 @@ Project 42 separates the public portal, Gallery, Admin, API, identity provider,
 and durable record store. A static host can serve the public UI, but authenticated
 cloud progress and administration require the API and identity services.
 
-## Scope of this document, and what is missing
+## Adopter setup
 
-This page covers **running the stack**. It does not cover **becoming an
-adopter**, and as of 2026-09-05 nothing else does either.
-
-The intended adopter path is: clone or run something from this repository and
-receive two things — a working front end on the host of your choice, and your
-own content repository configured to stay current from
-`project42dev/project42-content`. Your content repository then feeds your front
-end by the same three vectors documented in
-[`../content-synchronization.md`](../content-synchronization.md), so an upstream
-curriculum update reaches your site the way it reaches ours.
-
-**That mechanism does not exist yet.** There is no scaffolding script in this
-repository, and no template for the front-end or content repositories it would
-produce. Until it does, an adopter has to assemble those by hand from the
-sections below, and keep their content current themselves.
-
-This section exists so the gap is recorded rather than discovered.
+The adopter CLI now creates both the front-end and its adjacent content
+repository. Follow [getting started](../getting-started.md) to build content
+before installing the front end. Shared application files are materialised
+from the platform release; the site owns configuration and branding.
 
 ## Required host map
 
@@ -56,12 +43,13 @@ deep-link behavior.
 ## Docker Compose
 
 ```bash
-cd self-host
-docker compose up -d
-docker compose ps
+cp self-host/.env.example self-host/.env
+# Configure secrets and origins first.
+docker compose --env-file self-host/.env -f self-host/compose.yaml up --build -d
+docker compose --env-file self-host/.env -f self-host/compose.yaml ps
 ```
 
-Use the Compose profile for evaluation and as a self-host reference. Before
+The basic profile starts API, PostgreSQL and Keycloak. The web service is opt-in and builds from a separate front-end checkout. Follow [the Compose runbook](docker-compose.md) for that profile and HTTPS setup. Before
 production, replace development secrets, pin images, configure backups, set
 exact canonical/API origins, provision TLS, and run the migration and recovery
 gates.
@@ -83,7 +71,7 @@ load authenticated account state.
 
 Verify `/`, `/learn`, `/guide`, `/profile`, representative dynamic routes,
 assets, redirects, canonical metadata, and the selected theme. Confirm the
-installed theme lock records the intended Gallery revision and hashes, and that
+installed Gallery lock, if used, records the intended revision and hashes, and that
 the configured layout bundle exists. Confirm Gallery
 works while signed out and Admin fails closed for signed-out, learner, pending,
 rejected, suspended, and revoked accounts.

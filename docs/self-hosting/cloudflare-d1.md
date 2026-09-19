@@ -8,7 +8,7 @@ public repository.
 
 ```bash
 npm ci
-copy .dev.vars.example .dev.vars
+cp .dev.vars.example .dev.vars
 npm run db:migrate:local
 npm run api:check
 npx wrangler dev
@@ -46,8 +46,9 @@ The migrations create tenant-scoped tables for:
   redaction during verified deletion.
 
 The Worker exposes learner consent, portable JSON export, and deletion controls
-under `/v1/me`. Export and deletion operations require an access token issued
-within the previous 15 minutes. Account deletion uses a seven-day cancellation
+under `/v1/me`. Sensitive export and deletion operations require recent
+authentication within the policy window; browser clients use the API-owned
+session, not a provider token stored in the browser. Account deletion uses a seven-day cancellation
 window and must be completed by an approved owner after the window closes.
 
 Profile fields are available at `/v1/me/profile`. A deployment may bind a private
