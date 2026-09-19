@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "a2d1784c956ea2cc29b92c18ca64ae930c7b9dff"
+    "commit": "cebb725abf86f5c73103ec084e15df1e8c792175"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -166,7 +166,7 @@
     "resources/model-provider-decisions/open-weight-model-adoption-gate.json": "ec4d14de936ee60a594b12eed4fa8d1ed54e873447978dc56d2b8b1dca38e5a2",
     "resources/model-provider-decisions/role-based-model-routing-evaluation.json": "bce5060ff2b3c136af097bcdcebba2541b737326cc6d1173bd391ec6cc7ce8cf",
     "resources/practical-workflow-recipes/bug-from-stack-trace-workflow.json": "dcc01d255843bde62c029dd9f81c70925f32c26a6618e3ef4f9c84fbe4a2713d",
-    "resources/practical-workflow-recipes/critic-loop-workflow.json": "4cf5b5e4c048a137d63383e2cb78caa42ee8ab31062195a742c434e52d5ce7e5",
+    "resources/practical-workflow-recipes/critic-loop-workflow.json": "5b6bb6e8817d8f6d50fa29b49481a301e4f94f69ce0acf7cd0563f09752fae74",
     "resources/practical-workflow-recipes/documentation-backfill-workflow.json": "a3d83c13525770062d22c7d90bd1ebe26c945aecd4229bf8f8dbd008c7610788",
     "resources/practical-workflow-recipes/legacy-codebase-refactor-workflow.json": "a155358efce30d466dfda8dc9cc3e015152eed1b8e4ec8ea0904d2f7925bc474",
     "resources/prompting-context/context-refresh-runbook.json": "66b499a497ee293be81fccc225510ce76230c474d7744ba2d788c68c19304de8",
