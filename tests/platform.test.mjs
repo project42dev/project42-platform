@@ -187,7 +187,32 @@ test("publishes six source-backed prompting and context field guides", () => {
     assert.ok(resource.audience.length > 0);
     assert.equal(resource.owner, "project42-editorial");
     assert.ok(resource.prerequisites);
-    assert.equal(resource.sections.length, 3);
+    assert.ok(resource.sections.length >= 3);
+
+    const sectionIds = resource.sections.map((section) => section.id);
+    assert.ok(
+      sectionIds.every(
+        (id) => typeof id === "string" && id.trim().length > 0,
+      ),
+      `${resource.id} must have nonempty section IDs`,
+    );
+    assert.equal(
+      new Set(sectionIds).size,
+      sectionIds.length,
+      `${resource.id} must have unique section IDs`,
+    );
+    assert.ok(
+      resource.sections.every(
+        (section) =>
+          Array.isArray(section.paragraphs) &&
+          section.paragraphs.length > 0 &&
+          section.paragraphs.every(
+            (paragraph) =>
+              typeof paragraph === "string" && paragraph.trim().length > 0,
+          ),
+      ),
+      `${resource.id} must have meaningful paragraph content in every section`,
+    );
     assert.ok(
       resource.sections.some((section) =>
         section.title.toLowerCase().includes("expected result and verification"),
