@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "f4b9a326f7f46ea6762d52d173bb47177bf8e8c1"
+    "commit": "62c6f74908d7757a408f60cd44806c7c02826696"
   },
   "contentVersion": "0.42.0",
   "files": {
-    "catalog.json": "3efff445d123d4baa8819cfeac53c55e61e15c6b331989b333c26dd3cbc0d51a",
+    "catalog.json": "da02e22e604ebed6996fcf34b6073b109fa0dde5b0ea7c3f9615b95a1281bbb6",
     "diagrams/agent-orchestration.mmd": "9c916bea4b29e448bceae7758d1fff3867c2e99da51b3e89237397c05c95c72a",
     "diagrams/catalogue.json": "c21969fe08a95809a828aa5bacad3754c3f542b294fcf86df5c6dcad8a6f60d0",
     "diagrams/content-freshness-release.mmd": "e2ffa6894a362a2ce0e76506c9c94ea7afed095938a59619967ef41436eb3485",
@@ -14,6 +14,7 @@
     "diagrams/grounded-answer-workflow.mmd": "695373c14bff83c3868c7a5de4bf01ac7526fbf638add2cbc194e95913f7a65f",
     "diagrams/learning-evidence-loop.mmd": "bb7320b9964e2fac205eb30ebda50d9078a9abdfda571e41c7775f9b7088c63c",
     "diagrams/lessons/learning-evidence-loop.json": "e0fc7e576813a3d9413acfad58451332fd94cacc733ccafe72d97975073306e4",
+    "diagrams/lessons/safe-agent-loop.json": "ff842862caf852619899ccd176361b849e999263859515cce56f14a079f025c4",
     "diagrams/multi-agent-handoff.mmd": "4656b3b0f5a5e871cd1c944a180c57caef1da8f5764c93556d47776759504eb8",
     "diagrams/orchard-lifecycle.mmd": "532337a36b5a5b189f509cf6349054f1c304420e4bda5b0dc658ba66213702e3",
     "diagrams/prompt-contract.mmd": "b9363b897918e4dbf1754d38ce7d190f719a7a74cade87d3e4dc6fe7c141b9bd",

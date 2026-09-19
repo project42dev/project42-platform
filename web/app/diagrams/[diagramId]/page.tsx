@@ -3,9 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LearningEvidenceLesson } from "../../components/LearningEvidenceLesson";
 import type { LearningEvidenceLessonContent } from "../../components/LearningEvidenceLesson";
+import { SafeAgentLesson } from "../../components/SafeAgentLesson";
+import type { SafeAgentLessonContent } from "../../components/SafeAgentLesson";
 import { InteractiveDiagramClient } from "../../components/InteractiveDiagramClient";
 import { OrchardLifecycleDiagramClient } from "../../components/OrchardLifecycleDiagramClient";
 import learningEvidenceLessonJSON from "@project42/platform/content/diagrams/lessons/learning-evidence-loop.json";
+import safeAgentLessonJSON from "@project42/platform/content/diagrams/lessons/safe-agent-loop.json";
 import { diagramCatalog, getDiagram } from "../../lib/diagrams";
 import { getDiagramSteps } from "../../lib/diagramSteps";
 
@@ -43,8 +46,11 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
   if (!diagram) notFound();
 
   const isLearningEvidenceLoop = diagramId === LEARNING_EVIDENCE_LOOP_ID;
+  const isSafeAgentLoop = diagramId === "safe-agent-loop";
+  const isNativeLesson = isLearningEvidenceLoop || isSafeAgentLoop;
+  const safeAgentLesson = safeAgentLessonJSON as SafeAgentLessonContent;
   const lesson = learningEvidenceLessonJSON as LearningEvidenceLessonContent;
-  const steps = isLearningEvidenceLoop ? [] : getDiagramSteps(diagramId);
+  const steps = isNativeLesson ? [] : getDiagramSteps(diagramId);
   const position = diagramCatalog.findIndex((entry) => entry.id === diagram.id);
   const previousDiagram = position > 0 ? diagramCatalog[position - 1] : undefined;
   const nextDiagram =
@@ -64,7 +70,7 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
           <h1>{diagram.title}</h1>
           <p>{diagram.summary}</p>
         </div>
-        {isLearningEvidenceLoop ? (
+        {isNativeLesson ? (
           <div className="diagram-source-card">
             <span>Interactive lesson</span>
           </div>
@@ -88,7 +94,9 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
 
       <figure className="diagram-figure">
         <div className="diagram-canvas">
-          {isLearningEvidenceLoop ? (
+          {isSafeAgentLoop ? (
+            <><span className="visually-hidden">{safeAgentLesson.altText}</span><SafeAgentLesson data={safeAgentLesson} /></>
+          ) : isLearningEvidenceLoop ? (
             <><span className="visually-hidden">{lesson.altText}</span><LearningEvidenceLesson data={lesson} /></>
           ) : REACT_DIAGRAM_IDS.has(diagram.id) ? (
             <>
@@ -112,10 +120,10 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
             />
           )}
         </div>
-        <figcaption>{isLearningEvidenceLoop ? lesson.caption : diagram.caption}</figcaption>
+        <figcaption>{isSafeAgentLoop ? safeAgentLesson.caption : isLearningEvidenceLoop ? lesson.caption : diagram.caption}</figcaption>
       </figure>
 
-      {!isLearningEvidenceLoop && (
+      {!isNativeLesson && (
         <div className="diagram-explanation-grid">
           <section aria-labelledby="diagram-explanation">
             <p className="eyebrow">Read the visual</p>
