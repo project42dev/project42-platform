@@ -2071,7 +2071,8 @@ test("catalog validation catches broken references and unsafe source metadata", 
   broken.paths[0].moduleIds.push("missing-module");
   whatAiDoes.providers = [];
   whatAiDoes.sources[0].url = "http://example.com/source";
-  whatAiDoes.sections.push(structuredClone(whatAiDoes.sections[0]));
+  const duplicatedSection = structuredClone(whatAiDoes.sections[0]);
+  whatAiDoes.sections.push(duplicatedSection);
   whatAiDoes.prerequisites = ["prompt-with-purpose"];
   broken.resources[0].lastVerified = "next Thursday";
   promptWithPurpose.prerequisites = ["what-ai-does"];
@@ -2096,7 +2097,7 @@ test("catalog validation catches broken references and unsafe source metadata", 
   );
   assert.ok(
     validation.errors.includes(
-      "Module what-ai-does has duplicate section id ai-mental-model",
+      `Module what-ai-does has duplicate section id ${duplicatedSection.id}`,
     ),
   );
   assert.ok(

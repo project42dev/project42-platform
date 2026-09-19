@@ -356,19 +356,32 @@ test("publishes the evidence-aware What AI Does opening class", () => {
       (contribution) => contribution.status === "planned",
     ),
   );
-  assert.ok(
-    script.segments.some(
-      (segment) =>
-        segment.kind === "checkpoint" &&
-        segment.id === "current-policy-checkpoint",
-    ),
+  const activityCheckpointIndex = script.segments.findIndex(
+    (segment) =>
+      segment.kind === "checkpoint" &&
+      segment.learningHandoff?.command === "open-activity" &&
+      segment.learningHandoff?.activityId === module.activity.id &&
+      segment.learningHandoff?.activityId === "activity-ai-evidence-boundary-check" &&
+      segment.expectedLearnerAction.includes("governing source") &&
+      segment.expectedLearnerAction.includes("exactly two sentences"),
   );
-  assert.ok(
-    script.segments.some(
+  assert.notEqual(activityCheckpointIndex, -1);
+  const subsequentFeedback = script.segments
+    .slice(activityCheckpointIndex + 1)
+    .find(
       (segment) =>
         segment.kind === "feedback" &&
-        segment.feedback?.retry.includes("current effective policy"),
-    ),
+        segment.spokenText.includes("Library laptops will be provided") &&
+        segment.spokenText.includes("current notice") &&
+        segment.spokenText.includes("seven-day value") &&
+        segment.spokenText.includes("five roles"),
+    );
+  assert.ok(subsequentFeedback);
+  assert.ok(
+    subsequentFeedback.feedback?.retry.includes("7 midnight-to-midnight transitions"),
+  );
+  assert.ok(
+    subsequentFeedback.feedback?.retry.includes("8 inclusive calendar-date labels"),
   );
 });
 
