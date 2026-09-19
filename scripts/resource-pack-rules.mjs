@@ -25,12 +25,25 @@ export function findUnsafeArtifactCommands(resource) {
 }
 
 export function hasVerificationGuidance(resource) {
-  const acceptance = resource.sections.find((section) =>
-    /^Expected (result|evidence) and verification$/i.test(section.title),
+  const acceptance = resource.sections.find(
+    (section) =>
+      section.id === "expected-result-and-verification" ||
+      /^Expected (result|evidence) and verification$/i.test(section.title),
   );
   if (!acceptance) return false;
-  return /\bverif(?:y|ication|ied)\b/i.test(
-    [acceptance.title, ...acceptance.paragraphs].join("\n"),
+  const paragraphs = acceptance.paragraphs.filter((paragraph) =>
+    paragraph.trim(),
+  );
+  if (paragraphs.length === 0) return false;
+  const guidanceText = paragraphs.join("\n");
+  const substantiveText = guidanceText
+    .replace(/\bverif(?:y|ication|ied)\b/gi, "")
+    .trim();
+  return (
+    substantiveText.length > 0 &&
+    /\bverif(?:y|ication|ied)\b/i.test(
+      [acceptance.title, ...paragraphs].join("\n"),
+    )
   );
 }
 
