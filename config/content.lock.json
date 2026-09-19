@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "8693cf06a01cbdcae3cc5fcdca5e1b50ff0bbe3d"
+    "commit": "5e904a28cf207bb6dd714fb73c5d5f0a5bbc3040"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -47,7 +47,7 @@
     "modules/ai-foundations/verification-and-iterative-improvement.json": "23244d22bcba2c4ef7fb0b5f8dae5ff4fc5ccfcb156df3b707dd993c5b257165",
     "modules/ai-foundations/what-ai-does.json": "3f5e4a3a8094518502a0cb7653733a412444b1e518c98dd1c22e54c284260280",
     "modules/ai-foundations/writing-and-transformation-workflow.json": "c3bf0da5dfbec96f918479fd4130c4ec0f15ea2002ccfa92b1983cbb00b55db4",
-    "modules/ai-literacy-and-mental-models/ai-mental-models.json": "4fe4aa1420bf85293f5c91049a453fe09084256297bf51f3b14ac4601783263d",
+    "modules/ai-literacy-and-mental-models/ai-mental-models.json": "5c50fbd3746e201c9859b0262d680a04b90dbae6a2d7b515969c0259e657b52f",
     "modules/ai-literacy-and-mental-models/prompt-architecture.json": "b455df1388603e1e686e81802cfd7833a107a20fe3ff1f428bc2675ea06c6853",
     "modules/ai-literacy-and-mental-models/token-economics-and-limits.json": "89e7a99afe4bb557887f1c9a3d1bd33168fc375b31bcbbc66a2f37b348b31d27",
     "modules/ai-security-and-governance/ai-compliance-and-crypto-receipts.json": "4cb41019cc52b67098763be2cd9c7d8e2e9e59a542ef32c66972747f5feac254",
@@ -126,11 +126,11 @@
     "resource-packs/setup-quick-reference.json": "c121da1c7f4cbfe3dcccd6f37d961cb02d11ae211c1b541817404487b8de558f",
     "resource-packs/troubleshooting-operations-playbooks.json": "8753e90f52f9580c751f433aac6124f4f2a2083adb0e3f58aa681fedd4af31ce",
     "resources/ai-service-operations/ai-gateway-vs-direct-provider-decision.json": "b3014756e2cc6bba165a38871f4c7868fd1564fe0f7045d70dcdc29e2a366586",
-    "resources/ai-service-operations/ai-service-authentication-and-billing-readiness.json": "a76e996975fb7a5104ae04a6f0b4d4e72b37cb42ee2df82ba8f3c26396ffbf4d",
+    "resources/ai-service-operations/ai-service-authentication-and-billing-readiness.json": "bcf9914a546e475189ab42257c69ebe430e8f5c1178bd2977847c336ec0d391d",
     "resources/ai-service-operations/generative-ai-cost-control-runbook.json": "498489e346726d18102c75e957446782f9d988db78a3393b3e6ee7c1eafafd74",
-    "resources/ai-service-operations/observability-platform-selection-guide.json": "23976b8be8d171810867b8541a36dd56ba78d6981692d766d0a4690b3486ec3a",
-    "resources/coding-agents/ai-assisted-code-review-checklist.json": "2f7a4803f081fc76c7d072ccd0e6303cd09d2ff2ce041fe6a877764a1bd2a8d2",
-    "resources/coding-agents/coding-agent-permission-boundaries.json": "111785c54dba200c7ebfdbfff5b8115cee591336cdf2eed1d2334e9e2f6245c4",
+    "resources/ai-service-operations/observability-platform-selection-guide.json": "bf2c2cd8800d7781d8c55594de2cd5ffa86452cf1955cf8e2a14d953031074e4",
+    "resources/coding-agents/ai-assisted-code-review-checklist.json": "f459a3bff2ca099102767969c5e574de0b996a71e2f596fef6fa1f684aa17cf4",
+    "resources/coding-agents/coding-agent-permission-boundaries.json": "60a815bf9602c0d5fe0c11de3daab6c84d3a3d5d973c9472065ca7cf653c3d7d",
     "resources/coding-agents/coding-agent-work-plan-template.json": "c1d977baf69617b0cc6e184450675b40a373775d7158a1d8d4fa3a070d6b96dd",
     "resources/coding-agents/implementation-evidence-loop.json": "c2312d70a6296c58554c8757030e43f6860e18cd2c3b7a86a17e0a5872157f78",
     "resources/coding-agents/repository-orientation-checklist.json": "7eb94f35bdd2e0ef4664474bf40cacbcbf0235a71e8173026fa0c22e3836f3a5",
@@ -209,7 +209,7 @@
     "resources/troubleshooting-operations/ai-incident-triage.json": "ddd20d798b6fce485908d86f9d74105911fde630edc62104b0df5d12d454242f",
     "resources/troubleshooting-operations/ai-rollback-and-incident-closeout.json": "5e310a16ddf77d95f9203ea9f22714ceecb115790c5e9e9e2b1be27b513925cf",
     "resources/troubleshooting-operations/context-quality-regression-triage.json": "8c9ed52fb8b5c571db21ed5e0b1b423766fd26d55d0fc7d371cf13ddcad1f27d",
-    "source-registry.json": "d203fa526923e7213b206538afcb9280454ff41c288f1e9259a009f5f467b2c2",
+    "source-registry.json": "4dfd14cc2104f1c4f5399b6fe4f07c8247633c76d5e60ce23947a926eca51847",
     "training/agentic-ai-literacy/delivery-contract.json": "02aa762a549b3926d07e1b9a5d64c811b32f2369e19c36f6769fd9a2798df1e3",
     "training/ai-foundations/agents-and-guardrails/alternatives/en-US-reduced-motion.md": "5d86cf5e12257f455c42d5081608e5e300645587e325e8f91ea33c7feedd1e07",
     "training/ai-foundations/agents-and-guardrails/alternatives/en-US-text-only.md": "439c140da891fcddd20c70d69dbb2f174a19402315bf6bd0beef0957a21c8307",

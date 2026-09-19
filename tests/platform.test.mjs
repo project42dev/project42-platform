@@ -411,39 +411,138 @@ test("research guides distinguish evidence from unsupported confidence", () => {
 
 test("publishes six source-backed AI coding-agent field guides", () => {
   const expected = new Map([
-    ["repository-orientation-checklist", "checklist"],
-    ["coding-agent-work-plan-template", "template"],
-    ["coding-agent-permission-boundaries", "decision-path"],
-    ["implementation-evidence-loop", "playbook"],
-    ["ai-assisted-code-review-checklist", "checklist"],
-    ["test-debug-handoff", "template"],
+    ["repository-orientation-checklist", {
+      format: "checklist",
+      sectionIds: ["establish-authority", "map-the-system", "verify-orientation"],
+      sourceUrls: [
+        "https://learn.chatgpt.com/docs/agent-configuration/agents-md",
+        "https://code.claude.com/docs/en/memory",
+        "https://geminicli.com/docs/cli/gemini-md/",
+      ],
+    }],
+    ["coding-agent-work-plan-template", {
+      format: "template",
+      sectionIds: ["plan-from-outcomes", "record-work-plan", "verify-plan"],
+      sourceUrls: [
+        "https://geminicli.com/docs/cli/plan-mode/",
+        "https://learn.chatgpt.com/docs/agent-configuration/agents-md",
+        "https://csrc.nist.gov/pubs/sp/800/218/final",
+      ],
+    }],
+    ["coding-agent-permission-boundaries", {
+      format: "decision-path",
+      sectionIds: ["classify-actions", "record-boundary", "verify-boundary"],
+      sourceUrls: [
+        "https://code.claude.com/docs/en/permissions",
+        "https://learn.chatgpt.com/docs/agent-approvals-security",
+        "https://geminicli.com/docs/cli/trusted-folders/",
+      ],
+    }],
+    ["implementation-evidence-loop", {
+      format: "playbook",
+      sectionIds: ["work-in-evidence-loops", "record-evidence-loop", "verify-implementation"],
+      sourceUrls: [
+        "https://csrc.nist.gov/pubs/sp/800/218/final",
+        "https://docs.github.com/en/pull-requests/get-started/about-pull-requests",
+        "https://learn.chatgpt.com/docs/agent-approvals-security",
+      ],
+    }],
+    ["ai-assisted-code-review-checklist", {
+      format: "checklist",
+      sectionIds: ["review-the-change", "record-review", "verify-review"],
+      sourceUrls: [
+        "https://docs.github.com/en/pull-requests/reference/pull-request-reviews?apiVersion=2022-11-28",
+        "https://code.claude.com/docs/en/code-review",
+        "https://csrc.nist.gov/pubs/sp/800/218/final",
+      ],
+    }],
+    ["test-debug-handoff", {
+      format: "template",
+      sectionIds: ["stabilize-the-handoff", "record-handoff", "verify-handoff"],
+      sourceUrls: [
+        "https://csrc.nist.gov/pubs/sp/800/218/final",
+        "https://docs.github.com/en/pull-requests/get-started/about-pull-requests",
+        "https://geminicli.com/docs/reference/tools/",
+      ],
+    }],
   ]);
-  const resources = starterCatalog.resources.filter((resource) =>
-    expected.has(resource.id),
-  );
 
+  const resources = starterCatalog.resources.filter((resource) => expected.has(resource.id));
   assert.ok(starterCatalog.resources.length >= 24);
-  assert.equal(resources.length, expected.size);
+  assert.equal(resources.length, 6);
+  assert.equal(new Set(resources.map((resource) => resource.id)).size, 6);
+  assert.deepEqual(new Set(resources.map((resource) => resource.id)), new Set(expected.keys()));
+
+  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+  const isValidDate = (value) => {
+    if (typeof value !== "string" || !datePattern.test(value)) return false;
+    const [year, month, day] = value.split("-").map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    return date.getUTCFullYear() === year &&
+      date.getUTCMonth() === month - 1 &&
+      date.getUTCDate() === day;
+  };
+
   for (const resource of resources) {
-    assert.equal(resource.format, expected.get(resource.id));
+    const contract = expected.get(resource.id);
+    assert.equal(resource.format, contract.format);
+    assert.ok(Array.isArray(resource.providers));
     assert.ok(resource.providers.includes("provider-neutral"));
+    assert.ok(Array.isArray(resource.prerequisites));
     assert.ok(resource.prerequisites.length > 0);
     assert.equal(resource.owner, "project42-editorial");
-    assert.equal(resource.sections.length, 3);
-    assert.ok(
-      resource.sections.some((section) =>
-        section.title.toLowerCase().includes("expected evidence"),
-      ),
-      `${resource.id} must define expected evidence`,
-    );
-    assert.ok(
-      resource.sections.some((section) => section.code?.code.includes("[")),
-      `${resource.id} must include a safe reusable record`,
-    );
-    assert.equal(resource.sources.length, 3);
-    assert.ok(
-      resource.sources.every((source) => /^\d{4}-\d{2}-\d{2}$/.test(source.lastVerified)),
-    );
+    assert.ok(Array.isArray(resource.sections));
+    assert.ok(resource.sections.length >= contract.sectionIds.length);
+
+    const resourceSectionIds = new Set(resource.sections.map((section) => section.id));
+    assert.equal(resourceSectionIds.size, resource.sections.length, `${resource.id} has duplicate section IDs`);
+    for (const sectionId of contract.sectionIds) {
+      assert.ok(resourceSectionIds.has(sectionId), `${resource.id} is missing original section ${sectionId}`);
+    }
+
+    let hasExpectedEvidenceGuidance = false;
+    let hasSafeReusableRecord = false;
+    for (const section of resource.sections) {
+      assert.equal(typeof section.id, "string");
+      assert.ok(section.id.trim().length > 0);
+      assert.equal(typeof section.title, "string");
+      assert.ok(section.title.trim().length > 0);
+      assert.ok(Array.isArray(section.paragraphs));
+      assert.ok(section.paragraphs.length > 0, `${resource.id}/${section.id} needs explanatory paragraphs`);
+      for (const paragraph of section.paragraphs) {
+        assert.equal(typeof paragraph, "string");
+        assert.ok(paragraph.trim().length > 0, `${resource.id}/${section.id} has an empty paragraph`);
+      }
+
+      const paragraphText = section.paragraphs.join(" ").toLowerCase();
+      if ((section.title + " " + paragraphText).toLowerCase().includes("expected evidence")) {
+        hasExpectedEvidenceGuidance = true;
+      }
+      if (section.code != null) {
+        assert.equal(typeof section.code.code, "string", `${resource.id}/${section.id} has an invalid code block`);
+        assert.ok(section.code.code.trim().length > 0, `${resource.id}/${section.id} has an empty code block`);
+        if (section.code.code.includes("[") && section.code.code.includes("]")) {
+          hasSafeReusableRecord = true;
+        }
+      }
+    }
+    assert.ok(hasExpectedEvidenceGuidance, `${resource.id} must provide expected-evidence guidance`);
+    assert.ok(hasSafeReusableRecord, `${resource.id} must include a safe reusable record`);
+
+    assert.ok(Array.isArray(resource.sources));
+    assert.ok(resource.sources.length >= contract.sourceUrls.length);
+    const sourceUrls = resource.sources.map((source) => source.url);
+    assert.equal(new Set(sourceUrls).size, sourceUrls.length, `${resource.id} has duplicate source URLs`);
+    for (const sourceUrl of contract.sourceUrls) {
+      assert.ok(sourceUrls.includes(sourceUrl), `${resource.id} must preserve source ${sourceUrl}`);
+    }
+    for (const source of resource.sources) {
+      assert.equal(typeof source.url, "string");
+      assert.ok(source.url.startsWith("https://"), `${resource.id} citations must use HTTPS`);
+      assert.doesNotThrow(() => new URL(source.url));
+      assert.ok(isValidDate(source.lastVerified), `${resource.id} citations must have a valid dated lastVerified value`);
+    }
   }
 });
 
