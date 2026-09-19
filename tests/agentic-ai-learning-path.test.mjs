@@ -17,6 +17,13 @@ const contract = JSON.parse(
 );
 const modules = new Map(catalog.modules.map((entry) => [entry.id, entry]));
 const path = catalog.paths.find((entry) => entry.id === "agentic-ai-literacy");
+const requiredSections = {
+  "agentic-ai-layers": ["layers-model", "layers-product-terms", "layers-evidence", "layers-unknown"],
+  "agentic-control-flow": ["control-one-call", "control-workflow", "control-agent", "control-multi"],
+  "agentic-tools-state-authority": ["authority-tools", "authority-state", "authority-human", "authority-recovery"],
+  "agentic-product-comparison": ["comparison-unit", "comparison-evidence", "comparison-families", "comparison-freshness"],
+  "agentic-classification-capstone": ["capstone-scope", "capstone-evidence", "capstone-compare", "capstone-review"],
+};
 
 test("publishes the complete five-stage agentic-AI learning path", () => {
   assert.ok(path);
@@ -39,7 +46,18 @@ test("connects every module through one prerequisite chain", () => {
   for (const [index, id] of path.moduleIds.entries()) {
     const module = modules.get(id);
     assert.ok(module, `${id} must exist`);
-    assert.equal(module.sections.length, 4);
+    const sectionIds = new Set(module.sections.map((section) => section.id));
+    assert.equal(sectionIds.size, module.sections.length, `${id} section IDs must be unique`);
+    for (const sectionId of requiredSections[id]) {
+      assert.ok(sectionIds.has(sectionId), `${id} must retain ${sectionId}`);
+    }
+    for (const section of module.sections) {
+      assert.ok(section.paragraphs.some((text) => text.trim()), `${section.id} needs teaching text`);
+      assert.ok(
+        module.instructorScript.cues.some((cue) => cue.kind === "narration" && cue.sectionId === section.id),
+        `${section.id} needs instructor narration`,
+      );
+    }
     assert.ok(module.objectives.length >= 4);
     assert.ok(module.activity?.instructions.length >= 4);
     assert.ok(module.activity?.evidence.length >= 2);
