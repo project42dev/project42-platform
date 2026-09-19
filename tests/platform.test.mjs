@@ -335,6 +335,48 @@ test("publishes five source-backed research and verification field guides", () =
     ["fact-verification-workflow", "playbook"],
     ["consequence-based-review-gate", "decision-path"],
   ]);
+  const originalContracts = {
+  "source-authority-ladder": {
+    "sectionIds": [
+      "rank-for-the-claim",
+      "record-source-decision",
+      "verify-source-set"
+    ],
+    "template": "Claim: [ONE MATERIAL CLAIM]\nSource: [TITLE AND URL OR SAFE INTERNAL ID]\nOwner or issuer: [ORGANIZATION]\nSource type: [PRIMARY | SECONDARY | AGGREGATOR]\nDirectness: [DIRECTLY STATES | SUPPORTS INFERENCE | BACKGROUND ONLY]\nScope: [PRODUCT, VERSION, REGION, POPULATION]\nPublished or updated: [DATE IF AVAILABLE]\nVerified on: [YYYY-MM-DD]\nIndependence: [INTEREST OR CONFLICT TO CONSIDER]\nDecision: [USE | CORROBORATE | BACKGROUND | REJECT]\nReason: [WHY THIS SOURCE FITS THIS CLAIM]"
+  },
+  "claim-decomposition-map": {
+    "sectionIds": [
+      "separate-claim-types",
+      "build-claim-map",
+      "verify-claim-map"
+    ],
+    "template": "Claim ID: [C-001]\nAtomic claim: [ONE CHECKABLE STATEMENT]\nType: [FACT | DEFINITION | COMPARISON | CAUSAL | PREDICTION | RECOMMENDATION | VALUE]\nScope: [WHO, WHAT, WHEN, WHERE, VERSION]\nMateriality: [LOW | MEDIUM | HIGH]\nEvidence needed: [OWNER DOC | DATA | EXPERIMENT | MULTIPLE SOURCES | EXPERT REVIEW]\nSource or evidence ID: [URL OR SAFE ID]\nSupport: [DIRECT | INFERRED | CONTRADICTED | UNKNOWN]\nConfidence and reason: [CALIBRATED STATEMENT]\nDepends on: [OTHER CLAIM IDS]\nDisposition: [KEEP | QUALIFY | REMOVE | ESCALATE]"
+  },
+  "citation-support-checklist": {
+    "sectionIds": [
+      "check-four-layers",
+      "run-citation-audit",
+      "verify-citation-set"
+    ],
+    "template": "Claim ID: [C-001]\nCitation: [URL OR SAFE SOURCE ID]\nResolves: [YES | NO]\nIdentity matches: [TITLE, PUBLISHER, VERSION, DATE]\nSupporting passage: [SAFE QUOTE LOCATION OR SECTION]\nSupport strength: [DIRECT | PARTIAL | BACKGROUND | CONTRADICTS]\nScope matches: [YES | QUALIFICATION NEEDED]\nPlacement unambiguous: [YES | NO]\nAccessible alternative: [HTML OR TEXT AVAILABLE]\nAction: [KEEP | REPLACE | QUALIFY | REMOVE]"
+  },
+  "fact-verification-workflow": {
+    "sectionIds": [
+      "verify-in-bounded-steps",
+      "record-verification",
+      "verify-the-verification"
+    ],
+    "template": "Claim: [ATOMIC CLAIM]\nAs of: [YYYY-MM-DD]\nConsequence if wrong: [LOW | MEDIUM | HIGH]\nConfirming evidence: [SOURCE OR TEST ID]\nContradicting evidence sought: [QUERY OR SOURCE]\nReproduction: [VERSION, CONFIGURATION, INPUT CLASS, STEPS]\nCalculation: [FORMULA, UNITS, DENOMINATOR]\nObserved result: [SAFE RESULT]\nInference: [WHAT FOLLOWS AND WHAT DOES NOT]\nConfidence: [HIGH | MEDIUM | LOW WITH REASON]\nDisposition: [CONFIRMED | QUALIFIED | DISPROVED | UNKNOWN]\nReviewer and date: [OWNER, YYYY-MM-DD]"
+  },
+  "consequence-based-review-gate": {
+    "sectionIds": [
+      "classify-consequence",
+      "complete-review-gate",
+      "verify-gate"
+    ],
+    "template": "Output or action: [WHAT WILL BE USED OR DONE]\nAffected people and systems: [SCOPE]\nCredible harms: [SAFETY, RIGHTS, PRIVACY, MONEY, OPERATIONS, SECURITY]\nReversibility and recovery time: [ASSESSMENT]\nConsequence level: [LOW | MODERATE | HIGH]\nRequired evidence: [SOURCES, TESTS, REPRODUCTION]\nRequired reviewer: [PEER | DOMAIN EXPERT | SECURITY | LEGAL | OWNER]\nApproval before action: [ROLE OR NONE]\nExecution boundary: [READ-ONLY | REVERSIBLE | PRIVILEGED | EXTERNAL]\nMonitoring and stop signal: [OBSERVABLE CONDITION]\nRollback or recovery: [TESTED PROCEDURE]\nDecision: [APPROVE | REVISE | REJECT | ESCALATE]"
+  }
+};
   const resources = starterCatalog.resources.filter((resource) =>
     expected.has(resource.id),
   );
@@ -346,7 +388,11 @@ test("publishes five source-backed research and verification field guides", () =
     assert.ok(resource.providers.includes("provider-neutral"));
     assert.ok(resource.prerequisites.length > 0);
     assert.equal(resource.owner, "project42-editorial");
-    assert.equal(resource.sections.length, 3);
+    const contract = originalContracts[resource.id];
+    const sectionIds = new Set(resource.sections.map((section) => section.id));
+    assert.equal(sectionIds.size, resource.sections.length, resource.id + " has duplicate sections");
+    for (const id of contract.sectionIds) assert.ok(sectionIds.has(id), resource.id + " lost section " + id);
+    assert.ok(resource.sections.some((section) => section.code?.code.includes(contract.template)), resource.id + " lost original reusable template");
     assert.ok(
       resource.sections.some((section) =>
         section.title.toLowerCase().includes("expected evidence"),
