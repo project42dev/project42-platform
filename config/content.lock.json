@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "db3eff57c695461326a484cb5b7f5ea0c2ab5725"
+    "commit": "76f263302482420cc677a706556bb62d43420dc1"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -188,7 +188,7 @@
     "resources/provider-workflows/openai-tools-structured-output.json": "72c137dc4f3025668880f9ce08988c339bae1c9bc7bb498b11e7604ac7aaae9d",
     "resources/research-verification/citation-support-checklist.json": "6208e6f0b2c70431b213b8572b148b8af2fcc6c661bcbe986f40e029cd70b403",
     "resources/research-verification/claim-decomposition-map.json": "e188fa0cb76dc91c5af24fc0dbb3dd257b8f4a3cf3fc301806786de0cbc9d6c2",
-    "resources/research-verification/consequence-based-review-gate.json": "a7db05a7afd35e0e79e90d39b2f9baed2e0fbf837532bcadf67eb373b6a6a3a3",
+    "resources/research-verification/consequence-based-review-gate.json": "05f7bbeb3927e94fa38a096864b2d09fe5c3703ec3b33d5717bab0c6a72dceba",
     "resources/research-verification/fact-verification-workflow.json": "5aac78e618c9fa6699db96b8f0dd870dec8b4217eefc003951eb751360b66c1a",
     "resources/research-verification/source-authority-ladder.json": "c889c69d4fc94224565e5734a799795aed719f8ddd8e4ea48629e05035bac0f3",
     "resources/self-hosted-model-operations/cloud-managed-model-compute-runbook.json": "c40f1fb4ced84cce366b2f24ea3f48da1df6f37a532ce7c0d865c9b9c33da600",
