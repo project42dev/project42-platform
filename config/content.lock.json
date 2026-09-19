@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "9957a61d4e1fce4d6a8ada3318544b81782408df"
+    "commit": "662a289cd71d435fcdd620249e6ef63820efa487"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -26,7 +26,7 @@
     "modules/agentic-ai-literacy/agentic-classification-capstone.json": "fdd4e8ddbfcd05781d6986c14cb544ad1eb2e1af85d284c221a6de3b732fab89",
     "modules/agentic-ai-literacy/agentic-control-flow.json": "1f36268ab448d8d7f6f120923283730e9730830967f666bbbbdbca4abf96db99",
     "modules/agentic-ai-literacy/agentic-product-comparison.json": "8322ffcc2253cf7a081f33a3b6cdfc243f7fa8956b56ff3bc8c8238136d4f965",
-    "modules/agentic-ai-literacy/agentic-tools-state-authority.json": "ba052121db1ae224952ac6a8ffc1b6b2714f59dd68b600c97df48dc146c5c3e4",
+    "modules/agentic-ai-literacy/agentic-tools-state-authority.json": "bb7bb483892e69eee3c2760b9a0041f5733127377d170b82a7681dde36ac0d1c",
     "modules/agentic-systems-and-mcp/agent-architecture-spectrum.json": "f0a3801a79185ecf19a4589c42c2675aebf45f06485397fda05d305aa62eb31e",
     "modules/agentic-systems-and-mcp/agent-safety-and-spend-brakes.json": "757aac9aa6c5585a20ba5baffbc93024c4ae3b746da7426d6adac616cb375707",
     "modules/agentic-systems-and-mcp/model-context-protocol-mcp.json": "cf6c664088951acd120e9e3c6eb7d71d12bcd2c720f249d1a94b1ed43726d207",
