@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "b7511c281291bf05f05796c28594004fbd824042"
+    "commit": "e99775ab0fa47bba00994766bce91ea9a0c1bbac"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -169,10 +169,10 @@
     "resources/practical-workflow-recipes/legacy-codebase-refactor-workflow.json": "a155358efce30d466dfda8dc9cc3e015152eed1b8e4ec8ea0904d2f7925bc474",
     "resources/prompting-context/context-refresh-runbook.json": "0468ddca55e977977b835c71425b7f4cf4eda66617983f6753d93e092b475cb5",
     "resources/prompting-context/context-selection-checklist.json": "f8cc73b34a5059893e7c24e1877041e7f10ff92969bd5fcd7446939758419112",
-    "resources/prompting-context/prompt-pattern-decision-guide.json": "2bb6a04c8540b22df4ea1f3cd79b32dc152c85fa8be06a4b5cf0fed55f0635f4",
+    "resources/prompting-context/prompt-pattern-decision-guide.json": "66236c61687f28264e4f4e8794b8fc864af9816549b7b5e0a91352885ff1df20",
     "resources/prompting-context/reusable-prompt-template-pack.json": "bb0043cb7e5f093cf9354ae0755152cdafe893982fceeb8d4da2c4dbca4482ec",
     "resources/prompting-context/structured-output-contract.json": "ee85739cd6d750853fda0d13106c4ef1268a94226e8abe5e6ff152e02ed642d9",
-    "resources/prompting-context/task-framing-contract.json": "d4d667f106df03ba10b563db846a3019a87fe0d68e12760c85f0e6293995a6ee",
+    "resources/prompting-context/task-framing-contract.json": "2763404d692a2d13c53e37bf268cd04399fea2b6b09e379d5c00b285d827f832",
     "resources/provider-workflows/anthropic-evaluation-error-triage.json": "5c2ec9d0ae603858e4241784a953d6303154c6425e3736b97728d131ce8b6e81",
     "resources/provider-workflows/anthropic-messages-api-request.json": "784a17acefa8a8ade250a9119f2203fb25f86ac961dcce9d7a8a4a0660eb3ba1",
     "resources/provider-workflows/anthropic-tools-structured-output.json": "efce324b8d041de50431a9203c8dbe8f52e759099b44cb83f6dc1b059ad0c9ab",
