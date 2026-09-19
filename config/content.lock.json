@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "c1bd906972f604e69c002de6d0369598f422a00f"
+    "commit": "db3eff57c695461326a484cb5b7f5ea0c2ab5725"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -22,7 +22,7 @@
     "diagrams/provider-selection.mmd": "1699442d4a4b5e31636d95eab8800fb3f83ce0ca499ebb7cbd6cfe1552e58779",
     "diagrams/safe-agent-loop.mmd": "3b1a5b83b184a9ff4ce362ef7d253f7f13bb7ee9fc3d668c686bac7e0fe6728d",
     "diagrams/tool-trust-boundaries.mmd": "a3401e369dcd11f479b6cc04f3580e3d44b0c08542fca9596f2858013c1887be",
-    "modules/agentic-ai-literacy/agentic-ai-layers.json": "88c72bc77c9da62d2cd22468bda5b246a04381e0c9cf08b9639e7dec523af03d",
+    "modules/agentic-ai-literacy/agentic-ai-layers.json": "8738bc25753d1a230bf100b8e985ac4490b9910bd4e4d5e3e2c8c87a1830830e",
     "modules/agentic-ai-literacy/agentic-classification-capstone.json": "fdd4e8ddbfcd05781d6986c14cb544ad1eb2e1af85d284c221a6de3b732fab89",
     "modules/agentic-ai-literacy/agentic-control-flow.json": "9b9d74f3a2dbc255f22d86c46585fe0b71bf6998784ccabf19a331fc373b3c65",
     "modules/agentic-ai-literacy/agentic-product-comparison.json": "8322ffcc2253cf7a081f33a3b6cdfc243f7fa8956b56ff3bc8c8238136d4f965",
