@@ -437,7 +437,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "mcp-architecture-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/reliable-agent-workflows/mcp-architecture/class-script.json"
     },
     {
