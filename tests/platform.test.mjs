@@ -920,6 +920,13 @@ test("publishes six source-backed Anthropic and OpenAI workflow references", () 
         assert.ok(sectionIds.has(id), `${resource.id} retains ${id}`);
       }
       assert.equal(sectionIds.size, resource.sections.length);
+    } else if (resource.id.endsWith("-api-request") || resource.id.endsWith("-tools-structured-output")) {
+      const required = resource.id.endsWith("-api-request")
+        ? ["prepare-request", "send-request", "verify-and-recover"]
+        : ["choose-control", "define-contract", "verify-and-recover"];
+      const sectionIds = new Set(resource.sections.map((section) => section.id));
+      for (const id of required) assert.ok(sectionIds.has(id), `${resource.id} retains ${id}`);
+      assert.equal(sectionIds.size, resource.sections.length);
     } else {
       assert.equal(resource.sections.length, 3);
     }
@@ -1034,6 +1041,13 @@ test("publishes five source-backed Google and cross-provider workflow references
       for (const id of ["build-evaluation", "triage-failure", "verify-and-recover"]) {
         assert.ok(sectionIds.has(id), `${resource.id} retains ${id}`);
       }
+      assert.equal(sectionIds.size, resource.sections.length);
+    } else if (resource.id.endsWith("-api-request") || resource.id.endsWith("-tools-structured-output")) {
+      const required = resource.id.endsWith("-api-request")
+        ? ["prepare-request", "send-request", "verify-and-recover"]
+        : ["choose-control", "define-contract", "verify-and-recover"];
+      const sectionIds = new Set(resource.sections.map((section) => section.id));
+      for (const id of required) assert.ok(sectionIds.has(id), `${resource.id} retains ${id}`);
       assert.equal(sectionIds.size, resource.sections.length);
     } else {
       assert.equal(resource.sections.length, 3);
