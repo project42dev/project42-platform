@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import AgentOrchestrationLesson, { type AgentOrchestrationLessonContent } from "../../components/AgentOrchestrationLesson";
+import agentOrchestrationJSON from "@project42/platform/content/diagrams/lessons/agent-orchestration.json";
 import CostCapacityLesson, { type Content as CostCapacityLessonContent } from "../../components/CostCapacityLesson";
 import costCapacityJSON from "@project42/platform/content/diagrams/lessons/cost-and-capacity-management.json";
 import ProviderSelectionLesson, { type ProviderSelectionLessonContent } from "../../components/ProviderSelectionLesson";
@@ -69,7 +71,9 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
   const providerSelection = providerSelectionJSON as ProviderSelectionLessonContent;
   const isCostCapacity = diagramId === "cost-and-capacity-management";
   const costCapacity = costCapacityJSON as CostCapacityLessonContent;
-  const isNativeLesson = isLearningEvidenceLoop || isSafeAgentLoop || isToolTrust || isGroundedAnswer || isPromptContract || isMultiAgentHandoff || isProviderSelection || isCostCapacity;
+  const isAgentOrchestration = diagramId === "agent-orchestration";
+  const agentOrchestration = agentOrchestrationJSON as AgentOrchestrationLessonContent;
+  const isNativeLesson = isLearningEvidenceLoop || isSafeAgentLoop || isToolTrust || isGroundedAnswer || isPromptContract || isMultiAgentHandoff || isProviderSelection || isCostCapacity || isAgentOrchestration;
   const safeAgentLesson = (isToolTrust ? toolTrustLessonJSON : safeAgentLessonJSON) as SafeAgentLessonContent;
   const lesson = learningEvidenceLessonJSON as LearningEvidenceLessonContent;
   const steps = isNativeLesson ? [] : getDiagramSteps(diagramId);
@@ -116,7 +120,9 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
 
       <figure className="diagram-figure">
         <div className="diagram-canvas">
-          {isCostCapacity ? (
+          {isAgentOrchestration ? (
+            <AgentOrchestrationLesson data={agentOrchestration} />
+          ) : isCostCapacity ? (
             <CostCapacityLesson data={costCapacity} />
           ) : isProviderSelection ? (
             <ProviderSelectionLesson data={providerSelection} />

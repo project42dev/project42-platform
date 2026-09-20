@@ -2,17 +2,18 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "b033b1dee49fe53a1bcf5ee140c529baee036c7e"
+    "commit": "a0aaf99752436c9dd57438751d50010574b2c228"
   },
   "contentVersion": "0.42.0",
   "files": {
     "catalog.json": "38fb185eeace2ec478fa86f9e8b304defd3d0f49762a54f4beeeb6baadf3fb98",
     "diagrams/agent-orchestration.mmd": "9c916bea4b29e448bceae7758d1fff3867c2e99da51b3e89237397c05c95c72a",
-    "diagrams/catalogue.json": "c21969fe08a95809a828aa5bacad3754c3f542b294fcf86df5c6dcad8a6f60d0",
+    "diagrams/catalogue.json": "28dc6f621f855161258148221e0c21ab9a4f5d9349c8a5a7030348681c850156",
     "diagrams/content-freshness-release.mmd": "e2ffa6894a362a2ce0e76506c9c94ea7afed095938a59619967ef41436eb3485",
     "diagrams/cost-and-capacity-management.mmd": "a50cf355bd46f30b6d1f02d67c348f2e8272106f33a5c979e25fc61b80a84738",
     "diagrams/grounded-answer-workflow.mmd": "695373c14bff83c3868c7a5de4bf01ac7526fbf638add2cbc194e95913f7a65f",
     "diagrams/learning-evidence-loop.mmd": "bb7320b9964e2fac205eb30ebda50d9078a9abdfda571e41c7775f9b7088c63c",
+    "diagrams/lessons/agent-orchestration.json": "51c98d23f7a00130818e17844e62566bd01b616c9a891fd5a1c2845b076f4cca",
     "diagrams/lessons/cost-and-capacity-management.json": "0edce232dc05bf7b962ed599fdb035e6dfbd673dfd7c923df8afec908f0aa460",
     "diagrams/lessons/grounded-answer-workflow.json": "3bb8980bcd0a92be29a91fcdf2dfb21294cc8970b76f199ca00c17fa1a720108",
     "diagrams/lessons/learning-evidence-loop.json": "e0fc7e576813a3d9413acfad58451332fd94cacc733ccafe72d97975073306e4",

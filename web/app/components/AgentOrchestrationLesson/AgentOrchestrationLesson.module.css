@@ -1,0 +1,115 @@
+.lesson {
+  --surface: var(--p42-surface-card, Canvas);
+  --soft: var(--p42-interactive-muted, Canvas);
+  --text: var(--p42-text-body, CanvasText);
+  --border: var(--p42-border-soft, CanvasText);
+  --button: var(--p42-secondary-btn-bg, ButtonFace);
+  --button-text: var(--p42-secondary-btn-fg, ButtonText);
+  box-sizing: border-box;
+  display: grid;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 100%;
+  color: var(--text);
+  font-size: max(1rem, 16px);
+  line-height: 1.55;
+  overflow-wrap: break-word;
+}
+
+.lesson *, .lesson *::before, .lesson *::after { box-sizing: border-box; }
+.panel, .status, .diagram { min-width: 0; border: 1px solid var(--border); border-radius: .75rem; background: var(--surface); color: inherit; }
+.panel { padding: clamp(1rem, 3vw, 1.75rem); }
+.panel h2, .panel h3, .panel h4, .panel h5 { margin-block: .25rem .65rem; line-height: 1.22; }
+.panel p, .panel li { max-width: 92ch; }
+.eyebrow { margin: 0; font-size: max(.75rem, 12px); font-weight: 750; letter-spacing: .065em; text-transform: uppercase; }
+.notice { border-inline-start: .3rem solid currentColor; padding: .8rem 1rem; background: var(--soft); font-weight: 650; }
+.status { display: flex; justify-content: space-between; gap: 1rem; padding: .9rem 1rem; }
+
+.diagram {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(8.75rem, 13.5rem));
+  grid-template-areas:
+    ". H H ."
+    ". R R ."
+    ". D D ."
+    "C RV I O"
+    ". W W ."
+    ". IR IR ."
+    ". A A ."
+    ". H2 H2 .";
+  justify-content: center;
+  gap: 5rem 1rem;
+  min-height: 0;
+  overflow: hidden;
+  padding: 1.5rem 3.5rem 4.5rem;
+  isolation: isolate;
+}
+.connectors { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
+.connector { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.arrowHead { fill: currentColor; stroke: currentColor; }
+.node { position: relative; z-index: 2; display: grid; grid-template-columns: minmax(3.4rem, auto) minmax(0, 1fr); gap: .55rem; align-items: center; width: 100%; min-width: 0; min-height: 5.25rem; border: 1px solid currentColor; border-radius: .6rem; padding: .8rem .9rem; background: var(--surface); color: inherit; font: inherit; font-size: max(.875rem, 14px); text-align: start; cursor: pointer; }
+.node strong { align-self: start; white-space: nowrap; }
+.node span { min-width: 0; overflow-wrap: anywhere; }
+.node[data-kind="decision"] { border-radius: 1rem .45rem; }
+.node[data-kind="terminal"] { border-style: double; border-width: 3px; }
+.node[aria-pressed="true"] { outline: .2rem solid currentColor; outline-offset: .15rem; background: var(--soft); }
+.node[data-node="H"] { grid-area: H; }
+.node[data-node="R"] { grid-area: R; }
+.node[data-node="D"] { grid-area: D; }
+.node[data-node="C"] { grid-area: C; }
+.node[data-node="RV"] { grid-area: RV; }
+.node[data-node="I"] { grid-area: I; }
+.node[data-node="O"] { grid-area: O; }
+.node[data-node="W"] { grid-area: W; }
+.node[data-node="IR"] { grid-area: IR; }
+.node[data-node="A"] { grid-area: A; }
+.node[data-node="H2"] { grid-area: H2; }
+.edgeLabel { position: absolute; z-index: 3; transform: translate(-50%, -50%); width: max-content; max-width: 9rem; border: 1px solid var(--border); border-radius: .45rem; padding: .2rem .48rem; background: var(--surface); color: inherit; font-size: max(.75rem, 12px); font-weight: 700; line-height: 1.2; text-align: center; overflow-wrap: normal; word-break: normal; pointer-events: none; }
+
+.cards, .practiceGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 23rem), 1fr)); gap: 1rem; margin-block-start: 1rem; }
+.artifact, .practice, .feedback, .simulationStatus { min-width: 0; border: 1px solid var(--border); border-radius: .6rem; padding: 1rem; background: var(--soft); }
+.preserve { white-space: pre-wrap; overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .94em; }
+dl { display: grid; gap: .65rem; margin-block-end: 0; }
+dl div { display: grid; grid-template-columns: minmax(8rem, .38fr) minmax(0, 1fr); gap: .75rem; border-block-start: 1px solid var(--border); padding-block-start: .6rem; }
+dt { font-weight: 700; }
+dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
+.practice fieldset { display: grid; gap: .7rem; margin: 0; border: 0; padding: 0; }
+.practice button, .feedback button, .actions button { border: 1px solid currentColor; border-radius: .45rem; padding: .75rem 1rem; background: var(--button); color: var(--button-text); font: inherit; font-weight: 650; text-align: start; cursor: pointer; }
+.feedback { margin-block-start: 1rem; border-width: 2px; }
+.actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .75rem; margin-block-start: 1rem; }
+.simulationStatus [data-state="failed"] { border-inline-start: .3rem solid currentColor; padding-inline-start: .75rem; }
+.simulationStatus [data-state="passed"] { border: 2px solid currentColor; border-radius: .35rem; padding: .5rem .75rem; }
+.node:focus-visible, button:focus-visible, summary:focus-visible, a:focus-visible, h3:focus, .feedback:focus { outline: .2rem solid currentColor; outline-offset: .2rem; }
+.srOnly { position: absolute; width: 1px; height: 1px; margin: -1px; border: 0; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+
+@media (max-width: 64rem) {
+  .status { align-items: flex-start; flex-direction: column; }
+  .diagram {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "H" "R" "D" "C" "RV" "I" "O" "W" "IR" "A" "H2";
+    justify-content: stretch;
+    gap: 4.75rem;
+    padding: 1.25rem 5.5rem 5.5rem;
+  }
+  .node { min-height: 4.9rem; }
+  dl div { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 23.5rem) {
+  .diagram { gap: 4.75rem; padding-inline: 5.5rem; }
+  .node { grid-template-columns: minmax(0, 1fr); gap: .2rem; padding-inline: .65rem; }
+  .node strong { display: block; white-space: normal; }
+  .edgeLabel { max-width: 7.5rem; }
+  .actions { justify-content: stretch; }
+  .actions button { width: 100%; }
+}
+
+@media (forced-colors: active) {
+  .lesson { --surface: Canvas; --soft: Canvas; --text: CanvasText; --border: ButtonText; --button: ButtonFace; --button-text: ButtonText; }
+  .panel, .status, .diagram, .node, .edgeLabel, .artifact, .practice, .feedback, .simulationStatus, button { forced-color-adjust: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lesson *, .lesson *::before, .lesson *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
