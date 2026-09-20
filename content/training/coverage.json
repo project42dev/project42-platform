@@ -233,7 +233,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "context-engineering-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/reliable-agent-workflows/context-engineering/class-script.json"
     },
     {

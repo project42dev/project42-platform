@@ -1326,7 +1326,7 @@ test("publishes the bounded agent work-order class package", () => {
 test("publishes complete agent tool, context, and memory class packages", () => {
   const expectedWordCounts = new Map([
     ["control-agent-actions", 1224],
-    ["context-engineering", 957],
+    ["context-engineering", 1831],
     ["memory-boundaries", 1031],
   ]);
 
@@ -1346,7 +1346,7 @@ test("publishes complete agent tool, context, and memory class packages", () => 
     });
     assert.equal(script.spokenWordCount, expectedWordCount);
     assert.equal(script.releaseStatus, "draft");
-    assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+    assert.equal(script.provenance.canonicalContentVersion, moduleId === "context-engineering" ? "0.42.0" : "0.41.0");
     assert.equal(script.provenance.approvals.length, 0);
     for (const section of module.sections) {
       assert.ok(
