@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "711a4a2abdfaf87d49d2889f765aad368e19bcb7"
+    "commit": "9fe88a03b1b32d1baca52f61caf187a02e667189"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -50,7 +50,7 @@
     "modules/ai-literacy-and-mental-models/ai-mental-models.json": "5c50fbd3746e201c9859b0262d680a04b90dbae6a2d7b515969c0259e657b52f",
     "modules/ai-literacy-and-mental-models/prompt-architecture.json": "b455df1388603e1e686e81802cfd7833a107a20fe3ff1f428bc2675ea06c6853",
     "modules/ai-literacy-and-mental-models/token-economics-and-limits.json": "89e7a99afe4bb557887f1c9a3d1bd33168fc375b31bcbbc66a2f37b348b31d27",
-    "modules/ai-security-and-governance/ai-compliance-and-crypto-receipts.json": "4cb41019cc52b67098763be2cd9c7d8e2e9e59a542ef32c66972747f5feac254",
+    "modules/ai-security-and-governance/ai-compliance-and-crypto-receipts.json": "f1b0ba3555cde4d25820fea1ebbdb4ead869938c51995124a3700ff0e939ba1a",
     "modules/ai-security-and-governance/guardrails-and-sandboxing.json": "cc2b28ac766e7528e58106e22a4d85f3cc7932ee0edf675dec995d76a54a3532",
     "modules/ai-security-and-governance/owasp-top-10-llm-attacks.json": "2cb2e475a96fba159d1a775f2786a57a8cb67788d728aa67cf28630a10557d33",
     "modules/anthropic-claude-practice/anthropic-ecosystem-and-interfaces.json": "245440421297426deb39b4eda0936dc6c7011ad55de5a8c3c1a093e91f2ba516",
