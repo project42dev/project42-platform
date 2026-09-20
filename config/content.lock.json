@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "57784e1d5e0bb308bcdce98a69a5eace089e7e35"
+    "commit": "2fec385c980e1e77d3b547a20c36bc12e607f67b"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -161,14 +161,14 @@
     "resources/coding-agents/repository-orientation-checklist.json": "52c46753d6d6bf08085cab0ea95089946d70841e83458d142e6654211026fd06",
     "resources/coding-agents/test-debug-handoff.json": "56af6df5f3b1d468564c4eb76c8c091cb8a32f2399b63e8c8c206f9e834ac85b",
     "resources/coding-tools/aider-operating-card.json": "5793532c93fd6a29fb66c650dc102abbd7693c11bf929826e944fff2e3f4fc26",
-    "resources/coding-tools/claude-code-operating-card.json": "9860e0addb2d6bbd2334fa8edac64cb3b5ef3c1a1b0e0566fcd1c152d1741ed8",
+    "resources/coding-tools/claude-code-operating-card.json": "5ddc0c97a63a1ab21527126044e03b8be340b25b6e56cd4c63c5c220f5e2d171",
     "resources/coding-tools/cline-operating-card.json": "7266a6a05434a0b5d475103470e9edd3f5f7129108d869c639627245dc861589",
-    "resources/coding-tools/codex-cli-operating-card.json": "6abdc6940f1a8fcd11d9cca4668aac86428a1c591ff04e1a44ac01ac996407be",
+    "resources/coding-tools/codex-cli-operating-card.json": "ab7368474fd24767f626b4a6a396bb87d0827e4dac535764704b479637dd8a88",
     "resources/coding-tools/continue-operating-card.json": "56ede59670c3706f35388f3076e689710f026612ff21ce7595e4ba4ae7fda9af",
     "resources/coding-tools/cursor-operating-card.json": "973575e05c7ce07e1d397e1869c9eab60e0f77496c4d6a845821f2ea9f31a97f",
     "resources/coding-tools/devin-operating-card.json": "b06de304a154b82a76088a03946e304b2df145016aaa78f28202c04e04812207",
     "resources/coding-tools/gemini-cli-operating-card.json": "b4449b2ba01046e11cabb4c789336875f4c609c9c8e4f23fffea8afeafd8eb27",
-    "resources/coding-tools/github-copilot-operating-card.json": "f365f7613e5f940e6e06c8be9aa2810682af6316cc7314c2b805cca0ed2e74f2",
+    "resources/coding-tools/github-copilot-operating-card.json": "353ee88e4ce91c9f278fd79bee97921b848edbf3b34fb64ad4925812e005d095",
     "resources/coding-tools/jules-operating-card.json": "bfcd1f8b157cbca80c0e84ef6b8b380757fc1fcf9764d228a5debc55d8723bb5",
     "resources/coding-tools/kilo-code-operating-card.json": "0126ee05564ffa605bfdcfbc7165d536ee87ffd17d29f05f1edbf514f13c6355",
     "resources/coding-tools/openclaw-operating-card.json": "50823176894c15b204e9f5cfe67b0d86bef149c4d3184d3fffd0865710b3f496",
@@ -234,7 +234,7 @@
     "resources/troubleshooting-operations/ai-incident-triage.json": "b048fe817a7caac06d8d98a0367de693b4b34bd5d53965b56810b61cbe4b7ba9",
     "resources/troubleshooting-operations/ai-rollback-and-incident-closeout.json": "f21e67f31906cc3565db0781e3567d24195e8c70bc59907f1cb87a2bb9fdcf61",
     "resources/troubleshooting-operations/context-quality-regression-triage.json": "39af3ac65bb59725ec1763a5f80137915e509504f5277a16645461cc196e553a",
-    "source-registry.json": "0b419a4edf89594b35d592ac28ea336d10bac2684d89ee9cf0fbb954d23761e7",
+    "source-registry.json": "a5c0fc5a57bddfdaa4e29825c70c7d0b1aae7da97e814b42a6e8c5c12828522f",
     "training/agentic-ai-literacy/delivery-contract.json": "02aa762a549b3926d07e1b9a5d64c811b32f2369e19c36f6769fd9a2798df1e3",
     "training/agentic-systems-and-mcp/model-context-protocol-mcp/lab/cache-scope-regression.mjs": "bca0a8549f4654182781ceb610d7578da97b64d7f6694e6bb0bd7987d205d90f",
     "training/agentic-systems-and-mcp/model-context-protocol-mcp/lab/host-lib.mjs": "6a26c2a43d02762ee9b2d0768382e8e4652f782043f7090cd6b16dbb1b391e1a",
