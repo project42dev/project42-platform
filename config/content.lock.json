@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "e9cccc452ab668bd6e2cb87f2d9fc58cea79c4ae"
+    "commit": "9e6c2667e7e7e7df6d774f30b35e93e7365aa8ff"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -35,7 +35,7 @@
     "modules/ai-foundations/ai-foundations-capstone.json": "b4ca7c5925e765cd9ad54bc7f04744b37f396538835f3eefc0b23e732f9a33fe",
     "modules/ai-foundations/ai-systems-and-use-cases.json": "6ef353aefec9eab62bd117dd4d79fcf367a7fbe221cc8139c326273952d2fdce",
     "modules/ai-foundations/coding-and-analysis-workflow.json": "ab4e2337d536a56a8949066e12bf221eb6b19d6b5fd3dbfdf2f5d21eee84d372",
-    "modules/ai-foundations/context-and-evidence-construction.json": "08f0eaf32ceda7ecf001ad5785de401e96288b5683b260dee03375e8110d62fa",
+    "modules/ai-foundations/context-and-evidence-construction.json": "0bb7be3586dab8e18e2420af33b556b3a608ad9d4c89b0b4c9656f2798d26b7b",
     "modules/ai-foundations/context-tokens-and-modalities.json": "01989cfed64d3476e917b8138cdddb50e59facd936200d2cbfda4fd179775120",
     "modules/ai-foundations/examples-and-output-contracts.json": "55ac16034b8670bdbc3ca7fe589b935904ceefa368945eda4e1305a6f603fbe0",
     "modules/ai-foundations/language-models-and-generation.json": "dbda601131f5732d90241f4bbc4753995d307a7d6e710193ac791b54414bc242",
@@ -278,9 +278,9 @@
     "training/ai-foundations/coding-and-analysis-workflow/supplementary-reading.md": "fdf1185779a7a818eb8fae4ea4bd1ea361097c7c7345de6779e6590de42d49e5",
     "training/ai-foundations/coding-and-analysis-workflow/transcripts/en-US.md": "f030cf5b3e62b896d25550ea5345955b7411aec927d6d8d1e383d095c7aaa134",
     "training/ai-foundations/context-and-evidence-construction/alternatives/en-US-reduced-motion.md": "ff851bc6edde55f94a4f5aea761c35848074d49bc427ed954290a2eae8863b28",
-    "training/ai-foundations/context-and-evidence-construction/alternatives/en-US-text-only.md": "a69411f55290d5d3a8dac76299dc43c396c4d6c14d190d73b09f36ab1d8fab20",
-    "training/ai-foundations/context-and-evidence-construction/captions/en-US.vtt": "38ef1204a2b2f6787c8627cc5b5136e3647d38a64d896e90ab9eeb19a6c13388",
-    "training/ai-foundations/context-and-evidence-construction/class-script.json": "46586673239e73e2c75f2f6424bbeda601964c96e7049261f3afc783ca3e283b",
+    "training/ai-foundations/context-and-evidence-construction/alternatives/en-US-text-only.md": "1cb41bf04706acd81bb6fa81c000d631b04b327000e6a392bc469cb41b32471e",
+    "training/ai-foundations/context-and-evidence-construction/captions/en-US.vtt": "43412a121910f9ff2b5f88950062e2e0d9814c2fc56c7838d10e7691c4e82f19",
+    "training/ai-foundations/context-and-evidence-construction/class-script.json": "2a466c2fcad6bd75e2391c2a5ce49be3eb13b35d509c947c8ebdbf2be5f51d7a",
     "training/ai-foundations/context-and-evidence-construction/diagrams/claim-traceability.mmd": "78294a0b2c29e6f48b714818be0716a02eafc4cfa7b445ed6a70bef002c4711d",
     "training/ai-foundations/context-and-evidence-construction/diagrams/context-selection.mmd": "cce419002b9ec56d4023cb47f33a6450142f41ad913226228a5fa82253addc20",
     "training/ai-foundations/context-and-evidence-construction/diagrams/source-labeling.mmd": "39ee467b07c5c2cffd7fdf4089d3bf9dac14c988d6a7cc669dba06487cfbccc7",
@@ -288,10 +288,10 @@
     "training/ai-foundations/context-and-evidence-construction/images/claim-traceability.svg": "de25b85d401c4979af200122878aaff1efe572ea16cc8026560a078bdc339ec0",
     "training/ai-foundations/context-and-evidence-construction/images/context-selection.svg": "ea09eb5b52b00efb532899958f7ad325995478cedb3ca63c7ce344f119847ef6",
     "training/ai-foundations/context-and-evidence-construction/images/source-boundaries.svg": "41325e97f20b7cd4db5d6529d324c3c498f27e96eab0eaec1ed7e23ea57e6e20",
-    "training/ai-foundations/context-and-evidence-construction/integrity.json": "af50e5f6c9237f41dc9d561465246fc990b1ee4e7fadd25b4aa91eaab9b57020",
+    "training/ai-foundations/context-and-evidence-construction/integrity.json": "692f284ba7cb2b655b1e0407d0255e8e497fc9dd51d6500cf134ac3a24e4ef98",
     "training/ai-foundations/context-and-evidence-construction/lab/README.md": "b91db0911da45ef7c115911da1581fea598fdd85320292a6e566028d4fc43534",
     "training/ai-foundations/context-and-evidence-construction/supplementary-reading.md": "ddb28062fbc95416a46b2741cdb41d90ab8fac57baff7ce2b2c489d71412abf8",
-    "training/ai-foundations/context-and-evidence-construction/transcripts/en-US.md": "2f957b761f23cc967f368c86cc093131d4ebbe6d652d326facc985c5d7344dbc",
+    "training/ai-foundations/context-and-evidence-construction/transcripts/en-US.md": "e749ed9586a122b2a81d7a224e6b900699ebbfe36b0767fa5df1d8c57da18a15",
     "training/ai-foundations/context-tokens-and-modalities/alternatives/en-US-reduced-motion.md": "193546eabf1634db6c4f21e2a3bde62d463444cb0f9f3428c2a0c8f98f4a3c3a",
     "training/ai-foundations/context-tokens-and-modalities/alternatives/en-US-text-only.md": "d0b1e9557cd99afade5ac477ad7734b0471f2bd59651b10ef73fa200f806c4fc",
     "training/ai-foundations/context-tokens-and-modalities/captions/en-US.vtt": "fd5ec24efe4e001edf98e9c8f58cf1a670ae5623245c2271ec216789f3bd0783",
