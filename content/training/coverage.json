@@ -244,7 +244,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.0",
       "classScriptId": "context-tokens-and-modalities-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/ai-foundations/context-tokens-and-modalities/class-script.json"
     },
     {

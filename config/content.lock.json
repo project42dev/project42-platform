@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "3030b0071afc1b37dbc5f4525ac15bc9cd6ec382"
+    "commit": "a7694770ffe4d482047a4f4af3f8bb597a56e17c"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -36,7 +36,7 @@
     "modules/ai-foundations/ai-systems-and-use-cases.json": "6ef353aefec9eab62bd117dd4d79fcf367a7fbe221cc8139c326273952d2fdce",
     "modules/ai-foundations/coding-and-analysis-workflow.json": "ab4e2337d536a56a8949066e12bf221eb6b19d6b5fd3dbfdf2f5d21eee84d372",
     "modules/ai-foundations/context-and-evidence-construction.json": "0bb7be3586dab8e18e2420af33b556b3a608ad9d4c89b0b4c9656f2798d26b7b",
-    "modules/ai-foundations/context-tokens-and-modalities.json": "01989cfed64d3476e917b8138cdddb50e59facd936200d2cbfda4fd179775120",
+    "modules/ai-foundations/context-tokens-and-modalities.json": "37341ed239e3ccb266541df66c37bcaed77fbdcc77b2b478a018514dc685dcb9",
     "modules/ai-foundations/examples-and-output-contracts.json": "44ad0322d35f26bfe66c30419c27671281689862ee935258e69d3c5a3428a160",
     "modules/ai-foundations/language-models-and-generation.json": "dbda601131f5732d90241f4bbc4753995d307a7d6e710193ac791b54414bc242",
     "modules/ai-foundations/privacy-safety-and-responsibility.json": "f065385b22abfc94469bb3193701f1206a9dcf90ffd3111ef7ae62c1212da86d",
@@ -293,9 +293,9 @@
     "training/ai-foundations/context-and-evidence-construction/supplementary-reading.md": "ddb28062fbc95416a46b2741cdb41d90ab8fac57baff7ce2b2c489d71412abf8",
     "training/ai-foundations/context-and-evidence-construction/transcripts/en-US.md": "e749ed9586a122b2a81d7a224e6b900699ebbfe36b0767fa5df1d8c57da18a15",
     "training/ai-foundations/context-tokens-and-modalities/alternatives/en-US-reduced-motion.md": "193546eabf1634db6c4f21e2a3bde62d463444cb0f9f3428c2a0c8f98f4a3c3a",
-    "training/ai-foundations/context-tokens-and-modalities/alternatives/en-US-text-only.md": "d0b1e9557cd99afade5ac477ad7734b0471f2bd59651b10ef73fa200f806c4fc",
-    "training/ai-foundations/context-tokens-and-modalities/captions/en-US.vtt": "fd5ec24efe4e001edf98e9c8f58cf1a670ae5623245c2271ec216789f3bd0783",
-    "training/ai-foundations/context-tokens-and-modalities/class-script.json": "7605174547a3db713baad95c88572b6ba56d6f07ea448f2a1acc4d4e9e0eefbe",
+    "training/ai-foundations/context-tokens-and-modalities/alternatives/en-US-text-only.md": "490a47c1d2778850b58351600f47627711308b50cf0839b516723efc0d012a3a",
+    "training/ai-foundations/context-tokens-and-modalities/captions/en-US.vtt": "dbdb68f125c0b0dd9e97be1b7ac55860d292cdc4c3aabf52cc5d2d37663c2388",
+    "training/ai-foundations/context-tokens-and-modalities/class-script.json": "1ec182d1ecef22a88b7b0111e5456f31693da0f773fb5b04ee7084e4e7aec0f6",
     "training/ai-foundations/context-tokens-and-modalities/diagrams/context-selection.mmd": "3d914b4743bfe7c7af6cbf8974493b16e80a9720705184138dd6b67b59d23118",
     "training/ai-foundations/context-tokens-and-modalities/diagrams/context-window.mmd": "84553d97f166f9052dfa336b0feda66590bd83e0adc0c88e9913f2fff1e6a90c",
     "training/ai-foundations/context-tokens-and-modalities/diagrams/multimodal-quality-check.mmd": "88b9f77bfdf1965404cf71f8153506d22fd523734a8820a822ad4a575d4d61cc",
@@ -305,10 +305,10 @@
     "training/ai-foundations/context-tokens-and-modalities/images/multimodal-check.svg": "2b9f4625b5a90a774a3bdcc2d0243e8f37cceae02a2dfbfbefb44ac83a3b5909",
     "training/ai-foundations/context-tokens-and-modalities/images/persistence.svg": "a43c274aa81a8838c041b89dbda059cc8ad9009264ff0a15928ffa7e2ae180b9",
     "training/ai-foundations/context-tokens-and-modalities/images/tokens.svg": "cac2f7592396a102540dd79f996762691e4fb73065ddac8dc43bf54cc77b5774",
-    "training/ai-foundations/context-tokens-and-modalities/integrity.json": "b39aab000037feb71a4d05493724004be31c2037c306929f97c690fec173320f",
+    "training/ai-foundations/context-tokens-and-modalities/integrity.json": "cab024f5a09d7e974e46c1fed1f7207944d684a71f335a448cc70d925505e19c",
     "training/ai-foundations/context-tokens-and-modalities/lab/README.md": "9392cdecbbe6f03581cbf66b4e6da5abacee7acb6aba0d0b52c344976f590427",
     "training/ai-foundations/context-tokens-and-modalities/supplementary-reading.md": "3fdf3f6f3ba705ba171910c98870d1335e7bc778229f7342f04ed2e5be2ba215",
-    "training/ai-foundations/context-tokens-and-modalities/transcripts/en-US.md": "187c1ebda49c59103d49329a09f70bfde586f1940a9800cf69bf62c6befe7f7b",
+    "training/ai-foundations/context-tokens-and-modalities/transcripts/en-US.md": "e501da3aa640dc65dd383fad39108e1c7041afd6da26160dd6844853377fd537",
     "training/ai-foundations/examples-and-output-contracts/alternatives/en-US-reduced-motion.md": "79d582cb6fa9bc4513c315bf7c54407b474de43e3a0fdab64bdae4c37b97701c",
     "training/ai-foundations/examples-and-output-contracts/alternatives/en-US-text-only.md": "ee51a1dc40a255692e811bb9c2b0fe150a2932eff1322f457fd493518e433638",
     "training/ai-foundations/examples-and-output-contracts/captions/en-US.vtt": "b087ac6fe75e78064bdb9c42d533068755a02363f58a6b964ae7063876ff6c51",
