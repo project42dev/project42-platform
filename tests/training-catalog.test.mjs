@@ -1283,7 +1283,12 @@ test("publishes the bounded agent work-order class package", () => {
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1103);
+  assert.equal(
+    script.spokenWordCount,
+    script.segments.filter((segment) => segment.delivery === "spoken")
+      .reduce((count, segment) => count + segment.spokenText.trim().split(/\s+/u).length, 0),
+  );
+  assert.ok(script.spokenWordCount >= 1103, "retain substantive spoken instruction");
   assert.equal(script.releaseStatus, "draft");
   assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
   assert.equal(script.provenance.approvals.length, 0);

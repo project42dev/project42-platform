@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "a06f8c3b1f6913ecdc35f7f1d4960bb9819043b3"
+    "commit": "1932460dd98fd8a6795b825be412b5cdbad827af"
   },
   "contentVersion": "0.42.0",
   "files": {
-    "catalog.json": "96dc8ed541df45628cebb52e561034f4f6bb1b646a36fa13148fad9223178830",
+    "catalog.json": "39766daf44476106be272eca709b18d480584325f7b15a9fb1726a9d99bd18f5",
     "diagrams/agent-orchestration.mmd": "9c916bea4b29e448bceae7758d1fff3867c2e99da51b3e89237397c05c95c72a",
     "diagrams/catalogue.json": "ea4927a536022bc6f7353e774b0dc82f71ba768f17eba761120c3c23321e4cc1",
     "diagrams/content-freshness-release.mmd": "ae9c4733bdc317f05fdf7c26c20936d627f64a8cda246cfbea5e9876e2f54bc4",
@@ -577,10 +577,10 @@
     "training/reliable-agent-workflows/orchestration-patterns/transcripts/en-US.md": "467adc3ea9c7db0f03b12504bd4bb3fe3a35a117e6b7d4b85051187d6ebfdc08",
     "training/reliable-agent-workflows/path-contract.json": "1541955e07a366bd1483e9e234eefec3d6f62a3b4e932aa86743812a147805a9",
     "training/reliable-agent-workflows/prepare-agent-work/alternatives/en-US-reduced-motion.md": "469fb2671ac38d40d93bc32c48f40772bb8fce9cd4ae319a6abfd70a63b9a196",
-    "training/reliable-agent-workflows/prepare-agent-work/alternatives/en-US-text-only.md": "512406de30212b09c74bead758d4648ab453db4f5aeb07833efd1a3f8b886659",
-    "training/reliable-agent-workflows/prepare-agent-work/captions/en-US.vtt": "bedb78ec24e36c7766da7e2b8eafc05084b634c0ca137fd8adcd12b80be5e5a7",
-    "training/reliable-agent-workflows/prepare-agent-work/class-script.json": "cfff5e0f65cbd5eb25b4177f6f30b64afc58765bbbf599acd3d50e1009d80f42",
-    "training/reliable-agent-workflows/prepare-agent-work/integrity.json": "ce367e32b2e782af9ab78c5ef1fcc213391a1fb3ed526f846b84df858cd328b6",
+    "training/reliable-agent-workflows/prepare-agent-work/alternatives/en-US-text-only.md": "dcea80b7869b697d97584c769a898c4884877b338000a25b66d0cdf9795bf9ba",
+    "training/reliable-agent-workflows/prepare-agent-work/captions/en-US.vtt": "1efec0dc4f16e54d53c8a952280e8bbdb571ed3ab30d6bc815849a229aecc61f",
+    "training/reliable-agent-workflows/prepare-agent-work/class-script.json": "4520c18b40592b548128a93fbdd90956b2da4adbf36371988f53ad309945a48c",
+    "training/reliable-agent-workflows/prepare-agent-work/integrity.json": "c960bc1331daee93945e142b16a9724dfbdfc7a1435dddf50964504508706e2e",
     "training/reliable-agent-workflows/prepare-agent-work/lab/.gitattributes": "8eda495bb16df1136916de076e4f16ab3553f23a73f81f079eeeb853880e1dcc",
     "training/reliable-agent-workflows/prepare-agent-work/lab/answer/practice-solution.json": "b6a982e11d8de97a323365739fc83c5a97e4284ae5d466c07b672fc6e8beeefa",
     "training/reliable-agent-workflows/prepare-agent-work/lab/answer/verification.md": "b778dc82a1e04891ea894cc35fec6bfa53f2f1c11187c82632d850f4bf5a7bde",
@@ -591,7 +591,7 @@
     "training/reliable-agent-workflows/prepare-agent-work/lab/README.md": "74dcb35db17ebf7f4fe25ea7d98f533875788fe520a86f50c48225bee26d939a",
     "training/reliable-agent-workflows/prepare-agent-work/lab/scenarios.json": "1f82ec3407cf99e1c95c95922b97aeca4c09aed870341f94293dc691a47f0913",
     "training/reliable-agent-workflows/prepare-agent-work/lab/worked-trace.json": "d2487fd4e687466f391848050ac5f4a8f72f283a3c6dd3a1b57411b13126b51d",
-    "training/reliable-agent-workflows/prepare-agent-work/transcripts/en-US.md": "0c01d985a2203f4d4175a56bec1c0f406d792497fdc604f329ebf58cf1cb64e5",
+    "training/reliable-agent-workflows/prepare-agent-work/transcripts/en-US.md": "a58ee339a5a0ce0f3030ee49367e2c0f53385140e2def5e5e4c5a45610d60a21",
     "training/reliable-agent-workflows/reliable-agent-capstone/alternatives/en-US-reduced-motion.md": "13c874bff8b8a82d86f750d5ba7e7afc0cc4d9e1c78315d70d62005fe580b975",
     "training/reliable-agent-workflows/reliable-agent-capstone/alternatives/en-US-text-only.md": "27f36266681e5a0e649c381fcdb32bc4b5fd3ea0aabdaff7fa08ded0aee23e7a",
     "training/reliable-agent-workflows/reliable-agent-capstone/captions/en-US.vtt": "88c18aa817df0f1c976bc333cad7f5eaeb679055853ade36a75fe767d3df7274",
