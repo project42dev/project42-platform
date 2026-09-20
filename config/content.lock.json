@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "ed05b86d441278f2114cff274247cecdc8ec825e"
+    "commit": "96c8b275d5987531567807a78e1155f21fb2f128"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -225,9 +225,9 @@
     "resources/self-hosted-model-operations/self-hosted-model-update-rollback-incident.json": "1600ec625d12689c847ccddebb540ef0dc92fc55d7fed3507541913ef6e17712",
     "resources/self-hosted-model-operations/workstation-model-service-runbook.json": "b323a1a519d007fd6dd68e06aa8249a23ffc32c2d418c03cfd1ab207f57084d4",
     "resources/setup-quick-reference/agent-configuration-layering-reference.json": "becc4b35a18dc26dc866173612bd631b2d2aae9752713bc48068d9e792f5b77b",
-    "resources/setup-quick-reference/ai-coding-workspace-bootstrap.json": "53f532ea80927796a42655f40eb48a7dea6f4af613673d013aa92afc132fb535",
+    "resources/setup-quick-reference/ai-coding-workspace-bootstrap.json": "5e13869aeae2661d2cc8be6de5b7af96627f5bf7d8427a203287b1aefc3f5011",
     "resources/setup-quick-reference/commands-hooks-and-automation-guide.json": "d65f1d0f5d5a48602440d40dd0876cbf6f812a4163ad7fb4f465b9c091bbb41c",
-    "resources/setup-quick-reference/project42-daily-quick-reference.json": "9d257b94b3e12b9c38b4e1efb6db68bf1dc0b3f031d50a919e9920429760e956",
+    "resources/setup-quick-reference/project42-daily-quick-reference.json": "e63783865b226cb7962c65c8bca2d6d1e71457e2c02ca268b4de68b26008602b",
     "resources/setup-quick-reference/windows-terminal-ai-workspace-setup.json": "27bab0f216a545c965b45d5aefb4fa53aa6dd632a7306c5de8b71577d4676fd4",
     "resources/troubleshooting-operations/agent-tool-failure-recovery.json": "087ff40c842c864d70d0c181046e95186ee446d0d7bc8ff320843d9808d4441c",
     "resources/troubleshooting-operations/ai-api-failure-triage.json": "69b0ba51fb714c93e83124c18d0b18f33e52f9c0f299f9d4abe243c58d2ae1cc",
