@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "a7694770ffe4d482047a4f4af3f8bb597a56e17c"
+    "commit": "39dae03cdccc998375356d28109307bb9c13b849"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -40,7 +40,7 @@
     "modules/ai-foundations/examples-and-output-contracts.json": "44ad0322d35f26bfe66c30419c27671281689862ee935258e69d3c5a3428a160",
     "modules/ai-foundations/language-models-and-generation.json": "dbda601131f5732d90241f4bbc4753995d307a7d6e710193ac791b54414bc242",
     "modules/ai-foundations/privacy-safety-and-responsibility.json": "f065385b22abfc94469bb3193701f1206a9dcf90ffd3111ef7ae62c1212da86d",
-    "modules/ai-foundations/prompt-anatomy-and-success-criteria.json": "7783a84525ca437e12ed7edace665b7a5c7a766af869ed785fc8b17756a63fdd",
+    "modules/ai-foundations/prompt-anatomy-and-success-criteria.json": "66f862d66a05623e1634d00d5cd83a1712c5e451617f0e7bf44d080bedc385a1",
     "modules/ai-foundations/prompt-with-purpose.json": "7525f9fc9b7c6f729caa48c065585ea59c039b5de26e410220191c80c5abac10",
     "modules/ai-foundations/research-with-evidence.json": "7238363f39687ce33e87e18ac6737378391b83eb741e48abcff37c0eb9e4be66",
     "modules/ai-foundations/safe-tool-use-workflow.json": "46064abaaf3ac83892a124fc15afbbec443cee3196a31aef2e1a2ef0daec595f",
@@ -361,9 +361,9 @@
     "training/ai-foundations/privacy-safety-and-responsibility/supplementary-reading.md": "87380ecb8d02123938c2dd17409b09ac442a06c151f1db7027cfc368d25c1d14",
     "training/ai-foundations/privacy-safety-and-responsibility/transcripts/en-US.md": "3b96b47d9c4dd2ce83a7e87355ce9d0731bf7578734ec3e8d82d6416e2e81bec",
     "training/ai-foundations/prompt-anatomy-and-success-criteria/alternatives/en-US-reduced-motion.md": "f911090dc7f29282785a565f15ff2feceb4888d916b833bf0fd8d986260babd2",
-    "training/ai-foundations/prompt-anatomy-and-success-criteria/alternatives/en-US-text-only.md": "34a3c39d2707f02dd9e1363fac47c32b336bb08eab81931e354367fb123f1504",
-    "training/ai-foundations/prompt-anatomy-and-success-criteria/captions/en-US.vtt": "82348bfa5d690ca6568370788c073e344eedcc569a8fecd99de193fcaca50148",
-    "training/ai-foundations/prompt-anatomy-and-success-criteria/class-script.json": "99249d7439875084e411851e06cedb81c43ddc5f3fb542c9a82ef8c2c5c26ce9",
+    "training/ai-foundations/prompt-anatomy-and-success-criteria/alternatives/en-US-text-only.md": "3294d5b9cf46845642df615045ac948691224cd0abba9237493a6ea1d3191ce5",
+    "training/ai-foundations/prompt-anatomy-and-success-criteria/captions/en-US.vtt": "72fb2765f6f3e056b29d614f64300d03297a608e0abdf40ad4e4af11f8611f86",
+    "training/ai-foundations/prompt-anatomy-and-success-criteria/class-script.json": "a714fe88458ec655584f5001f46d00bfa75641532f668b40d80d4f735af4424a",
     "training/ai-foundations/prompt-anatomy-and-success-criteria/diagrams/ambiguous-to-reusable.mmd": "34975dda58578986571c7e47e36efc315a5a27526964e07c031093d6bfab15f0",
     "training/ai-foundations/prompt-anatomy-and-success-criteria/diagrams/prompt-anatomy.mmd": "c48ea1079edc6e2e28cbcdd6cea03991277bcbe0c5c530c160fb899a1abe046c",
     "training/ai-foundations/prompt-anatomy-and-success-criteria/diagrams/requirements-preferences-examples.mmd": "af46ef2da09e038d6391e55d5b56ca64e2cc9fb0fd1f35ee840cd83d7899a736",
@@ -373,10 +373,10 @@
     "training/ai-foundations/prompt-anatomy-and-success-criteria/images/prompt-anatomy.svg": "4c3375b7045177a767c2c078359281986a3d045bfcf39528e0355d32f6e24e13",
     "training/ai-foundations/prompt-anatomy-and-success-criteria/images/requirements-preferences.svg": "0c02a7e416b9c4b1aa37b420eab02acf0256651fc6addded7129ea72bdc03514",
     "training/ai-foundations/prompt-anatomy-and-success-criteria/images/success-criteria.svg": "aa93bec241262d989eee22dd75748350d7da094d3dfb8659ce6acb9b75370e73",
-    "training/ai-foundations/prompt-anatomy-and-success-criteria/integrity.json": "5374b5868ff13ef008d81a4393d8e442e4418087f6564fba4a6b345bee5ce2ae",
+    "training/ai-foundations/prompt-anatomy-and-success-criteria/integrity.json": "585aedf548263386e3f7de27d898555dd292105b06bf5a434058c05f2ad25786",
     "training/ai-foundations/prompt-anatomy-and-success-criteria/lab/README.md": "193c90c16908b26341de4ab6e9af69c0e51c926061c76f699c63e509cf06860a",
     "training/ai-foundations/prompt-anatomy-and-success-criteria/supplementary-reading.md": "b62f082591220f311239045b072df1d3fa90d80e58f9fe686658913e4ef42385",
-    "training/ai-foundations/prompt-anatomy-and-success-criteria/transcripts/en-US.md": "85d624b9416d423b311795f96e46983677fbade9831e54821330da5f98b85d6c",
+    "training/ai-foundations/prompt-anatomy-and-success-criteria/transcripts/en-US.md": "5dfaa0dc15016609fc8f653f8e50ed04426fe1d9495099469f881a57c220a2e3",
     "training/ai-foundations/prompt-with-purpose/alternatives/en-US-reduced-motion.md": "af43508578a6fa778f7bfd4e042052f82804bcf4ce214f9cabec93d158d10ae0",
     "training/ai-foundations/prompt-with-purpose/alternatives/en-US-text-only.md": "a5f05a3ad5540e5d10c91e81a3a0ef1fe0695e26c8f34451fa2216066680257d",
     "training/ai-foundations/prompt-with-purpose/captions/en-US.vtt": "c05fee4cbd662c54ef91f235a64434a0a5da1d83194f6beaf16e4de51210180b",
