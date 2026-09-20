@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "d213f15b94e94e9fde5723a9f479140da813fa1e"
+    "commit": "3030b0071afc1b37dbc5f4525ac15bc9cd6ec382"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -37,7 +37,7 @@
     "modules/ai-foundations/coding-and-analysis-workflow.json": "ab4e2337d536a56a8949066e12bf221eb6b19d6b5fd3dbfdf2f5d21eee84d372",
     "modules/ai-foundations/context-and-evidence-construction.json": "0bb7be3586dab8e18e2420af33b556b3a608ad9d4c89b0b4c9656f2798d26b7b",
     "modules/ai-foundations/context-tokens-and-modalities.json": "01989cfed64d3476e917b8138cdddb50e59facd936200d2cbfda4fd179775120",
-    "modules/ai-foundations/examples-and-output-contracts.json": "55ac16034b8670bdbc3ca7fe589b935904ceefa368945eda4e1305a6f603fbe0",
+    "modules/ai-foundations/examples-and-output-contracts.json": "44ad0322d35f26bfe66c30419c27671281689862ee935258e69d3c5a3428a160",
     "modules/ai-foundations/language-models-and-generation.json": "dbda601131f5732d90241f4bbc4753995d307a7d6e710193ac791b54414bc242",
     "modules/ai-foundations/privacy-safety-and-responsibility.json": "f065385b22abfc94469bb3193701f1206a9dcf90ffd3111ef7ae62c1212da86d",
     "modules/ai-foundations/prompt-anatomy-and-success-criteria.json": "7783a84525ca437e12ed7edace665b7a5c7a766af869ed785fc8b17756a63fdd",
@@ -310,9 +310,9 @@
     "training/ai-foundations/context-tokens-and-modalities/supplementary-reading.md": "3fdf3f6f3ba705ba171910c98870d1335e7bc778229f7342f04ed2e5be2ba215",
     "training/ai-foundations/context-tokens-and-modalities/transcripts/en-US.md": "187c1ebda49c59103d49329a09f70bfde586f1940a9800cf69bf62c6befe7f7b",
     "training/ai-foundations/examples-and-output-contracts/alternatives/en-US-reduced-motion.md": "79d582cb6fa9bc4513c315bf7c54407b474de43e3a0fdab64bdae4c37b97701c",
-    "training/ai-foundations/examples-and-output-contracts/alternatives/en-US-text-only.md": "39533c147b01f9aa21d05863bd78645cb0e2bff0efb1426181f65eeab50c0874",
-    "training/ai-foundations/examples-and-output-contracts/captions/en-US.vtt": "47a498896c3c12497ae29e6d891691bd7afebe32fac898f3c58f5484547e556d",
-    "training/ai-foundations/examples-and-output-contracts/class-script.json": "9c79b4590cf49af3605ad1cc083e123f2d177b55690197b3409ee1f176bff207",
+    "training/ai-foundations/examples-and-output-contracts/alternatives/en-US-text-only.md": "ee51a1dc40a255692e811bb9c2b0fe150a2932eff1322f457fd493518e433638",
+    "training/ai-foundations/examples-and-output-contracts/captions/en-US.vtt": "b087ac6fe75e78064bdb9c42d533068755a02363f58a6b964ae7063876ff6c51",
+    "training/ai-foundations/examples-and-output-contracts/class-script.json": "30b6be1ddc575879e3740ac1f8e2b04401cd3592a35314df8051489c89b90a03",
     "training/ai-foundations/examples-and-output-contracts/diagrams/examples-vs-rules.mmd": "7d7907887e3b75e8346d334417a63eb04df416206278b6f6ad67737290fc741d",
     "training/ai-foundations/examples-and-output-contracts/diagrams/output-contract-levels.mmd": "05c84c277645cc719e8b60a5d779ad30ce9223275529d90e539648c8d270655e",
     "training/ai-foundations/examples-and-output-contracts/diagrams/validation-pipeline.mmd": "ddc77ee0b1508f7bf58390089b342f9ce3501f30e66b2e000b39a3838ed06db2",
@@ -320,10 +320,10 @@
     "training/ai-foundations/examples-and-output-contracts/images/examples-and-rules.svg": "62d68aaaae532554fd1699a9ab581d7d66402f018ece8a0d82878f6f912e722f",
     "training/ai-foundations/examples-and-output-contracts/images/output-contract.svg": "d0b96f532d48366ee61937da5e6382438c3348487f50d8e4943ed52a04db63ca",
     "training/ai-foundations/examples-and-output-contracts/images/validation-pipeline.svg": "d23c44575bdf56cf4ac8d3f6b899ef568ba229a4775c9346d486e1efe82ef66d",
-    "training/ai-foundations/examples-and-output-contracts/integrity.json": "cdce4876a02f09879ab06da8bd05932b6f1985f48b9bfde00ceafd291d245106",
+    "training/ai-foundations/examples-and-output-contracts/integrity.json": "a1f519e86e13b7a5eeb034bfbf5ca135559a9a4c61c7c0e21d0141420a7e6789",
     "training/ai-foundations/examples-and-output-contracts/lab/README.md": "f57ef3d318d1dc71dbe378d26864c3744f987dcc37511446a6401a4012f7b4e3",
     "training/ai-foundations/examples-and-output-contracts/supplementary-reading.md": "8d49f26ff14d2da7c6d1bd01ad71cb8c5a95a8ae9c0ee905d1d1de5794b5847c",
-    "training/ai-foundations/examples-and-output-contracts/transcripts/en-US.md": "2f67471a858de623e7cf07ad109155ddc78280a1873d4c9a20a0ec6286dee850",
+    "training/ai-foundations/examples-and-output-contracts/transcripts/en-US.md": "9ea79c2f577f9cf7e07355057a8d6b178badbd053ed668727058f7c9584521b4",
     "training/ai-foundations/language-models-and-generation/alternatives/en-US-reduced-motion.md": "70fec3945714b91a31548a7389c6cddceffa70b77c1191f46aff82ac5c496baf",
     "training/ai-foundations/language-models-and-generation/alternatives/en-US-text-only.md": "7fdd0a7e85fb4d1e520e20ff13b9851febc316f137f4e55aa505c739e911d7aa",
     "training/ai-foundations/language-models-and-generation/captions/en-US.vtt": "b3d30b40f4ec5d78c094e7c1a01fdefca105761060a55f73dee536fb2775a6fe",
