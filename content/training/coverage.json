@@ -760,7 +760,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "review-agent-results-class",
-      "classScriptVersion": "1.1.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/reliable-agent-workflows/review-agent-results/class-script.json"
     },
     {

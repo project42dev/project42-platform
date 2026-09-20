@@ -1325,7 +1325,7 @@ test("publishes the bounded agent work-order class package", () => {
 
 test("publishes complete agent tool, context, and memory class packages", () => {
   const expectedWordCounts = new Map([
-    ["control-agent-actions", 945],
+    ["control-agent-actions", 1224],
     ["context-engineering", 957],
     ["memory-boundaries", 1031],
   ]);
@@ -1442,7 +1442,7 @@ test("publishes complete agent evaluation, operations, and capstone packages", (
   const expectedWordCounts = new Map([
     ["agent-evaluation", 940],
     ["agent-observability", 955],
-    ["review-agent-results", 1419],
+    ["review-agent-results", 1279],
     ["operate-and-recover-agent-systems", 945],
     ["reliable-agent-capstone", 1178],
   ]);
