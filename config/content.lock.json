@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "1732c18360e14ca4e4a16b0ba414cd8c9253b525"
+    "commit": "61846e668f6d9af1a3b2217230fdb458b6379dfe"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -137,9 +137,9 @@
     "resources/coding-agents/test-debug-handoff.json": "56af6df5f3b1d468564c4eb76c8c091cb8a32f2399b63e8c8c206f9e834ac85b",
     "resources/coding-tools/aider-operating-card.json": "5793532c93fd6a29fb66c650dc102abbd7693c11bf929826e944fff2e3f4fc26",
     "resources/coding-tools/claude-code-operating-card.json": "9860e0addb2d6bbd2334fa8edac64cb3b5ef3c1a1b0e0566fcd1c152d1741ed8",
-    "resources/coding-tools/cline-operating-card.json": "2af168458acf6621368b0c86bc0bc87111721de24a73e6151f2b65350f2f0ede",
+    "resources/coding-tools/cline-operating-card.json": "7266a6a05434a0b5d475103470e9edd3f5f7129108d869c639627245dc861589",
     "resources/coding-tools/codex-cli-operating-card.json": "6abdc6940f1a8fcd11d9cca4668aac86428a1c591ff04e1a44ac01ac996407be",
-    "resources/coding-tools/continue-operating-card.json": "34411b3d30c1a72165ca07546d63f338f133c1129afbfeac6a3d485acebc5448",
+    "resources/coding-tools/continue-operating-card.json": "56ede59670c3706f35388f3076e689710f026612ff21ce7595e4ba4ae7fda9af",
     "resources/coding-tools/cursor-operating-card.json": "c504534cae9ef34353587e29d1ce934a13ab79ed68175a63cfbac43ed75b193b",
     "resources/coding-tools/devin-operating-card.json": "07620f00231eaec50a23753d1168fb6b499bc8a73c7d0f377cc27920b01dab75",
     "resources/coding-tools/gemini-cli-operating-card.json": "9b6f5052c6474823167c9d14bfda99ca247e700f1c406e947fc44bb8c061463d",
