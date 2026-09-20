@@ -542,7 +542,7 @@
     "training/reliable-agent-workflows/context-engineering/lab/package.json": "565cd11822ae0608cb6f6f07bb99853ea9ae1464233a900b841ad5222a7898c5",
     "training/reliable-agent-workflows/context-engineering/lab/README.md": "a416433266f861981bf84a40c5589325510841ed2b1403cd712b1b7e881bd61e",
     "training/reliable-agent-workflows/context-engineering/lab/src/cli.js": "2010d36745b12ca1e0dc3724b3de76d8b59af9065f237882e6878bea363d9362",
-    "training/reliable-agent-workflows/context-engineering/lab/src/contracts.d.ts": "aa4f63e2fb6ed1a44d293a82dfc57092826a58e729fc58d9e0a30b2978199571",
+    "training/reliable-agent-workflows/context-engineering/lab/src/contracts.d.ts": "276d57d85b2a939b2cf703e047267fd0ba86ca6b80f29115216e024163f3dc6e",
     "training/reliable-agent-workflows/context-engineering/lab/src/engine.js": "1bab0b784116c4d66efb1fa85d65ce4e890fc58ce1c178148cd344605beac896",
     "training/reliable-agent-workflows/context-engineering/lab/test/context-engine-v3.test.js": "93a3caf26dd394393e952bca339e6ad58620098644c78cbd804e8155467d6f1a",
     "training/reliable-agent-workflows/context-engineering/lab/test/context.test.js": "f995b33b2b3d0a740579a12aa13e9e4965738f0e16dbdbd2521ef35ef0fb4999",

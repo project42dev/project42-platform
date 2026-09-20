@@ -60,6 +60,11 @@ const SYNCED_ENTRIES = [
 const TEXT_EXTENSIONS = [
   ".csv",
   ".js",
+  ".mjs",
+  ".cjs",
+  ".ts",
+  ".mts",
+  ".cts",
   ".json",
   ".lock",
   ".md",
