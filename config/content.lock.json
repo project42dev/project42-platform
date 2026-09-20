@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "96c8b275d5987531567807a78e1155f21fb2f128"
+    "commit": "dde85655b3a208a2df39b91dbb5a4555bb0345ee"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -224,8 +224,8 @@
     "resources/self-hosted-model-operations/self-hosted-model-security-boundary.json": "d448d162a012f3d1bf02a2c958b07094fa597e6e6e4573f784b690020865100a",
     "resources/self-hosted-model-operations/self-hosted-model-update-rollback-incident.json": "1600ec625d12689c847ccddebb540ef0dc92fc55d7fed3507541913ef6e17712",
     "resources/self-hosted-model-operations/workstation-model-service-runbook.json": "b323a1a519d007fd6dd68e06aa8249a23ffc32c2d418c03cfd1ab207f57084d4",
-    "resources/setup-quick-reference/agent-configuration-layering-reference.json": "becc4b35a18dc26dc866173612bd631b2d2aae9752713bc48068d9e792f5b77b",
-    "resources/setup-quick-reference/ai-coding-workspace-bootstrap.json": "5e13869aeae2661d2cc8be6de5b7af96627f5bf7d8427a203287b1aefc3f5011",
+    "resources/setup-quick-reference/agent-configuration-layering-reference.json": "a01c64897395b4b6191d1f84a4cf81df5ddd9d2183c8fdd63a8948b87bd70544",
+    "resources/setup-quick-reference/ai-coding-workspace-bootstrap.json": "00abc17d9479516bc1f89da40b308520615c84917649a5f8b993a15ffac7b3dd",
     "resources/setup-quick-reference/commands-hooks-and-automation-guide.json": "d65f1d0f5d5a48602440d40dd0876cbf6f812a4163ad7fb4f465b9c091bbb41c",
     "resources/setup-quick-reference/project42-daily-quick-reference.json": "e63783865b226cb7962c65c8bca2d6d1e71457e2c02ca268b4de68b26008602b",
     "resources/setup-quick-reference/windows-terminal-ai-workspace-setup.json": "27bab0f216a545c965b45d5aefb4fa53aa6dd632a7306c5de8b71577d4676fd4",
