@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "64e09dd0bd6358b331f96b4ffb37d3931c0793bf"
+    "commit": "d1848b629fdc08c70b16bfca2aed5bebbf4f0abc"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -214,7 +214,7 @@
     "resources/self-hosted-model-operations/self-hosted-deployment-shape-decision.json": "c41104efc6be63cf84db40faa935132d67c1ce3085a9edbcaa06fa8d4316d859",
     "resources/self-hosted-model-operations/self-hosted-model-evaluation-capacity-observability.json": "9dd34f9c78c68575bae709b334bd4a8d9ba472979f55714f07ccc764157510d6",
     "resources/self-hosted-model-operations/self-hosted-model-security-boundary.json": "fbb43aee65bca568dfa13c14bdc5a81d41798ea330e8561fe3f81b8cea8925d6",
-    "resources/self-hosted-model-operations/self-hosted-model-update-rollback-incident.json": "244d6e1463072b07f0e916dee586a1f6e53f0c44e5e197e86ec8430ab1f99235",
+    "resources/self-hosted-model-operations/self-hosted-model-update-rollback-incident.json": "1600ec625d12689c847ccddebb540ef0dc92fc55d7fed3507541913ef6e17712",
     "resources/self-hosted-model-operations/workstation-model-service-runbook.json": "b323a1a519d007fd6dd68e06aa8249a23ffc32c2d418c03cfd1ab207f57084d4",
     "resources/setup-quick-reference/agent-configuration-layering-reference.json": "becc4b35a18dc26dc866173612bd631b2d2aae9752713bc48068d9e792f5b77b",
     "resources/setup-quick-reference/ai-coding-workspace-bootstrap.json": "53f532ea80927796a42655f40eb48a7dea6f4af613673d013aa92afc132fb535",
