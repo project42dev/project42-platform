@@ -223,6 +223,21 @@ for (const relative of relativePaths) {
   const servedPath = servedFiles.get(relative);
   const upstreamPath = upstreamFiles.get(relative);
 
+  // Exercise fixtures are input data, including intentionally malformed JSON.
+  // Compare their complete text, which is stronger than comparing parsed dates.
+  // Only normalize Git's native line endings, as the content lock does.
+  if (relative.startsWith("training/") && relative.includes("/fixtures/")) {
+    if (!servedPath || !upstreamPath) {
+      fail(`${relative} :: fixture missing from ${servedPath ? "upstream" : "served content"}`);
+    } else {
+      const normalize = (text) => text.replace(/\r\n/g, "\n");
+      const served = normalize(await readFile(servedPath, "utf8"));
+      const upstream = normalize(await readFile(upstreamPath, "utf8"));
+      if (served !== upstream) fail(`${relative} :: fixture content differs from upstream`);
+    }
+    continue;
+  }
+
   if (servedPath && !upstreamPath) {
     const served = datesByPointer(await readJson(servedPath));
     for (const [pointer, date] of served) {
