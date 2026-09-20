@@ -64,6 +64,7 @@ const TEXT_EXTENSIONS = [
   ".md",
   ".mmd",
   ".py",
+  ".ps1",
   ".svg",
   ".txt",
   ".vtt",
@@ -128,6 +129,14 @@ async function inventory(base) {
     }
   }
   return files;
+}
+
+const hashFileOnlyIndex = args.indexOf("--hash-file");
+if (hashFileOnlyIndex >= 0) {
+  const file = args[hashFileOnlyIndex + 1];
+  if (!file) throw new Error("--hash-file requires a file path");
+  console.log(await hashFile(path.resolve(file)));
+  process.exit(0);
 }
 
 if (checkOnly) {
