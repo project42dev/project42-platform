@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "20328ad636cf78d1a8bcd713b457afa998154a17"
+    "commit": "d543feecb9c6a196dadcda5fc933daa959abef66"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -103,6 +103,23 @@
     "modules/self-hosted-model-operations/endpoint-identity-network-and-secrets.json": "6adb90f4b8c76eabf5cb6054992cfba310b2e80a4c5c9213e4e682c468fb5da7",
     "modules/self-hosted-model-operations/evaluate-the-exact-serving-build.json": "0c1d9098e4de6863472a2b2a68fc4727aa3754defa0f813810f9a69e10cabc77",
     "modules/self-hosted-model-operations/hardware-runtime-and-capacity-planning.json": "94ad3a52d91847cc01b7c0f453a2b3b8d6e06daf77dda58f96635c653e9e940a",
+    "modules/self-hosted-model-operations/lab/serving-contract/adapter_answer.py": "7a6170ffd4fbc265a8b6c829473d712e16c89b969b84bc800ad70124ab4cef63",
+    "modules/self-hosted-model-operations/lab/serving-contract/adapter_exercise.py": "0eea856c796fe621b8f055e7d8d32187cc59e64d5327d1ec418f3d599d1b6048",
+    "modules/self-hosted-model-operations/lab/serving-contract/conformance.py": "560b2d0083bea4e76079c7470ed897b5cb7e976f2374c8c4876e7a15029a3f8f",
+    "modules/self-hosted-model-operations/lab/serving-contract/Invoke-ServingChild.ps1": "158d65695a1d4d777cfe2d5f226115f89b0d75b2a14fd3a3d4df4551e3f98b07",
+    "modules/self-hosted-model-operations/lab/serving-contract/README-adapters.md": "08b136cc665fd81429b33dc5062547e5371d04ec72b5ea0eb16dad9d84034099",
+    "modules/self-hosted-model-operations/lab/serving-contract/README-conformance.md": "3b249190e6e67fc1d2ee9bdc35e2b04d6fa159597df97bc1a145883abf509088",
+    "modules/self-hosted-model-operations/lab/serving-contract/README-lifecycle.md": "7663c43982f81dc68df8996ff89d86bb3d1e2f14e28dcce312dac4602e659332",
+    "modules/self-hosted-model-operations/lab/serving-contract/Serving-Time.ps1": "6ba6c32689a2dd932375971cde3eb951de23fb277de3b723f8636075be7f2a20",
+    "modules/self-hosted-model-operations/lab/serving-contract/Setup-ServingLab.ps1": "0dab2b445396e365ffb614a578f856c31cc25c61435f1c229a03565d31a527eb",
+    "modules/self-hosted-model-operations/lab/serving-contract/Start-ServingLab.ps1": "14f2c807004bf2cddabe1eee5f71608421aab0f67dc0f087158462f5e7a2c949",
+    "modules/self-hosted-model-operations/lab/serving-contract/Stop-ServingLab.ps1": "fe5123900f17f1b64e3419f381570b38a83205fc3fbb0cc4385250b32e137b3f",
+    "modules/self-hosted-model-operations/lab/serving-contract/test_adapter_changed.py": "228a2b116dd452af84263e113eb51f9686c2ab73d498f4d107f762930b0713fa",
+    "modules/self-hosted-model-operations/lab/serving-contract/test_adapter_exercise.py": "90427b47d493358f9e7d463f0910928308ddb694a435e71d897fa5224e49148a",
+    "modules/self-hosted-model-operations/lab/serving-contract/test_adapter_rollback_boundaries.py": "caf84b15aa171fe0e5bfd19a7a8662c5c34f0eb11f23200a1891a5e1eccb1506",
+    "modules/self-hosted-model-operations/lab/serving-contract/test_conformance.py": "7b4838097cd8e7b28f72adeef1605b779d3b5b98e80bddaf95ca911b94e3c055",
+    "modules/self-hosted-model-operations/lab/serving-contract/Test-ServingLifecycle.ps1": "1855bd41ae099f97cc703574492f9cd3c579dcfc2806e3ae99b1e9a380795a0b",
+    "modules/self-hosted-model-operations/lab/serving-contract/Test-ServingTime.ps1": "b24398f45c65118804d11f801a653b783146cd5881960a7cc4ff00ac6baf2d74",
     "modules/self-hosted-model-operations/model-artifact-integrity.json": "ab1c46b518256a97837e07e650cb0790e84dedb812535de7f72cfed08a92d972",
     "modules/self-hosted-model-operations/model-identity-license-and-provenance.json": "f50ff9843e82e01e19e63e13f69ae4cbf21c965b02153b5860987b46d31910ef",
     "modules/self-hosted-model-operations/model-incident-response-and-recovery.json": "3539ba886a646b5bdf89a3ad7656331652d084b1642ed2afd137d7024fd1aa08",
@@ -110,7 +127,7 @@
     "modules/self-hosted-model-operations/observability-cost-and-performance.json": "0b58a2151a0104034feb0a2da46853be23be5c440a8a8334506e3086884df86f",
     "modules/self-hosted-model-operations/scaling-failure-and-capacity-controls.json": "18affe770679de2cb6798266c2d807b7900f612fc49fd9b60140286cf824eb1f",
     "modules/self-hosted-model-operations/self-hosted-model-operations-capstone.json": "a2a6c0db26e4b0895dbabc0e309e2844355573ab3de376cadf464c8ed3a1d675",
-    "modules/self-hosted-model-operations/serving-api-and-compatibility-contracts.json": "aa3823e1ea2d4cca992b22f315436c2d40d3ee4c2cdd071a50249b9dd9e17f35",
+    "modules/self-hosted-model-operations/serving-api-and-compatibility-contracts.json": "bf4f6be5d944d1a1270abce624771073420a756c5620a581f25eb96a4fc77fe9",
     "opportunity-registry.json": "c210869618229e1d7ee214c2b7ff64a096eaccbb659b87281e6057acc251d2c5",
     "reference/agentic-ai-product-evidence.json": "c9b2e0f4cf9faac8a551275fbe47701784647ba5f19b81e0d10d2cdd5fe52f01",
     "resource-packs/ai-service-operations.json": "3f5fe4fd53591564d1c253170d5d88f7b9c971fb922dcc32cd9fce6dfc235167",
@@ -635,11 +652,11 @@
     "training/self-hosted-model-operations/self-hosted-model-operations-capstone/class-script.json": "a50c9a6a5053dff4ed71252afa96cb436d025a92f8e9a890c482ea745e7fe1e9",
     "training/self-hosted-model-operations/self-hosted-model-operations-capstone/integrity.json": "ada315f9ea29a33ce7c52e6302a85a2703117714ae5ef58233ffbe8e088e0048",
     "training/self-hosted-model-operations/self-hosted-model-operations-capstone/transcripts/en-US.md": "a820170b74ab39d9717cd22158957a315346e0f82b73283e538fd596bfd64454",
-    "training/self-hosted-model-operations/serving-api-and-compatibility-contracts/alternatives/en-US-reduced-motion.md": "47da6f10a8038e4ed7af0096418f4b24733cc9bfd4989871d8565e704a8f8226",
-    "training/self-hosted-model-operations/serving-api-and-compatibility-contracts/alternatives/en-US-text-only.md": "aee9793952626e3924b3b84cf5610048913f47b4661e1fcdd5d7d1fed6fd86ab",
-    "training/self-hosted-model-operations/serving-api-and-compatibility-contracts/captions/en-US.vtt": "8142d16aee284d6baed486712b2349ca79877931b7ace930901143551b836a88",
-    "training/self-hosted-model-operations/serving-api-and-compatibility-contracts/class-script.json": "7c09c6535953459132296183131611e39183b7834f4010043c4cdf19b7d80ccf",
-    "training/self-hosted-model-operations/serving-api-and-compatibility-contracts/integrity.json": "a6a354ac23cf4524cd1766b3ade1315a8b7e781e827eb8a8400d3326c5ac50d2",
-    "training/self-hosted-model-operations/serving-api-and-compatibility-contracts/transcripts/en-US.md": "22245a5c4c6e355b52824f9e7d91c8b4f60d95b304a6ed24260f9a5231f5f353"
+    "training/self-hosted-model-operations/serving-api-and-compatibility-contracts/alternatives/en-US-reduced-motion.md": "a11b6d8a804756278095b24bac4845d4a99175f1751b8c2d63f01561418b1666",
+    "training/self-hosted-model-operations/serving-api-and-compatibility-contracts/alternatives/en-US-text-only.md": "b4907472f8073c464af80eeb871593b8c303b25420d618c5467f097708a3a8e8",
+    "training/self-hosted-model-operations/serving-api-and-compatibility-contracts/captions/en-US.vtt": "96d3229713e87a94ee9395548df3962a1cb044ab96ddae7a0aa8c4317d02da60",
+    "training/self-hosted-model-operations/serving-api-and-compatibility-contracts/class-script.json": "a84c62dd94782fc9cef4366c7c910abff7e8718d442aee01d6d687c772d48613",
+    "training/self-hosted-model-operations/serving-api-and-compatibility-contracts/integrity.json": "4e8406e882952b84c275e919f0378ec4904e33bf61ceaa896eb40908acbe7dbb",
+    "training/self-hosted-model-operations/serving-api-and-compatibility-contracts/transcripts/en-US.md": "e8fa87da5ecce4f3eeefefc48a348d5780f1b62a931ae12957a9767ebd45f6c2"
   }
 }

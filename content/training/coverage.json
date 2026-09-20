@@ -812,7 +812,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "serving-api-and-compatibility-contracts-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.3",
       "classScriptPath": "content/training/self-hosted-model-operations/serving-api-and-compatibility-contracts/class-script.json"
     },
     {

@@ -931,7 +931,7 @@ test("publishes the complete serving and compatibility-contract class", () => {
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1021);
+  assert.equal(script.spokenWordCount, 2967);
   assert.equal(script.releaseStatus, "draft");
   assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
   assert.equal(script.provenance.approvals.length, 0);

@@ -2,25 +2,25 @@
   "schemaVersion": "1.0",
   "classScript": {
     "id": "serving-api-and-compatibility-contracts-class",
-    "version": "1.0.0",
-    "sha256": "7fbe6e07cefc7d8ba13c1c8808a17383a458814b8547ecf7df7a493428f94fd6"
+    "version": "1.1.3",
+    "sha256": "a84c62dd94782fc9cef4366c7c910abff7e8718d442aee01d6d687c772d48613"
   },
   "artifacts": [
     {
       "path": "captions/en-US.vtt",
-      "sha256": "8142d16aee284d6baed486712b2349ca79877931b7ace930901143551b836a88"
+      "sha256": "96d3229713e87a94ee9395548df3962a1cb044ab96ddae7a0aa8c4317d02da60"
     },
     {
       "path": "transcripts/en-US.md",
-      "sha256": "22245a5c4c6e355b52824f9e7d91c8b4f60d95b304a6ed24260f9a5231f5f353"
+      "sha256": "e8fa87da5ecce4f3eeefefc48a348d5780f1b62a931ae12957a9767ebd45f6c2"
     },
     {
       "path": "alternatives/en-US-reduced-motion.md",
-      "sha256": "47da6f10a8038e4ed7af0096418f4b24733cc9bfd4989871d8565e704a8f8226"
+      "sha256": "a11b6d8a804756278095b24bac4845d4a99175f1751b8c2d63f01561418b1666"
     },
     {
       "path": "alternatives/en-US-text-only.md",
-      "sha256": "aee9793952626e3924b3b84cf5610048913f47b4661e1fcdd5d7d1fed6fd86ab"
+      "sha256": "b4907472f8073c464af80eeb871593b8c303b25420d618c5467f097708a3a8e8"
     }
   ]
 }

@@ -155,3 +155,59 @@ test("caption, transcript, text-only, reduced-motion, and integrity fixtures are
   assert.ok(expected["captions/en-US.vtt"].startsWith("WEBVTT\n"));
   assert.ok(expected["transcripts/en-US.md"].includes(classScript.title));
 });
+
+test("private-reference validation accepts ordinary colon-newline prose", () => {
+  const module = getLearningModule(classScript.moduleId);
+  assert.ok(module);
+
+  for (const stageDirection of [
+    "Review evidence separately:\nThen continue.",
+    "Review the evidence table:\r\nThen continue.",
+  ]) {
+    const ordinary = clone(classScript);
+    ordinary.segments[0].stageDirection = stageDirection;
+    assert.deepEqual(validateClassScriptPackage(ordinary, module), {
+      valid: true,
+      errors: [],
+    });
+  }
+});
+
+test("private-reference validation rejects actual nested paths, identifiers, and secret-like keys", () => {
+  const module = getLearningModule(classScript.moduleId);
+  assert.ok(module);
+  const privacyError =
+    "Class script contains a private path, identifier, or secret-like field";
+  const cases = [
+    ["Windows drive path", (invalid) => {
+      invalid.segments[0].stageDirection = "Open C:\\private\\lesson.txt";
+    }],
+    ["UNC path", (invalid) => {
+      invalid.segments[0].stageDirection = "Open \\\\server\\share\\lesson.txt";
+    }],
+    ["Unix home path", (invalid) => {
+      invalid.segments[0].stageDirection = "Open /home/editor/lesson.txt";
+    }],
+    ["Unix users path", (invalid) => {
+      invalid.segments[0].stageDirection = "Open /Users/editor/lesson.txt";
+    }],
+    ["nested secret-like object key", (invalid) => {
+      invalid.provenance["client-secret"] = "redacted";
+    }],
+    ["nested private identifier", (invalid) => {
+      invalid.provenance.audit = { reference: "subscription_id" };
+    }],
+  ];
+
+  for (const [name, mutate] of cases) {
+    const invalid = clone(classScript);
+    mutate(invalid);
+    const result = validateClassScriptPackage(invalid, module);
+    assert.equal(result.valid, false, name);
+    assert.equal(
+      result.errors.filter((error) => error === privacyError).length,
+      1,
+      name,
+    );
+  }
+});

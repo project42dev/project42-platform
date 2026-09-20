@@ -631,9 +631,35 @@ function validateNoPrivateReferences(
   label: string,
   errors: string[],
 ) {
-  if (privateReferencePattern.test(JSON.stringify(value))) {
+  if (containsPrivateReference(value)) {
     errors.push(`${label} contains a private path, identifier, or secret-like field`);
   }
+}
+
+function containsPrivateReference(
+  value: unknown,
+  seen: WeakSet<object> = new WeakSet<object>(),
+): boolean {
+  if (typeof value === "string") {
+    return privateReferencePattern.test(value);
+  }
+  if (value === null || typeof value !== "object") {
+    return false;
+  }
+  if (seen.has(value)) {
+    return false;
+  }
+  seen.add(value);
+
+  for (const [key, nestedValue] of Object.entries(value)) {
+    if (
+      privateReferencePattern.test(key) ||
+      containsPrivateReference(nestedValue, seen)
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function isSafeRelativePath(path: string) {
