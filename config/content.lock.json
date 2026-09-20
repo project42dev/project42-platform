@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "79061621c78d42500cc369f6c56269b1738df470"
+    "commit": "ed05b86d441278f2114cff274247cecdc8ec825e"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -229,7 +229,7 @@
     "resources/setup-quick-reference/commands-hooks-and-automation-guide.json": "d65f1d0f5d5a48602440d40dd0876cbf6f812a4163ad7fb4f465b9c091bbb41c",
     "resources/setup-quick-reference/project42-daily-quick-reference.json": "9d257b94b3e12b9c38b4e1efb6db68bf1dc0b3f031d50a919e9920429760e956",
     "resources/setup-quick-reference/windows-terminal-ai-workspace-setup.json": "27bab0f216a545c965b45d5aefb4fa53aa6dd632a7306c5de8b71577d4676fd4",
-    "resources/troubleshooting-operations/agent-tool-failure-recovery.json": "419b4bc0a82b69ca46ca01e05fb2da021b5eecb4f8b1016bacfdba9ca87afedd",
+    "resources/troubleshooting-operations/agent-tool-failure-recovery.json": "087ff40c842c864d70d0c181046e95186ee446d0d7bc8ff320843d9808d4441c",
     "resources/troubleshooting-operations/ai-api-failure-triage.json": "69b0ba51fb714c93e83124c18d0b18f33e52f9c0f299f9d4abe243c58d2ae1cc",
     "resources/troubleshooting-operations/ai-incident-triage.json": "b048fe817a7caac06d8d98a0367de693b4b34bd5d53965b56810b61cbe4b7ba9",
     "resources/troubleshooting-operations/ai-rollback-and-incident-closeout.json": "f21e67f31906cc3565db0781e3567d24195e8c70bc59907f1cb87a2bb9fdcf61",
