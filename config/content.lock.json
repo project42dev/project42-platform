@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "d543feecb9c6a196dadcda5fc933daa959abef66"
+    "commit": "64e09dd0bd6358b331f96b4ffb37d3931c0793bf"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -211,11 +211,11 @@
     "resources/self-hosted-model-operations/cloud-managed-model-compute-runbook.json": "c40f1fb4ced84cce366b2f24ea3f48da1df6f37a532ce7c0d865c9b9c33da600",
     "resources/self-hosted-model-operations/container-on-prem-model-service-runbook.json": "3e16344bcd36238b288b97ec320fbd62fcf030769161d95304211c67fc34c182",
     "resources/self-hosted-model-operations/edge-model-service-runbook.json": "c3c36ac655cf7e20484d08919042741c1b5d7a4296fe5b7e7cd092b52ac7f18e",
-    "resources/self-hosted-model-operations/self-hosted-deployment-shape-decision.json": "76a95b47cf1cb13435ba20cebae7acccfc856c52c7fb7a2dc44a3ec2a989185a",
+    "resources/self-hosted-model-operations/self-hosted-deployment-shape-decision.json": "c41104efc6be63cf84db40faa935132d67c1ce3085a9edbcaa06fa8d4316d859",
     "resources/self-hosted-model-operations/self-hosted-model-evaluation-capacity-observability.json": "9dd34f9c78c68575bae709b334bd4a8d9ba472979f55714f07ccc764157510d6",
     "resources/self-hosted-model-operations/self-hosted-model-security-boundary.json": "fbb43aee65bca568dfa13c14bdc5a81d41798ea330e8561fe3f81b8cea8925d6",
     "resources/self-hosted-model-operations/self-hosted-model-update-rollback-incident.json": "244d6e1463072b07f0e916dee586a1f6e53f0c44e5e197e86ec8430ab1f99235",
-    "resources/self-hosted-model-operations/workstation-model-service-runbook.json": "44d5916924316ca4eadd46e157551b69e3fac429671ec4c651a52325537bb1f0",
+    "resources/self-hosted-model-operations/workstation-model-service-runbook.json": "b323a1a519d007fd6dd68e06aa8249a23ffc32c2d418c03cfd1ab207f57084d4",
     "resources/setup-quick-reference/agent-configuration-layering-reference.json": "becc4b35a18dc26dc866173612bd631b2d2aae9752713bc48068d9e792f5b77b",
     "resources/setup-quick-reference/ai-coding-workspace-bootstrap.json": "53f532ea80927796a42655f40eb48a7dea6f4af613673d013aa92afc132fb535",
     "resources/setup-quick-reference/commands-hooks-and-automation-guide.json": "d65f1d0f5d5a48602440d40dd0876cbf6f812a4163ad7fb4f465b9c091bbb41c",
