@@ -988,6 +988,18 @@ test("publishes five source-backed Google and cross-provider workflow references
       ["playbook", ["provider-neutral", "anthropic", "openai", "google"]],
     ],
   ]);
+  const originalCrossProviderSections = {
+  "cross-provider-runtime-configuration": [
+    "separate-contract-and-adapter",
+    "record-configuration",
+    "verify-and-recover"
+  ],
+  "cross-provider-evaluation-migration-workflow": [
+    "design-fair-comparison",
+    "stage-migration",
+    "verify-and-recover"
+  ]
+};
   const resources = starterCatalog.resources.filter((resource) =>
     expected.has(resource.id),
   );
@@ -1002,7 +1014,13 @@ test("publishes five source-backed Google and cross-provider workflow references
     assert.equal(resource.owner, "project42-editorial");
     assert.equal(resource.reviewCadenceDays, 30);
     assert.match(resource.lastVerified, /^\d{4}-\d{2}-\d{2}$/);
-    assert.equal(resource.sections.length, 3);
+    const retainedSectionIds = originalCrossProviderSections[resource.id];
+    if (retainedSectionIds) {
+      assert.deepEqual(resource.sections.slice(0, retainedSectionIds.length).map((section) => section.id), retainedSectionIds, `${resource.id} retains its original sections`);
+      assert.equal(new Set(resource.sections.map((section) => section.id)).size, resource.sections.length, `${resource.id} has unique section IDs`);
+    } else {
+      assert.equal(resource.sections.length, 3);
+    }
     assert.ok(
       resource.sections.some((section) => section.code?.code.includes("[")),
       `${resource.id} must include a reusable example or evidence record`,
