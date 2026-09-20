@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "70d30b040f1a5b975aec358b33da3d3b26817646"
+    "commit": "4e033e5ac7adf256ef65ca489174814218395ed1"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -146,9 +146,9 @@
     "resources/coding-tools/github-copilot-operating-card.json": "f365f7613e5f940e6e06c8be9aa2810682af6316cc7314c2b805cca0ed2e74f2",
     "resources/coding-tools/jules-operating-card.json": "3e6e14478e76b635a9d079eb96c9de6bd66663499e424c382d7c7ba324487766",
     "resources/coding-tools/kilo-code-operating-card.json": "0126ee05564ffa605bfdcfbc7165d536ee87ffd17d29f05f1edbf514f13c6355",
-    "resources/coding-tools/openclaw-operating-card.json": "173c636b1f3bc581a3cc77a2bb9fc3cd9352e6a728d40d9abce25fd1d69653e9",
+    "resources/coding-tools/openclaw-operating-card.json": "50823176894c15b204e9f5cfe67b0d86bef149c4d3184d3fffd0865710b3f496",
     "resources/coding-tools/opencode-operating-card.json": "595e9298da5b6d2595da620c145701078394167e28223a0a7009508d19e6d59f",
-    "resources/coding-tools/roo-code-operating-card.json": "c36fd17e46f837b7f11b7af9c3c46594fe8e466429f2538a6a3cc34feafd1447",
+    "resources/coding-tools/roo-code-operating-card.json": "504670acaa2edb5e01af22bce4a71d8572a715dca8204951a6240f8cda7c0eda",
     "resources/coding-tools/windsurf-operating-card.json": "5b07f1b2167011dae840a3703b33923fb86abeb3324830ff877c623c17412dc3",
     "resources/evaluation-safety/bounded-ai-red-team-exercise.json": "bbbd2d9f1c843752ba0c96ce9665cd93138302f58849e0668c96c3fd9d3a53e2",
     "resources/evaluation-safety/evaluation-plan-charter.json": "c23719642d29290cc912db762831539daffd8912780f3bd06a2ca150840978a2",
