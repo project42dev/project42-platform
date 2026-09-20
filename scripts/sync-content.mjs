@@ -59,6 +59,7 @@ const SYNCED_ENTRIES = [
 // on the first clean checkout anyone made on Windows.
 const TEXT_EXTENSIONS = [
   ".csv",
+  ".js",
   ".json",
   ".lock",
   ".md",
@@ -112,7 +113,7 @@ async function hashFile(file) {
   const bytes = await readFile(file);
   // Curriculum is text authored on two platforms; normalise line endings so a
   // checkout difference is never mistaken for a content difference.
-  const content = TEXT_EXTENSIONS.includes(path.extname(file).toLowerCase())
+  const content = (TEXT_EXTENSIONS.includes(path.extname(file).toLowerCase()) || path.basename(file) === ".gitattributes")
     ? bytes.toString("utf8").replace(/^﻿/, "").replaceAll("\r\n", "\n")
     : bytes;
   return createHash("sha256").update(content).digest("hex");
