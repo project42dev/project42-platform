@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "8f25245e9706850cf709f58e72b7caca9729b87f"
+    "commit": "2d2f8dbee5e93ffd81cad0fb0f69880ab420406c"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -165,7 +165,7 @@
     "resources/coding-tools/cline-operating-card.json": "7266a6a05434a0b5d475103470e9edd3f5f7129108d869c639627245dc861589",
     "resources/coding-tools/codex-cli-operating-card.json": "6abdc6940f1a8fcd11d9cca4668aac86428a1c591ff04e1a44ac01ac996407be",
     "resources/coding-tools/continue-operating-card.json": "56ede59670c3706f35388f3076e689710f026612ff21ce7595e4ba4ae7fda9af",
-    "resources/coding-tools/cursor-operating-card.json": "c504534cae9ef34353587e29d1ce934a13ab79ed68175a63cfbac43ed75b193b",
+    "resources/coding-tools/cursor-operating-card.json": "973575e05c7ce07e1d397e1869c9eab60e0f77496c4d6a845821f2ea9f31a97f",
     "resources/coding-tools/devin-operating-card.json": "07620f00231eaec50a23753d1168fb6b499bc8a73c7d0f377cc27920b01dab75",
     "resources/coding-tools/gemini-cli-operating-card.json": "9b6f5052c6474823167c9d14bfda99ca247e700f1c406e947fc44bb8c061463d",
     "resources/coding-tools/github-copilot-operating-card.json": "f365f7613e5f940e6e06c8be9aa2810682af6316cc7314c2b805cca0ed2e74f2",
