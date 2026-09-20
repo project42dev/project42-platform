@@ -22,7 +22,9 @@
     "./content/diagrams/lessons/tool-trust-boundaries.json": "./content/diagrams/lessons/tool-trust-boundaries.json",
     "./content/diagrams/lessons/grounded-answer-workflow.json": "./content/diagrams/lessons/grounded-answer-workflow.json",
     "./content/diagrams/lessons/prompt-contract.json": "./content/diagrams/lessons/prompt-contract.json",
-    "./content/diagrams/lessons/multi-agent-handoff.json": "./content/diagrams/lessons/multi-agent-handoff.json"
+    "./content/diagrams/lessons/multi-agent-handoff.json": "./content/diagrams/lessons/multi-agent-handoff.json",
+    "./content/diagrams/lessons/provider-selection.json": "./content/diagrams/lessons/provider-selection.json",
+    "./content/diagrams/lessons/cost-and-capacity-management.json": "./content/diagrams/lessons/cost-and-capacity-management.json"
   },
   "files": [
     ".dev.vars.example",

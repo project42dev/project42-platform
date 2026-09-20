@@ -1,4 +1,8 @@
 import type { Metadata } from "next";
+import CostCapacityLesson, { type Content as CostCapacityLessonContent } from "../../components/CostCapacityLesson";
+import costCapacityJSON from "@project42/platform/content/diagrams/lessons/cost-and-capacity-management.json";
+import ProviderSelectionLesson, { type ProviderSelectionLessonContent } from "../../components/ProviderSelectionLesson";
+import providerSelectionJSON from "@project42/platform/content/diagrams/lessons/provider-selection.json";
 import PromptContractLesson, { type PromptContractLessonContent } from "../../components/PromptContractLesson";
 import MultiAgentHandoffLesson, { type MultiAgentHandoffLessonContent } from "../../components/MultiAgentHandoffLesson";
 import promptContractJSON from "@project42/platform/content/diagrams/lessons/prompt-contract.json";
@@ -61,7 +65,11 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
   const isMultiAgentHandoff = diagramId === "multi-agent-handoff";
   const promptContract = promptContractJSON as PromptContractLessonContent;
   const multiAgentHandoff = multiAgentHandoffJSON as MultiAgentHandoffLessonContent;
-  const isNativeLesson = isLearningEvidenceLoop || isSafeAgentLoop || isToolTrust || isGroundedAnswer || isPromptContract || isMultiAgentHandoff;
+  const isProviderSelection = diagramId === "provider-selection";
+  const providerSelection = providerSelectionJSON as ProviderSelectionLessonContent;
+  const isCostCapacity = diagramId === "cost-and-capacity-management";
+  const costCapacity = costCapacityJSON as CostCapacityLessonContent;
+  const isNativeLesson = isLearningEvidenceLoop || isSafeAgentLoop || isToolTrust || isGroundedAnswer || isPromptContract || isMultiAgentHandoff || isProviderSelection || isCostCapacity;
   const safeAgentLesson = (isToolTrust ? toolTrustLessonJSON : safeAgentLessonJSON) as SafeAgentLessonContent;
   const lesson = learningEvidenceLessonJSON as LearningEvidenceLessonContent;
   const steps = isNativeLesson ? [] : getDiagramSteps(diagramId);
@@ -108,7 +116,11 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
 
       <figure className="diagram-figure">
         <div className="diagram-canvas">
-          {isPromptContract ? (
+          {isCostCapacity ? (
+            <CostCapacityLesson data={costCapacity} />
+          ) : isProviderSelection ? (
+            <ProviderSelectionLesson data={providerSelection} />
+          ) : isPromptContract ? (
             <PromptContractLesson data={promptContract} />
           ) : isMultiAgentHandoff ? (
             <MultiAgentHandoffLesson data={multiAgentHandoff} />
