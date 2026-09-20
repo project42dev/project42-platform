@@ -20,14 +20,14 @@ import type { LearningEvidenceLessonContent } from "../../components/LearningEvi
 import { SafeAgentLesson } from "../../components/SafeAgentLesson";
 import type { SafeAgentLessonContent } from "../../components/SafeAgentLesson";
 import { InteractiveDiagramClient } from "../../components/InteractiveDiagramClient";
-import { OrchardLifecycleDiagramClient } from "../../components/OrchardLifecycleDiagramClient";
+import OrchardLifecycleLesson, { type OrchardLifecycleLessonContent } from "../../components/OrchardLifecycleLesson";
+import orchardLifecycleJSON from "@project42/platform/content/diagrams/lessons/orchard-lifecycle.json";
 import learningEvidenceLessonJSON from "@project42/platform/content/diagrams/lessons/learning-evidence-loop.json";
 import safeAgentLessonJSON from "@project42/platform/content/diagrams/lessons/safe-agent-loop.json";
 import toolTrustLessonJSON from "@project42/platform/content/diagrams/lessons/tool-trust-boundaries.json";
 import { diagramCatalog, getDiagram } from "../../lib/diagrams";
 import { getDiagramSteps } from "../../lib/diagramSteps";
 
-const REACT_DIAGRAM_IDS = new Set(["orchard-lifecycle"]);
 const LEARNING_EVIDENCE_LOOP_ID = "learning-evidence-loop";
 
 interface DiagramPageProps {
@@ -77,7 +77,9 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
   const agentOrchestration = agentOrchestrationJSON as AgentOrchestrationLessonContent;
   const isContentFreshness = diagramId === "content-freshness-release";
   const contentFreshness = contentFreshnessJSON as ContentFreshnessLessonContent;
-  const isNativeLesson = isLearningEvidenceLoop || isSafeAgentLoop || isToolTrust || isGroundedAnswer || isPromptContract || isMultiAgentHandoff || isProviderSelection || isCostCapacity || isAgentOrchestration || isContentFreshness;
+  const isOrchardLifecycle = diagramId === "orchard-lifecycle";
+  const orchardLifecycle = orchardLifecycleJSON as OrchardLifecycleLessonContent;
+  const isNativeLesson = isLearningEvidenceLoop || isSafeAgentLoop || isToolTrust || isGroundedAnswer || isPromptContract || isMultiAgentHandoff || isProviderSelection || isCostCapacity || isAgentOrchestration || isContentFreshness || isOrchardLifecycle;
   const safeAgentLesson = (isToolTrust ? toolTrustLessonJSON : safeAgentLessonJSON) as SafeAgentLessonContent;
   const lesson = learningEvidenceLessonJSON as LearningEvidenceLessonContent;
   const steps = isNativeLesson ? [] : getDiagramSteps(diagramId);
@@ -124,7 +126,9 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
 
       <figure className="diagram-figure">
         <div className="diagram-canvas">
-          {isContentFreshness ? (
+          {isOrchardLifecycle ? (
+            <OrchardLifecycleLesson data={orchardLifecycle} />
+          ) : isContentFreshness ? (
             <ContentFreshnessLesson data={contentFreshness} />
           ) : isAgentOrchestration ? (
             <AgentOrchestrationLesson data={agentOrchestration} />
@@ -142,16 +146,6 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
             <><span className="visually-hidden">{safeAgentLesson.altText}</span><SafeAgentLesson data={safeAgentLesson} /></>
           ) : isLearningEvidenceLoop ? (
             <><span className="visually-hidden">{lesson.altText}</span><LearningEvidenceLesson data={lesson} /></>
-          ) : REACT_DIAGRAM_IDS.has(diagram.id) ? (
-            <>
-              <span className="visually-hidden">{diagram.altText}</span>
-              <OrchardLifecycleDiagramClient
-                alt={diagram.altText}
-                category={diagram.category}
-                steps={steps}
-                title={diagram.title}
-              />
-            </>
           ) : (
             <InteractiveDiagramClient
               alt={diagram.altText}
