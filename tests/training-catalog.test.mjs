@@ -1384,7 +1384,7 @@ test("publishes complete MCP, orchestration, and handoff class packages", () => 
   const expectedWordCounts = new Map([
     ["mcp-architecture", 1963],
     ["mcp-trust-and-security", 904],
-    ["orchestration-patterns", 1002],
+    ["orchestration-patterns", 2390],
     ["multi-agent-handoffs", 1013],
   ]);
 
