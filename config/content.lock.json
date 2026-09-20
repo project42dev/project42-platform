@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "b64e03c6bc9281d88642b3de7edbfd7f76302f12"
+    "commit": "d213f15b94e94e9fde5723a9f479140da813fa1e"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -39,7 +39,7 @@
     "modules/ai-foundations/context-tokens-and-modalities.json": "01989cfed64d3476e917b8138cdddb50e59facd936200d2cbfda4fd179775120",
     "modules/ai-foundations/examples-and-output-contracts.json": "55ac16034b8670bdbc3ca7fe589b935904ceefa368945eda4e1305a6f603fbe0",
     "modules/ai-foundations/language-models-and-generation.json": "dbda601131f5732d90241f4bbc4753995d307a7d6e710193ac791b54414bc242",
-    "modules/ai-foundations/privacy-safety-and-responsibility.json": "96431f8a60e8e56d555d620234d3f92991d0ab94ac7922a2bcf86c6bcd9f56ad",
+    "modules/ai-foundations/privacy-safety-and-responsibility.json": "f065385b22abfc94469bb3193701f1206a9dcf90ffd3111ef7ae62c1212da86d",
     "modules/ai-foundations/prompt-anatomy-and-success-criteria.json": "7783a84525ca437e12ed7edace665b7a5c7a766af869ed785fc8b17756a63fdd",
     "modules/ai-foundations/prompt-with-purpose.json": "7525f9fc9b7c6f729caa48c065585ea59c039b5de26e410220191c80c5abac10",
     "modules/ai-foundations/research-with-evidence.json": "7238363f39687ce33e87e18ac6737378391b83eb741e48abcff37c0eb9e4be66",
@@ -342,9 +342,9 @@
     "training/ai-foundations/language-models-and-generation/supplementary-reading.md": "24d3ae8c686b1efe68deeeeb84ed15cb20f7f52d735e37cb8c58d398312cca68",
     "training/ai-foundations/language-models-and-generation/transcripts/en-US.md": "a3717719a478aa72b01f0c7b6a7eb33196d9fcb7fac0c7717cdd2e8f6076f493",
     "training/ai-foundations/privacy-safety-and-responsibility/alternatives/en-US-reduced-motion.md": "48a7d49375e3f1b880510a6d1c89b4bbbfdcb6013af1325350dd8236ec03a5d6",
-    "training/ai-foundations/privacy-safety-and-responsibility/alternatives/en-US-text-only.md": "ed349045e241f57159dd2e38dc6d3937c7e0ffabbb78e41ed2b911048a72a1c7",
-    "training/ai-foundations/privacy-safety-and-responsibility/captions/en-US.vtt": "6b8960cbbc9f96a42ca026a9e5fc9e22cb4acfc8569e7995db8d9692ed879d52",
-    "training/ai-foundations/privacy-safety-and-responsibility/class-script.json": "a4c2ac7c9246e8874a9b82a1b444ad87312bf3e0f80902c2f39261a17499998e",
+    "training/ai-foundations/privacy-safety-and-responsibility/alternatives/en-US-text-only.md": "e5aaad9135462e7968440437620e8ff9355f1a961eb562efba3daf870513f790",
+    "training/ai-foundations/privacy-safety-and-responsibility/captions/en-US.vtt": "2d1919d228fa65b22eb65685485370afe679e3a9dec46dd9788694ed1503b49f",
+    "training/ai-foundations/privacy-safety-and-responsibility/class-script.json": "2e5d87f3f638d330a575fbcdac5cc6ce9bfd4e722a298adcea832c4259262ff8",
     "training/ai-foundations/privacy-safety-and-responsibility/diagrams/input-boundary.mmd": "d0f3222b34e17f11924272c2e5814e12004564f67ce065ebda0f5266405309c6",
     "training/ai-foundations/privacy-safety-and-responsibility/diagrams/responsible-use-cycle.mmd": "e9780940a001ea56d7b51c28016bc2c8cdd8843c24c0d598f98cad4debddd0b2",
     "training/ai-foundations/privacy-safety-and-responsibility/diagrams/risk-scaling.mmd": "584c32ff44d88d6f2f01c6f19c14986fb6c7445017091495a25c656b38e3dce1",
@@ -356,10 +356,10 @@
     "training/ai-foundations/privacy-safety-and-responsibility/images/input-boundary.svg": "0ec05f040cfefe39aa1ed555f16e086d0a502956411b9e99476308f15edaf828",
     "training/ai-foundations/privacy-safety-and-responsibility/images/responsible-use-plan.svg": "4d1163aab36a4e63e0221d0874cbe071d74a867787882cd1d560204bf4076694",
     "training/ai-foundations/privacy-safety-and-responsibility/images/risk-scaling.svg": "6cf92f497fad15dcf30d12260d43f8738700d4c4718b42aedefce1b10230fded",
-    "training/ai-foundations/privacy-safety-and-responsibility/integrity.json": "5f2f8ad5814b2adc8bcc35027bad663efdebb2c68b09acf98cbd608e4cad9bb3",
+    "training/ai-foundations/privacy-safety-and-responsibility/integrity.json": "8ccac8186d8ebc1575a393933b08fe944d76eb93716173bda0fdf23e263b19b0",
     "training/ai-foundations/privacy-safety-and-responsibility/lab/README.md": "65ef551d495bc63655c4cafe85b664a1581e070d7b3bbf2a5c88d136fcdb3be9",
     "training/ai-foundations/privacy-safety-and-responsibility/supplementary-reading.md": "87380ecb8d02123938c2dd17409b09ac442a06c151f1db7027cfc368d25c1d14",
-    "training/ai-foundations/privacy-safety-and-responsibility/transcripts/en-US.md": "25c135ea715a0ea6e6c85a7d0ac2ab412f8ee4b87d27126fbaccd9a735abec77",
+    "training/ai-foundations/privacy-safety-and-responsibility/transcripts/en-US.md": "3b96b47d9c4dd2ce83a7e87355ce9d0731bf7578734ec3e8d82d6416e2e81bec",
     "training/ai-foundations/prompt-anatomy-and-success-criteria/alternatives/en-US-reduced-motion.md": "f911090dc7f29282785a565f15ff2feceb4888d916b833bf0fd8d986260babd2",
     "training/ai-foundations/prompt-anatomy-and-success-criteria/alternatives/en-US-text-only.md": "34a3c39d2707f02dd9e1363fac47c32b336bb08eab81931e354367fb123f1504",
     "training/ai-foundations/prompt-anatomy-and-success-criteria/captions/en-US.vtt": "82348bfa5d690ca6568370788c073e344eedcc569a8fecd99de193fcaca50148",
