@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "d1848b629fdc08c70b16bfca2aed5bebbf4f0abc"
+    "commit": "5b96d5d6bf2845bc977af95d862d5e3dbc4e41c2"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -212,7 +212,7 @@
     "resources/self-hosted-model-operations/container-on-prem-model-service-runbook.json": "3e16344bcd36238b288b97ec320fbd62fcf030769161d95304211c67fc34c182",
     "resources/self-hosted-model-operations/edge-model-service-runbook.json": "c3c36ac655cf7e20484d08919042741c1b5d7a4296fe5b7e7cd092b52ac7f18e",
     "resources/self-hosted-model-operations/self-hosted-deployment-shape-decision.json": "c41104efc6be63cf84db40faa935132d67c1ce3085a9edbcaa06fa8d4316d859",
-    "resources/self-hosted-model-operations/self-hosted-model-evaluation-capacity-observability.json": "9dd34f9c78c68575bae709b334bd4a8d9ba472979f55714f07ccc764157510d6",
+    "resources/self-hosted-model-operations/self-hosted-model-evaluation-capacity-observability.json": "f20717b0e1c4e05875af6cb23334d0e23d775d4439555bcc9385d06b7107d8aa",
     "resources/self-hosted-model-operations/self-hosted-model-security-boundary.json": "fbb43aee65bca568dfa13c14bdc5a81d41798ea330e8561fe3f81b8cea8925d6",
     "resources/self-hosted-model-operations/self-hosted-model-update-rollback-incident.json": "1600ec625d12689c847ccddebb540ef0dc92fc55d7fed3507541913ef6e17712",
     "resources/self-hosted-model-operations/workstation-model-service-runbook.json": "b323a1a519d007fd6dd68e06aa8249a23ffc32c2d418c03cfd1ab207f57084d4",
