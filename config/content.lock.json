@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "9314623d4feef86a482c913fab4f5cc4fea2faf9"
+    "commit": "f4f6b0b414da1fb1ac05e350f409fc7423d030d3"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -216,7 +216,7 @@
     "resources/research-verification/consequence-based-review-gate.json": "05f7bbeb3927e94fa38a096864b2d09fe5c3703ec3b33d5717bab0c6a72dceba",
     "resources/research-verification/fact-verification-workflow.json": "5aac78e618c9fa6699db96b8f0dd870dec8b4217eefc003951eb751360b66c1a",
     "resources/research-verification/source-authority-ladder.json": "c889c69d4fc94224565e5734a799795aed719f8ddd8e4ea48629e05035bac0f3",
-    "resources/self-hosted-model-operations/cloud-managed-model-compute-runbook.json": "c40f1fb4ced84cce366b2f24ea3f48da1df6f37a532ce7c0d865c9b9c33da600",
+    "resources/self-hosted-model-operations/cloud-managed-model-compute-runbook.json": "6c742bc97b31f740ed34b1fa664e637dc9069b35962427fbc38556c03be747c4",
     "resources/self-hosted-model-operations/container-on-prem-model-service-runbook.json": "3e16344bcd36238b288b97ec320fbd62fcf030769161d95304211c67fc34c182",
     "resources/self-hosted-model-operations/edge-model-service-runbook.json": "717db31ba7cce87ba167332b931d0be7bc68371cce92acc02e7c43d8d5959e64",
     "resources/self-hosted-model-operations/self-hosted-deployment-shape-decision.json": "c41104efc6be63cf84db40faa935132d67c1ce3085a9edbcaa06fa8d4316d859",
@@ -234,7 +234,7 @@
     "resources/troubleshooting-operations/ai-incident-triage.json": "b048fe817a7caac06d8d98a0367de693b4b34bd5d53965b56810b61cbe4b7ba9",
     "resources/troubleshooting-operations/ai-rollback-and-incident-closeout.json": "f21e67f31906cc3565db0781e3567d24195e8c70bc59907f1cb87a2bb9fdcf61",
     "resources/troubleshooting-operations/context-quality-regression-triage.json": "39af3ac65bb59725ec1763a5f80137915e509504f5277a16645461cc196e553a",
-    "source-registry.json": "5ac94624f884d7f03133320da347a0a18d7e599f11eaa1f05473872be73c1cef",
+    "source-registry.json": "e6fc70aea1edd56de7e5529d897faf31e6753648bab63c9bc182c12faccab290",
     "training/agentic-ai-literacy/delivery-contract.json": "02aa762a549b3926d07e1b9a5d64c811b32f2369e19c36f6769fd9a2798df1e3",
     "training/ai-foundations/agents-and-guardrails/alternatives/en-US-reduced-motion.md": "edcfe87bb59d999421d918b821b55ca054f5d4691e4a61cb3149a8182fc2d809",
     "training/ai-foundations/agents-and-guardrails/alternatives/en-US-text-only.md": "58c959e7550b1f23d70e0d8166ba3d8e6a524144f53238db4002622298a5a6de",
