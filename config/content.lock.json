@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "568199f32a8547ab992d4b773e869e82d7740f94"
+    "commit": "f5102b30b5d17dbdfbdf74a758a3d9cd33554b34"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -217,7 +217,7 @@
     "resources/research-verification/fact-verification-workflow.json": "5aac78e618c9fa6699db96b8f0dd870dec8b4217eefc003951eb751360b66c1a",
     "resources/research-verification/source-authority-ladder.json": "c889c69d4fc94224565e5734a799795aed719f8ddd8e4ea48629e05035bac0f3",
     "resources/self-hosted-model-operations/cloud-managed-model-compute-runbook.json": "6c742bc97b31f740ed34b1fa664e637dc9069b35962427fbc38556c03be747c4",
-    "resources/self-hosted-model-operations/container-on-prem-model-service-runbook.json": "3e16344bcd36238b288b97ec320fbd62fcf030769161d95304211c67fc34c182",
+    "resources/self-hosted-model-operations/container-on-prem-model-service-runbook.json": "d3853f13c0e08bf4e857ff6b1b689393965cf5d0ce72f338ebf24f218a18bc7e",
     "resources/self-hosted-model-operations/edge-model-service-runbook.json": "717db31ba7cce87ba167332b931d0be7bc68371cce92acc02e7c43d8d5959e64",
     "resources/self-hosted-model-operations/self-hosted-deployment-shape-decision.json": "c41104efc6be63cf84db40faa935132d67c1ce3085a9edbcaa06fa8d4316d859",
     "resources/self-hosted-model-operations/self-hosted-model-evaluation-capacity-observability.json": "f20717b0e1c4e05875af6cb23334d0e23d775d4439555bcc9385d06b7107d8aa",
