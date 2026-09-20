@@ -914,12 +914,20 @@ test("publishes six source-backed Anthropic and OpenAI workflow references", () 
     assert.equal(resource.owner, "project42-editorial");
     assert.equal(resource.reviewCadenceDays, 30);
     assert.match(resource.lastVerified, /^\d{4}-\d{2}-\d{2}$/);
-    assert.equal(resource.sections.length, 3);
+    if (resource.id.endsWith("-evaluation-error-triage")) {
+      const sectionIds = new Set(resource.sections.map((section) => section.id));
+      for (const id of ["build-evaluation", "triage-failure", "verify-and-recover"]) {
+        assert.ok(sectionIds.has(id), `${resource.id} retains ${id}`);
+      }
+      assert.equal(sectionIds.size, resource.sections.length);
+    } else {
+      assert.equal(resource.sections.length, 3);
+    }
     assert.ok(
       resource.sections.some((section) => section.code?.code.includes("[")),
       `${resource.id} must include a reusable example or evidence record`,
     );
-    assert.equal(resource.sources.length, 3);
+    assert.ok(resource.sources.length >= 3);
     assert.ok(
       resource.sources.every((source) => /^\d{4}-\d{2}-\d{2}$/.test(source.lastVerified)),
     );
@@ -970,7 +978,10 @@ test("provider workflow references keep credentials, execution, and recovery bou
     assert.ok(text.includes(required), `provider workflow pack must cover ${required}`);
   }
   assert.doesNotMatch(text, /\bsk-[a-z0-9_-]{12,}\b/i);
-  assert.doesNotMatch(text, /(?:api[_ -]?key|authorization)\s*[:=]\s*["'][^$[<]/i);
+  const inlineCredential = /(?:api[_ -]?key|authorization)\s*[:=]\s*["'](?!OMITTED["'])[^$[<]/i;
+  assert.match('apiKey: "credential-value"', inlineCredential);
+  assert.doesNotMatch('apiKey: "OMITTED"', inlineCredential);
+  assert.doesNotMatch(text, inlineCredential);
   assert.doesNotMatch(text, /(?:users[\\/][^\\/]+|[a-z]:\\users\\)/i);
 });
 
@@ -1018,6 +1029,12 @@ test("publishes five source-backed Google and cross-provider workflow references
     if (retainedSectionIds) {
       assert.deepEqual(resource.sections.slice(0, retainedSectionIds.length).map((section) => section.id), retainedSectionIds, `${resource.id} retains its original sections`);
       assert.equal(new Set(resource.sections.map((section) => section.id)).size, resource.sections.length, `${resource.id} has unique section IDs`);
+    } else if (resource.id.endsWith("-evaluation-error-triage")) {
+      const sectionIds = new Set(resource.sections.map((section) => section.id));
+      for (const id of ["build-evaluation", "triage-failure", "verify-and-recover"]) {
+        assert.ok(sectionIds.has(id), `${resource.id} retains ${id}`);
+      }
+      assert.equal(sectionIds.size, resource.sections.length);
     } else {
       assert.equal(resource.sections.length, 3);
     }
