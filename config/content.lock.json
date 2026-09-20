@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "e8cc1847576b65429690efb33098bede765f5da9"
+    "commit": "568199f32a8547ab992d4b773e869e82d7740f94"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -651,7 +651,7 @@
     "training/reliable-agent-workflows/orchestration-patterns/class-script.json": "9c8ec3e19a9172af8d3cf0b48c21dfd23cbd0e56e66f6b90a4c0b7348af814ba",
     "training/reliable-agent-workflows/orchestration-patterns/integrity.json": "48e1a2450d3f88a22ee5430c5935e8082305a8651c0d5a5f802f4bebc41e8754",
     "training/reliable-agent-workflows/orchestration-patterns/lab/package.json": "624c4ad6a57c5db41700596058364f9e93b86d389b549249fa34b41964a4fba0",
-    "training/reliable-agent-workflows/orchestration-patterns/lab/README.md": "b1aac244df4c0ad08a82ec9a5b1362f6df972b479376cc6363b7b41e9df62a9c",
+    "training/reliable-agent-workflows/orchestration-patterns/lab/README.md": "3c1a0c789523255e4c6f10506e9fd540b20faaa52911cac77f943f2d70f80e93",
     "training/reliable-agent-workflows/orchestration-patterns/lab/src/cli.mjs": "48f0c1869a7c4a98b15c9c4101711381fb29e686942f755392baed142c2629b1",
     "training/reliable-agent-workflows/orchestration-patterns/lab/src/executor.mjs": "3a337f7a1189b30961b10b4c9fdcfcfae561dbcde1d3865f19a2c6966adba8d6",
     "training/reliable-agent-workflows/orchestration-patterns/lab/src/fixtures.mjs": "483803b2aab3f8d2be3dc3d1e01ad124a41f5ea026ba559e3ce722847d612a00",
