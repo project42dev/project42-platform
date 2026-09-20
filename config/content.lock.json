@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "0bc9c7603d36a84925fff7523a6c913bdd4fc4f7"
+    "commit": "5c37717084e5e3412f7fa8634d47e0206180c685"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -32,7 +32,7 @@
     "modules/agentic-systems-and-mcp/model-context-protocol-mcp.json": "cf6c664088951acd120e9e3c6eb7d71d12bcd2c720f249d1a94b1ed43726d207",
     "modules/agentic-systems-and-mcp/multi-agent-orchestration.json": "d7107389108fe5459718c9b0f642b28387bf919a75679b55d85f0dba87b4d7e9",
     "modules/ai-foundations/agents-and-guardrails.json": "5c09055267107bc6ae6a1e5bcfd71053266e1030d0bde752c7d4e3d0afd2cd21",
-    "modules/ai-foundations/ai-foundations-capstone.json": "b4ca7c5925e765cd9ad54bc7f04744b37f396538835f3eefc0b23e732f9a33fe",
+    "modules/ai-foundations/ai-foundations-capstone.json": "d3294cd3b8c36949ff1fcecda8a54ffab970d8fa4af453c3d6887ad0f544f761",
     "modules/ai-foundations/ai-systems-and-use-cases.json": "6ef353aefec9eab62bd117dd4d79fcf367a7fbe221cc8139c326273952d2fdce",
     "modules/ai-foundations/coding-and-analysis-workflow.json": "ab4e2337d536a56a8949066e12bf221eb6b19d6b5fd3dbfdf2f5d21eee84d372",
     "modules/ai-foundations/context-and-evidence-construction.json": "0bb7be3586dab8e18e2420af33b556b3a608ad9d4c89b0b4c9656f2798d26b7b",
@@ -229,9 +229,9 @@
     "training/ai-foundations/agents-and-guardrails/supplementary-reading.md": "5d54c659044c025ce48085fc4d5c1edca726cd8ea47463a9c62facb5853e1447",
     "training/ai-foundations/agents-and-guardrails/transcripts/en-US.md": "d9d1c9a83649de609863c3a0dd3c5f903257dd3d8962d78bb29a38af58318c46",
     "training/ai-foundations/ai-foundations-capstone/alternatives/en-US-reduced-motion.md": "46df03963fc330357a41bc4b43c88206487bf502152edf3ff81fb079366f2e2b",
-    "training/ai-foundations/ai-foundations-capstone/alternatives/en-US-text-only.md": "c6df37bb2ca47ecb947ca1981e9c851c7d4b79c6dbbfe098326168eef56b7c45",
-    "training/ai-foundations/ai-foundations-capstone/captions/en-US.vtt": "0e0c636e44983b69fbeee9e34443edb4617a3d75b249353229c88ec835aecd33",
-    "training/ai-foundations/ai-foundations-capstone/class-script.json": "f2c884f0db1c6ccdb1cac77ea3418e236139cd9324b3da805b9974dddee112f1",
+    "training/ai-foundations/ai-foundations-capstone/alternatives/en-US-text-only.md": "e0cb104816357325cca0997a5616d10f36a85ae37b25ebe8f5cf971c9cfb354f",
+    "training/ai-foundations/ai-foundations-capstone/captions/en-US.vtt": "107123d9944b76667b22e34c3fb66fac42edc072a24d638080f8fb61ee2f27d1",
+    "training/ai-foundations/ai-foundations-capstone/class-script.json": "f90c9530acedff7f97ed97bec92d16bf68fbd6db3caf0c42a89bf6b157209bc6",
     "training/ai-foundations/ai-foundations-capstone/diagrams/authority-boundary.mmd": "274dc485a56144fe18bf8f3fe523cda41229fd1f34bc149eb8e19330dc2ea138",
     "training/ai-foundations/ai-foundations-capstone/diagrams/capstone-workflow.mmd": "cfc55e99752bcb31d962f8506a1905bb47a1847cc572b25c354036e7ab32185e",
     "training/ai-foundations/ai-foundations-capstone/diagrams/evidence-chain.mmd": "6987ff7226f373ba1d56dab8cddb423eac894a6c30e2356ed8af74dc6369b53b",
@@ -241,10 +241,10 @@
     "training/ai-foundations/ai-foundations-capstone/images/segment-02-authority.svg": "d5e5e406bb755585fcbb5156daf89cd45ee648cb22bb2a0ba10018dbdf1ac159",
     "training/ai-foundations/ai-foundations-capstone/images/segment-03-evidence.svg": "e36cd760130ab0c1242b32f604cb52c332cc22e731775a7f5a10ce6b6b56403d",
     "training/ai-foundations/ai-foundations-capstone/images/segment-04-recovery.svg": "42480880bd9a794e4d8ce57e3be336e9c07e6a389edc954f2a93dd1f6e5f1cc7",
-    "training/ai-foundations/ai-foundations-capstone/integrity.json": "415058d0118efb711ba6c84f9f4319466e2c6ddcb472dc54ae0f55ec2daf85f1",
+    "training/ai-foundations/ai-foundations-capstone/integrity.json": "808011690f709d9ae669c5abb1859bbf88dbb7ec235688addcdccc6ba07a525b",
     "training/ai-foundations/ai-foundations-capstone/lab/README.md": "1a7a020251a5bcae084b8ae7c30d5d5126db4c88112e80a9a59bbc74f7a44c1c",
     "training/ai-foundations/ai-foundations-capstone/supplementary-reading.md": "841011ed9cde4476f6f14123a30ceaaf3dc49e6d3103fa3938e66d5a3f1e618a",
-    "training/ai-foundations/ai-foundations-capstone/transcripts/en-US.md": "4f6ef56220c2e7eb1e6c6f27846c000b240eb3d8b39bce00444cd8b68032b793",
+    "training/ai-foundations/ai-foundations-capstone/transcripts/en-US.md": "8746977bb87bc0aa8016c45a7a89dc813775de962f8918e3b91b7797ecb36a5a",
     "training/ai-foundations/ai-systems-and-use-cases/alternatives/en-US-reduced-motion.md": "c1d9b95c9d40f0e915d643db8d208f120c152ffe5dd6a99bd981e4ead9f4c8ef",
     "training/ai-foundations/ai-systems-and-use-cases/alternatives/en-US-text-only.md": "847989320251adecac3767ea961c9f56053664660ab8177defa16c1ac2e19f87",
     "training/ai-foundations/ai-systems-and-use-cases/captions/en-US.vtt": "e588fe4901014cf65753dd9c3400de12d199bb2baa6123669ede1e12d8528236",
