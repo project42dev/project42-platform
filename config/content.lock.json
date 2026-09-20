@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "39dae03cdccc998375356d28109307bb9c13b849"
+    "commit": "0bc9c7603d36a84925fff7523a6c913bdd4fc4f7"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -43,7 +43,7 @@
     "modules/ai-foundations/prompt-anatomy-and-success-criteria.json": "66f862d66a05623e1634d00d5cd83a1712c5e451617f0e7bf44d080bedc385a1",
     "modules/ai-foundations/prompt-with-purpose.json": "7525f9fc9b7c6f729caa48c065585ea59c039b5de26e410220191c80c5abac10",
     "modules/ai-foundations/research-with-evidence.json": "7238363f39687ce33e87e18ac6737378391b83eb741e48abcff37c0eb9e4be66",
-    "modules/ai-foundations/safe-tool-use-workflow.json": "46064abaaf3ac83892a124fc15afbbec443cee3196a31aef2e1a2ef0daec595f",
+    "modules/ai-foundations/safe-tool-use-workflow.json": "59b02b63245ed1bd22991182eb0e9de168f90f5a56df5cf630f59ce3d91c405c",
     "modules/ai-foundations/verification-and-iterative-improvement.json": "23244d22bcba2c4ef7fb0b5f8dae5ff4fc5ccfcb156df3b707dd993c5b257165",
     "modules/ai-foundations/what-ai-does.json": "3f5e4a3a8094518502a0cb7653733a412444b1e518c98dd1c22e54c284260280",
     "modules/ai-foundations/writing-and-transformation-workflow.json": "c3bf0da5dfbec96f918479fd4130c4ec0f15ea2002ccfa92b1983cbb00b55db4",
@@ -412,9 +412,9 @@
     "training/ai-foundations/research-with-evidence/supplementary-reading.md": "47b608a5698f65af327a483349289f0f3e3e9a083ee2e5c37d63381f27bc486b",
     "training/ai-foundations/research-with-evidence/transcripts/en-US.md": "10b77809a86789256d3510bcda7fb91b9debe38c5acd7131db7c28137a000196",
     "training/ai-foundations/safe-tool-use-workflow/alternatives/en-US-reduced-motion.md": "8ee3560ea29617afd0aee9b8409409e03c61aff2a6657cdd7534f2d6cf4a264a",
-    "training/ai-foundations/safe-tool-use-workflow/alternatives/en-US-text-only.md": "84fe0556e50fa341fa1032cbeaa4590b8ae5d1bdb19930977f0398d4d083fd96",
-    "training/ai-foundations/safe-tool-use-workflow/captions/en-US.vtt": "f98067a81852db7c303dd3637aa163422ce88c753196d816b5487bb3888d59a8",
-    "training/ai-foundations/safe-tool-use-workflow/class-script.json": "67ce22f9da49993d03743d9d1eeff041e0c534771a60b2bf50b750ef521cf93c",
+    "training/ai-foundations/safe-tool-use-workflow/alternatives/en-US-text-only.md": "ea967bbce519eb5ac9a2e7799ffaac71797abd601a990e1a9b4fe3c745680749",
+    "training/ai-foundations/safe-tool-use-workflow/captions/en-US.vtt": "cf7a3486aa2c3d7f057e614085e7174b33cef145a80ede6da9e0b8156be5a832",
+    "training/ai-foundations/safe-tool-use-workflow/class-script.json": "4abd0112f5e1483b3d7faebdc79ea91bbaa4ad04a7fda902e40a046eefe7d0e6",
     "training/ai-foundations/safe-tool-use-workflow/diagrams/approval-boundary.mmd": "3afbd06371ae185897dacf0ce61e54338657a9c226fc36f20e95a9a92d3b2df0",
     "training/ai-foundations/safe-tool-use-workflow/diagrams/recovery-workflow.mmd": "60ad4792cc93329ee15b2fe54f48369952198a929e06cd9f5e043414e4e1a8e9",
     "training/ai-foundations/safe-tool-use-workflow/diagrams/tool-contract.mmd": "1477cf09764f963d8ff03c0487dea5a20b7d9b0f620db85039a7503017523f08",
@@ -422,10 +422,10 @@
     "training/ai-foundations/safe-tool-use-workflow/images/approval-and-verification.svg": "c01ff6ab63bd019aa69f996e2b0e82d99a511ed6d9c73ee1a29995fbe04f2363",
     "training/ai-foundations/safe-tool-use-workflow/images/bounded-tool-contract.svg": "6e101aec4c64c02a10a811cd66789fbd902b74127631e2d5ead4136c0c26b74f",
     "training/ai-foundations/safe-tool-use-workflow/images/partial-failure-recovery.svg": "47a4ddec562c65b7dcdb9deb52a1c4e5b2eb6e304ca7507b6d0d0d97d154e712",
-    "training/ai-foundations/safe-tool-use-workflow/integrity.json": "a1596fe06da3bd1ff06b2ee4bc6ce3c1d52923b135cfe69de2b07816326e312a",
+    "training/ai-foundations/safe-tool-use-workflow/integrity.json": "9f4d097a35c1c8c1b5020a4279504d80ba6e93c465e67cdc5ab79ccd83260d9c",
     "training/ai-foundations/safe-tool-use-workflow/lab/README.md": "7693d6601abd56689774f65f4da3a8ede2f1a58b1a83abfe607bc9711ab6a4d8",
     "training/ai-foundations/safe-tool-use-workflow/supplementary-reading.md": "e6aed2a509d4691f4c5c59dccd5ccbd4fc74d60b2d3117e722799a00e82838bf",
-    "training/ai-foundations/safe-tool-use-workflow/transcripts/en-US.md": "7a30f83fff00cb0aa967416c301ce5632367bf47c4e3270e3a343f074535318a",
+    "training/ai-foundations/safe-tool-use-workflow/transcripts/en-US.md": "547fb798346c395db8aa6fc0325cea849c2ab560f92e73aab41adacf46257562",
     "training/ai-foundations/verification-and-iterative-improvement/alternatives/en-US-reduced-motion.md": "316b910e2a11b5718576dd5ff69c2f10592d8d4c84feca57cc43f257d7604df7",
     "training/ai-foundations/verification-and-iterative-improvement/alternatives/en-US-text-only.md": "63a03a4d72cefea9ac8f5c61f31cc4ba32e29b3dd9c16dd56ce76cb0db69f266",
     "training/ai-foundations/verification-and-iterative-improvement/captions/en-US.vtt": "0776e3c2a6152f2497091e8342411c563e902da21ab32830f06edb403bb770d8",
