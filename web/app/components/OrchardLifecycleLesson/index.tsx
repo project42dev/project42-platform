@@ -131,7 +131,7 @@ export default function OrchardLifecycleLesson({ data }: OrchardLifecycleLessonP
         labelX: (startX + rightBoundary) / 2,
         labelY: branchY
       };
-    }; 
+    };
     const results: DrawnEdge[] = [];
     data.edges.forEach(edge => {
       const from = boxes.get(edge.from);
