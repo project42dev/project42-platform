@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import ContentFreshnessLesson, { type ContentFreshnessLessonContent } from "../../components/ContentFreshnessLesson";
+import contentFreshnessJSON from "@project42/platform/content/diagrams/lessons/content-freshness-release.json";
 import AgentOrchestrationLesson, { type AgentOrchestrationLessonContent } from "../../components/AgentOrchestrationLesson";
 import agentOrchestrationJSON from "@project42/platform/content/diagrams/lessons/agent-orchestration.json";
 import CostCapacityLesson, { type Content as CostCapacityLessonContent } from "../../components/CostCapacityLesson";
@@ -73,7 +75,9 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
   const costCapacity = costCapacityJSON as CostCapacityLessonContent;
   const isAgentOrchestration = diagramId === "agent-orchestration";
   const agentOrchestration = agentOrchestrationJSON as AgentOrchestrationLessonContent;
-  const isNativeLesson = isLearningEvidenceLoop || isSafeAgentLoop || isToolTrust || isGroundedAnswer || isPromptContract || isMultiAgentHandoff || isProviderSelection || isCostCapacity || isAgentOrchestration;
+  const isContentFreshness = diagramId === "content-freshness-release";
+  const contentFreshness = contentFreshnessJSON as ContentFreshnessLessonContent;
+  const isNativeLesson = isLearningEvidenceLoop || isSafeAgentLoop || isToolTrust || isGroundedAnswer || isPromptContract || isMultiAgentHandoff || isProviderSelection || isCostCapacity || isAgentOrchestration || isContentFreshness;
   const safeAgentLesson = (isToolTrust ? toolTrustLessonJSON : safeAgentLessonJSON) as SafeAgentLessonContent;
   const lesson = learningEvidenceLessonJSON as LearningEvidenceLessonContent;
   const steps = isNativeLesson ? [] : getDiagramSteps(diagramId);
@@ -120,7 +124,9 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
 
       <figure className="diagram-figure">
         <div className="diagram-canvas">
-          {isAgentOrchestration ? (
+          {isContentFreshness ? (
+            <ContentFreshnessLesson data={contentFreshness} />
+          ) : isAgentOrchestration ? (
             <AgentOrchestrationLesson data={agentOrchestration} />
           ) : isCostCapacity ? (
             <CostCapacityLesson data={costCapacity} />

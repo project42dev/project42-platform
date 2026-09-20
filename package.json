@@ -25,7 +25,8 @@
     "./content/diagrams/lessons/multi-agent-handoff.json": "./content/diagrams/lessons/multi-agent-handoff.json",
     "./content/diagrams/lessons/provider-selection.json": "./content/diagrams/lessons/provider-selection.json",
     "./content/diagrams/lessons/cost-and-capacity-management.json": "./content/diagrams/lessons/cost-and-capacity-management.json",
-    "./content/diagrams/lessons/agent-orchestration.json": "./content/diagrams/lessons/agent-orchestration.json"
+    "./content/diagrams/lessons/agent-orchestration.json": "./content/diagrams/lessons/agent-orchestration.json",
+    "./content/diagrams/lessons/content-freshness-release.json": "./content/diagrams/lessons/content-freshness-release.json"
   },
   "files": [
     ".dev.vars.example",
