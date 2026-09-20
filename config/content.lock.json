@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "68afa8bfd7c805dcf9d6d1d3c3dc18487acc2a8a"
+    "commit": "be73b942dd8065ba28deb5e5c10b6ae4633df9c0"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -95,7 +95,7 @@
     "modules/rag-and-fine-tuning-engineering/lora-qlora-fine-tuning.json": "ffe02c4adaef92d932e5b7afecaa545cc1f5e00f42e358a58281b6e6e62ba676",
     "modules/reliable-agent-workflows/agent-evaluation.json": "51958e96f968bb5828e918b6a7debb9ede40de5234c9f49d3ec9a611b7f8cbb4",
     "modules/reliable-agent-workflows/agent-observability.json": "f67b2a49553caf64a09a1c0cb1fd3aba1384b762bf99c17caca29b23061ace1c",
-    "modules/reliable-agent-workflows/context-engineering.json": "bdd1a4f2bac3229d1c7ef78ff1f6cff5e24273fcfd7c73b5acdb37f708832625",
+    "modules/reliable-agent-workflows/context-engineering.json": "a1e0856fe1ed5c40f72b5ee03552cbbad228d2f4f36ff03d28e681319a5dca71",
     "modules/reliable-agent-workflows/mcp-architecture.json": "921f549475d1103b7f8ce5c3559bc279e6b9b6f2a97780b64745c12e5d7bdbe9",
     "modules/reliable-agent-workflows/mcp-trust-and-security.json": "4acc68585c0bb809de4594da25ec30f003f3313a393f2463d1269a387c446573",
     "modules/reliable-agent-workflows/memory-boundaries.json": "b3f07f96f9efb1369db2e0a231461f43bb76801d2266160702c605838bf198ee",
