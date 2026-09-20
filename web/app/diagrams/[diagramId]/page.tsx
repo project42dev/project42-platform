@@ -1,4 +1,8 @@
 import type { Metadata } from "next";
+import PromptContractLesson, { type PromptContractLessonContent } from "../../components/PromptContractLesson";
+import MultiAgentHandoffLesson, { type MultiAgentHandoffLessonContent } from "../../components/MultiAgentHandoffLesson";
+import promptContractJSON from "@project42/platform/content/diagrams/lessons/prompt-contract.json";
+import multiAgentHandoffJSON from "@project42/platform/content/diagrams/lessons/multi-agent-handoff.json";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GroundedAnswerLesson, type GroundedAnswerLessonContent } from "../../components/GroundedAnswerLesson";
@@ -53,7 +57,11 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
   const isToolTrust = diagramId === "tool-trust-boundaries";
   const isGroundedAnswer = diagramId === "grounded-answer-workflow";
   const groundedAnswerLesson = groundedAnswerLessonJSON as GroundedAnswerLessonContent;
-  const isNativeLesson = isLearningEvidenceLoop || isSafeAgentLoop || isToolTrust || isGroundedAnswer;
+  const isPromptContract = diagramId === "prompt-contract";
+  const isMultiAgentHandoff = diagramId === "multi-agent-handoff";
+  const promptContract = promptContractJSON as PromptContractLessonContent;
+  const multiAgentHandoff = multiAgentHandoffJSON as MultiAgentHandoffLessonContent;
+  const isNativeLesson = isLearningEvidenceLoop || isSafeAgentLoop || isToolTrust || isGroundedAnswer || isPromptContract || isMultiAgentHandoff;
   const safeAgentLesson = (isToolTrust ? toolTrustLessonJSON : safeAgentLessonJSON) as SafeAgentLessonContent;
   const lesson = learningEvidenceLessonJSON as LearningEvidenceLessonContent;
   const steps = isNativeLesson ? [] : getDiagramSteps(diagramId);
@@ -100,7 +108,11 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
 
       <figure className="diagram-figure">
         <div className="diagram-canvas">
-          {isGroundedAnswer ? (
+          {isPromptContract ? (
+            <PromptContractLesson data={promptContract} />
+          ) : isMultiAgentHandoff ? (
+            <MultiAgentHandoffLesson data={multiAgentHandoff} />
+          ) : isGroundedAnswer ? (
             <><span className="visually-hidden">{groundedAnswerLesson.altText}</span><GroundedAnswerLesson data={groundedAnswerLesson} /></>
           ) : isSafeAgentLoop || isToolTrust ? (
             <><span className="visually-hidden">{safeAgentLesson.altText}</span><SafeAgentLesson data={safeAgentLesson} /></>
@@ -128,7 +140,7 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
             />
           )}
         </div>
-        <figcaption>{isGroundedAnswer ? groundedAnswerLesson.caption : isSafeAgentLoop ? safeAgentLesson.caption : isLearningEvidenceLoop ? lesson.caption : diagram.caption}</figcaption>
+        <figcaption>{isPromptContract ? promptContract.caption : isGroundedAnswer ? groundedAnswerLesson.caption : isSafeAgentLoop ? safeAgentLesson.caption : isLearningEvidenceLoop ? lesson.caption : diagram.caption}</figcaption>
       </figure>
 
       {!isNativeLesson && (

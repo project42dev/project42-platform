@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "ae802860f4d646f104fe3c3f32e4a7835d9de97e"
+    "commit": "569083f40d3522f4cc31272180e2b7dd41eeac29"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -15,6 +15,8 @@
     "diagrams/learning-evidence-loop.mmd": "bb7320b9964e2fac205eb30ebda50d9078a9abdfda571e41c7775f9b7088c63c",
     "diagrams/lessons/grounded-answer-workflow.json": "3bb8980bcd0a92be29a91fcdf2dfb21294cc8970b76f199ca00c17fa1a720108",
     "diagrams/lessons/learning-evidence-loop.json": "e0fc7e576813a3d9413acfad58451332fd94cacc733ccafe72d97975073306e4",
+    "diagrams/lessons/multi-agent-handoff.json": "7d6dd97dce57ccfe470b1ecff4e2d03a2b47f5b6d0f7ded295e5319673852e4b",
+    "diagrams/lessons/prompt-contract.json": "7c5c93616bbf65a7f0ef539e8943e1448ec583bcd9a81c3c73ef38e21138d3d6",
     "diagrams/lessons/safe-agent-loop.json": "ff842862caf852619899ccd176361b849e999263859515cce56f14a079f025c4",
     "diagrams/lessons/tool-trust-boundaries.json": "fedf4528a9e079feda272ac9d2046dcd33c9051d856c5c83ed72e7162946c068",
     "diagrams/multi-agent-handoff.mmd": "4656b3b0f5a5e871cd1c944a180c57caef1da8f5764c93556d47776759504eb8",

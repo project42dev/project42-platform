@@ -1,0 +1,448 @@
+.lesson {
+  --lesson-surface: var(--p42-surface-card, Canvas);
+  --lesson-text: var(--p42-text-body, CanvasText);
+  --lesson-title: var(--p42-text-title, CanvasText);
+  --lesson-border: var(--p42-border-soft, CanvasText);
+  --lesson-soft: var(--p42-interactive-muted, var(--p42-surface, Canvas));
+  --lesson-medium: var(--p42-surface, Canvas);
+  --lesson-button: var(--p42-secondary-btn-bg, ButtonFace);
+  --lesson-button-text: var(--p42-secondary-btn-fg, ButtonText);
+  --lesson-button-border: var(--p42-secondary-btn-border, ButtonText);
+  box-sizing: border-box;
+  display: grid;
+  gap: 1.25rem;
+  max-width: 100%;
+  color: var(--lesson-text);
+  font-size: max(1rem, 16px);
+  line-height: 1.5;
+}
+
+.lesson *,
+.lesson *::before,
+.lesson *::after {
+  box-sizing: border-box;
+}
+
+.header,
+.status,
+.detail,
+.sources,
+.takeaways,
+.textAlternative,
+.diagram {
+  border: 1px solid var(--lesson-border);
+  border-radius: 0.75rem;
+  background: var(--lesson-surface);
+  color: inherit;
+}
+
+.header,
+.detail,
+.sources,
+.takeaways {
+  padding: clamp(1rem, 3vw, 1.75rem);
+}
+
+.header h2,
+.detail h3,
+.artifact h4,
+.practice h4,
+.sources h3,
+.takeaways h3 {
+  margin-block: 0.25rem 0.6rem;
+  color: var(--lesson-title);
+  line-height: 1.2;
+}
+
+.header p,
+.detail p,
+.sources p,
+.takeaways li {
+  max-width: 78ch;
+}
+
+.category,
+.stageLabel,
+.artifactLabel {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.notice {
+  border-inline-start: 0.3rem solid currentColor;
+  margin-block-end: 0;
+  padding: 0.75rem 1rem;
+  background: var(--lesson-soft);
+  font-weight: 650;
+}
+
+.status {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+}
+
+.diagram {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 48rem);
+  justify-content: center;
+  gap: 4.5rem;
+  min-width: 0;
+  overflow: hidden;
+  padding-block: 1.25rem;
+  padding-inline: 1.25rem 13rem;
+  isolation: isolate;
+}
+
+.connectors {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.connectorPath {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.arrowHead {
+  fill: currentColor;
+  stroke: none;
+}
+
+.diagramNode {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.6rem;
+  align-items: center;
+  min-width: 0;
+  min-height: 5.25rem;
+  border: 1px solid currentColor;
+  border-radius: 0.6rem;
+  padding: 0.8rem 1rem;
+  background: var(--lesson-surface);
+  color: var(--lesson-text);
+  font: inherit;
+  font-size: max(0.875rem, 14px);
+  line-height: 1.35;
+  text-align: start;
+  cursor: pointer;
+}
+
+.diagramNode strong {
+  color: var(--lesson-title);
+  font-size: 1.05em;
+}
+
+.diagramNode span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.diagramNode[data-node="untrusted"] {
+  border-width: 3px;
+  background: var(--p42-warning-muted, var(--lesson-soft));
+}
+
+.diagramNode[data-kind="decision"] {
+  border-radius: 1rem 0.45rem;
+}
+
+.diagramNode[data-kind="terminal"] {
+  border-style: double;
+  border-width: 3px;
+}
+
+.diagramNode[aria-pressed="true"] {
+  outline: 0.2rem solid currentColor;
+  outline-offset: 0.15rem;
+  background: var(--lesson-medium);
+}
+
+.edgeLabel {
+  position: absolute;
+  z-index: 3;
+  max-width: 9.5rem;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--lesson-border);
+  border-radius: 999px;
+  padding: 0.16rem 0.45rem;
+  background: var(--lesson-surface);
+  color: inherit;
+  font-size: max(0.75rem, 12px);
+  font-weight: 650;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+
+.edgeLabel[data-route="return"] {
+  width: 9.5rem;
+  max-width: 9.5rem;
+}
+
+.textAlternative {
+  padding: 0.85rem 1rem;
+}
+
+.textAlternative summary {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.textAlternative p {
+  margin-block-end: 0;
+  max-width: 88ch;
+}
+
+.detail {
+  min-width: 0;
+}
+
+.detailHeader {
+  border-block-end: 1px solid var(--lesson-border);
+  margin-block-end: 1rem;
+  padding-block-end: 0.75rem;
+}
+
+.detailHeader h3:focus {
+  outline: 0.2rem solid currentColor;
+  outline-offset: 0.25rem;
+}
+
+.artifacts,
+.explanations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: 1rem;
+}
+
+.explanations {
+  margin-block-start: 1rem;
+}
+
+.artifact,
+.practice,
+.feedback {
+  min-width: 0;
+  border: 1px solid var(--lesson-border);
+  border-radius: 0.6rem;
+  padding: 1rem;
+  background: var(--lesson-soft);
+  color: inherit;
+}
+
+.artifactBody {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.fields {
+  display: grid;
+  gap: 0.6rem;
+  margin-block: 0.8rem 0;
+}
+
+.fields div {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.4fr) minmax(0, 1fr);
+  gap: 0.75rem;
+  border-block-start: 1px solid var(--lesson-border);
+  padding-block-start: 0.55rem;
+}
+
+.fields dt {
+  font-weight: 700;
+}
+
+.fields dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.practice {
+  margin-block-start: 1rem;
+}
+
+.practice fieldset {
+  display: grid;
+  gap: 0.75rem;
+  margin-block-start: 1rem;
+  border: 1px solid var(--lesson-border);
+  border-radius: 0.55rem;
+  padding: 1rem;
+}
+
+.practice legend {
+  padding-inline: 0.35rem;
+  font-weight: 700;
+}
+
+.choiceButton,
+.retryButton,
+.footerActions button {
+  border: 1px solid var(--lesson-button-border);
+  border-radius: 0.45rem;
+  padding: 0.75rem 1rem;
+  background: var(--lesson-button);
+  color: var(--lesson-button-text);
+  font: inherit;
+  font-weight: 650;
+  line-height: 1.35;
+  text-align: start;
+  cursor: pointer;
+}
+
+.choiceButton:hover,
+.retryButton:hover,
+.footerActions button:hover {
+  background: var(--lesson-medium);
+}
+
+.feedback {
+  margin-block-start: 1rem;
+  border-width: 2px;
+  border-color: currentColor;
+}
+
+.feedback p {
+  margin-block-end: 0.8rem;
+}
+
+.takeaways ul,
+.sources ul {
+  display: grid;
+  gap: 0.85rem;
+  margin-block-end: 0;
+  padding-inline-start: 1.25rem;
+}
+
+.sources li span {
+  display: block;
+  margin-block-start: 0.15rem;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.sources li p {
+  margin-block: 0.25rem 0;
+}
+
+.footerActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.diagramNode:focus-visible,
+.choiceButton:focus-visible,
+.retryButton:focus-visible,
+.footerActions button:focus-visible,
+.textAlternative summary:focus-visible,
+.sources a:focus-visible {
+  outline: 0.2rem solid currentColor;
+  outline-offset: 0.2rem;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 64rem) {
+  .status {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .diagram {
+    grid-template-columns: minmax(0, 1fr);
+    justify-content: stretch;
+    gap: 4.5rem;
+    padding-block: 1rem;
+    padding-inline: 1rem 7rem;
+  }
+
+  .diagramNode {
+    width: 100%;
+    min-height: 5rem;
+  }
+
+  .edgeLabel {
+    max-width: 8.5rem;
+  }
+
+  .edgeLabel[data-route="return"] {
+    width: 5.75rem;
+    max-width: 5.75rem;
+  }
+
+  .fields div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 23.5rem) {
+  .diagram {
+    padding-inline: 0.75rem 6.5rem;
+  }
+
+  .diagramNode {
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    padding-inline: 0.7rem;
+  }
+}
+
+@media (forced-colors: active) {
+  .lesson {
+    --lesson-surface: Canvas;
+    --lesson-text: CanvasText;
+    --lesson-title: CanvasText;
+    --lesson-border: ButtonText;
+    --lesson-soft: Canvas;
+    --lesson-medium: Canvas;
+    --lesson-button: ButtonFace;
+    --lesson-button-text: ButtonText;
+    --lesson-button-border: ButtonText;
+  }
+
+  .header,
+  .status,
+  .detail,
+  .sources,
+  .takeaways,
+  .textAlternative,
+  .diagram,
+  .diagramNode,
+  .edgeLabel,
+  .artifact,
+  .practice,
+  .feedback,
+  .choiceButton,
+  .retryButton,
+  .footerActions button {
+    forced-color-adjust: auto;
+  }
+}

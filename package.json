@@ -20,7 +20,9 @@
     "./content/diagrams/lessons/learning-evidence-loop.json": "./content/diagrams/lessons/learning-evidence-loop.json",
     "./content/diagrams/lessons/safe-agent-loop.json": "./content/diagrams/lessons/safe-agent-loop.json",
     "./content/diagrams/lessons/tool-trust-boundaries.json": "./content/diagrams/lessons/tool-trust-boundaries.json",
-    "./content/diagrams/lessons/grounded-answer-workflow.json": "./content/diagrams/lessons/grounded-answer-workflow.json"
+    "./content/diagrams/lessons/grounded-answer-workflow.json": "./content/diagrams/lessons/grounded-answer-workflow.json",
+    "./content/diagrams/lessons/prompt-contract.json": "./content/diagrams/lessons/prompt-contract.json",
+    "./content/diagrams/lessons/multi-agent-handoff.json": "./content/diagrams/lessons/multi-agent-handoff.json"
   },
   "files": [
     ".dev.vars.example",
