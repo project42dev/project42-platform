@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "2d2f8dbee5e93ffd81cad0fb0f69880ab420406c"
+    "commit": "57784e1d5e0bb308bcdce98a69a5eace089e7e35"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -166,15 +166,15 @@
     "resources/coding-tools/codex-cli-operating-card.json": "6abdc6940f1a8fcd11d9cca4668aac86428a1c591ff04e1a44ac01ac996407be",
     "resources/coding-tools/continue-operating-card.json": "56ede59670c3706f35388f3076e689710f026612ff21ce7595e4ba4ae7fda9af",
     "resources/coding-tools/cursor-operating-card.json": "973575e05c7ce07e1d397e1869c9eab60e0f77496c4d6a845821f2ea9f31a97f",
-    "resources/coding-tools/devin-operating-card.json": "07620f00231eaec50a23753d1168fb6b499bc8a73c7d0f377cc27920b01dab75",
-    "resources/coding-tools/gemini-cli-operating-card.json": "9b6f5052c6474823167c9d14bfda99ca247e700f1c406e947fc44bb8c061463d",
+    "resources/coding-tools/devin-operating-card.json": "b06de304a154b82a76088a03946e304b2df145016aaa78f28202c04e04812207",
+    "resources/coding-tools/gemini-cli-operating-card.json": "b4449b2ba01046e11cabb4c789336875f4c609c9c8e4f23fffea8afeafd8eb27",
     "resources/coding-tools/github-copilot-operating-card.json": "f365f7613e5f940e6e06c8be9aa2810682af6316cc7314c2b805cca0ed2e74f2",
-    "resources/coding-tools/jules-operating-card.json": "3e6e14478e76b635a9d079eb96c9de6bd66663499e424c382d7c7ba324487766",
+    "resources/coding-tools/jules-operating-card.json": "bfcd1f8b157cbca80c0e84ef6b8b380757fc1fcf9764d228a5debc55d8723bb5",
     "resources/coding-tools/kilo-code-operating-card.json": "0126ee05564ffa605bfdcfbc7165d536ee87ffd17d29f05f1edbf514f13c6355",
     "resources/coding-tools/openclaw-operating-card.json": "50823176894c15b204e9f5cfe67b0d86bef149c4d3184d3fffd0865710b3f496",
     "resources/coding-tools/opencode-operating-card.json": "595e9298da5b6d2595da620c145701078394167e28223a0a7009508d19e6d59f",
     "resources/coding-tools/roo-code-operating-card.json": "504670acaa2edb5e01af22bce4a71d8572a715dca8204951a6240f8cda7c0eda",
-    "resources/coding-tools/windsurf-operating-card.json": "5b07f1b2167011dae840a3703b33923fb86abeb3324830ff877c623c17412dc3",
+    "resources/coding-tools/windsurf-operating-card.json": "0fdb1cc5d4d06ea1bd80177531188e0f66e4d803837763ecd3794a9c01bb6695",
     "resources/evaluation-safety/bounded-ai-red-team-exercise.json": "bbbd2d9f1c843752ba0c96ce9665cd93138302f58849e0668c96c3fd9d3a53e2",
     "resources/evaluation-safety/evaluation-plan-charter.json": "c23719642d29290cc912db762831539daffd8912780f3bd06a2ca150840978a2",
     "resources/evaluation-safety/evidence-based-evaluation-rubric.json": "26452bff8c499ea85ba4ddd26b2a6c44a66b1c11cb48c96eaa02c3c1b9ca720a",
@@ -234,7 +234,7 @@
     "resources/troubleshooting-operations/ai-incident-triage.json": "b048fe817a7caac06d8d98a0367de693b4b34bd5d53965b56810b61cbe4b7ba9",
     "resources/troubleshooting-operations/ai-rollback-and-incident-closeout.json": "f21e67f31906cc3565db0781e3567d24195e8c70bc59907f1cb87a2bb9fdcf61",
     "resources/troubleshooting-operations/context-quality-regression-triage.json": "39af3ac65bb59725ec1763a5f80137915e509504f5277a16645461cc196e553a",
-    "source-registry.json": "f35641ddc6b981204ffca86ddf9fba3ef8696d83db7eaca321397b4fe01194b9",
+    "source-registry.json": "0b419a4edf89594b35d592ac28ea336d10bac2684d89ee9cf0fbb954d23761e7",
     "training/agentic-ai-literacy/delivery-contract.json": "02aa762a549b3926d07e1b9a5d64c811b32f2369e19c36f6769fd9a2798df1e3",
     "training/agentic-systems-and-mcp/model-context-protocol-mcp/lab/cache-scope-regression.mjs": "bca0a8549f4654182781ceb610d7578da97b64d7f6694e6bb0bd7987d205d90f",
     "training/agentic-systems-and-mcp/model-context-protocol-mcp/lab/host-lib.mjs": "6a26c2a43d02762ee9b2d0768382e8e4652f782043f7090cd6b16dbb1b391e1a",
