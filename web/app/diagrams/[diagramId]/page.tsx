@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { GroundedAnswerLesson, type GroundedAnswerLessonContent } from "../../components/GroundedAnswerLesson";
+import groundedAnswerLessonJSON from "@project42/platform/content/diagrams/lessons/grounded-answer-workflow.json";
 import { LearningEvidenceLesson } from "../../components/LearningEvidenceLesson";
 import type { LearningEvidenceLessonContent } from "../../components/LearningEvidenceLesson";
 import { SafeAgentLesson } from "../../components/SafeAgentLesson";
@@ -49,7 +51,9 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
   const isLearningEvidenceLoop = diagramId === LEARNING_EVIDENCE_LOOP_ID;
   const isSafeAgentLoop = diagramId === "safe-agent-loop";
   const isToolTrust = diagramId === "tool-trust-boundaries";
-  const isNativeLesson = isLearningEvidenceLoop || isSafeAgentLoop || isToolTrust;
+  const isGroundedAnswer = diagramId === "grounded-answer-workflow";
+  const groundedAnswerLesson = groundedAnswerLessonJSON as GroundedAnswerLessonContent;
+  const isNativeLesson = isLearningEvidenceLoop || isSafeAgentLoop || isToolTrust || isGroundedAnswer;
   const safeAgentLesson = (isToolTrust ? toolTrustLessonJSON : safeAgentLessonJSON) as SafeAgentLessonContent;
   const lesson = learningEvidenceLessonJSON as LearningEvidenceLessonContent;
   const steps = isNativeLesson ? [] : getDiagramSteps(diagramId);
@@ -96,7 +100,9 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
 
       <figure className="diagram-figure">
         <div className="diagram-canvas">
-          {isSafeAgentLoop || isToolTrust ? (
+          {isGroundedAnswer ? (
+            <><span className="visually-hidden">{groundedAnswerLesson.altText}</span><GroundedAnswerLesson data={groundedAnswerLesson} /></>
+          ) : isSafeAgentLoop || isToolTrust ? (
             <><span className="visually-hidden">{safeAgentLesson.altText}</span><SafeAgentLesson data={safeAgentLesson} /></>
           ) : isLearningEvidenceLoop ? (
             <><span className="visually-hidden">{lesson.altText}</span><LearningEvidenceLesson data={lesson} /></>
@@ -122,7 +128,7 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
             />
           )}
         </div>
-        <figcaption>{isSafeAgentLoop ? safeAgentLesson.caption : isLearningEvidenceLoop ? lesson.caption : diagram.caption}</figcaption>
+        <figcaption>{isGroundedAnswer ? groundedAnswerLesson.caption : isSafeAgentLoop ? safeAgentLesson.caption : isLearningEvidenceLoop ? lesson.caption : diagram.caption}</figcaption>
       </figure>
 
       {!isNativeLesson && (

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "57b51256343e78ee332f83d7a315de5aa178788d"
+    "commit": "ae802860f4d646f104fe3c3f32e4a7835d9de97e"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -13,6 +13,7 @@
     "diagrams/cost-and-capacity-management.mmd": "a50cf355bd46f30b6d1f02d67c348f2e8272106f33a5c979e25fc61b80a84738",
     "diagrams/grounded-answer-workflow.mmd": "695373c14bff83c3868c7a5de4bf01ac7526fbf638add2cbc194e95913f7a65f",
     "diagrams/learning-evidence-loop.mmd": "bb7320b9964e2fac205eb30ebda50d9078a9abdfda571e41c7775f9b7088c63c",
+    "diagrams/lessons/grounded-answer-workflow.json": "3bb8980bcd0a92be29a91fcdf2dfb21294cc8970b76f199ca00c17fa1a720108",
     "diagrams/lessons/learning-evidence-loop.json": "e0fc7e576813a3d9413acfad58451332fd94cacc733ccafe72d97975073306e4",
     "diagrams/lessons/safe-agent-loop.json": "ff842862caf852619899ccd176361b849e999263859515cce56f14a079f025c4",
     "diagrams/lessons/tool-trust-boundaries.json": "fedf4528a9e079feda272ac9d2046dcd33c9051d856c5c83ed72e7162946c068",

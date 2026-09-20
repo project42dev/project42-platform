@@ -19,7 +19,8 @@
     "./content/diagrams/catalogue.json": "./content/diagrams/catalogue.json",
     "./content/diagrams/lessons/learning-evidence-loop.json": "./content/diagrams/lessons/learning-evidence-loop.json",
     "./content/diagrams/lessons/safe-agent-loop.json": "./content/diagrams/lessons/safe-agent-loop.json",
-    "./content/diagrams/lessons/tool-trust-boundaries.json": "./content/diagrams/lessons/tool-trust-boundaries.json"
+    "./content/diagrams/lessons/tool-trust-boundaries.json": "./content/diagrams/lessons/tool-trust-boundaries.json",
+    "./content/diagrams/lessons/grounded-answer-workflow.json": "./content/diagrams/lessons/grounded-answer-workflow.json"
   },
   "files": [
     ".dev.vars.example",
