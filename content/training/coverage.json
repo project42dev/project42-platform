@@ -459,7 +459,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "memory-boundaries-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/reliable-agent-workflows/memory-boundaries/class-script.json"
     },
     {

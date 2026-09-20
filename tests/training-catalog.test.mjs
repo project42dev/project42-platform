@@ -1327,7 +1327,7 @@ test("publishes complete agent tool, context, and memory class packages", () => 
   const expectedWordCounts = new Map([
     ["control-agent-actions", 1224],
     ["context-engineering", 1831],
-    ["memory-boundaries", 1031],
+    ["memory-boundaries", 1598],
   ]);
 
   for (const [moduleId, expectedWordCount] of expectedWordCounts) {
