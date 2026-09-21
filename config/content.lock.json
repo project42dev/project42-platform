@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "23cc48d10520400cbe6b47fdb5fb34255667ce18"
+    "commit": "663b16e6ca379f2c3b0c899c9e2243b658721f56"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -273,7 +273,7 @@
     "training/ai-foundations/agents-and-guardrails/images/guardrail-layers.svg": "f9a3169488a6cec949a8f4495eb9a857b4ea959a01ab53245f64af28dbe5ce4a",
     "training/ai-foundations/agents-and-guardrails/images/handoff-recovery.svg": "52d0b9143ed52bf85668f390dba11790302979006ed4f409b3def303ad15f688",
     "training/ai-foundations/agents-and-guardrails/instructor-rendering.json": "98800c02faf623824cef1a711ff3795514b18f305f7c4a7a2766cdcad08131e7",
-    "training/ai-foundations/agents-and-guardrails/integrity.json": "d6174b040f84ac309f72b50fd8ad6c1ee624a066ccb2eaa3f1e399fb8d07ba10",
+    "training/ai-foundations/agents-and-guardrails/integrity.json": "bcc0056f9e688648727224048c6c98a3e38ec3c4ab179149ec39bb502b92ca42",
     "training/ai-foundations/agents-and-guardrails/lab/README.md": "ee8d0cbd25ad1894939e6739ff4953b0e25f2f15b379f9e8b904c019e60d1e98",
     "training/ai-foundations/agents-and-guardrails/supplementary-reading.md": "5d54c659044c025ce48085fc4d5c1edca726cd8ea47463a9c62facb5853e1447",
     "training/ai-foundations/agents-and-guardrails/transcripts/en-US.md": "fd2f947ab388ceafab61b5937c8810a45be2ecbbe2cdea0058e69f0593c8186f",
