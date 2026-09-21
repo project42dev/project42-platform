@@ -820,7 +820,7 @@ test("publishes the first complete Self-Hosted Model Operations class", () => {
 test("publishes complete model identity and artifact-integrity classes", () => {
   const expected = new Map([
     ["model-identity-license-and-provenance", 2057],
-    ["model-artifact-integrity", 1488],
+    ["model-artifact-integrity", 2569],
   ]);
 
   for (const [moduleId, spokenWordCount] of expected) {
@@ -839,10 +839,10 @@ test("publishes complete model identity and artifact-integrity classes", () => {
     });
     assert.equal(script.spokenWordCount, spokenWordCount);
     assert.equal(script.releaseStatus, "draft");
-    assert.equal(script.provenance.canonicalContentVersion, moduleId === "model-identity-license-and-provenance" ? "0.42.0" : "0.41.0");
+    assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
     assert.equal(script.provenance.approvals.length, 0);
     for (const contribution of script.provenance.contributions) {
-      const executed = moduleId === "model-identity-license-and-provenance" &&
+      const executed =
         ["evidence-research", "curriculum-writing", "factual-verification"].includes(contribution.role);
       assert.equal(contribution.status, executed ? "completed" : "planned");
       if (executed) assert.ok(contribution.completedAt && contribution.evidenceRef);
@@ -888,9 +888,9 @@ test("publishes the complete hardware, runtime, and capacity class", () => {
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 976);
+  assert.equal(script.spokenWordCount, 2503);
   assert.equal(script.releaseStatus, "draft");
-  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
   assert.equal(script.provenance.approvals.length, 0);
   for (const section of module.sections) {
     assert.ok(
@@ -1444,8 +1444,8 @@ test("publishes complete agent evaluation, operations, and capstone packages", (
     ["agent-evaluation", 2346],
     ["agent-observability", 2345],
     ["review-agent-results", 1279],
-    ["operate-and-recover-agent-systems", 2513],
-    ["reliable-agent-capstone", 2131],
+    ["operate-and-recover-agent-systems", 3286],
+    ["reliable-agent-capstone", 2378],
   ]);
 
   for (const [moduleId, expectedWordCount] of expectedWordCounts) {
@@ -1465,7 +1465,7 @@ test("publishes complete agent evaluation, operations, and capstone packages", (
     assert.equal(script.spokenWordCount, expectedWordCount);
     assert.equal(script.releaseStatus, "draft");
     assert.equal(script.provenance.canonicalContentVersion,
-      ["review-agent-results", "agent-evaluation", "agent-observability"].includes(moduleId) ? "0.42.0" : "0.41.0");
+      "0.42.0");
     assert.equal(script.provenance.approvals.length, 0);
     for (const section of module.sections) {
       assert.ok(
@@ -1513,9 +1513,9 @@ test("publishes complete agent evaluation, operations, and capstone packages", (
       `capstone narration missing required artifact ${artifact}`,
     );
   }
-  assert.match(spokenText, /eighty-percent knowledge check/u);
-  assert.match(spokenText, /capstone score of at least eighty percent/u);
-  assert.match(spokenText, /Preserve the first submission/u);
+  assert.match(spokenText, /knowledge check[\s\S]*80 percent completion gate/u);
+  assert.match(spokenText, /capstone score of at least 80 percent/u);
+  assert.match(spokenText, /Preserve the failed submission/u);
 });
 
 // ADR-0020: instructor-led delivery is a rendering of the same module, so
@@ -1700,4 +1700,6 @@ function parseTimestamp(value) {
     Number(match[4])
   );
 }
+
+
 

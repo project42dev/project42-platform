@@ -407,7 +407,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "hardware-runtime-and-capacity-planning-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/hardware-runtime-and-capacity-planning/class-script.json"
     },
     {
@@ -494,7 +494,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "model-artifact-integrity-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/model-artifact-integrity/class-script.json"
     },
     {
@@ -632,7 +632,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "operate-and-recover-agent-systems-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/reliable-agent-workflows/operate-and-recover-agent-systems/class-script.json"
     },
     {
@@ -738,7 +738,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "reliable-agent-capstone-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/reliable-agent-workflows/reliable-agent-capstone/class-script.json"
     },
     {
