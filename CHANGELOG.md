@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.117.6] - 2026-09-21
+## [0.117.7] - 2026-09-21
 - Use a stable GNU Bash documentation URL so source-link verification is deterministic.
 
 ## [0.117.5] - 2026-09-21

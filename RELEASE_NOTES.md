@@ -1,4 +1,4 @@
-# Project 42 platform v0.117.6
+# Project 42 platform v0.117.7
 
 Installs canonical curriculum from project42-content commit
 a325c00fbed6f4cc5b50161cdc5520fa6ae20a40: the AI Glossary, introductory
