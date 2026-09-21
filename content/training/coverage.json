@@ -513,7 +513,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "model-identity-license-and-provenance-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/self-hosted-model-operations/model-identity-license-and-provenance/class-script.json"
     },
     {

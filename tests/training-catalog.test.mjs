@@ -819,7 +819,7 @@ test("publishes the first complete Self-Hosted Model Operations class", () => {
 
 test("publishes complete model identity and artifact-integrity classes", () => {
   const expected = new Map([
-    ["model-identity-license-and-provenance", 1381],
+    ["model-identity-license-and-provenance", 2057],
     ["model-artifact-integrity", 992],
   ]);
 
@@ -841,11 +841,12 @@ test("publishes complete model identity and artifact-integrity classes", () => {
     assert.equal(script.releaseStatus, "draft");
     assert.equal(script.provenance.canonicalContentVersion, moduleId === "model-identity-license-and-provenance" ? "0.42.0" : "0.41.0");
     assert.equal(script.provenance.approvals.length, 0);
-    assert.ok(
-      script.provenance.contributions.every(
-        (contribution) => contribution.status === "planned",
-      ),
-    );
+    for (const contribution of script.provenance.contributions) {
+      const executed = moduleId === "model-identity-license-and-provenance" &&
+        ["evidence-research", "curriculum-writing", "factual-verification"].includes(contribution.role);
+      assert.equal(contribution.status, executed ? "completed" : "planned");
+      if (executed) assert.ok(contribution.completedAt && contribution.evidenceRef);
+    }
     for (const section of module.sections) {
       assert.ok(
         script.segments.some(
@@ -1440,8 +1441,8 @@ test("publishes complete MCP, orchestration, and handoff class packages", () => 
 
 test("publishes complete agent evaluation, operations, and capstone packages", () => {
   const expectedWordCounts = new Map([
-    ["agent-evaluation", 940],
-    ["agent-observability", 955],
+    ["agent-evaluation", 1411],
+    ["agent-observability", 1871],
     ["review-agent-results", 1279],
     ["operate-and-recover-agent-systems", 945],
     ["reliable-agent-capstone", 1178],

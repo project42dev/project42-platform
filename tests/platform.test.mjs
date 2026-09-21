@@ -2380,7 +2380,8 @@ test("publishes distinct evaluation, observability, review, and operations modul
     assert.ok(module);
     assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
     assert.ok(module.activity?.evidence.length >= 2, `${moduleId} needs evidence`);
-    assert.equal(module.knowledgeCheck.questions.length, 5);
+    assert.equal(module.knowledgeCheck.questions.length,
+      moduleId === "agent-evaluation" ? 8 : moduleId === "agent-observability" ? 7 : 5);
     assert.ok(
       new Set(module.knowledgeCheck.questions.map((question) => question.answerIndex))
         .size >= 3,
