@@ -145,7 +145,7 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
           ) : isSafeAgentLoop || isToolTrust ? (
             <><span className="visually-hidden">{safeAgentLesson.altText}</span><SafeAgentLesson data={safeAgentLesson} /></>
           ) : isLearningEvidenceLoop ? (
-            <><span className="visually-hidden">{lesson.altText}</span><LearningEvidenceLesson data={lesson} /></>
+            <><span className="visually-hidden">{diagram.altText}</span><LearningEvidenceLesson data={lesson} /></>
           ) : (
             <InteractiveDiagramClient
               alt={diagram.altText}
