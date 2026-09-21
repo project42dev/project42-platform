@@ -522,7 +522,7 @@ semantic versioning.
 ### Security
 
 - `self-host/.trivyignore.yaml` defers CVE-2026-75595 (netty-handler in
-  `keycloak:26.7.3`, the newest tag) until 2026-12-01. The flaw is in Netty's
+  `keycloak:26.7.4`, the newest tag) until 2026-12-01. The flaw is in Netty's
   TLS ClientHello handling; Keycloak in both topologies serves plain HTTP
   behind the gateway and terminates no TLS.
 
