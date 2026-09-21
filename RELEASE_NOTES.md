@@ -1,7 +1,7 @@
-# Project 42 platform v0.117.4
+# Project 42 platform v0.117.5
 
 Installs canonical curriculum from project42-content commit
-3ce0443e5996e47dfd07e6bfa17fe63c7a52f2f8: the AI Glossary, introductory
+663b16e6ca379f2c3b0c899c9e2243b658721f56: the AI Glossary, introductory
 AI and language-model lessons, and evaluation-dataset guide now include supplied
 worked examples, learner practice and explained answers. The language-model and
 evaluation exercises include independently executed Python with documented output.

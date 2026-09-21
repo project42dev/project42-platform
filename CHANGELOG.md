@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.117.5] - 2026-09-21
+- Align the agents-and-guardrails transcript with the rendered class script and publish matching diagram accessibility metadata.
+
 ## [0.117.4] - 2026-09-21
 - Fix generated lesson accessibility lint annotations.
 
