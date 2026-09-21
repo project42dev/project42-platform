@@ -98,7 +98,7 @@ test("production hashing normalizes PowerShell CRLF without hiding substantive c
   });
 });
 
-for (const name of ["controller.js", "exercise.mjs", "fixture.cjs", "contracts.d.ts", "module.mts", "module.cts", "repair.patch", ".gitattributes"]) {
+for (const name of ["controller.js", "exercise.mjs", "fixture.cjs", "contracts.d.ts", "module.mts", "module.cts", "repair.patch", "run-integration.sh", "setup.sql", ".gitattributes"]) {
   test(`production hashing normalizes ${name} checkout endings and detects edits`, async () => {
     await withFixture(async (fixture) => {
       const file = path.join(fixture, name);
@@ -139,3 +139,4 @@ test("production hashing keeps binary CRLF and LF bytes distinct", async () => {
     );
   });
 });
+

@@ -72,6 +72,8 @@ const TEXT_EXTENSIONS = [
   ".patch",
   ".py",
   ".ps1",
+  ".sh",
+  ".sql",
   ".svg",
   ".txt",
   ".vtt",
@@ -278,3 +280,4 @@ console.log(
   `Installed ${Object.keys(installed).length} curriculum files from ` +
     `project42-content@${upstreamCommit} (contentVersion ${catalog.contentVersion}).`,
 );
+
