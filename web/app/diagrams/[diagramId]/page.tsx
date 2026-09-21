@@ -105,6 +105,9 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
         {isNativeLesson ? (
           <div className="diagram-source-card">
             <span>Interactive lesson</span>
+            <a href={/diagrams/} download>
+              Download .mmd source
+            </a>
           </div>
         ) : (
           <div className="diagram-source-card">
