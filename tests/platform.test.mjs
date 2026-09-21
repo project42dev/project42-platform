@@ -2337,7 +2337,7 @@ test("publishes the MCP orchestration and handoff curriculum unit", () => {
     assert.ok(module);
     assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
     assert.ok(module.activity?.evidence.length >= 2, `${moduleId} needs evidence`);
-    assert.equal(module.knowledgeCheck.questions.length, 5);
+    assert.equal(module.knowledgeCheck.questions.length, moduleId === "multi-agent-handoffs" ? 8 : 5);
     assert.ok(
       new Set(module.knowledgeCheck.questions.map((question) => question.answerIndex))
         .size >= 3,
