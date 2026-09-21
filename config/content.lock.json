@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "a325c00fbed6f4cc5b50161cdc5520fa6ae20a40"
+    "commit": "6facd5fcfd71e131bb517e66663412e633fa9ecc"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -39,7 +39,7 @@
     "modules/agentic-systems-and-mcp/agent-safety-and-spend-brakes.json": "f778bb9299adce25f9f7ef84b6df079dd4303bf5461d94b722e1b2fed2f14d19",
     "modules/agentic-systems-and-mcp/model-context-protocol-mcp.json": "42efdf4d6791b216fe1ffb31e32eee27dbda579b20d4d891ac57365d8271d6cd",
     "modules/agentic-systems-and-mcp/multi-agent-orchestration.json": "061fc2855e52935f88bc9ee8889b7407dda4a05bb7fc1555323c0b8b8c9e72ae",
-    "modules/ai-foundations/agents-and-guardrails.json": "5c09055267107bc6ae6a1e5bcfd71053266e1030d0bde752c7d4e3d0afd2cd21",
+    "modules/ai-foundations/agents-and-guardrails.json": "f7ed38218f0e007ce6dac7c0d50ccc7c21fc7407853fe8205f9f57f1cc78984c",
     "modules/ai-foundations/ai-foundations-capstone.json": "d3294cd3b8c36949ff1fcecda8a54ffab970d8fa4af453c3d6887ad0f544f761",
     "modules/ai-foundations/ai-systems-and-use-cases.json": "6ef353aefec9eab62bd117dd4d79fcf367a7fbe221cc8139c326273952d2fdce",
     "modules/ai-foundations/coding-and-analysis-workflow.json": "ab4e2337d536a56a8949066e12bf221eb6b19d6b5fd3dbfdf2f5d21eee84d372",
@@ -263,7 +263,7 @@
     "training/ai-foundations/agents-and-guardrails/alternatives/en-US-reduced-motion.md": "edcfe87bb59d999421d918b821b55ca054f5d4691e4a61cb3149a8182fc2d809",
     "training/ai-foundations/agents-and-guardrails/alternatives/en-US-text-only.md": "4422930038c1fa610dd585fa92d6e3cc3ec110e1d547f2d4d8f3fff7508bd1bd",
     "training/ai-foundations/agents-and-guardrails/captions/en-US.vtt": "ad58d65daf9930f70c0cb8adf8112546a4ee8bf28afe7e080df9f6a27b1f2d76",
-    "training/ai-foundations/agents-and-guardrails/class-script.json": "826f6a578e731d7704f1edf1332171f9855718e9c6cabce19a14801d34b08fb7",
+    "training/ai-foundations/agents-and-guardrails/class-script.json": "70ee54dba5278fa0f7dcd26ecb1851e21135ea80ad8cda50b9652a793d6286d2",
     "training/ai-foundations/agents-and-guardrails/diagrams/agent-contract.mmd": "50b35363208a1d88e14997390bb5f507929c8135be8fc49871f81b306a583366",
     "training/ai-foundations/agents-and-guardrails/diagrams/guardrail-layers.mmd": "06bbb910a673c2e8914803ac41941f9997df0723336a1f2f167b457db21b9426",
     "training/ai-foundations/agents-and-guardrails/diagrams/recovery-and-handoff.mmd": "2a37ded7733f28b8a18dba53f153bc0435b862e025187a6380b953f443c6d2bb",
@@ -276,7 +276,7 @@
     "training/ai-foundations/agents-and-guardrails/integrity.json": "bcc0056f9e688648727224048c6c98a3e38ec3c4ab179149ec39bb502b92ca42",
     "training/ai-foundations/agents-and-guardrails/lab/README.md": "ee8d0cbd25ad1894939e6739ff4953b0e25f2f15b379f9e8b904c019e60d1e98",
     "training/ai-foundations/agents-and-guardrails/supplementary-reading.md": "5d54c659044c025ce48085fc4d5c1edca726cd8ea47463a9c62facb5853e1447",
-    "training/ai-foundations/agents-and-guardrails/transcripts/en-US.md": "fd2f947ab388ceafab61b5937c8810a45be2ecbbe2cdea0058e69f0593c8186f",
+    "training/ai-foundations/agents-and-guardrails/transcripts/en-US.md": "e347c856ec3c30c7484a802bb3b6bfb57b8da3c0a41e5579b73fa3ea3100cbe5",
     "training/ai-foundations/ai-foundations-capstone/alternatives/en-US-reduced-motion.md": "46df03963fc330357a41bc4b43c88206487bf502152edf3ff81fb079366f2e2b",
     "training/ai-foundations/ai-foundations-capstone/alternatives/en-US-text-only.md": "e0cb104816357325cca0997a5616d10f36a85ae37b25ebe8f5cf971c9cfb354f",
     "training/ai-foundations/ai-foundations-capstone/captions/en-US.vtt": "107123d9944b76667b22e34c3fb66fac42edc072a24d638080f8fb61ee2f27d1",
