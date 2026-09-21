@@ -59,7 +59,7 @@ test("publishes the first complete AI Foundations class-script wave", () => {
     assert.equal(script.provenance.approvals.length, 0);
     assert.ok(
       script.provenance.contributions.every(
-        (contribution) => contribution.status === "planned",
+        (contribution) => contribution.status === "planned" || (contribution.status === "completed" && typeof contribution.completedAt === "string" && typeof contribution.evidenceRef === "string"),
       ),
     );
   }
@@ -512,7 +512,7 @@ test("publishes the responsible-use and recovery class", () => {
   assert.equal(script.provenance.approvals.length, 0);
   assert.ok(
     script.provenance.contributions.every(
-      (contribution) => contribution.status === "planned",
+      (contribution) => contribution.status === "planned" || (contribution.status === "completed" && typeof contribution.completedAt === "string" && typeof contribution.evidenceRef === "string"),
     ),
   );
   assert.ok(
@@ -819,7 +819,7 @@ test("publishes the first complete Self-Hosted Model Operations class", () => {
 
 test("publishes complete model identity and artifact-integrity classes", () => {
   const expected = new Map([
-    ["model-identity-license-and-provenance", 1060],
+    ["model-identity-license-and-provenance", 1381],
     ["model-artifact-integrity", 992],
   ]);
 
@@ -839,7 +839,7 @@ test("publishes complete model identity and artifact-integrity classes", () => {
     });
     assert.equal(script.spokenWordCount, spokenWordCount);
     assert.equal(script.releaseStatus, "draft");
-    assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+    assert.equal(script.provenance.canonicalContentVersion, moduleId === "model-identity-license-and-provenance" ? "0.42.0" : "0.41.0");
     assert.equal(script.provenance.approvals.length, 0);
     assert.ok(
       script.provenance.contributions.every(

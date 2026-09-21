@@ -242,9 +242,9 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "context-tokens-and-modalities-class",
-      "classScriptVersion": "1.1.0",
+      "classScriptVersion": "1.3.0",
       "classScriptPath": "content/training/ai-foundations/context-tokens-and-modalities/class-script.json"
     },
     {
@@ -679,9 +679,9 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "privacy-safety-and-responsibility-class",
-      "classScriptVersion": "1.1.0",
+      "classScriptVersion": "2.0.1",
       "classScriptPath": "content/training/ai-foundations/privacy-safety-and-responsibility/class-script.json"
     },
     {
