@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "98a491893e0fa89347bbf957af684d717348dd84"
+    "commit": "23cc48d10520400cbe6b47fdb5fb34255667ce18"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -263,7 +263,7 @@
     "training/ai-foundations/agents-and-guardrails/alternatives/en-US-reduced-motion.md": "edcfe87bb59d999421d918b821b55ca054f5d4691e4a61cb3149a8182fc2d809",
     "training/ai-foundations/agents-and-guardrails/alternatives/en-US-text-only.md": "4422930038c1fa610dd585fa92d6e3cc3ec110e1d547f2d4d8f3fff7508bd1bd",
     "training/ai-foundations/agents-and-guardrails/captions/en-US.vtt": "ad58d65daf9930f70c0cb8adf8112546a4ee8bf28afe7e080df9f6a27b1f2d76",
-    "training/ai-foundations/agents-and-guardrails/class-script.json": "26e5b67ccc69665ba315f06f3bbccd3e492892df0f38dc769e3df43bf021843b",
+    "training/ai-foundations/agents-and-guardrails/class-script.json": "826f6a578e731d7704f1edf1332171f9855718e9c6cabce19a14801d34b08fb7",
     "training/ai-foundations/agents-and-guardrails/diagrams/agent-contract.mmd": "50b35363208a1d88e14997390bb5f507929c8135be8fc49871f81b306a583366",
     "training/ai-foundations/agents-and-guardrails/diagrams/guardrail-layers.mmd": "06bbb910a673c2e8914803ac41941f9997df0723336a1f2f167b457db21b9426",
     "training/ai-foundations/agents-and-guardrails/diagrams/recovery-and-handoff.mmd": "2a37ded7733f28b8a18dba53f153bc0435b862e025187a6380b953f443c6d2bb",
