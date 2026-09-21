@@ -1064,7 +1064,7 @@ test("publishes the complete observability, cost, and performance class", () => 
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1223);
+  assert.equal(script.spokenWordCount, 2166);
   assert.equal(script.releaseStatus, "draft");
   assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
   assert.equal(script.provenance.approvals.length, 0);
@@ -1152,7 +1152,7 @@ test("publishes the complete model update and rollback lifecycle class", () => {
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1160);
+  assert.equal(script.spokenWordCount, 1591);
   assert.equal(script.releaseStatus, "draft");
   assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
   assert.equal(script.provenance.approvals.length, 0);
