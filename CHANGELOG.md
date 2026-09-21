@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.117.6] - 2026-09-21
+- Use a stable GNU Bash documentation URL so source-link verification is deterministic.
+
 ## [0.117.5] - 2026-09-21
 - Align the agents-and-guardrails transcript with the rendered class script and publish matching diagram accessibility metadata.
 
