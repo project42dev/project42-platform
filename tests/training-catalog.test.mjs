@@ -783,7 +783,7 @@ test("publishes the first complete Self-Hosted Model Operations class", () => {
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1283);
+  assert.equal(script.spokenWordCount, 1727);
   assert.equal(script.releaseStatus, "draft");
   assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
   assert.equal(script.provenance.approvals.length, 0);
@@ -1700,6 +1700,7 @@ function parseTimestamp(value) {
     Number(match[4])
   );
 }
+
 
 
 
