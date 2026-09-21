@@ -164,7 +164,7 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
         <figcaption>{diagram.caption}</figcaption>
       </figure>
 
-      {!isNativeLesson && (
+      {(
         <div className="diagram-explanation-grid">
           <section aria-labelledby="diagram-explanation">
             <p className="eyebrow">Read the visual</p>
