@@ -158,7 +158,7 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
             />
           )}
         </div>
-        <figcaption>{isPromptContract ? promptContract.caption : isGroundedAnswer ? groundedAnswerLesson.caption : isSafeAgentLoop ? safeAgentLesson.caption : isLearningEvidenceLoop ? lesson.caption : diagram.caption}</figcaption>
+        <figcaption>{diagram.caption}</figcaption>
       </figure>
 
       {!isNativeLesson && (
