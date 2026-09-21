@@ -1384,9 +1384,9 @@ test("publishes complete agent tool, context, and memory class packages", () => 
 test("publishes complete MCP, orchestration, and handoff class packages", () => {
   const expectedWordCounts = new Map([
     ["mcp-architecture", 1963],
-    ["mcp-trust-and-security", 2756],
+    ["mcp-trust-and-security", 2828],
     ["orchestration-patterns", 2390],
-    ["multi-agent-handoffs", 2357],
+    ["multi-agent-handoffs", 2488],
   ]);
 
   for (const [moduleId, expectedWordCount] of expectedWordCounts) {
@@ -1405,7 +1405,7 @@ test("publishes complete MCP, orchestration, and handoff class packages", () => 
     });
     assert.equal(script.spokenWordCount, expectedWordCount);
     assert.equal(script.releaseStatus, "draft");
-    assert.equal(script.provenance.canonicalContentVersion, moduleId === "mcp-architecture" ? "0.42.0" : "0.41.0");
+    assert.equal(script.provenance.canonicalContentVersion, moduleId === "orchestration-patterns" ? "0.41.0" : "0.42.0");
     assert.equal(script.provenance.approvals.length, 0);
     for (const section of module.sections) {
       assert.ok(
