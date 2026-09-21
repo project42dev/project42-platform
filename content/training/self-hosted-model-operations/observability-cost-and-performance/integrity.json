@@ -2,25 +2,25 @@
   "schemaVersion": "1.0",
   "classScript": {
     "id": "observability-cost-and-performance-class",
-    "version": "1.0.0",
-    "sha256": "31efa94b281c193ec7f7fdd65430d1696eb3e549a034d798b43c2b7ade4e9db1"
+    "version": "2.0.0",
+    "sha256": "6d8ae2b85ef7f0d595318757764b6aa269450d4fd8aa281c5c485c9c32178985"
   },
   "artifacts": [
     {
       "path": "captions/en-US.vtt",
-      "sha256": "dd67ca1ab62d5d9d71ba5bcb3f7b85f7b22e68ba6186b7aa172a5423026163fb"
+      "sha256": "21c54cbad76759e9704402db151d1e556826413977a42dca3f41dcbb986891c7"
     },
     {
       "path": "transcripts/en-US.md",
-      "sha256": "a294904286cf5895244b0c477fb59869b7647c5a4201065f1f1ab3c68cb8389b"
+      "sha256": "1f0e4bd3be6e3d4921971212479b9677d1887ab3917c110eb30c58f70d0140d2"
     },
     {
       "path": "alternatives/en-US-reduced-motion.md",
-      "sha256": "2955bc6c9aab8a1edc253f4e93debfee7f76640d154c95680f24d411ff555ef0"
+      "sha256": "df70c1956b952053e11c5fa7ebc26d1fcb01a41f75f2edf40d1c8f28f94395e4"
     },
     {
       "path": "alternatives/en-US-text-only.md",
-      "sha256": "4f7f3e3c7e16ba134350ccd301d068da2a750816b4bdf9f605ebe0d86352a6a6"
+      "sha256": "551fed7469c39101f5f57c62efb5cf0f91092daf8b6797d07f07bb035dbb9c0b"
     }
   ]
 }

@@ -2,25 +2,25 @@
   "schemaVersion": "1.0",
   "classScript": {
     "id": "model-update-and-rollback-lifecycle-class",
-    "version": "1.0.0",
-    "sha256": "a6a1db1296dc4f7823448fe3a4ab464dfbf18baf62aede058da2dc95437847f4"
+    "version": "2.0.0",
+    "sha256": "f81dfea470b028712081fdfd06159f3f8f32c64e6bc02da721c95eb789675db6"
   },
   "artifacts": [
     {
       "path": "captions/en-US.vtt",
-      "sha256": "4fcf13604fa27ecca537eda029783487cdcbef6752c9ebeefd8017bea02d8c98"
+      "sha256": "6bf05babafc678887623df898f07ab583d6769db5d50e6c760c74fe131b74e43"
     },
     {
       "path": "transcripts/en-US.md",
-      "sha256": "9412ecb93eda09b428e77413d9fd5a067e1292c7c6a02f50980d1554f765d9c7"
+      "sha256": "8d89095b0c9371e8adb51df25836fcab8002bfe3bf516fbfb75effa04d211669"
     },
     {
       "path": "alternatives/en-US-reduced-motion.md",
-      "sha256": "f2902d6a41806118f7f0fc16352ba80d341d3ec14aecec04d16e045351eae4c8"
+      "sha256": "5a5f891cdf8559140db90b736da9448e7633f5e01e904c6df29c7a4948bc709c"
     },
     {
       "path": "alternatives/en-US-text-only.md",
-      "sha256": "d6a69bb815fec27b0acfc061d5ec4438ddbef0a0ac45dca967eada33a6fc5d36"
+      "sha256": "f37bc7bc3f845107182ff7a685d783f08115a1b4cd2894b601d74b7d2591a9ac"
     }
   ]
 }

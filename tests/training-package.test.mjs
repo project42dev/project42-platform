@@ -63,13 +63,34 @@ test("class-script gate rejects outline-only, unsourced, dependent, and unapprov
   assert.ok(module);
   const invalid = clone(classScript);
   invalid.spokenWordCount = 12;
-  invalid.segments = invalid.segments.filter(
-    (segment) => segment.id !== "certainty-explanation",
+
+  const narrationSegments = invalid.segments.filter(
+    (segment) => segment.kind === "narration",
   );
-  invalid.plannedDurationSeconds -= 80;
-  invalid.segments.find(
-    (segment) => segment.id === "generation-step-explanation",
-  ).sourceUrls = [];
+  const missingSection = module.sections.find(
+    (section) =>
+      narrationSegments.some((segment) => segment.sectionId === section.id) &&
+      narrationSegments.some(
+        (segment) =>
+          segment.sectionId !== section.id && segment.sourceUrls.length > 0,
+      ),
+  );
+  assert.ok(missingSection, "fixture needs narration for at least two module sections");
+  invalid.segments = invalid.segments.filter(
+    (segment) =>
+      segment.kind !== "narration" || segment.sectionId !== missingSection.id,
+  );
+  invalid.plannedDurationSeconds = invalid.segments.reduce(
+    (total, segment) => total + segment.estimatedSeconds,
+    0,
+  );
+
+  const unsourcedNarration = invalid.segments.find(
+    (segment) => segment.kind === "narration" && segment.sourceUrls.length > 0,
+  );
+  assert.ok(unsourcedNarration, "fixture needs retained sourced narration");
+  unsourcedNarration.sourceUrls = [];
+
   invalid.provenance.contributions.find(
     (entry) => entry.role === "factual-verification",
   ).providerFamily = invalid.provenance.contributions.find(
@@ -80,8 +101,16 @@ test("class-script gate rejects outline-only, unsourced, dependent, and unapprov
   const result = validateClassScriptPackage(invalid, module);
   assert.equal(result.valid, false);
   assert.ok(result.errors.some((error) => error.includes("spokenWordCount")));
-  assert.ok(result.errors.some((error) => error.includes("capability-not-certainty")));
-  assert.ok(result.errors.some((error) => error.includes("needs at least one source")));
+  assert.ok(
+    result.errors.includes(
+      `Module section ${missingSection.id} needs read-aloud narration`,
+    ),
+  );
+  assert.ok(
+    result.errors.includes(
+      `Narration segment ${unsourcedNarration.id} needs at least one source`,
+    ),
+  );
   assert.ok(result.errors.some((error) => error.includes("different provider families")));
   assert.ok(result.errors.some((error) => error.includes("editorial approval")));
   assert.ok(result.errors.some((error) => error.includes("subject-matter approval")));
@@ -125,4 +154,60 @@ test("caption, transcript, text-only, reduced-motion, and integrity fixtures are
   }
   assert.ok(expected["captions/en-US.vtt"].startsWith("WEBVTT\n"));
   assert.ok(expected["transcripts/en-US.md"].includes(classScript.title));
+});
+
+test("private-reference validation accepts ordinary colon-newline prose", () => {
+  const module = getLearningModule(classScript.moduleId);
+  assert.ok(module);
+
+  for (const stageDirection of [
+    "Review evidence separately:\nThen continue.",
+    "Review the evidence table:\r\nThen continue.",
+  ]) {
+    const ordinary = clone(classScript);
+    ordinary.segments[0].stageDirection = stageDirection;
+    assert.deepEqual(validateClassScriptPackage(ordinary, module), {
+      valid: true,
+      errors: [],
+    });
+  }
+});
+
+test("private-reference validation rejects actual nested paths, identifiers, and secret-like keys", () => {
+  const module = getLearningModule(classScript.moduleId);
+  assert.ok(module);
+  const privacyError =
+    "Class script contains a private path, identifier, or secret-like field";
+  const cases = [
+    ["Windows drive path", (invalid) => {
+      invalid.segments[0].stageDirection = "Open C:\\private\\lesson.txt";
+    }],
+    ["UNC path", (invalid) => {
+      invalid.segments[0].stageDirection = "Open \\\\server\\share\\lesson.txt";
+    }],
+    ["Unix home path", (invalid) => {
+      invalid.segments[0].stageDirection = "Open /home/editor/lesson.txt";
+    }],
+    ["Unix users path", (invalid) => {
+      invalid.segments[0].stageDirection = "Open /Users/editor/lesson.txt";
+    }],
+    ["nested secret-like object key", (invalid) => {
+      invalid.provenance["client-secret"] = "redacted";
+    }],
+    ["nested private identifier", (invalid) => {
+      invalid.provenance.audit = { reference: "subscription_id" };
+    }],
+  ];
+
+  for (const [name, mutate] of cases) {
+    const invalid = clone(classScript);
+    mutate(invalid);
+    const result = validateClassScriptPackage(invalid, module);
+    assert.equal(result.valid, false, name);
+    assert.equal(
+      result.errors.filter((error) => error === privacyError).length,
+      1,
+      name,
+    );
+  }
 });

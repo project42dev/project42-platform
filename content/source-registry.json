@@ -314,6 +314,14 @@
       "owner": "tooling"
     },
     {
+      "id": "opencode-v2-docs",
+      "urlPrefix": "https://opencode.ai/v2/docs",
+      "publisher": "OpenCode",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "tooling"
+    },
+    {
       "id": "roo-code-docs",
       "urlPrefix": "https://roocodeinc.github.io/Roo-Code/",
       "publisher": "Roo Code",
@@ -686,6 +694,622 @@
       "id": "ggml-llama-cpp-source",
       "urlPrefix": "https://raw.githubusercontent.com/ggml-org/llama.cpp/",
       "publisher": "ggml-org",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "huggingface-task-asr",
+      "urlPrefix": "https://huggingface.co/tasks/automatic-speech-recognition",
+      "publisher": "Hugging Face",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "huggingface-task-image-to-text",
+      "urlPrefix": "https://huggingface.co/tasks/image-to-text",
+      "publisher": "Hugging Face",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "nist-genai-profile-publication-pdf",
+      "urlPrefix": "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=958388",
+      "publisher": "NIST",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "python-standard-library",
+      "urlPrefix": "https://docs.python.org/3/library/",
+      "publisher": "Python Software Foundation",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "mistral-chat-api",
+      "urlPrefix": "https://docs.mistral.ai/api/endpoint/chat",
+      "publisher": "Mistral AI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "mistral-chat-usage",
+      "urlPrefix": "https://docs.mistral.ai/capabilities/completion/usage",
+      "publisher": "Mistral AI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "mistral-admin-api-keys",
+      "urlPrefix": "https://docs.mistral.ai/admin/identity-access/api-keys",
+      "publisher": "Mistral AI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "mistral-admin-billing",
+      "urlPrefix": "https://docs.mistral.ai/admin/billing-usage/billing",
+      "publisher": "Mistral AI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "meta-llama4-card",
+      "urlPrefix": "https://raw.githubusercontent.com/meta-llama/llama-models/main/models/llama4/",
+      "publisher": "Meta",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "meta-llama4-license",
+      "urlPrefix": "https://github.com/meta-llama/llama-models/blob/main/models/llama4/",
+      "publisher": "Meta",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "deepseek-v32-repository",
+      "urlPrefix": "https://raw.githubusercontent.com/deepseek-ai/DeepSeek-V3.2/",
+      "publisher": "DeepSeek AI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "qwen-official-model-cards",
+      "urlPrefix": "https://huggingface.co/Qwen/",
+      "publisher": "Qwen",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "microsoft-phi-model-cards",
+      "urlPrefix": "https://huggingface.co/microsoft/",
+      "publisher": "Microsoft",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "mistral-official-model-cards",
+      "urlPrefix": "https://huggingface.co/mistralai/",
+      "publisher": "Mistral AI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "zai-official-model-cards",
+      "urlPrefix": "https://huggingface.co/zai-org/",
+      "publisher": "Z.ai",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "nvidia-build-model-cards",
+      "urlPrefix": "https://build.nvidia.com/nvidia/",
+      "publisher": "NVIDIA",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "huggingface-smollm-cards",
+      "urlPrefix": "https://huggingface.co/HuggingFaceTB/",
+      "publisher": "Hugging Face",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "openai-gpt-oss-repository",
+      "urlPrefix": "https://raw.githubusercontent.com/openai/gpt-oss/",
+      "publisher": "OpenAI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "openai-whisper-repository",
+      "urlPrefix": "https://raw.githubusercontent.com/openai/whisper/",
+      "publisher": "OpenAI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "baai-official-model-cards",
+      "urlPrefix": "https://huggingface.co/BAAI/",
+      "publisher": "BAAI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "json-schema-object-reference",
+      "urlPrefix": "https://json-schema.org/understanding-json-schema/",
+      "publisher": "JSON Schema",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "python-jsonschema-docs",
+      "urlPrefix": "https://python-jsonschema.readthedocs.io/",
+      "publisher": "python-jsonschema",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "urlPrefix": "https://huggingface.co/api/models/HuggingFaceTB/SmolLM2-135M-Instruct",
+      "id": "huggingface-smollm2-135m-metadata",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "publisher": "Hugging Face",
+      "owner": "curriculum"
+    },
+    {
+      "urlPrefix": "https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap04.html",
+      "id": "posix-pathname-resolution",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "publisher": "The Open Group",
+      "owner": "curriculum"
+    },
+    {
+      "id": "pypa-packaging-projects",
+      "urlPrefix": "https://packaging.python.org/en/latest/tutorials/packaging-projects/",
+      "publisher": "Python Packaging Authority",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "python-pep-517",
+      "urlPrefix": "https://peps.python.org/pep-0517/",
+      "publisher": "Python Packaging Authority",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "pypa-entry-points",
+      "urlPrefix": "https://packaging.python.org/en/latest/specifications/entry-points/",
+      "publisher": "Python Packaging Authority",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "python-tutorial-introduction",
+      "urlPrefix": "https://docs.python.org/3/tutorial/introduction.html",
+      "publisher": "Python Software Foundation",
+      "trustTier": "primary",
+      "reviewCadenceDays": 180,
+      "owner": "curriculum"
+    },
+    {
+      "id": "python-3-12-standard-library",
+      "urlPrefix": "https://docs.python.org/3.12/library/",
+      "publisher": "Python Software Foundation",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "mistral-error-glossary",
+      "urlPrefix": "https://docs.mistral.ai/resources/error-glossary",
+      "publisher": "Mistral AI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "nodejs-packages",
+      "urlPrefix": "https://nodejs.org/api/packages.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "nodejs-esm",
+      "urlPrefix": "https://nodejs.org/api/esm.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "nodejs-test-runner",
+      "urlPrefix": "https://nodejs.org/api/test.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "nodejs-globals",
+      "urlPrefix": "https://nodejs.org/api/globals.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "project42-content-source",
+      "urlPrefix": "https://github.com/project42dev/project42-content/blob/",
+      "publisher": "Project 42",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "node-fs",
+      "urlPrefix": "https://nodejs.org/api/fs.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "node-child-process",
+      "urlPrefix": "https://nodejs.org/api/child_process.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "node-assert",
+      "urlPrefix": "https://nodejs.org/api/assert.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "trustTier": "primary",
+      "publisher": "OpenJS Foundation",
+      "owner": "curriculum",
+      "urlPrefix": "https://nodejs.org/docs/latest-v22.x/api/fs.html",
+      "id": "node22-fs",
+      "reviewCadenceDays": 90
+    },
+    {
+      "trustTier": "primary",
+      "publisher": "OpenJS Foundation",
+      "owner": "curriculum",
+      "urlPrefix": "https://nodejs.org/docs/latest-v22.x/api/child_process.html",
+      "id": "node22-child-process",
+      "reviewCadenceDays": 90
+    },
+    {
+      "trustTier": "primary",
+      "publisher": "OpenJS Foundation",
+      "owner": "curriculum",
+      "urlPrefix": "https://nodejs.org/docs/latest-v22.x/api/path.html",
+      "id": "node22-path",
+      "reviewCadenceDays": 90
+    },
+    {
+      "trustTier": "primary",
+      "publisher": "MDN Web Docs",
+      "owner": "curriculum",
+      "urlPrefix": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse",
+      "id": "mdn-json-parse",
+      "reviewCadenceDays": 90
+    },
+    {
+      "trustTier": "primary",
+      "publisher": "MDN Web Docs",
+      "owner": "curriculum",
+      "urlPrefix": "https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder",
+      "id": "mdn-text-decoder",
+      "reviewCadenceDays": 90
+    },
+    {
+      "trustTier": "primary",
+      "publisher": "OpenJS Foundation",
+      "reviewCadenceDays": 90,
+      "id": "node22-commonjs",
+      "urlPrefix": "https://nodejs.org/docs/latest-v22.x/api/modules.html",
+      "owner": "curriculum"
+    },
+    {
+      "id": "json-rpc-specification",
+      "urlPrefix": "https://www.jsonrpc.org/specification",
+      "publisher": "JSON-RPC Working Group",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "node-timers",
+      "urlPrefix": "https://nodejs.org/api/timers.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "node-commonjs",
+      "urlPrefix": "https://nodejs.org/api/modules.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "node-process",
+      "urlPrefix": "https://nodejs.org/api/process.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "node22-assert",
+      "urlPrefix": "https://nodejs.org/docs/latest-v22.x/api/assert.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "node22-esm",
+      "urlPrefix": "https://nodejs.org/docs/latest-v22.x/api/esm.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "gnu-bash-set",
+      "urlPrefix": "https://www.gnu.org/software/bash/manual/bash.html#The-Set-Builtin",
+      "publisher": "GNU Project",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "urlPrefix": "https://nodejs.org/en/about/releases/",
+      "trustTier": "primary",
+      "id": "node-release-schedule",
+      "owner": "curriculum",
+      "publisher": "Node.js",
+      "reviewCadenceDays": 30
+    },
+    {
+      "publisher": "Meta",
+      "owner": "curriculum",
+      "urlPrefix": "https://github.com/meta-llama/llama-models",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "id": "choice-meta"
+    },
+    {
+      "publisher": "Mistral AI",
+      "owner": "curriculum",
+      "urlPrefix": "https://docs.mistral.ai/models",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "id": "choice-mistral-ai"
+    },
+    {
+      "publisher": "Alibaba Cloud",
+      "owner": "curriculum",
+      "urlPrefix": "https://qwen.readthedocs.io/en/latest/",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "id": "choice-alibaba-cloud"
+    },
+    {
+      "id": "google-ai-api-reference",
+      "urlPrefix": "https://ai.google.dev/api/",
+      "publisher": "Google",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "provider-google"
+    },
+    {
+      "id": "nodejs-url",
+      "urlPrefix": "https://nodejs.org/api/url.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "qwen-official-family-repository",
+      "urlPrefix": "https://github.com/QwenLM/Qwen2.5",
+      "publisher": "Qwen Team",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "phi-official-cookbook",
+      "urlPrefix": "https://github.com/microsoft/PhiCookBook",
+      "publisher": "Microsoft",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "mistral-inference-repository",
+      "urlPrefix": "https://github.com/mistralai/mistral-inference",
+      "publisher": "Mistral AI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "deepseek-v2-repository",
+      "urlPrefix": "https://github.com/deepseek-ai/DeepSeek-V2",
+      "publisher": "DeepSeek AI",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "project42-content-repository",
+      "urlPrefix": "https://github.com/project42dev/project42-content",
+      "publisher": "Project 42",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "audit-tc39-es-1",
+      "urlPrefix": "https://tc39.es/ecma262/",
+      "publisher": "Ecma International",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "audit-github-com-2",
+      "urlPrefix": "https://github.com/QwenLM/Qwen3",
+      "publisher": "Qwen",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "audit-github-com-3",
+      "urlPrefix": "https://github.com/deepseek-ai/DeepSeek-V3",
+      "publisher": "DeepSeek",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "audit-github-com-4",
+      "urlPrefix": "https://github.com/microsoft/Phi-3CookBook",
+      "publisher": "Microsoft",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "audit-nodejs-org-5",
+      "urlPrefix": "https://nodejs.org/en/docs/",
+      "publisher": "OpenJS Foundation",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "audit-developer-mozilla-org-6",
+      "urlPrefix": "https://developer.mozilla.org/en-US/docs/Web/API/structuredClone",
+      "publisher": "Mozilla",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "audit-nodejs-org-7",
+      "urlPrefix": "https://nodejs.org/api/console.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "audit-developer-mozilla-org-8",
+      "urlPrefix": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON",
+      "publisher": "MDN Web Docs",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "audit-nodejs-org-9",
+      "urlPrefix": "https://nodejs.org/docs/latest-v22.x/api/process.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "nodejs-webcrypto",
+      "urlPrefix": "https://nodejs.org/api/webcrypto.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "nodejs-path",
+      "urlPrefix": "https://nodejs.org/api/path.html",
+      "publisher": "Node.js",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "qwen-legacy-repository",
+      "urlPrefix": "https://github.com/QwenLM/Qwen",
+      "publisher": "QwenLM",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "nvidia-tensorrt-llm",
+      "urlPrefix": "https://github.com/NVIDIA/TensorRT-LLM",
+      "publisher": "NVIDIA",
+      "trustTier": "primary",
+      "reviewCadenceDays": 30,
+      "owner": "curriculum"
+    },
+    {
+      "id": "aws-builders-library",
+      "urlPrefix": "https://aws.amazon.com/builders-library/",
+      "publisher": "Amazon Web Services",
+      "trustTier": "primary",
+      "reviewCadenceDays": 90,
+      "owner": "curriculum"
+    },
+    {
+      "id": "nvidia-triton-inference-server",
+      "urlPrefix": "https://github.com/triton-inference-server/server",
+      "publisher": "NVIDIA",
       "trustTier": "primary",
       "reviewCadenceDays": 30,
       "owner": "curriculum"

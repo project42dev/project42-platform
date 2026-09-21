@@ -59,10 +59,21 @@ const SYNCED_ENTRIES = [
 // on the first clean checkout anyone made on Windows.
 const TEXT_EXTENSIONS = [
   ".csv",
+  ".js",
+  ".mjs",
+  ".cjs",
+  ".ts",
+  ".mts",
+  ".cts",
   ".json",
+  ".lock",
   ".md",
   ".mmd",
+  ".patch",
   ".py",
+  ".ps1",
+  ".sh",
+  ".sql",
   ".svg",
   ".txt",
   ".vtt",
@@ -110,7 +121,7 @@ async function hashFile(file) {
   const bytes = await readFile(file);
   // Curriculum is text authored on two platforms; normalise line endings so a
   // checkout difference is never mistaken for a content difference.
-  const content = TEXT_EXTENSIONS.includes(path.extname(file).toLowerCase())
+  const content = (TEXT_EXTENSIONS.includes(path.extname(file).toLowerCase()) || path.basename(file) === ".gitattributes")
     ? bytes.toString("utf8").replace(/^﻿/, "").replaceAll("\r\n", "\n")
     : bytes;
   return createHash("sha256").update(content).digest("hex");
@@ -127,6 +138,14 @@ async function inventory(base) {
     }
   }
   return files;
+}
+
+const hashFileOnlyIndex = args.indexOf("--hash-file");
+if (hashFileOnlyIndex >= 0) {
+  const file = args[hashFileOnlyIndex + 1];
+  if (!file) throw new Error("--hash-file requires a file path");
+  console.log(await hashFile(path.resolve(file)));
+  process.exit(0);
 }
 
 if (checkOnly) {
@@ -261,3 +280,4 @@ console.log(
   `Installed ${Object.keys(installed).length} curriculum files from ` +
     `project42-content@${upstreamCommit} (contentVersion ${catalog.contentVersion}).`,
 );
+

@@ -59,7 +59,7 @@ test("publishes the first complete AI Foundations class-script wave", () => {
     assert.equal(script.provenance.approvals.length, 0);
     assert.ok(
       script.provenance.contributions.every(
-        (contribution) => contribution.status === "planned",
+        (contribution) => contribution.status === "planned" || (contribution.status === "completed" && typeof contribution.completedAt === "string" && typeof contribution.evidenceRef === "string"),
       ),
     );
   }
@@ -91,7 +91,7 @@ test("publishes the second complete AI Foundations class-script wave", () => {
     assert.equal(script.provenance.approvals.length, 0);
     assert.ok(
       script.provenance.contributions.every(
-        (contribution) => contribution.status === "planned",
+        (contribution) => contribution.status === "planned" || (contribution.status === "completed" && Boolean(contribution.completedAt) && Boolean(contribution.evidenceRef)),
       ),
     );
   }
@@ -124,14 +124,57 @@ test("publishes the evidence-led research class package", () => {
     script.segments.some(
       (segment) =>
         segment.kind === "demonstration" &&
-        segment.id === "removed-source-demonstration",
+        segment.id === "pine-recovery-demonstration" &&
+        segment.spokenText.includes("VEN-04") &&
+        segment.spokenText.includes("Record A") &&
+        segment.spokenText.includes("failure receipt") &&
+        segment.spokenText.includes("Record B") &&
+        segment.spokenText.includes(
+          "Pine Studio Authorized Event Record PS-2026-062",
+        ) &&
+        segment.spokenText.includes("The two rows must remain separate") &&
+        segment.visual?.altText.includes("Record A supports only") &&
+        segment.visual?.altText.includes("Record B independently supports"),
+    ),
+  );
+  const changedInputLearnerPromptIndex = script.segments.findIndex(
+    (segment) => segment.id === "changed-input-learner-prompt",
+  );
+  const changedInputWorkPauseIndex = script.segments.findIndex(
+    (segment) => segment.id === "changed-input-work-pause",
+  );
+  const changedInputAnswerKeyIndex = script.segments.findIndex(
+    (segment) => segment.id === "changed-input-answer-key",
+  );
+  const changedInputFeedbackIndex = script.segments.findIndex(
+    (segment) => segment.id === "changed-input-specific-feedback",
+  );
+  assert.ok(changedInputLearnerPromptIndex >= 0);
+  assert.ok(changedInputWorkPauseIndex > changedInputLearnerPromptIndex);
+  assert.ok(changedInputAnswerKeyIndex > changedInputWorkPauseIndex);
+  assert.ok(changedInputFeedbackIndex > changedInputAnswerKeyIndex);
+  const changedInputWorkPause = script.segments[changedInputWorkPauseIndex];
+  assert.equal(changedInputWorkPause.kind, "pause");
+  assert.equal(changedInputWorkPause.delivery, "silent");
+  assert.equal(changedInputWorkPause.estimatedSeconds, 300);
+  assert.ok(
+    script.segments.some(
+      (segment) =>
+        segment.id === "changed-input-explanation" &&
+        segment.spokenText.includes(
+          "Capacity must now be at least sixty-five",
+        ),
     ),
   );
   assert.ok(
     script.segments.some(
       (segment) =>
         segment.kind === "feedback" &&
-        segment.feedback?.retry.includes("geographic scope"),
+        segment.id === "changed-input-specific-feedback" &&
+        segment.spokenText.includes("Pine's thirty-two fails sixty-five") &&
+        segment.spokenText.includes("Harbor") &&
+        segment.spokenText.includes("unsupported") &&
+        segment.feedback?.retry.includes("40, 60, and 32"),
     ),
   );
 });
@@ -154,19 +197,83 @@ test("publishes the reviewed writing transformation class package", () => {
   assert.ok(script.spokenWordCount >= 1_100);
   assert.equal(script.releaseStatus, "draft");
   assert.equal(script.provenance.approvals.length, 0);
+  const source = script.segments.find(
+    (segment) => segment.id === "writing-source-narration",
+  );
+  const corrected = script.segments.find(
+    (segment) => segment.id === "writing-corrected-narration",
+  );
+  const traceability = script.segments.find(
+    (segment) => segment.id === "writing-traceability-narration",
+  );
+  const checkpoint = script.segments.find(
+    (segment) => segment.id === "writing-verify-checkpoint",
+  );
+  assert.ok(source?.spokenText.includes('"$8 per participant."'));
   assert.ok(
-    script.segments.some(
-      (segment) =>
-        segment.kind === "checkpoint" &&
-        segment.id === "changed-obligation-checkpoint",
+    source?.spokenText.includes(
+      '"Residents age 60 or older may attend free."',
     ),
   );
   assert.ok(
-    script.segments.some(
-      (segment) =>
-        segment.kind === "feedback" &&
-        segment.feedback?.retry.includes("who acts"),
+    source?.spokenText.includes(
+      '"Residents who cannot pay may request a fee waiver when registering."',
     ),
+  );
+  assert.ok(source?.spokenText.includes("not a promise that the request will be granted"));
+  assert.ok(corrected?.spokenText.includes("The review status is pending") || corrected?.spokenText.includes("review is pending"));
+  assert.ok(corrected?.spokenText.includes("A request is not guaranteed."));
+  assert.ok(
+    traceability?.spokenText.includes("O1 links the date and schedule") &&
+      traceability.spokenText.includes("O13 records PENDING review"),
+  );
+  assert.equal(checkpoint?.kind, "checkpoint");
+  assert.ok(checkpoint?.spokenText.includes("may request a fee waiver when registering"));
+  const practicePrompt = script.segments.find(
+    (segment) => segment.id === "writing-practice-prompt",
+  );
+  const practicePause = script.segments.find(
+    (segment) => segment.id === "writing-practice-pause",
+  );
+  const practiceAnswer = script.segments.find(
+    (segment) => segment.id === "writing-practice-answer-narration",
+  );
+  const practiceFeedback = script.segments.find(
+    (segment) => segment.id === "writing-practice-feedback-narration",
+  );
+  const waiverFeedback = script.segments.find(
+    (segment) => segment.id === "writing-verify-feedback",
+  );
+  assert.equal(practicePrompt?.kind, "learner-prompt");
+  assert.equal(practicePause?.kind, "pause");
+  assert.equal(practicePause?.delivery, "silent");
+  assert.equal(practicePause?.estimatedSeconds, 180);
+  assert.equal(practiceAnswer?.kind, "narration");
+  assert.equal(practiceFeedback?.kind, "narration");
+  assert.ok(
+    practicePrompt &&
+      practicePause &&
+      practiceAnswer &&
+      practiceFeedback &&
+      script.segments.indexOf(practicePrompt) < script.segments.indexOf(practicePause) &&
+      script.segments.indexOf(practicePause) < script.segments.indexOf(practiceAnswer) &&
+      script.segments.indexOf(practiceAnswer) < script.segments.indexOf(practiceFeedback),
+  );
+  assert.ok(
+    practicePrompt.spokenText.includes(
+      '"Residents age 70 or older may request a fee waiver when registering; a waiver is not automatic."',
+    ),
+  );
+  assert.ok(
+    practiceAnswer.spokenText.includes(
+      '"Residents age 70 or older may request a fee waiver when registering; a waiver is not automatic."',
+    ) &&
+      practiceAnswer.spokenText.includes("does not include the baseline age-60 free-attendance rule") &&
+      practiceAnswer.spokenText.includes("baseline inability-to-pay waiver rule"),
+  );
+  assert.ok(
+    waiverFeedback?.feedback?.retry.includes("may request") &&
+      waiverFeedback.feedback.retry.includes("will receive"),
   );
 });
 
@@ -356,19 +463,32 @@ test("publishes the evidence-aware What AI Does opening class", () => {
       (contribution) => contribution.status === "planned",
     ),
   );
-  assert.ok(
-    script.segments.some(
-      (segment) =>
-        segment.kind === "checkpoint" &&
-        segment.id === "current-policy-checkpoint",
-    ),
+  const activityCheckpointIndex = script.segments.findIndex(
+    (segment) =>
+      segment.kind === "checkpoint" &&
+      segment.learningHandoff?.command === "open-activity" &&
+      segment.learningHandoff?.activityId === module.activity.id &&
+      segment.learningHandoff?.activityId === "activity-ai-evidence-boundary-check" &&
+      segment.expectedLearnerAction.includes("governing source") &&
+      segment.expectedLearnerAction.includes("exactly two sentences"),
   );
-  assert.ok(
-    script.segments.some(
+  assert.notEqual(activityCheckpointIndex, -1);
+  const subsequentFeedback = script.segments
+    .slice(activityCheckpointIndex + 1)
+    .find(
       (segment) =>
         segment.kind === "feedback" &&
-        segment.feedback?.retry.includes("current effective policy"),
-    ),
+        segment.spokenText.includes("Library laptops will be provided") &&
+        segment.spokenText.includes("current notice") &&
+        segment.spokenText.includes("seven-day value") &&
+        segment.spokenText.includes("five roles"),
+    );
+  assert.ok(subsequentFeedback);
+  assert.ok(
+    subsequentFeedback.feedback?.retry.includes("7 midnight-to-midnight transitions"),
+  );
+  assert.ok(
+    subsequentFeedback.feedback?.retry.includes("8 inclusive calendar-date labels"),
   );
 });
 
@@ -392,7 +512,7 @@ test("publishes the responsible-use and recovery class", () => {
   assert.equal(script.provenance.approvals.length, 0);
   assert.ok(
     script.provenance.contributions.every(
-      (contribution) => contribution.status === "planned",
+      (contribution) => contribution.status === "planned" || (contribution.status === "completed" && typeof contribution.completedAt === "string" && typeof contribution.evidenceRef === "string"),
     ),
   );
   assert.ok(
@@ -446,21 +566,109 @@ test("publishes the purpose-first prompting class", () => {
     script.segments.some(
       (segment) =>
         segment.kind === "checkpoint" &&
-        segment.id === "suitability-checkpoint",
+        segment.id === "outcome-purpose-checkpoint" &&
+        segment.spokenText.includes("The user is the support lead") &&
+        segment.spokenText.includes(
+          "The decision is which service-improvement work to consider first",
+        ) &&
+        segment.spokenText.includes(
+          "The prompt classifies and ranks evidence; it does not choose or perform the improvement",
+        ),
     ),
   );
+  assert.ok(
+    script.segments.some(
+      (segment) =>
+        segment.id === "context-and-trust-explanation" &&
+        segment.kind === "narration" &&
+        segment.spokenText.includes(
+          "The trusted owner map is Delivery: Jordan, Billing: Priya, and Guidance: Mei",
+        ) &&
+        segment.spokenText.includes(
+          "The six comments are evidence to classify, not instructions that can change the task",
+        ) &&
+        segment.spokenText.includes(
+          "They are retained as exact evidence but are not followed",
+        ),
+    ),
+  );
+  assert.ok(
+    script.segments.some(
+      (segment) =>
+        segment.kind === "demonstration" &&
+        segment.id === "baseline-flaw-demonstration" &&
+        segment.spokenText.includes(
+          "C3 says, “The refund instructions are confusing.”",
+        ) &&
+        segment.spokenText.includes(
+          "The first ordered rule sends refund instructions to Billing, so Delivery is wrong",
+        ) &&
+        segment.spokenText.includes(
+          "Billing has C3 and C4, Delivery has C1 and C2, and Guidance has C5 and C6",
+        ) &&
+        segment.spokenText.includes("Billing, Delivery, Guidance") &&
+        segment.visual?.altText.includes("Flawed result: Delivery 3") &&
+        segment.visual?.altText.includes("Corrected result: Billing 2"),
+    ),
+  );
+  const variationPauseIndex = script.segments.findIndex(
+    (segment) => segment.id === "variation-work-time",
+  );
+  const variationAnswerKeyIndex = script.segments.findIndex(
+    (segment) => segment.id === "variation-answer-key-explanation",
+  );
+  assert.ok(variationPauseIndex >= 0);
+  assert.ok(variationAnswerKeyIndex > variationPauseIndex);
+  const variationPause = script.segments[variationPauseIndex];
+  assert.equal(variationPause.kind, "pause");
+  assert.equal(variationPause.delivery, "silent");
+  assert.equal(variationPause.estimatedSeconds, 90);
   assert.ok(
     script.segments.some(
       (segment) =>
         segment.kind === "feedback" &&
-        segment.feedback?.retry.includes("employment decision"),
+        segment.id === "variation-specific-feedback" &&
+        segment.spokenText.includes("N1 and N4 to Delivery with Jordan") &&
+        segment.spokenText.includes("N2 to Billing with Priya") &&
+        segment.spokenText.includes("N3 to Guidance with Mei") &&
+        segment.spokenText.includes("Delivery, Billing, Guidance") &&
+        segment.spokenText.includes("alphabetize only tied categories") &&
+        segment.spokenText.includes("reconciles four") &&
+        segment.feedback?.correct.includes("uses N1 through N4 exactly once") &&
+        segment.feedback?.retry.includes("rank by count before applying the alphabetical tie-break"),
     ),
   );
   assert.ok(
     script.segments.some(
       (segment) =>
-        segment.kind === "checkpoint" &&
-        segment.id === "untrusted-content-checkpoint",
+        segment.kind === "learner-prompt" &&
+        segment.id === "variation-classification-prompt" &&
+        segment.spokenText.includes(
+          "Write the category and owner for N1, N2, N3, and N4",
+        ) &&
+        segment.spokenText.includes("What are all three category counts?") &&
+        segment.spokenText.includes(
+          "What ranked order follows after applying the tie-break only to equal counts?",
+        ) &&
+        segment.spokenText.includes("with exact quotes and a total of four") &&
+        segment.spokenText.includes(
+          "what you would do if a new comment matched no permitted category",
+        ),
+    ),
+  );
+  assert.ok(
+    script.segments.some(
+      (segment) =>
+        segment.kind === "narration" &&
+        segment.id === "variation-answer-key-explanation" &&
+        segment.spokenText.includes(
+          "Delivery therefore has two comments, N1 and N4",
+        ) &&
+        segment.spokenText.includes("Billing has one, N2") &&
+        segment.spokenText.includes("Guidance has one, N3") &&
+        segment.spokenText.includes(
+          "The final ranking is Delivery, Billing, Guidance, and two plus one plus one equals four",
+        ),
     ),
   );
 });
@@ -488,26 +696,75 @@ test("publishes the claim-evidence verification class", () => {
       (contribution) => contribution.status === "planned",
     ),
   );
+  const claimPrompt = script.segments.find(
+    (segment) => segment.id === "verify-by-claim-prompt",
+  );
+  const sourceCorpus = script.segments.find(
+    (segment) => segment.id === "source-corpus-narration",
+  );
+  const claimCheckpoint = script.segments.find(
+    (segment) => segment.id === "verify-by-claim-checkpoint",
+  );
+  assert.equal(claimCheckpoint?.kind, "checkpoint");
   assert.ok(
-    script.segments.some(
-      (segment) =>
-        segment.kind === "checkpoint" &&
-        segment.id === "volatile-claim-checkpoint",
+    claimPrompt?.spokenText.includes(
+      '‘Standard adult single ride: $3.00.’',
     ),
   );
   assert.ok(
-    script.segments.some(
-      (segment) =>
-        segment.kind === "feedback" &&
-        segment.feedback?.retry.includes("undated community post"),
+    sourceCorpus?.spokenText.includes(
+      '“Standard adult single ride: $3.00. A day pass costs $10.00. Reduced fares are available only to riders with a valid reduced-fare card.”',
     ),
   );
   assert.ok(
-    script.segments.some(
-      (segment) =>
-        segment.kind === "demonstration" &&
-        segment.id === "mixed-claim-demonstration",
-    ),
+    sourceCorpus?.spokenText.includes("Source B therefore does not create an unresolved conflict where A controls") &&
+      sourceCorpus.spokenText.includes("Sources C and D are both version 1.0") &&
+      sourceCorpus.spokenText.includes("No supplied rule gives either source precedence"),
+  );
+  const fiveRidePrompt = script.segments.find(
+    (segment) => segment.id === "changed-input-task-prompt",
+  );
+  const fiveRidePause = script.segments.find(
+    (segment) => segment.id === "changed-input-task-pause",
+  );
+  const fiveRideAnswer = script.segments.find(
+    (segment) => segment.id === "changed-input-answer-key-narration",
+  );
+  const fiveRideFeedback = script.segments.find(
+    (segment) => segment.id === "changed-input-answer-key-feedback",
+  );
+  assert.equal(fiveRidePrompt?.kind, "learner-prompt");
+  assert.equal(fiveRidePause?.kind, "pause");
+  assert.equal(fiveRidePause?.delivery, "silent");
+  assert.equal(fiveRidePause?.estimatedSeconds, 120);
+  assert.equal(fiveRideAnswer?.kind, "narration");
+  assert.equal(fiveRideFeedback?.kind, "feedback");
+  assert.ok(
+    fiveRidePrompt &&
+      fiveRidePause &&
+      fiveRideAnswer &&
+      fiveRideFeedback &&
+      script.segments.indexOf(fiveRidePrompt) < script.segments.indexOf(fiveRidePause) &&
+      script.segments.indexOf(fiveRidePause) < script.segments.indexOf(fiveRideAnswer) &&
+      script.segments.indexOf(fiveRideAnswer) < script.segments.indexOf(fiveRideFeedback),
+  );
+  assert.ok(
+    fiveRideAnswer.spokenText.includes('“Standard adult single ride: $3.00.”') &&
+      fiveRideAnswer.spokenText.includes("5 × $3.00 = $15.00") &&
+      fiveRideAnswer.spokenText.includes("no supplied source states a reduced-fare amount"),
+  );
+  const corpusDemonstration = script.segments.find(
+    (segment) => segment.id === "source-corpus-demonstration",
+  );
+  assert.equal(corpusDemonstration?.kind, "demonstration");
+  assert.ok(
+    corpusDemonstration?.spokenText.includes(
+      "Source A controls rather than conflicting with superseded Source B",
+    ) &&
+      corpusDemonstration.spokenText.includes(
+        "Sources C and D remain unresolved because both are equally authoritative and applicable",
+      ) &&
+      corpusDemonstration.spokenText.includes("requires HOLD"),
   );
 });
 
@@ -526,13 +783,13 @@ test("publishes the first complete Self-Hosted Model Operations class", () => {
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1283);
+  assert.equal(script.spokenWordCount, 2982);
   assert.equal(script.releaseStatus, "draft");
-  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
   assert.equal(script.provenance.approvals.length, 0);
   assert.ok(
     script.provenance.contributions.every(
-      (contribution) => contribution.status === "planned",
+      (contribution) => ["evidence-research", "curriculum-writing", "factual-verification"].includes(contribution.role) ? contribution.status === "completed" : contribution.status === "planned",
     ),
   );
   for (const section of module.sections) {
@@ -562,8 +819,8 @@ test("publishes the first complete Self-Hosted Model Operations class", () => {
 
 test("publishes complete model identity and artifact-integrity classes", () => {
   const expected = new Map([
-    ["model-identity-license-and-provenance", 1060],
-    ["model-artifact-integrity", 992],
+    ["model-identity-license-and-provenance", 2057],
+    ["model-artifact-integrity", 2569],
   ]);
 
   for (const [moduleId, spokenWordCount] of expected) {
@@ -582,13 +839,14 @@ test("publishes complete model identity and artifact-integrity classes", () => {
     });
     assert.equal(script.spokenWordCount, spokenWordCount);
     assert.equal(script.releaseStatus, "draft");
-    assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+    assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
     assert.equal(script.provenance.approvals.length, 0);
-    assert.ok(
-      script.provenance.contributions.every(
-        (contribution) => contribution.status === "planned",
-      ),
-    );
+    for (const contribution of script.provenance.contributions) {
+      const executed =
+        ["evidence-research", "curriculum-writing", "factual-verification"].includes(contribution.role);
+      assert.equal(contribution.status, executed ? "completed" : "planned");
+      if (executed) assert.ok(contribution.completedAt && contribution.evidenceRef);
+    }
     for (const section of module.sections) {
       assert.ok(
         script.segments.some(
@@ -630,9 +888,9 @@ test("publishes the complete hardware, runtime, and capacity class", () => {
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 976);
+  assert.equal(script.spokenWordCount, 2503);
   assert.equal(script.releaseStatus, "draft");
-  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
   assert.equal(script.provenance.approvals.length, 0);
   for (const section of module.sections) {
     assert.ok(
@@ -674,7 +932,7 @@ test("publishes the complete serving and compatibility-contract class", () => {
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1021);
+  assert.equal(script.spokenWordCount, 2967);
   assert.equal(script.releaseStatus, "draft");
   assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
   assert.equal(script.provenance.approvals.length, 0);
@@ -718,9 +976,9 @@ test("publishes the complete endpoint identity, network, and secrets class", () 
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1253);
+  assert.equal(script.spokenWordCount, 2277);
   assert.equal(script.releaseStatus, "draft");
-  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
   assert.equal(script.provenance.approvals.length, 0);
   for (const section of module.sections) {
     assert.ok(
@@ -762,9 +1020,9 @@ test("publishes the complete exact-serving-build evaluation class", () => {
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1249);
+  assert.equal(script.spokenWordCount, 2763);
   assert.equal(script.releaseStatus, "draft");
-  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
   assert.equal(script.provenance.approvals.length, 0);
   for (const section of module.sections) {
     assert.ok(
@@ -806,9 +1064,9 @@ test("publishes the complete observability, cost, and performance class", () => 
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1223);
+  assert.equal(script.spokenWordCount, 2708);
   assert.equal(script.releaseStatus, "draft");
-  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
   assert.equal(script.provenance.approvals.length, 0);
   for (const section of module.sections) {
     assert.ok(
@@ -850,9 +1108,9 @@ test("publishes the complete scaling, failure, and capacity-controls class", () 
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1250);
+  assert.equal(script.spokenWordCount, 3064);
   assert.equal(script.releaseStatus, "draft");
-  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
   assert.equal(script.provenance.approvals.length, 0);
   for (const section of module.sections) {
     assert.ok(
@@ -894,9 +1152,9 @@ test("publishes the complete model update and rollback lifecycle class", () => {
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1160);
+  assert.equal(script.spokenWordCount, 3072);
   assert.equal(script.releaseStatus, "draft");
-  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
   assert.equal(script.provenance.approvals.length, 0);
   for (const section of module.sections) {
     assert.ok(
@@ -938,9 +1196,9 @@ test("publishes the complete model incident response and recovery class", () => 
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1152);
+  assert.equal(script.spokenWordCount, 2024);
   assert.equal(script.releaseStatus, "draft");
-  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
   assert.equal(script.provenance.approvals.length, 0);
   for (const section of module.sections) {
     assert.ok(
@@ -1026,7 +1284,12 @@ test("publishes the bounded agent work-order class package", () => {
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1103);
+  assert.equal(
+    script.spokenWordCount,
+    script.segments.filter((segment) => segment.delivery === "spoken")
+      .reduce((count, segment) => count + segment.spokenText.trim().split(/\s+/u).length, 0),
+  );
+  assert.ok(script.spokenWordCount >= 1103, "retain substantive spoken instruction");
   assert.equal(script.releaseStatus, "draft");
   assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
   assert.equal(script.provenance.approvals.length, 0);
@@ -1063,9 +1326,9 @@ test("publishes the bounded agent work-order class package", () => {
 
 test("publishes complete agent tool, context, and memory class packages", () => {
   const expectedWordCounts = new Map([
-    ["control-agent-actions", 945],
-    ["context-engineering", 957],
-    ["memory-boundaries", 1031],
+    ["control-agent-actions", 1224],
+    ["context-engineering", 1831],
+    ["memory-boundaries", 1598],
   ]);
 
   for (const [moduleId, expectedWordCount] of expectedWordCounts) {
@@ -1084,7 +1347,7 @@ test("publishes complete agent tool, context, and memory class packages", () => 
     });
     assert.equal(script.spokenWordCount, expectedWordCount);
     assert.equal(script.releaseStatus, "draft");
-    assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+    assert.equal(script.provenance.canonicalContentVersion, moduleId === "context-engineering" ? "0.42.0" : "0.41.0");
     assert.equal(script.provenance.approvals.length, 0);
     for (const section of module.sections) {
       assert.ok(
@@ -1120,10 +1383,10 @@ test("publishes complete agent tool, context, and memory class packages", () => 
 
 test("publishes complete MCP, orchestration, and handoff class packages", () => {
   const expectedWordCounts = new Map([
-    ["mcp-architecture", 910],
-    ["mcp-trust-and-security", 904],
-    ["orchestration-patterns", 1002],
-    ["multi-agent-handoffs", 1013],
+    ["mcp-architecture", 1963],
+    ["mcp-trust-and-security", 2828],
+    ["orchestration-patterns", 2390],
+    ["multi-agent-handoffs", 2488],
   ]);
 
   for (const [moduleId, expectedWordCount] of expectedWordCounts) {
@@ -1142,7 +1405,7 @@ test("publishes complete MCP, orchestration, and handoff class packages", () => 
     });
     assert.equal(script.spokenWordCount, expectedWordCount);
     assert.equal(script.releaseStatus, "draft");
-    assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+    assert.equal(script.provenance.canonicalContentVersion, moduleId === "orchestration-patterns" ? "0.41.0" : "0.42.0");
     assert.equal(script.provenance.approvals.length, 0);
     for (const section of module.sections) {
       assert.ok(
@@ -1178,11 +1441,11 @@ test("publishes complete MCP, orchestration, and handoff class packages", () => 
 
 test("publishes complete agent evaluation, operations, and capstone packages", () => {
   const expectedWordCounts = new Map([
-    ["agent-evaluation", 940],
-    ["agent-observability", 955],
-    ["review-agent-results", 1419],
-    ["operate-and-recover-agent-systems", 945],
-    ["reliable-agent-capstone", 1178],
+    ["agent-evaluation", 2346],
+    ["agent-observability", 2345],
+    ["review-agent-results", 1279],
+    ["operate-and-recover-agent-systems", 3286],
+    ["reliable-agent-capstone", 2378],
   ]);
 
   for (const [moduleId, expectedWordCount] of expectedWordCounts) {
@@ -1201,7 +1464,8 @@ test("publishes complete agent evaluation, operations, and capstone packages", (
     });
     assert.equal(script.spokenWordCount, expectedWordCount);
     assert.equal(script.releaseStatus, "draft");
-    assert.equal(script.provenance.canonicalContentVersion, moduleId === "review-agent-results" ? "0.42.0" : "0.41.0");
+    assert.equal(script.provenance.canonicalContentVersion,
+      "0.42.0");
     assert.equal(script.provenance.approvals.length, 0);
     for (const section of module.sections) {
       assert.ok(
@@ -1249,9 +1513,9 @@ test("publishes complete agent evaluation, operations, and capstone packages", (
       `capstone narration missing required artifact ${artifact}`,
     );
   }
-  assert.match(spokenText, /eighty-percent knowledge check/u);
-  assert.match(spokenText, /capstone score of at least eighty percent/u);
-  assert.match(spokenText, /Preserve the first submission/u);
+  assert.match(spokenText, /knowledge check[\s\S]*80 percent completion gate/u);
+  assert.match(spokenText, /capstone score of at least 80 percent/u);
+  assert.match(spokenText, /Preserve the failed submission/u);
 });
 
 // ADR-0020: instructor-led delivery is a rendering of the same module, so
@@ -1436,3 +1700,7 @@ function parseTimestamp(value) {
     Number(match[4])
   );
 }
+
+
+
+

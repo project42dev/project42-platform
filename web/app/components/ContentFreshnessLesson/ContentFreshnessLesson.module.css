@@ -1,0 +1,75 @@
+.lesson {
+  --surface: var(--p42-surface-card, Canvas);
+  --soft: var(--p42-interactive-muted, Canvas);
+  --text: var(--p42-text-body, CanvasText);
+  --border: var(--p42-border-soft, CanvasText);
+  --button: var(--p42-secondary-btn-bg, ButtonFace);
+  --button-text: var(--p42-secondary-btn-fg, ButtonText);
+  box-sizing: border-box;
+  display: grid;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 100%;
+  color: var(--text);
+  font-size: max(1rem, 16px);
+  line-height: 1.55;
+  overflow-wrap: break-word;
+}
+.lesson *, .lesson *::before, .lesson *::after { box-sizing: border-box; }
+.panel, .status, .diagram { min-width: 0; max-width: 100%; border: 1px solid var(--border); border-radius: .75rem; background: var(--surface); color: inherit; }
+.panel { padding: clamp(1rem,3vw,1.75rem); }
+.panel h2, .panel h3, .panel h4, .panel h5 { margin-block: .25rem .65rem; line-height: 1.22; }
+.panel p, .panel li { max-width: 92ch; }
+.eyebrow { margin: 0; font-size: max(.75rem,12px); font-weight: 750; letter-spacing: .065em; text-transform: uppercase; }
+.notice { border-inline-start: .3rem solid currentColor; padding: .8rem 1rem; background: var(--soft); font-weight: 650; }
+.status { display: flex; justify-content: space-between; gap: 1rem; padding: .9rem 1rem; }
+.diagram {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0,20rem);
+  grid-template-areas: "S" "D" "I" "P" "E" "H" "R" "M" "B";
+  justify-content: center;
+  align-items: center;
+  gap: 9rem;
+  min-height: 0;
+  padding: 2rem max(4.5rem,calc((100% - 20rem)/2)) 6rem;
+  overflow: hidden;
+  isolation: isolate;
+}
+.connectors { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; color: var(--text); }
+.connector { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.arrowHead { fill: currentColor; stroke: currentColor; }
+.node { position: relative; z-index: 2; display: grid; grid-template-columns: 2rem minmax(0,1fr); gap: .6rem; align-items: center; width: 100%; min-width: 0; min-height: 5.5rem; border: 1px solid currentColor; border-radius: .6rem; padding: .8rem 1rem; background: var(--surface); color: inherit; font: inherit; font-size: max(.875rem,14px); text-align: start; cursor: pointer; }
+.node span { min-width: 0; overflow-wrap: normal; word-break: normal; hyphens: none; }
+.node[data-kind="decision"] { border-radius: 1rem .45rem; }
+.node[data-kind="terminal"] { border-style: double; border-width: 3px; }
+.node[aria-pressed="true"] { outline: .2rem solid currentColor; outline-offset: .15rem; background: var(--soft); }
+.node[data-node="S"]{grid-area:S}.node[data-node="D"]{grid-area:D}.node[data-node="I"]{grid-area:I}.node[data-node="P"]{grid-area:P}.node[data-node="E"]{grid-area:E}.node[data-node="H"]{grid-area:H}.node[data-node="R"]{grid-area:R}.node[data-node="M"]{grid-area:M}.node[data-node="B"]{grid-area:B}
+.edgeLabel { position: absolute; z-index: 3; transform: translate(-50%,-50%); width: max-content; max-width: min(8.5rem,calc(100% - 2rem)); min-height: 2.2rem; border: 1px solid var(--border); border-radius: .5rem; padding: .22rem .5rem; background: var(--surface); color: inherit; font-size: max(.75rem,12px); font-weight: 700; line-height: 1.2; text-align: center; pointer-events: none; }
+.edgeLabel span { display: block; white-space: normal; overflow-wrap: normal; word-break: normal; }
+.cards, .practiceGrid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,23rem),1fr)); gap: 1rem; margin-block-start: 1rem; }
+.artifact, .practice, .feedback, .simFeedback, .simState { min-width: 0; border: 1px solid var(--border); border-radius: .6rem; padding: 1rem; background: var(--soft); }
+.preserve { white-space: pre-line; overflow-wrap: anywhere; }
+.practice fieldset, .simActions { display: grid; gap: .7rem; margin: 0; border: 0; padding: 0; }
+.simActions { grid-template-columns: repeat(auto-fit,minmax(min(100%,17rem),1fr)); }
+.practice button, .feedback button, .actions button, .simActions button, .resetButton { border: 1px solid currentColor; border-radius: .45rem; padding: .75rem 1rem; background: var(--button); color: var(--button-text); font: inherit; font-weight: 650; text-align: start; cursor: pointer; }
+.feedback, .simFeedback { margin-block-start: 1rem; border-width: 2px; }
+.resetButton { margin-block-start: 1rem; }
+.actions { display: flex; justify-content: flex-end; margin-block-start: 1rem; }
+.sources { display: grid; gap: 1rem; padding-inline-start: 1.25rem; }
+.sources strong, .sources span { display: block; }
+.node:focus-visible, button:focus-visible, summary:focus-visible, a:focus-visible, h3:focus, .feedback:focus { outline: .2rem solid currentColor; outline-offset: .2rem; }
+.srOnly { position: absolute; width: 1px; height: 1px; margin: -1px; border: 0; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+@media (max-width:64rem) {
+  .status { align-items: flex-start; flex-direction: column; }
+}
+@media (max-width:30rem) {
+  .diagram { grid-template-columns: minmax(0,1fr); gap: 9rem; padding-inline: 4.5rem; padding-block-start: 1.5rem; }
+  .node { grid-template-columns: 1.5rem minmax(0,1fr); min-height: 5.5rem; padding-inline: .65rem; }
+  .edgeLabel { max-width: 7rem; }
+  .panel { padding-inline: .85rem; }
+}
+@media (forced-colors:active) {
+  .lesson { --surface:Canvas; --soft:Canvas; --text:CanvasText; --border:ButtonText; --button:ButtonFace; --button-text:ButtonText; }
+  .panel, .status, .diagram, .node, .edgeLabel, .artifact, .practice, .feedback, .simFeedback, button { forced-color-adjust:auto; }
+}

@@ -37,31 +37,35 @@ vulnerabilities:
       does.
     expired_at: 2026-12-01
 
-  - id: CVE-2026-75595
-    # GHSA-c4c3-7fpv-j4q5. netty-handler 4.1.136.Final, bundled by
-    # quay.io/keycloak/keycloak:26.7.3. Fixed upstream in netty 4.1.137.Final
-    # and 4.2.17.Final.
+  - id: CVE-2026-8763
+    # bcprov-jdk18on 1.84 is bundled by quay.io/keycloak/keycloak:26.7.4.
+    # The defect is in PKIXNameConstraintValidator handling of crafted
+    # rfc822Name and URI constraints. In this topology Keycloak runs plain
+    # HTTP on the private compose network; Caddy is the only TLS terminator,
+    # and the compose stack does not configure Keycloak for TLS, custom trust
+    # stores, or certificate-path validation. The vulnerable validator is not
+    # entered by the deployed identity flow.
     #
-    # Not reachable here. The flaw is in io.netty.handler.ssl
-    # .SslClientHelloHandler: a ClientHello fragmented across TLS records makes
-    # Netty fall back to the default SslContext, which bypasses mutual TLS only
-    # where per-SNI clientAuth=REQUIRE is the sole mTLS gate. Keycloak in both
-    # compose.yaml and compose.https.yaml terminates no TLS at all: it runs
-    # start-dev on plain HTTP (KC_HTTP_ENABLED=true behind the Caddy gateway in
-    # the HTTPS topology, port 8080 for local evaluation), configures no
-    # certificate, no SNI contexts and no client-certificate authentication.
-    # The SSL handler is never in its pipeline.
-    #
-    # This is a deferral, not a dismissal. 26.7.3 is the newest Keycloak tag on
-    # quay.io as of 2026-09-11 and no release yet carries netty >= 4.1.137.
-    #
-    # Action: pin Keycloak forward as soon as a release ships the fixed netty,
-    # then delete this entry. Re-verify at expiry that Keycloak still terminates
-    # no TLS in either topology.
+    # This is a dated deferral while the official Keycloak image still ships
+    # bcprov 1.84. Remove it as soon as the official image carries 1.85+ or
+    # the topology begins using Keycloak-side TLS/certificate validation.
     statement: >-
-      keycloak:26.7.3 bundles netty-handler 4.1.136.Final. The flaw is an SNI
-      fallback in Netty's TLS ClientHello handler; this Keycloak serves plain
-      HTTP behind the gateway, terminates no TLS and uses no mTLS, so the
-      handler is never entered. No Keycloak release yet ships netty >= 4.1.137.
-      Pin forward and remove this entry when one does.
+      Keycloak 26.7.4 bundles bcprov-jdk18on 1.84. CVE-2026-8763 affects
+      PKIX name-constraint validation for crafted rfc822Name and URI values.
+      This stack keeps Keycloak on private plain HTTP, terminates TLS only at
+      Caddy, and configures no Keycloak trust store or certificate validation
+      path, so the affected code is not reachable here. Pin an official
+      Keycloak image with bcprov 1.85+ and remove this entry when available.
+    expired_at: 2026-12-01
+  - id: CVE-2026-75595
+    # netty-handler 4.1.136.Final is bundled by Keycloak 26.7.4.
+    # Keycloak in both compose topologies terminates no TLS: it runs plain
+    # HTTP behind the Caddy gateway, with no SNI contexts or mTLS listener.
+    # The vulnerable ClientHello SNI path is therefore unreachable here.
+    statement: >-
+      Keycloak 26.7.4 bundles netty-handler 4.1.136.Final. CVE-2026-75595
+      affects the TLS ClientHello SNI fallback; this topology keeps Keycloak
+      on private plain HTTP, terminates TLS only at Caddy, and configures no
+      SNI or mTLS in Keycloak. Pin an official image with netty-handler
+      4.1.137.Final or newer and remove this entry when available.
     expired_at: 2026-12-01

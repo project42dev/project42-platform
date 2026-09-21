@@ -23,8 +23,9 @@
       "id": "start-with-questions",
       "title": "Start with operational questions and objectives",
       "paragraphs": [
-        "Write the questions operators must answer: Is the right model serving? Are users receiving valid results? Which slices fail? Where is time spent? What is queued or rejected? Which resource is saturated? Did an update change quality, security, cost, or recovery? Can an incident be scoped and reproduced?",
-        "Define indicators and objectives for availability, successful outcomes, policy outcomes, latency distributions, queue time, throughput, rejection, error, recovery, and budget. A dashboard without a decision or owner becomes decorative telemetry."
+        "Begin with decisions, not dashboards. Operators should be able to answer: Is the approved model serving? Are users receiving valid results? Which bounded slices fail? Where is time spent? What is queued or rejected? Which resource is saturated? Did an update change quality, security, cost, or recovery? Can an incident be scoped and reproduced?",
+        "Define an indicator, objective, owner, decision, observation window, denominator, and retention period for each question. For example, a synthetic interactive-latency objective can require at least 95 percent of valid requests to complete at or below 400 ms in a five-minute window. A dashboard without an owned decision is decorative telemetry. Missing measurements are unknown, not successful outcomes.",
+        "Instructor narration: If release rel-2026-09-13-a is suspected of slowing interactive traffic, a host-wide average cannot answer the question. The evidence needs exact release identity, bounded route, compatible latency histogram, comparable windows, and a serving owner who can retain or roll back the release."
       ]
     },
     {
@@ -32,155 +33,87 @@
       "title": "Correlate logs, metrics, traces, events, and exact identities",
       "paragraphs": [
         "Use a request or run identifier to connect gateway, adapter, inference server, runtime, tool, policy, and application events. Record service and instance identity, exact model and runtime bundle, route, operation, status, error category, policy disposition, input and output size measures, queue and processing time, resource observations, and release identifier.",
-        "OpenTelemetry semantic conventions provide shared names and stability metadata for telemetry concepts. Version the convention and application fields you adopt. Do not assume every generative-AI field is stable or available across runtimes; preserve an application-owned core and explicit adapters."
+        "An exact build identity should include model artifact and digest, tokenizer or processor identity, runtime name and version, serving configuration digest, adapter digest when present, precision or quantization setting, release ID, service instance, and environment. A friendly alias such as chat-default is not sufficient release evidence. Request IDs connect traces and logs but must not become unbounded metric labels.",
+        "OpenTelemetry Semantic Conventions document shared telemetry names and stability metadata: https://opentelemetry.io/docs/specs/semconv/ (OpenTelemetry, last verified 2026-09-13). Adopt a versioned application-owned core and explicit adapters. A field exposed by one runtime or API is not evidence that another provider exposes an equivalent field."
       ]
     },
     {
       "id": "minimize-sensitive-telemetry",
       "title": "Minimize sensitive content and control telemetry access",
       "paragraphs": [
-        "Default to metadata and derived measurements rather than raw prompts, responses, retrieved documents, credentials, headers, or personal identifiers. If sampled content is necessary for an approved purpose, minimize, redact, encrypt, restrict access, record consent or authority, set short retention, audit use, and test deletion.",
-        "Threat-model telemetry pipelines, collectors, exporters, stores, dashboards, alerts, and support bundles. A secure serving path can still disclose data through verbose errors, traces, exception bodies, labels, exemplars, or high-cardinality identifiers."
+        "Default to metadata and derived measurements rather than raw prompts, responses, retrieved documents, credentials, headers, or personal identifiers. Optional sampled content requires an approved purpose, minimization, redaction, encryption, restricted access, authority or consent, short retention, access auditing, and tested deletion.",
+        "Classify fields before enabling exporters. Required metadata includes exact build fields, route, operation, status, bounded error category, and policy disposition. Derived measurements include latency, queue time, sizes, resource ratios, counts, and allocated cost. Raw prompts, responses, retrieved documents, and direct personal identifiers are optional sensitive content and are disabled by default. Credentials, private keys, authorization headers, and session secrets are prohibited.",
+        "Threat-model application logs, SDKs, collectors, exporters, stores, dashboards, alerts, tickets, traces, exemplars, and support bundles. Redacting a dashboard does not repair an unredacted trace already exported to a broadly accessible store. Test rejected requests and exception paths because they may copy input content."
       ]
     },
     {
       "id": "measure-distributions-and-cost",
       "title": "Measure distributions, saturation, and attributable cost",
       "paragraphs": [
-        "Record latency and size as distributions with suitable histogram resolution or buckets, not only averages. Prometheus documents that precomputed summary quantiles are generally not aggregatable across replicas, while histograms support later aggregation subject to their representation. Preserve counts, failures, and the population behind every percentile.",
-        "Measure queue time, time to first output, processing and streaming time, throughput, cancellations, retries, cache behavior, accelerator and host utilization, memory headroom, storage and network activity, and energy or cloud charges where available. Attribute costs by bounded tenant, workload, route, model, and release without using unbounded labels."
+        "Record latency and size as distributions with suitable histogram buckets, not only averages. Prometheus explains that precomputed summary quantiles are generally not aggregatable across replicas, while compatible histogram buckets can be aggregated: https://prometheus.io/docs/practices/histograms/ (Prometheus, last verified 2026-09-13). Preserve counts, failures, and the population behind every percentile.",
+        "For three replicas, bounds 100, 200, 400, and 800 ms have cumulative counts R1 [50,90,100,100], R2 [5,15,35,40], and R3 [1,2,8,10]. Summing matching buckets gives [56,107,143,150]. For p95, rank = 0.95 x 150 = 142.5. The rank is in the 200-to-400 ms bucket, so linear interpolation gives 200 + ((142.5 - 107) / (143 - 107)) x 200 = 397.22 ms. This is an estimate, not an exact percentile. The assumption is that observations are spread within the bucket. Finer buckets reduce interpolation uncertainty.",
+        "The fixture has 143 of 150 requests at or below 400 ms, or 143 / 150 = 95.333 percent, so it passes a synthetic 95 percent latency objective by about 0.333 percentage points. If two of the same 150 requests were unsuccessful, successful outcomes would be 148 / 150 = 98.667 percent, failing a separate 99 percent success objective. Do not remove failures from a denominator unless the indicator contract explicitly justifies that exclusion.",
+        "Synthetic cost example: three replicas run for 0.5 hour at a fictional accelerator rate of $2.00 per replica-hour and fictional host rate of $0.40 per replica-hour. Accelerator cost is 3 x 0.5 x $2.00 = $3.00. Host cost is 3 x 0.5 x $0.40 = $0.60. Adding fictional storage of $0.05 and network of $0.10 gives $3.75. For 15,000 completed requests, allocated cost is $3.75 / 15,000 = $0.00025 per request. These are synthetic teaching inputs, not provider prices, benchmark results, energy measurements, or production claims.",
+        "Also measure queue time, time to first output, processing and streaming time, throughput, cancellations, retries, cache behavior, accelerator and host utilization, memory headroom, storage and network activity, and energy or cloud charges where available. Use bounded tenant class, workload, route, model, and release dimensions. Kubernetes resource monitoring guidance is general deployment guidance, not proof that a particular deployment exports or enforces these measurements: https://kubernetes.io/docs/tasks/debug/debug-cluster/resource-usage-monitoring/ (Kubernetes, last verified 2026-09-13)."
       ]
     },
     {
       "id": "alert-and-investigate",
       "title": "Alert on symptoms with actionable context",
       "paragraphs": [
-        "Alert on user-visible objective burn, critical safety or security outcomes, sustained queueing, rejection, errors, memory pressure, unavailable replicas, model-identity mismatch, telemetry loss, cost anomalies, and failed backup or rollback checks. Attach owner, severity, runbook, evidence links, and safe first actions.",
-        "Test alert firing, routing, deduplication, suppression, escalation, and recovery. Preserve baseline and deployment annotations so an operator can compare before and after a change. Missing telemetry is a condition to detect, not evidence that the service is healthy."
+        "Every alert must identify the symptom, owner, severity, runbook, evidence, safe first action, escalation, and recovery condition. Missing telemetry is itself a condition to detect, not evidence that the service is healthy.",
+        "Five paper-tested alerts: 1. Latency objective burn fires when short and long burn windows exceed the reviewed budget, routes severity 2 to serving on-call, links summed histogram buckets and release annotations, checks queueing and saturation before scaling or rollback, escalates after 15 minutes without ownership, and recovers only when both windows normalize. 2. Policy-deny anomaly fires when a bounded route exceeds its reviewed deny baseline and minimum sample count, routes severity 1 to safety and security, includes policy version and disposition counts without content, escalates immediately on critical-policy bypass, and recovers after the approved policy is restored and replay fixtures pass. 3. Queue saturation fires when p95 queue time and rejection rate are both elevated for ten minutes, routes to capacity on-call, includes queue depth, ready replicas, memory headroom, accelerator utilization, and release identity, escalates after 15 minutes, and recovers after two normal windows. 4. Model-identity mismatch fires on any observed artifact, runtime, configuration, or release digest that differs from the approved route manifest, routes severity 1 to release engineering, includes mismatched digests and affected count without request content, escalates immediately, and recovers only when all ready replicas report the approved identity and a probe succeeds. 5. Telemetry-loss or cost-anomaly fires when expected replica telemetry is absent for two scrape intervals or bounded workload cost exceeds its reviewed baseline, routes to observability and finance operations, includes exporter health, missing-series evidence, allocation inputs, and deployment annotations, escalates after 20 minutes, and recovers when telemetry resumes and allocation is reconciled.",
+        "Paper-test firing, routing, deduplication, planned-maintenance suppression, escalation timers, evidence permissions, and recovery notifications. A rollback command is not proof that external state, data, policy, or telemetry was restored. Recovery checks must test affected outcomes."
       ]
+    },
+    {
+      "id": "operator-contract-worked-example",
+      "title": "Worked observability contract",
+      "paragraphs": [
+        "Instructor narration: Map ten questions to bounded evidence. 1. Approved build: startup inventory and request identity; exact model, tokenizer, runtime, configuration, adapter, and release identities; dimensions environment, route, release; release owner isolates or rolls back; example retention inventory 90 days and request metadata 30 days. 2. Valid outcomes: status and outcome counters; route, operation, model, release, and bounded outcome; product SRE retains or halts a release; 30 days. 3. Failing reviewed slice: evaluation and outcome counters; evaluation-set version and release; bounded locale, route, and workload class; evaluation lead blocks promotion or commissions tests; 90 days. 4. Time spent: gateway, queue, first-output, processing, tool, and end-to-end histograms plus request-linked traces; service, operation, runtime, and release; performance owner tunes the measured stage; metrics 90 days and sampled traces 7 days. 5. Queued or rejected: queue histogram, depth gauge, and rejection counter; service, instance, route, release, and bounded rejection reason; capacity owner shapes traffic or adds reviewed capacity; 30 days. 6. Saturated resource: accelerator and host utilization, memory headroom, storage and network activity; node, instance, runtime, release, resource type, and bounded pool; infrastructure owner changes placement or limits; 30 days. 7. Quality or security change: before-and-after outcome, policy, and evaluation fixtures; old and new exact bundles plus policy version; bounded test suite and disposition; safety and release owners promote or roll back; 180 days. 8. Cost change: metered resource time and charge allocation; workload, route, model, release, and bounded tenant class; finance operations investigates or adjusts capacity; 13 months subject to policy. 9. Recovery objective: backup, restore, rollback, and probe events with elapsed-time histogram; artifact, runtime, configuration, release, and recovery-plan version; resilience owner accepts or remediates; 180 days. 10. Incident scope and reproduction: correlated metadata, governed traces, deployment events, and deterministic probes; request or run ID plus exact bundle; route, status, and bounded error category; incident commander scopes traffic and commissions reproduction; request metadata 30 days and incident evidence under the approved schedule.",
+        "Field contract obs-contract/v1: request_id is required application-stable metadata and prohibited as a metric label. Build digests and release_id are required metadata with at most 20 active values per environment. policy_disposition is limited to allow, deny, review, error, and unknown, with at most 20 active policy versions. latency_ms and queue_ms are finite derived measurements from 0 through 3,600,000 ms represented by configured buckets. error_category is limited to none, timeout, overload, invalid_request, policy, dependency, internal, and unknown. saturation_ratio is finite from 0 through 1. allocated_cost_usd is finite and nonnegative. Unknown enums and types are rejected or mapped explicitly to unknown at the adapter boundary.",
+        "Cardinality budgets exclude request IDs, raw tenant IDs, prompts, URLs with query strings, stack traces, and arbitrary error text from metric labels. Cardinality alarms compare active series with the contract budget. Privacy review covers access, retention, redaction, encryption, sampling, deletion, audit, and support bundles.",
+        "Rubric: complete work answers all ten questions with signals, exact identity, bounded dimensions, owner, decision, and retention; versions every field and states type, stability, enum, range, and cardinality; classifies every field and documents controls; aggregates compatible cumulative histograms without averaging quantiles; shows objective and cost arithmetic with denominators; and defines five alerts with firing, routing, evidence, runbook, escalation, and recovery. Deny-all, removed validation, or an unowned dashboard does not pass."
+      ]
+    },
+    {
+      "id": "repair-lab",
+      "title": "Repair percentile aggregation in Node.js 22",
+      "paragraphs": [
+        "Instructor narration: This deterministic Node.js 22 native ESM lab has no dependencies, API keys, network calls, or live model integration. The focused defect averages per-replica p95 estimates. Unequal traffic means equal replica weighting does not represent the combined request population. The repair must validate compatible cumulative buckets, sum matching counts, and estimate p95 once.",
+        "Real integration and fixture simulation are separate. The fixtures do not prove that Meta Llama, Qwen, DeepSeek, Mistral, Microsoft Phi, NVIDIA TensorRT-LLM, a hosted API, a serving runtime, cloud billing, or production telemetry works. A live integration would collect authenticated telemetry from the deployed gateway, adapter, runtime, and metrics backend, then preserve exact identities and validate exporter behavior. Passing this lab is not deployment approval.",
+        "Prediction before execution: baseline replicas contain 100, 40, and 10 requests. Predict whether equal weighting of replica p95 values overstates or understates the combined p95, and explain why. Then run the root-relative command in README. Supplied Node 22 run evidence requires starter tests to exit 1 with empty stderr and stdout: FAIL baseline aggregate: expected 397.22, received 546.67; FAIL changed-input aggregate: expected 375.00, received 391.67; PASS 6 tests; RESULT failed=2 passed=6. The repaired tests exit 0 with empty stderr and stdout: PASS 8 tests; RESULT failed=0 passed=8.",
+        "Learner activity: edit only src/aggregate.mjs. Preserve export aggregateP95(input) and its result schema. Do not edit validator, fixtures, or immutable tests. The unchanged validator checks schema, unit, window, exact identities, unknown fields, finite ranges, monotonic cumulative counts, duplicate replica IDs, missing records, and compatible bucket bounds. A constant, deny-all result, discarded traffic, removed validation, or changed test is not a repair.",
+        "Changed-input prediction: inspect changed.json before running tests. Replica 3 has most of its 25 requests in the first two buckets, while replicas 1 and 2 have slower tails. Predict how traffic-weighted aggregation differs from equal averaging. The repaired result is 375.00 ms. If baseline passes but changed input fails, the implementation likely memorized the baseline or retained replica-level weighting.",
+        "Answer key: baseline sums to [56,107,143,150]. Rank is 142.5, in the 200-to-400 ms bucket, producing 397.22 ms by linear interpolation. Changed sums to [29,47,53,55]. Rank is 52.25, producing 375.00 ms in the 200-to-400 ms bucket. The finite final bound covers all observations in these fixtures. Production histograms need complete overflow or count evidence and this finite-fixture simplification is not a general ingestion contract. Local values are not production claims.",
+        "Provider transfer: Meta Llama, Qwen, DeepSeek, Mistral, and Microsoft Phi are distinct model families and artifacts. NVIDIA TensorRT-LLM is a runtime project, not a model-family synonym. These projects do not establish a shared telemetry, API, tokenizer, quantization, security, or runtime contract. Capture the actual model artifact, runtime, adapter, configuration, and release identities for each deployment."
+      ],
+      "code": {
+        "language": "text",
+        "label": "Repository-root lab commands",
+        "code": "node training/self-hosted-model-operations/observability-cost-and-performance/lab/src/cli.mjs training/self-hosted-model-operations/observability-cost-and-performance/lab/fixtures/baseline.json\nnode training/self-hosted-model-operations/observability-cost-and-performance/lab/reference/run-reference.mjs training/self-hosted-model-operations/observability-cost-and-performance/lab/fixtures/baseline.json\ncp training/self-hosted-model-operations/observability-cost-and-performance/lab/solution/aggregate.mjs training/self-hosted-model-operations/observability-cost-and-performance/lab/src/aggregate.mjs\nnode training/self-hosted-model-operations/observability-cost-and-performance/lab/test/run-tests.mjs\ncp training/self-hosted-model-operations/observability-cost-and-performance/lab/starter/aggregate.mjs training/self-hosted-model-operations/observability-cost-and-performance/lab/src/aggregate.mjs"
+      }
     }
   ],
   "activity": {
     "id": "activity-observability-contract",
     "title": "Build a privacy-conscious observability contract",
     "instructions": [
-      "Write ten operator questions and map each to signals, exact identities, dimensions, owner, decision, and retention.",
+      "Write ten operator questions and map each to signals, exact identities, bounded dimensions, owner, decision, and retention.",
       "Define request, model, release, policy, latency, queue, error, saturation, and cost fields with stability and cardinality limits.",
       "Classify every proposed field as required metadata, optional sensitive content, prohibited secret, or derived measurement.",
       "Design latency and size histograms, objective calculations, and cost allocation for three replicas without averaging quantiles.",
-      "Create five alerts and paper-test firing, routing, evidence, runbook, escalation, and recovery."
+      "Create five alerts and paper-test firing, routing, evidence, runbook, escalation, and recovery.",
+      "Run the Node.js 22 repair lab, record a prediction before the answer, repair only src/aggregate.mjs, and preserve immutable outputs.",
+      "Repeat the reasoning on changed.json and explain why traffic-weighted cumulative buckets caused the changed result."
     ],
     "evidence": [
       "An operator-question-to-signal matrix and versioned telemetry field contract.",
       "A privacy, access, retention, redaction, cardinality, sampling, and deletion review.",
-      "Objective, distribution, cost, dashboard, and alert fixtures with tested-paper incident and recovery links."
+      "Objective, distribution, cost, dashboard, and alert fixtures with tested incident and recovery links.",
+      "The repaired src/aggregate.mjs, immutable test output, baseline and changed-input arithmetic, prediction, and causal reflection."
     ],
     "reflectionPrompt": "Which telemetry field is easiest to collect but hardest to justify retaining?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 1590,
-    "cues": [
-      {
-        "id": "cue-observability-questions",
-        "kind": "narration",
-        "sectionId": "start-with-questions",
-        "text": "Begin with user, operator, release, capacity, cost, and incident questions, then define indicators, objectives, owners, and decisions."
-      },
-      {
-        "id": "cue-observability-visual",
-        "kind": "visual",
-        "sectionId": "correlate-signals",
-        "text": "Correlate one request across gateway, adapter, server, runtime, policy, resource, release, and outcome signals.",
-        "accessibilityAlternative": "A static correlation table lists a shared run identifier and the fields emitted by each serving layer."
-      },
-      {
-        "id": "cue-observability-correlate",
-        "kind": "narration",
-        "sectionId": "correlate-signals",
-        "text": "Version an application-owned telemetry core that records exact model and runtime identities while adapting external conventions explicitly."
-      },
-      {
-        "id": "cue-observability-privacy",
-        "kind": "narration",
-        "sectionId": "minimize-sensitive-telemetry",
-        "text": "Prefer metadata and derived measures, prohibit secrets, and tightly govern any approved content sampling, retention, access, and deletion."
-      },
-      {
-        "id": "cue-observability-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "minimize-sensitive-telemetry",
-        "text": "Ask why a trace can violate the data boundary even when inference transport is encrypted."
-      },
-      {
-        "id": "cue-observability-distributions",
-        "kind": "narration",
-        "sectionId": "measure-distributions-and-cost",
-        "text": "Measure latency, size, queueing, saturation, retries, and cost as attributable distributions with controlled cardinality."
-      },
-      {
-        "id": "cue-observability-alerts",
-        "kind": "narration",
-        "sectionId": "alert-and-investigate",
-        "text": "Alert on user-visible objectives and critical controls with owners, runbooks, evidence, escalation, and tested recovery."
-      },
-      {
-        "id": "cue-observability-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the question matrix, field contract, privacy review, distributions, costs, dashboards, and alert tests."
-      },
-      {
-        "id": "cue-observability-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can defend observability usefulness, privacy, distributions, cardinality, cost, and alerts."
-      }
-    ],
-    "transcript": "Begin with user, operator, release, capacity, cost, and incident questions, then define indicators, objectives, owners, and decisions. A dashboard exists to support action. Version an application-owned telemetry core that records exact model and runtime identities while adapting external conventions explicitly. Correlate gateway, adapter, server, runtime, policy, resource, release, and outcome signals with a bounded identifier. Prefer metadata and derived measures, prohibit secrets, and tightly govern any approved content sampling, retention, access, and deletion. Threat-model collectors, exporters, stores, dashboards, alerts, and support bundles. Measure latency, size, queueing, saturation, retries, and cost as attributable distributions with controlled cardinality. Do not average precomputed quantiles across replicas or omit the population and failures. Alert on user-visible objectives and critical controls with owners, runbooks, evidence, escalation, and tested recovery. Detect telemetry loss and preserve deployment annotations so operators can compare a failing release with its verified baseline.",
-    "captions": [
-      {
-        "cueId": "cue-observability-questions",
-        "startSeconds": 0,
-        "endSeconds": 270,
-        "text": "Begin with user, operator, release, capacity, cost, and incident questions, then define indicators, objectives, owners, and decisions."
-      },
-      {
-        "cueId": "cue-observability-correlate",
-        "startSeconds": 270,
-        "endSeconds": 570,
-        "text": "Version an application-owned telemetry core that records exact model and runtime identities while adapting external conventions explicitly."
-      },
-      {
-        "cueId": "cue-observability-privacy",
-        "startSeconds": 570,
-        "endSeconds": 870,
-        "text": "Prefer metadata and derived measures, prohibit secrets, and tightly govern any approved content sampling, retention, access, and deletion."
-      },
-      {
-        "cueId": "cue-observability-distributions",
-        "startSeconds": 870,
-        "endSeconds": 1170,
-        "text": "Measure latency, size, queueing, saturation, retries, and cost as attributable distributions with controlled cardinality."
-      },
-      {
-        "cueId": "cue-observability-alerts",
-        "startSeconds": 1170,
-        "endSeconds": 1380,
-        "text": "Alert on user-visible objectives and critical controls with owners, runbooks, evidence, escalation, and tested recovery."
-      },
-      {
-        "cueId": "cue-observability-activity",
-        "startSeconds": 1380,
-        "endSeconds": 1560,
-        "text": "Guide the question matrix, field contract, privacy review, distributions, costs, dashboards, and alert tests."
-      },
-      {
-        "cueId": "cue-observability-assessment",
-        "startSeconds": 1560,
-        "endSeconds": 1590,
-        "text": "Begin the check after the learner can defend observability usefulness, privacy, distributions, cardinality, cost, and alerts."
-      }
-    ],
-    "reducedMotionAlternative": "Use static signal-correlation, field-governance, histogram, cost-allocation, objective, and alert tables. Provide exact values and text summaries for every chart."
   },
   "knowledgeCheck": {
     "passPercent": 80,
@@ -283,6 +216,3078 @@
       "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
       "publisher": "NIST",
       "lastVerified": "2026-09-13"
+    },
+    {
+      "title": "Node.js ECMAScript modules",
+      "url": "https://nodejs.org/api/esm.html",
+      "publisher": "Node.js",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "Llama models repository",
+      "url": "https://github.com/meta-llama/llama-models",
+      "publisher": "Meta",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "Qwen3 repository",
+      "url": "https://github.com/QwenLM/Qwen3",
+      "publisher": "Qwen",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "DeepSeek-V3 repository",
+      "url": "https://github.com/deepseek-ai/DeepSeek-V3",
+      "publisher": "DeepSeek",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "Mistral inference repository",
+      "url": "https://github.com/mistralai/mistral-inference",
+      "publisher": "Mistral AI",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "Phi Cookbook repository",
+      "url": "https://github.com/microsoft/PhiCookBook",
+      "publisher": "Microsoft",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "TensorRT-LLM repository",
+      "url": "https://github.com/NVIDIA/TensorRT-LLM",
+      "publisher": "NVIDIA",
+      "lastVerified": "2026-09-21"
     }
-  ]
+  ],
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 1658,
+    "cues": [
+      {
+        "id": "cue-observability-cost-and-performance-welcome-and-outcomes-1",
+        "kind": "narration",
+        "text": "Welcome. Observability is not collecting\neverything. It is answering important"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-welcome-and-outcomes-2",
+        "kind": "narration",
+        "text": "operational questions with justified,\nprivacy-conscious evidence. In this"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-welcome-and-outcomes-3",
+        "kind": "narration",
+        "text": "lesson, you will define questions and\nobjectives, correlate exact serving"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-welcome-and-outcomes-4",
+        "kind": "narration",
+        "text": "identities, minimize sensitive telemetry,\ninterpret performance distributions and"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-welcome-and-outcomes-5",
+        "kind": "narration",
+        "text": "cost, and build alerts that lead an\naccountable operator toward safe action"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-welcome-and-outcomes-6",
+        "kind": "narration",
+        "text": "and recovery. The examples are synthetic\nteaching fixtures. They are not live"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-welcome-and-outcomes-7",
+        "kind": "narration",
+        "text": "infrastructure results, provider prices,\nmodel benchmarks, or deployment approval."
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-1",
+        "kind": "narration",
+        "text": "Start with questions an operator, product\nowner, security reviewer, or incident",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-2",
+        "kind": "narration",
+        "text": "responder must answer. Is the approved\nmodel and runtime bundle serving? Are",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-3",
+        "kind": "narration",
+        "text": "users receiving valid outcomes? Which\nbounded slices fail? Where is time spent?",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-4",
+        "kind": "narration",
+        "text": "What is queued, rejected, canceled, or\nretried? Which resource is saturated? Did",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-5",
+        "kind": "narration",
+        "text": "an update change quality, policy outcomes,\nlatency, cost, or recovery? Can an",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-6",
+        "kind": "narration",
+        "text": "incident be scoped and reproduced without\nexposing unnecessary content? Translate",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-7",
+        "kind": "narration",
+        "text": "each question into an indicator and\nobjective. State the population,",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-8",
+        "kind": "narration",
+        "text": "observation window, denominator,\nthreshold, owner, decision, response, and",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-9",
+        "kind": "narration",
+        "text": "retention period. For example, a synthetic\ninteractive-latency objective can require",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-10",
+        "kind": "narration",
+        "text": "at least 95 percent of valid requests to\nfinish at or below 400 milliseconds",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-11",
+        "kind": "narration",
+        "text": "in a five-minute window. The denominator\nis part of the contract. Missing",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-12",
+        "kind": "narration",
+        "text": "measurements are unknown, not successful\noutcomes. A dashboard panel with no owned",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-13",
+        "kind": "narration",
+        "text": "decision is decorative telemetry. A useful\ncontract tells an owner what evidence",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-14",
+        "kind": "narration",
+        "text": "changes a decision, such as tuning,\ncapacity adjustment, release hold, or",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-15",
+        "kind": "narration",
+        "text": "rollback. NIST's generative artificial\nintelligence risk profile supports",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-16",
+        "kind": "narration",
+        "text": "managing and measuring risk across the\nlifecycle. Here, that becomes a practical",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-17",
+        "kind": "narration",
+        "text": "rule: every signal has an approved\npurpose, an accountable consumer, and a",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-questions-objectives-narration-18",
+        "kind": "narration",
+        "text": "defined response and retention boundary.",
+        "sectionId": "start-with-questions"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-narration-1",
+        "kind": "narration",
+        "text": "Correlate the serving path with a bounded\napplication-owned request or run",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-narration-2",
+        "kind": "narration",
+        "text": "identifier. Connect gateway, adapter,\ninference server, runtime, policy,",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-narration-3",
+        "kind": "narration",
+        "text": "optional tool, and user-outcome events.\nRecord service and instance identity,",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-narration-4",
+        "kind": "narration",
+        "text": "exact model and runtime bundle, release,\nroute, operation, status, bounded error",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-narration-5",
+        "kind": "narration",
+        "text": "category, policy disposition, input and\noutput size measures, queue time,",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-narration-6",
+        "kind": "narration",
+        "text": "processing time, resource observations,\nand an evaluation or result reference.",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-narration-7",
+        "kind": "narration",
+        "text": "OpenTelemetry Semantic Conventions provide\nshared names and stability metadata, but a",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-narration-8",
+        "kind": "narration",
+        "text": "field exposed by one runtime is not proof\nthat another provider exposes an",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-narration-9",
+        "kind": "narration",
+        "text": "equivalent field. Version the core\ncontract you own, then use explicit",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-narration-10",
+        "kind": "narration",
+        "text": "adapters for external conventions. A\nrequest identifier can connect traces and",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-narration-11",
+        "kind": "narration",
+        "text": "logs, but it must not become an unbounded\nmetric label. Do not use raw",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-narration-12",
+        "kind": "narration",
+        "text": "personal identifiers, prompts, or\narbitrary user values as labels. Exact",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-narration-13",
+        "kind": "narration",
+        "text": "model, tokenizer, runtime, configuration,\nadapter, precision, and release identities",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-narration-14",
+        "kind": "narration",
+        "text": "let an operator compare releases and\nreproduce failures. A friendly alias alone",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-narration-15",
+        "kind": "narration",
+        "text": "can hide that replicas served different\nartifacts or policies.",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-demonstration-1",
+        "kind": "narration",
+        "text": "Consider a synthetic assistant request\nthat feels slow and returns an invalid",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-demonstration-2",
+        "kind": "narration",
+        "text": "citation. The gateway event shows an\napproved route and release with no policy",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-demonstration-3",
+        "kind": "narration",
+        "text": "denial. The adapter records a bounded\ninput-size class and an output contract",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-demonstration-4",
+        "kind": "narration",
+        "text": "failure. The inference server records two\nseconds of queue time and one second to",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-demonstration-5",
+        "kind": "narration",
+        "text": "first output. Runtime metrics show high\naccelerator use but available host memory.",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-demonstration-6",
+        "kind": "narration",
+        "text": "Exact identity reveals that one replica\nloaded the prior prompt-template bundle. A",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-demonstration-7",
+        "kind": "narration",
+        "text": "release annotation shows the mismatch\nbegan during a partial rollout. No raw",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-demonstration-8",
+        "kind": "narration",
+        "text": "prompt is needed to answer the first\nquestions: which build failed, where time",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-demonstration-9",
+        "kind": "narration",
+        "text": "accumulated, and which replica should\nleave service. An authorized evaluator can",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-demonstration-10",
+        "kind": "narration",
+        "text": "use a separately governed fixture to\nreproduce citation quality. The operator",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-demonstration-11",
+        "kind": "narration",
+        "text": "isolates the mismatched replica, verifies\nthe approved bundle, repeats readiness and",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-demonstration-12",
+        "kind": "narration",
+        "text": "regression checks, and records recovery.\nCorrelation turned several signals into a",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-demonstration-13",
+        "kind": "narration",
+        "text": "bounded diagnosis without copying learner\ncontent into every store. Notice the",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-demonstration-14",
+        "kind": "narration",
+        "text": "causal boundary. The evidence supports a\nlikely release mismatch and a safe",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-correlation-demonstration-15",
+        "kind": "narration",
+        "text": "investigation path. It does not prove that\nevery invalid citation has the same cause.",
+        "sectionId": "correlate-signals"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-telemetry-privacy-narration-1",
+        "kind": "narration",
+        "text": "Default to metadata and derived\nmeasurements, not raw prompts, responses,",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-telemetry-privacy-narration-2",
+        "kind": "narration",
+        "text": "retrieved documents, credentials,\nauthorization headers, personal",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-telemetry-privacy-narration-3",
+        "kind": "narration",
+        "text": "identifiers, or tool secrets. Classify\nevery proposed field as required metadata,",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-telemetry-privacy-narration-4",
+        "kind": "narration",
+        "text": "derived measurement, optional sensitive\ncontent, or prohibited secret. For",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-telemetry-privacy-narration-5",
+        "kind": "narration",
+        "text": "approved content sampling, document\npurpose and authority, minimize and",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-telemetry-privacy-narration-6",
+        "kind": "narration",
+        "text": "redact, encrypt in transit and storage,\nrestrict access, audit use, set short",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-telemetry-privacy-narration-7",
+        "kind": "narration",
+        "text": "retention, and test deletion. Sampling\nreduces volume; it does not remove",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-telemetry-privacy-narration-8",
+        "kind": "narration",
+        "text": "sensitivity. Threat-model instrumentation,\ncollectors, exporters, queues, stores,",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-telemetry-privacy-narration-9",
+        "kind": "narration",
+        "text": "dashboards, alerts, exemplars, support\nbundles, backups, and analyst exports. An",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-telemetry-privacy-narration-10",
+        "kind": "narration",
+        "text": "encrypted inference request can still be\ndisclosed by a verbose exception, trace",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-telemetry-privacy-narration-11",
+        "kind": "narration",
+        "text": "body, metric label, screenshot, or copied\nsupport archive. Control cardinality as",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-telemetry-privacy-narration-12",
+        "kind": "narration",
+        "text": "both a reliability and privacy concern.\nUnbounded request, user, prompt, or",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-telemetry-privacy-narration-13",
+        "kind": "narration",
+        "text": "document values can overwhelm metric\nsystems and create searchable copies. Test",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-telemetry-privacy-narration-14",
+        "kind": "narration",
+        "text": "rejected requests and exception paths\nbecause they may copy input content.",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-telemetry-privacy-narration-15",
+        "kind": "narration",
+        "text": "Detect unauthorized field appearance with\nfixtures and scans, and audit telemetry",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-telemetry-privacy-narration-16",
+        "kind": "narration",
+        "text": "access itself.",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-privacy-checkpoint-1",
+        "kind": "narration",
+        "text": "Checkpoint. Inference transport is\nencrypted, but a trace exporter copies",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-privacy-checkpoint-2",
+        "kind": "narration",
+        "text": "full prompts, retrieved passages,\nauthorization headers, and responses into",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-privacy-checkpoint-3",
+        "kind": "narration",
+        "text": "a broadly accessible support store for\nninety days. Is the serving data boundary",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-privacy-checkpoint-4",
+        "kind": "narration",
+        "text": "protected, and what must change?",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-privacy-response-time",
+        "kind": "pause",
+        "text": "Hold the checkpoint for up to seventy-five seconds. Provide pause, extend, and continue controls. Do not reveal feedback during this pause."
+      },
+      {
+        "id": "cue-observability-cost-and-performance-privacy-feedback-1",
+        "kind": "narration",
+        "text": "The boundary is not protected. Encryption\non the inference hop does not authorize a",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-privacy-feedback-2",
+        "kind": "narration",
+        "text": "second copy in telemetry. Stop exporting\nauthorization headers and unjustified raw",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-privacy-feedback-3",
+        "kind": "narration",
+        "text": "content, revoke exposed credentials,\nrestrict the store, assess access, delete",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-privacy-feedback-4",
+        "kind": "narration",
+        "text": "existing copies under the incident and\nretention process, and verify deletion. If",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-privacy-feedback-5",
+        "kind": "narration",
+        "text": "approved content sampling is genuinely\nrequired, create a separate minimized,",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-privacy-feedback-6",
+        "kind": "narration",
+        "text": "redacted, encrypted, access-controlled,\nshort-lived, audited path. If your answer",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-privacy-feedback-7",
+        "kind": "narration",
+        "text": "only encrypted the support store, revisit\nminimization. Protection begins by not",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-privacy-feedback-8",
+        "kind": "narration",
+        "text": "collecting what the operational question\ndoes not require.",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-distributions-cost-narration-1",
+        "kind": "narration",
+        "text": "Measure latency and size as distributions\nwith suitable histogram resolution, not",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-distributions-cost-narration-2",
+        "kind": "narration",
+        "text": "only averages. Preserve counts, failures,\nand the population behind every",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-distributions-cost-narration-3",
+        "kind": "narration",
+        "text": "percentile. Prometheus explains that\nprecomputed summary quantiles generally",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-distributions-cost-narration-4",
+        "kind": "narration",
+        "text": "cannot be aggregated across replicas,\nwhile compatible histogram buckets can be",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-distributions-cost-narration-5",
+        "kind": "narration",
+        "text": "aggregated. Do not average three p95\nvalues and call that a fleet p95.",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-distributions-cost-narration-6",
+        "kind": "narration",
+        "text": "Aggregate the underlying observations,\nthen estimate once. Separate queue time,",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-distributions-cost-narration-7",
+        "kind": "narration",
+        "text": "time to first output, processing time,\nstreaming duration, and total duration.",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-distributions-cost-narration-8",
+        "kind": "narration",
+        "text": "Track throughput, concurrency, rejections,\ncancellations, retries, cache behavior,",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-distributions-cost-narration-9",
+        "kind": "narration",
+        "text": "accelerator and host utilization, memory\nheadroom, storage, network, and energy or",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-distributions-cost-narration-10",
+        "kind": "narration",
+        "text": "cloud charges where available. Use bounded\nworkload, route, model, release, and",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-distributions-cost-narration-11",
+        "kind": "narration",
+        "text": "tenant-class dimensions. Kubernetes\nresource monitoring is general deployment",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-distributions-cost-narration-12",
+        "kind": "narration",
+        "text": "guidance, not proof that a particular\ndeployment exports or enforces a",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-distributions-cost-narration-13",
+        "kind": "narration",
+        "text": "measurement. Attribute cost with explicit\ninputs and denominators. State what the",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-distributions-cost-narration-14",
+        "kind": "narration",
+        "text": "estimate includes and excludes. A number\nwithout its population, window, and",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-distributions-cost-narration-15",
+        "kind": "narration",
+        "text": "allocation rule is not decision-ready\nevidence.",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-1",
+        "kind": "narration",
+        "text": "Work the supplied baseline. The bucket\nbounds are 100, 200, 400, and 800",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-2",
+        "kind": "narration",
+        "text": "milliseconds. Replica one has cumulative\ncounts 50, 90, 100, 100. Replica two has",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-3",
+        "kind": "narration",
+        "text": "5, 15, 35, 40. Replica three has 1, 2, 8,\n10. Add matching buckets:",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-4",
+        "kind": "narration",
+        "text": "50 plus 5 plus 1 is 56; 90 plus 15 plus 2\nis 107;",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-5",
+        "kind": "narration",
+        "text": "100 plus 35 plus 8 is 143; and 100 plus 40\nplus 10 is",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-6",
+        "kind": "narration",
+        "text": "150. For p95, rank equals 0.95 times 150,\nor 142.5. That rank lies in",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-7",
+        "kind": "narration",
+        "text": "the 200-to-400 millisecond bucket. Linear\ninterpolation gives 200 plus ((142.5 minus",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-8",
+        "kind": "narration",
+        "text": "107) divided by (143 minus 107)) times\n200, which is 397.22 milliseconds. This is",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-9",
+        "kind": "narration",
+        "text": "an estimate, assuming observations are\nspread within the bucket. The fixture has",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-10",
+        "kind": "narration",
+        "text": "143 of 150 requests at or below 400\nmilliseconds, or 95.333 percent, so it",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-11",
+        "kind": "narration",
+        "text": "passes a synthetic 95 percent latency\nobjective by about 0.333 percentage",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-12",
+        "kind": "narration",
+        "text": "points. If two of the same 150 requests\nwere unsuccessful, 148 divided by 150",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-13",
+        "kind": "narration",
+        "text": "equals 98.667 percent, which fails a\nseparate 99 percent success objective. Do",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-14",
+        "kind": "narration",
+        "text": "not remove failures from a denominator\nunless the indicator contract explicitly",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-15",
+        "kind": "narration",
+        "text": "justifies it. The synthetic cost example\nis three replicas for half an hour, at",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-16",
+        "kind": "narration",
+        "text": "a fictional accelerator rate of two\ndollars per replica-hour and fictional",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-17",
+        "kind": "narration",
+        "text": "host rate of forty cents per replica-hour.\nAccelerator cost is 3 times 0.5 times",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-18",
+        "kind": "narration",
+        "text": "2, or 3 dollars. Host cost is 3 times 0.5\ntimes 0.40, or 0.60",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-19",
+        "kind": "narration",
+        "text": "dollars. Add fictional storage of 0.05 and\nnetwork of 0.10 to get 3.75 dollars.",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-20",
+        "kind": "narration",
+        "text": "For 15,000 completed requests, 3.75\ndivided by 15,000 is 0.00025 dollars per",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-21",
+        "kind": "narration",
+        "text": "request. These are teaching inputs, not\nprovider prices or production",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-histogram-demonstration-22",
+        "kind": "narration",
+        "text": "measurements.",
+        "sectionId": "measure-distributions-and-cost"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-1",
+        "kind": "narration",
+        "text": "Alert on symptoms that require action:\nuser-visible objective burn, critical",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-2",
+        "kind": "narration",
+        "text": "safety or security outcomes, sustained\nqueueing or rejection, memory pressure,",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-3",
+        "kind": "narration",
+        "text": "unavailable replicas, exact identity\nmismatch, telemetry loss, cost anomalies,",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-4",
+        "kind": "narration",
+        "text": "and failed recovery checks. Every alert\nneeds a symptom, owner, severity,",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-5",
+        "kind": "narration",
+        "text": "population, threshold and duration, safe\nfirst action, runbook, evidence links,",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-6",
+        "kind": "narration",
+        "text": "escalation, and recovery condition. Five\npaper-tested examples are useful. A",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-7",
+        "kind": "narration",
+        "text": "latency burn alert routes to serving\non-call and checks queueing and saturation",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-8",
+        "kind": "narration",
+        "text": "before scaling or rollback. A policy-deny\nanomaly routes to safety and security with",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-9",
+        "kind": "narration",
+        "text": "policy version and disposition counts,\nwithout content. A queue alert fires only",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-10",
+        "kind": "narration",
+        "text": "when p95 queue time and rejection rate are\nboth elevated for ten minutes. An",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-11",
+        "kind": "narration",
+        "text": "identity mismatch alert fires on any\nartifact, runtime, configuration, or",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-12",
+        "kind": "narration",
+        "text": "release digest outside the approved route\nmanifest. A telemetry-loss or cost anomaly",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-13",
+        "kind": "narration",
+        "text": "alert includes missing-series evidence and\nallocation inputs. Test firing, routing,",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-14",
+        "kind": "narration",
+        "text": "deduplication, planned-maintenance\nsuppression, escalation timers,",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-15",
+        "kind": "narration",
+        "text": "permissions, and recovery notifications.\nMissing telemetry is not proof of health.",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-16",
+        "kind": "narration",
+        "text": "Recovery must test affected outcomes, not\nmerely the existence of a rollback",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-alerts-investigation-narration-17",
+        "kind": "narration",
+        "text": "command.",
+        "sectionId": "alert-and-investigate"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-activity-transition-1",
+        "kind": "narration",
+        "text": "Now build the privacy-conscious\nobservability contract. Write ten operator"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-activity-transition-2",
+        "kind": "narration",
+        "text": "questions and map each to signals, exact\nidentities, bounded dimensions, owner,"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-activity-transition-3",
+        "kind": "narration",
+        "text": "decision, and retention. Define request,\nmodel, release, policy, latency, queue,"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-activity-transition-4",
+        "kind": "narration",
+        "text": "error, saturation, and cost fields with\nstability and cardinality limits. Classify"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-activity-transition-5",
+        "kind": "narration",
+        "text": "every field as required metadata, derived\nmeasurement, optional sensitive content,"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-activity-transition-6",
+        "kind": "narration",
+        "text": "or prohibited secret. Design latency and\nsize histograms, objective calculations,"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-activity-transition-7",
+        "kind": "narration",
+        "text": "and cost allocation for three replicas\nwithout averaging quantiles. Create five"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-activity-transition-8",
+        "kind": "narration",
+        "text": "alerts and paper-test firing, routing,\nevidence, safe first action, runbook,"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-activity-transition-9",
+        "kind": "narration",
+        "text": "escalation, telemetry-loss behavior, and\nrecovery. Your work is complete only when"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-activity-transition-10",
+        "kind": "narration",
+        "text": "it answers all ten questions and states\nfield type, stability, enum, range, and"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-activity-transition-11",
+        "kind": "narration",
+        "text": "cardinality."
+      },
+      {
+        "id": "cue-observability-cost-and-performance-activity-work-time",
+        "kind": "pause",
+        "text": "Provide 180 seconds of optional work time with pause, extend, save, and continue controls. No live submission or external execution occurs."
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-1",
+        "kind": "narration",
+        "text": "Here is a worked contract. For approved\nbuild, use startup inventory and request",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-2",
+        "kind": "narration",
+        "text": "identity, exact model, tokenizer, runtime,\nconfiguration, adapter, and release",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-3",
+        "kind": "narration",
+        "text": "identities, with environment, route, and\nrelease dimensions. The release owner",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-4",
+        "kind": "narration",
+        "text": "isolates or rolls back; example retention\nis 90 days for inventory and 30 days",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-5",
+        "kind": "narration",
+        "text": "for request metadata. For valid outcomes,\nuse status and outcome counters by route,",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-6",
+        "kind": "narration",
+        "text": "operation, model, release, and bounded\noutcome; product reliability staff retain",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-7",
+        "kind": "narration",
+        "text": "or halt a release for 30 days. For a\nfailing reviewed slice, use evaluation",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-8",
+        "kind": "narration",
+        "text": "and outcome counters with evaluation-set\nversion, release, bounded locale, route,",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-9",
+        "kind": "narration",
+        "text": "and workload class; the evaluation lead\nblocks promotion or commissions tests for",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-10",
+        "kind": "narration",
+        "text": "90 days. For time spent, use gateway,\nqueue, first-output, processing, tool, and",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-11",
+        "kind": "narration",
+        "text": "end-to-end histograms plus request-linked\ntraces. The performance owner tunes the",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-12",
+        "kind": "narration",
+        "text": "measured stage; metrics remain 90 days and\nsampled traces 7 days. For queued or",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-13",
+        "kind": "narration",
+        "text": "rejected work, use queue histograms, depth\ngauges, and rejection counters with",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-14",
+        "kind": "narration",
+        "text": "bounded rejection reasons; the capacity\nowner shapes traffic or adds reviewed",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-15",
+        "kind": "narration",
+        "text": "capacity for 30 days. For saturation, use\naccelerator and host utilization, memory",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-16",
+        "kind": "narration",
+        "text": "headroom, storage, and network activity;\nthe infrastructure owner changes placement",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-17",
+        "kind": "narration",
+        "text": "or limits for 30 days. For quality or\nsecurity change, retain before-and-after",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-18",
+        "kind": "narration",
+        "text": "outcomes, policy and evaluation fixtures,\nold and new exact bundles, policy version,",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-19",
+        "kind": "narration",
+        "text": "bounded test suite, and disposition for\n180 days. For cost change, use metered",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-20",
+        "kind": "narration",
+        "text": "resource time and charge allocation by\nworkload, route, model, release, and",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-21",
+        "kind": "narration",
+        "text": "bounded tenant class; finance operations\ninvestigates for 13 months subject to",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-22",
+        "kind": "narration",
+        "text": "policy. For recovery, use backup, restore,\nrollback, and probe events with",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-23",
+        "kind": "narration",
+        "text": "elapsed-time histograms; the resilience\nowner accepts or remediates for 180 days.",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-24",
+        "kind": "narration",
+        "text": "For incident scope and reproduction,\ncorrelate governed traces, deployment",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-25",
+        "kind": "narration",
+        "text": "events, deterministic probes, request or\nrun identifiers, exact bundles, route,",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-26",
+        "kind": "narration",
+        "text": "status, and bounded error category under\nthe approved incident schedule. The field",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-27",
+        "kind": "narration",
+        "text": "contract is obs-contract/v1. The request\nidentifier is required application",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-28",
+        "kind": "narration",
+        "text": "metadata and prohibited as a metric label.\nBuild digests and release identifiers have",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-29",
+        "kind": "narration",
+        "text": "at most 20 active values per environment.\nPolicy disposition is limited to allow,",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-30",
+        "kind": "narration",
+        "text": "deny, review, error, and unknown, with at\nmost 20 active policy versions. Latency",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-31",
+        "kind": "narration",
+        "text": "and queue measurements are finite from 0\nthrough 3,600,000 milliseconds and use",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-32",
+        "kind": "narration",
+        "text": "configured buckets. Error category is\nlimited to none, timeout, overload,",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-33",
+        "kind": "narration",
+        "text": "invalid request, policy, dependency,\ninternal, and unknown. Saturation is",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-34",
+        "kind": "narration",
+        "text": "finite from 0 through 1. Allocated cost is\nfinite and nonnegative. Unknown enums and",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-35",
+        "kind": "narration",
+        "text": "types are rejected or mapped explicitly to\nunknown at the adapter boundary.",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-36",
+        "kind": "narration",
+        "text": "Cardinality alarms compare active series\nwith the contract budget. Privacy review",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-37",
+        "kind": "narration",
+        "text": "covers access, retention, redaction,\nencryption, sampling, deletion, audit, and",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-38",
+        "kind": "narration",
+        "text": "support bundles. Deny-all, removed\nvalidation, or an unowned dashboard does",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-39",
+        "kind": "narration",
+        "text": "not pass.",
+        "sectionId": "operator-contract-worked-example"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-prompt-1",
+        "kind": "narration",
+        "text": "Before seeing the answer, inspect\nchanged.json. Write down its cumulative",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-prompt-2",
+        "kind": "narration",
+        "text": "bucket totals and predict whether\ntraffic-weighted aggregation will be",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-prompt-3",
+        "kind": "narration",
+        "text": "higher or lower than equal averaging of\nreplica p95 estimates. Explain your",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-prompt-4",
+        "kind": "narration",
+        "text": "prediction using the fact that replica\nthree carries 25 requests and places most",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-prompt-5",
+        "kind": "narration",
+        "text": "of them in the first two buckets. Then\nstate the postcondition your repair must",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-prompt-6",
+        "kind": "narration",
+        "text": "preserve: validation remains active, all\ncompatible traffic remains in the",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-prompt-7",
+        "kind": "narration",
+        "text": "population, and p95 is estimated once from\nsummed cumulative buckets.",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-pause",
+        "kind": "pause",
+        "text": "Hold the changed-input task for up to seventy-five seconds. Keep the variation answer hidden until the pause ends. Provide pause, extend, and continue controls."
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-1",
+        "kind": "narration",
+        "text": "This deterministic Node 22 native module\nlab has no dependencies, network calls,",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-2",
+        "kind": "narration",
+        "text": "model calls, or live integration. The\nfocused defect averages per-replica p95",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-3",
+        "kind": "narration",
+        "text": "estimates. Unequal traffic means equal\nreplica weighting does not represent the",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-4",
+        "kind": "narration",
+        "text": "combined request population. The repair\nmust validate compatible cumulative",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-5",
+        "kind": "narration",
+        "text": "buckets, sum matching counts, and estimate\np95 once. Preserve the export aggregateP95",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-6",
+        "kind": "narration",
+        "text": "and its result schema. Edit only the\naggregate implementation. Do not edit the",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-7",
+        "kind": "narration",
+        "text": "validator, fixtures, or immutable tests.\nThe validator checks schema, unit, window,",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-8",
+        "kind": "narration",
+        "text": "exact identities, unknown fields, finite\nranges, monotonic cumulative counts,",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-9",
+        "kind": "narration",
+        "text": "duplicate replica identifiers, missing\nrecords, and compatible bucket bounds. A",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-10",
+        "kind": "narration",
+        "text": "constant, deny-all result, discarded\ntraffic, removed validation, or changed",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-11",
+        "kind": "narration",
+        "text": "test is not a repair. The root-relative\nstarter command is shown visually.",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-12",
+        "kind": "narration",
+        "text": "Supplied starter evidence is exit 1 with\nempty standard error and standard output:",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-13",
+        "kind": "narration",
+        "text": "FAIL baseline aggregate: expected 397.22,\nreceived 546.67; FAIL changed-input",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-14",
+        "kind": "narration",
+        "text": "aggregate: expected 375.00, received\n391.67; PASS 6 tests; RESULT failed=2",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-15",
+        "kind": "narration",
+        "text": "passed=6. The repaired tests exit 0 with\nempty standard error and standard output:",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-16",
+        "kind": "narration",
+        "text": "PASS 8 tests; RESULT failed=0 passed=8.\nThe baseline input has replicas with 100,",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-17",
+        "kind": "narration",
+        "text": "40, and 10 requests and cumulative counts\n[50,90,100,100], [5,15,35,40], and",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-18",
+        "kind": "narration",
+        "text": "[1,2,8,10]. The changed input has\ncumulative sums [29,47,53,55]. Its third",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-19",
+        "kind": "narration",
+        "text": "replica has most of 25 requests in the\nfirst two buckets, while replicas one",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-20",
+        "kind": "narration",
+        "text": "and two have slower tails. The changed\nanswer is 375.00 milliseconds. If baseline",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-21",
+        "kind": "narration",
+        "text": "passes but changed input fails, the\nimplementation likely memorized the",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-22",
+        "kind": "narration",
+        "text": "baseline or retained replica-level\nweighting. The answer key is: baseline",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-23",
+        "kind": "narration",
+        "text": "sums [56,107,143,150], rank 142.5,\nestimate 397.22 milliseconds. Changed sums",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-24",
+        "kind": "narration",
+        "text": "[29,47,53,55], rank 52.25, estimate 375.00\nmilliseconds in the 200-to-400 millisecond",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-25",
+        "kind": "narration",
+        "text": "bucket. The finite final bound covers\nthese fixtures only. Production ingestion",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-26",
+        "kind": "narration",
+        "text": "needs complete overflow or count evidence.\nThese local values are not production",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-27",
+        "kind": "narration",
+        "text": "claims. Real integration would collect\nauthenticated telemetry from a deployed",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-28",
+        "kind": "narration",
+        "text": "gateway, adapter, runtime, and metrics\nbackend, preserve exact identities, and",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-29",
+        "kind": "narration",
+        "text": "validate exporter behavior. The lab does\nnot establish that any model family,",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-30",
+        "kind": "narration",
+        "text": "runtime, hosted service, billing system,\nor production telemetry works. Distinct",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-31",
+        "kind": "narration",
+        "text": "model families and a runtime project also\ndo not share a telemetry or security",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-32",
+        "kind": "narration",
+        "text": "contract. Capture actual artifact,\nruntime, adapter, configuration, and",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-repair-lab-lab-narration-33",
+        "kind": "narration",
+        "text": "release identities for each deployment.",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-feedback-1",
+        "kind": "narration",
+        "text": "Now compare your reasoning with the\nsupplied answer. The changed cumulative",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-feedback-2",
+        "kind": "narration",
+        "text": "buckets sum to 29, 47, 53, and 55. The p95\nrank is 0.95 times",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-feedback-3",
+        "kind": "narration",
+        "text": "55, or 52.25. It lies in the 200-to-400\nmillisecond bucket. Linear interpolation",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-feedback-4",
+        "kind": "narration",
+        "text": "gives 200 plus ((52.25 minus 47) divided\nby (53 minus 47)) times 200, which",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-feedback-5",
+        "kind": "narration",
+        "text": "equals 375.00 milliseconds. The result is\nlower than the defective 391.67",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-feedback-6",
+        "kind": "narration",
+        "text": "millisecond average because the busiest\nreplica has the faster distribution. Equal",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-feedback-7",
+        "kind": "narration",
+        "text": "weighting gives each replica one vote, but\nthe combined population gives each request",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-feedback-8",
+        "kind": "narration",
+        "text": "one vote. A correct implementation also\nrejects malformed input, preserves",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-feedback-9",
+        "kind": "narration",
+        "text": "compatible observations, and keeps the\nfinal finite-bound postcondition for these",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-feedback-10",
+        "kind": "narration",
+        "text": "fixtures. Deny-all is not a repair because\nit discards valid traffic and hides",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-feedback-11",
+        "kind": "narration",
+        "text": "operational behavior. Removing validation\nis not a repair because malformed or",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-feedback-12",
+        "kind": "narration",
+        "text": "incompatible inputs can corrupt the\ndistribution. The result is a causal",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-changed-input-feedback-13",
+        "kind": "narration",
+        "text": "explanation, not merely a memorized\nnumber.",
+        "sectionId": "repair-lab"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-assessment-handoff-1",
+        "kind": "narration",
+        "text": "Begin the knowledge check when you can\nstart from operational questions, preserve"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-assessment-handoff-2",
+        "kind": "narration",
+        "text": "exact release identity, defend content\nminimization, interpret latency"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-assessment-handoff-3",
+        "kind": "narration",
+        "text": "distributions, avoid averaging replica\nquantiles, and design an actionable alert."
+      },
+      {
+        "id": "cue-observability-cost-and-performance-assessment-handoff-4",
+        "kind": "narration",
+        "text": "The check uses the six supplied questions.\nChoose Begin knowledge check when you are"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-assessment-handoff-5",
+        "kind": "narration",
+        "text": "ready. It will not start or submit\nautomatically."
+      },
+      {
+        "id": "cue-observability-cost-and-performance-class-closing-1",
+        "kind": "narration",
+        "text": "Remember the operating rule: collect only\nsignals that answer owned questions,"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-class-closing-2",
+        "kind": "narration",
+        "text": "connect them to the exact serving build,\nprotect the data boundary, measure"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-class-closing-3",
+        "kind": "narration",
+        "text": "distributions and cost honestly, preserve\ndenominators and validation, and test"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-class-closing-4",
+        "kind": "narration",
+        "text": "every alert through recovery. Synthetic\narithmetic can teach reasoning, but it"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-class-closing-5",
+        "kind": "narration",
+        "text": "cannot prove a production integration. Use\nevidence that is bounded, attributable,"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-class-closing-6",
+        "kind": "narration",
+        "text": "and sufficient for the decision."
+      },
+      {
+        "id": "cue-observability-cost-and-performance-learner-prompt",
+        "kind": "learner-prompt",
+        "text": "Now build the privacy-conscious observability contract. Write ten operator questions and map each to signals, exact identities, bounded dimensions, owner, decision, and retention. Define request, model, release, policy, latency, queue, error, saturation, and cost fields with stability and cardinality limits. Classify every field as required metadata, derived measurement, optional sensitive content, or prohibited secret. Design latency and size histograms, objective calculations, and cost allocation for three replicas without averaging quantiles. Create five alerts and paper-test firing, routing, evidence, safe first action, runbook, escalation, telemetry-loss behavior, and recovery. Your work is complete only when it answers all ten questions and states field type, stability, enum, range, and cardinality."
+      },
+      {
+        "id": "cue-observability-cost-and-performance-checkpoint",
+        "kind": "checkpoint",
+        "text": "Checkpoint. Inference transport is encrypted, but a trace exporter copies full prompts, retrieved passages, authorization headers, and responses into a broadly accessible support store for ninety days. Is the serving data boundary protected, and what must change?",
+        "sectionId": "minimize-sensitive-telemetry"
+      },
+      {
+        "id": "cue-observability-cost-and-performance-assessment-handoff",
+        "kind": "assessment-handoff",
+        "text": "Begin the knowledge check when you can start from operational questions, preserve exact release identity, defend content minimization, interpret latency distributions, avoid averaging replica quantiles, and design an actionable alert. The check uses the six supplied questions. Choose Begin knowledge check when you are ready. It will not start or submit automatically."
+      },
+      {
+        "id": "cue-observability-cost-and-performance-visual",
+        "kind": "visual",
+        "text": "Four learning objectives connect operational questions to privacy, distributions, cost, and alerts.",
+        "accessibilityAlternative": "The lesson covers questions, correlated identities, privacy-conscious telemetry, distributions and cost, and actionable alerts."
+      }
+    ],
+    "captions": [
+      {
+        "cueId": "cue-observability-cost-and-performance-welcome-and-outcomes-1",
+        "startSeconds": 0,
+        "endSeconds": 5,
+        "text": "Welcome. Observability is not collecting\neverything. It is answering important"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-welcome-and-outcomes-2",
+        "startSeconds": 5,
+        "endSeconds": 9,
+        "text": "operational questions with justified,\nprivacy-conscious evidence. In this"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-welcome-and-outcomes-3",
+        "startSeconds": 9,
+        "endSeconds": 14,
+        "text": "lesson, you will define questions and\nobjectives, correlate exact serving"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-welcome-and-outcomes-4",
+        "startSeconds": 14,
+        "endSeconds": 18,
+        "text": "identities, minimize sensitive telemetry,\ninterpret performance distributions and"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-welcome-and-outcomes-5",
+        "startSeconds": 18,
+        "endSeconds": 24,
+        "text": "cost, and build alerts that lead an\naccountable operator toward safe action"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-welcome-and-outcomes-6",
+        "startSeconds": 24,
+        "endSeconds": 30,
+        "text": "and recovery. The examples are synthetic\nteaching fixtures. They are not live"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-welcome-and-outcomes-7",
+        "startSeconds": 30,
+        "endSeconds": 35,
+        "text": "infrastructure results, provider prices,\nmodel benchmarks, or deployment approval."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-1",
+        "startSeconds": 35,
+        "endSeconds": 40,
+        "text": "Start with questions an operator, product\nowner, security reviewer, or incident"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-2",
+        "startSeconds": 40,
+        "endSeconds": 46,
+        "text": "responder must answer. Is the approved\nmodel and runtime bundle serving? Are"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-3",
+        "startSeconds": 46,
+        "endSeconds": 52,
+        "text": "users receiving valid outcomes? Which\nbounded slices fail? Where is time spent?"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-4",
+        "startSeconds": 52,
+        "endSeconds": 58,
+        "text": "What is queued, rejected, canceled, or\nretried? Which resource is saturated? Did"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-5",
+        "startSeconds": 58,
+        "endSeconds": 64,
+        "text": "an update change quality, policy outcomes,\nlatency, cost, or recovery? Can an"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-6",
+        "startSeconds": 64,
+        "endSeconds": 69,
+        "text": "incident be scoped and reproduced without\nexposing unnecessary content? Translate"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-7",
+        "startSeconds": 69,
+        "endSeconds": 74,
+        "text": "each question into an indicator and\nobjective. State the population,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-8",
+        "startSeconds": 74,
+        "endSeconds": 78,
+        "text": "observation window, denominator,\nthreshold, owner, decision, response, and"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-9",
+        "startSeconds": 78,
+        "endSeconds": 83,
+        "text": "retention period. For example, a synthetic\ninteractive-latency objective can require"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-10",
+        "startSeconds": 83,
+        "endSeconds": 90,
+        "text": "at least 95 percent of valid requests to\nfinish at or below 400 milliseconds"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-11",
+        "startSeconds": 90,
+        "endSeconds": 96,
+        "text": "in a five-minute window. The denominator\nis part of the contract. Missing"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-12",
+        "startSeconds": 96,
+        "endSeconds": 102,
+        "text": "measurements are unknown, not successful\noutcomes. A dashboard panel with no owned"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-13",
+        "startSeconds": 102,
+        "endSeconds": 108,
+        "text": "decision is decorative telemetry. A useful\ncontract tells an owner what evidence"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-14",
+        "startSeconds": 108,
+        "endSeconds": 113,
+        "text": "changes a decision, such as tuning,\ncapacity adjustment, release hold, or"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-15",
+        "startSeconds": 113,
+        "endSeconds": 117,
+        "text": "rollback. NIST's generative artificial\nintelligence risk profile supports"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-16",
+        "startSeconds": 117,
+        "endSeconds": 123,
+        "text": "managing and measuring risk across the\nlifecycle. Here, that becomes a practical"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-17",
+        "startSeconds": 123,
+        "endSeconds": 129,
+        "text": "rule: every signal has an approved\npurpose, an accountable consumer, and a"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-questions-objectives-narration-18",
+        "startSeconds": 129,
+        "endSeconds": 132,
+        "text": "defined response and retention boundary."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-narration-1",
+        "startSeconds": 132,
+        "endSeconds": 137,
+        "text": "Correlate the serving path with a bounded\napplication-owned request or run"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-narration-2",
+        "startSeconds": 137,
+        "endSeconds": 141,
+        "text": "identifier. Connect gateway, adapter,\ninference server, runtime, policy,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-narration-3",
+        "startSeconds": 141,
+        "endSeconds": 146,
+        "text": "optional tool, and user-outcome events.\nRecord service and instance identity,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-narration-4",
+        "startSeconds": 146,
+        "endSeconds": 151,
+        "text": "exact model and runtime bundle, release,\nroute, operation, status, bounded error"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-narration-5",
+        "startSeconds": 151,
+        "endSeconds": 156,
+        "text": "category, policy disposition, input and\noutput size measures, queue time,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-narration-6",
+        "startSeconds": 156,
+        "endSeconds": 161,
+        "text": "processing time, resource observations,\nand an evaluation or result reference."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-narration-7",
+        "startSeconds": 161,
+        "endSeconds": 166,
+        "text": "OpenTelemetry Semantic Conventions provide\nshared names and stability metadata, but a"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-narration-8",
+        "startSeconds": 166,
+        "endSeconds": 172,
+        "text": "field exposed by one runtime is not proof\nthat another provider exposes an"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-narration-9",
+        "startSeconds": 172,
+        "endSeconds": 177,
+        "text": "equivalent field. Version the core\ncontract you own, then use explicit"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-narration-10",
+        "startSeconds": 177,
+        "endSeconds": 182,
+        "text": "adapters for external conventions. A\nrequest identifier can connect traces and"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-narration-11",
+        "startSeconds": 182,
+        "endSeconds": 189,
+        "text": "logs, but it must not become an unbounded\nmetric label. Do not use raw"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-narration-12",
+        "startSeconds": 189,
+        "endSeconds": 194,
+        "text": "personal identifiers, prompts, or\narbitrary user values as labels. Exact"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-narration-13",
+        "startSeconds": 194,
+        "endSeconds": 199,
+        "text": "model, tokenizer, runtime, configuration,\nadapter, precision, and release identities"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-narration-14",
+        "startSeconds": 199,
+        "endSeconds": 205,
+        "text": "let an operator compare releases and\nreproduce failures. A friendly alias alone"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-narration-15",
+        "startSeconds": 205,
+        "endSeconds": 210,
+        "text": "can hide that replicas served different\nartifacts or policies."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-demonstration-1",
+        "startSeconds": 210,
+        "endSeconds": 216,
+        "text": "Consider a synthetic assistant request\nthat feels slow and returns an invalid"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-demonstration-2",
+        "startSeconds": 216,
+        "endSeconds": 222,
+        "text": "citation. The gateway event shows an\napproved route and release with no policy"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-demonstration-3",
+        "startSeconds": 222,
+        "endSeconds": 228,
+        "text": "denial. The adapter records a bounded\ninput-size class and an output contract"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-demonstration-4",
+        "startSeconds": 228,
+        "endSeconds": 235,
+        "text": "failure. The inference server records two\nseconds of queue time and one second to"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-demonstration-5",
+        "startSeconds": 235,
+        "endSeconds": 241,
+        "text": "first output. Runtime metrics show high\naccelerator use but available host memory."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-demonstration-6",
+        "startSeconds": 241,
+        "endSeconds": 247,
+        "text": "Exact identity reveals that one replica\nloaded the prior prompt-template bundle. A"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-demonstration-7",
+        "startSeconds": 247,
+        "endSeconds": 253,
+        "text": "release annotation shows the mismatch\nbegan during a partial rollout. No raw"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-demonstration-8",
+        "startSeconds": 253,
+        "endSeconds": 259,
+        "text": "prompt is needed to answer the first\nquestions: which build failed, where time"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-demonstration-9",
+        "startSeconds": 259,
+        "endSeconds": 264,
+        "text": "accumulated, and which replica should\nleave service. An authorized evaluator can"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-demonstration-10",
+        "startSeconds": 264,
+        "endSeconds": 269,
+        "text": "use a separately governed fixture to\nreproduce citation quality. The operator"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-demonstration-11",
+        "startSeconds": 269,
+        "endSeconds": 274,
+        "text": "isolates the mismatched replica, verifies\nthe approved bundle, repeats readiness and"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-demonstration-12",
+        "startSeconds": 274,
+        "endSeconds": 279,
+        "text": "regression checks, and records recovery.\nCorrelation turned several signals into a"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-demonstration-13",
+        "startSeconds": 279,
+        "endSeconds": 284,
+        "text": "bounded diagnosis without copying learner\ncontent into every store. Notice the"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-demonstration-14",
+        "startSeconds": 284,
+        "endSeconds": 290,
+        "text": "causal boundary. The evidence supports a\nlikely release mismatch and a safe"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-correlation-demonstration-15",
+        "startSeconds": 290,
+        "endSeconds": 297,
+        "text": "investigation path. It does not prove that\nevery invalid citation has the same cause."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-telemetry-privacy-narration-1",
+        "startSeconds": 297,
+        "endSeconds": 302,
+        "text": "Default to metadata and derived\nmeasurements, not raw prompts, responses,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-telemetry-privacy-narration-2",
+        "startSeconds": 302,
+        "endSeconds": 305,
+        "text": "retrieved documents, credentials,\nauthorization headers, personal"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-telemetry-privacy-narration-3",
+        "startSeconds": 305,
+        "endSeconds": 310,
+        "text": "identifiers, or tool secrets. Classify\nevery proposed field as required metadata,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-telemetry-privacy-narration-4",
+        "startSeconds": 310,
+        "endSeconds": 315,
+        "text": "derived measurement, optional sensitive\ncontent, or prohibited secret. For"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-telemetry-privacy-narration-5",
+        "startSeconds": 315,
+        "endSeconds": 320,
+        "text": "approved content sampling, document\npurpose and authority, minimize and"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-telemetry-privacy-narration-6",
+        "startSeconds": 320,
+        "endSeconds": 326,
+        "text": "redact, encrypt in transit and storage,\nrestrict access, audit use, set short"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-telemetry-privacy-narration-7",
+        "startSeconds": 326,
+        "endSeconds": 331,
+        "text": "retention, and test deletion. Sampling\nreduces volume; it does not remove"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-telemetry-privacy-narration-8",
+        "startSeconds": 331,
+        "endSeconds": 335,
+        "text": "sensitivity. Threat-model instrumentation,\ncollectors, exporters, queues, stores,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-telemetry-privacy-narration-9",
+        "startSeconds": 335,
+        "endSeconds": 340,
+        "text": "dashboards, alerts, exemplars, support\nbundles, backups, and analyst exports. An"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-telemetry-privacy-narration-10",
+        "startSeconds": 340,
+        "endSeconds": 346,
+        "text": "encrypted inference request can still be\ndisclosed by a verbose exception, trace"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-telemetry-privacy-narration-11",
+        "startSeconds": 346,
+        "endSeconds": 351,
+        "text": "body, metric label, screenshot, or copied\nsupport archive. Control cardinality as"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-telemetry-privacy-narration-12",
+        "startSeconds": 351,
+        "endSeconds": 356,
+        "text": "both a reliability and privacy concern.\nUnbounded request, user, prompt, or"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-telemetry-privacy-narration-13",
+        "startSeconds": 356,
+        "endSeconds": 361,
+        "text": "document values can overwhelm metric\nsystems and create searchable copies. Test"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-telemetry-privacy-narration-14",
+        "startSeconds": 361,
+        "endSeconds": 366,
+        "text": "rejected requests and exception paths\nbecause they may copy input content."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-telemetry-privacy-narration-15",
+        "startSeconds": 366,
+        "endSeconds": 371,
+        "text": "Detect unauthorized field appearance with\nfixtures and scans, and audit telemetry"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-telemetry-privacy-narration-16",
+        "startSeconds": 371,
+        "endSeconds": 372,
+        "text": "access itself."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-privacy-checkpoint-1",
+        "startSeconds": 372,
+        "endSeconds": 377,
+        "text": "Checkpoint. Inference transport is\nencrypted, but a trace exporter copies"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-privacy-checkpoint-2",
+        "startSeconds": 377,
+        "endSeconds": 382,
+        "text": "full prompts, retrieved passages,\nauthorization headers, and responses into"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-privacy-checkpoint-3",
+        "startSeconds": 382,
+        "endSeconds": 388,
+        "text": "a broadly accessible support store for\nninety days. Is the serving data boundary"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-privacy-checkpoint-4",
+        "startSeconds": 388,
+        "endSeconds": 391,
+        "text": "protected, and what must change?"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-privacy-feedback-1",
+        "startSeconds": 466,
+        "endSeconds": 473,
+        "text": "The boundary is not protected. Encryption\non the inference hop does not authorize a"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-privacy-feedback-2",
+        "startSeconds": 473,
+        "endSeconds": 478,
+        "text": "second copy in telemetry. Stop exporting\nauthorization headers and unjustified raw"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-privacy-feedback-3",
+        "startSeconds": 478,
+        "endSeconds": 483,
+        "text": "content, revoke exposed credentials,\nrestrict the store, assess access, delete"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-privacy-feedback-4",
+        "startSeconds": 483,
+        "endSeconds": 489,
+        "text": "existing copies under the incident and\nretention process, and verify deletion. If"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-privacy-feedback-5",
+        "startSeconds": 489,
+        "endSeconds": 494,
+        "text": "approved content sampling is genuinely\nrequired, create a separate minimized,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-privacy-feedback-6",
+        "startSeconds": 494,
+        "endSeconds": 499,
+        "text": "redacted, encrypted, access-controlled,\nshort-lived, audited path. If your answer"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-privacy-feedback-7",
+        "startSeconds": 499,
+        "endSeconds": 504,
+        "text": "only encrypted the support store, revisit\nminimization. Protection begins by not"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-privacy-feedback-8",
+        "startSeconds": 504,
+        "endSeconds": 508,
+        "text": "collecting what the operational question\ndoes not require."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-distributions-cost-narration-1",
+        "startSeconds": 508,
+        "endSeconds": 513,
+        "text": "Measure latency and size as distributions\nwith suitable histogram resolution, not"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-distributions-cost-narration-2",
+        "startSeconds": 513,
+        "endSeconds": 518,
+        "text": "only averages. Preserve counts, failures,\nand the population behind every"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-distributions-cost-narration-3",
+        "startSeconds": 518,
+        "endSeconds": 522,
+        "text": "percentile. Prometheus explains that\nprecomputed summary quantiles generally"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-distributions-cost-narration-4",
+        "startSeconds": 522,
+        "endSeconds": 527,
+        "text": "cannot be aggregated across replicas,\nwhile compatible histogram buckets can be"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-distributions-cost-narration-5",
+        "startSeconds": 527,
+        "endSeconds": 533,
+        "text": "aggregated. Do not average three p95\nvalues and call that a fleet p95."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-distributions-cost-narration-6",
+        "startSeconds": 533,
+        "endSeconds": 538,
+        "text": "Aggregate the underlying observations,\nthen estimate once. Separate queue time,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-distributions-cost-narration-7",
+        "startSeconds": 538,
+        "endSeconds": 543,
+        "text": "time to first output, processing time,\nstreaming duration, and total duration."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-distributions-cost-narration-8",
+        "startSeconds": 543,
+        "endSeconds": 547,
+        "text": "Track throughput, concurrency, rejections,\ncancellations, retries, cache behavior,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-distributions-cost-narration-9",
+        "startSeconds": 547,
+        "endSeconds": 552,
+        "text": "accelerator and host utilization, memory\nheadroom, storage, network, and energy or"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-distributions-cost-narration-10",
+        "startSeconds": 552,
+        "endSeconds": 557,
+        "text": "cloud charges where available. Use bounded\nworkload, route, model, release, and"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-distributions-cost-narration-11",
+        "startSeconds": 557,
+        "endSeconds": 561,
+        "text": "tenant-class dimensions. Kubernetes\nresource monitoring is general deployment"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-distributions-cost-narration-12",
+        "startSeconds": 561,
+        "endSeconds": 566,
+        "text": "guidance, not proof that a particular\ndeployment exports or enforces a"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-distributions-cost-narration-13",
+        "startSeconds": 566,
+        "endSeconds": 571,
+        "text": "measurement. Attribute cost with explicit\ninputs and denominators. State what the"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-distributions-cost-narration-14",
+        "startSeconds": 571,
+        "endSeconds": 576,
+        "text": "estimate includes and excludes. A number\nwithout its population, window, and"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-distributions-cost-narration-15",
+        "startSeconds": 576,
+        "endSeconds": 579,
+        "text": "allocation rule is not decision-ready\nevidence."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-1",
+        "startSeconds": 579,
+        "endSeconds": 585,
+        "text": "Work the supplied baseline. The bucket\nbounds are 100, 200, 400, and 800"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-2",
+        "startSeconds": 585,
+        "endSeconds": 591,
+        "text": "milliseconds. Replica one has cumulative\ncounts 50, 90, 100, 100. Replica two has"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-3",
+        "startSeconds": 591,
+        "endSeconds": 598,
+        "text": "5, 15, 35, 40. Replica three has 1, 2, 8,\n10. Add matching buckets:"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-4",
+        "startSeconds": 598,
+        "endSeconds": 605,
+        "text": "50 plus 5 plus 1 is 56; 90 plus 15 plus 2\nis 107;"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-5",
+        "startSeconds": 605,
+        "endSeconds": 612,
+        "text": "100 plus 35 plus 8 is 143; and 100 plus 40\nplus 10 is"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-6",
+        "startSeconds": 612,
+        "endSeconds": 619,
+        "text": "150. For p95, rank equals 0.95 times 150,\nor 142.5. That rank lies in"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-7",
+        "startSeconds": 619,
+        "endSeconds": 624,
+        "text": "the 200-to-400 millisecond bucket. Linear\ninterpolation gives 200 plus ((142.5 minus"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-8",
+        "startSeconds": 624,
+        "endSeconds": 631,
+        "text": "107) divided by (143 minus 107)) times\n200, which is 397.22 milliseconds. This is"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-9",
+        "startSeconds": 631,
+        "endSeconds": 637,
+        "text": "an estimate, assuming observations are\nspread within the bucket. The fixture has"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-10",
+        "startSeconds": 637,
+        "endSeconds": 644,
+        "text": "143 of 150 requests at or below 400\nmilliseconds, or 95.333 percent, so it"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-11",
+        "startSeconds": 644,
+        "endSeconds": 649,
+        "text": "passes a synthetic 95 percent latency\nobjective by about 0.333 percentage"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-12",
+        "startSeconds": 649,
+        "endSeconds": 656,
+        "text": "points. If two of the same 150 requests\nwere unsuccessful, 148 divided by 150"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-13",
+        "startSeconds": 656,
+        "endSeconds": 662,
+        "text": "equals 98.667 percent, which fails a\nseparate 99 percent success objective. Do"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-14",
+        "startSeconds": 662,
+        "endSeconds": 667,
+        "text": "not remove failures from a denominator\nunless the indicator contract explicitly"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-15",
+        "startSeconds": 667,
+        "endSeconds": 674,
+        "text": "justifies it. The synthetic cost example\nis three replicas for half an hour, at"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-16",
+        "startSeconds": 674,
+        "endSeconds": 679,
+        "text": "a fictional accelerator rate of two\ndollars per replica-hour and fictional"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-17",
+        "startSeconds": 679,
+        "endSeconds": 686,
+        "text": "host rate of forty cents per replica-hour.\nAccelerator cost is 3 times 0.5 times"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-18",
+        "startSeconds": 686,
+        "endSeconds": 693,
+        "text": "2, or 3 dollars. Host cost is 3 times 0.5\ntimes 0.40, or 0.60"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-19",
+        "startSeconds": 693,
+        "endSeconds": 700,
+        "text": "dollars. Add fictional storage of 0.05 and\nnetwork of 0.10 to get 3.75 dollars."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-20",
+        "startSeconds": 700,
+        "endSeconds": 706,
+        "text": "For 15,000 completed requests, 3.75\ndivided by 15,000 is 0.00025 dollars per"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-21",
+        "startSeconds": 706,
+        "endSeconds": 711,
+        "text": "request. These are teaching inputs, not\nprovider prices or production"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-histogram-demonstration-22",
+        "startSeconds": 711,
+        "endSeconds": 712,
+        "text": "measurements."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-1",
+        "startSeconds": 712,
+        "endSeconds": 717,
+        "text": "Alert on symptoms that require action:\nuser-visible objective burn, critical"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-2",
+        "startSeconds": 717,
+        "endSeconds": 722,
+        "text": "safety or security outcomes, sustained\nqueueing or rejection, memory pressure,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-3",
+        "startSeconds": 722,
+        "endSeconds": 727,
+        "text": "unavailable replicas, exact identity\nmismatch, telemetry loss, cost anomalies,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-4",
+        "startSeconds": 727,
+        "endSeconds": 732,
+        "text": "and failed recovery checks. Every alert\nneeds a symptom, owner, severity,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-5",
+        "startSeconds": 732,
+        "endSeconds": 737,
+        "text": "population, threshold and duration, safe\nfirst action, runbook, evidence links,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-6",
+        "startSeconds": 737,
+        "endSeconds": 742,
+        "text": "escalation, and recovery condition. Five\npaper-tested examples are useful. A"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-7",
+        "startSeconds": 742,
+        "endSeconds": 748,
+        "text": "latency burn alert routes to serving\non-call and checks queueing and saturation"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-8",
+        "startSeconds": 748,
+        "endSeconds": 754,
+        "text": "before scaling or rollback. A policy-deny\nanomaly routes to safety and security with"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-9",
+        "startSeconds": 754,
+        "endSeconds": 760,
+        "text": "policy version and disposition counts,\nwithout content. A queue alert fires only"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-10",
+        "startSeconds": 760,
+        "endSeconds": 767,
+        "text": "when p95 queue time and rejection rate are\nboth elevated for ten minutes. An"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-11",
+        "startSeconds": 767,
+        "endSeconds": 772,
+        "text": "identity mismatch alert fires on any\nartifact, runtime, configuration, or"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-12",
+        "startSeconds": 772,
+        "endSeconds": 778,
+        "text": "release digest outside the approved route\nmanifest. A telemetry-loss or cost anomaly"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-13",
+        "startSeconds": 778,
+        "endSeconds": 783,
+        "text": "alert includes missing-series evidence and\nallocation inputs. Test firing, routing,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-14",
+        "startSeconds": 783,
+        "endSeconds": 786,
+        "text": "deduplication, planned-maintenance\nsuppression, escalation timers,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-15",
+        "startSeconds": 786,
+        "endSeconds": 791,
+        "text": "permissions, and recovery notifications.\nMissing telemetry is not proof of health."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-16",
+        "startSeconds": 791,
+        "endSeconds": 797,
+        "text": "Recovery must test affected outcomes, not\nmerely the existence of a rollback"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-alerts-investigation-narration-17",
+        "startSeconds": 797,
+        "endSeconds": 798,
+        "text": "command."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-activity-transition-1",
+        "startSeconds": 798,
+        "endSeconds": 803,
+        "text": "Now build the privacy-conscious\nobservability contract. Write ten operator"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-activity-transition-2",
+        "startSeconds": 803,
+        "endSeconds": 808,
+        "text": "questions and map each to signals, exact\nidentities, bounded dimensions, owner,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-activity-transition-3",
+        "startSeconds": 808,
+        "endSeconds": 813,
+        "text": "decision, and retention. Define request,\nmodel, release, policy, latency, queue,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-activity-transition-4",
+        "startSeconds": 813,
+        "endSeconds": 818,
+        "text": "error, saturation, and cost fields with\nstability and cardinality limits. Classify"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-activity-transition-5",
+        "startSeconds": 818,
+        "endSeconds": 823,
+        "text": "every field as required metadata, derived\nmeasurement, optional sensitive content,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-activity-transition-6",
+        "startSeconds": 823,
+        "endSeconds": 828,
+        "text": "or prohibited secret. Design latency and\nsize histograms, objective calculations,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-activity-transition-7",
+        "startSeconds": 828,
+        "endSeconds": 833,
+        "text": "and cost allocation for three replicas\nwithout averaging quantiles. Create five"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-activity-transition-8",
+        "startSeconds": 833,
+        "endSeconds": 838,
+        "text": "alerts and paper-test firing, routing,\nevidence, safe first action, runbook,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-activity-transition-9",
+        "startSeconds": 838,
+        "endSeconds": 843,
+        "text": "escalation, telemetry-loss behavior, and\nrecovery. Your work is complete only when"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-activity-transition-10",
+        "startSeconds": 843,
+        "endSeconds": 849,
+        "text": "it answers all ten questions and states\nfield type, stability, enum, range, and"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-activity-transition-11",
+        "startSeconds": 849,
+        "endSeconds": 850,
+        "text": "cardinality."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-1",
+        "startSeconds": 1030,
+        "endSeconds": 1036,
+        "text": "Here is a worked contract. For approved\nbuild, use startup inventory and request"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-2",
+        "startSeconds": 1036,
+        "endSeconds": 1041,
+        "text": "identity, exact model, tokenizer, runtime,\nconfiguration, adapter, and release"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-3",
+        "startSeconds": 1041,
+        "endSeconds": 1046,
+        "text": "identities, with environment, route, and\nrelease dimensions. The release owner"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-4",
+        "startSeconds": 1046,
+        "endSeconds": 1053,
+        "text": "isolates or rolls back; example retention\nis 90 days for inventory and 30 days"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-5",
+        "startSeconds": 1053,
+        "endSeconds": 1059,
+        "text": "for request metadata. For valid outcomes,\nuse status and outcome counters by route,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-6",
+        "startSeconds": 1059,
+        "endSeconds": 1064,
+        "text": "operation, model, release, and bounded\noutcome; product reliability staff retain"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-7",
+        "startSeconds": 1064,
+        "endSeconds": 1071,
+        "text": "or halt a release for 30 days. For a\nfailing reviewed slice, use evaluation"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-8",
+        "startSeconds": 1071,
+        "endSeconds": 1076,
+        "text": "and outcome counters with evaluation-set\nversion, release, bounded locale, route,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-9",
+        "startSeconds": 1076,
+        "endSeconds": 1082,
+        "text": "and workload class; the evaluation lead\nblocks promotion or commissions tests for"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-10",
+        "startSeconds": 1082,
+        "endSeconds": 1088,
+        "text": "90 days. For time spent, use gateway,\nqueue, first-output, processing, tool, and"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-11",
+        "startSeconds": 1088,
+        "endSeconds": 1093,
+        "text": "end-to-end histograms plus request-linked\ntraces. The performance owner tunes the"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-12",
+        "startSeconds": 1093,
+        "endSeconds": 1100,
+        "text": "measured stage; metrics remain 90 days and\nsampled traces 7 days. For queued or"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-13",
+        "startSeconds": 1100,
+        "endSeconds": 1105,
+        "text": "rejected work, use queue histograms, depth\ngauges, and rejection counters with"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-14",
+        "startSeconds": 1105,
+        "endSeconds": 1110,
+        "text": "bounded rejection reasons; the capacity\nowner shapes traffic or adds reviewed"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-15",
+        "startSeconds": 1110,
+        "endSeconds": 1116,
+        "text": "capacity for 30 days. For saturation, use\naccelerator and host utilization, memory"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-16",
+        "startSeconds": 1116,
+        "endSeconds": 1121,
+        "text": "headroom, storage, and network activity;\nthe infrastructure owner changes placement"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-17",
+        "startSeconds": 1121,
+        "endSeconds": 1127,
+        "text": "or limits for 30 days. For quality or\nsecurity change, retain before-and-after"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-18",
+        "startSeconds": 1127,
+        "endSeconds": 1133,
+        "text": "outcomes, policy and evaluation fixtures,\nold and new exact bundles, policy version,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-19",
+        "startSeconds": 1133,
+        "endSeconds": 1139,
+        "text": "bounded test suite, and disposition for\n180 days. For cost change, use metered"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-20",
+        "startSeconds": 1139,
+        "endSeconds": 1144,
+        "text": "resource time and charge allocation by\nworkload, route, model, release, and"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-21",
+        "startSeconds": 1144,
+        "endSeconds": 1149,
+        "text": "bounded tenant class; finance operations\ninvestigates for 13 months subject to"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-22",
+        "startSeconds": 1149,
+        "endSeconds": 1154,
+        "text": "policy. For recovery, use backup, restore,\nrollback, and probe events with"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-23",
+        "startSeconds": 1154,
+        "endSeconds": 1159,
+        "text": "elapsed-time histograms; the resilience\nowner accepts or remediates for 180 days."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-24",
+        "startSeconds": 1159,
+        "endSeconds": 1164,
+        "text": "For incident scope and reproduction,\ncorrelate governed traces, deployment"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-25",
+        "startSeconds": 1164,
+        "endSeconds": 1169,
+        "text": "events, deterministic probes, request or\nrun identifiers, exact bundles, route,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-26",
+        "startSeconds": 1169,
+        "endSeconds": 1175,
+        "text": "status, and bounded error category under\nthe approved incident schedule. The field"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-27",
+        "startSeconds": 1175,
+        "endSeconds": 1180,
+        "text": "contract is obs-contract/v1. The request\nidentifier is required application"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-28",
+        "startSeconds": 1180,
+        "endSeconds": 1186,
+        "text": "metadata and prohibited as a metric label.\nBuild digests and release identifiers have"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-29",
+        "startSeconds": 1186,
+        "endSeconds": 1192,
+        "text": "at most 20 active values per environment.\nPolicy disposition is limited to allow,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-30",
+        "startSeconds": 1192,
+        "endSeconds": 1198,
+        "text": "deny, review, error, and unknown, with at\nmost 20 active policy versions. Latency"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-31",
+        "startSeconds": 1198,
+        "endSeconds": 1204,
+        "text": "and queue measurements are finite from 0\nthrough 3,600,000 milliseconds and use"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-32",
+        "startSeconds": 1204,
+        "endSeconds": 1209,
+        "text": "configured buckets. Error category is\nlimited to none, timeout, overload,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-33",
+        "startSeconds": 1209,
+        "endSeconds": 1214,
+        "text": "invalid request, policy, dependency,\ninternal, and unknown. Saturation is"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-34",
+        "startSeconds": 1214,
+        "endSeconds": 1221,
+        "text": "finite from 0 through 1. Allocated cost is\nfinite and nonnegative. Unknown enums and"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-35",
+        "startSeconds": 1221,
+        "endSeconds": 1227,
+        "text": "types are rejected or mapped explicitly to\nunknown at the adapter boundary."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-36",
+        "startSeconds": 1227,
+        "endSeconds": 1232,
+        "text": "Cardinality alarms compare active series\nwith the contract budget. Privacy review"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-37",
+        "startSeconds": 1232,
+        "endSeconds": 1237,
+        "text": "covers access, retention, redaction,\nencryption, sampling, deletion, audit, and"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-38",
+        "startSeconds": 1237,
+        "endSeconds": 1242,
+        "text": "support bundles. Deny-all, removed\nvalidation, or an unowned dashboard does"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-operator-contract-worked-example-lab-narration-39",
+        "startSeconds": 1242,
+        "endSeconds": 1243,
+        "text": "not pass."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-prompt-1",
+        "startSeconds": 1243,
+        "endSeconds": 1248,
+        "text": "Before seeing the answer, inspect\nchanged.json. Write down its cumulative"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-prompt-2",
+        "startSeconds": 1248,
+        "endSeconds": 1253,
+        "text": "bucket totals and predict whether\ntraffic-weighted aggregation will be"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-prompt-3",
+        "startSeconds": 1253,
+        "endSeconds": 1259,
+        "text": "higher or lower than equal averaging of\nreplica p95 estimates. Explain your"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-prompt-4",
+        "startSeconds": 1259,
+        "endSeconds": 1265,
+        "text": "prediction using the fact that replica\nthree carries 25 requests and places most"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-prompt-5",
+        "startSeconds": 1265,
+        "endSeconds": 1272,
+        "text": "of them in the first two buckets. Then\nstate the postcondition your repair must"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-prompt-6",
+        "startSeconds": 1272,
+        "endSeconds": 1277,
+        "text": "preserve: validation remains active, all\ncompatible traffic remains in the"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-prompt-7",
+        "startSeconds": 1277,
+        "endSeconds": 1282,
+        "text": "population, and p95 is estimated once from\nsummed cumulative buckets."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-1",
+        "startSeconds": 1357,
+        "endSeconds": 1363,
+        "text": "This deterministic Node 22 native module\nlab has no dependencies, network calls,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-2",
+        "startSeconds": 1363,
+        "endSeconds": 1368,
+        "text": "model calls, or live integration. The\nfocused defect averages per-replica p95"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-3",
+        "startSeconds": 1368,
+        "endSeconds": 1373,
+        "text": "estimates. Unequal traffic means equal\nreplica weighting does not represent the"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-4",
+        "startSeconds": 1373,
+        "endSeconds": 1378,
+        "text": "combined request population. The repair\nmust validate compatible cumulative"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-5",
+        "startSeconds": 1378,
+        "endSeconds": 1384,
+        "text": "buckets, sum matching counts, and estimate\np95 once. Preserve the export aggregateP95"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-6",
+        "startSeconds": 1384,
+        "endSeconds": 1390,
+        "text": "and its result schema. Edit only the\naggregate implementation. Do not edit the"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-7",
+        "startSeconds": 1390,
+        "endSeconds": 1395,
+        "text": "validator, fixtures, or immutable tests.\nThe validator checks schema, unit, window,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-8",
+        "startSeconds": 1395,
+        "endSeconds": 1400,
+        "text": "exact identities, unknown fields, finite\nranges, monotonic cumulative counts,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-9",
+        "startSeconds": 1400,
+        "endSeconds": 1405,
+        "text": "duplicate replica identifiers, missing\nrecords, and compatible bucket bounds. A"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-10",
+        "startSeconds": 1405,
+        "endSeconds": 1410,
+        "text": "constant, deny-all result, discarded\ntraffic, removed validation, or changed"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-11",
+        "startSeconds": 1410,
+        "endSeconds": 1416,
+        "text": "test is not a repair. The root-relative\nstarter command is shown visually."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-12",
+        "startSeconds": 1416,
+        "endSeconds": 1422,
+        "text": "Supplied starter evidence is exit 1 with\nempty standard error and standard output:"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-13",
+        "startSeconds": 1422,
+        "endSeconds": 1427,
+        "text": "FAIL baseline aggregate: expected 397.22,\nreceived 546.67; FAIL changed-input"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-14",
+        "startSeconds": 1427,
+        "endSeconds": 1432,
+        "text": "aggregate: expected 375.00, received\n391.67; PASS 6 tests; RESULT failed=2"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-15",
+        "startSeconds": 1432,
+        "endSeconds": 1438,
+        "text": "passed=6. The repaired tests exit 0 with\nempty standard error and standard output:"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-16",
+        "startSeconds": 1438,
+        "endSeconds": 1444,
+        "text": "PASS 8 tests; RESULT failed=0 passed=8.\nThe baseline input has replicas with 100,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-17",
+        "startSeconds": 1444,
+        "endSeconds": 1449,
+        "text": "40, and 10 requests and cumulative counts\n[50,90,100,100], [5,15,35,40], and"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-18",
+        "startSeconds": 1449,
+        "endSeconds": 1454,
+        "text": "[1,2,8,10]. The changed input has\ncumulative sums [29,47,53,55]. Its third"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-19",
+        "startSeconds": 1454,
+        "endSeconds": 1461,
+        "text": "replica has most of 25 requests in the\nfirst two buckets, while replicas one"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-20",
+        "startSeconds": 1461,
+        "endSeconds": 1467,
+        "text": "and two have slower tails. The changed\nanswer is 375.00 milliseconds. If baseline"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-21",
+        "startSeconds": 1467,
+        "endSeconds": 1472,
+        "text": "passes but changed input fails, the\nimplementation likely memorized the"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-22",
+        "startSeconds": 1472,
+        "endSeconds": 1477,
+        "text": "baseline or retained replica-level\nweighting. The answer key is: baseline"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-23",
+        "startSeconds": 1477,
+        "endSeconds": 1482,
+        "text": "sums [56,107,143,150], rank 142.5,\nestimate 397.22 milliseconds. Changed sums"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-24",
+        "startSeconds": 1482,
+        "endSeconds": 1487,
+        "text": "[29,47,53,55], rank 52.25, estimate 375.00\nmilliseconds in the 200-to-400 millisecond"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-25",
+        "startSeconds": 1487,
+        "endSeconds": 1492,
+        "text": "bucket. The finite final bound covers\nthese fixtures only. Production ingestion"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-26",
+        "startSeconds": 1492,
+        "endSeconds": 1498,
+        "text": "needs complete overflow or count evidence.\nThese local values are not production"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-27",
+        "startSeconds": 1498,
+        "endSeconds": 1503,
+        "text": "claims. Real integration would collect\nauthenticated telemetry from a deployed"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-28",
+        "startSeconds": 1503,
+        "endSeconds": 1508,
+        "text": "gateway, adapter, runtime, and metrics\nbackend, preserve exact identities, and"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-29",
+        "startSeconds": 1508,
+        "endSeconds": 1514,
+        "text": "validate exporter behavior. The lab does\nnot establish that any model family,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-30",
+        "startSeconds": 1514,
+        "endSeconds": 1519,
+        "text": "runtime, hosted service, billing system,\nor production telemetry works. Distinct"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-31",
+        "startSeconds": 1519,
+        "endSeconds": 1526,
+        "text": "model families and a runtime project also\ndo not share a telemetry or security"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-32",
+        "startSeconds": 1526,
+        "endSeconds": 1530,
+        "text": "contract. Capture actual artifact,\nruntime, adapter, configuration, and"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-repair-lab-lab-narration-33",
+        "startSeconds": 1530,
+        "endSeconds": 1533,
+        "text": "release identities for each deployment."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-feedback-1",
+        "startSeconds": 1533,
+        "endSeconds": 1538,
+        "text": "Now compare your reasoning with the\nsupplied answer. The changed cumulative"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-feedback-2",
+        "startSeconds": 1538,
+        "endSeconds": 1545,
+        "text": "buckets sum to 29, 47, 53, and 55. The p95\nrank is 0.95 times"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-feedback-3",
+        "startSeconds": 1545,
+        "endSeconds": 1551,
+        "text": "55, or 52.25. It lies in the 200-to-400\nmillisecond bucket. Linear interpolation"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-feedback-4",
+        "startSeconds": 1551,
+        "endSeconds": 1558,
+        "text": "gives 200 plus ((52.25 minus 47) divided\nby (53 minus 47)) times 200, which"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-feedback-5",
+        "startSeconds": 1558,
+        "endSeconds": 1563,
+        "text": "equals 375.00 milliseconds. The result is\nlower than the defective 391.67"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-feedback-6",
+        "startSeconds": 1563,
+        "endSeconds": 1568,
+        "text": "millisecond average because the busiest\nreplica has the faster distribution. Equal"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-feedback-7",
+        "startSeconds": 1568,
+        "endSeconds": 1574,
+        "text": "weighting gives each replica one vote, but\nthe combined population gives each request"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-feedback-8",
+        "startSeconds": 1574,
+        "endSeconds": 1579,
+        "text": "one vote. A correct implementation also\nrejects malformed input, preserves"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-feedback-9",
+        "startSeconds": 1579,
+        "endSeconds": 1584,
+        "text": "compatible observations, and keeps the\nfinal finite-bound postcondition for these"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-feedback-10",
+        "startSeconds": 1584,
+        "endSeconds": 1590,
+        "text": "fixtures. Deny-all is not a repair because\nit discards valid traffic and hides"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-feedback-11",
+        "startSeconds": 1590,
+        "endSeconds": 1595,
+        "text": "operational behavior. Removing validation\nis not a repair because malformed or"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-feedback-12",
+        "startSeconds": 1595,
+        "endSeconds": 1600,
+        "text": "incompatible inputs can corrupt the\ndistribution. The result is a causal"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-changed-input-feedback-13",
+        "startSeconds": 1600,
+        "endSeconds": 1603,
+        "text": "explanation, not merely a memorized\nnumber."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-assessment-handoff-1",
+        "startSeconds": 1603,
+        "endSeconds": 1609,
+        "text": "Begin the knowledge check when you can\nstart from operational questions, preserve"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-assessment-handoff-2",
+        "startSeconds": 1609,
+        "endSeconds": 1613,
+        "text": "exact release identity, defend content\nminimization, interpret latency"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-assessment-handoff-3",
+        "startSeconds": 1613,
+        "endSeconds": 1618,
+        "text": "distributions, avoid averaging replica\nquantiles, and design an actionable alert."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-assessment-handoff-4",
+        "startSeconds": 1618,
+        "endSeconds": 1625,
+        "text": "The check uses the six supplied questions.\nChoose Begin knowledge check when you are"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-assessment-handoff-5",
+        "startSeconds": 1625,
+        "endSeconds": 1629,
+        "text": "ready. It will not start or submit\nautomatically."
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-class-closing-1",
+        "startSeconds": 1629,
+        "endSeconds": 1634,
+        "text": "Remember the operating rule: collect only\nsignals that answer owned questions,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-class-closing-2",
+        "startSeconds": 1634,
+        "endSeconds": 1640,
+        "text": "connect them to the exact serving build,\nprotect the data boundary, measure"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-class-closing-3",
+        "startSeconds": 1640,
+        "endSeconds": 1645,
+        "text": "distributions and cost honestly, preserve\ndenominators and validation, and test"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-class-closing-4",
+        "startSeconds": 1645,
+        "endSeconds": 1650,
+        "text": "every alert through recovery. Synthetic\narithmetic can teach reasoning, but it"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-class-closing-5",
+        "startSeconds": 1650,
+        "endSeconds": 1655,
+        "text": "cannot prove a production integration. Use\nevidence that is bounded, attributable,"
+      },
+      {
+        "cueId": "cue-observability-cost-and-performance-class-closing-6",
+        "startSeconds": 1655,
+        "endSeconds": 1658,
+        "text": "and sufficient for the decision."
+      }
+    ],
+    "transcript": "Welcome. Observability is not collecting\neverything. It is answering important operational questions with justified,\nprivacy-conscious evidence. In this lesson, you will define questions and\nobjectives, correlate exact serving identities, minimize sensitive telemetry,\ninterpret performance distributions and cost, and build alerts that lead an\naccountable operator toward safe action and recovery. The examples are synthetic\nteaching fixtures. They are not live infrastructure results, provider prices,\nmodel benchmarks, or deployment approval. Start with questions an operator, product\nowner, security reviewer, or incident responder must answer. Is the approved\nmodel and runtime bundle serving? Are users receiving valid outcomes? Which\nbounded slices fail? Where is time spent? What is queued, rejected, canceled, or\nretried? Which resource is saturated? Did an update change quality, policy outcomes,\nlatency, cost, or recovery? Can an incident be scoped and reproduced without\nexposing unnecessary content? Translate each question into an indicator and\nobjective. State the population, observation window, denominator,\nthreshold, owner, decision, response, and retention period. For example, a synthetic\ninteractive-latency objective can require at least 95 percent of valid requests to\nfinish at or below 400 milliseconds in a five-minute window. The denominator\nis part of the contract. Missing measurements are unknown, not successful\noutcomes. A dashboard panel with no owned decision is decorative telemetry. A useful\ncontract tells an owner what evidence changes a decision, such as tuning,\ncapacity adjustment, release hold, or rollback. NIST's generative artificial\nintelligence risk profile supports managing and measuring risk across the\nlifecycle. Here, that becomes a practical rule: every signal has an approved\npurpose, an accountable consumer, and a defined response and retention boundary. Correlate the serving path with a bounded\napplication-owned request or run identifier. Connect gateway, adapter,\ninference server, runtime, policy, optional tool, and user-outcome events.\nRecord service and instance identity, exact model and runtime bundle, release,\nroute, operation, status, bounded error category, policy disposition, input and\noutput size measures, queue time, processing time, resource observations,\nand an evaluation or result reference. OpenTelemetry Semantic Conventions provide\nshared names and stability metadata, but a field exposed by one runtime is not proof\nthat another provider exposes an equivalent field. Version the core\ncontract you own, then use explicit adapters for external conventions. A\nrequest identifier can connect traces and logs, but it must not become an unbounded\nmetric label. Do not use raw personal identifiers, prompts, or\narbitrary user values as labels. Exact model, tokenizer, runtime, configuration,\nadapter, precision, and release identities let an operator compare releases and\nreproduce failures. A friendly alias alone can hide that replicas served different\nartifacts or policies. Consider a synthetic assistant request\nthat feels slow and returns an invalid citation. The gateway event shows an\napproved route and release with no policy denial. The adapter records a bounded\ninput-size class and an output contract failure. The inference server records two\nseconds of queue time and one second to first output. Runtime metrics show high\naccelerator use but available host memory. Exact identity reveals that one replica\nloaded the prior prompt-template bundle. A release annotation shows the mismatch\nbegan during a partial rollout. No raw prompt is needed to answer the first\nquestions: which build failed, where time accumulated, and which replica should\nleave service. An authorized evaluator can use a separately governed fixture to\nreproduce citation quality. The operator isolates the mismatched replica, verifies\nthe approved bundle, repeats readiness and regression checks, and records recovery.\nCorrelation turned several signals into a bounded diagnosis without copying learner\ncontent into every store. Notice the causal boundary. The evidence supports a\nlikely release mismatch and a safe investigation path. It does not prove that\nevery invalid citation has the same cause. Default to metadata and derived\nmeasurements, not raw prompts, responses, retrieved documents, credentials,\nauthorization headers, personal identifiers, or tool secrets. Classify\nevery proposed field as required metadata, derived measurement, optional sensitive\ncontent, or prohibited secret. For approved content sampling, document\npurpose and authority, minimize and redact, encrypt in transit and storage,\nrestrict access, audit use, set short retention, and test deletion. Sampling\nreduces volume; it does not remove sensitivity. Threat-model instrumentation,\ncollectors, exporters, queues, stores, dashboards, alerts, exemplars, support\nbundles, backups, and analyst exports. An encrypted inference request can still be\ndisclosed by a verbose exception, trace body, metric label, screenshot, or copied\nsupport archive. Control cardinality as both a reliability and privacy concern.\nUnbounded request, user, prompt, or document values can overwhelm metric\nsystems and create searchable copies. Test rejected requests and exception paths\nbecause they may copy input content. Detect unauthorized field appearance with\nfixtures and scans, and audit telemetry access itself. Checkpoint. Inference transport is\nencrypted, but a trace exporter copies full prompts, retrieved passages,\nauthorization headers, and responses into a broadly accessible support store for\nninety days. Is the serving data boundary protected, and what must change? The boundary is not protected. Encryption\non the inference hop does not authorize a second copy in telemetry. Stop exporting\nauthorization headers and unjustified raw content, revoke exposed credentials,\nrestrict the store, assess access, delete existing copies under the incident and\nretention process, and verify deletion. If approved content sampling is genuinely\nrequired, create a separate minimized, redacted, encrypted, access-controlled,\nshort-lived, audited path. If your answer only encrypted the support store, revisit\nminimization. Protection begins by not collecting what the operational question\ndoes not require. Measure latency and size as distributions\nwith suitable histogram resolution, not only averages. Preserve counts, failures,\nand the population behind every percentile. Prometheus explains that\nprecomputed summary quantiles generally cannot be aggregated across replicas,\nwhile compatible histogram buckets can be aggregated. Do not average three p95\nvalues and call that a fleet p95. Aggregate the underlying observations,\nthen estimate once. Separate queue time, time to first output, processing time,\nstreaming duration, and total duration. Track throughput, concurrency, rejections,\ncancellations, retries, cache behavior, accelerator and host utilization, memory\nheadroom, storage, network, and energy or cloud charges where available. Use bounded\nworkload, route, model, release, and tenant-class dimensions. Kubernetes\nresource monitoring is general deployment guidance, not proof that a particular\ndeployment exports or enforces a measurement. Attribute cost with explicit\ninputs and denominators. State what the estimate includes and excludes. A number\nwithout its population, window, and allocation rule is not decision-ready\nevidence. Work the supplied baseline. The bucket\nbounds are 100, 200, 400, and 800 milliseconds. Replica one has cumulative\ncounts 50, 90, 100, 100. Replica two has 5, 15, 35, 40. Replica three has 1, 2, 8,\n10. Add matching buckets: 50 plus 5 plus 1 is 56; 90 plus 15 plus 2\nis 107; 100 plus 35 plus 8 is 143; and 100 plus 40\nplus 10 is 150. For p95, rank equals 0.95 times 150,\nor 142.5. That rank lies in the 200-to-400 millisecond bucket. Linear\ninterpolation gives 200 plus ((142.5 minus 107) divided by (143 minus 107)) times\n200, which is 397.22 milliseconds. This is an estimate, assuming observations are\nspread within the bucket. The fixture has 143 of 150 requests at or below 400\nmilliseconds, or 95.333 percent, so it passes a synthetic 95 percent latency\nobjective by about 0.333 percentage points. If two of the same 150 requests\nwere unsuccessful, 148 divided by 150 equals 98.667 percent, which fails a\nseparate 99 percent success objective. Do not remove failures from a denominator\nunless the indicator contract explicitly justifies it. The synthetic cost example\nis three replicas for half an hour, at a fictional accelerator rate of two\ndollars per replica-hour and fictional host rate of forty cents per replica-hour.\nAccelerator cost is 3 times 0.5 times 2, or 3 dollars. Host cost is 3 times 0.5\ntimes 0.40, or 0.60 dollars. Add fictional storage of 0.05 and\nnetwork of 0.10 to get 3.75 dollars. For 15,000 completed requests, 3.75\ndivided by 15,000 is 0.00025 dollars per request. These are teaching inputs, not\nprovider prices or production measurements. Alert on symptoms that require action:\nuser-visible objective burn, critical safety or security outcomes, sustained\nqueueing or rejection, memory pressure, unavailable replicas, exact identity\nmismatch, telemetry loss, cost anomalies, and failed recovery checks. Every alert\nneeds a symptom, owner, severity, population, threshold and duration, safe\nfirst action, runbook, evidence links, escalation, and recovery condition. Five\npaper-tested examples are useful. A latency burn alert routes to serving\non-call and checks queueing and saturation before scaling or rollback. A policy-deny\nanomaly routes to safety and security with policy version and disposition counts,\nwithout content. A queue alert fires only when p95 queue time and rejection rate are\nboth elevated for ten minutes. An identity mismatch alert fires on any\nartifact, runtime, configuration, or release digest outside the approved route\nmanifest. A telemetry-loss or cost anomaly alert includes missing-series evidence and\nallocation inputs. Test firing, routing, deduplication, planned-maintenance\nsuppression, escalation timers, permissions, and recovery notifications.\nMissing telemetry is not proof of health. Recovery must test affected outcomes, not\nmerely the existence of a rollback command. Now build the privacy-conscious\nobservability contract. Write ten operator questions and map each to signals, exact\nidentities, bounded dimensions, owner, decision, and retention. Define request,\nmodel, release, policy, latency, queue, error, saturation, and cost fields with\nstability and cardinality limits. Classify every field as required metadata, derived\nmeasurement, optional sensitive content, or prohibited secret. Design latency and\nsize histograms, objective calculations, and cost allocation for three replicas\nwithout averaging quantiles. Create five alerts and paper-test firing, routing,\nevidence, safe first action, runbook, escalation, telemetry-loss behavior, and\nrecovery. Your work is complete only when it answers all ten questions and states\nfield type, stability, enum, range, and cardinality. Here is a worked contract. For approved\nbuild, use startup inventory and request identity, exact model, tokenizer, runtime,\nconfiguration, adapter, and release identities, with environment, route, and\nrelease dimensions. The release owner isolates or rolls back; example retention\nis 90 days for inventory and 30 days for request metadata. For valid outcomes,\nuse status and outcome counters by route, operation, model, release, and bounded\noutcome; product reliability staff retain or halt a release for 30 days. For a\nfailing reviewed slice, use evaluation and outcome counters with evaluation-set\nversion, release, bounded locale, route, and workload class; the evaluation lead\nblocks promotion or commissions tests for 90 days. For time spent, use gateway,\nqueue, first-output, processing, tool, and end-to-end histograms plus request-linked\ntraces. The performance owner tunes the measured stage; metrics remain 90 days and\nsampled traces 7 days. For queued or rejected work, use queue histograms, depth\ngauges, and rejection counters with bounded rejection reasons; the capacity\nowner shapes traffic or adds reviewed capacity for 30 days. For saturation, use\naccelerator and host utilization, memory headroom, storage, and network activity;\nthe infrastructure owner changes placement or limits for 30 days. For quality or\nsecurity change, retain before-and-after outcomes, policy and evaluation fixtures,\nold and new exact bundles, policy version, bounded test suite, and disposition for\n180 days. For cost change, use metered resource time and charge allocation by\nworkload, route, model, release, and bounded tenant class; finance operations\ninvestigates for 13 months subject to policy. For recovery, use backup, restore,\nrollback, and probe events with elapsed-time histograms; the resilience\nowner accepts or remediates for 180 days. For incident scope and reproduction,\ncorrelate governed traces, deployment events, deterministic probes, request or\nrun identifiers, exact bundles, route, status, and bounded error category under\nthe approved incident schedule. The field contract is obs-contract/v1. The request\nidentifier is required application metadata and prohibited as a metric label.\nBuild digests and release identifiers have at most 20 active values per environment.\nPolicy disposition is limited to allow, deny, review, error, and unknown, with at\nmost 20 active policy versions. Latency and queue measurements are finite from 0\nthrough 3,600,000 milliseconds and use configured buckets. Error category is\nlimited to none, timeout, overload, invalid request, policy, dependency,\ninternal, and unknown. Saturation is finite from 0 through 1. Allocated cost is\nfinite and nonnegative. Unknown enums and types are rejected or mapped explicitly to\nunknown at the adapter boundary. Cardinality alarms compare active series\nwith the contract budget. Privacy review covers access, retention, redaction,\nencryption, sampling, deletion, audit, and support bundles. Deny-all, removed\nvalidation, or an unowned dashboard does not pass. Before seeing the answer, inspect\nchanged.json. Write down its cumulative bucket totals and predict whether\ntraffic-weighted aggregation will be higher or lower than equal averaging of\nreplica p95 estimates. Explain your prediction using the fact that replica\nthree carries 25 requests and places most of them in the first two buckets. Then\nstate the postcondition your repair must preserve: validation remains active, all\ncompatible traffic remains in the population, and p95 is estimated once from\nsummed cumulative buckets. This deterministic Node 22 native module\nlab has no dependencies, network calls, model calls, or live integration. The\nfocused defect averages per-replica p95 estimates. Unequal traffic means equal\nreplica weighting does not represent the combined request population. The repair\nmust validate compatible cumulative buckets, sum matching counts, and estimate\np95 once. Preserve the export aggregateP95 and its result schema. Edit only the\naggregate implementation. Do not edit the validator, fixtures, or immutable tests.\nThe validator checks schema, unit, window, exact identities, unknown fields, finite\nranges, monotonic cumulative counts, duplicate replica identifiers, missing\nrecords, and compatible bucket bounds. A constant, deny-all result, discarded\ntraffic, removed validation, or changed test is not a repair. The root-relative\nstarter command is shown visually. Supplied starter evidence is exit 1 with\nempty standard error and standard output: FAIL baseline aggregate: expected 397.22,\nreceived 546.67; FAIL changed-input aggregate: expected 375.00, received\n391.67; PASS 6 tests; RESULT failed=2 passed=6. The repaired tests exit 0 with\nempty standard error and standard output: PASS 8 tests; RESULT failed=0 passed=8.\nThe baseline input has replicas with 100, 40, and 10 requests and cumulative counts\n[50,90,100,100], [5,15,35,40], and [1,2,8,10]. The changed input has\ncumulative sums [29,47,53,55]. Its third replica has most of 25 requests in the\nfirst two buckets, while replicas one and two have slower tails. The changed\nanswer is 375.00 milliseconds. If baseline passes but changed input fails, the\nimplementation likely memorized the baseline or retained replica-level\nweighting. The answer key is: baseline sums [56,107,143,150], rank 142.5,\nestimate 397.22 milliseconds. Changed sums [29,47,53,55], rank 52.25, estimate 375.00\nmilliseconds in the 200-to-400 millisecond bucket. The finite final bound covers\nthese fixtures only. Production ingestion needs complete overflow or count evidence.\nThese local values are not production claims. Real integration would collect\nauthenticated telemetry from a deployed gateway, adapter, runtime, and metrics\nbackend, preserve exact identities, and validate exporter behavior. The lab does\nnot establish that any model family, runtime, hosted service, billing system,\nor production telemetry works. Distinct model families and a runtime project also\ndo not share a telemetry or security contract. Capture actual artifact,\nruntime, adapter, configuration, and release identities for each deployment. Now compare your reasoning with the\nsupplied answer. The changed cumulative buckets sum to 29, 47, 53, and 55. The p95\nrank is 0.95 times 55, or 52.25. It lies in the 200-to-400\nmillisecond bucket. Linear interpolation gives 200 plus ((52.25 minus 47) divided\nby (53 minus 47)) times 200, which equals 375.00 milliseconds. The result is\nlower than the defective 391.67 millisecond average because the busiest\nreplica has the faster distribution. Equal weighting gives each replica one vote, but\nthe combined population gives each request one vote. A correct implementation also\nrejects malformed input, preserves compatible observations, and keeps the\nfinal finite-bound postcondition for these fixtures. Deny-all is not a repair because\nit discards valid traffic and hides operational behavior. Removing validation\nis not a repair because malformed or incompatible inputs can corrupt the\ndistribution. The result is a causal explanation, not merely a memorized\nnumber. Begin the knowledge check when you can\nstart from operational questions, preserve exact release identity, defend content\nminimization, interpret latency distributions, avoid averaging replica\nquantiles, and design an actionable alert. The check uses the six supplied questions.\nChoose Begin knowledge check when you are ready. It will not start or submit\nautomatically. Remember the operating rule: collect only\nsignals that answer owned questions, connect them to the exact serving build,\nprotect the data boundary, measure distributions and cost honestly, preserve\ndenominators and validation, and test every alert through recovery. Synthetic\narithmetic can teach reasoning, but it cannot prove a production integration. Use\nevidence that is bounded, attributable, and sufficient for the decision.",
+    "reducedMotionAlternative": "Show the objectives simultaneously as a static text panel. Display the entire mapping as a static table and emphasize rows with text and borders. Show all correlated rows simultaneously as a static table. Present the diagnosis as a numbered static evidence table. Display the lifecycle as a static table with four field classes. Provide exact histogram bucket counts and cost values in labeled static tables. Show all equations and values in static selectable text. Use a static alert contract table with every response field visible. Display the ten rows and contract definitions as static selectable text. Show the inputs, commands, restrictions, and expected outputs as static selectable text. Show the closing rule as static text with no animation."
+  }
 }

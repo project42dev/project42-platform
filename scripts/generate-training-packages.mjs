@@ -26,7 +26,7 @@ async function persistOrCheck(outputPath, content) {
         `Generated training artifact is missing: ${outputPath.slice(root.length + 1)}`,
       );
     }
-    if (committed !== content) {
+    if (committed.replaceAll("\r\n", "\n") !== content.replaceAll("\r\n", "\n")) {
       throw new Error(
         `Generated training artifact is stale: ${outputPath.slice(root.length + 1)}`,
       );

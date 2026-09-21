@@ -71,6 +71,32 @@ function runCheck(platformRoot, upstreamRoot) {
   }
 }
 
+for (const scenario of ["matching malformed", "changed malformed", "changed date", "missing fixture"]) {
+  test(`exercise fixture parity: ${scenario}`, () => {
+    const dates = { resource: "2026-07-26", source: "2026-07-26" };
+    const upstream = makeUpstream(dates);
+    const platform = makePlatform(dates, upstream.head);
+    const relative = "training/field-guides/example/fixtures/input.json";
+    const original = scenario === "changed date" ? '{"observedAt":"2026-07-26"}\n' : '{"invalid":true,\n}\n';
+    const changed = scenario === "changed malformed" ? '{"invalid":false,\n}\n'
+      : scenario === "changed date" ? '{"observedAt":"2026-08-23"}\n' : original.replace(/\n/g, "\r\n");
+    try {
+      mkdirSync(path.dirname(path.join(upstream.root, relative)), { recursive: true });
+      writeFileSync(path.join(upstream.root, relative), original);
+      if (scenario !== "missing fixture") {
+        mkdirSync(path.dirname(path.join(platform, "content", relative)), { recursive: true });
+        writeFileSync(path.join(platform, "content", relative), changed);
+      }
+      const result = runCheck(platform, upstream.root);
+      assert.equal(result.status, scenario === "matching malformed" ? 0 : 1, result.output);
+      if (scenario !== "matching malformed") assert.match(result.output, /fixture (content differs|missing)/);
+    } finally {
+      rmSync(platform, { recursive: true, force: true });
+      rmSync(upstream.root, { recursive: true, force: true });
+    }
+  });
+}
+
 test("a served review date that upstream does not record fails the check", () => {
   const upstream = makeUpstream({ resource: "2026-07-26", source: "2026-07-26" });
   // The incident in miniature: the platform serves the mechanical uplift,

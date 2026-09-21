@@ -1,0 +1,382 @@
+.lesson {
+  --surface: var(--p42-surface-card, Canvas);
+  --soft: var(--p42-interactive-muted, Canvas);
+  --text: var(--p42-text-body, CanvasText);
+  --border: var(--p42-border-soft, CanvasText);
+  --button: var(--p42-secondary-btn-bg, ButtonFace);
+  --button-text: var(--p42-secondary-btn-fg, ButtonText);
+  box-sizing: border-box;
+  display: grid;
+  gap: 1.25rem;
+  max-width: 100%;
+  color: var(--text);
+  font-size: max(1rem, 16px);
+  line-height: 1.55;
+}
+
+.lesson *,
+.lesson *::before,
+.lesson *::after {
+  box-sizing: border-box;
+}
+
+.panel,
+.status,
+.diagram {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+  color: inherit;
+}
+
+.panel {
+  padding: clamp(1rem, 3vw, 1.75rem);
+}
+
+.panel h2,
+.panel h3,
+.panel h4,
+.panel h5 {
+  margin-block: 0.25rem 0.65rem;
+  line-height: 1.22;
+}
+
+.panel p,
+.panel li {
+  max-width: 92ch;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: max(0.75rem, 12px);
+  font-weight: 750;
+  letter-spacing: 0.065em;
+  text-transform: uppercase;
+}
+
+.notice {
+  border-inline-start: 0.3rem solid currentColor;
+  padding: 0.8rem 1rem;
+  background: var(--soft);
+  font-weight: 650;
+}
+
+.status {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+}
+
+.diagram {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(10rem, 15rem));
+  grid-template-areas:
+    ". W ."
+    ". C ."
+    ". M ."
+    ". E ."
+    "Q O P"
+    ". D ."
+    ". R ."
+    ". V .";
+  justify-content: center;
+  gap: 4.25rem 1.25rem;
+  min-height: 0;
+  overflow: hidden;
+  padding: 1.25rem 5.5rem 5rem;
+  isolation: isolate;
+}
+
+.connectors {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.connector {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.arrowHead {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+.node {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.6rem;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 5.25rem;
+  border: 1px solid currentColor;
+  border-radius: 0.6rem;
+  padding: 0.8rem 1rem;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  font-size: max(0.875rem, 14px);
+  text-align: start;
+  cursor: pointer;
+}
+
+.node span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.node[data-kind="decision"] {
+  border-radius: 1rem 0.45rem;
+}
+
+.node[data-kind="terminal"] {
+  border-style: double;
+  border-width: 3px;
+}
+
+.node[aria-pressed="true"] {
+  outline: 0.2rem solid currentColor;
+  outline-offset: 0.15rem;
+  background: var(--soft);
+}
+
+.node[data-node="W"] { grid-area: W; }
+.node[data-node="C"] { grid-area: C; }
+.node[data-node="M"] { grid-area: M; }
+.node[data-node="E"] { grid-area: E; }
+.node[data-node="Q"] { grid-area: Q; }
+.node[data-node="O"] { grid-area: O; }
+.node[data-node="P"] { grid-area: P; }
+.node[data-node="D"] { grid-area: D; }
+.node[data-node="R"] { grid-area: R; }
+.node[data-node="V"] { grid-area: V; }
+
+.edgeLabel {
+  position: absolute;
+  z-index: 3;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.16rem 0.45rem;
+  background: var(--surface);
+  color: inherit;
+  font-size: max(0.75rem, 12px);
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  pointer-events: none;
+}
+
+.shortReturnLabel,
+.yesLabel {
+  width: auto;
+  min-width: 2.25rem;
+  white-space: nowrap;
+}
+
+.changeLabel {
+  width: 13rem;
+  max-width: calc(100% - 1.5rem);
+  border-radius: 0.5rem;
+  overflow-wrap: anywhere;
+}
+
+.cards,
+.practiceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 23rem), 1fr));
+  gap: 1rem;
+  margin-block-start: 1rem;
+}
+
+.artifact,
+.practice,
+.feedback {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  padding: 1rem;
+  background: var(--soft);
+}
+
+.preserve {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+dl {
+  display: grid;
+  gap: 0.65rem;
+  margin-block-end: 0;
+}
+
+dl div {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.38fr) minmax(0, 1fr);
+  gap: 0.75rem;
+  border-block-start: 1px solid var(--border);
+  padding-block-start: 0.6rem;
+}
+
+dt {
+  font-weight: 700;
+}
+
+dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.practice fieldset {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.practice button,
+.feedback button,
+.actions button {
+  border: 1px solid currentColor;
+  border-radius: 0.45rem;
+  padding: 0.75rem 1rem;
+  background: var(--button);
+  color: var(--button-text);
+  font: inherit;
+  font-weight: 650;
+  text-align: start;
+  cursor: pointer;
+}
+
+.feedback {
+  margin-block-start: 1rem;
+  border-width: 2px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-block-start: 1rem;
+}
+
+.sources {
+  display: grid;
+  gap: 1rem;
+}
+
+.sources strong,
+.sources span {
+  display: block;
+}
+
+.node:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+a:focus-visible,
+h3:focus,
+.feedback:focus {
+  outline: 0.2rem solid currentColor;
+  outline-offset: 0.2rem;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 64rem) {
+  .status {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .diagram {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "W"
+      "C"
+      "M"
+      "E"
+      "Q"
+      "O"
+      "P"
+      "D"
+      "R"
+      "V";
+    justify-content: stretch;
+    gap: 4rem;
+    padding: 1rem 3rem 6rem 3rem;
+  }
+
+  .node {
+    min-height: 4.8rem;
+  }
+
+  dl div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 23.5rem) {
+  .diagram {
+    gap: 3.75rem;
+    padding-inline: 2.75rem 0.75rem;
+  }
+
+  .node {
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    padding-inline: 0.7rem;
+  }
+
+  .changeLabel {
+    width: 12.5rem;
+  }
+}
+
+@media (forced-colors: active) {
+  .lesson {
+    --surface: Canvas;
+    --soft: Canvas;
+    --text: CanvasText;
+    --border: ButtonText;
+    --button: ButtonFace;
+    --button-text: ButtonText;
+  }
+
+  .panel,
+  .status,
+  .diagram,
+  .node,
+  .edgeLabel,
+  .artifact,
+  .practice,
+  .feedback,
+  button {
+    forced-color-adjust: auto;
+  }
+}

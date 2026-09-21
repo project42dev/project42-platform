@@ -187,10 +187,45 @@ test("publishes six source-backed prompting and context field guides", () => {
     assert.ok(resource.audience.length > 0);
     assert.equal(resource.owner, "project42-editorial");
     assert.ok(resource.prerequisites);
-    assert.equal(resource.sections.length, 3);
+    assert.ok(resource.sections.length >= 3);
+
+    const sectionIds = resource.sections.map((section) => section.id);
+    assert.ok(
+      sectionIds.every(
+        (id) => typeof id === "string" && id.trim().length > 0,
+      ),
+      `${resource.id} must have nonempty section IDs`,
+    );
+    assert.equal(
+      new Set(sectionIds).size,
+      sectionIds.length,
+      `${resource.id} must have unique section IDs`,
+    );
+    assert.ok(
+      resource.sections.every(
+        (section) =>
+          Array.isArray(section.paragraphs) &&
+          section.paragraphs.length > 0 &&
+          section.paragraphs.every(
+            (paragraph) =>
+              typeof paragraph === "string" && paragraph.trim().length > 0,
+          ),
+      ),
+      `${resource.id} must have meaningful paragraph content in every section`,
+    );
     assert.ok(
       resource.sections.some((section) =>
-        section.title.toLowerCase().includes("expected result and verification"),
+        section.id === "expected-result-and-verification"
+          ? (Array.isArray(section.paragraphs) &&
+              section.paragraphs.some(
+                (paragraph) =>
+                  typeof paragraph === "string" && paragraph.trim().length > 0,
+              )) ||
+            (section.code?.code?.trim().length > 0 &&
+              section.code?.label?.toLowerCase().includes("expected"))
+          : section.title
+              .toLowerCase()
+              .includes("expected result and verification"),
       ),
       `${resource.id} must state its expected result and verification`,
     );
@@ -246,7 +281,50 @@ test("prompting and context templates preserve safety and evidence boundaries", 
     (section) => section.id === "define-output-envelope",
   )?.code?.code;
   assert.ok(envelope);
-  assert.equal(JSON.parse(envelope).contractVersion, "1.0");
+  const schema = JSON.parse(envelope);
+  assert.equal(
+    schema.$schema,
+    "https://json-schema.org/draft/2020-12/schema",
+  );
+  assert.equal(schema.type, "object");
+  assert.equal(schema.additionalProperties, false);
+  assert.deepEqual(schema.required, [
+    "contractVersion",
+    "status",
+    "result",
+    "evidence",
+    "assumptions",
+    "warnings",
+    "nextAction",
+  ]);
+  assert.equal(schema.required.length, 7);
+  assert.equal(schema.properties.contractVersion.const, "1.0");
+  assert.deepEqual(schema.properties.status.enum, [
+    "complete",
+    "needs-input",
+    "blocked",
+  ]);
+  assert.equal(schema.properties.evidence.minItems, 1);
+  assert.equal(schema.properties.evidence.items.type, "object");
+  assert.deepEqual(schema.properties.evidence.items.required, [
+    "claim",
+    "source",
+  ]);
+
+  const validationLab = structured?.sections.find(
+    (section) => section.id === "run-validation-lab",
+  );
+  assert.equal(validationLab?.code?.language, "python");
+  assert.ok(validationLab?.code?.code.includes("Draft202012Validator"));
+  assert.ok(validationLab?.code?.code.includes("def validate_case"));
+  assert.ok(validationLab?.code?.code.includes("variation-changed-outcome"));
+
+  const expectedOutput = structured?.sections.find(
+    (section) => section.id === "expected-result-and-verification",
+  );
+  assert.equal(expectedOutput?.code?.language, "text");
+  assert.ok(expectedOutput?.code?.code.trim().length > 0);
+  assert.ok(expectedOutput?.code?.code.includes("all-fixtures: PASS"));
 });
 
 test("publishes five source-backed research and verification field guides", () => {
@@ -257,6 +335,75 @@ test("publishes five source-backed research and verification field guides", () =
     ["fact-verification-workflow", "playbook"],
     ["consequence-based-review-gate", "decision-path"],
   ]);
+  const originalContracts = {
+  "source-authority-ladder": {
+    "sectionIds": [
+      "rank-for-the-claim",
+      "record-source-decision",
+      "verify-source-set"
+    ],
+    "template": "Claim: [ONE MATERIAL CLAIM]\nSource: [TITLE AND URL OR SAFE INTERNAL ID]\nOwner or issuer: [ORGANIZATION]\nSource type: [PRIMARY | SECONDARY | AGGREGATOR]\nDirectness: [DIRECTLY STATES | SUPPORTS INFERENCE | BACKGROUND ONLY]\nScope: [PRODUCT, VERSION, REGION, POPULATION]\nPublished or updated: [DATE IF AVAILABLE]\nVerified on: [YYYY-MM-DD]\nIndependence: [INTEREST OR CONFLICT TO CONSIDER]\nDecision: [USE | CORROBORATE | BACKGROUND | REJECT]\nReason: [WHY THIS SOURCE FITS THIS CLAIM]"
+  },
+  "claim-decomposition-map": {
+    "sectionIds": [
+      "separate-claim-types",
+      "build-claim-map",
+      "verify-claim-map"
+    ],
+    "template": "Claim ID: [C-001]\nAtomic claim: [ONE CHECKABLE STATEMENT]\nType: [FACT | DEFINITION | COMPARISON | CAUSAL | PREDICTION | RECOMMENDATION | VALUE]\nScope: [WHO, WHAT, WHEN, WHERE, VERSION]\nMateriality: [LOW | MEDIUM | HIGH]\nEvidence needed: [OWNER DOC | DATA | EXPERIMENT | MULTIPLE SOURCES | EXPERT REVIEW]\nSource or evidence ID: [URL OR SAFE ID]\nSupport: [DIRECT | INFERRED | CONTRADICTED | UNKNOWN]\nConfidence and reason: [CALIBRATED STATEMENT]\nDepends on: [OTHER CLAIM IDS]\nDisposition: [KEEP | QUALIFY | REMOVE | ESCALATE]"
+  },
+  "citation-support-checklist": {
+    "sectionIds": [
+      "check-four-layers",
+      "run-citation-audit",
+      "verify-citation-set"
+    ],
+    "template": "Claim ID: [C-001]\nCitation: [URL OR SAFE SOURCE ID]\nResolves: [YES | NO]\nIdentity matches: [TITLE, PUBLISHER, VERSION, DATE]\nSupporting passage: [SAFE QUOTE LOCATION OR SECTION]\nSupport strength: [DIRECT | PARTIAL | BACKGROUND | CONTRADICTS]\nScope matches: [YES | QUALIFICATION NEEDED]\nPlacement unambiguous: [YES | NO]\nAccessible alternative: [HTML OR TEXT AVAILABLE]\nAction: [KEEP | REPLACE | QUALIFY | REMOVE]"
+  },
+  "fact-verification-workflow": {
+    "sectionIds": [
+      "verify-in-bounded-steps",
+      "record-verification",
+      "verify-the-verification"
+    ],
+    "template": "Claim: [ATOMIC CLAIM]\nAs of: [YYYY-MM-DD]\nConsequence if wrong: [LOW | MEDIUM | HIGH]\nConfirming evidence: [SOURCE OR TEST ID]\nContradicting evidence sought: [QUERY OR SOURCE]\nReproduction: [VERSION, CONFIGURATION, INPUT CLASS, STEPS]\nCalculation: [FORMULA, UNITS, DENOMINATOR]\nObserved result: [SAFE RESULT]\nInference: [WHAT FOLLOWS AND WHAT DOES NOT]\nConfidence: [HIGH | MEDIUM | LOW WITH REASON]\nDisposition: [CONFIRMED | QUALIFIED | DISPROVED | UNKNOWN]\nReviewer and date: [OWNER, YYYY-MM-DD]"
+  },
+  "consequence-based-review-gate": {
+    "sectionIds": [
+      "classify-consequence",
+      "complete-review-gate",
+      "verify-gate"
+    ],
+    "template": "Output or action: [WHAT WILL BE USED OR DONE]\nAffected people and systems: [SCOPE]\nCredible harms: [SAFETY, RIGHTS, PRIVACY, MONEY, OPERATIONS, SECURITY]\nReversibility and recovery time: [ASSESSMENT]\nConsequence level: [LOW | MODERATE | HIGH]\nRequired evidence: [SOURCES, TESTS, REPRODUCTION]\nRequired reviewer: [PEER | DOMAIN EXPERT | SECURITY | LEGAL | OWNER]\nApproval before action: [ROLE OR NONE]\nExecution boundary: [READ-ONLY | REVERSIBLE | PRIVILEGED | EXTERNAL]\nMonitoring and stop signal: [OBSERVABLE CONDITION]\nRollback or recovery: [TESTED PROCEDURE]\nDecision: [APPROVE | REVISE | REJECT | ESCALATE]"
+  }
+};
+  const originalSourceUrls = {
+  "source-authority-ladder": [
+    "https://www.nist.gov/itl/ai-risk-management-framework",
+    "https://www.ala.org/acrl/standards/ilframework",
+    "https://www.w3.org/TR/prov-overview/"
+  ],
+  "claim-decomposition-map": [
+    "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
+    "https://developers.openai.com/api/docs/guides/evaluation-best-practices",
+    "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+  ],
+  "citation-support-checklist": [
+    "https://developers.openai.com/api/docs/guides/citation-formatting",
+    "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool",
+    "https://ai.google.dev/gemini-api/docs/google-search"
+  ],
+  "fact-verification-workflow": [
+    "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
+    "https://developers.openai.com/api/docs/guides/evaluation-best-practices",
+    "https://ai.google.dev/responsible/docs/evaluation"
+  ],
+  "consequence-based-review-gate": [
+    "https://www.nist.gov/itl/ai-risk-management-framework",
+    "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
+    "https://ai.google.dev/responsible/docs/evaluation"
+  ]
+};
   const resources = starterCatalog.resources.filter((resource) =>
     expected.has(resource.id),
   );
@@ -268,7 +415,18 @@ test("publishes five source-backed research and verification field guides", () =
     assert.ok(resource.providers.includes("provider-neutral"));
     assert.ok(resource.prerequisites.length > 0);
     assert.equal(resource.owner, "project42-editorial");
-    assert.equal(resource.sections.length, 3);
+    const contract = originalContracts[resource.id];
+    const sectionIds = new Set(resource.sections.map((section) => section.id));
+    assert.equal(sectionIds.size, resource.sections.length, resource.id + " has duplicate sections");
+    for (const id of contract.sectionIds) assert.ok(sectionIds.has(id), resource.id + " lost section " + id);
+    for (const originalLine of contract.template.split("\n")) {
+      const separator = originalLine.indexOf(": ");
+      const label = originalLine.slice(0, separator);
+      const options = originalLine.slice(separator + 2).replace(/[\[\]]/g, "").split(" | ");
+      const templateLine = resource.sections.flatMap((section) => section.code?.code.split("\n") ?? []).find((line) => line.startsWith(label + ": "));
+      assert.ok(templateLine, resource.id + " lost original template field " + label);
+      for (const option of options) assert.ok(templateLine.includes(option), resource.id + " lost original template option " + option);
+    }
     assert.ok(
       resource.sections.some((section) =>
         section.title.toLowerCase().includes("expected evidence"),
@@ -279,7 +437,9 @@ test("publishes five source-backed research and verification field guides", () =
       resource.sections.some((section) => section.code?.code.includes("[")),
       `${resource.id} must include a safe reusable record`,
     );
-    assert.equal(resource.sources.length, 3);
+    const sourceUrls = new Set(resource.sources.map((source) => source.url));
+    assert.equal(sourceUrls.size, resource.sources.length, resource.id + " has duplicate sources");
+    for (const url of originalSourceUrls[resource.id]) assert.ok(sourceUrls.has(url), resource.id + " lost original source " + url);
     assert.ok(
       resource.sources.every((source) => /^\d{4}-\d{2}-\d{2}$/.test(source.lastVerified)),
     );
@@ -333,39 +493,138 @@ test("research guides distinguish evidence from unsupported confidence", () => {
 
 test("publishes six source-backed AI coding-agent field guides", () => {
   const expected = new Map([
-    ["repository-orientation-checklist", "checklist"],
-    ["coding-agent-work-plan-template", "template"],
-    ["coding-agent-permission-boundaries", "decision-path"],
-    ["implementation-evidence-loop", "playbook"],
-    ["ai-assisted-code-review-checklist", "checklist"],
-    ["test-debug-handoff", "template"],
+    ["repository-orientation-checklist", {
+      format: "checklist",
+      sectionIds: ["establish-authority", "map-the-system", "verify-orientation"],
+      sourceUrls: [
+        "https://learn.chatgpt.com/docs/agent-configuration/agents-md",
+        "https://code.claude.com/docs/en/memory",
+        "https://geminicli.com/docs/cli/gemini-md/",
+      ],
+    }],
+    ["coding-agent-work-plan-template", {
+      format: "template",
+      sectionIds: ["plan-from-outcomes", "record-work-plan", "verify-plan"],
+      sourceUrls: [
+        "https://geminicli.com/docs/cli/plan-mode/",
+        "https://learn.chatgpt.com/docs/agent-configuration/agents-md",
+        "https://csrc.nist.gov/pubs/sp/800/218/final",
+      ],
+    }],
+    ["coding-agent-permission-boundaries", {
+      format: "decision-path",
+      sectionIds: ["classify-actions", "record-boundary", "verify-boundary"],
+      sourceUrls: [
+        "https://code.claude.com/docs/en/permissions",
+        "https://learn.chatgpt.com/docs/agent-approvals-security",
+        "https://geminicli.com/docs/cli/trusted-folders/",
+      ],
+    }],
+    ["implementation-evidence-loop", {
+      format: "playbook",
+      sectionIds: ["work-in-evidence-loops", "record-evidence-loop", "verify-implementation"],
+      sourceUrls: [
+        "https://csrc.nist.gov/pubs/sp/800/218/final",
+        "https://docs.github.com/en/pull-requests/get-started/about-pull-requests",
+        "https://learn.chatgpt.com/docs/agent-approvals-security",
+      ],
+    }],
+    ["ai-assisted-code-review-checklist", {
+      format: "checklist",
+      sectionIds: ["review-the-change", "record-review", "verify-review"],
+      sourceUrls: [
+        "https://docs.github.com/en/pull-requests/reference/pull-request-reviews?apiVersion=2022-11-28",
+        "https://code.claude.com/docs/en/code-review",
+        "https://csrc.nist.gov/pubs/sp/800/218/final",
+      ],
+    }],
+    ["test-debug-handoff", {
+      format: "template",
+      sectionIds: ["stabilize-the-handoff", "record-handoff", "verify-handoff"],
+      sourceUrls: [
+        "https://csrc.nist.gov/pubs/sp/800/218/final",
+        "https://docs.github.com/en/pull-requests/get-started/about-pull-requests",
+        "https://geminicli.com/docs/reference/tools/",
+      ],
+    }],
   ]);
-  const resources = starterCatalog.resources.filter((resource) =>
-    expected.has(resource.id),
-  );
 
+  const resources = starterCatalog.resources.filter((resource) => expected.has(resource.id));
   assert.ok(starterCatalog.resources.length >= 24);
-  assert.equal(resources.length, expected.size);
+  assert.equal(resources.length, 6);
+  assert.equal(new Set(resources.map((resource) => resource.id)).size, 6);
+  assert.deepEqual(new Set(resources.map((resource) => resource.id)), new Set(expected.keys()));
+
+  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+  const isValidDate = (value) => {
+    if (typeof value !== "string" || !datePattern.test(value)) return false;
+    const [year, month, day] = value.split("-").map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    return date.getUTCFullYear() === year &&
+      date.getUTCMonth() === month - 1 &&
+      date.getUTCDate() === day;
+  };
+
   for (const resource of resources) {
-    assert.equal(resource.format, expected.get(resource.id));
+    const contract = expected.get(resource.id);
+    assert.equal(resource.format, contract.format);
+    assert.ok(Array.isArray(resource.providers));
     assert.ok(resource.providers.includes("provider-neutral"));
+    assert.ok(Array.isArray(resource.prerequisites));
     assert.ok(resource.prerequisites.length > 0);
     assert.equal(resource.owner, "project42-editorial");
-    assert.equal(resource.sections.length, 3);
-    assert.ok(
-      resource.sections.some((section) =>
-        section.title.toLowerCase().includes("expected evidence"),
-      ),
-      `${resource.id} must define expected evidence`,
-    );
-    assert.ok(
-      resource.sections.some((section) => section.code?.code.includes("[")),
-      `${resource.id} must include a safe reusable record`,
-    );
-    assert.equal(resource.sources.length, 3);
-    assert.ok(
-      resource.sources.every((source) => /^\d{4}-\d{2}-\d{2}$/.test(source.lastVerified)),
-    );
+    assert.ok(Array.isArray(resource.sections));
+    assert.ok(resource.sections.length >= contract.sectionIds.length);
+
+    const resourceSectionIds = new Set(resource.sections.map((section) => section.id));
+    assert.equal(resourceSectionIds.size, resource.sections.length, `${resource.id} has duplicate section IDs`);
+    for (const sectionId of contract.sectionIds) {
+      assert.ok(resourceSectionIds.has(sectionId), `${resource.id} is missing original section ${sectionId}`);
+    }
+
+    let hasExpectedEvidenceGuidance = false;
+    let hasSafeReusableRecord = false;
+    for (const section of resource.sections) {
+      assert.equal(typeof section.id, "string");
+      assert.ok(section.id.trim().length > 0);
+      assert.equal(typeof section.title, "string");
+      assert.ok(section.title.trim().length > 0);
+      assert.ok(Array.isArray(section.paragraphs));
+      assert.ok(section.paragraphs.length > 0, `${resource.id}/${section.id} needs explanatory paragraphs`);
+      for (const paragraph of section.paragraphs) {
+        assert.equal(typeof paragraph, "string");
+        assert.ok(paragraph.trim().length > 0, `${resource.id}/${section.id} has an empty paragraph`);
+      }
+
+      const paragraphText = section.paragraphs.join(" ").toLowerCase();
+      if ((section.title + " " + paragraphText).toLowerCase().includes("expected evidence")) {
+        hasExpectedEvidenceGuidance = true;
+      }
+      if (section.code != null) {
+        assert.equal(typeof section.code.code, "string", `${resource.id}/${section.id} has an invalid code block`);
+        assert.ok(section.code.code.trim().length > 0, `${resource.id}/${section.id} has an empty code block`);
+        if (section.code.code.includes("[") && section.code.code.includes("]")) {
+          hasSafeReusableRecord = true;
+        }
+      }
+    }
+    assert.ok(hasExpectedEvidenceGuidance, `${resource.id} must provide expected-evidence guidance`);
+    assert.ok(hasSafeReusableRecord, `${resource.id} must include a safe reusable record`);
+
+    assert.ok(Array.isArray(resource.sources));
+    assert.ok(resource.sources.length >= contract.sourceUrls.length);
+    const sourceUrls = resource.sources.map((source) => source.url);
+    assert.equal(new Set(sourceUrls).size, sourceUrls.length, `${resource.id} has duplicate source URLs`);
+    for (const sourceUrl of contract.sourceUrls) {
+      assert.ok(sourceUrls.includes(sourceUrl), `${resource.id} must preserve source ${sourceUrl}`);
+    }
+    for (const source of resource.sources) {
+      assert.equal(typeof source.url, "string");
+      assert.ok(source.url.startsWith("https://"), `${resource.id} citations must use HTTPS`);
+      assert.doesNotThrow(() => new URL(source.url));
+      assert.ok(isValidDate(source.lastVerified), `${resource.id} citations must have a valid dated lastVerified value`);
+    }
   }
 });
 
@@ -412,38 +671,182 @@ test("coding-agent guides preserve scope, permission, and verification boundarie
 
 test("publishes five source-backed MCP and orchestration field guides", () => {
   const expected = new Map([
-    ["mcp-primitives-reference", "reference"],
-    ["mcp-server-trust-review", "checklist"],
-    ["tool-contract-design-template", "template"],
-    ["orchestration-pattern-decision-guide", "decision-path"],
-    ["agent-handoff-evidence-contract", "template"],
+    ["mcp-primitives-reference", {
+      format: "reference",
+      sectionIds: [
+        "map-mcp-roles",
+        "record-integration-map",
+        "verify-integration-map",
+      ],
+      sourceUrls: [
+        "https://modelcontextprotocol.io/docs/learn/architecture",
+        "https://modelcontextprotocol.io/docs/learn/server-concepts",
+        "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector",
+        "https://developers.openai.com/api/docs/guides/tools-connectors-mcp",
+        "https://adk.dev/tools-custom/mcp-tools/",
+      ],
+    }],
+    ["mcp-server-trust-review", {
+      format: "checklist",
+      sectionIds: [
+        "review-before-connection",
+        "record-trust-decision",
+        "verify-trust-controls",
+      ],
+      sourceUrls: [
+        "https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices",
+        "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization",
+        "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector",
+      ],
+    }],
+    ["tool-contract-design-template", {
+      format: "template",
+      sectionIds: [
+        "design-one-capability",
+        "record-tool-contract",
+        "verify-tool-contract",
+      ],
+      sourceUrls: [
+        "https://modelcontextprotocol.io/specification/2025-11-25/schema",
+        "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-reference",
+        "https://adk.dev/tools-custom/function-tools/",
+      ],
+    }],
+    ["orchestration-pattern-decision-guide", {
+      format: "decision-path",
+      sectionIds: [
+        "choose-minimum-orchestration",
+        "record-pattern-decision",
+        "verify-pattern",
+      ],
+      sourceUrls: [
+        "https://openai.github.io/openai-agents-js/guides/multi-agent/",
+        "https://code.claude.com/docs/en/agents",
+        "https://adk.dev/workflows/",
+      ],
+    }],
+    ["agent-handoff-evidence-contract", {
+      format: "template",
+      sectionIds: [
+        "transfer-control-explicitly",
+        "record-handoff",
+        "verify-handoff",
+      ],
+      sourceUrls: [
+        "https://openai.github.io/openai-agents-js/guides/handoffs/",
+        "https://code.claude.com/docs/en/sub-agents",
+        "https://adk.dev/workflows/",
+      ],
+    }],
   ]);
+
+  assert.ok(starterCatalog.resources.length >= 29);
   const resources = starterCatalog.resources.filter((resource) =>
     expected.has(resource.id),
   );
+  assert.equal(resources.length, 5);
+  assert.equal(new Set(resources.map((resource) => resource.id)).size, 5);
+  assert.equal(expected.size, 5);
 
-  assert.ok(starterCatalog.resources.length >= 29);
-  assert.equal(resources.length, expected.size);
   for (const resource of resources) {
-    assert.equal(resource.format, expected.get(resource.id));
+    const contract = expected.get(resource.id);
+    assert.ok(contract, `unexpected or missing resource id: ${resource.id}`);
+    assert.equal(resource.format, contract.format);
+    assert.ok(Array.isArray(resource.providers));
     assert.ok(resource.providers.includes("provider-neutral"));
+    assert.ok(Array.isArray(resource.prerequisites));
     assert.ok(resource.prerequisites.length > 0);
     assert.equal(resource.owner, "project42-editorial");
-    assert.equal(resource.sections.length, 3);
-    assert.ok(
-      resource.sections.some((section) =>
-        section.title.toLowerCase().includes("expected evidence"),
-      ),
-      `${resource.id} must define expected evidence`,
+
+    assert.ok(Array.isArray(resource.sections));
+    const actualSectionIds = resource.sections.map((section) => section.id);
+    for (const sectionId of contract.sectionIds) {
+      assert.ok(
+        actualSectionIds.includes(sectionId),
+        `${resource.id} must preserve original section ${sectionId}`,
+      );
+    }
+
+    const sectionIds = new Set();
+    for (const section of resource.sections) {
+      assert.ok(typeof section.id === "string" && section.id.trim().length > 0);
+      assert.equal(
+        sectionIds.has(section.id),
+        false,
+        `${resource.id} has duplicate section id: ${section.id}`,
+      );
+      sectionIds.add(section.id);
+      assert.ok(
+        typeof section.title === "string" && section.title.trim().length > 0,
+        `${resource.id}/${section.id} must have a nonempty title`,
+      );
+      assert.ok(
+        Array.isArray(section.paragraphs),
+        `${resource.id}/${section.id} must contain explanatory paragraphs`,
+      );
+      assert.ok(
+        section.paragraphs.length > 0,
+        `${resource.id}/${section.id} must contain explanatory paragraphs`,
+      );
+      for (const paragraph of section.paragraphs) {
+        assert.ok(
+          typeof paragraph === "string" && paragraph.trim().length > 0,
+          `${resource.id}/${section.id} has an empty explanatory paragraph`,
+        );
+      }
+      if (section.code !== undefined && section.code !== null) {
+        assert.ok(typeof section.code === "object");
+        assert.ok(
+          typeof section.code.code === "string" && section.code.code.trim().length > 0,
+          `${resource.id}/${section.id} has an empty code block`,
+        );
+      }
+    }
+
+    const hasExpectedEvidenceGuidance = resource.sections.some((section) => {
+      const title = typeof section.title === "string" ? section.title : "";
+      const paragraphs = Array.isArray(section.paragraphs)
+        ? section.paragraphs.join(" ")
+        : "";
+      return /expected evidence/i.test(`${title} ${paragraphs}`);
+    });
+    assert.equal(
+      hasExpectedEvidenceGuidance,
+      true,
+      `${resource.id} must define expected evidence guidance`,
     );
-    assert.ok(
-      resource.sections.some((section) => section.code?.code.includes("[")),
+
+    const hasSafeReusableRecord = resource.sections.some((section) => {
+      return section.code &&
+        typeof section.code.code === "string" &&
+        section.code.code.includes("[") &&
+        section.code.code.includes("]");
+    });
+    assert.equal(
+      hasSafeReusableRecord,
+      true,
       `${resource.id} must include a safe reusable record`,
     );
-    assert.ok(resource.sources.length >= 3);
-    assert.ok(
-      resource.sources.every((source) => /^\d{4}-\d{2}-\d{2}$/.test(source.lastVerified)),
+
+    assert.ok(Array.isArray(resource.sources));
+    const sourceUrls = resource.sources.map((source) => source.url);
+    assert.equal(
+      new Set(sourceUrls).size,
+      sourceUrls.length,
+      `${resource.id} has duplicate source URLs`,
     );
+    for (const sourceUrl of contract.sourceUrls) {
+      assert.ok(
+        sourceUrls.includes(sourceUrl),
+        `${resource.id} must preserve source URL ${sourceUrl}`,
+      );
+    }
+    for (const source of resource.sources) {
+      assert.ok(typeof source.url === "string");
+      assert.ok(/^https:\/\//.test(source.url));
+      assert.ok(typeof source.lastVerified === "string");
+      assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(source.lastVerified));
+    }
   }
 });
 
@@ -511,12 +914,27 @@ test("publishes six source-backed Anthropic and OpenAI workflow references", () 
     assert.equal(resource.owner, "project42-editorial");
     assert.equal(resource.reviewCadenceDays, 30);
     assert.match(resource.lastVerified, /^\d{4}-\d{2}-\d{2}$/);
-    assert.equal(resource.sections.length, 3);
+    if (resource.id.endsWith("-evaluation-error-triage")) {
+      const sectionIds = new Set(resource.sections.map((section) => section.id));
+      for (const id of ["build-evaluation", "triage-failure", "verify-and-recover"]) {
+        assert.ok(sectionIds.has(id), `${resource.id} retains ${id}`);
+      }
+      assert.equal(sectionIds.size, resource.sections.length);
+    } else if (resource.id.endsWith("-api-request") || resource.id.endsWith("-tools-structured-output")) {
+      const required = resource.id.endsWith("-api-request")
+        ? ["prepare-request", "send-request", "verify-and-recover"]
+        : ["choose-control", "define-contract", "verify-and-recover"];
+      const sectionIds = new Set(resource.sections.map((section) => section.id));
+      for (const id of required) assert.ok(sectionIds.has(id), `${resource.id} retains ${id}`);
+      assert.equal(sectionIds.size, resource.sections.length);
+    } else {
+      assert.equal(resource.sections.length, 3);
+    }
     assert.ok(
       resource.sections.some((section) => section.code?.code.includes("[")),
       `${resource.id} must include a reusable example or evidence record`,
     );
-    assert.equal(resource.sources.length, 3);
+    assert.ok(resource.sources.length >= 3);
     assert.ok(
       resource.sources.every((source) => /^\d{4}-\d{2}-\d{2}$/.test(source.lastVerified)),
     );
@@ -567,7 +985,10 @@ test("provider workflow references keep credentials, execution, and recovery bou
     assert.ok(text.includes(required), `provider workflow pack must cover ${required}`);
   }
   assert.doesNotMatch(text, /\bsk-[a-z0-9_-]{12,}\b/i);
-  assert.doesNotMatch(text, /(?:api[_ -]?key|authorization)\s*[:=]\s*["'][^$[<]/i);
+  const inlineCredential = /(?:api[_ -]?key|authorization)\s*[:=]\s*["'](?!OMITTED["'])[^$[<]/i;
+  assert.match('apiKey: "credential-value"', inlineCredential);
+  assert.doesNotMatch('apiKey: "OMITTED"', inlineCredential);
+  assert.doesNotMatch(text, inlineCredential);
   assert.doesNotMatch(text, /(?:users[\\/][^\\/]+|[a-z]:\\users\\)/i);
 });
 
@@ -585,6 +1006,18 @@ test("publishes five source-backed Google and cross-provider workflow references
       ["playbook", ["provider-neutral", "anthropic", "openai", "google"]],
     ],
   ]);
+  const originalCrossProviderSections = {
+  "cross-provider-runtime-configuration": [
+    "separate-contract-and-adapter",
+    "record-configuration",
+    "verify-and-recover"
+  ],
+  "cross-provider-evaluation-migration-workflow": [
+    "design-fair-comparison",
+    "stage-migration",
+    "verify-and-recover"
+  ]
+};
   const resources = starterCatalog.resources.filter((resource) =>
     expected.has(resource.id),
   );
@@ -599,7 +1032,26 @@ test("publishes five source-backed Google and cross-provider workflow references
     assert.equal(resource.owner, "project42-editorial");
     assert.equal(resource.reviewCadenceDays, 30);
     assert.match(resource.lastVerified, /^\d{4}-\d{2}-\d{2}$/);
-    assert.equal(resource.sections.length, 3);
+    const retainedSectionIds = originalCrossProviderSections[resource.id];
+    if (retainedSectionIds) {
+      assert.deepEqual(resource.sections.slice(0, retainedSectionIds.length).map((section) => section.id), retainedSectionIds, `${resource.id} retains its original sections`);
+      assert.equal(new Set(resource.sections.map((section) => section.id)).size, resource.sections.length, `${resource.id} has unique section IDs`);
+    } else if (resource.id.endsWith("-evaluation-error-triage")) {
+      const sectionIds = new Set(resource.sections.map((section) => section.id));
+      for (const id of ["build-evaluation", "triage-failure", "verify-and-recover"]) {
+        assert.ok(sectionIds.has(id), `${resource.id} retains ${id}`);
+      }
+      assert.equal(sectionIds.size, resource.sections.length);
+    } else if (resource.id.endsWith("-api-request") || resource.id.endsWith("-tools-structured-output")) {
+      const required = resource.id.endsWith("-api-request")
+        ? ["prepare-request", "send-request", "verify-and-recover"]
+        : ["choose-control", "define-contract", "verify-and-recover"];
+      const sectionIds = new Set(resource.sections.map((section) => section.id));
+      for (const id of required) assert.ok(sectionIds.has(id), `${resource.id} retains ${id}`);
+      assert.equal(sectionIds.size, resource.sections.length);
+    } else {
+      assert.equal(resource.sections.length, 3);
+    }
     assert.ok(
       resource.sections.some((section) => section.code?.code.includes("[")),
       `${resource.id} must include a reusable example or evidence record`,
@@ -1885,7 +2337,7 @@ test("publishes the MCP orchestration and handoff curriculum unit", () => {
     assert.ok(module);
     assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
     assert.ok(module.activity?.evidence.length >= 2, `${moduleId} needs evidence`);
-    assert.equal(module.knowledgeCheck.questions.length, 5);
+    assert.equal(module.knowledgeCheck.questions.length, moduleId === "multi-agent-handoffs" ? 8 : 5);
     assert.ok(
       new Set(module.knowledgeCheck.questions.map((question) => question.answerIndex))
         .size >= 3,
@@ -1928,7 +2380,8 @@ test("publishes distinct evaluation, observability, review, and operations modul
     assert.ok(module);
     assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
     assert.ok(module.activity?.evidence.length >= 2, `${moduleId} needs evidence`);
-    assert.equal(module.knowledgeCheck.questions.length, 5);
+    assert.equal(module.knowledgeCheck.questions.length,
+      moduleId === "agent-evaluation" ? 8 : ["agent-observability", "operate-and-recover-agent-systems"].includes(moduleId) ? 7 : 5);
     assert.ok(
       new Set(module.knowledgeCheck.questions.map((question) => question.answerIndex))
         .size >= 3,
@@ -1961,8 +2414,8 @@ test("publishes a calibrated evidence-mapped reliable-agent capstone", () => {
   assert.equal(path.moduleIds.at(-1), module.id);
   assert.ok(module.prerequisites.includes("review-agent-results"));
   assert.ok(module.prerequisites.includes("operate-and-recover-agent-systems"));
-  assert.equal(module.sections.length, 6);
-  assert.equal(module.knowledgeCheck.questions.length, 5);
+  assert.equal(module.sections.length, 8);
+  assert.equal(module.knowledgeCheck.questions.length, 7);
   assert.equal(module.instructorScript?.schemaVersion, "1.1");
   assert.equal(module.capstone.requiredArtifacts.length, 8);
   assert.equal(module.capstone.requiresCriterionEvidence, true);
@@ -2071,7 +2524,8 @@ test("catalog validation catches broken references and unsafe source metadata", 
   broken.paths[0].moduleIds.push("missing-module");
   whatAiDoes.providers = [];
   whatAiDoes.sources[0].url = "http://example.com/source";
-  whatAiDoes.sections.push(structuredClone(whatAiDoes.sections[0]));
+  const duplicatedSection = structuredClone(whatAiDoes.sections[0]);
+  whatAiDoes.sections.push(duplicatedSection);
   whatAiDoes.prerequisites = ["prompt-with-purpose"];
   broken.resources[0].lastVerified = "next Thursday";
   promptWithPurpose.prerequisites = ["what-ai-does"];
@@ -2096,7 +2550,7 @@ test("catalog validation catches broken references and unsafe source metadata", 
   );
   assert.ok(
     validation.errors.includes(
-      "Module what-ai-does has duplicate section id ai-mental-model",
+      `Module what-ai-does has duplicate section id ${duplicatedSection.id}`,
     ),
   );
   assert.ok(

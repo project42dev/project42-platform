@@ -3,24 +3,24 @@
   "classScript": {
     "id": "agent-evaluation-class",
     "version": "1.0.0",
-    "sha256": "8580fb30777c3005d0b2258aed9bb132471c79f764f76290cf61c323eeda6cf5"
+    "sha256": "004ec88626b9039854fb17ca9967d604a3f62819b7f21c7aca0e5f51b78e95d4"
   },
   "artifacts": [
     {
       "path": "captions/en-US.vtt",
-      "sha256": "9d5bbbbd98ae7e95faf6b7e745d9365f850eab1d66cb3d5c6a9449a3b77c3ead"
+      "sha256": "7b036aad814552cbabfbdf36122e80d77934db52d4958d8e9f4ad4bdb241a159"
     },
     {
       "path": "transcripts/en-US.md",
-      "sha256": "8d16ed394d3cbc6010132c14d6c76a43c0c3700efee88a6127ac03b10e882617"
+      "sha256": "ae2753c39b8464f26590af1cf2739fa8a69a6d19bd1adb506b2477f3c3a0109c"
     },
     {
       "path": "alternatives/en-US-reduced-motion.md",
-      "sha256": "e3757cc482996a01432b197fb162d9b48ec6f5ed58e691f89e8b5ef3bb92fac1"
+      "sha256": "42a6c6a44b1c2e32d51b92f24904078ea44230973e7ebe902f031e9bdfe5662e"
     },
     {
       "path": "alternatives/en-US-text-only.md",
-      "sha256": "75f344ab8442f92089420bde9f90bc4a974d86bdf001889201238ac58b720ddc"
+      "sha256": "ad5955b418b2e7195cf506e3da9c981065d56e033378003e5d8fbb7bf49b9ddc"
     }
   ]
 }

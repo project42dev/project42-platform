@@ -2,25 +2,25 @@
   "schemaVersion": "1.0",
   "classScript": {
     "id": "examples-and-output-contracts-class",
-    "version": "1.0.0",
-    "sha256": "9c79b4590cf49af3605ad1cc083e123f2d177b55690197b3409ee1f176bff207"
+    "version": "1.1.0",
+    "sha256": "4bf481b5ff2e535c09614203dbe93235dae073c931a8eedffaab83628ff7db04"
   },
   "artifacts": [
     {
       "path": "captions/en-US.vtt",
-      "sha256": "47a498896c3c12497ae29e6d891691bd7afebe32fac898f3c58f5484547e556d"
+      "sha256": "225afe48912f49dfae0b8c3cf38a7d67c6d979d0d7d9b4142d4838d74b0c1a50"
     },
     {
       "path": "transcripts/en-US.md",
-      "sha256": "2f67471a858de623e7cf07ad109155ddc78280a1873d4c9a20a0ec6286dee850"
+      "sha256": "daa6ea135319ffa03e1e037669913c2de2a84a5db6f498837cf566177ec74eae"
     },
     {
       "path": "alternatives/en-US-reduced-motion.md",
-      "sha256": "79d582cb6fa9bc4513c315bf7c54407b474de43e3a0fdab64bdae4c37b97701c"
+      "sha256": "01c6f1179374a885aa6b16f686d4adbb6fe869df5c6192f0e03967a5e7021036"
     },
     {
       "path": "alternatives/en-US-text-only.md",
-      "sha256": "39533c147b01f9aa21d05863bd78645cb0e2bff0efb1426181f65eeab50c0874"
+      "sha256": "e2a7e868ab0dd79400f7a6c8c259d34179d29db38834c1a224a5af6416181009"
     }
   ]
 }

@@ -2,25 +2,25 @@
   "schemaVersion": "1.0",
   "classScript": {
     "id": "reliable-agent-capstone-class",
-    "version": "1.0.0",
-    "sha256": "d35027652e94a7d41a46994133c55fd11630389eeca5fa9641c5a9426c5b8a9e"
+    "version": "2.0.0",
+    "sha256": "3d2e8a26cdaeba32b6aca3d57e993b6b00cbf58bf31c29539d733d32380d74ae"
   },
   "artifacts": [
     {
       "path": "captions/en-US.vtt",
-      "sha256": "88c18aa817df0f1c976bc333cad7f5eaeb679055853ade36a75fe767d3df7274"
+      "sha256": "5f625b5920c2f65d88b2573fff0d1e804ebab122fb68ddf23e5740004140b6b6"
     },
     {
       "path": "transcripts/en-US.md",
-      "sha256": "afe77ad6f1e26877612f075198de4ffed93f7478b0ad026b46615367f7782b9c"
+      "sha256": "3abe1b9ae2703426701c003960ba628893a5c3e4c0d06f71817ca79d1176b809"
     },
     {
       "path": "alternatives/en-US-reduced-motion.md",
-      "sha256": "13c874bff8b8a82d86f750d5ba7e7afc0cc4d9e1c78315d70d62005fe580b975"
+      "sha256": "cee226c811202610a91f341b806a522f7277a8643db907d5f91ddba8428df676"
     },
     {
       "path": "alternatives/en-US-text-only.md",
-      "sha256": "27f36266681e5a0e649c381fcdb32bc4b5fd3ea0aabdaff7fa08ded0aee23e7a"
+      "sha256": "033c02f4939b540010143529ed039f358cd84075c5e92303659b95c80b416a81"
     }
   ]
 }

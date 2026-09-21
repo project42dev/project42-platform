@@ -2,25 +2,25 @@
   "schemaVersion": "1.0",
   "classScript": {
     "id": "privacy-safety-and-responsibility-class",
-    "version": "1.0.0",
-    "sha256": "a4c2ac7c9246e8874a9b82a1b444ad87312bf3e0f80902c2f39261a17499998e"
+    "version": "2.0.1",
+    "sha256": "bd81ba1706b91bbac49776d8b44edccdaa3ffccb38ac43ebe42db0ff85e4b8aa"
   },
   "artifacts": [
     {
       "path": "captions/en-US.vtt",
-      "sha256": "6b8960cbbc9f96a42ca026a9e5fc9e22cb4acfc8569e7995db8d9692ed879d52"
+      "sha256": "4b237aa17b9cd579fd33c694cdba50e0f93831de166b3232989fb1538b588768"
     },
     {
       "path": "transcripts/en-US.md",
-      "sha256": "25c135ea715a0ea6e6c85a7d0ac2ab412f8ee4b87d27126fbaccd9a735abec77"
+      "sha256": "c4190c6be24016235293f2819da997725aee6c7e93fd6b73a690d3c2ae9e5fff"
     },
     {
       "path": "alternatives/en-US-reduced-motion.md",
-      "sha256": "48a7d49375e3f1b880510a6d1c89b4bbbfdcb6013af1325350dd8236ec03a5d6"
+      "sha256": "312d587e84f5ee762413cab4446536b5e8f15686a187a75dbae6a61daddf9a1b"
     },
     {
       "path": "alternatives/en-US-text-only.md",
-      "sha256": "ed349045e241f57159dd2e38dc6d3937c7e0ffabbb78e41ed2b911048a72a1c7"
+      "sha256": "76ed51ea503747a2c76254ec695e1866b5b1ff1e37217ea15b43c10f9c693539"
     }
   ]
 }

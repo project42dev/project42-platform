@@ -3,24 +3,24 @@
   "classScript": {
     "id": "multi-agent-handoffs-class",
     "version": "1.0.0",
-    "sha256": "268384c53e79ef5e87f3096faf690324db2b19312c1d046f765b4deb0675ae3a"
+    "sha256": "c1e8fdbbc1ac518e86a398e5e4994e8c3ce42e0d719f6f0796075c02eb37cc59"
   },
   "artifacts": [
     {
       "path": "captions/en-US.vtt",
-      "sha256": "8204a21005133f41b362747b768664d357deb211eaf15c65996ac815d341ecd4"
+      "sha256": "ffce823e9ef592640f3ee0aead2c91c7dd563df28b45a9f890b2fbcb0e86483c"
     },
     {
       "path": "transcripts/en-US.md",
-      "sha256": "d7200b696c1c5cf5e0401bf2384c61b3a8d898f514028bbd97b46a3962376ece"
+      "sha256": "1f98581a7ad6eb0ca40f429f13fa60e0363cdd879c440f7f3d44513f7ee1b2a1"
     },
     {
       "path": "alternatives/en-US-reduced-motion.md",
-      "sha256": "4652c3b749eefe624b53e13b61c0d35c38f39b3e6680854121dacedf8eb254a7"
+      "sha256": "d8758a454aa61b50688a612472a0e451e434de06b260768e22e396e8f51c46ce"
     },
     {
       "path": "alternatives/en-US-text-only.md",
-      "sha256": "30e8b06fe88a9a94e13de6f877bdf4bcb09b62adefc843a45cdded0a6f2b1936"
+      "sha256": "b8209849febe5a41ca98ace220f5046d57c3917b20c3c9e023aeee9fe402cacc"
     }
   ]
 }

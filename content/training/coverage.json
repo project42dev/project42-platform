@@ -21,7 +21,7 @@
         "agentic-systems-and-mcp"
       ],
       "status": "outline-only",
-      "instructorSchemaVersion": "1.1"
+      "instructorSchemaVersion": "1.0"
     },
     {
       "moduleId": "agent-evaluation",
@@ -125,7 +125,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.0",
       "classScriptId": "ai-foundations-capstone-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/ai-foundations/ai-foundations-capstone/class-script.json"
     },
     {
@@ -144,7 +144,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.0",
       "classScriptId": "ai-systems-and-use-cases-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/ai-foundations/ai-systems-and-use-cases/class-script.json"
     },
     {
@@ -222,7 +222,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.0",
       "classScriptId": "context-and-evidence-construction-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/ai-foundations/context-and-evidence-construction/class-script.json"
     },
     {
@@ -233,7 +233,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "context-engineering-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/reliable-agent-workflows/context-engineering/class-script.json"
     },
     {
@@ -242,9 +242,9 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "context-tokens-and-modalities-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.3.0",
       "classScriptPath": "content/training/ai-foundations/context-tokens-and-modalities/class-script.json"
     },
     {
@@ -266,7 +266,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "deployment-shape-and-operating-model-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/deployment-shape-and-operating-model/class-script.json"
     },
     {
@@ -285,7 +285,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "endpoint-identity-network-and-secrets-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/endpoint-identity-network-and-secrets/class-script.json"
     },
     {
@@ -296,7 +296,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "evaluate-the-exact-serving-build-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/evaluate-the-exact-serving-build/class-script.json"
     },
     {
@@ -305,9 +305,9 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "examples-and-output-contracts-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/ai-foundations/examples-and-output-contracts/class-script.json"
     },
     {
@@ -407,7 +407,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "hardware-runtime-and-capacity-planning-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/hardware-runtime-and-capacity-planning/class-script.json"
     },
     {
@@ -437,7 +437,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "mcp-architecture-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/reliable-agent-workflows/mcp-architecture/class-script.json"
     },
     {
@@ -448,7 +448,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "mcp-trust-and-security-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/reliable-agent-workflows/mcp-trust-and-security/class-script.json"
     },
     {
@@ -459,7 +459,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "memory-boundaries-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/reliable-agent-workflows/memory-boundaries/class-script.json"
     },
     {
@@ -494,7 +494,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "model-artifact-integrity-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/model-artifact-integrity/class-script.json"
     },
     {
@@ -513,7 +513,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "model-identity-license-and-provenance-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/self-hosted-model-operations/model-identity-license-and-provenance/class-script.json"
     },
     {
@@ -524,7 +524,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "model-incident-response-and-recovery-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/model-incident-response-and-recovery/class-script.json"
     },
     {
@@ -535,7 +535,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "model-update-and-rollback-lifecycle-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/model-update-and-rollback-lifecycle/class-script.json"
     },
     {
@@ -565,7 +565,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "observability-cost-and-performance-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/observability-cost-and-performance/class-script.json"
     },
     {
@@ -632,7 +632,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "operate-and-recover-agent-systems-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/reliable-agent-workflows/operate-and-recover-agent-systems/class-script.json"
     },
     {
@@ -643,7 +643,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "orchestration-patterns-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/reliable-agent-workflows/orchestration-patterns/class-script.json"
     },
     {
@@ -670,7 +670,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "prepare-agent-work-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/reliable-agent-workflows/prepare-agent-work/class-script.json"
     },
     {
@@ -679,9 +679,9 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "privacy-safety-and-responsibility-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.1",
       "classScriptPath": "content/training/ai-foundations/privacy-safety-and-responsibility/class-script.json"
     },
     {
@@ -698,9 +698,9 @@
         "ai-foundations"
       ],
       "status": "class-ready-draft",
-      "instructorSchemaVersion": "1.0",
+      "instructorSchemaVersion": "1.1",
       "classScriptId": "prompt-anatomy-and-success-criteria-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.2.0",
       "classScriptPath": "content/training/ai-foundations/prompt-anatomy-and-success-criteria/class-script.json"
     },
     {
@@ -738,7 +738,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "reliable-agent-capstone-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/reliable-agent-workflows/reliable-agent-capstone/class-script.json"
     },
     {
@@ -760,7 +760,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "review-agent-results-class",
-      "classScriptVersion": "1.1.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/reliable-agent-workflows/review-agent-results/class-script.json"
     },
     {
@@ -771,7 +771,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.0",
       "classScriptId": "safe-tool-use-workflow-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.0",
       "classScriptPath": "content/training/ai-foundations/safe-tool-use-workflow/class-script.json"
     },
     {
@@ -782,7 +782,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "scaling-failure-and-capacity-controls-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/scaling-failure-and-capacity-controls/class-script.json"
     },
     {
@@ -812,7 +812,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "serving-api-and-compatibility-contracts-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "1.1.3",
       "classScriptPath": "content/training/self-hosted-model-operations/serving-api-and-compatibility-contracts/class-script.json"
     },
     {

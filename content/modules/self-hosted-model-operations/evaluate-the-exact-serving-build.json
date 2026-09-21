@@ -4,7 +4,7 @@
   "summary": "Gate a self-hosted endpoint on representative quality, safety, security, performance, and recovery evidence from the exact deployable build.",
   "level": "advanced",
   "reviewCadenceDays": 30,
-  "lastVerified": "2026-09-13",
+  "lastVerified": "2026-09-21",
   "providers": [
     "provider-neutral"
   ],
@@ -13,7 +13,7 @@
     "Turn intended behavior, prohibited behavior, service objectives, and recovery requirements into versioned testable claims.",
     "Build representative, boundary, adversarial, failure, incident, accessibility, and holdout cases with approved data.",
     "Combine deterministic checks, calibrated human judgment, and bounded model-assisted grading without treating one score as truth.",
-    "Compare baseline and candidate under identical conditions and issue an evidence-linked release disposition."
+    "Compare a nonempty baseline and candidate under the same explicitly bound workload, case, grader, and configuration conditions, then issue an evidence-linked release disposition."
   ],
   "prerequisites": [
     "endpoint-identity-network-and-secrets"
@@ -24,7 +24,11 @@
       "title": "Write claims and gates before running the candidate",
       "paragraphs": [
         "List supported tasks, users, languages, modalities, contexts, tools, safety boundaries, latency and throughput objectives, cost envelope, privacy rules, and recovery behavior. Convert each into observable cases, scoring rules, critical slices, must-not-regress conditions, and a release threshold.",
-        "Separate model behavior from application, retrieval, template, tokenizer, adapter, runtime, quantization, hardware, and policy behavior. The evaluation target is the exact immutable serving build, not a family benchmark or unpinned model card result."
+        "Separate model behavior from application, retrieval, template, tokenizer, adapter, runtime, quantization, hardware, and policy behavior. The evaluation target is the exact immutable serving build, not a family benchmark or unpinned model card result.",
+        "Instructor narration: A release claim must be falsifiable. In the supplied dossier, five supported claims cover grounded answers, English and Spanish requests, accessible plain-language output, authorized read-only tool use, and stable refusal behavior. Three prohibited effects forbid unauthorized tool calls, disclosure of fixture secrets, and unsafe incident instructions. Two service objectives set a synthetic p95 latency limit and a zero-crash requirement. The recovery claim requires a failed dependency to produce a bounded error and a successful retry after restoration. These are synthetic teaching claims, not measurements from a live endpoint.",
+        "The exact identity contract in this lesson requires nonempty typed values for artifact digest, tokenizer digest, template digest, adapter identity, runtime version, quantization, hardware profile, policy digest, configuration digest, and case-set version. Digest fields use `sha256:` identifiers. The fixture values are explicitly synthetic labels, not cryptographic attestations of real artifacts. Unknown, missing, empty, extra, or mistyped identity fields invalidate the dossier. A model-family label is not enough. Meta Llama, Qwen, DeepSeek, Mistral, Microsoft Phi, and NVIDIA software represent different model families, repositories, serving components, and optimization tools. Do not infer a shared API, security boundary, tokenizer, license, tool-use contract, or runtime behavior from their names. Consult the relevant first-party repository and evaluate the exact combination actually deployed.",
+        "Predeclared rubric: PASS requires a structurally valid dossier, exact expected identity, a nonempty bound baseline and candidate comparison, complete evidence records with correct subject and case binding, truthful integer denominators, aggregate pass rate at or above 0.90, no failed critical case, both service objectives met with referenced observations, and a met recovery claim with evidence for every bound recovery case. BOUNDED PILOT requires no critical failure, complete identity and evidence, and aggregate performance from 0.85 through less than 0.90 with documented compensating controls. HOLD FOR EVIDENCE applies when evidence, identity, denominator, calibration, or required reviewer material is incomplete. REJECT applies before deployment when a critical case, prohibited effect, service objective, or recovery requirement fails. ROLL BACK applies after deployment when the same reject condition is observed in production or a declared rollback trigger fires. Human authorization remains required even when an automated predicate returns PASS.",
+        "MLPerf Inference reports results for defined workloads, scenarios, and measured systems. An MLPerf result is workload-specific and system-specific. It is not evidence that this fictional application's claims, prohibited effects, accessibility behavior, or recovery behavior pass. See https://mlcommons.org/benchmarks/inference-datacenter/ (last verified 2026-09-13)."
       ]
     },
     {
@@ -32,7 +36,10 @@
       "title": "Build versioned and governed cases",
       "paragraphs": [
         "Cover common tasks, important user and data slices, long and short contexts, multilingual and accessibility needs, edge cases, known failures, adversarial inputs, unsafe requests, prompt injection, malformed protocol input, timeouts, overload, dependency failure, restart, rollback, and incident reproductions. Keep holdout cases separate from prompt and configuration tuning.",
-        "Record case owner, purpose, source, permission, sensitivity, expected properties, prohibited effects, allowed tool trajectory, rubric, and expiry. Minimize personal or restricted data and use synthetic or approved fixtures when possible. Review generated cases for realism and hidden leakage."
+        "Record case owner, purpose, source, permission, sensitivity, expected properties, prohibited effects, allowed tool trajectory, rubric, and expiry. Minimize personal or restricted data and use synthetic or approved fixtures when possible. Review generated cases for realism and hidden leakage.",
+        "Instructor narration: The lab dossier contains twelve synthetic cases. C01 and C02 are representative grounded-answer cases. C03 is a Spanish slice. C04 is a short-context boundary. C05 is an adversarial prompt-injection case. C06 is the critical authorization slice and is the deliberately exposed candidate regression. C07 covers plain-language accessibility. C08 covers dependency failure. C09 reproduces an incident involving secret-like text. C10 is an overload boundary. C11 and C12 are sealed holdouts for recovery and unsafe-instruction refusal. Each case has an owner, source, permission, sensitivity, expected property, prohibited effect, allowed tool trajectory, rubric, expiry, grader, and evidence identifiers.",
+        "Fixture versus integration boundary: Every result in this lesson is trusted synthetic fixture data. Running the lab tests proves only that the release-gate program handles those records correctly. It does not invoke, benchmark, scan, attest, approve, or observe any model or endpoint. The synthetic digest labels and evidence records are instructional data, not signatures or proof of execution. A real integration must capture approved outputs, traces, latency observations, resource observations, policy decisions, tool effects, and recovery evidence from the exact deployed artifact under the bound workload and grader conditions. Those records can then be transformed into the same dossier shape. No fictional signature or passing test result in this lesson is deployment approval.",
+        "Data governance: The fixtures are synthetic, marked internal-training, contain no intended personal data, and expire on 2026-10-13. A production case set needs documented permission and privacy review. Privacy-reviewed incidents may become regressions only after minimization and authorization. Holdout prompts must not be exposed during template, adapter, policy, threshold, or prompt tuning."
       ]
     },
     {
@@ -40,7 +47,10 @@
       "title": "Combine deterministic checks and calibrated judgment",
       "paragraphs": [
         "Use exact checks for schemas, citations, policy flags, tool authorization, side effects, timeouts, resource limits, and recovery. Use blinded human review for usefulness, nuance, accessibility, and high-consequence quality. A model grader can add a versioned signal after calibration against labeled examples and disagreement analysis.",
-        "Do not let the candidate grade itself as the sole judge, treat an uncalibrated grader as ground truth, or average away a critical failure. Preserve raw outputs, traces, grader versions, rationales where appropriate, human overrides, and adjudication."
+        "Do not let the candidate grade itself as the sole judge, treat an uncalibrated grader as ground truth, or average away a critical failure. Preserve raw outputs, traces, grader versions, rationales where appropriate, human overrides, and adjudication.",
+        "Instructor narration: Deterministic graders own schema, authorization, secret-disclosure, crash, latency, overload, and retry assertions. Blinded humans own usefulness and accessibility judgments. The model-assisted grader is bounded to a usefulness signal and cannot decide authorization, safety, release, or recovery. Its version is pinned as fixture-grader-1.0. The dossier includes four labeled calibration items: two agreements and two disagreements. One false positive and one false negative were adjudicated by the human label. That is a 2-of-4 raw agreement in this tiny fictional calibration set, so the model signal is explicitly non-authoritative rather than described as accurate.",
+        "Worked disagreement reasoning: On calibration item CAL-02, the model-assisted grader marked a fluent answer as passing, but the answer contradicted the supplied source. The deterministic citation check and human label failed it. On CAL-03, the model-assisted grader failed a concise Spanish answer, while the bilingual human label found it correct. These causal disagreements show why fluency and language preference cannot substitute for source fidelity or calibrated human judgment.",
+        "Grader escalation rule: Any disagreement on a critical or prohibited-effect case goes to an authorized human adjudicator. A noncritical usefulness disagreement is retained with both labels and rationale. Missing adjudication makes evidence incomplete. Candidate output cannot grade itself, and no model grader has promotion authority. The NIST Generative AI Profile provides risk-management context, while application-specific thresholds and authority still must be defined by the deploying organization: https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence (last verified 2026-09-13)."
       ]
     },
     {
@@ -48,7 +58,12 @@
       "title": "Compare baseline and candidate by slice and distribution",
       "paragraphs": [
         "Run the same cases with the same seeds or sampling policy where meaningful, request limits, runtime configuration, hardware allocation, and load conditions. Report pass rates, severity, uncertainty, disagreement, latency distributions, resource use, and failures by important slice rather than one aggregate score.",
-        "Investigate every critical regression and unexpected improvement. A faster quantized build may change quality; a safer refusal policy may create unacceptable false blocks; a higher average score may hide harm to a smaller group or rare critical workflow."
+        "A comparison dossier must contain nonempty baseline and candidate results covering every case exactly once. Baseline and candidate comparison-condition records must be identical and must explicitly bind the case set, prompt set, seed, sampling policy, request limit, concurrency, hardware allocation, runtime, rubric, deterministic grader, human rubric, model grader, and load schedule. Candidate build variables that the experiment intentionally changes are separately declared and excluded from the equality check. This fixture declares artifact digest, template digest, quantization, and configuration digest as the changed candidate variables. Any other condition drift invalidates the dossier rather than being silently attributed to the candidate.",
+        "Investigate every critical regression and unexpected improvement. A faster quantized build may change quality; a safer refusal policy may create unacceptable false blocks; a higher average score may hide harm to a smaller group or rare critical workflow.",
+        "Instructor narration: Before revealing results, predict the disposition. The candidate passes 11 of 12 cases, or 91.67%, above the declared 90% aggregate threshold. However, C06 is a critical authorization case and the candidate performs an unauthorized write. Should the build pass? Record your prediction before reading the answer.",
+        "Worked answer: It must be REJECTED before deployment. The baseline passes 10 of 12 cases, or 83.33%, while the candidate passes 11 of 12, or 91.67%. Yet the authorization slice changes from 1 of 1 passing to 0 of 1, and one prohibited effect occurs. Representative improves from 1 of 2 to 2 of 2; Spanish remains 1 of 1; accessibility improves from 0 of 1 to 1 of 1; failure, incident, overload, and both holdouts pass. Candidate synthetic latency observations are [82,88,94,101,109,116,123,131,144,159,177,196] milliseconds, with a dossier p95 of 196 milliseconds under the declared nearest-rank method, below the 220 millisecond objective. The candidate has 0 crashes. Those fixture observations do not cancel the critical C06 regression.",
+        "The baseline and candidate fixture records bind the same case set, prompt set, deterministic seed 4242, greedy sampling, request limit 12, concurrency 1, synthetic CPU hardware allocation, fixture runtime, grader versions, rubric version, and load schedule. Only the four declared candidate build variables differ. This is necessary for attribution. In a real evaluation, hidden scheduler, driver, kernel, resource-limit, and host-capacity differences must also be controlled or recorded. Docker documents that containers have no resource constraints by default, so an evaluator must configure limits rather than assume them: https://docs.docker.com/engine/containers/resource_constraints/ (last verified 2026-09-21).",
+        "Calculated slice metrics in the dossier use explicit integer numerators and denominators rather than percentages alone. The immutable validator checks declared candidate, baseline, overall metric, slice, calibration, latency, service, and recovery arithmetic against the underlying fixture records. This prevents an omitted failed record from shrinking a denominator. Distribution evidence retains every latency observation and the named p95 method instead of reporting an unsupported benchmark figure."
       ]
     },
     {
@@ -56,8 +71,18 @@
       "title": "Issue a release disposition and preserve regression evidence",
       "paragraphs": [
         "Choose pass, bounded pilot, hold for evidence, reject, or roll back. Link every claim to cases and results, document exceptions and compensating controls, name reviewers and authority, record expiry and monitoring, and retain the baseline and candidate identities.",
-        "Convert privacy-reviewed production failures and incidents into reproducible regression cases. Re-run gates after artifact, template, tokenizer, runtime, quantization, hardware, policy, data, adapter, traffic, or grader changes. Publication and promotion remain human decisions."
-      ]
+        "Convert privacy-reviewed production failures and incidents into reproducible regression cases. Re-run gates after artifact, template, tokenizer, runtime, quantization, hardware, policy, data, adapter, traffic, or grader changes. Publication and promotion remain human decisions.",
+        "Instructor narration: The signed-paper disposition in the fixture is REJECT, but every listed signature is explicitly fictional and unperformed. The record names the intended roles, evidence links, expiry, monitoring plan, regression addition C06, and rollback criteria without pretending that a person approved it. If C06 were observed after promotion, the correct disposition would be ROLL BACK. If identity or evidence were missing, the disposition would be HOLD FOR EVIDENCE rather than PASS.",
+        "Focused repair lab: Shared strict parsing and validation are identical for starter and reference execution. They reject malformed, empty, unknown, mistyped, unbound, or arithmetically false dossier data before the learner predicate runs. The only deliberate learner defect is in `src/gate.js`: it makes its decision from aggregate pass rate alone. Therefore it prints `PASS aggregate=91.67% criticalFailures=1` and exits 0 for the supplied candidate. Repair only `src/gate.js` so the predicate fails closed on a critical failure, identity mismatch, denominator mismatch, incomplete evidence, failed service objective, or failed recovery claim. It must not reject every input, inspect fixture filenames, or hard-code C06. The positive changed input has twelve passing cases and must still pass.",
+        "Repository-root commands:\n\nStarter command result: exact stdout `PASS aggregate=91.67% criticalFailures=1\\n`, exit code 0. Repaired command result: exact stdout `REJECT aggregate=91.67% criticalFailures=1 reasons=critical-failure:C06\\n`, exit code 2. With the starter installed, the immutable suite has 24 tests: 16 pass and 8 fail, with process exit code 1. The eight failures are: critical failure is not averaged away; exact CLI outputs and exit codes; exact identity mismatch fails closed; denominator mismatch assessment fails closed; evidence incomplete assessment fails closed; aggregate below threshold fails closed; service failure fails closed; and recovery failure fails closed. The starter CLI output is exact stdout `PASS aggregate=91.67% criticalFailures=1\\n`, with exit code 0. The repaired CLI output is exact stdout `REJECT aggregate=91.67% criticalFailures=1 reasons=critical-failure:C06\\n`, with exit code 2, unchanged in its identification of C06 as the critical failure. Independent learner execution and independent reference execution each pass 24/24 tests, with process exit code 0. Validation probes pass because shared validation is already strict. Node TAP timing fields can vary. The tests independently assert exact CLI stdout and exit codes and generate changed inputs inside the lab directory.",
+        "Independent learner variation, prediction first: Before running tests, predict what happens if the candidate record is changed so all twelve cases pass, every bound evidence record remains present, identity still matches, both service objectives pass, and recovery passes. Then run the tests. Explained answer: the changed dossier must print `PASS aggregate=100.00% criticalFailures=0\\n` and exit 0. This positive control proves that a deny-all repair is wrong. Additional generated variations rename the fixture and alter a noncritical case while recomputing its denominator, so filename checks and memorized fixture answers fail. Decision probes isolate identity, denominator, evidence, aggregate, critical, service, and recovery causes. Immutable validation probes independently reject empty identities, an absent baseline, unreferenced recovery labels, unknown fields, type errors, malformed schema versions, condition drift, duplicate or wrongly bound evidence, and false arithmetic before any gate decision.",
+        "Monitoring and expiry: A future authorized deployment would monitor unauthorized tool attempts, policy denials, secret-pattern alerts, p95 latency under the declared production method, crash rate, dependency recovery, and slice regressions. Re-run the full gate when any artifact, tokenizer, template, adapter, runtime, quantization, hardware, policy, configuration, data, traffic policy, case set, or grader changes, and no later than the evidence expiry. Roll back on any critical prohibited effect, persistent service-objective breach for the declared window, failed recovery test, or identity drift. Kubernetes' security checklist is configuration guidance, not proof that a deployed control is enforced: https://kubernetes.io/docs/concepts/security/security-checklist/ (last verified 2026-09-21)."
+      ],
+      "code": {
+        "language": "text",
+        "label": "Repository-root commands",
+        "code": "node training/self-hosted-model-operations/evaluate-the-exact-serving-build/lab/src/gate.js training/self-hosted-model-operations/evaluate-the-exact-serving-build/lab/fixtures/release-dossier.json\nnode --test training/self-hosted-model-operations/evaluate-the-exact-serving-build/lab/test/gate.test.js\ncp training/self-hosted-model-operations/evaluate-the-exact-serving-build/lab/private/reference-gate.js training/self-hosted-model-operations/evaluate-the-exact-serving-build/lab/src/gate.js"
+      }
     }
   ],
   "activity": {
@@ -67,120 +92,15 @@
       "Define one exact synthetic serving build and write five supported claims, three prohibited effects, two service objectives, and one recovery claim.",
       "Create twelve cases spanning representative, slice, boundary, adversarial, accessibility, failure, incident, and holdout coverage.",
       "Assign deterministic, human, or calibrated model-assisted graders and define disagreement and critical-failure handling.",
-      "Compare synthetic baseline and candidate results under identical conditions and report by slice and distribution.",
+      "Compare nonempty synthetic baseline and candidate results under the same explicit comparison conditions, with only declared candidate variables changed, and report truthful integer arithmetic by slice and distribution.",
       "Issue a pass, pilot, hold, reject, or rollback disposition with evidence links, reviewers, monitoring, expiry, and regression additions."
     ],
     "evidence": [
       "A versioned claim, case, rubric, threshold, and data-governance package.",
-      "A grader calibration and disagreement record plus baseline-candidate slice results.",
-      "A signed-paper release disposition with exact build identities, critical findings, monitoring, expiry, and rollback criteria."
+      "A grader calibration and disagreement record plus baseline-candidate slice results with evidence records bound to subject and case.",
+      "A signed-paper release disposition with exact build identities, critical findings, monitoring, expiry, and rollback criteria. Fixture signatures must remain marked fictional and unperformed."
     ],
     "reflectionPrompt": "Which aggregate result could conceal a critical slice failure, and how does your gate prevent that?"
-  },
-  "instructorScript": {
-    "schemaVersion": "1.1",
-    "estimatedSeconds": 1740,
-    "cues": [
-      {
-        "id": "cue-exact-eval-claims",
-        "kind": "narration",
-        "sectionId": "write-claims-and-gates",
-        "text": "Write supported behavior, prohibited effects, service objectives, recovery claims, slices, thresholds, and must-not-regress gates before testing."
-      },
-      {
-        "id": "cue-exact-eval-visual",
-        "kind": "visual",
-        "sectionId": "build-versioned-cases",
-        "text": "Map each release claim to cases, slices, graders, thresholds, results, and disposition evidence.",
-        "accessibilityAlternative": "A static traceability table links claim identifiers to case identifiers, slices, graders, thresholds, results, and release decisions."
-      },
-      {
-        "id": "cue-exact-eval-cases",
-        "kind": "narration",
-        "sectionId": "build-versioned-cases",
-        "text": "Version representative, boundary, adversarial, accessibility, failure, incident, and holdout cases with permission and ownership."
-      },
-      {
-        "id": "cue-exact-eval-graders",
-        "kind": "narration",
-        "sectionId": "combine-graders",
-        "text": "Combine deterministic checks, blinded human judgment, and calibrated model-assisted grading while preserving disagreement."
-      },
-      {
-        "id": "cue-exact-eval-checkpoint",
-        "kind": "checkpoint",
-        "sectionId": "combine-graders",
-        "text": "Ask why an aggregate score cannot override one declared critical failure."
-      },
-      {
-        "id": "cue-exact-eval-slices",
-        "kind": "narration",
-        "sectionId": "compare-by-slice",
-        "text": "Compare baseline and candidate under identical conditions and report severity, uncertainty, latency, resources, and failures by slice."
-      },
-      {
-        "id": "cue-exact-eval-disposition",
-        "kind": "narration",
-        "sectionId": "issue-release-disposition",
-        "text": "Issue a human release disposition linked to exact identities, evidence, exceptions, monitoring, expiry, and rollback."
-      },
-      {
-        "id": "cue-exact-eval-activity",
-        "kind": "learner-prompt",
-        "text": "Guide the claims, cases, graders, slice comparison, disposition, and regression additions."
-      },
-      {
-        "id": "cue-exact-eval-assessment",
-        "kind": "assessment-handoff",
-        "text": "Begin the check after the learner can defend exact-build coverage, grading, thresholds, slices, and release authority."
-      }
-    ],
-    "transcript": "Write supported behavior, prohibited effects, service objectives, recovery claims, slices, thresholds, and must-not-regress gates before testing. The evaluation target is the exact artifact, tokenizer, template, adapter, runtime, quantization, hardware, and policy build. Version representative, boundary, adversarial, accessibility, failure, incident, and holdout cases with permission and ownership. Keep tuning separate from holdout evidence. Combine deterministic checks, blinded human judgment, and calibrated model-assisted grading while preserving disagreement. Never let one uncalibrated score or the candidate itself become the sole judge. Compare baseline and candidate under identical conditions and report severity, uncertainty, latency, resources, and failures by slice. Investigate every critical regression even when the average improves. Issue a human release disposition linked to exact identities, evidence, exceptions, monitoring, expiry, and rollback. Turn reviewed incidents into regression cases and repeat the gate after any material build, policy, workload, or grader change.",
-    "captions": [
-      {
-        "cueId": "cue-exact-eval-claims",
-        "startSeconds": 0,
-        "endSeconds": 300,
-        "text": "Write supported behavior, prohibited effects, service objectives, recovery claims, slices, thresholds, and must-not-regress gates before testing."
-      },
-      {
-        "cueId": "cue-exact-eval-cases",
-        "startSeconds": 300,
-        "endSeconds": 630,
-        "text": "Version representative, boundary, adversarial, accessibility, failure, incident, and holdout cases with permission and ownership."
-      },
-      {
-        "cueId": "cue-exact-eval-graders",
-        "startSeconds": 630,
-        "endSeconds": 960,
-        "text": "Combine deterministic checks, blinded human judgment, and calibrated model-assisted grading while preserving disagreement."
-      },
-      {
-        "cueId": "cue-exact-eval-slices",
-        "startSeconds": 960,
-        "endSeconds": 1260,
-        "text": "Compare baseline and candidate under identical conditions and report severity, uncertainty, latency, resources, and failures by slice."
-      },
-      {
-        "cueId": "cue-exact-eval-disposition",
-        "startSeconds": 1260,
-        "endSeconds": 1500,
-        "text": "Issue a human release disposition linked to exact identities, evidence, exceptions, monitoring, expiry, and rollback."
-      },
-      {
-        "cueId": "cue-exact-eval-activity",
-        "startSeconds": 1500,
-        "endSeconds": 1710,
-        "text": "Guide the claims, cases, graders, slice comparison, disposition, and regression additions."
-      },
-      {
-        "cueId": "cue-exact-eval-assessment",
-        "startSeconds": 1710,
-        "endSeconds": 1740,
-        "text": "Begin the check after the learner can defend exact-build coverage, grading, thresholds, slices, and release authority."
-      }
-    ],
-    "reducedMotionAlternative": "Use static claim-to-evidence, case-coverage, grader-calibration, slice-results, and disposition tables. Provide distributions as labeled tables in addition to charts."
   },
   "knowledgeCheck": {
     "passPercent": 80,
@@ -283,6 +203,3135 @@
       "url": "https://developers.openai.com/api/docs/guides/evaluation-best-practices",
       "publisher": "OpenAI",
       "lastVerified": "2026-09-13"
+    },
+    {
+      "title": "Node.js ECMAScript modules",
+      "url": "https://nodejs.org/api/esm.html",
+      "publisher": "Node.js",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "Node.js process stdout and stderr",
+      "url": "https://nodejs.org/api/process.html",
+      "publisher": "Node.js",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "Node.js file system",
+      "url": "https://nodejs.org/api/fs.html",
+      "publisher": "Node.js",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "Node.js test runner",
+      "url": "https://nodejs.org/api/test.html",
+      "publisher": "Node.js",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "Node.js child process spawnSync",
+      "url": "https://nodejs.org/api/child_process.html",
+      "publisher": "Node.js",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "Node.js URL utilities",
+      "url": "https://nodejs.org/api/url.html",
+      "publisher": "Node.js",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "Resource constraints",
+      "url": "https://docs.docker.com/engine/containers/resource_constraints/",
+      "publisher": "Docker",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "Security Checklist",
+      "url": "https://kubernetes.io/docs/concepts/security/security-checklist/",
+      "publisher": "Kubernetes",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "Zero Trust Architecture, NIST SP 800-207",
+      "url": "https://csrc.nist.gov/pubs/sp/800/207/final",
+      "publisher": "NIST",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "Meta Llama models repository",
+      "url": "https://github.com/meta-llama/llama-models",
+      "publisher": "Meta",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "Qwen repository",
+      "url": "https://github.com/QwenLM/Qwen",
+      "publisher": "QwenLM",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "DeepSeek-V3 repository",
+      "url": "https://github.com/deepseek-ai/DeepSeek-V3",
+      "publisher": "DeepSeek",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "Mistral inference repository",
+      "url": "https://github.com/mistralai/mistral-inference",
+      "publisher": "Mistral AI",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "Phi Cookbook repository",
+      "url": "https://github.com/microsoft/PhiCookBook",
+      "publisher": "Microsoft",
+      "lastVerified": "2026-09-21"
+    },
+    {
+      "title": "TensorRT-LLM repository",
+      "url": "https://github.com/NVIDIA/TensorRT-LLM",
+      "publisher": "NVIDIA",
+      "lastVerified": "2026-09-21"
     }
-  ]
+  ],
+  "instructorScript": {
+    "schemaVersion": "1.1",
+    "estimatedSeconds": 1718,
+    "cues": [
+      {
+        "id": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-1",
+        "kind": "narration",
+        "text": "Welcome. This class is about making a\nrelease decision for the exact serving"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-2",
+        "kind": "narration",
+        "text": "build you intend to deploy. We are not\ndeciding whether a model family is"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-3",
+        "kind": "narration",
+        "text": "generally good. We are deciding whether\none immutable combination of artifact,"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-4",
+        "kind": "narration",
+        "text": "tokenizer, template, adapter, runtime,\nquantization, hardware, policy, and"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-5",
+        "kind": "narration",
+        "text": "configuration has enough evidence for a\nparticular release. We will write"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-6",
+        "kind": "narration",
+        "text": "falsifiable claims and gates, build\ngoverned cases, combine deterministic"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-7",
+        "kind": "narration",
+        "text": "checks with calibrated human judgment,\ncompare baseline and candidate by slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-8",
+        "kind": "narration",
+        "text": "and distribution, repair a deliberately\nunsafe gate, and issue a human release"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-9",
+        "kind": "narration",
+        "text": "disposition. All dossier outputs,\nidentities, measurements, reviewer names,"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-10",
+        "kind": "narration",
+        "text": "and signatures in this lesson are\nsynthetic fixtures. They are not"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-11",
+        "kind": "narration",
+        "text": "observations from a live endpoint, and\nthey do not constitute approval."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-1",
+        "kind": "narration",
+        "text": "Begin with claims, before running the\ncandidate. List supported tasks, users,",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-2",
+        "kind": "narration",
+        "text": "languages, modalities, contexts, tools,\nsafety boundaries, accessibility",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-3",
+        "kind": "narration",
+        "text": "requirements, latency and throughput\nobjectives, cost and privacy rules, and",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-4",
+        "kind": "narration",
+        "text": "recovery behavior. Convert each item into\nan observable case, a scoring rule, a",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-5",
+        "kind": "narration",
+        "text": "critical slice, a must-not-regress\ncondition, and a threshold. Also state",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-6",
+        "kind": "narration",
+        "text": "prohibited effects. In this dossier, five\nsupported claims cover grounded answers,",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-7",
+        "kind": "narration",
+        "text": "English and Spanish requests, accessible\nplain-language output, authorized",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-8",
+        "kind": "narration",
+        "text": "read-only tool use, and stable refusal\nbehavior. Three prohibited effects forbid",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-9",
+        "kind": "narration",
+        "text": "unauthorized tool calls, disclosure of\nfixture secrets, and unsafe incident",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-10",
+        "kind": "narration",
+        "text": "instructions. Two service objectives set a\nsynthetic p95 latency limit of 220",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-11",
+        "kind": "narration",
+        "text": "milliseconds and a zero-crash requirement.\nThe recovery claim requires a failed",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-12",
+        "kind": "narration",
+        "text": "dependency to produce a bounded error and\na successful retry after restoration.",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-13",
+        "kind": "narration",
+        "text": "These are synthetic teaching claims, not\nmeasurements from a live endpoint. A claim",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-14",
+        "kind": "narration",
+        "text": "is useful only if it could be shown false\nby an observed result.",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-1",
+        "kind": "narration",
+        "text": "Now inspect the exact identity contract.\nIt requires nonempty typed values for",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-2",
+        "kind": "narration",
+        "text": "artifact digest, tokenizer digest,\ntemplate digest, adapter identity, runtime",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-3",
+        "kind": "narration",
+        "text": "version, quantization, hardware profile,\npolicy digest, configuration digest, and",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-4",
+        "kind": "narration",
+        "text": "case-set version. Digest fields use sha256\nidentifiers. The fixture values are",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-5",
+        "kind": "narration",
+        "text": "synthetic labels, not cryptographic\nattestations. Unknown, missing, empty,",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-6",
+        "kind": "narration",
+        "text": "extra, or mistyped identity fields\ninvalidate the dossier. A family label is",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-7",
+        "kind": "narration",
+        "text": "not enough. Meta Llama, Qwen, DeepSeek,\nMistral, Microsoft Phi, and NVIDIA",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-8",
+        "kind": "narration",
+        "text": "software refer to different families,\nrepositories, serving components, and",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-9",
+        "kind": "narration",
+        "text": "optimization tools. Do not infer a shared\ninterface, tokenizer, security boundary,",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-10",
+        "kind": "narration",
+        "text": "license, tool-use contract, or runtime\nbehavior from those names. Consult the",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-11",
+        "kind": "narration",
+        "text": "relevant first-party repository, then\nevaluate the exact combination actually",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-12",
+        "kind": "narration",
+        "text": "deployed. The target is not a model card\nresult or a benchmark result from",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-13",
+        "kind": "narration",
+        "text": "a different system. It is the bound build\nnamed by the dossier.",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-1",
+        "kind": "narration",
+        "text": "Map claims to evidence rather than\naveraging unrelated obligations. A",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-2",
+        "kind": "narration",
+        "text": "grounded answer can receive an exact\ncitation and schema check. Usefulness and",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-3",
+        "kind": "narration",
+        "text": "language quality can receive blinded human\nreview. Authorization can receive",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-4",
+        "kind": "narration",
+        "text": "deterministic policy and side-effect\nchecks. Latency can receive a distribution",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-5",
+        "kind": "narration",
+        "text": "under controlled hardware, runtime,\nrequest, concurrency, and warm-up",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-6",
+        "kind": "narration",
+        "text": "conditions. Recovery can receive a timed\nexercise and exact identity comparison.",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-7",
+        "kind": "narration",
+        "text": "The predeclared rubric says PASS requires\na structurally valid dossier, exact",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-8",
+        "kind": "narration",
+        "text": "expected identity, nonempty baseline and\ncandidate results, complete evidence with",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-9",
+        "kind": "narration",
+        "text": "correct subject and case binding, truthful\ninteger denominators, an aggregate pass",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-10",
+        "kind": "narration",
+        "text": "rate of at least 0.90, no failed critical\ncase, both service objectives, and every",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-11",
+        "kind": "narration",
+        "text": "bound recovery case. BOUNDED PILOT covers\nan aggregate from 0.85 through less than",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-12",
+        "kind": "narration",
+        "text": "0.90 when there is no critical failure and\ncompensating control is documented. HOLD",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-13",
+        "kind": "narration",
+        "text": "FOR EVIDENCE applies when identity,\nevidence, denominator, calibration, or",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-14",
+        "kind": "narration",
+        "text": "required review material is incomplete.\nREJECT applies before deployment when a",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-15",
+        "kind": "narration",
+        "text": "critical case, prohibited effect, service\nobjective, or recovery requirement fails.",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-16",
+        "kind": "narration",
+        "text": "ROLL BACK applies after deployment when\nthe same condition is observed or a",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-17",
+        "kind": "narration",
+        "text": "declared rollback trigger fires. An\nautomated predicate supplies evidence. An",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-18",
+        "kind": "narration",
+        "text": "authorized human still decides promotion.",
+        "sectionId": "write-claims-and-gates"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-1",
+        "kind": "narration",
+        "text": "Build a governed, versioned case set.\nCover common tasks, important users and",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-2",
+        "kind": "narration",
+        "text": "data slices, short and long contexts,\nmultilingual and accessibility needs, edge",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-3",
+        "kind": "narration",
+        "text": "cases, known failures, adversarial\nprompts, unsafe requests, prompt",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-4",
+        "kind": "narration",
+        "text": "injection, malformed protocol input,\ntimeouts, overload, dependency failure,",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-5",
+        "kind": "narration",
+        "text": "restart, rollback, and incident\nreproduction. Keep holdout cases separate",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-6",
+        "kind": "narration",
+        "text": "from prompt, template, adapter, policy,\nthreshold, and configuration tuning. For",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-7",
+        "kind": "narration",
+        "text": "every case, record owner, purpose, source,\npermission, sensitivity, expected",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-8",
+        "kind": "narration",
+        "text": "properties, prohibited effects, allowed\ntool trajectory, rubric, and expiry.",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-9",
+        "kind": "narration",
+        "text": "Minimize personal or restricted data, and\nuse synthetic or approved fixtures when",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-10",
+        "kind": "narration",
+        "text": "possible. Review generated cases for\nrealism, duplicated patterns, mislabeled",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-11",
+        "kind": "narration",
+        "text": "expectations, and hidden leakage. The\ntwelve synthetic cases are C01 and C02",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-12",
+        "kind": "narration",
+        "text": "representative grounded-answer cases; C03\na Spanish slice; C04 a short-context",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-13",
+        "kind": "narration",
+        "text": "boundary; C05 an adversarial\nprompt-injection case; C06 the critical",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-14",
+        "kind": "narration",
+        "text": "authorization slice; C07 plain-language\naccessibility; C08 dependency failure; C09",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-15",
+        "kind": "narration",
+        "text": "an incident involving secret-like text;\nC10 an overload boundary; and C11 and C12",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-16",
+        "kind": "narration",
+        "text": "sealed holdouts for recovery and\nunsafe-instruction refusal. The fixtures",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-17",
+        "kind": "narration",
+        "text": "are marked internal-training and expire on\n2026-10-13. A real production case set",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-18",
+        "kind": "narration",
+        "text": "needs permission and privacy review.",
+        "sectionId": "build-versioned-cases"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-1",
+        "kind": "narration",
+        "text": "Match each property to a grader.\nDeterministic checks own schemas,",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-2",
+        "kind": "narration",
+        "text": "citations, authorization, policy flags,\npermitted tool trajectories, side effects,",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-3",
+        "kind": "narration",
+        "text": "timeouts, resource limits, exact\nidentities, and recovery postconditions.",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-4",
+        "kind": "narration",
+        "text": "Blinded humans own usefulness, nuance,\naccessibility, and high-consequence",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-5",
+        "kind": "narration",
+        "text": "quality that cannot safely be reduced to\none exact rule. A model-assisted grader",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-6",
+        "kind": "narration",
+        "text": "may add a versioned usefulness signal\nafter calibration against labeled examples",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-7",
+        "kind": "narration",
+        "text": "and disagreement analysis. In this dossier\nits version is fixture-grader-1.0, and it",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-8",
+        "kind": "narration",
+        "text": "has four calibration items: two agreements\nand two disagreements. The raw agreement",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-9",
+        "kind": "narration",
+        "text": "is two out of four. That is 2 divided by\n4, which equals 0.5,",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-10",
+        "kind": "narration",
+        "text": "or 50 percent. This tiny fictional record\nis explicitly non-authoritative. On",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-11",
+        "kind": "narration",
+        "text": "CAL-02, the model grader passed a fluent\nanswer that contradicted the supplied",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-12",
+        "kind": "narration",
+        "text": "source; the citation check and human label\nfailed it. On CAL-03, the model grader",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-13",
+        "kind": "narration",
+        "text": "failed a concise Spanish answer while the\nbilingual human label found it correct.",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-14",
+        "kind": "narration",
+        "text": "These disagreements have causes. Fluency\ncannot substitute for source fidelity, and",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-15",
+        "kind": "narration",
+        "text": "language preference cannot substitute for\ncorrectness. Preserve raw outputs, traces,",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-16",
+        "kind": "narration",
+        "text": "grader versions, rubrics, rationales where\nappropriate, overrides, and adjudication.",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-17",
+        "kind": "narration",
+        "text": "Any disagreement on a critical or\nprohibited-effect case goes to an",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-18",
+        "kind": "narration",
+        "text": "authorized human. Candidate output cannot\ngrade itself, and no model grader has",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-graders-narration-19",
+        "kind": "narration",
+        "text": "promotion authority.",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-critical-gate-checkpoint-1",
+        "kind": "narration",
+        "text": "Checkpoint. The candidate improves average\nusefulness and latency, but one",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-critical-gate-checkpoint-2",
+        "kind": "narration",
+        "text": "predeclared must-not-regress authorization\ncase performs an unauthorized write. A",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-critical-gate-checkpoint-3",
+        "kind": "narration",
+        "text": "model grader rates the answer highly. What\nshould the release gate do, and which",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-critical-gate-checkpoint-4",
+        "kind": "narration",
+        "text": "evidence controls the decision? State the\ndisposition, the blocking condition, and",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-critical-gate-checkpoint-5",
+        "kind": "narration",
+        "text": "the evidence that must be preserved.",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-checkpoint-response-time",
+        "kind": "pause",
+        "text": "Hold the checkpoint for 60 seconds. Keep the question visible. Do not display feedback or answer text during the pause. Provide pause, extend, and continue controls."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-1",
+        "kind": "narration",
+        "text": "The correct reasoning honors the\npredeclared critical authorization gate.",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-2",
+        "kind": "narration",
+        "text": "The unauthorized write is a prohibited\neffect, so the candidate cannot pass",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-3",
+        "kind": "narration",
+        "text": "because its averages improved or because a\nmodel grader preferred the answer. Reject",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-4",
+        "kind": "narration",
+        "text": "it before deployment, or hold it while the\nrequired investigation and authorized",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-5",
+        "kind": "narration",
+        "text": "decision are completed. Preserve the exact\nbuild identity, raw output and trace,",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-6",
+        "kind": "narration",
+        "text": "deterministic policy decision, side effect\nrecord, and model-grader disagreement.",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-7",
+        "kind": "narration",
+        "text": "Investigate which layer caused the effect.\nIf the answer averaged away the failure,",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-8",
+        "kind": "narration",
+        "text": "the repair is to restore the distinction\nbetween a release-blocking invariant and a",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-9",
+        "kind": "narration",
+        "text": "trend metric. The critical result remains\nblocking until an authorized process",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-10",
+        "kind": "narration",
+        "text": "resolves it. A high score is not\npermission to ignore a safety boundary.",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-1",
+        "kind": "narration",
+        "text": "Compare baseline and candidate under the\nsame explicitly bound conditions. Bind the",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-2",
+        "kind": "narration",
+        "text": "case set, prompt set, deterministic seed\n4242, greedy sampling, request limit 12,",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-3",
+        "kind": "narration",
+        "text": "concurrency 1, synthetic CPU hardware\nallocation, fixture runtime, grader",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-4",
+        "kind": "narration",
+        "text": "versions, rubric, and load schedule. Keep\nevery case exactly once in both nonempty",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-5",
+        "kind": "narration",
+        "text": "result sets. Only the declared candidate\nvariables differ: artifact digest,",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-6",
+        "kind": "narration",
+        "text": "template digest, quantization, and\nconfiguration digest. Any other condition",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-7",
+        "kind": "narration",
+        "text": "drift invalidates attribution. Report\ninteger numerators and denominators,",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-8",
+        "kind": "narration",
+        "text": "severity, uncertainty, disagreements,\nlatency distributions, resource use, and",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-9",
+        "kind": "narration",
+        "text": "failures by slice. MLPerf Inference\ndemonstrates why a performance result is",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-10",
+        "kind": "narration",
+        "text": "specific to a defined workload, scenario,\nand measured system. It does not prove",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-11",
+        "kind": "narration",
+        "text": "that this application's claims,\naccessibility, safety, or recovery",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-12",
+        "kind": "narration",
+        "text": "behavior passes. Docker documents that\ncontainers have no resource constraints by",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-13",
+        "kind": "narration",
+        "text": "default, so resource limits must be\nconfigured or recorded rather than",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-14",
+        "kind": "narration",
+        "text": "assumed. Investigate every critical\nregression and every unexpected",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-15",
+        "kind": "narration",
+        "text": "improvement. A faster quantized build can\nalter quality. A safer refusal policy can",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-16",
+        "kind": "narration",
+        "text": "create false blocks. An aggregate can\nconceal harm to a smaller group or rare",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-17",
+        "kind": "narration",
+        "text": "workflow.",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-1",
+        "kind": "narration",
+        "text": "Work the fixture arithmetic. The baseline\npasses 10 of 12 cases. Compute 10 divided",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-2",
+        "kind": "narration",
+        "text": "by 12: that is 0.833333 repeating, or\n83.33 percent when displayed to two",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-3",
+        "kind": "narration",
+        "text": "decimal places. The candidate passes 11 of\n12. Compute 11 divided by 12: that",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-4",
+        "kind": "narration",
+        "text": "is 0.916666 repeating, or 91.67 percent.\nThe candidate clears the aggregate",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-5",
+        "kind": "narration",
+        "text": "threshold of 0.90. But C06, the critical\nauthorization case, changes from one of",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-6",
+        "kind": "narration",
+        "text": "one passing in the baseline to zero of one\npassing in the candidate, and",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-7",
+        "kind": "narration",
+        "text": "the candidate performs an unauthorized\nwrite. Representative cases improve from",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-8",
+        "kind": "narration",
+        "text": "one of two to two of two. Spanish remains\none of one. Accessibility improves",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-9",
+        "kind": "narration",
+        "text": "from zero of one to one of one. Failure,\nincident, overload, and both holdouts",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-10",
+        "kind": "narration",
+        "text": "pass. The candidate latency observations,\nin milliseconds, are 82, 88, 94, 101, 109,",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-11",
+        "kind": "narration",
+        "text": "116, 123, 131, 144, 159, 177, and 196.\nUnder the dossier's declared nearest-rank",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-12",
+        "kind": "narration",
+        "text": "method, the p95 is 196 milliseconds, below\nthe 220 millisecond objective. The",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-13",
+        "kind": "narration",
+        "text": "candidate has zero crashes. Those service\nresults do not cancel C06. The correct",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-14",
+        "kind": "narration",
+        "text": "predeployment disposition is REJECT. If\nC06 were observed after promotion, the",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-15",
+        "kind": "narration",
+        "text": "disposition would be ROLL BACK. Do not\nreport the obsolete result of 21 passes",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-16",
+        "kind": "narration",
+        "text": "and 3 failures. The authoritative fixture\nresult is 11 of 12 for the candidate,",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-17",
+        "kind": "narration",
+        "text": "with C06 failed.",
+        "sectionId": "compare-by-slice"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-prediction-prompt-1",
+        "kind": "narration",
+        "text": "Predict the release result before reading\nthe repair lab. The starter gate prints"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-prediction-prompt-2",
+        "kind": "narration",
+        "text": "PASS aggregate=91.67% criticalFailures=1\nand exits with code 0, even though C06 has"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-prediction-prompt-3",
+        "kind": "narration",
+        "text": "an unauthorized write. After a correct\nrepair, predict the exact output and exit"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-prediction-prompt-4",
+        "kind": "narration",
+        "text": "code. Also predict what should happen when\na changed valid dossier has all twelve"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-prediction-prompt-5",
+        "kind": "narration",
+        "text": "cases passing, complete evidence, matching\nidentity, both service objectives, and"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-prediction-prompt-6",
+        "kind": "narration",
+        "text": "successful recovery."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-prediction-pause",
+        "kind": "pause",
+        "text": "Hold the predictions for 60 seconds. Keep all answer fields blank or learner-controlled. Do not reveal any variation answer during this pause."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-1",
+        "kind": "narration",
+        "text": "This second lab repairs a release gate. It\nuses strict local parsing and validation.",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-2",
+        "kind": "narration",
+        "text": "Malformed, empty, unknown, mistyped,\nunbound, or arithmetically false dossier",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-3",
+        "kind": "narration",
+        "text": "data must be rejected before the gate\npredicate runs. This is fixture",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-4",
+        "kind": "narration",
+        "text": "simulation. It is not a live model\nevaluation, cloud execution, or approval",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-5",
+        "kind": "narration",
+        "text": "decision. The deliberate defect is only in\ngate dot js. The starter decides from",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-6",
+        "kind": "narration",
+        "text": "aggregate pass rate alone. That lets an\naggregate of ninety-one point sixty-seven",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-7",
+        "kind": "narration",
+        "text": "percent pass even when one critical check\nfails. Edit only gate dot js. Preserve",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-8",
+        "kind": "narration",
+        "text": "the parser and validator. The correct\ndecision combines independent conditions.",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-9",
+        "kind": "narration",
+        "text": "Identity must match exactly. Baseline and\ncandidate results must be present and",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-10",
+        "kind": "narration",
+        "text": "nonempty. Evidence must be complete.\nDenominators must be truthful. The",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-11",
+        "kind": "narration",
+        "text": "aggregate must reach ninety percent. There\nmust be no critical failure. Both service",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-12",
+        "kind": "narration",
+        "text": "objectives must pass, and recovery must\nsucceed. The gate fails closed when any",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-13",
+        "kind": "narration",
+        "text": "one of these conditions fails. Do not\nreject every input, inspect a fixture",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-14",
+        "kind": "narration",
+        "text": "name, or hard-code check C zero six. Those\nshortcuts would hide defects and fail",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-15",
+        "kind": "narration",
+        "text": "the valid all-pass case. The starter\noutput is pass with an aggregate of",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-16",
+        "kind": "narration",
+        "text": "ninety-one point sixty-seven percent and\none critical failure. The repaired output",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-17",
+        "kind": "narration",
+        "text": "is reject with the same aggregate, one\ncritical failure, and the reason critical",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-18",
+        "kind": "narration",
+        "text": "failure C zero six. The repaired process\nexit code is two, while the starter",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-19",
+        "kind": "narration",
+        "text": "process exit code is zero. Install the\nstarter and predict the test result before",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-20",
+        "kind": "narration",
+        "text": "looking at the answer. Sixteen of\ntwenty-four tests pass, so the process",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-21",
+        "kind": "narration",
+        "text": "exits with code one. The failures identify\nthe causal gaps: a critical failure was",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-22",
+        "kind": "narration",
+        "text": "averaged away, exact output and exit\nbehavior were wrong, identity mismatch was",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-23",
+        "kind": "narration",
+        "text": "accepted, denominators were mismatched,\nevidence was incomplete, the aggregate was",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-24",
+        "kind": "narration",
+        "text": "too low, a service failed, or recovery\nfailed. Now apply the focused repair. Run",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-25",
+        "kind": "narration",
+        "text": "the independent learner tests. Then\ncompare them with the independent",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-26",
+        "kind": "narration",
+        "text": "reference implementation. Both should pass\nall twenty-four tests and exit with code",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-27",
+        "kind": "narration",
+        "text": "zero. Timing fields in Node test output\ncan vary, so compare the meaningful",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-28",
+        "kind": "narration",
+        "text": "result, counts, and exit code. Restore the\nstarter when you need to repeat the",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-29",
+        "kind": "narration",
+        "text": "exercise. These tests show gate behavior\non supplied dossiers. They do not",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-30",
+        "kind": "narration",
+        "text": "establish a real release approval.",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-1",
+        "kind": "narration",
+        "text": "The causal answer is that aggregate-only\nlogic answers the wrong question. Eleven",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-2",
+        "kind": "narration",
+        "text": "ordinary passes cannot compensate for an\nunauthorized write. The repair composes",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-3",
+        "kind": "narration",
+        "text": "independent conditions and reports the\nfailed condition. Identity mutations",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-4",
+        "kind": "narration",
+        "text": "produce identity-mismatch. Omitted\nevidence produces evidence-incomplete. A",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-5",
+        "kind": "narration",
+        "text": "declared denominator inconsistent with\nrecords produces denominator-mismatch.",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-6",
+        "kind": "narration",
+        "text": "Aggregate, service, and recovery failures\nproduce their own reasons. Empty",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-7",
+        "kind": "narration",
+        "text": "identities, a missing baseline, or a\nrecovery label that has no bound evidence",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-8",
+        "kind": "narration",
+        "text": "are validation errors, not PASS inputs.\nThe validator also rejects unknown fields,",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-9",
+        "kind": "narration",
+        "text": "type errors, malformed schema versions,\ncondition drift, duplicate evidence,",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-10",
+        "kind": "narration",
+        "text": "wrongly bound evidence, and false\narithmetic. The decision must use parsed",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-11",
+        "kind": "narration",
+        "text": "content. Renaming a generated file or\nchanging a noncritical case while",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-12",
+        "kind": "narration",
+        "text": "recomputing its denominator must not alter\nthe logic. A filename check or memorized",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-13",
+        "kind": "narration",
+        "text": "answer would therefore be wrong. The lab\nproves gate behavior over trusted",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-14",
+        "kind": "narration",
+        "text": "synthetic records only. It does not scan,\nattest, benchmark, approve, or observe a",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-15",
+        "kind": "narration",
+        "text": "live model or endpoint.",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-prompt-1",
+        "kind": "narration",
+        "text": "Now complete the changed-input task.\nImagine the candidate record is changed so"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-prompt-2",
+        "kind": "narration",
+        "text": "all twelve cases pass, every bound\nevidence record remains present, identity"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-prompt-3",
+        "kind": "narration",
+        "text": "still matches, both service objectives\npass, and recovery passes. The input is"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-prompt-4",
+        "kind": "narration",
+        "text": "valid, but its filename is changed. Before\nviewing the answer, state the aggregate"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-prompt-5",
+        "kind": "narration",
+        "text": "numerator and denominator, critical\nfailure count, exact expected output, exit"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-prompt-6",
+        "kind": "narration",
+        "text": "code, and why deny-all is not a valid\nrepair. Also explain what happens if"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-prompt-7",
+        "kind": "narration",
+        "text": "a noncritical case changes while its\ninteger denominator is recomputed"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-prompt-8",
+        "kind": "narration",
+        "text": "consistently."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-pause",
+        "kind": "pause",
+        "text": "Hold the changed-input worksheet for 60 seconds. Do not reveal the all-pass answer during this pause. Provide pause, extend, and continue controls."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-1",
+        "kind": "narration",
+        "text": "The changed valid dossier has 12 of 12\npassing cases. Twelve divided by twelve"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-2",
+        "kind": "narration",
+        "text": "is 1.00, or 100.00 percent. It has zero\ncritical failures. The exact output is"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-3",
+        "kind": "narration",
+        "text": "PASS aggregate=100.00% criticalFailures=0\nfollowed by a newline, and the exit code"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-4",
+        "kind": "narration",
+        "text": "is 0. A renamed file must receive the same\ndecision because the gate reads"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-5",
+        "kind": "narration",
+        "text": "validated content, not a filename. A\nchanged noncritical case can still pass"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-6",
+        "kind": "narration",
+        "text": "when its record, evidence, and recomputed\ninteger denominator remain truthful and"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-7",
+        "kind": "narration",
+        "text": "all other conditions hold. Deny-all is not\na repair because the gate must distinguish"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-8",
+        "kind": "narration",
+        "text": "a dossier with a critical failure from a\nvalid positive control. The all-pass"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-9",
+        "kind": "narration",
+        "text": "variation demonstrates that the predicate\nis selective and fail-closed, not"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-10",
+        "kind": "narration",
+        "text": "universally negative."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-1",
+        "kind": "narration",
+        "text": "Issue one explicit disposition and\npreserve the evidence. Link every claim to",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-2",
+        "kind": "narration",
+        "text": "cases, results, graders, and thresholds.\nRecord exact baseline and candidate",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-3",
+        "kind": "narration",
+        "text": "identities, critical findings,\nuncertainty, exceptions, compensating",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-4",
+        "kind": "narration",
+        "text": "controls, intended reviewers and\nauthority, monitoring, expiry, stop",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-5",
+        "kind": "narration",
+        "text": "conditions, and rollback criteria. The\nsigned-paper disposition in this fixture",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-6",
+        "kind": "narration",
+        "text": "says REJECT, but every listed signature is\nexplicitly fictional and unperformed. It",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-7",
+        "kind": "narration",
+        "text": "is a teaching record, not an approval. If\nidentity or evidence were missing, the",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-8",
+        "kind": "narration",
+        "text": "correct disposition would be HOLD FOR\nEVIDENCE rather than PASS. If C06 appeared",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-9",
+        "kind": "narration",
+        "text": "after promotion, the correct disposition\nwould be ROLL BACK. A future authorized",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-10",
+        "kind": "narration",
+        "text": "deployment would monitor unauthorized tool\nattempts, policy denials, secret-pattern",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-11",
+        "kind": "narration",
+        "text": "alerts, p95 latency under the declared\nmethod, crash rate, dependency recovery,",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-12",
+        "kind": "narration",
+        "text": "and slice regressions. Re-run the full\ngate after any artifact, tokenizer,",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-13",
+        "kind": "narration",
+        "text": "template, adapter, runtime, quantization,\nhardware, policy, configuration, data,",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-14",
+        "kind": "narration",
+        "text": "traffic, case-set, or grader change, and\nno later than evidence expiry. Roll back",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-15",
+        "kind": "narration",
+        "text": "on a critical prohibited effect,\npersistent service-objective breach for",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-16",
+        "kind": "narration",
+        "text": "the declared window, failed recovery test,\nor identity drift. Kubernetes security",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-release-disposition-narration-17",
+        "kind": "narration",
+        "text": "guidance is configuration guidance, not\nproof that a deployed control is enforced.",
+        "sectionId": "issue-release-disposition"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-activity-transition-1",
+        "kind": "narration",
+        "text": "Now create the exact-build release gate.\nDefine one synthetic immutable serving"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-activity-transition-2",
+        "kind": "narration",
+        "text": "build, five supported claims, three\nprohibited effects, two service"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-activity-transition-3",
+        "kind": "narration",
+        "text": "objectives, and one recovery claim. Use\nthe supplied twelve cases: C01 and C02"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-activity-transition-4",
+        "kind": "narration",
+        "text": "representative grounded answers, C03\nSpanish, C04 short context, C05 prompt"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-activity-transition-5",
+        "kind": "narration",
+        "text": "injection, C06 critical authorization, C07\naccessibility, C08 dependency failure, C09"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-activity-transition-6",
+        "kind": "narration",
+        "text": "incident, C10 overload, and C11 and C12\nsealed holdouts. Assign deterministic,"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-activity-transition-7",
+        "kind": "narration",
+        "text": "blinded human, or calibrated\nmodel-assisted graders. Compare nonempty"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-activity-transition-8",
+        "kind": "narration",
+        "text": "baseline and candidate results under the\nsame explicit conditions. Report exact"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-activity-transition-9",
+        "kind": "narration",
+        "text": "integer arithmetic by slice and\ndistribution. Then issue pass, bounded"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-activity-transition-10",
+        "kind": "narration",
+        "text": "pilot, hold, reject, or rollback with\nevidence links, authority, monitoring,"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-activity-transition-11",
+        "kind": "narration",
+        "text": "expiry, and regression additions. Remember\nthat the activity uses synthetic fixture"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-activity-transition-12",
+        "kind": "narration",
+        "text": "records and does not invoke an endpoint."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-activity-work-time",
+        "kind": "pause",
+        "text": "Provide 180 seconds of optional work time with pause, extend, save, and continue controls. Keep all worksheets available as text. Do not start commands or submit work automatically."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-assessment-handoff-1",
+        "kind": "narration",
+        "text": "Begin the knowledge check when you can\nidentify the exact evaluation target,"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-assessment-handoff-2",
+        "kind": "narration",
+        "text": "protect holdout independence, bound\nmodel-assisted grading, preserve a"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-assessment-handoff-3",
+        "kind": "narration",
+        "text": "must-not-regress gate, explain slice\nreporting, distinguish the original C06"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-assessment-handoff-4",
+        "kind": "narration",
+        "text": "failure from the changed all-pass case,\nand name the authorized human release"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-assessment-handoff-5",
+        "kind": "narration",
+        "text": "decision. The check starts only when you\nchoose Begin knowledge check."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-class-closing-1",
+        "kind": "narration",
+        "text": "Remember the central rule: evaluate the\nimmutable system you will deploy, not a"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-class-closing-2",
+        "kind": "narration",
+        "text": "family label or unrelated benchmark. Write\nclaims before evidence, keep holdouts"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-class-closing-3",
+        "kind": "narration",
+        "text": "independent, preserve exact case and\nidentity bindings, keep every grader"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-class-closing-4",
+        "kind": "narration",
+        "text": "bounded, expose critical slices, reject\nmalformed and incomplete dossiers, and"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-class-closing-5",
+        "kind": "narration",
+        "text": "never average away a prohibited effect. In\nthis synthetic dossier, 11 of 12 and"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-class-closing-6",
+        "kind": "narration",
+        "text": "91.67 percent still means REJECT because\nC06 performs an unauthorized write. A"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-class-closing-7",
+        "kind": "narration",
+        "text": "valid changed dossier with 12 of 12 and\n100.00 percent can pass because the"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-class-closing-8",
+        "kind": "narration",
+        "text": "gate is not deny-all. Evidence supports\nthe decision, but accountable humans"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-class-closing-9",
+        "kind": "narration",
+        "text": "decide promotion, pilot, hold, rejection,\nor rollback."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-learner-prompt",
+        "kind": "learner-prompt",
+        "text": "Predict the release result before reading the repair lab. The starter gate prints PASS aggregate=91.67% criticalFailures=1 and exits with code 0, even though C06 has an unauthorized write. After a correct repair, predict the exact output and exit code. Also predict what should happen when a changed valid dossier has all twelve cases passing, complete evidence, matching identity, both service objectives, and successful recovery."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-checkpoint",
+        "kind": "checkpoint",
+        "text": "Checkpoint. The candidate improves average usefulness and latency, but one predeclared must-not-regress authorization case performs an unauthorized write. A model grader rates the answer highly. What should the release gate do, and which evidence controls the decision? State the disposition, the blocking condition, and the evidence that must be preserved.",
+        "sectionId": "combine-graders"
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-assessment-handoff",
+        "kind": "assessment-handoff",
+        "text": "Begin the knowledge check when you can identify the exact evaluation target, protect holdout independence, bound model-assisted grading, preserve a must-not-regress gate, explain slice reporting, distinguish the original C06 failure from the changed all-pass case, and name the authorized human release decision. The check starts only when you choose Begin knowledge check."
+      },
+      {
+        "id": "cue-evaluate-the-exact-serving-build-visual",
+        "kind": "visual",
+        "text": "A static title card lists the four objectives and states that the dossier is synthetic teaching data, not live deployment evidence.",
+        "accessibilityAlternative": "The lesson evaluates an exact serving build using synthetic fixture evidence and does not approve a live endpoint."
+      }
+    ],
+    "captions": [
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-1",
+        "startSeconds": 0,
+        "endSeconds": 6,
+        "text": "Welcome. This class is about making a\nrelease decision for the exact serving"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-2",
+        "startSeconds": 6,
+        "endSeconds": 13,
+        "text": "build you intend to deploy. We are not\ndeciding whether a model family is"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-3",
+        "startSeconds": 13,
+        "endSeconds": 18,
+        "text": "generally good. We are deciding whether\none immutable combination of artifact,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-4",
+        "startSeconds": 18,
+        "endSeconds": 22,
+        "text": "tokenizer, template, adapter, runtime,\nquantization, hardware, policy, and"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-5",
+        "startSeconds": 22,
+        "endSeconds": 27,
+        "text": "configuration has enough evidence for a\nparticular release. We will write"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-6",
+        "startSeconds": 27,
+        "endSeconds": 32,
+        "text": "falsifiable claims and gates, build\ngoverned cases, combine deterministic"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-7",
+        "startSeconds": 32,
+        "endSeconds": 37,
+        "text": "checks with calibrated human judgment,\ncompare baseline and candidate by slice"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-8",
+        "startSeconds": 37,
+        "endSeconds": 43,
+        "text": "and distribution, repair a deliberately\nunsafe gate, and issue a human release"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-9",
+        "startSeconds": 43,
+        "endSeconds": 47,
+        "text": "disposition. All dossier outputs,\nidentities, measurements, reviewer names,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-10",
+        "startSeconds": 47,
+        "endSeconds": 52,
+        "text": "and signatures in this lesson are\nsynthetic fixtures. They are not"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-welcome-and-outcomes-11",
+        "startSeconds": 52,
+        "endSeconds": 57,
+        "text": "observations from a live endpoint, and\nthey do not constitute approval."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-1",
+        "startSeconds": 57,
+        "endSeconds": 62,
+        "text": "Begin with claims, before running the\ncandidate. List supported tasks, users,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-2",
+        "startSeconds": 62,
+        "endSeconds": 66,
+        "text": "languages, modalities, contexts, tools,\nsafety boundaries, accessibility"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-3",
+        "startSeconds": 66,
+        "endSeconds": 71,
+        "text": "requirements, latency and throughput\nobjectives, cost and privacy rules, and"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-4",
+        "startSeconds": 71,
+        "endSeconds": 77,
+        "text": "recovery behavior. Convert each item into\nan observable case, a scoring rule, a"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-5",
+        "startSeconds": 77,
+        "endSeconds": 82,
+        "text": "critical slice, a must-not-regress\ncondition, and a threshold. Also state"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-6",
+        "startSeconds": 82,
+        "endSeconds": 87,
+        "text": "prohibited effects. In this dossier, five\nsupported claims cover grounded answers,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-7",
+        "startSeconds": 87,
+        "endSeconds": 91,
+        "text": "English and Spanish requests, accessible\nplain-language output, authorized"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-8",
+        "startSeconds": 91,
+        "endSeconds": 96,
+        "text": "read-only tool use, and stable refusal\nbehavior. Three prohibited effects forbid"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-9",
+        "startSeconds": 96,
+        "endSeconds": 101,
+        "text": "unauthorized tool calls, disclosure of\nfixture secrets, and unsafe incident"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-10",
+        "startSeconds": 101,
+        "endSeconds": 107,
+        "text": "instructions. Two service objectives set a\nsynthetic p95 latency limit of 220"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-11",
+        "startSeconds": 107,
+        "endSeconds": 112,
+        "text": "milliseconds and a zero-crash requirement.\nThe recovery claim requires a failed"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-12",
+        "startSeconds": 112,
+        "endSeconds": 118,
+        "text": "dependency to produce a bounded error and\na successful retry after restoration."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-13",
+        "startSeconds": 118,
+        "endSeconds": 124,
+        "text": "These are synthetic teaching claims, not\nmeasurements from a live endpoint. A claim"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claims-and-gates-narration-14",
+        "startSeconds": 124,
+        "endSeconds": 130,
+        "text": "is useful only if it could be shown false\nby an observed result."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-1",
+        "startSeconds": 130,
+        "endSeconds": 136,
+        "text": "Now inspect the exact identity contract.\nIt requires nonempty typed values for"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-2",
+        "startSeconds": 136,
+        "endSeconds": 141,
+        "text": "artifact digest, tokenizer digest,\ntemplate digest, adapter identity, runtime"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-3",
+        "startSeconds": 141,
+        "endSeconds": 146,
+        "text": "version, quantization, hardware profile,\npolicy digest, configuration digest, and"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-4",
+        "startSeconds": 146,
+        "endSeconds": 151,
+        "text": "case-set version. Digest fields use sha256\nidentifiers. The fixture values are"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-5",
+        "startSeconds": 151,
+        "endSeconds": 155,
+        "text": "synthetic labels, not cryptographic\nattestations. Unknown, missing, empty,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-6",
+        "startSeconds": 155,
+        "endSeconds": 161,
+        "text": "extra, or mistyped identity fields\ninvalidate the dossier. A family label is"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-7",
+        "startSeconds": 161,
+        "endSeconds": 166,
+        "text": "not enough. Meta Llama, Qwen, DeepSeek,\nMistral, Microsoft Phi, and NVIDIA"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-8",
+        "startSeconds": 166,
+        "endSeconds": 171,
+        "text": "software refer to different families,\nrepositories, serving components, and"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-9",
+        "startSeconds": 171,
+        "endSeconds": 176,
+        "text": "optimization tools. Do not infer a shared\ninterface, tokenizer, security boundary,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-10",
+        "startSeconds": 176,
+        "endSeconds": 181,
+        "text": "license, tool-use contract, or runtime\nbehavior from those names. Consult the"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-11",
+        "startSeconds": 181,
+        "endSeconds": 186,
+        "text": "relevant first-party repository, then\nevaluate the exact combination actually"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-12",
+        "startSeconds": 186,
+        "endSeconds": 193,
+        "text": "deployed. The target is not a model card\nresult or a benchmark result from"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-exact-build-identity-demonstration-13",
+        "startSeconds": 193,
+        "endSeconds": 199,
+        "text": "a different system. It is the bound build\nnamed by the dossier."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-1",
+        "startSeconds": 199,
+        "endSeconds": 204,
+        "text": "Map claims to evidence rather than\naveraging unrelated obligations. A"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-2",
+        "startSeconds": 204,
+        "endSeconds": 210,
+        "text": "grounded answer can receive an exact\ncitation and schema check. Usefulness and"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-3",
+        "startSeconds": 210,
+        "endSeconds": 215,
+        "text": "language quality can receive blinded human\nreview. Authorization can receive"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-4",
+        "startSeconds": 215,
+        "endSeconds": 220,
+        "text": "deterministic policy and side-effect\nchecks. Latency can receive a distribution"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-5",
+        "startSeconds": 220,
+        "endSeconds": 224,
+        "text": "under controlled hardware, runtime,\nrequest, concurrency, and warm-up"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-6",
+        "startSeconds": 224,
+        "endSeconds": 229,
+        "text": "conditions. Recovery can receive a timed\nexercise and exact identity comparison."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-7",
+        "startSeconds": 229,
+        "endSeconds": 234,
+        "text": "The predeclared rubric says PASS requires\na structurally valid dossier, exact"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-8",
+        "startSeconds": 234,
+        "endSeconds": 239,
+        "text": "expected identity, nonempty baseline and\ncandidate results, complete evidence with"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-9",
+        "startSeconds": 239,
+        "endSeconds": 244,
+        "text": "correct subject and case binding, truthful\ninteger denominators, an aggregate pass"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-10",
+        "startSeconds": 244,
+        "endSeconds": 251,
+        "text": "rate of at least 0.90, no failed critical\ncase, both service objectives, and every"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-11",
+        "startSeconds": 251,
+        "endSeconds": 257,
+        "text": "bound recovery case. BOUNDED PILOT covers\nan aggregate from 0.85 through less than"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-12",
+        "startSeconds": 257,
+        "endSeconds": 263,
+        "text": "0.90 when there is no critical failure and\ncompensating control is documented. HOLD"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-13",
+        "startSeconds": 263,
+        "endSeconds": 268,
+        "text": "FOR EVIDENCE applies when identity,\nevidence, denominator, calibration, or"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-14",
+        "startSeconds": 268,
+        "endSeconds": 273,
+        "text": "required review material is incomplete.\nREJECT applies before deployment when a"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-15",
+        "startSeconds": 273,
+        "endSeconds": 278,
+        "text": "critical case, prohibited effect, service\nobjective, or recovery requirement fails."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-16",
+        "startSeconds": 278,
+        "endSeconds": 284,
+        "text": "ROLL BACK applies after deployment when\nthe same condition is observed or a"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-17",
+        "startSeconds": 284,
+        "endSeconds": 289,
+        "text": "declared rollback trigger fires. An\nautomated predicate supplies evidence. An"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-claim-traceability-demonstration-18",
+        "startSeconds": 289,
+        "endSeconds": 292,
+        "text": "authorized human still decides promotion."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-1",
+        "startSeconds": 292,
+        "endSeconds": 298,
+        "text": "Build a governed, versioned case set.\nCover common tasks, important users and"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-2",
+        "startSeconds": 298,
+        "endSeconds": 303,
+        "text": "data slices, short and long contexts,\nmultilingual and accessibility needs, edge"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-3",
+        "startSeconds": 303,
+        "endSeconds": 307,
+        "text": "cases, known failures, adversarial\nprompts, unsafe requests, prompt"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-4",
+        "startSeconds": 307,
+        "endSeconds": 311,
+        "text": "injection, malformed protocol input,\ntimeouts, overload, dependency failure,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-5",
+        "startSeconds": 311,
+        "endSeconds": 316,
+        "text": "restart, rollback, and incident\nreproduction. Keep holdout cases separate"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-6",
+        "startSeconds": 316,
+        "endSeconds": 321,
+        "text": "from prompt, template, adapter, policy,\nthreshold, and configuration tuning. For"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-7",
+        "startSeconds": 321,
+        "endSeconds": 326,
+        "text": "every case, record owner, purpose, source,\npermission, sensitivity, expected"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-8",
+        "startSeconds": 326,
+        "endSeconds": 331,
+        "text": "properties, prohibited effects, allowed\ntool trajectory, rubric, and expiry."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-9",
+        "startSeconds": 331,
+        "endSeconds": 337,
+        "text": "Minimize personal or restricted data, and\nuse synthetic or approved fixtures when"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-10",
+        "startSeconds": 337,
+        "endSeconds": 342,
+        "text": "possible. Review generated cases for\nrealism, duplicated patterns, mislabeled"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-11",
+        "startSeconds": 342,
+        "endSeconds": 348,
+        "text": "expectations, and hidden leakage. The\ntwelve synthetic cases are C01 and C02"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-12",
+        "startSeconds": 348,
+        "endSeconds": 353,
+        "text": "representative grounded-answer cases; C03\na Spanish slice; C04 a short-context"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-13",
+        "startSeconds": 353,
+        "endSeconds": 358,
+        "text": "boundary; C05 an adversarial\nprompt-injection case; C06 the critical"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-14",
+        "startSeconds": 358,
+        "endSeconds": 363,
+        "text": "authorization slice; C07 plain-language\naccessibility; C08 dependency failure; C09"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-15",
+        "startSeconds": 363,
+        "endSeconds": 369,
+        "text": "an incident involving secret-like text;\nC10 an overload boundary; and C11 and C12"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-16",
+        "startSeconds": 369,
+        "endSeconds": 374,
+        "text": "sealed holdouts for recovery and\nunsafe-instruction refusal. The fixtures"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-17",
+        "startSeconds": 374,
+        "endSeconds": 380,
+        "text": "are marked internal-training and expire on\n2026-10-13. A real production case set"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-versioned-cases-narration-18",
+        "startSeconds": 380,
+        "endSeconds": 383,
+        "text": "needs permission and privacy review."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-1",
+        "startSeconds": 383,
+        "endSeconds": 388,
+        "text": "Match each property to a grader.\nDeterministic checks own schemas,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-2",
+        "startSeconds": 388,
+        "endSeconds": 393,
+        "text": "citations, authorization, policy flags,\npermitted tool trajectories, side effects,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-3",
+        "startSeconds": 393,
+        "endSeconds": 397,
+        "text": "timeouts, resource limits, exact\nidentities, and recovery postconditions."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-4",
+        "startSeconds": 397,
+        "endSeconds": 401,
+        "text": "Blinded humans own usefulness, nuance,\naccessibility, and high-consequence"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-5",
+        "startSeconds": 401,
+        "endSeconds": 407,
+        "text": "quality that cannot safely be reduced to\none exact rule. A model-assisted grader"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-6",
+        "startSeconds": 407,
+        "endSeconds": 412,
+        "text": "may add a versioned usefulness signal\nafter calibration against labeled examples"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-7",
+        "startSeconds": 412,
+        "endSeconds": 418,
+        "text": "and disagreement analysis. In this dossier\nits version is fixture-grader-1.0, and it"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-8",
+        "startSeconds": 418,
+        "endSeconds": 424,
+        "text": "has four calibration items: two agreements\nand two disagreements. The raw agreement"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-9",
+        "startSeconds": 424,
+        "endSeconds": 431,
+        "text": "is two out of four. That is 2 divided by\n4, which equals 0.5,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-10",
+        "startSeconds": 431,
+        "endSeconds": 436,
+        "text": "or 50 percent. This tiny fictional record\nis explicitly non-authoritative. On"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-11",
+        "startSeconds": 436,
+        "endSeconds": 442,
+        "text": "CAL-02, the model grader passed a fluent\nanswer that contradicted the supplied"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-12",
+        "startSeconds": 442,
+        "endSeconds": 449,
+        "text": "source; the citation check and human label\nfailed it. On CAL-03, the model grader"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-13",
+        "startSeconds": 449,
+        "endSeconds": 455,
+        "text": "failed a concise Spanish answer while the\nbilingual human label found it correct."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-14",
+        "startSeconds": 455,
+        "endSeconds": 460,
+        "text": "These disagreements have causes. Fluency\ncannot substitute for source fidelity, and"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-15",
+        "startSeconds": 460,
+        "endSeconds": 465,
+        "text": "language preference cannot substitute for\ncorrectness. Preserve raw outputs, traces,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-16",
+        "startSeconds": 465,
+        "endSeconds": 470,
+        "text": "grader versions, rubrics, rationales where\nappropriate, overrides, and adjudication."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-17",
+        "startSeconds": 470,
+        "endSeconds": 475,
+        "text": "Any disagreement on a critical or\nprohibited-effect case goes to an"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-18",
+        "startSeconds": 475,
+        "endSeconds": 481,
+        "text": "authorized human. Candidate output cannot\ngrade itself, and no model grader has"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-graders-narration-19",
+        "startSeconds": 481,
+        "endSeconds": 482,
+        "text": "promotion authority."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-critical-gate-checkpoint-1",
+        "startSeconds": 482,
+        "endSeconds": 487,
+        "text": "Checkpoint. The candidate improves average\nusefulness and latency, but one"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-critical-gate-checkpoint-2",
+        "startSeconds": 487,
+        "endSeconds": 492,
+        "text": "predeclared must-not-regress authorization\ncase performs an unauthorized write. A"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-critical-gate-checkpoint-3",
+        "startSeconds": 492,
+        "endSeconds": 499,
+        "text": "model grader rates the answer highly. What\nshould the release gate do, and which"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-critical-gate-checkpoint-4",
+        "startSeconds": 499,
+        "endSeconds": 504,
+        "text": "evidence controls the decision? State the\ndisposition, the blocking condition, and"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-critical-gate-checkpoint-5",
+        "startSeconds": 504,
+        "endSeconds": 507,
+        "text": "the evidence that must be preserved."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-1",
+        "startSeconds": 567,
+        "endSeconds": 572,
+        "text": "The correct reasoning honors the\npredeclared critical authorization gate."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-2",
+        "startSeconds": 572,
+        "endSeconds": 578,
+        "text": "The unauthorized write is a prohibited\neffect, so the candidate cannot pass"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-3",
+        "startSeconds": 578,
+        "endSeconds": 584,
+        "text": "because its averages improved or because a\nmodel grader preferred the answer. Reject"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-4",
+        "startSeconds": 584,
+        "endSeconds": 590,
+        "text": "it before deployment, or hold it while the\nrequired investigation and authorized"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-5",
+        "startSeconds": 590,
+        "endSeconds": 596,
+        "text": "decision are completed. Preserve the exact\nbuild identity, raw output and trace,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-6",
+        "startSeconds": 596,
+        "endSeconds": 601,
+        "text": "deterministic policy decision, side effect\nrecord, and model-grader disagreement."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-7",
+        "startSeconds": 601,
+        "endSeconds": 607,
+        "text": "Investigate which layer caused the effect.\nIf the answer averaged away the failure,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-8",
+        "startSeconds": 607,
+        "endSeconds": 613,
+        "text": "the repair is to restore the distinction\nbetween a release-blocking invariant and a"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-9",
+        "startSeconds": 613,
+        "endSeconds": 618,
+        "text": "trend metric. The critical result remains\nblocking until an authorized process"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-critical-gate-feedback-10",
+        "startSeconds": 618,
+        "endSeconds": 624,
+        "text": "resolves it. A high score is not\npermission to ignore a safety boundary."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-1",
+        "startSeconds": 624,
+        "endSeconds": 630,
+        "text": "Compare baseline and candidate under the\nsame explicitly bound conditions. Bind the"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-2",
+        "startSeconds": 630,
+        "endSeconds": 636,
+        "text": "case set, prompt set, deterministic seed\n4242, greedy sampling, request limit 12,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-3",
+        "startSeconds": 636,
+        "endSeconds": 641,
+        "text": "concurrency 1, synthetic CPU hardware\nallocation, fixture runtime, grader"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-4",
+        "startSeconds": 641,
+        "endSeconds": 647,
+        "text": "versions, rubric, and load schedule. Keep\nevery case exactly once in both nonempty"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-5",
+        "startSeconds": 647,
+        "endSeconds": 652,
+        "text": "result sets. Only the declared candidate\nvariables differ: artifact digest,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-6",
+        "startSeconds": 652,
+        "endSeconds": 657,
+        "text": "template digest, quantization, and\nconfiguration digest. Any other condition"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-7",
+        "startSeconds": 657,
+        "endSeconds": 661,
+        "text": "drift invalidates attribution. Report\ninteger numerators and denominators,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-8",
+        "startSeconds": 661,
+        "endSeconds": 665,
+        "text": "severity, uncertainty, disagreements,\nlatency distributions, resource use, and"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-9",
+        "startSeconds": 665,
+        "endSeconds": 670,
+        "text": "failures by slice. MLPerf Inference\ndemonstrates why a performance result is"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-10",
+        "startSeconds": 670,
+        "endSeconds": 676,
+        "text": "specific to a defined workload, scenario,\nand measured system. It does not prove"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-11",
+        "startSeconds": 676,
+        "endSeconds": 680,
+        "text": "that this application's claims,\naccessibility, safety, or recovery"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-12",
+        "startSeconds": 680,
+        "endSeconds": 685,
+        "text": "behavior passes. Docker documents that\ncontainers have no resource constraints by"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-13",
+        "startSeconds": 685,
+        "endSeconds": 690,
+        "text": "default, so resource limits must be\nconfigured or recorded rather than"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-14",
+        "startSeconds": 690,
+        "endSeconds": 694,
+        "text": "assumed. Investigate every critical\nregression and every unexpected"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-15",
+        "startSeconds": 694,
+        "endSeconds": 700,
+        "text": "improvement. A faster quantized build can\nalter quality. A safer refusal policy can"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-16",
+        "startSeconds": 700,
+        "endSeconds": 707,
+        "text": "create false blocks. An aggregate can\nconceal harm to a smaller group or rare"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-slice-comparison-narration-17",
+        "startSeconds": 707,
+        "endSeconds": 708,
+        "text": "workflow."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-1",
+        "startSeconds": 708,
+        "endSeconds": 715,
+        "text": "Work the fixture arithmetic. The baseline\npasses 10 of 12 cases. Compute 10 divided"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-2",
+        "startSeconds": 715,
+        "endSeconds": 721,
+        "text": "by 12: that is 0.833333 repeating, or\n83.33 percent when displayed to two"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-3",
+        "startSeconds": 721,
+        "endSeconds": 728,
+        "text": "decimal places. The candidate passes 11 of\n12. Compute 11 divided by 12: that"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-4",
+        "startSeconds": 728,
+        "endSeconds": 733,
+        "text": "is 0.916666 repeating, or 91.67 percent.\nThe candidate clears the aggregate"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-5",
+        "startSeconds": 733,
+        "endSeconds": 739,
+        "text": "threshold of 0.90. But C06, the critical\nauthorization case, changes from one of"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-6",
+        "startSeconds": 739,
+        "endSeconds": 746,
+        "text": "one passing in the baseline to zero of one\npassing in the candidate, and"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-7",
+        "startSeconds": 746,
+        "endSeconds": 751,
+        "text": "the candidate performs an unauthorized\nwrite. Representative cases improve from"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-8",
+        "startSeconds": 751,
+        "endSeconds": 758,
+        "text": "one of two to two of two. Spanish remains\none of one. Accessibility improves"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-9",
+        "startSeconds": 758,
+        "endSeconds": 765,
+        "text": "from zero of one to one of one. Failure,\nincident, overload, and both holdouts"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-10",
+        "startSeconds": 765,
+        "endSeconds": 771,
+        "text": "pass. The candidate latency observations,\nin milliseconds, are 82, 88, 94, 101, 109,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-11",
+        "startSeconds": 771,
+        "endSeconds": 777,
+        "text": "116, 123, 131, 144, 159, 177, and 196.\nUnder the dossier's declared nearest-rank"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-12",
+        "startSeconds": 777,
+        "endSeconds": 783,
+        "text": "method, the p95 is 196 milliseconds, below\nthe 220 millisecond objective. The"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-13",
+        "startSeconds": 783,
+        "endSeconds": 789,
+        "text": "candidate has zero crashes. Those service\nresults do not cancel C06. The correct"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-14",
+        "startSeconds": 789,
+        "endSeconds": 794,
+        "text": "predeployment disposition is REJECT. If\nC06 were observed after promotion, the"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-15",
+        "startSeconds": 794,
+        "endSeconds": 801,
+        "text": "disposition would be ROLL BACK. Do not\nreport the obsolete result of 21 passes"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-16",
+        "startSeconds": 801,
+        "endSeconds": 808,
+        "text": "and 3 failures. The authoritative fixture\nresult is 11 of 12 for the candidate,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-worked-dossier-demonstration-17",
+        "startSeconds": 808,
+        "endSeconds": 810,
+        "text": "with C06 failed."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-prediction-prompt-1",
+        "startSeconds": 810,
+        "endSeconds": 816,
+        "text": "Predict the release result before reading\nthe repair lab. The starter gate prints"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-prediction-prompt-2",
+        "startSeconds": 816,
+        "endSeconds": 822,
+        "text": "PASS aggregate=91.67% criticalFailures=1\nand exits with code 0, even though C06 has"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-prediction-prompt-3",
+        "startSeconds": 822,
+        "endSeconds": 828,
+        "text": "an unauthorized write. After a correct\nrepair, predict the exact output and exit"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-prediction-prompt-4",
+        "startSeconds": 828,
+        "endSeconds": 835,
+        "text": "code. Also predict what should happen when\na changed valid dossier has all twelve"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-prediction-prompt-5",
+        "startSeconds": 835,
+        "endSeconds": 840,
+        "text": "cases passing, complete evidence, matching\nidentity, both service objectives, and"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-prediction-prompt-6",
+        "startSeconds": 840,
+        "endSeconds": 841,
+        "text": "successful recovery."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-1",
+        "startSeconds": 901,
+        "endSeconds": 908,
+        "text": "This second lab repairs a release gate. It\nuses strict local parsing and validation."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-2",
+        "startSeconds": 908,
+        "endSeconds": 913,
+        "text": "Malformed, empty, unknown, mistyped,\nunbound, or arithmetically false dossier"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-3",
+        "startSeconds": 913,
+        "endSeconds": 919,
+        "text": "data must be rejected before the gate\npredicate runs. This is fixture"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-4",
+        "startSeconds": 919,
+        "endSeconds": 925,
+        "text": "simulation. It is not a live model\nevaluation, cloud execution, or approval"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-5",
+        "startSeconds": 925,
+        "endSeconds": 932,
+        "text": "decision. The deliberate defect is only in\ngate dot js. The starter decides from"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-6",
+        "startSeconds": 932,
+        "endSeconds": 938,
+        "text": "aggregate pass rate alone. That lets an\naggregate of ninety-one point sixty-seven"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-7",
+        "startSeconds": 938,
+        "endSeconds": 945,
+        "text": "percent pass even when one critical check\nfails. Edit only gate dot js. Preserve"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-8",
+        "startSeconds": 945,
+        "endSeconds": 950,
+        "text": "the parser and validator. The correct\ndecision combines independent conditions."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-9",
+        "startSeconds": 950,
+        "endSeconds": 956,
+        "text": "Identity must match exactly. Baseline and\ncandidate results must be present and"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-10",
+        "startSeconds": 956,
+        "endSeconds": 961,
+        "text": "nonempty. Evidence must be complete.\nDenominators must be truthful. The"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-11",
+        "startSeconds": 961,
+        "endSeconds": 967,
+        "text": "aggregate must reach ninety percent. There\nmust be no critical failure. Both service"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-12",
+        "startSeconds": 967,
+        "endSeconds": 973,
+        "text": "objectives must pass, and recovery must\nsucceed. The gate fails closed when any"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-13",
+        "startSeconds": 973,
+        "endSeconds": 979,
+        "text": "one of these conditions fails. Do not\nreject every input, inspect a fixture"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-14",
+        "startSeconds": 979,
+        "endSeconds": 986,
+        "text": "name, or hard-code check C zero six. Those\nshortcuts would hide defects and fail"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-15",
+        "startSeconds": 986,
+        "endSeconds": 992,
+        "text": "the valid all-pass case. The starter\noutput is pass with an aggregate of"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-16",
+        "startSeconds": 992,
+        "endSeconds": 997,
+        "text": "ninety-one point sixty-seven percent and\none critical failure. The repaired output"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-17",
+        "startSeconds": 997,
+        "endSeconds": 1003,
+        "text": "is reject with the same aggregate, one\ncritical failure, and the reason critical"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-18",
+        "startSeconds": 1003,
+        "endSeconds": 1010,
+        "text": "failure C zero six. The repaired process\nexit code is two, while the starter"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-19",
+        "startSeconds": 1010,
+        "endSeconds": 1017,
+        "text": "process exit code is zero. Install the\nstarter and predict the test result before"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-20",
+        "startSeconds": 1017,
+        "endSeconds": 1023,
+        "text": "looking at the answer. Sixteen of\ntwenty-four tests pass, so the process"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-21",
+        "startSeconds": 1023,
+        "endSeconds": 1030,
+        "text": "exits with code one. The failures identify\nthe causal gaps: a critical failure was"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-22",
+        "startSeconds": 1030,
+        "endSeconds": 1036,
+        "text": "averaged away, exact output and exit\nbehavior were wrong, identity mismatch was"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-23",
+        "startSeconds": 1036,
+        "endSeconds": 1041,
+        "text": "accepted, denominators were mismatched,\nevidence was incomplete, the aggregate was"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-24",
+        "startSeconds": 1041,
+        "endSeconds": 1048,
+        "text": "too low, a service failed, or recovery\nfailed. Now apply the focused repair. Run"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-25",
+        "startSeconds": 1048,
+        "endSeconds": 1053,
+        "text": "the independent learner tests. Then\ncompare them with the independent"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-26",
+        "startSeconds": 1053,
+        "endSeconds": 1059,
+        "text": "reference implementation. Both should pass\nall twenty-four tests and exit with code"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-27",
+        "startSeconds": 1059,
+        "endSeconds": 1065,
+        "text": "zero. Timing fields in Node test output\ncan vary, so compare the meaningful"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-28",
+        "startSeconds": 1065,
+        "endSeconds": 1072,
+        "text": "result, counts, and exit code. Restore the\nstarter when you need to repeat the"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-29",
+        "startSeconds": 1072,
+        "endSeconds": 1078,
+        "text": "exercise. These tests show gate behavior\non supplied dossiers. They do not"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-lab-demonstration-30",
+        "startSeconds": 1078,
+        "endSeconds": 1081,
+        "text": "establish a real release approval."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-1",
+        "startSeconds": 1081,
+        "endSeconds": 1087,
+        "text": "The causal answer is that aggregate-only\nlogic answers the wrong question. Eleven"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-2",
+        "startSeconds": 1087,
+        "endSeconds": 1092,
+        "text": "ordinary passes cannot compensate for an\nunauthorized write. The repair composes"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-3",
+        "startSeconds": 1092,
+        "endSeconds": 1097,
+        "text": "independent conditions and reports the\nfailed condition. Identity mutations"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-4",
+        "startSeconds": 1097,
+        "endSeconds": 1101,
+        "text": "produce identity-mismatch. Omitted\nevidence produces evidence-incomplete. A"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-5",
+        "startSeconds": 1101,
+        "endSeconds": 1105,
+        "text": "declared denominator inconsistent with\nrecords produces denominator-mismatch."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-6",
+        "startSeconds": 1105,
+        "endSeconds": 1110,
+        "text": "Aggregate, service, and recovery failures\nproduce their own reasons. Empty"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-7",
+        "startSeconds": 1110,
+        "endSeconds": 1116,
+        "text": "identities, a missing baseline, or a\nrecovery label that has no bound evidence"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-8",
+        "startSeconds": 1116,
+        "endSeconds": 1122,
+        "text": "are validation errors, not PASS inputs.\nThe validator also rejects unknown fields,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-9",
+        "startSeconds": 1122,
+        "endSeconds": 1127,
+        "text": "type errors, malformed schema versions,\ncondition drift, duplicate evidence,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-10",
+        "startSeconds": 1127,
+        "endSeconds": 1132,
+        "text": "wrongly bound evidence, and false\narithmetic. The decision must use parsed"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-11",
+        "startSeconds": 1132,
+        "endSeconds": 1137,
+        "text": "content. Renaming a generated file or\nchanging a noncritical case while"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-12",
+        "startSeconds": 1137,
+        "endSeconds": 1143,
+        "text": "recomputing its denominator must not alter\nthe logic. A filename check or memorized"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-13",
+        "startSeconds": 1143,
+        "endSeconds": 1149,
+        "text": "answer would therefore be wrong. The lab\nproves gate behavior over trusted"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-14",
+        "startSeconds": 1149,
+        "endSeconds": 1155,
+        "text": "synthetic records only. It does not scan,\nattest, benchmark, approve, or observe a"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-repair-causal-feedback-15",
+        "startSeconds": 1155,
+        "endSeconds": 1157,
+        "text": "live model or endpoint."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-prompt-1",
+        "startSeconds": 1157,
+        "endSeconds": 1163,
+        "text": "Now complete the changed-input task.\nImagine the candidate record is changed so"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-prompt-2",
+        "startSeconds": 1163,
+        "endSeconds": 1168,
+        "text": "all twelve cases pass, every bound\nevidence record remains present, identity"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-prompt-3",
+        "startSeconds": 1168,
+        "endSeconds": 1174,
+        "text": "still matches, both service objectives\npass, and recovery passes. The input is"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-prompt-4",
+        "startSeconds": 1174,
+        "endSeconds": 1180,
+        "text": "valid, but its filename is changed. Before\nviewing the answer, state the aggregate"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-prompt-5",
+        "startSeconds": 1180,
+        "endSeconds": 1185,
+        "text": "numerator and denominator, critical\nfailure count, exact expected output, exit"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-prompt-6",
+        "startSeconds": 1185,
+        "endSeconds": 1192,
+        "text": "code, and why deny-all is not a valid\nrepair. Also explain what happens if"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-prompt-7",
+        "startSeconds": 1192,
+        "endSeconds": 1197,
+        "text": "a noncritical case changes while its\ninteger denominator is recomputed"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-prompt-8",
+        "startSeconds": 1197,
+        "endSeconds": 1198,
+        "text": "consistently."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-1",
+        "startSeconds": 1258,
+        "endSeconds": 1265,
+        "text": "The changed valid dossier has 12 of 12\npassing cases. Twelve divided by twelve"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-2",
+        "startSeconds": 1265,
+        "endSeconds": 1272,
+        "text": "is 1.00, or 100.00 percent. It has zero\ncritical failures. The exact output is"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-3",
+        "startSeconds": 1272,
+        "endSeconds": 1277,
+        "text": "PASS aggregate=100.00% criticalFailures=0\nfollowed by a newline, and the exit code"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-4",
+        "startSeconds": 1277,
+        "endSeconds": 1284,
+        "text": "is 0. A renamed file must receive the same\ndecision because the gate reads"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-5",
+        "startSeconds": 1284,
+        "endSeconds": 1290,
+        "text": "validated content, not a filename. A\nchanged noncritical case can still pass"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-6",
+        "startSeconds": 1290,
+        "endSeconds": 1295,
+        "text": "when its record, evidence, and recomputed\ninteger denominator remain truthful and"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-7",
+        "startSeconds": 1295,
+        "endSeconds": 1302,
+        "text": "all other conditions hold. Deny-all is not\na repair because the gate must distinguish"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-8",
+        "startSeconds": 1302,
+        "endSeconds": 1308,
+        "text": "a dossier with a critical failure from a\nvalid positive control. The all-pass"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-9",
+        "startSeconds": 1308,
+        "endSeconds": 1313,
+        "text": "variation demonstrates that the predicate\nis selective and fail-closed, not"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-changed-valid-case-feedback-10",
+        "startSeconds": 1313,
+        "endSeconds": 1314,
+        "text": "universally negative."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-1",
+        "startSeconds": 1314,
+        "endSeconds": 1320,
+        "text": "Issue one explicit disposition and\npreserve the evidence. Link every claim to"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-2",
+        "startSeconds": 1320,
+        "endSeconds": 1325,
+        "text": "cases, results, graders, and thresholds.\nRecord exact baseline and candidate"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-3",
+        "startSeconds": 1325,
+        "endSeconds": 1328,
+        "text": "identities, critical findings,\nuncertainty, exceptions, compensating"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-4",
+        "startSeconds": 1328,
+        "endSeconds": 1332,
+        "text": "controls, intended reviewers and\nauthority, monitoring, expiry, stop"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-5",
+        "startSeconds": 1332,
+        "endSeconds": 1337,
+        "text": "conditions, and rollback criteria. The\nsigned-paper disposition in this fixture"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-6",
+        "startSeconds": 1337,
+        "endSeconds": 1343,
+        "text": "says REJECT, but every listed signature is\nexplicitly fictional and unperformed. It"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-7",
+        "startSeconds": 1343,
+        "endSeconds": 1350,
+        "text": "is a teaching record, not an approval. If\nidentity or evidence were missing, the"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-8",
+        "startSeconds": 1350,
+        "endSeconds": 1356,
+        "text": "correct disposition would be HOLD FOR\nEVIDENCE rather than PASS. If C06 appeared"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-9",
+        "startSeconds": 1356,
+        "endSeconds": 1362,
+        "text": "after promotion, the correct disposition\nwould be ROLL BACK. A future authorized"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-10",
+        "startSeconds": 1362,
+        "endSeconds": 1367,
+        "text": "deployment would monitor unauthorized tool\nattempts, policy denials, secret-pattern"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-11",
+        "startSeconds": 1367,
+        "endSeconds": 1372,
+        "text": "alerts, p95 latency under the declared\nmethod, crash rate, dependency recovery,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-12",
+        "startSeconds": 1372,
+        "endSeconds": 1377,
+        "text": "and slice regressions. Re-run the full\ngate after any artifact, tokenizer,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-13",
+        "startSeconds": 1377,
+        "endSeconds": 1381,
+        "text": "template, adapter, runtime, quantization,\nhardware, policy, configuration, data,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-14",
+        "startSeconds": 1381,
+        "endSeconds": 1387,
+        "text": "traffic, case-set, or grader change, and\nno later than evidence expiry. Roll back"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-15",
+        "startSeconds": 1387,
+        "endSeconds": 1392,
+        "text": "on a critical prohibited effect,\npersistent service-objective breach for"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-16",
+        "startSeconds": 1392,
+        "endSeconds": 1397,
+        "text": "the declared window, failed recovery test,\nor identity drift. Kubernetes security"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-release-disposition-narration-17",
+        "startSeconds": 1397,
+        "endSeconds": 1403,
+        "text": "guidance is configuration guidance, not\nproof that a deployed control is enforced."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-activity-transition-1",
+        "startSeconds": 1403,
+        "endSeconds": 1408,
+        "text": "Now create the exact-build release gate.\nDefine one synthetic immutable serving"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-activity-transition-2",
+        "startSeconds": 1408,
+        "endSeconds": 1413,
+        "text": "build, five supported claims, three\nprohibited effects, two service"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-activity-transition-3",
+        "startSeconds": 1413,
+        "endSeconds": 1419,
+        "text": "objectives, and one recovery claim. Use\nthe supplied twelve cases: C01 and C02"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-activity-transition-4",
+        "startSeconds": 1419,
+        "endSeconds": 1424,
+        "text": "representative grounded answers, C03\nSpanish, C04 short context, C05 prompt"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-activity-transition-5",
+        "startSeconds": 1424,
+        "endSeconds": 1429,
+        "text": "injection, C06 critical authorization, C07\naccessibility, C08 dependency failure, C09"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-activity-transition-6",
+        "startSeconds": 1429,
+        "endSeconds": 1434,
+        "text": "incident, C10 overload, and C11 and C12\nsealed holdouts. Assign deterministic,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-activity-transition-7",
+        "startSeconds": 1434,
+        "endSeconds": 1438,
+        "text": "blinded human, or calibrated\nmodel-assisted graders. Compare nonempty"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-activity-transition-8",
+        "startSeconds": 1438,
+        "endSeconds": 1443,
+        "text": "baseline and candidate results under the\nsame explicit conditions. Report exact"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-activity-transition-9",
+        "startSeconds": 1443,
+        "endSeconds": 1448,
+        "text": "integer arithmetic by slice and\ndistribution. Then issue pass, bounded"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-activity-transition-10",
+        "startSeconds": 1448,
+        "endSeconds": 1453,
+        "text": "pilot, hold, reject, or rollback with\nevidence links, authority, monitoring,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-activity-transition-11",
+        "startSeconds": 1453,
+        "endSeconds": 1458,
+        "text": "expiry, and regression additions. Remember\nthat the activity uses synthetic fixture"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-activity-transition-12",
+        "startSeconds": 1458,
+        "endSeconds": 1462,
+        "text": "records and does not invoke an endpoint."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-assessment-handoff-1",
+        "startSeconds": 1642,
+        "endSeconds": 1648,
+        "text": "Begin the knowledge check when you can\nidentify the exact evaluation target,"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-assessment-handoff-2",
+        "startSeconds": 1648,
+        "endSeconds": 1652,
+        "text": "protect holdout independence, bound\nmodel-assisted grading, preserve a"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-assessment-handoff-3",
+        "startSeconds": 1652,
+        "endSeconds": 1657,
+        "text": "must-not-regress gate, explain slice\nreporting, distinguish the original C06"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-assessment-handoff-4",
+        "startSeconds": 1657,
+        "endSeconds": 1663,
+        "text": "failure from the changed all-pass case,\nand name the authorized human release"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-assessment-handoff-5",
+        "startSeconds": 1663,
+        "endSeconds": 1668,
+        "text": "decision. The check starts only when you\nchoose Begin knowledge check."
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-class-closing-1",
+        "startSeconds": 1668,
+        "endSeconds": 1674,
+        "text": "Remember the central rule: evaluate the\nimmutable system you will deploy, not a"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-class-closing-2",
+        "startSeconds": 1674,
+        "endSeconds": 1679,
+        "text": "family label or unrelated benchmark. Write\nclaims before evidence, keep holdouts"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-class-closing-3",
+        "startSeconds": 1679,
+        "endSeconds": 1684,
+        "text": "independent, preserve exact case and\nidentity bindings, keep every grader"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-class-closing-4",
+        "startSeconds": 1684,
+        "endSeconds": 1689,
+        "text": "bounded, expose critical slices, reject\nmalformed and incomplete dossiers, and"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-class-closing-5",
+        "startSeconds": 1689,
+        "endSeconds": 1696,
+        "text": "never average away a prohibited effect. In\nthis synthetic dossier, 11 of 12 and"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-class-closing-6",
+        "startSeconds": 1696,
+        "endSeconds": 1702,
+        "text": "91.67 percent still means REJECT because\nC06 performs an unauthorized write. A"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-class-closing-7",
+        "startSeconds": 1702,
+        "endSeconds": 1709,
+        "text": "valid changed dossier with 12 of 12 and\n100.00 percent can pass because the"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-class-closing-8",
+        "startSeconds": 1709,
+        "endSeconds": 1714,
+        "text": "gate is not deny-all. Evidence supports\nthe decision, but accountable humans"
+      },
+      {
+        "cueId": "cue-evaluate-the-exact-serving-build-class-closing-9",
+        "startSeconds": 1714,
+        "endSeconds": 1718,
+        "text": "decide promotion, pilot, hold, rejection,\nor rollback."
+      }
+    ],
+    "transcript": "Welcome. This class is about making a\nrelease decision for the exact serving build you intend to deploy. We are not\ndeciding whether a model family is generally good. We are deciding whether\none immutable combination of artifact, tokenizer, template, adapter, runtime,\nquantization, hardware, policy, and configuration has enough evidence for a\nparticular release. We will write falsifiable claims and gates, build\ngoverned cases, combine deterministic checks with calibrated human judgment,\ncompare baseline and candidate by slice and distribution, repair a deliberately\nunsafe gate, and issue a human release disposition. All dossier outputs,\nidentities, measurements, reviewer names, and signatures in this lesson are\nsynthetic fixtures. They are not observations from a live endpoint, and\nthey do not constitute approval. Begin with claims, before running the\ncandidate. List supported tasks, users, languages, modalities, contexts, tools,\nsafety boundaries, accessibility requirements, latency and throughput\nobjectives, cost and privacy rules, and recovery behavior. Convert each item into\nan observable case, a scoring rule, a critical slice, a must-not-regress\ncondition, and a threshold. Also state prohibited effects. In this dossier, five\nsupported claims cover grounded answers, English and Spanish requests, accessible\nplain-language output, authorized read-only tool use, and stable refusal\nbehavior. Three prohibited effects forbid unauthorized tool calls, disclosure of\nfixture secrets, and unsafe incident instructions. Two service objectives set a\nsynthetic p95 latency limit of 220 milliseconds and a zero-crash requirement.\nThe recovery claim requires a failed dependency to produce a bounded error and\na successful retry after restoration. These are synthetic teaching claims, not\nmeasurements from a live endpoint. A claim is useful only if it could be shown false\nby an observed result. Now inspect the exact identity contract.\nIt requires nonempty typed values for artifact digest, tokenizer digest,\ntemplate digest, adapter identity, runtime version, quantization, hardware profile,\npolicy digest, configuration digest, and case-set version. Digest fields use sha256\nidentifiers. The fixture values are synthetic labels, not cryptographic\nattestations. Unknown, missing, empty, extra, or mistyped identity fields\ninvalidate the dossier. A family label is not enough. Meta Llama, Qwen, DeepSeek,\nMistral, Microsoft Phi, and NVIDIA software refer to different families,\nrepositories, serving components, and optimization tools. Do not infer a shared\ninterface, tokenizer, security boundary, license, tool-use contract, or runtime\nbehavior from those names. Consult the relevant first-party repository, then\nevaluate the exact combination actually deployed. The target is not a model card\nresult or a benchmark result from a different system. It is the bound build\nnamed by the dossier. Map claims to evidence rather than\naveraging unrelated obligations. A grounded answer can receive an exact\ncitation and schema check. Usefulness and language quality can receive blinded human\nreview. Authorization can receive deterministic policy and side-effect\nchecks. Latency can receive a distribution under controlled hardware, runtime,\nrequest, concurrency, and warm-up conditions. Recovery can receive a timed\nexercise and exact identity comparison. The predeclared rubric says PASS requires\na structurally valid dossier, exact expected identity, nonempty baseline and\ncandidate results, complete evidence with correct subject and case binding, truthful\ninteger denominators, an aggregate pass rate of at least 0.90, no failed critical\ncase, both service objectives, and every bound recovery case. BOUNDED PILOT covers\nan aggregate from 0.85 through less than 0.90 when there is no critical failure and\ncompensating control is documented. HOLD FOR EVIDENCE applies when identity,\nevidence, denominator, calibration, or required review material is incomplete.\nREJECT applies before deployment when a critical case, prohibited effect, service\nobjective, or recovery requirement fails. ROLL BACK applies after deployment when\nthe same condition is observed or a declared rollback trigger fires. An\nautomated predicate supplies evidence. An authorized human still decides promotion. Build a governed, versioned case set.\nCover common tasks, important users and data slices, short and long contexts,\nmultilingual and accessibility needs, edge cases, known failures, adversarial\nprompts, unsafe requests, prompt injection, malformed protocol input,\ntimeouts, overload, dependency failure, restart, rollback, and incident\nreproduction. Keep holdout cases separate from prompt, template, adapter, policy,\nthreshold, and configuration tuning. For every case, record owner, purpose, source,\npermission, sensitivity, expected properties, prohibited effects, allowed\ntool trajectory, rubric, and expiry. Minimize personal or restricted data, and\nuse synthetic or approved fixtures when possible. Review generated cases for\nrealism, duplicated patterns, mislabeled expectations, and hidden leakage. The\ntwelve synthetic cases are C01 and C02 representative grounded-answer cases; C03\na Spanish slice; C04 a short-context boundary; C05 an adversarial\nprompt-injection case; C06 the critical authorization slice; C07 plain-language\naccessibility; C08 dependency failure; C09 an incident involving secret-like text;\nC10 an overload boundary; and C11 and C12 sealed holdouts for recovery and\nunsafe-instruction refusal. The fixtures are marked internal-training and expire on\n2026-10-13. A real production case set needs permission and privacy review. Match each property to a grader.\nDeterministic checks own schemas, citations, authorization, policy flags,\npermitted tool trajectories, side effects, timeouts, resource limits, exact\nidentities, and recovery postconditions. Blinded humans own usefulness, nuance,\naccessibility, and high-consequence quality that cannot safely be reduced to\none exact rule. A model-assisted grader may add a versioned usefulness signal\nafter calibration against labeled examples and disagreement analysis. In this dossier\nits version is fixture-grader-1.0, and it has four calibration items: two agreements\nand two disagreements. The raw agreement is two out of four. That is 2 divided by\n4, which equals 0.5, or 50 percent. This tiny fictional record\nis explicitly non-authoritative. On CAL-02, the model grader passed a fluent\nanswer that contradicted the supplied source; the citation check and human label\nfailed it. On CAL-03, the model grader failed a concise Spanish answer while the\nbilingual human label found it correct. These disagreements have causes. Fluency\ncannot substitute for source fidelity, and language preference cannot substitute for\ncorrectness. Preserve raw outputs, traces, grader versions, rubrics, rationales where\nappropriate, overrides, and adjudication. Any disagreement on a critical or\nprohibited-effect case goes to an authorized human. Candidate output cannot\ngrade itself, and no model grader has promotion authority. Checkpoint. The candidate improves average\nusefulness and latency, but one predeclared must-not-regress authorization\ncase performs an unauthorized write. A model grader rates the answer highly. What\nshould the release gate do, and which evidence controls the decision? State the\ndisposition, the blocking condition, and the evidence that must be preserved. The correct reasoning honors the\npredeclared critical authorization gate. The unauthorized write is a prohibited\neffect, so the candidate cannot pass because its averages improved or because a\nmodel grader preferred the answer. Reject it before deployment, or hold it while the\nrequired investigation and authorized decision are completed. Preserve the exact\nbuild identity, raw output and trace, deterministic policy decision, side effect\nrecord, and model-grader disagreement. Investigate which layer caused the effect.\nIf the answer averaged away the failure, the repair is to restore the distinction\nbetween a release-blocking invariant and a trend metric. The critical result remains\nblocking until an authorized process resolves it. A high score is not\npermission to ignore a safety boundary. Compare baseline and candidate under the\nsame explicitly bound conditions. Bind the case set, prompt set, deterministic seed\n4242, greedy sampling, request limit 12, concurrency 1, synthetic CPU hardware\nallocation, fixture runtime, grader versions, rubric, and load schedule. Keep\nevery case exactly once in both nonempty result sets. Only the declared candidate\nvariables differ: artifact digest, template digest, quantization, and\nconfiguration digest. Any other condition drift invalidates attribution. Report\ninteger numerators and denominators, severity, uncertainty, disagreements,\nlatency distributions, resource use, and failures by slice. MLPerf Inference\ndemonstrates why a performance result is specific to a defined workload, scenario,\nand measured system. It does not prove that this application's claims,\naccessibility, safety, or recovery behavior passes. Docker documents that\ncontainers have no resource constraints by default, so resource limits must be\nconfigured or recorded rather than assumed. Investigate every critical\nregression and every unexpected improvement. A faster quantized build can\nalter quality. A safer refusal policy can create false blocks. An aggregate can\nconceal harm to a smaller group or rare workflow. Work the fixture arithmetic. The baseline\npasses 10 of 12 cases. Compute 10 divided by 12: that is 0.833333 repeating, or\n83.33 percent when displayed to two decimal places. The candidate passes 11 of\n12. Compute 11 divided by 12: that is 0.916666 repeating, or 91.67 percent.\nThe candidate clears the aggregate threshold of 0.90. But C06, the critical\nauthorization case, changes from one of one passing in the baseline to zero of one\npassing in the candidate, and the candidate performs an unauthorized\nwrite. Representative cases improve from one of two to two of two. Spanish remains\none of one. Accessibility improves from zero of one to one of one. Failure,\nincident, overload, and both holdouts pass. The candidate latency observations,\nin milliseconds, are 82, 88, 94, 101, 109, 116, 123, 131, 144, 159, 177, and 196.\nUnder the dossier's declared nearest-rank method, the p95 is 196 milliseconds, below\nthe 220 millisecond objective. The candidate has zero crashes. Those service\nresults do not cancel C06. The correct predeployment disposition is REJECT. If\nC06 were observed after promotion, the disposition would be ROLL BACK. Do not\nreport the obsolete result of 21 passes and 3 failures. The authoritative fixture\nresult is 11 of 12 for the candidate, with C06 failed. Predict the release result before reading\nthe repair lab. The starter gate prints PASS aggregate=91.67% criticalFailures=1\nand exits with code 0, even though C06 has an unauthorized write. After a correct\nrepair, predict the exact output and exit code. Also predict what should happen when\na changed valid dossier has all twelve cases passing, complete evidence, matching\nidentity, both service objectives, and successful recovery. This second lab repairs a release gate. It\nuses strict local parsing and validation. Malformed, empty, unknown, mistyped,\nunbound, or arithmetically false dossier data must be rejected before the gate\npredicate runs. This is fixture simulation. It is not a live model\nevaluation, cloud execution, or approval decision. The deliberate defect is only in\ngate dot js. The starter decides from aggregate pass rate alone. That lets an\naggregate of ninety-one point sixty-seven percent pass even when one critical check\nfails. Edit only gate dot js. Preserve the parser and validator. The correct\ndecision combines independent conditions. Identity must match exactly. Baseline and\ncandidate results must be present and nonempty. Evidence must be complete.\nDenominators must be truthful. The aggregate must reach ninety percent. There\nmust be no critical failure. Both service objectives must pass, and recovery must\nsucceed. The gate fails closed when any one of these conditions fails. Do not\nreject every input, inspect a fixture name, or hard-code check C zero six. Those\nshortcuts would hide defects and fail the valid all-pass case. The starter\noutput is pass with an aggregate of ninety-one point sixty-seven percent and\none critical failure. The repaired output is reject with the same aggregate, one\ncritical failure, and the reason critical failure C zero six. The repaired process\nexit code is two, while the starter process exit code is zero. Install the\nstarter and predict the test result before looking at the answer. Sixteen of\ntwenty-four tests pass, so the process exits with code one. The failures identify\nthe causal gaps: a critical failure was averaged away, exact output and exit\nbehavior were wrong, identity mismatch was accepted, denominators were mismatched,\nevidence was incomplete, the aggregate was too low, a service failed, or recovery\nfailed. Now apply the focused repair. Run the independent learner tests. Then\ncompare them with the independent reference implementation. Both should pass\nall twenty-four tests and exit with code zero. Timing fields in Node test output\ncan vary, so compare the meaningful result, counts, and exit code. Restore the\nstarter when you need to repeat the exercise. These tests show gate behavior\non supplied dossiers. They do not establish a real release approval. The causal answer is that aggregate-only\nlogic answers the wrong question. Eleven ordinary passes cannot compensate for an\nunauthorized write. The repair composes independent conditions and reports the\nfailed condition. Identity mutations produce identity-mismatch. Omitted\nevidence produces evidence-incomplete. A declared denominator inconsistent with\nrecords produces denominator-mismatch. Aggregate, service, and recovery failures\nproduce their own reasons. Empty identities, a missing baseline, or a\nrecovery label that has no bound evidence are validation errors, not PASS inputs.\nThe validator also rejects unknown fields, type errors, malformed schema versions,\ncondition drift, duplicate evidence, wrongly bound evidence, and false\narithmetic. The decision must use parsed content. Renaming a generated file or\nchanging a noncritical case while recomputing its denominator must not alter\nthe logic. A filename check or memorized answer would therefore be wrong. The lab\nproves gate behavior over trusted synthetic records only. It does not scan,\nattest, benchmark, approve, or observe a live model or endpoint. Now complete the changed-input task.\nImagine the candidate record is changed so all twelve cases pass, every bound\nevidence record remains present, identity still matches, both service objectives\npass, and recovery passes. The input is valid, but its filename is changed. Before\nviewing the answer, state the aggregate numerator and denominator, critical\nfailure count, exact expected output, exit code, and why deny-all is not a valid\nrepair. Also explain what happens if a noncritical case changes while its\ninteger denominator is recomputed consistently. The changed valid dossier has 12 of 12\npassing cases. Twelve divided by twelve is 1.00, or 100.00 percent. It has zero\ncritical failures. The exact output is PASS aggregate=100.00% criticalFailures=0\nfollowed by a newline, and the exit code is 0. A renamed file must receive the same\ndecision because the gate reads validated content, not a filename. A\nchanged noncritical case can still pass when its record, evidence, and recomputed\ninteger denominator remain truthful and all other conditions hold. Deny-all is not\na repair because the gate must distinguish a dossier with a critical failure from a\nvalid positive control. The all-pass variation demonstrates that the predicate\nis selective and fail-closed, not universally negative. Issue one explicit disposition and\npreserve the evidence. Link every claim to cases, results, graders, and thresholds.\nRecord exact baseline and candidate identities, critical findings,\nuncertainty, exceptions, compensating controls, intended reviewers and\nauthority, monitoring, expiry, stop conditions, and rollback criteria. The\nsigned-paper disposition in this fixture says REJECT, but every listed signature is\nexplicitly fictional and unperformed. It is a teaching record, not an approval. If\nidentity or evidence were missing, the correct disposition would be HOLD FOR\nEVIDENCE rather than PASS. If C06 appeared after promotion, the correct disposition\nwould be ROLL BACK. A future authorized deployment would monitor unauthorized tool\nattempts, policy denials, secret-pattern alerts, p95 latency under the declared\nmethod, crash rate, dependency recovery, and slice regressions. Re-run the full\ngate after any artifact, tokenizer, template, adapter, runtime, quantization,\nhardware, policy, configuration, data, traffic, case-set, or grader change, and\nno later than evidence expiry. Roll back on a critical prohibited effect,\npersistent service-objective breach for the declared window, failed recovery test,\nor identity drift. Kubernetes security guidance is configuration guidance, not\nproof that a deployed control is enforced. Now create the exact-build release gate.\nDefine one synthetic immutable serving build, five supported claims, three\nprohibited effects, two service objectives, and one recovery claim. Use\nthe supplied twelve cases: C01 and C02 representative grounded answers, C03\nSpanish, C04 short context, C05 prompt injection, C06 critical authorization, C07\naccessibility, C08 dependency failure, C09 incident, C10 overload, and C11 and C12\nsealed holdouts. Assign deterministic, blinded human, or calibrated\nmodel-assisted graders. Compare nonempty baseline and candidate results under the\nsame explicit conditions. Report exact integer arithmetic by slice and\ndistribution. Then issue pass, bounded pilot, hold, reject, or rollback with\nevidence links, authority, monitoring, expiry, and regression additions. Remember\nthat the activity uses synthetic fixture records and does not invoke an endpoint. Begin the knowledge check when you can\nidentify the exact evaluation target, protect holdout independence, bound\nmodel-assisted grading, preserve a must-not-regress gate, explain slice\nreporting, distinguish the original C06 failure from the changed all-pass case,\nand name the authorized human release decision. The check starts only when you\nchoose Begin knowledge check. Remember the central rule: evaluate the\nimmutable system you will deploy, not a family label or unrelated benchmark. Write\nclaims before evidence, keep holdouts independent, preserve exact case and\nidentity bindings, keep every grader bounded, expose critical slices, reject\nmalformed and incomplete dossiers, and never average away a prohibited effect. In\nthis synthetic dossier, 11 of 12 and 91.67 percent still means REJECT because\nC06 performs an unauthorized write. A valid changed dossier with 12 of 12 and\n100.00 percent can pass because the gate is not deny-all. Evidence supports\nthe decision, but accountable humans decide promotion, pilot, hold, rejection,\nor rollback.",
+    "reducedMotionAlternative": "Show the title card and notice without animation. Display the complete register as a static table. Present all identity fields in a static selectable table. Present the mappings and dispositions as static text. Show the matrix without moving rows or animated highlights. Use a static table and readable arithmetic instead of animation. Display static tables with no animated chart transitions. Show the arithmetic and result table statically. Present commands and recorded results as static selectable text. Show the disposition form without signatures appearing or animating. Leave the final rules displayed without animation."
+  }
 }
