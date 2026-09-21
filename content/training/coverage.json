@@ -524,7 +524,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "model-incident-response-and-recovery-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/model-incident-response-and-recovery/class-script.json"
     },
     {
@@ -782,7 +782,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "scaling-failure-and-capacity-controls-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/scaling-failure-and-capacity-controls/class-script.json"
     },
     {

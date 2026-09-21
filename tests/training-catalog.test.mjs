@@ -1108,9 +1108,9 @@ test("publishes the complete scaling, failure, and capacity-controls class", () 
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1250);
+  assert.equal(script.spokenWordCount, 3064);
   assert.equal(script.releaseStatus, "draft");
-  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
   assert.equal(script.provenance.approvals.length, 0);
   for (const section of module.sections) {
     assert.ok(
@@ -1196,9 +1196,9 @@ test("publishes the complete model incident response and recovery class", () => 
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1152);
+  assert.equal(script.spokenWordCount, 2024);
   assert.equal(script.releaseStatus, "draft");
-  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
   assert.equal(script.provenance.approvals.length, 0);
   for (const section of module.sections) {
     assert.ok(
