@@ -124,8 +124,10 @@ test("self-hosted model unit preserves prerequisites and evidence boundaries", (
   assert.match(integrityText, /digest/i);
   assert.match(integrityText, /signature/i);
   assert.match(integrityText, /provenance/i);
-  assert.match(integrityText, /fail closed/i);
-  assert.match(integrityText, /last verified bundle/i);
+  assert.match(integrityText, /must not enter a trusted runtime until every required control reaches PASS/i);
+  assert.match(integrityText, /HOLD means evidence is incomplete and promotion pauses/i);
+  assert.match(integrityText, /REJECT means a control failed and serving remains blocked/i);
+  assert.match(integrityText, /last verified immutable identity/i);
   assert.doesNotMatch(
     integrityText,
     /curl\s+[^|]+\|\s*(?:sh|bash)|trust_remote_code\s*[:=]\s*true/i,
@@ -174,3 +176,4 @@ test("self-hosted model unit preserves prerequisites and evidence boundaries", (
     assert.match(capstoneText, new RegExp(requiredEvidence, "i"));
   }
 });
+
