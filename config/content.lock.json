@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "afd2f4cf958d7be8a85d300eb07bac6e5863b6fe"
+    "commit": "14817bbc447744ac9b5aadd67f46968bec8af3a0"
   },
   "contentVersion": "0.42.0",
   "files": {
