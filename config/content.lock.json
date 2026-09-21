@@ -811,7 +811,7 @@
     "training/self-hosted-model-operations/model-identity-license-and-provenance/lab/recovery/reset.mjs": "1eacfd8c1e2566c811274cfecb79268cd8c0d66d4ff0444aadb487a6c8ce6fc2",
     "training/self-hosted-model-operations/model-identity-license-and-provenance/lab/recovery/starter.evaluate.mjs": "ef45a8c68dc5dac2c74239a794143cd88fd6c39f9be2d9e0cd9445db57f05f4d",
     "training/self-hosted-model-operations/model-identity-license-and-provenance/lab/solution/reference.mjs": "772647d8d6ebd643c9ba2ee12504a03913f1d5669b392856d5cfec6341195a0a",
-    "training/self-hosted-model-operations/model-identity-license-and-provenance/lab/solution/repair.patch": "da9082235ef4a065fcf76c1d62cddc23ee74b7e680aa1bb23b8bc957da87ab7c",
+    "training/self-hosted-model-operations/model-identity-license-and-provenance/lab/solution/repair.patch": "0635c351ea87c5bb525682457dd55ee42260513459ee62f69327410b4840e0c0",
     "training/self-hosted-model-operations/model-identity-license-and-provenance/lab/src/assess.mjs": "2d07b562eee5cb64e11d80a1ec39263f1114a65040b983c0076cf6d5b2bab052",
     "training/self-hosted-model-operations/model-identity-license-and-provenance/lab/src/cli.mjs": "5e87d2594ceb64c28654590cb442871ff7fa635d92d52d35d35c1d60885c4aee",
     "training/self-hosted-model-operations/model-identity-license-and-provenance/lab/src/date.mjs": "91762d0ef60a3cb1dd4371a98b54b1586c05b537d39f80e4ff4c2ef98b07a765",

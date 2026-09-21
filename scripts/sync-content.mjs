@@ -69,6 +69,7 @@ const TEXT_EXTENSIONS = [
   ".lock",
   ".md",
   ".mmd",
+  ".patch",
   ".py",
   ".ps1",
   ".svg",
