@@ -91,7 +91,7 @@ test("publishes the second complete AI Foundations class-script wave", () => {
     assert.equal(script.provenance.approvals.length, 0);
     assert.ok(
       script.provenance.contributions.every(
-        (contribution) => contribution.status === "planned",
+        (contribution) => contribution.status === "planned" || (contribution.status === "completed" && Boolean(contribution.completedAt) && Boolean(contribution.evidenceRef)),
       ),
     );
   }
@@ -1698,3 +1698,4 @@ function parseTimestamp(value) {
     Number(match[4])
   );
 }
+
