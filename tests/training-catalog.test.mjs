@@ -820,7 +820,7 @@ test("publishes the first complete Self-Hosted Model Operations class", () => {
 test("publishes complete model identity and artifact-integrity classes", () => {
   const expected = new Map([
     ["model-identity-license-and-provenance", 2057],
-    ["model-artifact-integrity", 992],
+    ["model-artifact-integrity", 1488],
   ]);
 
   for (const [moduleId, spokenWordCount] of expected) {
