@@ -266,7 +266,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "deployment-shape-and-operating-model-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/deployment-shape-and-operating-model/class-script.json"
     },
     {
@@ -285,7 +285,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "endpoint-identity-network-and-secrets-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/endpoint-identity-network-and-secrets/class-script.json"
     },
     {
@@ -296,7 +296,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "evaluate-the-exact-serving-build-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/evaluate-the-exact-serving-build/class-script.json"
     },
     {

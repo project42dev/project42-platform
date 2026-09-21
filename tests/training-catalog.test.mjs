@@ -783,13 +783,13 @@ test("publishes the first complete Self-Hosted Model Operations class", () => {
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1727);
+  assert.equal(script.spokenWordCount, 2982);
   assert.equal(script.releaseStatus, "draft");
-  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
   assert.equal(script.provenance.approvals.length, 0);
   assert.ok(
     script.provenance.contributions.every(
-      (contribution) => contribution.status === "planned",
+      (contribution) => ["evidence-research", "curriculum-writing", "factual-verification"].includes(contribution.role) ? contribution.status === "completed" : contribution.status === "planned",
     ),
   );
   for (const section of module.sections) {
@@ -976,9 +976,9 @@ test("publishes the complete endpoint identity, network, and secrets class", () 
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1253);
+  assert.equal(script.spokenWordCount, 2277);
   assert.equal(script.releaseStatus, "draft");
-  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
   assert.equal(script.provenance.approvals.length, 0);
   for (const section of module.sections) {
     assert.ok(
@@ -1020,9 +1020,9 @@ test("publishes the complete exact-serving-build evaluation class", () => {
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1249);
+  assert.equal(script.spokenWordCount, 2763);
   assert.equal(script.releaseStatus, "draft");
-  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
   assert.equal(script.provenance.approvals.length, 0);
   for (const section of module.sections) {
     assert.ok(
