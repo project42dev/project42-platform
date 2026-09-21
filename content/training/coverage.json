@@ -535,7 +535,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "model-update-and-rollback-lifecycle-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/model-update-and-rollback-lifecycle/class-script.json"
     },
     {
@@ -565,7 +565,7 @@
       "status": "class-ready-draft",
       "instructorSchemaVersion": "1.1",
       "classScriptId": "observability-cost-and-performance-class",
-      "classScriptVersion": "1.0.0",
+      "classScriptVersion": "2.0.0",
       "classScriptPath": "content/training/self-hosted-model-operations/observability-cost-and-performance/class-script.json"
     },
     {

@@ -1064,9 +1064,9 @@ test("publishes the complete observability, cost, and performance class", () => 
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 2166);
+  assert.equal(script.spokenWordCount, 2708);
   assert.equal(script.releaseStatus, "draft");
-  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
   assert.equal(script.provenance.approvals.length, 0);
   for (const section of module.sections) {
     assert.ok(
@@ -1152,9 +1152,9 @@ test("publishes the complete model update and rollback lifecycle class", () => {
     valid: true,
     errors: [],
   });
-  assert.equal(script.spokenWordCount, 1591);
+  assert.equal(script.spokenWordCount, 3072);
   assert.equal(script.releaseStatus, "draft");
-  assert.equal(script.provenance.canonicalContentVersion, "0.41.0");
+  assert.equal(script.provenance.canonicalContentVersion, "0.42.0");
   assert.equal(script.provenance.approvals.length, 0);
   for (const section of module.sections) {
     assert.ok(
