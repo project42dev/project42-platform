@@ -129,6 +129,7 @@ export default async function DiagramPage({ params }: DiagramPageProps) {
 
       <figure className="diagram-figure">
         <div className="diagram-canvas">
+          {isNativeLesson && <span className="visually-hidden">{diagram.altText}</span>}
           {isOrchardLifecycle ? (
             <OrchardLifecycleLesson data={orchardLifecycle} />
           ) : isContentFreshness ? (
