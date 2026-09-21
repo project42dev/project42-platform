@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "0f32eee5c5e7c5504bfe9d44c08146d22d1aa936"
+    "commit": "39f48ae507ceb46a108d37e53f259c6800923a1a"
   },
   "contentVersion": "0.42.0",
   "files": {
@@ -169,7 +169,7 @@
     "resources/coding-tools/devin-operating-card.json": "b06de304a154b82a76088a03946e304b2df145016aaa78f28202c04e04812207",
     "resources/coding-tools/gemini-cli-operating-card.json": "b4449b2ba01046e11cabb4c789336875f4c609c9c8e4f23fffea8afeafd8eb27",
     "resources/coding-tools/github-copilot-operating-card.json": "353ee88e4ce91c9f278fd79bee97921b848edbf3b34fb64ad4925812e005d095",
-    "resources/coding-tools/jules-operating-card.json": "bfcd1f8b157cbca80c0e84ef6b8b380757fc1fcf9764d228a5debc55d8723bb5",
+    "resources/coding-tools/jules-operating-card.json": "2e95103a37e2fef2d18522ac883ac179f85aa99b52132723a1760c6856fe6426",
     "resources/coding-tools/kilo-code-operating-card.json": "0126ee05564ffa605bfdcfbc7165d536ee87ffd17d29f05f1edbf514f13c6355",
     "resources/coding-tools/openclaw-operating-card.json": "50823176894c15b204e9f5cfe67b0d86bef149c4d3184d3fffd0865710b3f496",
     "resources/coding-tools/opencode-operating-card.json": "595e9298da5b6d2595da620c145701078394167e28223a0a7009508d19e6d59f",
@@ -234,7 +234,7 @@
     "resources/troubleshooting-operations/ai-incident-triage.json": "b048fe817a7caac06d8d98a0367de693b4b34bd5d53965b56810b61cbe4b7ba9",
     "resources/troubleshooting-operations/ai-rollback-and-incident-closeout.json": "f21e67f31906cc3565db0781e3567d24195e8c70bc59907f1cb87a2bb9fdcf61",
     "resources/troubleshooting-operations/context-quality-regression-triage.json": "39af3ac65bb59725ec1763a5f80137915e509504f5277a16645461cc196e553a",
-    "source-registry.json": "b1878ed5140ebcf53fb381ba94240baeda33c2a323eb77c0e8d92ad8d43c5a94",
+    "source-registry.json": "9f3860feab6adb48dde7c49ba5f79c25af9e822ad44b5d5d45207e83cfdf0d70",
     "training/agentic-ai-literacy/delivery-contract.json": "02aa762a549b3926d07e1b9a5d64c811b32f2369e19c36f6769fd9a2798df1e3",
     "training/agentic-systems-and-mcp/model-context-protocol-mcp/lab/cache-scope-regression.mjs": "bca0a8549f4654182781ceb610d7578da97b64d7f6694e6bb0bd7987d205d90f",
     "training/agentic-systems-and-mcp/model-context-protocol-mcp/lab/host-lib.mjs": "6a26c2a43d02762ee9b2d0768382e8e4652f782043f7090cd6b16dbb1b391e1a",
