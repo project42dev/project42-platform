@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "source": "https://github.com/project42dev/project42-content",
   "upstream": {
-    "commit": "39f48ae507ceb46a108d37e53f259c6800923a1a"
+    "commit": "325f53c162693155053d95a134814f9f04ef60fd"
   },
   "contentVersion": "0.42.0",
   "files": {
     "catalog.json": "58db1f1f60e9024f903209156526d700b06a45bba2e2249f42bebb8fdbe54d6a",
     "diagrams/agent-orchestration.mmd": "9c916bea4b29e448bceae7758d1fff3867c2e99da51b3e89237397c05c95c72a",
-    "diagrams/catalogue.json": "ea4927a536022bc6f7353e774b0dc82f71ba768f17eba761120c3c23321e4cc1",
+    "diagrams/catalogue.json": "047e14c01163f88a73a7588e4418de78460ab585f5e8efe672cf18cb2cd88ecf",
     "diagrams/content-freshness-release.mmd": "ae9c4733bdc317f05fdf7c26c20936d627f64a8cda246cfbea5e9876e2f54bc4",
     "diagrams/cost-and-capacity-management.mmd": "a50cf355bd46f30b6d1f02d67c348f2e8272106f33a5c979e25fc61b80a84738",
     "diagrams/grounded-answer-workflow.mmd": "695373c14bff83c3868c7a5de4bf01ac7526fbf638add2cbc194e95913f7a65f",
@@ -263,7 +263,7 @@
     "training/ai-foundations/agents-and-guardrails/alternatives/en-US-reduced-motion.md": "edcfe87bb59d999421d918b821b55ca054f5d4691e4a61cb3149a8182fc2d809",
     "training/ai-foundations/agents-and-guardrails/alternatives/en-US-text-only.md": "58c959e7550b1f23d70e0d8166ba3d8e6a524144f53238db4002622298a5a6de",
     "training/ai-foundations/agents-and-guardrails/captions/en-US.vtt": "8b3dfd227521a4166f21928a3948adaef9fd8591f163d6b30ef9a38116b7eb52",
-    "training/ai-foundations/agents-and-guardrails/class-script.json": "3d07eb5b4d60af95110dabc62c8188afff5e3945bc18c1ef301730633277fdab",
+    "training/ai-foundations/agents-and-guardrails/class-script.json": "26e5b67ccc69665ba315f06f3bbccd3e492892df0f38dc769e3df43bf021843b",
     "training/ai-foundations/agents-and-guardrails/diagrams/agent-contract.mmd": "50b35363208a1d88e14997390bb5f507929c8135be8fc49871f81b306a583366",
     "training/ai-foundations/agents-and-guardrails/diagrams/guardrail-layers.mmd": "06bbb910a673c2e8914803ac41941f9997df0723336a1f2f167b457db21b9426",
     "training/ai-foundations/agents-and-guardrails/diagrams/recovery-and-handoff.mmd": "2a37ded7733f28b8a18dba53f153bc0435b862e025187a6380b953f443c6d2bb",
