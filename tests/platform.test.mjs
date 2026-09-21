@@ -2381,7 +2381,7 @@ test("publishes distinct evaluation, observability, review, and operations modul
     assert.ok(module.sections.length >= 5, `${moduleId} needs substantive lessons`);
     assert.ok(module.activity?.evidence.length >= 2, `${moduleId} needs evidence`);
     assert.equal(module.knowledgeCheck.questions.length,
-      moduleId === "agent-evaluation" ? 8 : moduleId === "agent-observability" ? 7 : 5);
+      moduleId === "agent-evaluation" ? 8 : ["agent-observability", "operate-and-recover-agent-systems"].includes(moduleId) ? 7 : 5);
     assert.ok(
       new Set(module.knowledgeCheck.questions.map((question) => question.answerIndex))
         .size >= 3,
@@ -2414,8 +2414,8 @@ test("publishes a calibrated evidence-mapped reliable-agent capstone", () => {
   assert.equal(path.moduleIds.at(-1), module.id);
   assert.ok(module.prerequisites.includes("review-agent-results"));
   assert.ok(module.prerequisites.includes("operate-and-recover-agent-systems"));
-  assert.equal(module.sections.length, 6);
-  assert.equal(module.knowledgeCheck.questions.length, 5);
+  assert.equal(module.sections.length, 8);
+  assert.equal(module.knowledgeCheck.questions.length, 7);
   assert.equal(module.instructorScript?.schemaVersion, "1.1");
   assert.equal(module.capstone.requiredArtifacts.length, 8);
   assert.equal(module.capstone.requiresCriterionEvidence, true);

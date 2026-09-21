@@ -1444,8 +1444,8 @@ test("publishes complete agent evaluation, operations, and capstone packages", (
     ["agent-evaluation", 2346],
     ["agent-observability", 2345],
     ["review-agent-results", 1279],
-    ["operate-and-recover-agent-systems", 945],
-    ["reliable-agent-capstone", 1178],
+    ["operate-and-recover-agent-systems", 2513],
+    ["reliable-agent-capstone", 2131],
   ]);
 
   for (const [moduleId, expectedWordCount] of expectedWordCounts) {
