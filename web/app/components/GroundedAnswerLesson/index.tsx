@@ -186,6 +186,7 @@ export function GroundedAnswerLesson({ data }: GroundedAnswerLessonProps) {
   useEffect(() => {
     if (!navigationIntent) return;
     detailHeadingRef.current?.focus();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- announce focus-driven lesson navigation to assistive technology
     setAnnouncement(navigationIntent.announcement);
   }, [navigationIntent]);
 
